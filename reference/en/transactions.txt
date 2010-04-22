@@ -1,0 +1,41 @@
+Doctrine handles transactions with a PDO like API, having methods for `beginTransaction()`, `commit()` and `rollBack()`. For consistency across different drivers Doctrine also handles the nesting of transactions internally. You can call `beginTransaction()` more than once, and only a matching amount of calls to `commit()` triggers the commit to the database.
+
+
+The Doctrine connection also has a method to set the transaction isolation level of the connection as supported by the underlying database. Here are the available isolation level constants that can be used:
+
+    [php]
+    class Connection
+    {
+        /**
+         * Constant for transaction isolation level READ UNCOMMITTED.
+         */
+        const TRANSACTION_READ_UNCOMMITTED = 1;
+        
+        /**
+         * Constant for transaction isolation level READ COMMITTED.
+         */
+        const TRANSACTION_READ_COMMITTED = 2;
+        
+        /**
+         * Constant for transaction isolation level REPEATABLE READ.
+         */
+        const TRANSACTION_REPEATABLE_READ = 3;
+        
+        /**
+         * Constant for transaction isolation level SERIALIZABLE.
+         */
+        const TRANSACTION_SERIALIZABLE = 4;
+    }
+
+Then you can use the above constants when configuring your connection instance:
+
+    [php]
+    $conn->setTransactionIsolationLevel(Connection::TRANSACTION_SERIALIZABLE);
+
+    try{
+        $conn->beginTransaction();
+        // do stuff
+        $conn->commit();
+    } catch(\Exception $e) {
+        $conn->rollback();
+    }

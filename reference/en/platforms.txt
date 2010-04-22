@@ -1,0 +1,20 @@
+Platforms abstract query generation and specifics of the RDBMS feature sets. In most cases you don't need to interact with this package a lot, but there might be certain cases when you are programming database independent where you want to access the platform to generate queries for you.
+
+The platform can be accessed from any `Doctrine\DBAL\Connection` instance by calling the `getDatabasePlatform()` method.
+
+    [php]
+    $platform = $conn->getDatabasePlatform();
+
+When creating a connection you can specify a `platform` key to pass the platform
+you want the connection to use:
+
+    [php]
+    $myPlatform = new MyPlatform();
+    $options = array(
+        'driver' => 'pdo_sqlite',
+        'path' => 'database.sqlite',
+        'platform' => $myPlatform
+    );
+    $conn = DriverManager::getConnection($options);
+
+This way you can optimize your schema or generated SQL code with features that might not be portable for instance, however are required for your special needs.

@@ -1,0 +1,32 @@
+You can create a new Doctrine Connection by using the `Doctrine\DBAL\DriverManager` class and the `getConnection()` static function:
+
+    [php]
+    $config = new \Doctrine\DBAL\Configuration();
+    //..
+
+    $connectionParams = array(
+        'dbname' => 'mydb',
+        'user' => 'user',
+        'password' => 'secret',
+        'host' => 'locahlost',
+        'driver' => 'pdo_mysql',
+    );
+    $conn = DriverManager::getConnection($connectionParams);
+
+The `DriverManager` returns an instance of `Doctrine\DBAL\Connection` which is a wrapper around any configured database driver, for example the PDO Mysql driver in the previous example.
+
+++ Connection Options
+
+Common Configuration Options across all database drivers:
+
+ * **driver** - Allows to specify the default drivers shipped with Doctrine 2, 'pdo_mysql', 'pdo_sqlite', 'pdo_pgsql, and 'oci'.
+ * **driverClass** - If no 'driver' is specified this allows usage of a userland implementation of Doctrine\DBAL\Driver.
+ * **pdo** - If PDO is already instantiated for Mysql, SqLite or PgSQL this key can be used to pass this instance into Doctrine.
+ * **wrapperClass** - By default Doctrine\DBAL\Connection is wrapped around each driver, however this option allows to specify a userland sub-class.
+
+Driver Configuration Options can be different for each Database Driver, here are some of the driver specific ones:
+
+ * **platform** - An instance of `Doctrine\DBAL\Platforms\AbstractPlatform`. This is only required for userland implementations, each driver shipped with Doctrine 2 has a default platform.
+ * **user** - Username required to connect to the database.
+ * **password** - Password required to connect to the database.
+ * **driverOptions** - Array of options passed to the driver instance on calling to Driver::connect.

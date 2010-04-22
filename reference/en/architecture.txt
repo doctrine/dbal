@@ -1,0 +1,26 @@
+The DBAL is separated into several different packages that perfectly separate responsibilities of the different RDBMS layers.
+
+++ Drivers
+
+The drivers abstract a PHP specific database API by enforcing two interfaces:
+
+ * `\Doctrine\DBAL\Driver\Driver`
+ * `\Doctrine\DBAL\Driver\Statement`
+
+The above two interfaces require exactly the same methods as PDO.
+
+++ Platforms
+
+The platforms abstract the generation of queries and which database features a platform supports. The `\Doctrine\DBAL\Platforms\AbstractPlatform` defines the common denominator of what a database platform has to publish to the userland, to be fully supportable by Doctrine. This includes the SchemaTool, Transaction Isolation and many other features. The Database platform for MySQL for example can be used by all 3 mysql extensions, PDO, Mysqli and ext/mysql.
+
+++ Logging
+
+The logging holds the interface and some implementations for debugging of Doctrine SQL query execution during a request.
+
+++ Schema
+
+The schema offers an API for each database platform to execute DDL statements against your platform or retrieve metadata about it. It also holds the Schema Abstraction Layer which is used by the different Schema Management facilities of Doctrine DBAL and ORM.
+
+++ Types
+
+The types offer an abstraction layer for the converting and generation of types between Databases and PHP. Doctrine comes bundled with some common types but offers the ability for developers to define custom types or extend existing ones easily.

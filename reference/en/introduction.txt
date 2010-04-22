@@ -1,0 +1,13 @@
+The Doctrine 2 database layer can be used independently of the object-relational mapping. It offers a lightweight abstraction layer around a PDO like API and allows optional access to lots of convenience functionality as the ability to generate platform independent SQL and DDL statements.
+
+In order to use the DBAL all you need is the `Doctrine\Common` and `Doctrine\DBAL` namespaces. Once you have the Common and DBAL namespaces you must setup a class loader to be able to autoload the classes:
+
+    [php]
+    use Doctrine\Common\ClassLoader;
+
+    require '/path/to/doctrine';
+
+    $classLoader = new ClassLoader('Doctrine', '/path/to/doctrine');
+    $classLoader->register();
+
+Now you are able load classes that are in the `/path/to/doctrine` directory like `/path/to/doctrine/Doctrine/DBAL/DriverManager.php` which we will use later in this documentation to configure our first Doctrine DBAL connection.

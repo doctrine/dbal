@@ -1,1 +1,10 @@
-+ Database Abstraction Layer
++ Introduction
++ Architecture
++ Configuration
++ Events
++ Data Retrieval and Manipulation
++ Transactions
++ Platforms
++ Schema Manager
++ Schema Representation
++ Supporting Other Databases
