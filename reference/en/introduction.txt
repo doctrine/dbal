@@ -5,7 +5,7 @@ In order to use the DBAL all you need is the `Doctrine\Common` and `Doctrine\DBA
     [php]
     use Doctrine\Common\ClassLoader;
 
-    require '/path/to/doctrine';
+    require '/path/to/doctrine/lib/Doctrine/Common/ClassLoader.php';
 
     $classLoader = new ClassLoader('Doctrine', '/path/to/doctrine');
     $classLoader->register();
