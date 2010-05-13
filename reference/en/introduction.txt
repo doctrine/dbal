@@ -10,4 +10,4 @@ In order to use the DBAL all you need is the `Doctrine\Common` and `Doctrine\DBA
     $classLoader = new ClassLoader('Doctrine', '/path/to/doctrine');
     $classLoader->register();
 
-Now you are able load classes that are in the `/path/to/doctrine` directory like `/path/to/doctrine/Doctrine/DBAL/DriverManager.php` which we will use later in this documentation to configure our first Doctrine DBAL connection.
+Now you are able to load classes that are in the `/path/to/doctrine` directory like `/path/to/doctrine/Doctrine/DBAL/DriverManager.php` which we will use later in this documentation to configure our first Doctrine DBAL connection.
