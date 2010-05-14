@@ -141,7 +141,7 @@ The `$sql` array should give you a sql query to drop the user table:
 
     [php]
     print_r($sql);
-    
+
     /*
     array(
       0 => 'DROP TABLE user'

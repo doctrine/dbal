@@ -1,9 +1,10 @@
-You can create a new Doctrine Connection by using the `Doctrine\DBAL\DriverManager` class and the `getConnection()` static function:
+++ Getting a Connection
+
+You can get a DBAL Connection through the `Doctrine\DBAL\DriverManager` class.
 
     [php]
     $config = new \Doctrine\DBAL\Configuration();
     //..
-
     $connectionParams = array(
         'dbname' => 'mydb',
         'user' => 'user',
@@ -13,20 +14,106 @@ You can create a new Doctrine Connection by using the `Doctrine\DBAL\DriverManag
     );
     $conn = DriverManager::getConnection($connectionParams);
 
-The `DriverManager` returns an instance of `Doctrine\DBAL\Connection` which is a wrapper around any configured database driver, for example the PDO Mysql driver in the previous example.
+The `DriverManager` returns an instance of `Doctrine\DBAL\Connection` which is a
+wrapper around the underlying driver connection (which is often a PDO instance).
 
-++ Connection Options
+The following sections describe the available connection parameters in detail.
 
-Common Configuration Options across all database drivers:
++++ Driver
 
- * **driver** - Allows to specify the default drivers shipped with Doctrine 2, 'pdo_mysql', 'pdo_sqlite', 'pdo_pgsql, and 'oci'.
- * **driverClass** - If no 'driver' is specified this allows usage of a userland implementation of Doctrine\DBAL\Driver.
- * **pdo** - If PDO is already instantiated for Mysql, SqLite or PgSQL this key can be used to pass this instance into Doctrine.
- * **wrapperClass** - By default Doctrine\DBAL\Connection is wrapped around each driver, however this option allows to specify a userland sub-class.
+The driver specifies the actual implementations of the DBAL interfaces to use.
+It can be configured in one of three ways:
 
-Driver Configuration Options can be different for each Database Driver, here are some of the driver specific ones:
+* `driver`: The built-in driver implementation to use. The following drivers are currently available:
+    * `pdo_mysql`: A MySQL driver that uses the pdo_mysql PDO extension.
+    * `pdo_sqlite`: An SQLite driver that uses the pdo_sqlite PDO extension.
+    * `pdo_pgsql`: A PostgreSQL driver that uses the pdo_pgsql PDO extension.
+    * `pdo_oci`: An Oracle driver that uses the pdo_oci PDO extension. **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
+    * `oci8`:` An Oracle driver that uses the oci8 PHP extension.
+* `driverClass`: Specifies a custom driver implementation if no 'driver' is specified. This allows the use of custom drivers that are not part of the Doctrine DBAL itself.
+* `pdo`: Specifies an existing PDO instance to use.
 
- * **platform** - An instance of `Doctrine\DBAL\Platforms\AbstractPlatform`. This is only required for userland implementations, each driver shipped with Doctrine 2 has a default platform.
- * **user** - Username required to connect to the database.
- * **password** - Password required to connect to the database.
- * **driverOptions** - Array of options passed to the driver instance on calling to Driver::connect.
++++ Wrapper Class
+
+By default a `Doctrine\DBAL\Connection` is wrapped around a driver `Connection`.
+The `wrapperClass` option allows to specify a custom wrapper implementation to use,
+however, custom wrapper class must be a subclass of `Doctrine\DBAL\Connection`.
+
++++ Connection Details
+
+The connection details identify the database to connect to as well as the
+credentials to use. The connection details can differ depending on the used
+driver. The following sections describe the options recognized by each built-in
+driver.
+
+> *NOTE*
+> When using an existing PDO instance through the `pdo` option, specifying
+> connection details is obviously not necessary.
+
+++++ pdo_sqlite
+
+* `user` (string): Username to use when connecting to the database.
+* `password` (string): Password to use when connecting to the database.
+* `path` (string): The filesystem path to the database file. Mutually exclusive with `memory`. `path` takes precedence.
+* `memory` (boolean): True if the SQLite database should be in-memory (non-persistent). Mutually exclusive with `path`. `path` takes precedence.
+
+++++ pdo_mysql
+
+* `user` (string): Username to use when connecting to the database.
+* `password` (string): Password to use when connecting to the database.
+* `host` (string): Hostname of the database to connect to.
+* `port` (integer): Port of the database to connect to.
+* `dbname` (string): Name of the database/schema to connect to.
+* `unix_socket` (string): Name of the socket used to connect to the database.
+
+++++ pdo_pgsql
+
+* `user` (string): Username to use when connecting to the database.
+* `password` (string): Password to use when connecting to the database.
+* `host` (string): Hostname of the database to connect to.
+* `port` (integer): Port of the database to connect to.
+* `dbname` (string): Name of the database/schema to connect to.
+
+++++ pdo_oci / oci8
+
+* `user` (string): Username to use when connecting to the database.
+* `password` (string): Password to use when connecting to the database.
+* `host` (string): Hostname of the database to connect to.
+* `port` (integer): Port of the database to connect to.
+* `dbname` (string): Name of the database/schema to connect to.
+* `charset` (string): The charset used when connecting to the database.
+
++++ Custom Platform
+
+Each built-in driver uses a default implementation of `Doctrine\DBAL\Platforms\AbstractPlatform`.
+If you wish to use a customized or custom implementation, you can pass a precreated instance
+in the `platform` option.
+
++++ Custom Driver Options
+
+The `driverOptions` option allows to pass arbitrary options through to the driver.
+This is equivalent to the 4th argument of the [PDO constructor](http://php.net/manual/en/pdo.construct.php).
+
++++ Events
+
+++++ PostConnect Event
+
+`Doctrine\DBAL\Events::postConnect` is triggered right after the connection to
+the database is established. It allows to specify any relevant connection
+specific options and gives access to the `Doctrine\DBAL\Connection` instance
+that is responsible for the connection management via an instance of
+`Doctrine\DBAL\Event\ConnectionEventArgs` event arguments instance.
+
+Doctrine is already shipped with two implementations for the "PostConnect" event:
+
+* `Doctrine\DBAL\Event\Listeners\OracleSessionInit` allows to specify any number of Oracle Session related enviroment variables that are set right after the connection is established.
+* `Doctrine\DBAL\Event\Listeners\MysqlSessionInit` allows to specify the Charset and Collation of the Client Connection if these options are not configured correctly on the MySQL server side.
+
+You can register events by subscribing them to the `EventManager` instance
+passed to the Connection factory:
+
+    [php]
+    $evm = new EventManager();
+    $evm->addEventSubscriber(new MysqlSessionInit('UTF8'));
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);

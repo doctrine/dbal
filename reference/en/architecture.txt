@@ -1,3 +1,25 @@
+As already said, the DBAL is a thin layer on top of PDO. PDO itself is mainly defined in terms of 2 classes:
+`PDO` and `PDOStatement`. The equivalent classes in the DBAL are `Doctrine\DBAL\Connection` and
+`Doctrine\DBAL\Statement`. A `Doctrine\DBAL\Connection` wraps a `Doctrine\DBAL\Driver\Connection`
+and a `Doctrine\DBAL\Statement` wraps a `Doctrine\DBAL\Driver\Statement`.
+
+`Doctrine\DBAL\Driver\Connection` and `Doctrine\DBAL\Driver\Statement` are just interfaces.
+These interfaces are implemented by concrete drivers. For all PDO based drivers, `PDO` and
+`PDOStatement` are the implementations of these interfaces. Thus, for PDO-based drivers, a
+`Doctrine\DBAL\Connection` wraps a `PDO` instance and a `Doctrine\DBAL\Statement` wraps a
+`PDOStatement` instance. Even more, a `Doctrine\DBAL\Connection` *is a* `Doctrine\DBAL\Driver\Connection`
+and a `Doctrine\DBAL\Statement` *is a* `Doctrine\DBAL\Driver\Statement`.
+
+What does a `Doctrine\DBAL\Connection` or a `Doctrine\DBAL\Statement` add to the underlying
+driver implementations? The enhancements include SQL logging, events and control over the
+transaction isolation level in a portable manner, among others.
+
+A DBAL driver is defined to the outside in terms of 3 interfaces: `Doctrine\DBAL\Driver`,
+`Doctrine\DBAL\Driver\Connection` and `Doctrine\DBAL\Driver\Statement`.
+The latter two resemble (a subset of) the corresponding PDO API.
+
+A concrete driver implementation must provide implementation classes for these 3 interfaces.
+
 The DBAL is separated into several different packages that perfectly separate responsibilities of the different RDBMS layers.
 
 ++ Drivers
