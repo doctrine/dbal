@@ -28,38 +28,10 @@
     </fileset>
 
     <!-- 
-        Fileset for the sources of the Doctrine Common package.
-    -->
-    <fileset id="common-sources" dir="./lib">
-        <include name="Doctrine/Common/**"/>
-    </fileset>
-
-    <!-- 
         Fileset for the sources of the Doctrine DBAL package.
     -->
     <fileset id="dbal-sources" dir="./lib">
         <include name="Doctrine/DBAL/**"/>
-    </fileset>
-    
-    <!-- 
-        Fileset for the sources of the Doctrine ORM package.
-    -->
-    <fileset id="orm-sources" dir="./lib">
-        <include name="Doctrine/ORM/**"/>
-    </fileset>
-    
-    <!-- 
-        Fileset for the Doctrine ORM tools + sandbox.
-    -->
-    <fileset id="orm-tools" dir=".">
-        <include name="tools/sandbox/Entities"/>
-        <include name="tools/sandbox/xml"/>
-        <include name="tools/sandbox/yaml"/>
-        <include name="tools/sandbox/cli-config.php"/>
-        <include name="tools/sandbox/config.php"/>
-        <include name="tools/sandbox/doctrine"/>
-        <include name="tools/sandbox/doctrine.php"/>
-        <include name="tools/sandbox/index.php"/>
     </fileset>
 
     <target name="clean">
@@ -82,44 +54,16 @@
         <mkdir dir="${report.dir}/tests"/>
     </target>
 
-    <target name="build-common">
-        <copy todir="${build.dir}/common">
-            <fileset refid="shared-artifacts"/>
-        </copy>
-        <copy todir="${build.dir}/common/DoctrineCommon-${version}">
-            <fileset refid="common-sources"/>
-        </copy>
-    </target>
-    
-    <target name="build-dbal">
+    <target name="build-dbal" depends="test">
         <copy todir="${build.dir}/dbal">
             <fileset refid="shared-artifacts"/>
         </copy>
         <copy todir="${build.dir}/dbal/DoctrineDBAL-${version}">
-            <fileset refid="common-sources"/>
             <fileset refid="dbal-sources"/>
         </copy>
     </target>
-    
-    <!-- 
-        Builds all packages, preparing them for distribution.
-    -->
-    <target name="build-orm" depends="test, build-common, build-dbal">
-        <copy todir="${build.dir}/orm">
-            <fileset refid="shared-artifacts"/>
-            <fileset refid="orm-tools"/>
-        </copy>
-        <copy todir="${build.dir}/orm/DoctrineORM-${version}">
-            <fileset refid="common-sources"/>
-            <fileset refid="dbal-sources"/>
-            <fileset refid="orm-sources"/>
-        </copy>
-        <copy todir="${build.dir}/orm/DoctrineORM-${version}/bin">
-            <fileset refid="bin-scripts"/>
-        </copy>
-    </target>
-    
-    <target name="build" depends="test, build-orm"/>
+
+    <target name="build" depends="test, build-dbal"/>
     
     <!-- 
         Runs the full test suite.
@@ -140,7 +84,6 @@
         />
         <phpunitreport infile="${build.dir}/logs/testsuites.xml" format="frames" todir="${report.dir}/tests" />
 
-        <nativephpunit testfile="./tests/Doctrine/Tests/ORM/Performance/AllTests.php" testdirectory="./tests" haltonfailure="false" haltonerror="false" />
         <tstamp/>
         <!--<svnlastrevision svnpath="${svn.path}" workingcopy="." propertyname="svn.lastrevision"/>-->
         <copy file="${build.dir}/logs/testsuites.xml" tofile="${log.archive.dir}/latest/log.xml" overwrite="true"/>
@@ -159,26 +102,7 @@
     <!-- 
         Builds distributable PEAR packages.
     -->
-    <target name="build-packages" depends="build-orm">
-        <d51pearpkg2 baseinstalldir="/" dir="${build.dir}/common/DoctrineCommon-${version}">
-           <name>DoctrineCommon</name>
-           <summary>Common Doctrine code</summary>
-           <channel>pear.doctrine-project.org</channel>
-           <description>The Doctrine Common package contains shared code between the other packages.</description>
-           <lead user="jwage" name="Jonathan H. Wage" email="jonwage@gmail.com" />
-           <lead user="guilhermeblanco" name="Guilherme Blanco" email="guilhermeblanco@gmail.com" />
-           <lead user="romanb" name="Roman Borschel" email="roman@code-factory.org" />
-           <license>LGPL</license>
-           <version release="${version}" api="${version}" />
-           <stability release="${stability}" api="${stability}" />
-           <notes>-</notes>
-           <dependencies>
-               <php minimum_version="5.3.0" />
-               <pear minimum_version="1.6.0" recommended_version="1.6.1" />
-           </dependencies>
-        </d51pearpkg2>
-        <tar destfile="${dist.dir}/DoctrineCommon-${version_name}.tgz" basedir="${build.dir}/common" compression="gzip" />
-
+    <target name="build-packages" depends="build-dbal">
         <d51pearpkg2 baseinstalldir="/" dir="${build.dir}/dbal/DoctrineDBAL-${version}">
            <name>DoctrineDBAL</name>
            <summary>Doctrine Database Abstraction Layer</summary>
@@ -197,32 +121,5 @@
            </dependencies>
         </d51pearpkg2>
         <tar destfile="${dist.dir}/DoctrineDBAL-${version_name}.tgz" basedir="${build.dir}/dbal" compression="gzip" />
-
-        <d51pearpkg2 baseinstalldir="/" dir="${build.dir}/orm/DoctrineORM-${version}">
-           <name>DoctrineORM</name>
-           <summary>Doctrine Object Relationl Mapper</summary>
-           <channel>pear.doctrine-project.org</channel>
-           <description>The Doctrine ORM package is the primary package containing the object relational mapper.</description>
-           <lead user="jwage" name="Jonathan H. Wage" email="jonwage@gmail.com" />
-           <lead user="guilhermeblanco" name="Guilherme Blanco" email="guilhermeblanco@gmail.com" />
-           <lead user="romanb" name="Roman Borschel" email="roman@code-factory.org" />
-           <license>LGPL</license>
-           <version release="${version}" api="${version}" />
-           <stability release="${stability}" api="${stability}" />
-           <notes>-</notes>
-           <dependencies>
-               <php minimum_version="5.3.0" />
-               <pear minimum_version="1.6.0" recommended_version="1.6.1" />
-           </dependencies>
-           <dirroles key="bin">script</dirroles>
-           <replacement path="bin/doctrine" type="pear-config" from="@php_bin@" to="php_bin" />
-           <replacement path="bin/doctrine.php" type="pear-config" from="@php_bin@" to="php_bin" />
-           <replacement path="bin/doctrine.php" type="pear-config" from="@bin_dir@" to="bin_dir" />
-           <release>
-                <install as="doctrine" name="bin/doctrine" />
-                <install as="doctrine.php" name="bin/doctrine.php" />
-           </release>
-        </d51pearpkg2>
-        <tar destfile="${dist.dir}/DoctrineORM-${version_name}.tgz" basedir="${build.dir}/orm" compression="gzip" />
     </target>
 </project>

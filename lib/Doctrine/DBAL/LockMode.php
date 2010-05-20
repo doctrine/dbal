@@ -22,7 +22,7 @@
 namespace Doctrine\DBAL;
 
 /**
- * Contains all ORM LockModes
+ * Contains all DBAL LockModes
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
