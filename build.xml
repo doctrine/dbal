@@ -4,7 +4,9 @@
     Doctrine 2 build file.
 -->
 
-<project name="Doctrine2" default="build" basedir=".">
+<project name="Doctrine DBAL" default="build" basedir=".">
+    <import file="build-dependencies.xml"/>
+
     <taskdef classname="phing.tasks.ext.d51PearPkg2Task" name="d51pearpkg2" />
     <taskdef classname="NativePhpunitTask" classpath="./tools/" name="nativephpunit" />
 
@@ -27,6 +29,13 @@
         <include name="doctrine.php"/>
     </fileset>
 
+    <!--
+        Fileset for the sources of the Doctrine Common dependency.
+    -->
+    <fileset id="common-sources" dir="./lib">
+        <include name="Doctrine/Common/**"/>
+    </fileset>
+
     <!-- 
         Fileset for the sources of the Doctrine DBAL package.
     -->
@@ -44,6 +53,7 @@
     </target>
 
     <target name="prepare" depends="clean">
+        <phingcall target="resolve-dependencies"/>
         <echo msg="Creating build directory: ${build.dir}" />
         <mkdir dir="${build.dir}" />
         <echo msg="Creating distribution directory: ${dist.dir}" />
@@ -59,6 +69,7 @@
             <fileset refid="shared-artifacts"/>
         </copy>
         <copy todir="${build.dir}/dbal/DoctrineDBAL-${version}">
+            <fileset refid="common-sources"/>
             <fileset refid="dbal-sources"/>
         </copy>
     </target>
