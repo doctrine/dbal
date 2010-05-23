@@ -4,4 +4,4 @@ logs/
 reports/
 dist/
 download/
-lib/Doctrine/Common
+lib/Doctrine/Common/
