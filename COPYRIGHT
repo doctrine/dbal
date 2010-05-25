@@ -10,15 +10,6 @@ Url:        http://www.doctrine-project.org
 Copyright:  2005-2009 Konsta Vesterinen
 License:    LGPL - see LICENSE file
 
-symfony
--------
-
-Doctrine contains ports of a few symfony classes/libraries
-
-Url:       http://www.symfony-project.org
-Copyright: Fabien Potencier
-License:   MIT - see LICENSE file
-
 Zend Framework
 --------------
 
