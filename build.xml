@@ -114,7 +114,7 @@
         Builds distributable PEAR packages.
     -->
     <target name="build-packages" depends="build-dbal">
-        <d51pearpkg2 baseinstalldir="/" dir="${build.dir}/dbal/DoctrineDBAL-${version}">
+        <d51pearpkg2 baseinstalldir="/" dir="${build.dir}/dbal">
            <name>DoctrineDBAL</name>
            <summary>Doctrine Database Abstraction Layer</summary>
            <channel>pear.doctrine-project.org</channel>
