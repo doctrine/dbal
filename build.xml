@@ -11,14 +11,12 @@
     <taskdef classname="NativePhpunitTask" classpath="./tests/" name="nativephpunit" />
 
     <property file="build.properties" />
-    
-    <!-- 
+
+    <!--
         Fileset for artifacts shared across all distributed packages.
     -->
     <fileset id="shared-artifacts" dir=".">
         <include name="LICENSE"/>
-        <include name="COPYRIGHT"/>
-        <include name="CHANGELOG"/>
     </fileset>
 
     <!--
@@ -36,13 +34,23 @@
         <include name="Doctrine/Common/**"/>
     </fileset>
 
-    <!-- 
+    <!--
         Fileset for the sources of the Doctrine DBAL package.
     -->
     <fileset id="dbal-sources" dir="./lib">
         <include name="Doctrine/DBAL/**"/>
     </fileset>
 
+    <!--
+      Fileset for source of the Symfony YAML and Console components.
+    -->
+    <fileset id="symfony-sources" dir="./lib/vendor">
+        <include name="Symfony/Components/**"/>
+    </fileset>
+
+    <!--
+        Clean the directory for the next build.
+    -->
     <target name="clean">
         <available file="./build.properties" property="build_properties_exist" value="true"/>
         <fail unless="build_properties_exist" message="The build.properties file is missing." />
@@ -52,6 +60,9 @@
         <delete dir="${report.dir}" includeemptydirs="true" />
     </target>
 
+    <!--
+        Prepare the new build directories after cleaning
+    -->
     <target name="prepare" depends="clean">
         <phingcall target="resolve-dependencies"/>
         <echo msg="Creating build directory: ${build.dir}" />
@@ -64,19 +75,28 @@
         <mkdir dir="${report.dir}/tests"/>
     </target>
 
+    <!--
+        Builds DBAL package, preparing it for distribution.
+    -->
     <target name="build-dbal" depends="test">
         <copy todir="${build.dir}/dbal">
             <fileset refid="shared-artifacts"/>
         </copy>
-        <copy todir="${build.dir}/dbal/DoctrineDBAL-${version}">
+        <copy todir="${build.dir}/dbal">
             <fileset refid="common-sources"/>
             <fileset refid="dbal-sources"/>
+        </copy>
+        <copy todir="${build.dir}/dbal/Doctrine">
+            <fileset refid="symfony-sources"/>
+        </copy>
+        <copy todir="${build.dir}/dbal/bin">
+            <fileset refid="bin-scripts"/>
         </copy>
     </target>
 
     <target name="build" depends="test, build-dbal"/>
-    
-    <!-- 
+
+    <!--
         Runs the full test suite.
     -->
     <target name="test" depends="prepare">
@@ -96,7 +116,6 @@
         <phpunitreport infile="${build.dir}/logs/testsuites.xml" format="frames" todir="${report.dir}/tests" />
 
         <tstamp/>
-        <!--<svnlastrevision svnpath="${svn.path}" workingcopy="." propertyname="svn.lastrevision"/>-->
         <copy file="${build.dir}/logs/testsuites.xml" tofile="${log.archive.dir}/latest/log.xml" overwrite="true"/>
 
         <if><equals arg1="${test.pmd_reports}" arg2="1" />
@@ -110,7 +129,7 @@
         </if>
     </target>
 
-    <!-- 
+    <!--
         Builds distributable PEAR packages.
     -->
     <target name="build-packages" depends="build-dbal">
@@ -130,7 +149,16 @@
                <php minimum_version="5.3.0" />
                <pear minimum_version="1.6.0" recommended_version="1.6.1" />
            </dependencies>
+           <dirroles key="bin">script</dirroles>
+           <replacement path="bin/doctrine" type="pear-config" from="@php_bin@" to="php_bin" />
+           <replacement path="bin/doctrine.php" type="pear-config" from="@php_bin@" to="php_bin" />
+           <replacement path="bin/doctrine.php" type="pear-config" from="@bin_dir@" to="bin_dir" />
+           <release>
+                <install as="doctrine" name="bin/doctrine" />
+                <install as="doctrine.php" name="bin/doctrine.php" />
+           </release>
         </d51pearpkg2>
-        <tar destfile="${dist.dir}/DoctrineDBAL-${version_name}.tgz" basedir="${build.dir}/dbal" compression="gzip" />
+        <exec command="pear package" dir="${build.dir}/dbal" passthru="true" />
+        <exec command="mv DoctrineDBAL-${version}.tgz ../../dist" dir="${build.dir}/dbal" passthru="true" />
     </target>
 </project>
