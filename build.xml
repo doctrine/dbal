@@ -5,8 +5,6 @@
 -->
 
 <project name="Doctrine DBAL" default="build" basedir=".">
-    <import file="build-dependencies.xml"/>
-
     <taskdef classname="phing.tasks.ext.d51PearPkg2Task" name="d51pearpkg2" />
     <taskdef classname="NativePhpunitTask" classpath="./tests/" name="nativephpunit" />
 
@@ -30,7 +28,7 @@
     <!--
         Fileset for the sources of the Doctrine Common dependency.
     -->
-    <fileset id="common-sources" dir="./lib">
+    <fileset id="common-sources" dir="./lib/vendor/doctrine-common/lib">
         <include name="Doctrine/Common/**"/>
     </fileset>
 
@@ -64,7 +62,6 @@
         Prepare the new build directories after cleaning
     -->
     <target name="prepare" depends="clean">
-        <phingcall target="resolve-dependencies"/>
         <echo msg="Creating build directory: ${build.dir}" />
         <mkdir dir="${build.dir}" />
         <echo msg="Creating distribution directory: ${dist.dir}" />
@@ -92,6 +89,8 @@
         <copy todir="${build.dir}/dbal/bin">
             <fileset refid="bin-scripts"/>
         </copy>
+        <exec command="sed 's/${version}-DEV/${version}/' ${build.dir}/dbal/Doctrine/DBAL/Version.php > ${build.dir}/dbal/Doctrine/DBAL/Version2.php" passthru="true" />
+        <exec command="mv ${build.dir}/dbal/Doctrine/DBAL/Version2.php ${build.dir}/dbal/Doctrine/DBAL/Version.php" passthru="true" />
     </target>
 
     <target name="build" depends="test, build-dbal"/>
