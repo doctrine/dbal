@@ -244,6 +244,6 @@ class SqlsrvStatement implements \Doctrine\DBAL\Driver\Statement
      */
     public function rowCount()
     {
-        return sqlsrv_num_rows($this->_sth);
+        return sqlsrv_rows_affected($this->_sth);
     }    
 }
