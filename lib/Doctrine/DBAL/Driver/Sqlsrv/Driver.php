@@ -43,6 +43,7 @@ class Driver implements \Doctrine\DBAL\Driver
         
         $connectionInfo = array(
             'Database' => $params['dbname'],
+            'ReturnDatesAsStrings' => true,
         );
 
         if (isset($username) && !empty($username) && isset($password) && !empty($password))
@@ -52,8 +53,6 @@ class Driver implements \Doctrine\DBAL\Driver
                 'PWD'      => $password,
             );
         }
-
-        $connectionInfo += array('ReturnDatesAsStrings' => true);
         
         return new SqlsrvConnection($serverName, $connectionInfo);
     }

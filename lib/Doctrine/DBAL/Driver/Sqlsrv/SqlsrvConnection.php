@@ -38,6 +38,11 @@ class SqlsrvConnection implements \Doctrine\DBAL\Driver\Connection
             throw SqlsrvException::fromErrorInfo($this->errorInfo());
         }
     }
+
+    public function  __destruct()
+    {
+        sqlsrv_close($this->_dbh);
+    }
     
     public function prepare($prepareString)
     {
