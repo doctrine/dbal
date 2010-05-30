@@ -17,44 +17,14 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
- */
+*/
 
-namespace Doctrine\DBAL\Driver\PDOMsSql;
+namespace Doctrine\DBAL\Driver\Sqlsrv;
 
-/**
- * MsSql Connection implementation.
- *
- * @since 2.0
- */
-class Connection extends \PDO implements \Doctrine\DBAL\Driver\Connection
+class SqlsrvException extends \Exception
 {
-    /**
-     * Performs the rollback.
-     * 
-     * @override
-     */
-    public function rollback()
+    static public function fromErrorInfo($error)
     {
-        $this->exec('ROLLBACK TRANSACTION');
-    }
-
-    /**
-     * Performs the commit.
-     * 
-     * @override
-     */
-    public function commit()
-    {
-        $this->exec('COMMIT TRANSACTION');
-    }
-
-    /**
-     * Begins a database transaction.
-     * 
-     * @override
-     */
-    public function beginTransaction()
-    {
-        $this->exec('BEGIN TRANSACTION');
+        return new self($error['message'], $error['code']);
     }
 }

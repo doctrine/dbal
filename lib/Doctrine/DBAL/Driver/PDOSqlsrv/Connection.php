@@ -19,10 +19,10 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\PDOMsSql;
+namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 /**
- * MsSql Connection implementation.
+ * Sqlsrv Connection implementation.
  *
  * @since 2.0
  */
