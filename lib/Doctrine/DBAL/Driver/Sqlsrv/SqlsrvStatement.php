@@ -236,6 +236,10 @@ class SqlsrvStatement implements \Doctrine\DBAL\Driver\Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
+        if (sqlsrv_fetch($this->_sth) === false) {
+            throw SqlsrvException::fromErrorInfo($this->errorInfo());
+        }
+
         return sqlsrv_get_field($this->_sth, $columnIndex);
     }
 
