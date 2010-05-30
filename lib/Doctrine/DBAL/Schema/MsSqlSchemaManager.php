@@ -223,19 +223,4 @@ class MsSqlSchemaManager extends AbstractSchemaManager
     {
         return $table['name'];
     }
-
-    /**
-     * @override
-     */
-    public function dropDatabase($name)
-    {
-        try
-        {
-            return parent::dropDatabase($name);
-        }
-        catch (\Exception $e)
-        {
-            print $e->getMessage();
-        }
-    }
 }
