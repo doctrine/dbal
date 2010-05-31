@@ -211,7 +211,13 @@ class SqlsrvStatement implements \Doctrine\DBAL\Driver\Statement
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
         }
         
-        return sqlsrv_fetch_array($this->_sth, self::$fetchStyleMap[$fetchStyle]);
+        $result = sqlsrv_fetch_array($this->_sth, self::$fetchStyleMap[$fetchStyle]);
+
+        if (!$result) {
+            return false;
+        } else {
+            return $result;
+        }
     }
 
     /**

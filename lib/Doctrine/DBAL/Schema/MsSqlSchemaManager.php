@@ -150,17 +150,24 @@ class MsSqlSchemaManager extends AbstractSchemaManager
             'unsigned' => (bool) $unsigned,
             'fixed' => (bool) $fixed
         );
+
+
+        $default = $tableColumn['COLUMN_DEF'];
+
+        while($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
+            $default = $default2;
+        }
         
-        // @todo
         $options = array(
             'length'        => ((int) $tableColumn['LENGTH'] == 0) ? null : (int) $tableColumn['LENGTH'],
             'unsigned'      => (bool)$unsigned,
             'fixed'         => (bool)$fixed,
-            'default'       => $tableColumn['COLUMN_DEF'] !== '(NULL)' ? $tableColumn['COLUMN_DEF'] : null,
+            'default'       => $default !== 'NULL' ? $default : null,
             'notnull'       => (bool) ($tableColumn['IS_NULLABLE'] != 'YES'),
             'scale'         => $tableColumn['SCALE'],
             'precision'     => $tableColumn['PRECISION'],
             'platformOptions' => array(
+                // @todo
                 'primary' =>  false,
                 'unique' => false,
                 'autoincrement' => false,
