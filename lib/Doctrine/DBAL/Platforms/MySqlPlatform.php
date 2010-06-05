@@ -389,7 +389,7 @@ class MySqlPlatform extends AbstractPlatform
 
         // get the type of the table
         if (isset($options['engine'])) {
-            $optionStrings[] = 'ENGINE = ' . $engine;
+            $optionStrings[] = 'ENGINE = ' . $options['engine'];
         } else {
             // default to innodb
             $optionStrings[] = 'ENGINE = InnoDB';
