@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,6 +25,24 @@ use Doctrine\DBAL\Schema\TableDiff;
 
 class DB2Platform extends AbstractPlatform
 {
+    public function initializeDoctrineTypeMappings()
+    {
+        $this->doctrineTypeMapping = array(
+            'smallint'      => 'smallint',
+            'bigint'        => 'bigint',
+            'integer'       => 'integer',
+            'time'          => 'time',
+            'date'          => 'date',
+            'varchar'       => 'string',
+            'character'     => 'string',
+            'clob'          => 'text',
+            'decimal'       => 'decimal',
+            'double'        => 'decimal',
+            'real'          => 'decimal',
+            'timestamp'     => 'datetime',
+        );
+    }
+
     /**
      * Gets the SQL snippet used to declare a VARCHAR column type.
      *

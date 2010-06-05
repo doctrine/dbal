@@ -66,41 +66,27 @@ class DB2SchemaManager extends AbstractSchemaManager
         $unsigned = false;
         $scale = false;
         $precision = false;
+
+        $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
         
         switch (strtolower($tableColumn['typename'])) {
-            case 'smallint':
-            case 'bigint':
-            case 'integer':
-            case 'time':
-            case 'date':
-                $type = strtolower($tableColumn['typename']);
-                break;
             case 'varchar':
-                $type = 'string';
                 $length = $tableColumn['length'];
                 $fixed = false;
                 break;
             case 'character':
-                $type = 'string';
                 $length = $tableColumn['length'];
                 $fixed = true;
                 break;
             case 'clob':
-                $type = 'text';
                 $length = $tableColumn['length'];
                 break;
             case 'decimal':
             case 'double':
             case 'real':
-                $type = 'decimal';
                 $scale = $tableColumn['scale'];
                 $precision = $tableColumn['length'];
                 break;
-            case 'timestamp':
-                $type = 'datetime';
-                break;
-            default:
-                throw new \Doctrine\DBAL\DBALException("Unknown Type: ".$tableColumn['typename']);
         }
 
         $options = array(

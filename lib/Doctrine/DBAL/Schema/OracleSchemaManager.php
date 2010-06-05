@@ -111,68 +111,57 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         $precision = null;
         $scale = null;
-        
+
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
         switch ($dbType) {
-            case 'integer':
             case 'number':
+                // @todo this sucks for the mapping stuff, is this deterministic maybe?
                 if($tableColumn['data_scale'] > 0) {
-                    $type = 'decimal';
                     $precision = $tableColumn['data_precision'];
                     $scale = $tableColumn['data_scale'];
-                } else {
-                    $type = 'integer';
+                    if ($precision == 0 && $scale == 1) {
+                        $type = 'boolean';
+                    } else {
+                        $type = 'decimal';
+                    }
                 }
                 $length = null;
                 break;
             case 'pls_integer':
             case 'binary_integer':
-                $type = 'boolean';
                 $length = null;
                 break;
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':
                 $fixed = false;
+                break;
             case 'char':
             case 'nchar':
-                if ($length == '1' && preg_match('/^(is|has)/', $tableColumn['column_name'])) {
-                    $type = 'boolean';
-                } else {
-                    $type = 'string';
-                }
-                if ($fixed !== false) {
-                    $fixed = true;
-                }
+                $fixed = true;
                 break;
             case 'date':
             case 'timestamp':
-                $type = 'datetime';
                 $length = null;
                 break;
             case 'float':
                 $precision = $tableColumn['data_precision'];
                 $scale = $tableColumn['data_scale'];
-                $type = 'decimal';
                 $length = null;
                 break;
-            case 'long':
-                $type = 'string';
             case 'clob':
             case 'nclob':
                 $length = null;
-                $type = 'text';
                 break;
             case 'blob':
             case 'raw':
             case 'long raw':
             case 'bfile':
-                $type = 'blob';
                 $length = null;
             break;
             case 'rowid':
             case 'urowid':
             default:
-                $type = 'string';
                 $length = null;
         }
 

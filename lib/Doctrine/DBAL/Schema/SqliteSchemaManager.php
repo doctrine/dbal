@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -131,11 +129,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         $dbType = strtolower($tableColumn['type']);
-
         $length = isset($tableColumn['length']) ? $tableColumn['length'] : null;
         $unsigned = (boolean) isset($tableColumn['unsigned']) ? $tableColumn['unsigned'] : false;
         $fixed = false;
-        $type = null;
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
         $default = $tableColumn['dflt_value'];
         if  ($default == 'NULL') {
             $default = null;
@@ -150,72 +147,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $scale = null;
 
         switch ($dbType) {
-            case 'boolean':
-                $type = 'boolean';
-                break;
-            case 'tinyint':
-                $type = 'boolean';
-                $length = null;
-                break;
-            case 'smallint':
-                $type = 'smallint';
-                $length = null;
-                break;
-            case 'mediumint':
-            case 'int':
-            case 'integer':
-            case 'serial':
-                $type = 'integer';
-                $length = null;
-                break;
-            case 'bigint':
-            case 'bigserial':
-                $type = 'bigint';
-                $length = null;
-                break;
-            case 'clob':
-                $fixed = false;
-                $type = 'text';
-                break;
-            case 'tinytext':
-            case 'mediumtext':
-            case 'longtext':
-            case 'text':
-                $type = 'text';
-                break;
-            case 'varchar':
-            case 'varchar2':
-            case 'nvarchar':
-            case 'ntext':
-            case 'image':
-            case 'nchar':
-                $fixed = false;
             case 'char':
-                $type = 'string';
-                if ($length == '1') {
-                    $type = 'boolean';
-                    if (preg_match('/^(is|has)/', $tableColumn['name'])) {
-                        $type = array_reverse($type);
-                    }
-                } elseif (strstr($dbType, 'text')) {
-                    $type = 'clob';
-                }
-                if ($fixed !== false) {
-                    $fixed = true;
-                }
-                break;
-            case 'date':
-                $type = 'date';
-                $length = null;
-                break;
-            case 'datetime':
-            case 'timestamp':
-                $type = 'datetime';
-                $length = null;
-                break;
-            case 'time':
-                $type = 'time';
-                $length = null;
+                $fixed = true;
                 break;
             case 'float':
             case 'double':
@@ -223,23 +156,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
             case 'decimal':
             case 'numeric':
                 list($precision, $scale) = array_map('trim', explode(', ', $tableColumn['length']));
-                $type = 'decimal';
                 $length = null;
                 break;
-            case 'tinyblob':
-            case 'mediumblob':
-            case 'longblob':
-            case 'blob':
-                $type = 'blob';
-                $length = null;
-                break;
-            case 'year':
-                $type = 'date';
-                $length = null;
-                break;
-            default:
-                $type = 'string';
-                $length = null;
         }
 
         $options = array(
