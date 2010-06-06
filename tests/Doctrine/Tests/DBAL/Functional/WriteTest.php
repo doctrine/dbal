@@ -27,8 +27,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testExecuteUpdate()
     {
-        $sql = "INSERT INTO " . $this->_conn->quoteIdentifier('write_table') . " ( " .
-               $this->_conn->quoteIdentifier('test_int') . " ) VALUES ( " . $this->_conn->quote(1) . ")";
+        $sql = "INSERT INTO write_table (test_int) VALUES ( " . $this->_conn->quote(1) . ")";
         $affected = $this->_conn->executeUpdate($sql);
 
         $this->assertEquals(1, $affected, "executeUpdate() should return the number of affected rows!");

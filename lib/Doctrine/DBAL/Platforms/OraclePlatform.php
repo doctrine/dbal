@@ -650,4 +650,14 @@ LEFT JOIN all_cons_columns r_cols
     {
         return 'TRUNCATE TABLE '.$tableName;
     }
+
+    /**
+     * This is for test reasons, many vendors have special requirements for dummy statements.
+     *
+     * @return string
+     */
+    public function getDummySelectSQL()
+    {
+        return 'SELECT 1 FROM DUAL';
+    }
 }

@@ -1901,4 +1901,14 @@ abstract class AbstractPlatform
     {
         return 'TRUNCATE '.$tableName;
     }
+
+    /**
+     * This is for test reasons, many vendors have special requirements for dummy statements.
+     * 
+     * @return string
+     */
+    public function getDummySelectSQL()
+    {
+        return 'SELECT 1';
+    }
 }

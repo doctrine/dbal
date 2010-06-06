@@ -518,4 +518,9 @@ class DB2Platform extends AbstractPlatform
     {
         return ' WITH RR USE AND KEEP UPDATE LOCKS';
     }
+
+    public function getDummySelectSQL()
+    {
+        return 'SELECT 1 FROM sysibm.sysdummy1';
+    }
 }

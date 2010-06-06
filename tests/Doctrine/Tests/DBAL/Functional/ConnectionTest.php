@@ -88,7 +88,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         try {
             $this->_conn->transactional(function($conn) {
-                $conn->executeQuery("select 1");
+                $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new \RuntimeException("Ooops!");
             });
         } catch (\RuntimeException $expected) {
@@ -99,7 +99,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testTransactional()
     {
         $this->_conn->transactional(function($conn) {
-            $conn->executeQuery("select 1");
+            /* @var $conn Connection */
+            $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
     }
 }
