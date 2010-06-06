@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -570,6 +568,21 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($tableDiff->removedColumns));
         $this->assertArrayHasKey('foo', $tableDiff->renamedColumns);
         $this->assertEquals('bar', $tableDiff->renamedColumns['foo']->getName());
+    }
+
+    public function testDetectChangeIdentifierType()
+    {
+        $tableA = new Table("foo");
+        $tableA->addColumn('id', 'integer', array('platformOptions' => array('autoincrement' => false)));
+
+        $tableB = new Table("foo");
+        $tableB->addColumn('id', 'integer', array('platformOptions' => array('autoincrement' => true)));
+
+        $c = new Comparator();
+        $tableDiff = $c->diffTable($tableA, $tableB);
+
+        $this->assertType('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        $this->assertArrayHasKey('id', $tableDiff->changedColumns);
     }
 
     /**

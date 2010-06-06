@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -34,19 +32,6 @@ namespace Doctrine\DBAL\Schema;
  */
 class Comparator
 {
-    /**
-     * @var array
-     */
-    private $_checkColumnPlatformOptions = array();
-
-    /**
-     * @param string $optionName
-     */
-    public function addColumnPlatformOptionCheck($optionName)
-    {
-        $this->_checkColumnPlatformOptions[] = $optionName;
-    }
-
     /**
      * @param Schema $fromSchema
      * @param Schema $toSchema
@@ -340,12 +325,13 @@ class Comparator
             }
         }
 
-        foreach ($this->_checkColumnPlatformOptions AS $optionName) {
-            if($column1->hasPlatformOption($optionName) && $column2->hasPlatformOption($optionName)) {
-                if ($column1->getPlatformOption($optionName) != $column2->getPlatformOption($optionName)) {
-                    $changedProperties[] = $optionName;
-                }
-            } else if ($column1->hasPlatformOption($optionName) != $column2->hasPlatformOption($optionName)) {
+        foreach ($column1->getPlatformOptions() AS $optionName => $optionValue) {
+            if (!$column2->hasPlatformOption($optionName) || $optionValue != $column2->getPlatformOption($optionName)) {
+                $changedProperties[] = $optionName;
+            }
+        }
+        foreach ($column2->getPlatformOptions() AS $optionName => $optionValue) {
+            if (!$column1->hasPlatformOption($optionName)) {
                 $changedProperties[] = $optionName;
             }
         }
