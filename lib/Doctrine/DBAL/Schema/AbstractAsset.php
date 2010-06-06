@@ -81,6 +81,10 @@ abstract class AbstractAsset
         }, $columnNames);
         $parts[] = $postfix;
 
-        return trim(implode("_", $parts), '_');
+        $identifier = trim(implode("_", $parts), '_');
+        // using implicit schema support of DB2 and Postgres there might be dots in the auto-generated
+        // identifier names which can easily be replaced by underscores.
+        $identifier = str_replace(".", "_", $identifier);
+        return $identifier;
     }
 }
