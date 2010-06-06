@@ -199,11 +199,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         
         $dbType = strtolower($tableColumn['type']);
 
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
         $autoincrement = false;
         switch ($dbType) {
             case 'smallint':
             case 'int2':
-                $type = 'smallint';
                 $length = null;
                 break;
             case 'serial':
@@ -213,7 +213,6 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'int':
             case 'int4':
             case 'integer':
-                $type = 'integer';
                 $length = null;
                 break;
             case 'bigserial':
@@ -222,52 +221,23 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 // break missing intentionally
             case 'bigint':
             case 'int8':
-                $type = 'bigint';
                 $length = null;
                 break;
             case 'bool':
             case 'boolean':
-                $type = 'boolean';
                 $length = null;
                 break;
             case 'text':
                 $fixed = false;
-                $type = 'text';
                 break;
             case 'varchar':
             case 'interval':
             case '_varchar':
                 $fixed = false;
-            case 'tsvector':
-            case 'unknown':
+                break;
             case 'char':
             case 'bpchar':
-                $type = 'string';
-                if ($length == '1') {
-                    if (preg_match('/^(is|has)/', $tableColumn['name'])) {
-                        $type = 'boolean';
-                    }
-                } elseif (strstr($dbType, 'text')) {
-                    $type = 'text';
-                }
-                if ($fixed !== false) {
-                    $fixed = true;
-                }
-                break;
-            case 'date':
-                $type = 'date';
-                $length = null;
-                break;
-            case 'datetime':
-            case 'timestamp':
-            case 'timetz':
-            case 'timestamptz':
-                $type = 'datetime';
-                $length = null;
-                break;
-            case 'time':
-                $type = 'time';
-                $length = null;
+                $fixed = true;
                 break;
             case 'float':
             case 'float4':
@@ -283,34 +253,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                     $scale = $match[2];
                     $length = null;
                 }
-                $type = 'decimal';
-                break;
-            case 'tinyblob':
-            case 'mediumblob':
-            case 'longblob':
-            case 'blob':
-            case 'bytea':
-            case 'geometry':
-            case 'geometrycollection':
-            case 'point':
-            case 'multipoint':
-            case 'linestring':
-            case 'multilinestring':
-            case 'polygon':
-            case 'multipolygon':
-                $type = 'blob';
-                $length = null;
-                break;
-            case 'oid':
-                $type = 'blob';
-                $length = null;
                 break;
             case 'year':
-                $type = 'date';
                 $length = null;
                 break;
-            default:
-                $type = 'string';
         }
 
         $options = array(

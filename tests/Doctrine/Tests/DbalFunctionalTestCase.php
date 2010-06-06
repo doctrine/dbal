@@ -4,7 +4,11 @@ namespace Doctrine\Tests;
 
 class DbalFunctionalTestCase extends DbalTestCase
 {
-    /* Shared connection when a TestCase is run alone (outside of it's functional suite) */
+    /**
+     * Shared connection when a TestCase is run alone (outside of it's functional suite)
+     *
+     * @var Doctrine\DBAL\Connection
+     */
     private static $_sharedConn;
 
     /**

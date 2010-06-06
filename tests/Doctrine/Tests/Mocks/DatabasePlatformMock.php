@@ -82,4 +82,6 @@ class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
     {
         return 'mock';
     }
+    protected function initializeDoctrineTypeMappings() {
+    }
 }
