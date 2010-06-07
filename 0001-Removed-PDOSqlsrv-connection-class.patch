@@ -1,0 +1,94 @@
+From aa2b708ed0b08f8be101705026ea449adbbb5b86 Mon Sep 17 00:00:00 2001
+From: Juozas Kaziukenas <juozas@juokaz.com>
+Date: Tue, 8 Jun 2010 00:44:18 +0100
+Subject: [PATCH] Removed PDOSqlsrv connection class
+
+---
+ lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php |   60 ---------------------
+ lib/Doctrine/DBAL/Driver/PDOSqlsrv/Driver.php     |    2 +-
+ 2 files changed, 1 insertions(+), 61 deletions(-)
+ delete mode 100644 lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php
+
+diff --git a/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php b/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php
+deleted file mode 100644
+index 7285bb4..0000000
+--- a/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Connection.php
++++ /dev/null
+@@ -1,60 +0,0 @@
+-<?php
+-/*
+- *  $Id$
+- *
+- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+- *
+- * This software consists of voluntary contributions made by many individuals
+- * and is licensed under the LGPL. For more information, see
+- * <http://www.doctrine-project.org>.
+- */
+-
+-namespace Doctrine\DBAL\Driver\PDOSqlsrv;
+-
+-/**
+- * Sqlsrv Connection implementation.
+- *
+- * @since 2.0
+- */
+-class Connection extends \PDO implements \Doctrine\DBAL\Driver\Connection
+-{
+-    /**
+-     * Performs the rollback.
+-     * 
+-     * @override
+-     */
+-    public function rollback()
+-    {
+-        $this->exec('ROLLBACK TRANSACTION');
+-    }
+-
+-    /**
+-     * Performs the commit.
+-     * 
+-     * @override
+-     */
+-    public function commit()
+-    {
+-        $this->exec('COMMIT TRANSACTION');
+-    }
+-
+-    /**
+-     * Begins a database transaction.
+-     * 
+-     * @override
+-     */
+-    public function beginTransaction()
+-    {
+-        $this->exec('BEGIN TRANSACTION');
+-    }
+-}
+\ No newline at end of file
+diff --git a/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Driver.php b/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Driver.php
+index 442c5c1..ea3d88b 100644
+--- a/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Driver.php
++++ b/lib/Doctrine/DBAL/Driver/PDOSqlsrv/Driver.php
+@@ -34,7 +34,7 @@ class Driver implements \Doctrine\DBAL\Driver
+             $driverOptions['Database'] = $params['dbname'];
+         }
+         
+-        return new Connection(
++        return new \Doctrine\DBAL\Driver\PDOConnection(
+             $this->_constructPdoDsn($params),
+             $username,
+             $password,
+-- 
+1.6.5.1.1367.gcd48
+

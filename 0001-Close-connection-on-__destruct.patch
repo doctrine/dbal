@@ -1,0 +1,50 @@
+From 1c5ad6a1165035737122b104887117ccb13e99ca Mon Sep 17 00:00:00 2001
+From: Juozas Kaziukenas <juozas@juokaz.com>
+Date: Mon, 31 May 2010 00:50:27 +0100
+Subject: [PATCH] Close connection on __destruct()
+
+---
+ lib/Doctrine/DBAL/Driver/Sqlsrv/Driver.php         |    3 +--
+ .../DBAL/Driver/Sqlsrv/SqlsrvConnection.php        |    5 +++++
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/lib/Doctrine/DBAL/Driver/Sqlsrv/Driver.php b/lib/Doctrine/DBAL/Driver/Sqlsrv/Driver.php
+index 2e32b77..78537fb 100644
+--- a/lib/Doctrine/DBAL/Driver/Sqlsrv/Driver.php
++++ b/lib/Doctrine/DBAL/Driver/Sqlsrv/Driver.php
+@@ -43,6 +43,7 @@ class Driver implements \Doctrine\DBAL\Driver
+         
+         $connectionInfo = array(
+             'Database' => $params['dbname'],
++            'ReturnDatesAsStrings' => true,
+         );
+ 
+         if (isset($username) && !empty($username) && isset($password) && !empty($password))
+@@ -52,8 +53,6 @@ class Driver implements \Doctrine\DBAL\Driver
+                 'PWD'      => $password,
+             );
+         }
+-
+-        $connectionInfo += array('ReturnDatesAsStrings' => true);
+         
+         return new SqlsrvConnection($serverName, $connectionInfo);
+     }
+diff --git a/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvConnection.php b/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvConnection.php
+index 75b841a..e94d08e 100644
+--- a/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvConnection.php
++++ b/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvConnection.php
+@@ -38,6 +38,11 @@ class SqlsrvConnection implements \Doctrine\DBAL\Driver\Connection
+             throw SqlsrvException::fromErrorInfo($this->errorInfo());
+         }
+     }
++
++    public function  __destruct()
++    {
++        sqlsrv_close($this->_dbh);
++    }
+     
+     public function prepare($prepareString)
+     {
+-- 
+1.6.5.1.1367.gcd48
+

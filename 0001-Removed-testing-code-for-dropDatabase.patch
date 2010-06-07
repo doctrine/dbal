@@ -1,0 +1,37 @@
+From a5f7b8ea5d1cc6e6c270779b9a7dc6fefb47de20 Mon Sep 17 00:00:00 2001
+From: Juozas Kaziukenas <juozas@juokaz.com>
+Date: Mon, 31 May 2010 00:23:19 +0100
+Subject: [PATCH] Removed testing code for dropDatabase()
+
+---
+ lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php |   15 ---------------
+ 1 files changed, 0 insertions(+), 15 deletions(-)
+
+diff --git a/lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php b/lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php
+index 830fb11..981cf2a 100644
+--- a/lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php
++++ b/lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php
+@@ -223,19 +223,4 @@ class MsSqlSchemaManager extends AbstractSchemaManager
+     {
+         return $table['name'];
+     }
+-
+-    /**
+-     * @override
+-     */
+-    public function dropDatabase($name)
+-    {
+-        try
+-        {
+-            return parent::dropDatabase($name);
+-        }
+-        catch (\Exception $e)
+-        {
+-            print $e->getMessage();
+-        }
+-    }
+ }
+\ No newline at end of file
+-- 
+1.6.5.1.1367.gcd48
+

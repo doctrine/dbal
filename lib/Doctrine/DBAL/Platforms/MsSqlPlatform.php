@@ -70,7 +70,7 @@ class MsSqlPlatform extends AbstractPlatform
     {
         return false;
     }
-    
+
     /**
      * create a new database
      *
@@ -312,7 +312,7 @@ class MsSqlPlatform extends AbstractPlatform
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
-    
+
     /**
      * @override
      */
@@ -374,7 +374,7 @@ class MsSqlPlatform extends AbstractPlatform
 
         return $unsigned . $autoinc;
     }
-    
+
     /**
      * @override
      */
@@ -399,7 +399,7 @@ class MsSqlPlatform extends AbstractPlatform
     {
         return 'TIME';
     }
-    
+
     /**
      * @override
      */
@@ -520,8 +520,15 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getCreateTemporaryTableSnippetSQL()
     {
-        // @todo change to be a real temporary table
         return "CREATE TABLE";
+    }
+
+    /**
+     * @override
+     */
+    public function getTemporaryTableName($tableName)
+    {
+        return '#' . $tableName;
     }
 
     /**

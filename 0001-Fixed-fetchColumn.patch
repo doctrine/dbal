@@ -1,0 +1,27 @@
+From 869e61ee8171fee90d0788cf6f780d598b26a4d5 Mon Sep 17 00:00:00 2001
+From: Juozas Kaziukenas <juozas@juokaz.com>
+Date: Mon, 31 May 2010 00:58:05 +0100
+Subject: [PATCH] Fixed fetchColumn()
+
+---
+ .../DBAL/Driver/Sqlsrv/SqlsrvStatement.php         |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvStatement.php b/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvStatement.php
+index f99dd16..1cc8954 100644
+--- a/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvStatement.php
++++ b/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvStatement.php
+@@ -236,6 +236,10 @@ class SqlsrvStatement implements \Doctrine\DBAL\Driver\Statement
+      */
+     public function fetchColumn($columnIndex = 0)
+     {
++        if (sqlsrv_fetch($this->_sth) === false) {
++            throw SqlsrvException::fromErrorInfo($this->errorInfo());
++        }
++
+         return sqlsrv_get_field($this->_sth, $columnIndex);
+     }
+ 
+-- 
+1.6.5.1.1367.gcd48
+

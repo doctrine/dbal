@@ -1,0 +1,63 @@
+From 1052b734665d3b8062d3b8cc79fc1a1baf9aae41 Mon Sep 17 00:00:00 2001
+From: Juozas Kaziukenas <juozas@juokaz.com>
+Date: Mon, 31 May 2010 02:01:19 +0100
+Subject: [PATCH] Fixed fetch() and default column values retrieval
+
+---
+ .../DBAL/Driver/Sqlsrv/SqlsrvStatement.php         |    8 +++++++-
+ lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php    |   11 +++++++++--
+ 2 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvStatement.php b/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvStatement.php
+index 1cc8954..92ba91d 100644
+--- a/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvStatement.php
++++ b/lib/Doctrine/DBAL/Driver/Sqlsrv/SqlsrvStatement.php
+@@ -211,7 +211,13 @@ class SqlsrvStatement implements \Doctrine\DBAL\Driver\Statement
+             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
+         }
+         
+-        return sqlsrv_fetch_array($this->_sth, self::$fetchStyleMap[$fetchStyle]);
++        $result = sqlsrv_fetch_array($this->_sth, self::$fetchStyleMap[$fetchStyle]);
++
++        if (!$result) {
++            return false;
++        } else {
++            return $result;
++        }
+     }
+ 
+     /**
+diff --git a/lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php b/lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php
+index 981cf2a..fd5afec 100644
+--- a/lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php
++++ b/lib/Doctrine/DBAL/Schema/MsSqlSchemaManager.php
+@@ -150,17 +150,24 @@ class MsSqlSchemaManager extends AbstractSchemaManager
+             'unsigned' => (bool) $unsigned,
+             'fixed' => (bool) $fixed
+         );
++
++
++        $default = $tableColumn['COLUMN_DEF'];
++
++        while($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
++            $default = $default2;
++        }
+         
+-        // @todo
+         $options = array(
+             'length'        => ((int) $tableColumn['LENGTH'] == 0) ? null : (int) $tableColumn['LENGTH'],
+             'unsigned'      => (bool)$unsigned,
+             'fixed'         => (bool)$fixed,
+-            'default'       => $tableColumn['COLUMN_DEF'] !== '(NULL)' ? $tableColumn['COLUMN_DEF'] : null,
++            'default'       => $default !== 'NULL' ? $default : null,
+             'notnull'       => (bool) ($tableColumn['IS_NULLABLE'] != 'YES'),
+             'scale'         => $tableColumn['SCALE'],
+             'precision'     => $tableColumn['PRECISION'],
+             'platformOptions' => array(
++                // @todo
+                 'primary' =>  false,
+                 'unique' => false,
+                 'autoincrement' => false,
+-- 
+1.6.5.1.1367.gcd48
+
