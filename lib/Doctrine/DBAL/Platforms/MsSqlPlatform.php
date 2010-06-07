@@ -98,6 +98,32 @@ class MsSqlPlatform extends AbstractPlatform
     /**
      * @override
      */
+    public function getColumnDeclarationSQL($name, array $field)
+    {
+        $declaration = parent::getColumnDeclarationSQL($name, $field);
+
+        $name = substr($declaration, 0, strpos($declaration, ' '));
+        $spec = substr($declaration, strpos($declaration, ' ')+1);
+
+        if (strpos($name, '[') === false)
+        {
+            $name = $this->quoteIdentifier($name);
+        }
+
+        return $name . ' ' . $spec;
+    }
+
+    /**
+     * @override
+     */
+    public function quoteIdentifier($str)
+    {
+        return '[' . $str . ']';
+    }
+
+    /**
+     * @override
+     */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         if ($foreignKey instanceof \Doctrine\DBAL\Schema\ForeignKeyConstraint) {
