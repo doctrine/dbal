@@ -34,7 +34,7 @@ class Driver implements \Doctrine\DBAL\Driver
             $driverOptions['Database'] = $params['dbname'];
         }
         
-        return new Connection(
+        return new \Doctrine\DBAL\Driver\PDOConnection(
             $this->_constructPdoDsn($params),
             $username,
             $password,
