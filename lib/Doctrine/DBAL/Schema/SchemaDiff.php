@@ -155,8 +155,11 @@ class SchemaDiff
                 $sql,
                 $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES)
             );
-            foreach ($table->getForeignKeys() AS $foreignKey) {
-                $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table);
+
+            if ($platform->supportsForeignKeyConstraints()) {
+                foreach ($table->getForeignKeys() AS $foreignKey) {
+                    $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table);
+                }
             }
         }
         $sql = array_merge($sql, $foreignKeySql);

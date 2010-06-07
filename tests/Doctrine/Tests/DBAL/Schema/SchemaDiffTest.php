@@ -23,7 +23,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
         $sql = $diff->toSql($platform);
 
-        $expected = array('drop_orphan_fk', 'drop_seq', 'create_seq', 'drop_seq', 'create_seq', 'create_table', 'drop_table', 'alter_table');
+        $expected = array('drop_orphan_fk', 'drop_seq', 'create_seq', 'drop_seq', 'create_seq', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table');
 
         $this->assertEquals($expected, $sql);
     }
@@ -35,7 +35,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
         $sql = $diff->toSaveSql($platform);
 
-        $expected = array('drop_seq', 'create_seq', 'create_seq', 'create_table', 'alter_table');
+        $expected = array('drop_seq', 'create_seq', 'create_seq', 'create_table', 'create_foreign_key', 'alter_table');
 
         $this->assertEquals($expected, $sql);
     }
@@ -62,6 +62,10 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
                  ->with($this->isInstanceof('Doctrine\DBAL\Schema\Table'))
                  ->will($this->returnValue(array('create_table')));
         $platform->expects($this->exactly(1))
+                 ->method('getCreateForeignKeySQL')
+                 ->with($this->isInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint'))
+                 ->will($this->returnValue('create_foreign_key'));
+        $platform->expects($this->exactly(1))
                  ->method('getAlterTableSql')
                  ->with($this->isInstanceOf('Doctrine\DBAL\Schema\TableDiff'))
                  ->will($this->returnValue(array('alter_table')));
@@ -74,7 +78,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
         $platform->expects($this->exactly(1))
                 ->method('supportsSequences')
                 ->will($this->returnValue(true));
-        $platform->expects($this->exactly(1))
+        $platform->expects($this->exactly(2))
                 ->method('supportsForeignKeyConstraints')
                 ->will($this->returnValue(true));
         return $platform;
@@ -89,6 +93,8 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
         $diff->newTables['foo_table'] = new Table('foo_table');
         $diff->removedTables['bar_table'] = new Table('bar_table');
         $diff->changedTables['baz_table'] = new TableDiff('baz_table');
+        $diff->newTables['foo_table']->addColumn('foreign_id', 'integer');
+        $diff->newTables['foo_table']->addForeignKeyConstraint('foreign_table', array('foreign_id'), array('id'));
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('id'), 'foreign_table', array('id'));
         $fk->setLocalTable(new Table('local_table'));
         $diff->orphanedForeignKeys[] = $fk;
