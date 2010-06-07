@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -82,9 +80,9 @@ class SchemaDiff
      *
      * @param array(string=>Table)      $newTables
      * @param array(string=>TableDiff)  $changedTables
-     * @param array(string=>bool)                  $removedTables
+     * @param array(string=>bool)       $removedTables
      */
-    public function __construct( $newTables = array(), $changedTables = array(), $removedTables = array() )
+    public function __construct($newTables = array(), $changedTables = array(), $removedTables = array())
     {
         $this->newTables = $newTables;
         $this->changedTables = $changedTables;
