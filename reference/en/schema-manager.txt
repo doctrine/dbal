@@ -135,7 +135,7 @@ Now we can clone the `$fromSchema` to `$toSchema` and drop a table:
 Now we can compare the two schema instances in order to calculate the differences between them and return the sql required to make the changes on the database:
 
     [php]
-    $sql = $fromSchema->getMigrateToSql($toSchema);
+    $sql = $fromSchema->getMigrateToSql($toSchema, $conn->getDatabasePlatform());
 
 The `$sql` array should give you a sql query to drop the user table:
 
