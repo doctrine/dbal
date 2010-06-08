@@ -29,7 +29,7 @@ affected rows count:
     $count = $conn->executeUpdate('UPDATE user SET username = ? WHERE id = ?', array('jwage', 1));
     echo $count; // 1
 
-++ execute($sql, array $params)
+++ executeQuery($sql, array $params)
 
 Creates a prepared statement for the given sql and passes the parameters to the
 execute method, then returning the statement:
@@ -81,7 +81,7 @@ Numeric index retrieval of first result row of the given query:
 Retrieve only the given column of the first result row.
 
     [php]
-    $username = $conn->fetchColumn('SELECT username FROM user WHERE id = ?', array(1), 'username');
+    $username = $conn->fetchColumn('SELECT username FROM user WHERE id = ?', array(1), 0);
     echo $username; // jwage
 
 ++ fetchRow($sql, array $params)
