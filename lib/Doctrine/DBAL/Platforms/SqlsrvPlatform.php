@@ -19,42 +19,27 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\PDOMsSql;
+namespace Doctrine\DBAL\Platforms;
+
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\DBALException;
 
 /**
- * MsSql Connection implementation.
+ * The SqlsrvPlatform provides the behavior, features and SQL dialect of the
+ * Microsoft SQL database platform.
  *
  * @since 2.0
+ * @author Juozas Kaziukenas <juozas@juokaz.com>
  */
-class Connection extends \PDO implements \Doctrine\DBAL\Driver\Connection
+class SqlsrvPlatform extends MsSqlPlatform
 {
     /**
-     * Performs the rollback.
-     * 
-     * @override
+     * Get the platform name for this instance
+     *
+     * @return string
      */
-    public function rollback()
+    public function getName()
     {
-        $this->exec('ROLLBACK TRANSACTION');
-    }
-
-    /**
-     * Performs the commit.
-     * 
-     * @override
-     */
-    public function commit()
-    {
-        $this->exec('COMMIT TRANSACTION');
-    }
-
-    /**
-     * Begins a database transaction.
-     * 
-     * @override
-     */
-    public function beginTransaction()
-    {
-        $this->exec('BEGIN TRANSACTION');
+        return 'sqlsrv';
     }
 }

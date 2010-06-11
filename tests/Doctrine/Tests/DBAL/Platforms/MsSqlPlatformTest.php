@@ -16,13 +16,13 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id INT AUTO_INCREMENT NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
+        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
         return array(
-            'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL, UNIQUE INDEX test_foo_bar_uniq (foo, bar))'
+            'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL, CONSTRAINT test_foo_bar_uniq UNIQUE (foo, bar))'
         );
     }
 
@@ -75,11 +75,11 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
             $this->_platform->getIntegerTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'INT AUTO_INCREMENT',
+            'INT IDENTITY',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
         ));
         $this->assertEquals(
-            'INT AUTO_INCREMENT',
+            'INT IDENTITY',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true)
         ));

@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -23,6 +21,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\Index;
 
 /**
  * The MsSqlPlatform provides the behavior, features and SQL dialect of the
@@ -37,50 +36,87 @@ use Doctrine\DBAL\DBALException;
 class MsSqlPlatform extends AbstractPlatform
 {
     /**
-     * Adds an adapter-specific LIMIT clause to the SELECT statement.
-     * [ borrowed from Zend Framework ]
+     * Whether the platform prefers identity columns for ID generation.
+     * MsSql prefers "autoincrement" identity columns since sequences can only
+     * be emulated with a table.
      *
-     * @param string $query
-     * @param mixed $limit
-     * @param mixed $offset
-     * @link http://lists.bestpractical.com/pipermail/rt-devel/2005-June/007339.html
+     * @return boolean
+     * @override
+     */
+    public function prefersIdentityColumns()
+    {
+        return true;
+    }
+
+    /**
+     * Whether the platform supports identity columns.
+     * MsSql supports this through AUTO_INCREMENT columns.
+     *
+     * @return boolean
+     * @override
+     */
+    public function supportsIdentityColumns()
+    {
+        return true;
+    }
+
+    /**
+     * Whether the platform supports savepoints. MsSql does not.
+     *
+     * @return boolean
+     * @override
+     */
+    public function supportsSavepoints()
+    {
+        return false;
+    }
+
+    /**
+     * create a new database
+     *
+     * @param string $name name of the database that should be created
      * @return string
      * @override
      */
-    public function writeLimitClause($query, $limit = false, $offset = false)
+    public function getCreateDatabaseSQL($name)
     {
-        if ($limit > 0) {
-            $count = intval($limit);
+        return 'CREATE DATABASE ' . $name;
+    }
 
-            $offset = intval($offset);
-            if ($offset < 0) {
-                throw DBALException::limitOffsetInvalid($offset);
-            }
-    
-            $orderby = stristr($query, 'ORDER BY');
-            if ($orderby !== false) {
-                $sort = (stripos($orderby, 'desc') !== false) ? 'desc' : 'asc';
-                $order = str_ireplace('ORDER BY', '', $orderby);
-                $order = trim(preg_replace('/ASC|DESC/i', '', $order));
-            }
-    
-            $query = preg_replace('/^SELECT\s/i', 'SELECT TOP ' . ($count+$offset) . ' ', $query);
-    
-            $query = 'SELECT * FROM (SELECT TOP ' . $count . ' * FROM (' . $query . ') AS inner_tbl';
-            if ($orderby !== false) {
-                $query .= ' ORDER BY ' . $order . ' ';
-                $query .= (stripos($sort, 'asc') !== false) ? 'DESC' : 'ASC';
-            }
-            $query .= ') AS outer_tbl';
-            if ($orderby !== false) {
-                $query .= ' ORDER BY ' . $order . ' ' . $sort;
-            }
-    
-            return $query;
+    /**
+     * drop an existing database
+     *
+     * @param string $name name of the database that should be dropped
+     * @return string
+     * @override
+     */
+    public function getDropDatabaseSQL($name)
+    {
+        return 'DROP DATABASE ' . $name;
+    }
 
+    /**
+     * @override
+     */
+    public function quoteIdentifier($str)
+    {
+        return '[' . $str . ']';
+    }
+
+    /**
+     * @override
+     */
+    public function getDropForeignKeySQL($foreignKey, $table)
+    {
+        if ($foreignKey instanceof \Doctrine\DBAL\Schema\ForeignKeyConstraint) {
+            $foreignKey = $foreignKey->getName();
         }
 
-        return $query;
+        if ($table instanceof \Doctrine\DBAL\Schema\Table) {
+            $table = $table->getName();
+        }
+
+        return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
     }
 
     /**
@@ -125,7 +161,68 @@ class MsSqlPlatform extends AbstractPlatform
         $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
         return $sql;
     }
-    
+
+    /**
+     * @override
+     */
+    public function getEmptyIdentityInsertSQL($quotedTableName, $quotedIdentifierColumnName)
+    {
+        return 'INSERT INTO ' . $quotedTableName . ' DEFAULT VALUES';
+    }
+
+    /**
+     * @override
+     */
+    public function getShowDatabasesSQL()
+    {
+        return 'SHOW DATABASES';
+    }
+
+    /**
+     * @override
+     */
+    public function getListTablesSQL()
+    {
+        return "SELECT name FROM sysobjects WHERE type = 'U' ORDER BY name";
+    }
+
+    /**
+     * @override
+     */
+    public function getListTableColumnsSQL($table)
+    {
+        return 'exec sp_columns @table_name = ' . $table;
+    }
+
+    /**
+     * @override
+     */
+    public function getListTableForeignKeysSQL($table, $database = null)
+    {
+        return "SELECT f.name AS ForeignKey,
+                SCHEMA_NAME (f.SCHEMA_ID) AS SchemaName,
+                OBJECT_NAME (f.parent_object_id) AS TableName,
+                COL_NAME (fc.parent_object_id,fc.parent_column_id) AS ColumnName,
+                SCHEMA_NAME (o.SCHEMA_ID) ReferenceSchemaName,
+                OBJECT_NAME (f.referenced_object_id) AS ReferenceTableName,
+                COL_NAME(fc.referenced_object_id,fc.referenced_column_id) AS ReferenceColumnName,
+                f.delete_referential_action_desc,
+                f.update_referential_action_desc
+                FROM sys.foreign_keys AS f
+                INNER JOIN sys.foreign_key_columns AS fc
+                INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
+                ON f.OBJECT_ID = fc.constraint_object_id
+                WHERE OBJECT_NAME (f.parent_object_id) = '" . $table . "'";
+    }
+
+    /**
+     * @override
+     */
+    public function getListTableIndexesSQL($table)
+    {
+        return "exec sp_helpindex '" . $table . "'";
+    }
+
     /**
      * Returns the regular expression operator.
      *
@@ -138,47 +235,57 @@ class MsSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Return string to call a variable with the current timestamp inside an SQL statement
-     * There are three special variables for current date and time:
-     * - CURRENT_TIMESTAMP (date and time, TIMESTAMP type)
-     * - CURRENT_DATE (date, DATE type)
-     * - CURRENT_TIME (time, TIME type)
+     * Returns global unique identifier
      *
-     * @return string to call a variable with the current timestamp
+     * @return string to get global unique identifier
      * @override
      */
-    public function getNowExpression($type = 'timestamp')
+    public function getGuidExpression()
     {
-        switch ($type) {
-            case 'time':
-            case 'date':
-            case 'timestamp':
-            default:
-                return 'GETDATE()';
+        return 'UUID()';
+    }
+
+    /**
+     * @override
+     */
+    public function getLocateExpression($str, $substr, $startPos = false)
+    {
+        if ($startPos == false) {
+            return 'CHARINDEX(' . $substr . ', ' . $str . ')';
+        } else {
+            return 'CHARINDEX(' . $substr . ', ' . $str . ', '.$startPos.')';
         }
     }
 
     /**
-     * return string to call a function to get a substring inside an SQL statement
-     *
-     * @return string to call a function to get a substring
      * @override
      */
-    public function getSubstringExpression($value, $position, $length = null)
+    public function getModExpression($expression1, $expression2)
     {
-        if ( ! is_null($length)) {
-            return 'SUBSTRING(' . $value . ', ' . $position . ', ' . $length . ')';
-        }
-        return 'SUBSTRING(' . $value . ', ' . $position . ', LEN(' . $value . ') - ' . $position . ' + 1)';
+        return $expression1 . ' % ' . $expression2;
     }
 
     /**
-     * Returns string to concatenate two or more string parameters
-     *
-     * @param string $arg1
-     * @param string $arg2
-     * @param string $values...
-     * @return string to concatenate two strings
+     * @override
+     */
+    public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
+    {
+        // @todo
+        $trimFn = '';
+        $trimChar = ($char != false) ? (', ' . $char) : '';
+
+        if ($pos == self::TRIM_LEADING) {
+            $trimFn = 'LTRIM';
+        } else if($pos == self::TRIM_TRAILING) {
+            $trimFn = 'RTRIM';
+        } else {
+            return 'LTRIM(RTRIM(' . $str . '))';
+        }
+
+        return $trimFn . '(' . $str . ')';
+    }
+
+    /**
      * @override
      */
     public function getConcatExpression()
@@ -188,93 +295,34 @@ class MsSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Returns global unique identifier
-     *
-     * @return string to get global unique identifier
      * @override
      */
-    public function getGuidExpression()
+    public function getSubstringExpression($value, $from, $len = null)
     {
-        return 'NEWID()';
+        if ( ! is_null($len)) {
+            return 'SUBSTRING(' . $value . ', ' . $from . ', ' . $len . ')';
+        }
+        return 'SUBSTRING(' . $value . ', ' . $from . ', LEN(' . $value . ') - ' . $from . ' + 1)';
     }
 
     /**
-     * Whether the platform prefers identity columns for ID generation.
-     * MsSql prefers "autoincrement" identity columns since sequences can only
-     * be emulated with a table.
-     *
-     * @return boolean
      * @override
      */
-    public function prefersIdentityColumns()
+    public function getLengthExpression($column)
     {
-        return true;
-    }
-    
-    /**
-     * Whether the platform supports identity columns.
-     * MsSql supports this through AUTO_INCREMENT columns.
-     *
-     * @return boolean
-     * @override
-     */
-    public function supportsIdentityColumns()
-    {
-        return true;
-    }
-    
-    /**
-     * Whether the platform supports savepoints. MsSql does not.
-     *
-     * @return boolean
-     * @override
-     */
-    public function supportsSavepoints()
-    {
-        return false;
+        return 'LEN(' . $column . ')';
     }
 
-    public function getShowDatabasesSQL()
-    {
-        return 'SHOW DATABASES';
-    }
-
-    public function getListTablesSQL()
-    {
-        return 'SHOW TABLES';
-    }
-    
     /**
-     * create a new database
-     *
-     * @param string $name name of the database that should be created
-     * @return string
      * @override
      */
-    public function getCreateDatabaseSQL($name)
-    {
-        return 'CREATE DATABASE ' . $name;
-    }
-    
-    /**
-     * drop an existing database
-     *
-     * @param string $name name of the database that should be dropped
-     * @return string
-     * @override
-     */
-    public function getDropDatabaseSQL($name)
-    {
-        return 'DROP DATABASE ' . $name;
-    }
-
     public function getSetTransactionIsolationSQL($level)
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
-    
-    /** 
-     * @override 
+
+    /**
+     * @override
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
@@ -282,21 +330,22 @@ class MsSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * @override 
+     * @override
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
+    /** @override */
     public function getVarcharTypeDeclarationSQL(array $field)
     {
         if ( ! isset($field['length'])) {
@@ -313,21 +362,21 @@ class MsSqlPlatform extends AbstractPlatform
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
                 : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
     }
-    
+
     /** @override */
     public function getClobTypeDeclarationSQL(array $field)
     {
         return 'TEXT';
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
         $autoinc = '';
         if ( ! empty($columnDef['autoincrement'])) {
-            $autoinc = ' AUTO_INCREMENT';
+            $autoinc = ' IDENTITY';
         }
         $unsigned = (isset($columnDef['unsigned']) && $columnDef['unsigned']) ? ' UNSIGNED' : '';
 
@@ -339,7 +388,8 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'CHAR(' . strlen('YYYY-MM-DD HH:MM:SS') . ')';
+        // 6 - microseconds precision length
+        return 'DATETIME2(6)';
     }
 
     /**
@@ -347,15 +397,15 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'CHAR(' . strlen('YYYY-MM-DD') . ')';
-    }	
+        return 'DATE';
+    }
 
     /**
      * @override
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration) 
+    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'CHAR(' . strlen('HH:MM:SS') . ')';
+        return 'TIME';
     }
 
     /**
@@ -364,16 +414,6 @@ class MsSqlPlatform extends AbstractPlatform
     public function getBooleanTypeDeclarationSQL(array $field)
     {
         return 'BIT';
-    }
-
-    /**
-     * Get the platform name for this instance
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return 'mssql';
     }
 
     /**
@@ -434,14 +474,14 @@ class MsSqlPlatform extends AbstractPlatform
             $query = 'SELECT * FROM (SELECT TOP ' . $count . ' * FROM (' . $query . ') AS ' . 'inner_tbl';
 
             if ($orderby !== false) {
-                $query .= ' ORDER BY '; 
+                $query .= ' ORDER BY ';
 
-                for ($i = 0, $l = count($orders); $i < $l; $i++) { 
-                    if ($i > 0) { // not first order clause 
-                        $query .= ', '; 
-                    } 
+                for ($i = 0, $l = count($orders); $i < $l; $i++) {
+                    if ($i > 0) { // not first order clause
+                        $query .= ', ';
+                    }
 
-                    $query .= 'inner_tbl' . '.' . $aliases[$i] . ' '; 
+                    $query .= 'inner_tbl' . '.' . $aliases[$i] . ' ';
                     $query .= (stripos($sorts[$i], 'ASC') !== false) ? 'DESC' : 'ASC';
                 }
             }
@@ -449,12 +489,12 @@ class MsSqlPlatform extends AbstractPlatform
             $query .= ') AS ' . 'outer_tbl';
 
             if ($orderby !== false) {
-                $query .= ' ORDER BY '; 
+                $query .= ' ORDER BY ';
 
-                for ($i = 0, $l = count($orders); $i < $l; $i++) { 
-                    if ($i > 0) { // not first order clause 
-                        $query .= ', '; 
-                    } 
+                for ($i = 0, $l = count($orders); $i < $l; $i++) {
+                    if ($i > 0) { // not first order clause
+                        $query .= ', ';
+                    }
 
                     $query .= 'outer_tbl' . '.' . $aliases[$i] . ' ' . $sorts[$i];
                 }
@@ -465,50 +505,69 @@ class MsSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Get the insert sql for an empty insert statement
-     *
-     * @param string $tableName 
-     * @param string $identifierColumnName 
-     * @return string $sql
+     * @override
      */
-    public function getEmptyIdentityInsertSQL($quotedTableName, $quotedIdentifierColumnName)
+    public function convertBooleans($item)
     {
-        return 'INSERT INTO ' . $quotedTableName . ' DEFAULT VALUES';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getTruncateTableSQL($tableName, $cascade = false)
-    {
-        return 'TRUNCATE TABLE '.$tableName;
-    }
-
-    /**
-     * MsSql uses Table Hints for locking strategies instead of the ANSI SQL FOR UPDATE like hints.
-     *
-     * @return string
-     */
-    public function getForUpdateSQL()
-    {
-        return '';
-    }
-
-    /**
-     * @license LGPL
-     * @author Hibernate
-     * @param  string $fromClause
-     * @param  int $lockMode
-     * @return string
-     */
-    public function appendLockHint($fromClause, $lockMode)
-    {
-        if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) {
-            return $fromClause . " WITH (UPDLOCK, ROWLOCK)";
-        } else if ( $lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_READ ) {
-            return $fromClause . " WITH (HOLDLOCK, ROWLOCK)";
+        if (is_array($item)) {
+            foreach ($item as $key => $value) {
+                if (is_bool($value) || is_numeric($item)) {
+                    $item[$key] = ($value) ? 'TRUE' : 'FALSE';
+                }
+            }
         } else {
-            return $fromClause;
+           if (is_bool($item) || is_numeric($item)) {
+               $item = ($item) ? 'TRUE' : 'FALSE';
+           }
         }
+        return $item;
+    }
+
+    /**
+     * @override
+     */
+    public function getCreateTemporaryTableSnippetSQL()
+    {
+        return "CREATE TABLE";
+    }
+
+    /**
+     * @override
+     */
+    public function getTemporaryTableName($tableName)
+    {
+        return '#' . $tableName;
+    }
+
+    /**
+     * @override
+     */
+    public function getDateTimeFormatString()
+    {
+        return 'Y-m-d H:i:s.u';
+    }
+
+    /**
+     * @override
+     */
+    public function getIndexDeclarationSQL($name, Index $index)
+    {
+        // @todo
+        return $this->getUniqueConstraintDeclarationSQL($name, $index);
+    }
+
+    /**
+     * Get the platform name for this instance
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return 'mssql';
+    }
+
+    protected function initializeDoctrineTypeMappings()
+    {
+        
     }
 }

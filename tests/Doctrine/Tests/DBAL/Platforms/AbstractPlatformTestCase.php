@@ -16,6 +16,24 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->_platform = $this->createPlatform();
     }
 
+    public function testGetUnknownDoctrineMappingType()
+    {
+        $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $this->_platform->getDoctrineTypeMapping('foobar');
+    }
+
+    public function testRegisterDoctrineMappingType()
+    {
+        $this->_platform->registerDoctrineTypeMapping('foo', 'integer');
+        $this->assertEquals('integer', $this->_platform->getDoctrineTypeMapping('foo'));
+    }
+
+    public function testRegisterUnknownDoctrineMappingType()
+    {
+        $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $this->_platform->registerDoctrineTypeMapping('foo', 'bar');
+    }
+
     public function testCreateWithNoColumns()
     {
         $table = new \Doctrine\DBAL\Schema\Table('test');
