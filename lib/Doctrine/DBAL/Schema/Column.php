@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -74,6 +72,11 @@ class Column extends AbstractAsset
      * @var string
      */
     protected $_default = null;
+
+    /**
+     * @var bool
+     */
+    protected $_autoincrement = false;
 
     /**
      * @var array
@@ -302,6 +305,17 @@ class Column extends AbstractAsset
         return $this->_columnDefinition;
     }
 
+    public function getAutoincrement()
+    {
+        return $this->_autoincrement;
+    }
+
+    public function setAutoincrement($flag)
+    {
+        $this->_autoincrement = (bool)$flag;
+        return $this;
+    }
+
     /**
      * @param Visitor $visitor
      */
@@ -325,6 +339,7 @@ class Column extends AbstractAsset
             'scale'         => $this->_scale,
             'fixed'         => $this->_fixed,
             'unsigned'      => $this->_unsigned,
+            'autoincrement' => $this->_autoincrement,
             'columnDefinition' => $this->_columnDefinition,
         ), $this->_platformOptions);
     }

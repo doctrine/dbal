@@ -111,6 +111,17 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ) );
     }
 
+    public function testCompareOnlyAutoincrementChanged()
+    {
+        $column1 = new Column('foo', Type::getType('integer'), array('autoincrement' => true));
+        $column2 = new Column('foo', Type::getType('integer'), array('autoincrement' => false));
+
+        $comparator = new Comparator();
+        $changedProperties = $comparator->diffColumn($column1, $column2);
+
+        $this->assertEquals(array('autoincrement'), $changedProperties);
+    }
+
     public function testCompareMissingField()
     {
         $missingColumn = new Column('integerfield1', Type::getType('integer'));

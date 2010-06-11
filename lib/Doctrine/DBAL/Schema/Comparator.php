@@ -325,6 +325,10 @@ class Comparator
             }
         }
 
+        if ($column1->getAutoincrement() != $column2->getAutoincrement()) {
+            $changedProperties[] = 'autoincrement';
+        }
+
         foreach ($column1->getPlatformOptions() AS $optionName => $optionValue) {
             if (!$column2->hasPlatformOption($optionName) || $optionValue != $column2->getPlatformOption($optionName)) {
                 $changedProperties[] = $optionName;
