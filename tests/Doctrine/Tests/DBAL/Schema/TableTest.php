@@ -185,21 +185,6 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new Table("foo", $columns, $indexes, array());
     }
 
-    public function testIdGenerator()
-    {
-        $tableA = new Table("foo", array(), array(), array(), Table::ID_NONE);
-        $this->assertFalse($tableA->isIdGeneratorIdentity());
-        $this->assertFalse($tableA->isIdGeneratorSequence());;
-        
-        $tableB = new Table("foo", array(), array(), array(), Table::ID_IDENTITY);
-        $this->assertTrue($tableB->isIdGeneratorIdentity());
-        $this->assertFalse($tableB->isIdGeneratorSequence());;
-
-        $tableC = new Table("foo", array(), array(), array(), Table::ID_SEQUENCE);
-        $this->assertFalse($tableC->isIdGeneratorIdentity());
-        $this->assertTrue($tableC->isIdGeneratorSequence());;
-    }
-
     public function testConstraints()
     {
         $constraint = new ForeignKeyConstraint(array(), "foo", array());
@@ -213,7 +198,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
     public function testOptions()
     {
-        $table = new Table("foo", array(), array(), array(), Table::ID_NONE, array("foo" => "bar"));
+        $table = new Table("foo", array(), array(), array(), false, array("foo" => "bar"));
 
         $this->assertTrue($table->hasOption("foo"));
         $this->assertEquals("bar", $table->getOption("foo"));
@@ -279,17 +264,6 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table->addOption("foo", "bar");
         $this->assertTrue($table->hasOption("foo"));
         $this->assertEquals("bar", $table->getOption("foo"));
-    }
-
-    public function testIdGeneratorType()
-    {
-        $table = new Table("foo");
-        
-        $table->setIdGeneratorType(Table::ID_IDENTITY);
-        $this->assertTrue($table->isIdGeneratorIdentity());
-
-        $table->setIdGeneratorType(Table::ID_SEQUENCE);
-        $this->assertTrue($table->isIdGeneratorSequence());
     }
 
     public function testAddForeignKeyConstraint_UnknownLocalColumn_ThrowsException()

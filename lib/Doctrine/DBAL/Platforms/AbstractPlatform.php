@@ -700,7 +700,7 @@ abstract class AbstractPlatform
             $columnData['type'] = $column->getType();
             $columnData['length'] = $column->getLength();
             $columnData['notnull'] = $column->getNotNull();
-            $columnData['unique'] = ($column->hasPlatformOption("unique"))?$column->getPlatformOption('unique'):false;
+            $columnData['unique'] = false; // TODO: what do we do about this?
             $columnData['version'] = ($column->hasPlatformOption("version"))?$column->getPlatformOption('version'):false;
             if(strtolower($columnData['type']) == "string" && $columnData['length'] === null) {
                 $columnData['length'] = 255;
@@ -709,13 +709,10 @@ abstract class AbstractPlatform
             $columnData['scale'] = $column->getScale();
             $columnData['default'] = $column->getDefault();
             $columnData['columnDefinition'] = $column->getColumnDefinition();
+            $columnData['autoincrement'] = $column->getAutoincrement();
 
             if(in_array($column->getName(), $options['primary'])) {
                 $columnData['primary'] = true;
-
-                if($table->isIdGeneratorIdentity()) {
-                    $columnData['autoincrement'] = true;
-                }
             }
 
             $columns[$columnData['name']] = $columnData;

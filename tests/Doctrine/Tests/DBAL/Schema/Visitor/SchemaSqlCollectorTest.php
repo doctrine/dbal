@@ -66,7 +66,6 @@ class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
         $tableA->addColumn("id", 'integer');
         $tableA->addColumn("bar", 'string', array('length' => 255));
         $tableA->setPrimaryKey(array("id"));
-        $tableA->setIdGeneratorType(Table::ID_SEQUENCE);
 
         $schema->createSequence("foo_seq");
 

@@ -367,7 +367,6 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $table = new \Doctrine\DBAL\Schema\Table('test_autoincrement');
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
-        $table->setIdGeneratorType(\Doctrine\DBAL\Schema\Table::ID_IDENTITY);
         $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->setPrimaryKey(array('id'));
 
@@ -394,9 +393,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     protected function getTestTable($name, $options=array())
     {
-        $table = new \Doctrine\DBAL\Schema\Table($name, array(), array(), array(), \Doctrine\DBAL\Schema\Table::ID_NONE, $options);
+        $table = new \Doctrine\DBAL\Schema\Table($name, array(), array(), array(), false, $options);
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
-        $table->setIdGeneratorType(\Doctrine\DBAL\Schema\Table::ID_IDENTITY);
         $table->addColumn('id', 'integer', array('notnull' => true));
         $table->setPrimaryKey(array('id'));
         $table->addColumn('test', 'string', array('length' => 255));

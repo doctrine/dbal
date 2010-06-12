@@ -45,10 +45,9 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testGeneratesTableCreationSql()
     {
         $table = new \Doctrine\DBAL\Schema\Table('test');
-        $table->addColumn('id', 'integer', array('notnull' => true));
+        $table->addColumn('id', 'integer', array('notnull' => true, 'autoincrement' => true));
         $table->addColumn('test', 'string', array('notnull' => false, 'length' => 255));
         $table->setPrimaryKey(array('id'));
-        $table->setIdGeneratorType(\Doctrine\DBAL\Schema\Table::ID_IDENTITY);
 
         $sql = $this->_platform->getCreateTableSQL($table);
         $this->assertEquals($this->getGenerateTableSql(), $sql[0]);
