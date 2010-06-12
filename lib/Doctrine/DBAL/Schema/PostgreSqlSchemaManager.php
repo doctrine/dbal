@@ -170,10 +170,12 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
         
         $matches = array();
-        
+
+        $autoincrement = false;
         if (preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches)) {
             $tableColumn['sequence'] = $matches[1];
             $tableColumn['default'] = null;
+            $autoincrement = true;
         }
         
         if (stripos($tableColumn['default'], 'NULL') !== null) {
@@ -200,25 +202,16 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $dbType = strtolower($tableColumn['type']);
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
-        $autoincrement = false;
         switch ($dbType) {
             case 'smallint':
             case 'int2':
                 $length = null;
                 break;
-            case 'serial':
-            case 'serial4':
-                $autoincrement = true;
-                // break missing intentionally
             case 'int':
             case 'int4':
             case 'integer':
                 $length = null;
                 break;
-            case 'bigserial':
-            case 'serial8':
-                $autoincrement = true;
-                // break missing intentionally
             case 'bigint':
             case 'int8':
                 $length = null;
@@ -268,9 +261,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             'scale'     => $scale,
             'fixed'     => $fixed,
             'unsigned'  => false,
-            'platformDetails' => array(
-                'autoincrement' => $autoincrement,
-            ),
+            'autoincrement' => $autoincrement,
         );
 
         return new Column($tableColumn['field'], \Doctrine\DBAL\Types\Type::getType($type), $options);

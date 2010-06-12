@@ -217,7 +217,8 @@ abstract class AbstractSchemaManager
 
         $idGeneratorType = Table::ID_NONE;
         foreach ($columns AS $column) {
-            if ($column->hasPlatformOption('autoincrement') && $column->getPlatformOption('autoincrement')) {
+            /* @var $column Column */
+            if ($column->getAutoincrement()) {
                 $idGeneratorType = Table::ID_IDENTITY;
             }
         }

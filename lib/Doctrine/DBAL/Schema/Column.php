@@ -312,7 +312,7 @@ class Column extends AbstractAsset
 
     public function setAutoincrement($flag)
     {
-        $this->_autoincrement = (bool)$flag;
+        $this->_autoincrement = $flag;
         return $this;
     }
 

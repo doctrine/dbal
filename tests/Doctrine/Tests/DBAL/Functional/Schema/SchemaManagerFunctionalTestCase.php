@@ -359,6 +359,27 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $views = $this->_sm->listViews();
     }
 
+    public function testAutoincrementDetection()
+    {
+        if (!$this->_sm->getDatabasePlatform()->supportsIdentityColumns()) {
+            $this->markTestSkipped('This test is only supported on platforms that have autoincrement');
+        }
+
+        $table = new \Doctrine\DBAL\Schema\Table('test_autoincrement');
+        $table->setSchemaConfig($this->_sm->createSchemaConfig());
+        $table->setIdGeneratorType(\Doctrine\DBAL\Schema\Table::ID_IDENTITY);
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+
+        $inferredTable = $this->_sm->listTableDetails('test_autoincrement');
+        $this->assertTrue($inferredTable->hasColumn('id'));
+        $this->assertTrue($inferredTable->getColumn('id')->getAutoincrement());
+
+
+    }
+
     protected function createTestTable($name = 'test_table', $data = array())
     {
         $options = array();
