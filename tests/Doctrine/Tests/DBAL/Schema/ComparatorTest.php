@@ -572,6 +572,8 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
     public function testDetectChangeIdentifierType()
     {
+        $this->markTestSkipped('DBAL-2 was reopened, this test cannot work anymore.');
+
         $tableA = new Table("foo");
         $tableA->addColumn('id', 'integer', array('platformOptions' => array('autoincrement' => false)));
 

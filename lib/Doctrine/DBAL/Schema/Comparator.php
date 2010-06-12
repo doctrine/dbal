@@ -325,17 +325,6 @@ class Comparator
             }
         }
 
-        foreach ($column1->getPlatformOptions() AS $optionName => $optionValue) {
-            if (!$column2->hasPlatformOption($optionName) || $optionValue != $column2->getPlatformOption($optionName)) {
-                $changedProperties[] = $optionName;
-            }
-        }
-        foreach ($column2->getPlatformOptions() AS $optionName => $optionValue) {
-            if (!$column1->hasPlatformOption($optionName)) {
-                $changedProperties[] = $optionName;
-            }
-        }
-
         return $changedProperties;
     }
 
