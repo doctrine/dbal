@@ -178,7 +178,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $autoincrement = true;
         }
         
-        if (stripos($tableColumn['default'], 'NULL') !== null) {
+        if ($tableColumn['default'] == 'NULL') {
             $tableColumn['default'] = null;
         }
         
