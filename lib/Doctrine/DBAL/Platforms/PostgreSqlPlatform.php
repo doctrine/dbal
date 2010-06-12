@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -641,5 +639,46 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getReadLockSQL()
     {
         return 'FOR SHARE';
+    }
+
+    protected function initializeDoctrineTypeMappings()
+    {
+        $this->doctrineTypeMapping = array(
+            'smallint' => 'smallint',
+            'int2' => 'smallint',
+            'serial' => 'integer',
+            'serial4' => 'integer',
+            'int' => 'integer',
+            'int4' => 'integer',
+            'integer' => 'integer',
+            'bigserial' => 'bigint',
+            'serial8' => 'bigint',
+            'bigint' => 'bigint',
+            'int8' => 'bigint',
+            'bool' => 'boolean',
+            'boolean' => 'boolean',
+            'text' => 'text',
+            'varchar' => 'string',
+            'interval' => 'string',
+            '_varchar' => 'string',
+            'char' => 'string',
+            'bpchar' => 'string',
+            'date' => 'date',
+            'datetime' => 'datetime',
+            'timestamp' => 'datetime',
+            'timestamptz' => 'datetime',
+            'time' => 'time',
+            'timetz' => 'time',
+            'float' => 'decimal',
+            'float4' => 'decimal',
+            'float8' => 'decimal',
+            'double' => 'decimal',
+            'double precision' => 'decimal',
+            'real' => 'decimal',
+            'decimal' => 'decimal',
+            'money' => 'decimal',
+            'numeric' => 'decimal',
+            'year' => 'date',
+        );
     }
 }

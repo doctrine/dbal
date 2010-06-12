@@ -4,7 +4,11 @@ namespace Doctrine\Tests;
 
 class DbalFunctionalTestCase extends DbalTestCase
 {
-    /* Shared connection when a TestCase is run alone (outside of it's functional suite) */
+    /**
+     * Shared connection when a TestCase is run alone (outside of it's functional suite)
+     *
+     * @var Doctrine\DBAL\Connection
+     */
     private static $_sharedConn;
 
     /**
@@ -14,8 +18,14 @@ class DbalFunctionalTestCase extends DbalTestCase
 
     protected function resetSharedConn()
     {
-        $this->sharedFixture['conn'] = null;
-        self::$_sharedConn = null;
+        if ($this->sharedFixture['conn']) {
+            $this->sharedFixture['conn']->close();
+            $this->sharedFixture['conn'] = null;
+        }
+        if (self::$_sharedConn) {
+            self::$_sharedConn->close();
+            self::$_sharedConn = null;
+        }
     }
 
     protected function setUp()

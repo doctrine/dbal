@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -42,6 +40,7 @@ use Doctrine\DBAL\DBALException,
  * @author  Jonathan Wage <jonwage@gmail.com>
  * @author  Roman Borschel <roman@code-factory.org>
  * @author  Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
+ * @author  Benjamin Eberlei <kontakt@beberlei.de>
  * @todo Remove any unnecessary methods.
  */
 abstract class AbstractPlatform
@@ -77,9 +76,61 @@ abstract class AbstractPlatform
     const TRIM_BOTH = 3;
 
     /**
+     * @var array
+     */
+    protected $doctrineTypeMapping = null;
+
+    /**
      * Constructor.
      */
     public function __construct() {}
+
+    /**
+     * Register a doctrine type to be used in conjunction with a column type of this platform.
+     *
+     * @param string $dbType
+     * @param string $doctrineType
+     */
+    public function registerDoctrineTypeMapping($dbType, $doctrineType)
+    {
+        if ($this->doctrineTypeMapping === null) {
+            $this->initializeDoctrineTypeMappings();
+        }
+
+        if (!Types\Type::hasType($doctrineType)) {
+            throw DBALException::typeNotFound($doctrineType);
+        }
+
+        $dbType = strtolower($dbType);
+        $this->doctrineTypeMapping[$dbType] = $doctrineType;
+    }
+
+    /**
+     * Get the Doctrine type that is mapped for the given database column type.
+     * 
+     * @param  string $dbType
+     * @return string
+     */
+    public function getDoctrineTypeMapping($dbType)
+    {
+        if ($this->doctrineTypeMapping === null) {
+            $this->initializeDoctrineTypeMappings();
+        }
+        
+        $dbType = strtolower($dbType);
+        if (isset($this->doctrineTypeMapping[$dbType])) {
+            return $this->doctrineTypeMapping[$dbType];
+        } else {
+            throw new \Doctrine\DBAL\DBALException("Unknown database type ".$dbType." requested, " . get_class($this) . " may not support it.");
+        }
+    }
+
+    /**
+     * Lazy load Doctrine Type Mappings
+     *
+     * @return void
+     */
+    abstract protected function initializeDoctrineTypeMappings();
 
     /**
      * Gets the character used for identifier quoting.
@@ -1900,5 +1951,15 @@ abstract class AbstractPlatform
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         return 'TRUNCATE '.$tableName;
+    }
+
+    /**
+     * This is for test reasons, many vendors have special requirements for dummy statements.
+     * 
+     * @return string
+     */
+    public function getDummySelectSQL()
+    {
+        return 'SELECT 1';
     }
 }

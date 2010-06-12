@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -89,9 +87,6 @@ class MySqlSchemaManager extends AbstractSchemaManager
     {
         $dbType = strtolower($tableColumn['Type']);
         $dbType = strtok($dbType, '(), ');
-        if ($dbType == 'national') {
-            $dbType = strtok('(), ');
-        }
         if (isset($tableColumn['length'])) {
             $length = $tableColumn['length'];
             $decimal = '';
@@ -109,70 +104,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $scale = null;
         $precision = null;
         
-        // Map db type to Doctrine mapping type
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
         switch ($dbType) {
-            case 'tinyint':
-                $type = 'boolean';
-                $length = null;
-                break;
-            case 'smallint':
-                $type = 'smallint';
-                $length = null;
-                break;
-            case 'mediumint':
-                $type = 'integer';
-                $length = null;
-                break;
-            case 'int':
-            case 'integer':
-                $type = 'integer';
-                $length = null;
-                break;
-            case 'bigint':
-                $type = 'bigint';
-                $length = null;
-                break;
-            case 'tinytext':
-            case 'mediumtext':
-            case 'longtext':
-            case 'text':
-                $type = 'text';
-                $fixed = false;
-                break;
-            case 'varchar':
-                $fixed = false;
-            case 'string':
             case 'char':
-                $type = 'string';
-                if ($length == '1') {
-                    $type = 'boolean';
-                    if (preg_match('/^(is|has)/', $tableColumn['name'])) {
-                        $type = array_reverse($type);
-                    }
-                } else if (strstr($dbType, 'text')) {
-                    $type = 'text';
-                    if ($decimal == 'binary') {
-                        $type = 'blob';
-                    }
-                }
-                if ($fixed !== false) {
-                    $fixed = true;
-                }
-                break;
-            case 'set':
-                $fixed = false;
-                $type = 'text';
-                $type = 'integer'; //FIXME:???
-                break;
-            case 'date':
-                $type = 'date';
-                break;
-            case 'datetime':
-            case 'timestamp':
-                $type = 'datetime';
-                break;
-            case 'time':
-                $type = 'time';
+                $fixed = true;
                 break;
             case 'float':
             case 'double':
@@ -184,36 +119,22 @@ class MySqlSchemaManager extends AbstractSchemaManager
                     $scale = $match[2];
                     $length = null;
                 }
-                $type = 'decimal';
                 break;
+            case 'tinyint':
+            case 'smallint':
+            case 'mediumint':
+            case 'int':
+            case 'integer':
+            case 'bigint':
             case 'tinyblob':
             case 'mediumblob':
             case 'longblob':
             case 'blob':
             case 'binary':
             case 'varbinary':
-                $type = 'blob';
-                $length = null;
-                break;
             case 'year':
-                $type = 'integer';
-                $type = 'date';
                 $length = null;
                 break;
-            case 'geometry':
-            case 'geometrycollection':
-            case 'point':
-            case 'multipoint':
-            case 'linestring':
-            case 'multilinestring':
-            case 'polygon':
-            case 'multipolygon':
-                $type = 'blob';
-                $length = null;
-                break;
-            default:
-                $type = 'string';
-                $length = null;
         }
 
         $length = ((int) $length == 0) ? null : (int) $length;
