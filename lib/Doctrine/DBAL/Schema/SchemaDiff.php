@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -82,9 +80,9 @@ class SchemaDiff
      *
      * @param array(string=>Table)      $newTables
      * @param array(string=>TableDiff)  $changedTables
-     * @param array(string=>bool)                  $removedTables
+     * @param array(string=>bool)       $removedTables
      */
-    public function __construct( $newTables = array(), $changedTables = array(), $removedTables = array() )
+    public function __construct($newTables = array(), $changedTables = array(), $removedTables = array())
     {
         $this->newTables = $newTables;
         $this->changedTables = $changedTables;
@@ -155,8 +153,11 @@ class SchemaDiff
                 $sql,
                 $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES)
             );
-            foreach ($table->getForeignKeys() AS $foreignKey) {
-                $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table);
+
+            if ($platform->supportsForeignKeyConstraints()) {
+                foreach ($table->getForeignKeys() AS $foreignKey) {
+                    $foreignKeySql[] = $platform->getCreateForeignKeySQL($foreignKey, $table);
+                }
             }
         }
         $sql = array_merge($sql, $foreignKeySql);
