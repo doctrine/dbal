@@ -16,45 +16,20 @@
  *
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information, see
- * <http://www.doctrine-project.org>.
+ * <http://www.phpdoctrine.org>.
  */
 
-namespace Doctrine\DBAL\Driver\PDOMsSql;
+namespace Doctrine\DBAL\Schema;
 
 /**
- * MsSql Connection implementation.
+ * xxx
  *
- * @since 2.0
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @author      Juozas Kaziukenas <juozas@juokaz.com>
+ * @version     $Revision$
+ * @since       2.0
  */
-class Connection extends \PDO implements \Doctrine\DBAL\Driver\Connection
+class SqlsrvSchemaManager extends MsSqlSchemaManager
 {
-    /**
-     * Performs the rollback.
-     * 
-     * @override
-     */
-    public function rollback()
-    {
-        $this->exec('ROLLBACK TRANSACTION');
-    }
-
-    /**
-     * Performs the commit.
-     * 
-     * @override
-     */
-    public function commit()
-    {
-        $this->exec('COMMIT TRANSACTION');
-    }
-
-    /**
-     * Begins a database transaction.
-     * 
-     * @override
-     */
-    public function beginTransaction()
-    {
-        $this->exec('BEGIN TRANSACTION');
-    }
+    
 }
