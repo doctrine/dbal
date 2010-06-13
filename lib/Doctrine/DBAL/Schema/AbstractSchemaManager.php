@@ -215,14 +215,7 @@ abstract class AbstractSchemaManager
         }
         $indexes = $this->listTableIndexes($tableName);
 
-        $idGeneratorType = Table::ID_NONE;
-        foreach ($columns AS $column) {
-            if ($column->hasPlatformOption('autoincrement') && $column->getPlatformOption('autoincrement')) {
-                $idGeneratorType = Table::ID_IDENTITY;
-            }
-        }
-
-        return new Table($tableName, $columns, $indexes, $foreignKeys, $idGeneratorType, array());
+        return new Table($tableName, $columns, $indexes, $foreignKeys, false, array());
     }
 
     /**

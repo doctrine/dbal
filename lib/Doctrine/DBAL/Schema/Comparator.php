@@ -325,6 +325,10 @@ class Comparator
             }
         }
 
+        if ($column1->getAutoincrement() != $column2->getAutoincrement()) {
+            $changedProperties[] = 'autoincrement';
+        }
+
         return $changedProperties;
     }
 

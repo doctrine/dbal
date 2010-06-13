@@ -376,6 +376,11 @@ class SqlitePlatform extends AbstractPlatform
         return false;
     }
 
+    public function supportsIdentityColumns()
+    {
+        return true;
+    }
+
     /**
      * Get the platform name for this instance
      *

@@ -37,21 +37,6 @@ use Doctrine\DBAL\DBALException;
 class Table extends AbstractAsset
 {
     /**
-     * @var int
-     */
-    const ID_NONE = 0;
-
-    /**
-     * @var int
-     */
-    const ID_SEQUENCE = 1;
-
-    /**
-     * @var int
-     */
-    const ID_IDENTITY = 2;
-
-    /**
      * @var string
      */
     protected $_name = null;
@@ -82,11 +67,6 @@ class Table extends AbstractAsset
     protected $_options = array();
 
     /**
-     * @var bool
-     */
-    protected $_idGeneratorType = self::ID_NONE;
-
-    /**
      * @var SchemaConfig
      */
     protected $_schemaConfig = null;
@@ -100,7 +80,7 @@ class Table extends AbstractAsset
      * @param int $idGeneratorType
      * @param array $options
      */
-    public function __construct($tableName, array $columns=array(), array $indexes=array(), array $fkConstraints=array(), $idGeneratorType=self::ID_NONE, array $options=array())
+    public function __construct($tableName, array $columns=array(), array $indexes=array(), array $fkConstraints=array(), $idGeneratorType = 0, array $options=array())
     {
         if (strlen($tableName) == 0) {
             throw DBALException::invalidTableName($tableName);
@@ -161,16 +141,6 @@ class Table extends AbstractAsset
         }
 
         return $primaryKey;
-    }
-
-    /**
-     * @param string $type
-     * @return Table
-     */
-    public function setIdGeneratorType($type)
-    {
-        $this->_idGeneratorType = $type;
-        return $this;
     }
 
     /**
@@ -487,22 +457,6 @@ class Table extends AbstractAsset
         }
 
         return $this->_fkConstraints[$constraintName];
-    }
-
-    /**
-     * @return bool
-     */
-    public function isIdGeneratorIdentity()
-    {
-        return ($this->_idGeneratorType==self::ID_IDENTITY);
-    }
-
-    /**
-     * @return array
-     */
-    public function isIdGeneratorSequence()
-    {
-        return ($this->_idGeneratorType==self::ID_SEQUENCE);
     }
 
     /**

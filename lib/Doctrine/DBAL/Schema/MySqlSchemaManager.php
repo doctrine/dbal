@@ -153,11 +153,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             'notnull'       => (bool) ($tableColumn['Null'] != 'YES'),
             'scale'         => null,
             'precision'     => null,
-            'platformOptions' => array(
-                'primary' => (strtolower($tableColumn['Key']) == 'pri') ? true : false,
-                'unique' => (strtolower($tableColumn['Key']) == 'uni') ? true :false,
-                'autoincrement' => (bool) (strpos($tableColumn['Extra'], 'auto_increment') !== false),
-            ),
+            'autoincrement' => (bool) (strpos($tableColumn['Extra'], 'auto_increment') !== false),
         );
 
         if ($scale !== null && $precision !== null) {

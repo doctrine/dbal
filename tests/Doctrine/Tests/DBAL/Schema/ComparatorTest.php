@@ -111,6 +111,17 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ) );
     }
 
+    public function testCompareOnlyAutoincrementChanged()
+    {
+        $column1 = new Column('foo', Type::getType('integer'), array('autoincrement' => true));
+        $column2 = new Column('foo', Type::getType('integer'), array('autoincrement' => false));
+
+        $comparator = new Comparator();
+        $changedProperties = $comparator->diffColumn($column1, $column2);
+
+        $this->assertEquals(array('autoincrement'), $changedProperties);
+    }
+
     public function testCompareMissingField()
     {
         $missingColumn = new Column('integerfield1', Type::getType('integer'));
@@ -575,10 +586,10 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->markTestSkipped('DBAL-2 was reopened, this test cannot work anymore.');
 
         $tableA = new Table("foo");
-        $tableA->addColumn('id', 'integer', array('platformOptions' => array('autoincrement' => false)));
+        $tableA->addColumn('id', 'integer', array('autoincrement' => false));
 
         $tableB = new Table("foo");
-        $tableB->addColumn('id', 'integer', array('platformOptions' => array('autoincrement' => true)));
+        $tableB->addColumn('id', 'integer', array('autoincrement' => true));
 
         $c = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
