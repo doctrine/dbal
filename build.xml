@@ -131,7 +131,7 @@
     <!--
         Builds distributable PEAR packages.
     -->
-    <target name="build-packages" depends="build-dbal">
+    <target name="build-packages" depends="build">
         <d51pearpkg2 baseinstalldir="/" dir="${build.dir}/dbal">
            <name>DoctrineDBAL</name>
            <summary>Doctrine Database Abstraction Layer</summary>
