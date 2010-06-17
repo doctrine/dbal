@@ -5,6 +5,7 @@
 + Data Retrieval and Manipulation
 + Transactions
 + Platforms
++ Types
 + Schema Manager
 + Schema Representation
 + Supporting Other Databases
