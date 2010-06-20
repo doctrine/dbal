@@ -172,7 +172,7 @@ class MySqlPlatform extends AbstractPlatform
     /** @override */
     public function getClobTypeDeclarationSQL(array $field)
     {
-        if ( ! empty($field['length'])) {
+        if ( ! empty($field['length']) && is_numeric($field['length'])) {
             $length = $field['length'];
             if ($length <= 255) {
                 return 'TINYTEXT';

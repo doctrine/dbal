@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\Tests\DBAL\Functional;
+use Doctrine\Tests\TestUtil;
 
 if (!defined('PHPUnit_MAIN_METHOD')) {
     define('PHPUnit_MAIN_METHOD', 'Dbal_Functional_AllTests::main');
@@ -21,14 +22,24 @@ class AllTests
     {
         $suite = new \Doctrine\Tests\DbalFunctionalTestSuite('Doctrine Dbal Functional');
 
-        $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\SqliteSchemaManagerTest');
-        $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\MySqlSchemaManagerTest');
-        $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\PostgreSqlSchemaManagerTest');
-        $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\OracleSchemaManagerTest');
-        $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\Db2SchemaManagerTest');
+        $conn= TestUtil::getConnection();
+        $sm = $conn->getSchemaManager();
+
+        if ($sm instanceof Doctrine\DBAL\Schema\SqliteSchemaManager) {
+            $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\SqliteSchemaManagerTest');
+        } else if ($sm instanceof Doctrine\DBAL\Schema\MySqlSchemaManager) {
+            $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\MySqlSchemaManagerTest');
+        } else if ($sm instanceof Doctrine\DBAL\Schema\PostgreSqlSchemaManager) {
+            $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\PostgreSqlSchemaManagerTest');
+        } else if ($sm instanceof Doctrine\DBAL\Schema\OracleSchemaManager) {
+            $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\OracleSchemaManagerTest');
+        } else if ($sm instanceof Doctrine\DBAL\Schema\DB2SchemaManager) {
+            $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\Db2SchemaManagerTest');
+        }
         $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\ConnectionTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\DataAccessTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\WriteTest');
+        $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\TypeConversionTest');
 
         return $suite;
     }

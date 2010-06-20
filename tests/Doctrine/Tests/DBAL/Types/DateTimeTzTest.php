@@ -6,8 +6,8 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks;
 
 require_once __DIR__ . '/../../TestInit.php';
- 
-class DateTimeTest extends \Doctrine\Tests\DbalTestCase
+
+class DateTimeTzTest extends \Doctrine\Tests\DbalTestCase
 {
     protected
         $_platform,
@@ -16,7 +16,7 @@ class DateTimeTest extends \Doctrine\Tests\DbalTestCase
     protected function setUp()
     {
         $this->_platform = new \Doctrine\Tests\DBAL\Mocks\MockPlatform();
-        $this->_type = Type::getType('datetime');
+        $this->_type = Type::getType('datetimetz');
     }
 
     public function testDateTimeConvertsToDatabaseValue()
