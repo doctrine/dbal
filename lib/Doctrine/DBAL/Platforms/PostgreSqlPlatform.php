@@ -249,6 +249,9 @@ class PostgreSqlPlatform extends AbstractPlatform
                     a.attname AS field,
                     t.typname AS type,
                     format_type(a.atttypid, a.atttypmod) AS complete_type,
+                    (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
+                    (SELECT format_type(t2.typbasetype, t2.typtypmod) FROM pg_catalog.pg_type t2
+                     WHERE t2.typtype = 'd' AND t2.typname = format_type(a.atttypid, a.atttypmod)) AS domain_complete_type,
                     a.attnotnull AS isnotnull,
                     (SELECT 't'
                      FROM pg_index

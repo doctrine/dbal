@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -31,62 +32,63 @@ namespace Doctrine\DBAL\Schema;
  */
 class PostgreSqlSchemaManager extends AbstractSchemaManager
 {
+
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         $onUpdate = null;
         $onDelete = null;
 
-        if(preg_match('(ON UPDATE ([a-zA-Z0-9]+))', $tableForeignKey['condef'], $match)) {
+        if (preg_match('(ON UPDATE ([a-zA-Z0-9]+))', $tableForeignKey['condef'], $match)) {
             $onUpdate = $match[1];
         }
-        if(preg_match('(ON DELETE ([a-zA-Z0-9]+))', $tableForeignKey['condef'], $match)) {
+        if (preg_match('(ON DELETE ([a-zA-Z0-9]+))', $tableForeignKey['condef'], $match)) {
             $onDelete = $match[1];
         }
 
-        if(preg_match('/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/', $tableForeignKey['condef'], $values)) {
+        if (preg_match('/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/', $tableForeignKey['condef'], $values)) {
             $localColumns = explode(",", $values[1]);
             $foreignColumns = explode(",", $values[3]);
             $foreignTable = $values[2];
         }
 
         return new ForeignKeyConstraint(
-            $localColumns, $foreignTable, $foreignColumns, $tableForeignKey['conname'],
-            array('onUpdate' => $onUpdate, 'onDelete' => $onDelete)
+                $localColumns, $foreignTable, $foreignColumns, $tableForeignKey['conname'],
+                array('onUpdate' => $onUpdate, 'onDelete' => $onDelete)
         );
     }
 
     public function dropDatabase($database)
     {
-      $params = $this->_conn->getParams();
-      $params["dbname"] = "postgres";
-      $tmpPlatform = $this->_platform;
-      $tmpConn = $this->_conn;
-      
-      $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($params);
-      $this->_platform = $this->_conn->getDatabasePlatform(); 
-      
-      parent::dropDatabase($database);
-      
-      $this->_platform = $tmpPlatform;
-      $this->_conn = $tmpConn;
+        $params = $this->_conn->getParams();
+        $params["dbname"] = "postgres";
+        $tmpPlatform = $this->_platform;
+        $tmpConn = $this->_conn;
+
+        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+        $this->_platform = $this->_conn->getDatabasePlatform();
+
+        parent::dropDatabase($database);
+
+        $this->_platform = $tmpPlatform;
+        $this->_conn = $tmpConn;
     }
 
     public function createDatabase($database)
     {
-      $params = $this->_conn->getParams();
-      $params["dbname"] = "postgres";
-      $tmpPlatform = $this->_platform;
-      $tmpConn = $this->_conn;
-      
-      $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($params);
-      $this->_platform = $this->_conn->getDatabasePlatform(); 
-      
-      parent::createDatabase($database);
-      
-      $this->_platform = $tmpPlatform;
-      $this->_conn = $tmpConn;
+        $params = $this->_conn->getParams();
+        $params["dbname"] = "postgres";
+        $tmpPlatform = $this->_platform;
+        $tmpConn = $this->_conn;
+
+        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+        $this->_platform = $this->_conn->getDatabasePlatform();
+
+        parent::createDatabase($database);
+
+        $this->_platform = $tmpPlatform;
+        $this->_conn = $tmpConn;
     }
-    
+
     protected function _getPortableTriggerDefinition($trigger)
     {
         return $trigger['trigger_name'];
@@ -120,18 +122,18 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
         $buffer = array();
-        foreach($tableIndexes AS $row) {
-            $colNumbers = explode( ' ', $row['indkey'] );
-            $colNumbersSql = 'IN (' . join( ' ,', $colNumbers ) . ' )';
+        foreach ($tableIndexes AS $row) {
+            $colNumbers = explode(' ', $row['indkey']);
+            $colNumbersSql = 'IN (' . join(' ,', $colNumbers) . ' )';
             $columnNameSql = "SELECT attnum, attname FROM pg_attribute
                 WHERE attrelid={$row['indrelid']} AND attnum $colNumbersSql ORDER BY attnum ASC;";
-                
+
             $stmt = $this->_conn->executeQuery($columnNameSql);
             $indexColumns = $stmt->fetchAll();
 
             // required for getting the order of the columns right.
             foreach ($colNumbers AS $colNum) {
-                foreach ( $indexColumns as $colRow ) {
+                foreach ($indexColumns as $colRow) {
                     if ($colNum == $colRow['attnum']) {
                         $buffer[] = array(
                             'key_name' => $row['relname'],
@@ -153,7 +155,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
     protected function _getPortableSequenceDefinition($sequence)
     {
-        $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM '.$sequence['relname']);
+        $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $sequence['relname']);
         return new Sequence($sequence['relname'], $data[0]['increment_by'], $data[0]['min_value']);
     }
 
@@ -166,7 +168,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $length = preg_replace('~.*\(([0-9]*)\).*~', '$1', $tableColumn['complete_type']);
             $tableColumn['length'] = $length;
         }
-        
+
         $matches = array();
 
         $autoincrement = false;
@@ -175,29 +177,34 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $tableColumn['default'] = null;
             $autoincrement = true;
         }
-        
+
         if (stripos($tableColumn['default'], 'NULL') === 0) {
             $tableColumn['default'] = null;
         }
-        
+
         $length = (isset($tableColumn['length'])) ? $tableColumn['length'] : null;
         if ($length == '-1' && isset($tableColumn['atttypmod'])) {
             $length = $tableColumn['atttypmod'] - 4;
         }
-        if ((int)$length <= 0) {
+        if ((int) $length <= 0) {
             $length = null;
         }
         $type = array();
         $fixed = null;
-        
-        if ( ! isset($tableColumn['name'])) {
+
+        if (!isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
         $precision = null;
         $scale = null;
-        
-        $dbType = strtolower($tableColumn['type']);
+
+        if ($this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])) {
+            $dbType = strtolower($tableColumn['type']);
+        } else {
+            $dbType = strtolower($tableColumn['domain_type']);
+            $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
+        }
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
         switch ($dbType) {
@@ -239,7 +246,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'decimal':
             case 'money':
             case 'numeric':
-                if(preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['complete_type'], $match)) {
+                if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['complete_type'], $match)) {
                     $precision = $match[1];
                     $scale = $match[2];
                     $length = null;
@@ -251,17 +258,18 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
 
         $options = array(
-            'length'    => $length,
-            'notnull'   => (bool) $tableColumn['isnotnull'],
-            'default'   => $tableColumn['default'],
-            'primary'   => (bool) ($tableColumn['pri'] == 't'),
+            'length' => $length,
+            'notnull' => (bool) $tableColumn['isnotnull'],
+            'default' => $tableColumn['default'],
+            'primary' => (bool) ($tableColumn['pri'] == 't'),
             'precision' => $precision,
-            'scale'     => $scale,
-            'fixed'     => $fixed,
-            'unsigned'  => false,
+            'scale' => $scale,
+            'fixed' => $fixed,
+            'unsigned' => false,
             'autoincrement' => $autoincrement,
         );
 
         return new Column($tableColumn['field'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
+
 }
