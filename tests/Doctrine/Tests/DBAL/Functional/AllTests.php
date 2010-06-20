@@ -29,6 +29,7 @@ class AllTests
         $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\ConnectionTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\DataAccessTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\WriteTest');
+        $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\LoggingTest');
 
         return $suite;
     }

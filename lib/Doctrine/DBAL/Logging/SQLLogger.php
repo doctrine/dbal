@@ -23,7 +23,7 @@ namespace Doctrine\DBAL\Logging;
 
 /**
  * Interface for SQL loggers.
- * 
+ *
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
@@ -40,6 +40,8 @@ interface SQLLogger
      *
      * @param string $sql The SQL to be executed.
      * @param array $params The SQL parameters.
+     * @param float $executionMS The microtime difference it took to execute this query.
+     * @return void
      */
-    function logSQL($sql, array $params = null);
+    function logSQL($sql, array $params = null, $executionMS = null);
 }

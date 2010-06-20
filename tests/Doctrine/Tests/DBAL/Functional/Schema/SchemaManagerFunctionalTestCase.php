@@ -23,12 +23,9 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $testClass = end($e);
         $dbms = strtolower(str_replace('SchemaManagerTest', null, $testClass));
 
-        if ($this->_conn->getDatabasePlatform()->getName() !== $dbms)
-        {
+        if ($this->_conn->getDatabasePlatform()->getName() !== $dbms) {
             $this->markTestSkipped('The ' . $testClass .' requires the use of ' . $dbms);
         }
-
-        #$this->_conn->getConfiguration()->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger);
 
         $this->_sm = $this->_conn->getSchemaManager();
     }
