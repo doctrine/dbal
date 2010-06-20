@@ -1659,7 +1659,7 @@ abstract class AbstractPlatform
      */
     public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
     {
-        throw DBALException::notSupported(__METHOD__);
+        return $this->getDateTimeTypeDeclarationSQL($fieldDeclaration);
     }
     
     

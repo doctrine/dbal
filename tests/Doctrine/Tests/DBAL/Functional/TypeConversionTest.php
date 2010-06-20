@@ -26,6 +26,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('test_bigint', 'bigint', array('notnull' => false));
             $table->addColumn('test_smallint', 'bigint', array('notnull' => false));
             $table->addColumn('test_datetime', 'datetime', array('notnull' => false));
+            $table->addColumn('test_datetimetz', 'datetimetz', array('notnull' => false));
             $table->addColumn('test_date', 'date', array('notnull' => false));
             $table->addColumn('test_time', 'time', array('notnull' => false));
             $table->addColumn('test_text', 'text', array('notnull' => false));
@@ -50,6 +51,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             array('bigint',     12345678, 'string'),
             array('smallint',   123, 'int'),
             array('datetime',   new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
+            array('datetimetz', new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
             array('date',       new \DateTime('2010-04-05'), 'DateTime'),
             array('time',       new \DateTime('10:10:10'), 'DateTime'),
             array('text',       str_repeat('foo ', 1000), 'string'),
@@ -76,6 +78,13 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $actualDbValue = $typeInstance->convertToPHPValue($this->_conn->fetchColumn($sql), $this->_conn->getDatabasePlatform());
 
         $this->assertType($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
-        $this->assertEquals($originalValue, $actualDbValue, "Conversion between values should produce the same out as in value, but doesnt!");
+
+        if ($type !== "datetimetz") {
+            $this->assertEquals($originalValue, $actualDbValue, "Conversion between values should produce the same out as in value, but doesnt!");
+
+            if ($originalValue instanceof \DateTime) {
+                $this->assertEquals($originalValue->getTimezone()->getName(), $actualDbValue->getTimezone()->getName(), "Timezones should be the same.");
+            }
+        }
     }
 }

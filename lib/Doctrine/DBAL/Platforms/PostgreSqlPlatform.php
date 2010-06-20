@@ -538,7 +538,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * @override
      */
-    public function getDateTimeTypeTzDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
     {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
