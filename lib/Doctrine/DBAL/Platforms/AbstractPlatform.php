@@ -126,6 +126,22 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Check if a database type is currently supported by this platform.
+     *
+     * @param string $dbType
+     * @return bool
+     */
+    public function hasDoctrineTypeMappingFor($dbType)
+    {
+        if ($this->doctrineTypeMapping === null) {
+            $this->initializeDoctrineTypeMappings();
+        }
+
+        $dbType = strtolower($dbType);
+        return isset($this->doctrineTypeMapping[$dbType]);
+    }
+
+    /**
      * Lazy load Doctrine Type Mappings
      *
      * @return void
