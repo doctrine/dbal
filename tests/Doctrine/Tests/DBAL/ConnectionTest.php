@@ -115,4 +115,28 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $conn = new Connection(array('platform' => $platform), $driverMock, new Configuration(), $eventManager);
         $conn->connect();
     }
+
+    /**
+     * Pretty dumb test, however we want to check that the EchoSQLLogger correctly implements the interface.
+     *
+     * @group DBAL-11
+     */
+    public function testEchoSQLLogger()
+    {
+        $logger = new \Doctrine\DBAL\Logging\EchoSQLLogger();
+        $this->_conn->getConfiguration()->setSQLLogger($logger);
+        $this->assertSame($logger, $this->_conn->getConfiguration()->getSQLLogger());
+    }
+
+    /**
+     * Pretty dumb test, however we want to check that the DebugStack correctly implements the interface.
+     *
+     * @group DBAL-11
+     */
+    public function testDebugSQLStack()
+    {
+        $logger = new \Doctrine\DBAL\Logging\DebugStack();
+        $this->_conn->getConfiguration()->setSQLLogger($logger);
+        $this->assertSame($logger, $this->_conn->getConfiguration()->getSQLLogger());
+    }
 }

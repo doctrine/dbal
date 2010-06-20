@@ -38,12 +38,14 @@ class EchoSQLLogger implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function logSQL($sql, array $params = null)
+    public function logSQL($sql, array $params = null, $executionMS = null)
     {
     	echo $sql . PHP_EOL;
 
         if ($params) {
             var_dump($params);
     	}
+
+        echo "Took " . number_format($executionMS, 4) . " seconds" . PHP_EOL;
     }
 }
