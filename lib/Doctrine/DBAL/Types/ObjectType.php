@@ -22,7 +22,11 @@ class ObjectType extends Type
     public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        return unserialize($value);
+        $val = unserialize($value);
+        if (!is_object($val)) {
+            throw ConversionException::conversionFailed($value, $this->getName());
+        }
+        return $val;
     }
 
     public function getName()

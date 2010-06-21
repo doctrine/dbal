@@ -36,4 +36,10 @@ class DateTimeTzTest extends \Doctrine\Tests\DbalTestCase
         $this->assertType('DateTime', $date);
         $this->assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
     }
+    
+    public function testInvalidDateFormatConversion()
+    {
+        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
+    }
 }

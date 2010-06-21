@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -19,37 +17,32 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Types;
 
 /**
- * Type that maps a PHP array to a clob SQL type.
+ * Conversion Exception is thrown when the database to PHP conversion fails
  *
- * @since 2.0
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link        www.doctrine-project.com
+ * @since       2.0
+ * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author      Jonathan Wage <jonwage@gmail.com>
+ * @author      Roman Borschel <roman@code-factory.org>
  */
-class ArrayType extends Type
+namespace Doctrine\DBAL\Types;
+
+class ConversionException extends \Doctrine\DBAL\DBALException
 {
-    public function getSqlDeclaration(array $fieldDeclaration, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    /**
+     * Thrown when a Database to Doctrine Type Conversion fails.
+     * 
+     * @param  string $value
+     * @param  string $toType
+     * @return ConversionException
+     */
+    static public function conversionFailed($value, $toType)
     {
-        return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
-    }
-
-    public function convertToDatabaseValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
-    {
-        return serialize($value);
-    }
-
-    public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
-    {
-        $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        $val = unserialize($value);
-        if (!is_array($val)) {
-            throw ConversionException::conversionFailed($value, $this->getName());
-        }
-        return $val;
-    }
-
-    public function getName()
-    {
-        return Type::TARRAY;
+        $value = (strlen($value) > 32) ? substr($value, 0, 20) . "..." : $value;
+        return new self('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
     }
 }

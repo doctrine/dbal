@@ -33,4 +33,10 @@ class TimeTest extends \Doctrine\Tests\DbalTestCase
             instanceof \DateTime
         );
     }
+
+    public function testInvalidTimeFormatConversion()
+    {
+        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
+    }
 }

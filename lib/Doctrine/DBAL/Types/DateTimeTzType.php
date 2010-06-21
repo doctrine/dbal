@@ -66,7 +66,11 @@ class DateTimeTzType extends Type
 
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return ($value !== null)
+        $val = ($value !== null)
             ? \DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value) : null;
+        if (!$val) {
+            throw ConversionException::conversionFailed($value, $this->getName());
+        }
+        return $val;
     }
 }

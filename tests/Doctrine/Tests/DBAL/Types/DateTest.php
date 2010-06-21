@@ -61,4 +61,10 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('00:00:00', $date->format('H:i:s'));
         $this->assertEquals('2009-11-01', $date->format('Y-m-d'));
     }
+    
+    public function testInvalidDateFormatConversion()
+    {
+        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
+    }
 }
