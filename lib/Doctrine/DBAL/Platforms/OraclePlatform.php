@@ -193,6 +193,14 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
+        return 'TIMESTAMP(0)';
+    }
+
+    /**
+     * @override
+     */
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
 
@@ -602,9 +610,19 @@ LEFT JOIN all_cons_columns r_cols
         return "CREATE GLOBAL TEMPORARY TABLE";
     }
     
-    public function getDateTimeFormatString()
+    public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:sP';
+    }
+
+    public function getDateFormatString()
+    {
+        return 'Y-m-d 00:00:00';
+    }
+
+    public function getTimeFormatString()
+    {
+        return '1900-01-01 H:i:s';
     }
     
     public function fixSchemaElementName($schemaElementName)
@@ -672,7 +690,7 @@ LEFT JOIN all_cons_columns r_cols
             'char'              => 'string',
             'nchar'             => 'string',
             'date'              => 'datetime',
-            'timestamp'         => 'datetime',
+            'timestamp'         => 'datetimetz',
             'float'             => 'decimal',
             'long'              => 'string',
             'clob'              => 'text',

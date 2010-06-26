@@ -535,6 +535,14 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
+        return 'TIMESTAMP(0) WITHOUT TIME ZONE';
+    }
+
+    /**
+     * @override
+     */
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
     
@@ -614,7 +622,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return strtolower($column);
     }
     
-    public function getDateTimeFormatString()
+    public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:sO';
     }
@@ -669,7 +677,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'date' => 'date',
             'datetime' => 'datetime',
             'timestamp' => 'datetime',
-            'timestamptz' => 'datetime',
+            'timestamptz' => 'datetimetz',
             'time' => 'time',
             'timetz' => 'time',
             'float' => 'decimal',

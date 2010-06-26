@@ -41,7 +41,7 @@ class Column extends AbstractAsset
     /**
      * @var int
      */
-    protected $_length = 255;
+    protected $_length = null;
 
     /**
      * @var int

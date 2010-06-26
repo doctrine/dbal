@@ -1667,6 +1667,17 @@ abstract class AbstractPlatform
     {
         throw DBALException::notSupported(__METHOD__);
     }
+
+    /**
+     * Obtain DBMS specific SQL to be used to create datetime with timezone offset fields.
+     * 
+     * @param array $fieldDeclaration
+     */
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        return $this->getDateTimeTypeDeclarationSQL($fieldDeclaration);
+    }
+    
     
     /**
      * Obtain DBMS specific SQL to be used to create date fields in statements
@@ -1841,11 +1852,19 @@ abstract class AbstractPlatform
      * the format of a stored datetime value of this platform.
      * 
      * @return string The format string.
-     * 
-     * @todo We need to get the specific format for each dbms and override this
-     * function for each platform
      */
     public function getDateTimeFormatString()
+    {
+        return 'Y-m-d H:i:s';
+    }
+
+    /**
+     * Gets the format string, as accepted by the date() function, that describes
+     * the format of a stored datetime with timezone value of this platform.
+     *
+     * @return string The format string.
+     */
+    public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:s';
     }

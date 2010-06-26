@@ -19,6 +19,12 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
         $this->_type = Type::getType('array');
     }
 
+    public function tearDown()
+    {
+        error_reporting(-1); // reactive all error levels
+    }
+
+
     public function testArrayConvertsToDatabaseValue()
     {
         $this->assertTrue(
@@ -32,4 +38,12 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
             is_array($this->_type->convertToPHPValue(serialize(array()), $this->_platform))
         );
     }
+
+    public function testConversionFailure()
+    {
+        error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
+        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
+    }
+
 }

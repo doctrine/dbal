@@ -19,6 +19,11 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
         $this->_type = Type::getType('object');
     }
 
+    public function tearDown()
+    {
+        error_reporting(-1); // reactive all error levels
+    }
+
     public function testObjectConvertsToDatabaseValue()
     {
         $this->assertTrue(
@@ -31,5 +36,12 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
         $this->assertTrue(
             is_object($this->_type->convertToPHPValue(serialize(new \stdClass), $this->_platform))
         );
+    }
+
+    public function testConversionFailure()
+    {
+        error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
+        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
     }
 }

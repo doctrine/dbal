@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -170,6 +168,19 @@ abstract class AbstractSchemaManager
 
         return $this->_getPortableTableIndexesList($tableIndexes, $table);
     }
+
+    /**
+     * Return true if all the given tables exist.
+     * 
+     * @param array $tableNames
+     * @return bool
+     */
+    public function tablesExist($tableNames)
+    {
+        $tableNames = array_map('strtolower', (array)$tableNames);
+        return count($tableNames) == count(\array_intersect($tableNames, array_map('strtolower', $this->listTableNames())));
+    }
+
 
     /**
      * Return a list of all tables in the current database

@@ -17,37 +17,57 @@
  * <http://www.doctrine-project.org>.
  */
 
+
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
- * Type that maps an SQL DATETIME/TIMESTAMP to a PHP DateTime object.
+ * DateTime type saving additional timezone information.
  *
- * @since 2.0
+ * Caution: Databases are not necessarily experts at storing timezone related
+ * data of dates. First, of all the supported vendors only PostgreSQL and Oracle
+ * support storing Timezone data. But those two don't save the actual timezone
+ * attached to a DateTime instance (for example "Europe/Berlin" or "America/Montreal")
+ * but the current offset of them related to UTC. That means depending on daylight saving times
+ * or not you may get different offsets.
+ *
+ * This datatype makes only sense to use, if your application works with an offset, not
+ * with an actual timezone that uses transitions. Otherwise your DateTime instance
+ * attached with a timezone such as Europe/Berlin gets saved into the database with
+ * the offset and re-created from persistence with only the offset, not the original timezone
+ * attached.
+ *
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link        www.doctrine-project.com
+ * @since       1.0
+ * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author      Jonathan Wage <jonwage@gmail.com>
+ * @author      Roman Borschel <roman@code-factory.org>
  */
-class DateTimeType extends Type
+class DateTimeTzType extends Type
 {
     public function getName()
     {
-        return Type::DATETIME;
+        return Type::DATETIMETZ;
     }
-
+    
     public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getDateTimeTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getDateTimeTzTypeDeclarationSQL($fieldDeclaration);
     }
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         return ($value !== null)
-            ? $value->format($platform->getDateTimeFormatString()) : null;
+            ? $value->format($platform->getDateTimeTzFormatString()) : null;
     }
-    
+
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         $val = ($value !== null)
-            ? \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value) : null;
+            ? \DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value) : null;
         if (!$val) {
             throw ConversionException::conversionFailed($value, $this->getName());
         }

@@ -17,40 +17,32 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Types;
-
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
- * Type that maps an SQL DATETIME/TIMESTAMP to a PHP DateTime object.
+ * Conversion Exception is thrown when the database to PHP conversion fails
  *
- * @since 2.0
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link        www.doctrine-project.com
+ * @since       2.0
+ * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author      Jonathan Wage <jonwage@gmail.com>
+ * @author      Roman Borschel <roman@code-factory.org>
  */
-class DateTimeType extends Type
+namespace Doctrine\DBAL\Types;
+
+class ConversionException extends \Doctrine\DBAL\DBALException
 {
-    public function getName()
+    /**
+     * Thrown when a Database to Doctrine Type Conversion fails.
+     * 
+     * @param  string $value
+     * @param  string $toType
+     * @return ConversionException
+     */
+    static public function conversionFailed($value, $toType)
     {
-        return Type::DATETIME;
-    }
-
-    public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
-    {
-        return $platform->getDateTimeTypeDeclarationSQL($fieldDeclaration);
-    }
-
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
-    {
-        return ($value !== null)
-            ? $value->format($platform->getDateTimeFormatString()) : null;
-    }
-    
-    public function convertToPHPValue($value, AbstractPlatform $platform)
-    {
-        $val = ($value !== null)
-            ? \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value) : null;
-        if (!$val) {
-            throw ConversionException::conversionFailed($value, $this->getName());
-        }
-        return $val;
+        $value = (strlen($value) > 32) ? substr($value, 0, 20) . "..." : $value;
+        return new self('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
     }
 }
