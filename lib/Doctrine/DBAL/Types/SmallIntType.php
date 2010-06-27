@@ -35,7 +35,7 @@ class SmallIntType extends Type
         return Type::SMALLINT;
     }
 
-    public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getSmallIntTypeDeclarationSQL($fieldDeclaration);
     }

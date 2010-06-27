@@ -53,7 +53,7 @@ class DateTimeTzType extends Type
         return Type::DATETIMETZ;
     }
     
-    public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getDateTimeTzTypeDeclarationSQL($fieldDeclaration);
     }

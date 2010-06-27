@@ -33,7 +33,7 @@ class DateType extends Type
         return Type::DATE;
     }
 
-    public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getDateTypeDeclarationSQL($fieldDeclaration);
     }

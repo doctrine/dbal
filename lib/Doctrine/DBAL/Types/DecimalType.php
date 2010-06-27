@@ -35,7 +35,7 @@ class DecimalType extends Type
         return Type::DECIMAL;
     }
 
-    public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getDecimalTypeDeclarationSQL($fieldDeclaration);
     }
