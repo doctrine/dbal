@@ -67,4 +67,9 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
         $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
         $this->_type->convertToPHPValue('abcdefg', $this->_platform);
     }
+
+    public function testNullConversion()
+    {
+        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+    }
 }
