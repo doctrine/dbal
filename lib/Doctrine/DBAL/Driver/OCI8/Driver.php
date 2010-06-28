@@ -58,7 +58,11 @@ class Driver implements \Doctrine\DBAL\Driver
                 $dsn .= '(PORT=1521)';
             }
 
-            $dsn .= '))(CONNECT_DATA=(SID=' . $params['dbname'] . ')))';
+            $dsn .= '))';
+            if (isset($params['dbname'])) {
+                $dsn .= '(CONNECT_DATA=(SID=' . $params['dbname'] . ')';
+            }
+            $dsn .= '))';
         } else {
             $dsn .= $params['dbname'];
         }
