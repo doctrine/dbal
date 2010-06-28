@@ -220,7 +220,7 @@ class Table extends AbstractAsset
             }
 
             if ( ! $this->hasColumn($columnName)) {
-                throw SchemaException::columnDoesNotExist($columnName);
+                throw SchemaException::columnDoesNotExist($columnName, $this->_name);
             }
         }
         $this->_addIndex(new Index($indexName, $columnNames, $isUnique, $isPrimary));
@@ -336,7 +336,7 @@ class Table extends AbstractAsset
 
             foreach ($foreignColumnNames AS $columnName) {
                 if ( ! $foreignTable->hasColumn($columnName)) {
-                    throw SchemaException::columnDoesNotExist($columnName);
+                    throw SchemaException::columnDoesNotExist($columnName, $foreignTable->getName());
                 }
             }
         } else {
@@ -345,7 +345,7 @@ class Table extends AbstractAsset
 
         foreach ($localColumnNames AS $columnName) {
             if ( ! $this->hasColumn($columnName)) {
-                throw SchemaException::columnDoesNotExist($columnName);
+                throw SchemaException::columnDoesNotExist($columnName, $this->_name);
             }
         }
         
@@ -403,7 +403,7 @@ class Table extends AbstractAsset
         $indexName = strtolower($indexName);
 
         if (isset($this->_indexes[$indexName]) || ($this->_primaryKeyName != false && $index->isPrimary())) {
-            throw SchemaException::indexAlreadyExists($indexName);
+            throw SchemaException::indexAlreadyExists($indexName, $this->_name);
         }
 
         if ($index->isPrimary()) {
@@ -453,7 +453,7 @@ class Table extends AbstractAsset
     {
         $constraintName = strtolower($constraintName);
         if(!$this->hasForeignKey($constraintName)) {
-            throw SchemaException::foreignKeyDoesNotExist($constraintName);
+            throw SchemaException::foreignKeyDoesNotExist($constraintName, $this->_name);
         }
 
         return $this->_fkConstraints[$constraintName];
@@ -507,7 +507,7 @@ class Table extends AbstractAsset
     {
         $columnName = strtolower($columnName);
         if (!$this->hasColumn($columnName)) {
-            throw SchemaException::columnDoesNotExist($columnName);
+            throw SchemaException::columnDoesNotExist($columnName, $this->_name);
         }
 
         return $this->_columns[$columnName];
@@ -539,7 +539,7 @@ class Table extends AbstractAsset
     {
         $indexName = strtolower($indexName);
         if (!$this->hasIndex($indexName)) {
-            throw SchemaException::indexDoesNotExist($indexName);
+            throw SchemaException::indexDoesNotExist($indexName, $this->_name);
         }
         return $this->_indexes[$indexName];
     }

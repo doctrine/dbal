@@ -37,27 +37,27 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      * @param string $indexName
      * @return SchemaException
      */
-    static public function indexDoesNotExist($indexName)
+    static public function indexDoesNotExist($indexName, $table)
     {
-        return new self("Index '".$indexName."' does not exist.", self::INDEX_DOESNT_EXIST);
+        return new self("Index '$indexName' does not exist on table '$table'.", self::INDEX_DOESNT_EXIST);
     }
 
     /**
      * @param string $indexName
      * @return SchemaException
      */
-    static public function indexAlreadyExists($indexName)
+    static public function indexAlreadyExists($indexName, $table)
     {
-        return new self("An index with name $indexName was already defined.", self::INDEX_ALREADY_EXISTS);
+        return new self("An index with name '$indexName' was already defined on table '$table'.", self::INDEX_ALREADY_EXISTS);
     }
 
     /**
      * @param string $columnName
      * @return SchemaException
      */
-    static public function columnDoesNotExist($columnName)
+    static public function columnDoesNotExist($columnName, $table)
     {
-        return new self("An unknown column-name $columnName was given.", self::COLUMN_DOESNT_EXIST);
+        return new self("There is no column with name '$columnName' on table '$table'.", self::COLUMN_DOESNT_EXIST);
     }
 
     /**
@@ -105,12 +105,12 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      * @param  string $fkName
      * @return SchemaException
      */
-    static public function foreignKeyDoesNotExist($fkName)
+    static public function foreignKeyDoesNotExist($fkName, $table)
     {
-        return new self("There exists no foreign key with the name '".$fkName."'.", self::FOREIGNKEY_DOESNT_EXIST);
+        return new self("There exists no foreign key with the name '$fkName' on table '$table'.", self::FOREIGNKEY_DOESNT_EXIST);
     }
 
-    static public function namedForeignKeyRequired($localTable, $foreignKey)
+    static public function namedForeignKeyRequired(Table $localTable, ForeignKeyConstraint $foreignKey)
     {
         return new self(
             "The performed schema operation on ".$localTable->getName()." requires a named foreign key, ".
