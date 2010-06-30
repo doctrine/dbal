@@ -581,6 +581,33 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $tableDiff->renamedColumns['foo']->getName());
     }
 
+    /**
+     * You can easily have ambiguouties in the column renaming. If these
+     * are detected no renaming should take place, instead adding and dropping
+     * should be used exclusively.
+     *
+     * @group DBAL-24
+     */
+    public function testDetectRenameColumnAmbiguous()
+    {
+        $tableA = new Table("foo");
+        $tableA->addColumn('foo', 'integer');
+        $tableA->addColumn('bar', 'integer');
+
+        $tableB = new Table("foo");
+        $tableB->addColumn('baz', 'integer');
+        
+        $c = new Comparator();
+        $tableDiff = $c->diffTable($tableA, $tableB);
+
+        $this->assertEquals(1, count($tableDiff->addedColumns), "'baz' should be added, not created through renaming!");
+        $this->assertArrayHasKey('baz', $tableDiff->addedColumns, "'baz' should be added, not created through renaming!");
+        $this->assertEquals(2, count($tableDiff->removedColumns), "'foo' and 'bar' should both be dropped, an ambigouty exists which one could be renamed to 'baz'.");
+        $this->assertArrayHasKey('foo', $tableDiff->removedColumns, "'foo' should be removed.");
+        $this->assertArrayHasKey('bar', $tableDiff->removedColumns, "'bar' should be removed.");
+        $this->assertEquals(0, count($tableDiff->renamedColumns), "no renamings should take place.");
+    }
+
     public function testDetectChangeIdentifierType()
     {
         $this->markTestSkipped('DBAL-2 was reopened, this test cannot work anymore.');
