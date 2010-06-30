@@ -39,6 +39,7 @@ use PDO, Closure, Exception,
  * @author  Roman Borschel <roman@code-factory.org>
  * @author  Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author  Lukas Smith <smith@pooteeweet.org> (MDB2 library)
+ * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 class Connection implements DriverConnection
 {
@@ -610,6 +611,8 @@ class Connection implements DriverConnection
      */
     public function query()
     {
+        $this->connect();
+
         return call_user_func_array(array($this->_conn, 'query'), func_get_args());
     }
 
