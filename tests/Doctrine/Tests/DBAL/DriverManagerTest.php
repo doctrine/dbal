@@ -27,6 +27,21 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
+     * @group DBAL-32
+     */
+    public function testPdoInstanceSetErrorMode()
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
+        $options = array(
+            'pdo' => $pdo
+        );
+
+        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
+        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(\PDO::ATTR_ERRMODE));
+    }
+
+    /**
      * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testCheckParams()
