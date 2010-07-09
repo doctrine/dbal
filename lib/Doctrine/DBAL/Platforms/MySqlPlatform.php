@@ -124,12 +124,12 @@ class MySqlPlatform extends AbstractPlatform
         $sql = "SELECT DISTINCT k.`CONSTRAINT_NAME`, k.`COLUMN_NAME`, k.`REFERENCED_TABLE_NAME`, ".
                "k.`REFERENCED_COLUMN_NAME` /*!50116 , c.update_rule, c.delete_rule */ ".
                "FROM information_schema.key_column_usage k /*!50116 ".
-               "INNER JOIN information_schema.referential_constraints c ON k.`CONSTRAINT_NAME` = c.constraint_name AND ".
+               "INNER JOIN information_schema.referential_constraints c ON ".
                "  c.constraint_name = k.constraint_name AND ".
                "  c.table_name = '$table' */ WHERE k.table_name = '$table'";
 
         if ( ! is_null($database)) {
-            $sql .= " AND table_schema = '$database'";
+            $sql .= " AND c.table_schema = '$database' AND k.constraint_schema = '" . $database  . "'";
         }
 
         $sql .= " AND `REFERENCED_COLUMN_NAME` is not NULL";
