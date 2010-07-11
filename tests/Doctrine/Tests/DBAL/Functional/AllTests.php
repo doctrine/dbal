@@ -25,15 +25,15 @@ class AllTests
         $conn= TestUtil::getConnection();
         $sm = $conn->getSchemaManager();
 
-        if ($sm instanceof Doctrine\DBAL\Schema\SqliteSchemaManager) {
+        if ($sm instanceof \Doctrine\DBAL\Schema\SqliteSchemaManager) {
             $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\SqliteSchemaManagerTest');
-        } else if ($sm instanceof Doctrine\DBAL\Schema\MySqlSchemaManager) {
+        } else if ($sm instanceof \Doctrine\DBAL\Schema\MySqlSchemaManager) {
             $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\MySqlSchemaManagerTest');
-        } else if ($sm instanceof Doctrine\DBAL\Schema\PostgreSqlSchemaManager) {
+        } else if ($sm instanceof \Doctrine\DBAL\Schema\PostgreSqlSchemaManager) {
             $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\PostgreSqlSchemaManagerTest');
-        } else if ($sm instanceof Doctrine\DBAL\Schema\OracleSchemaManager) {
+        } else if ($sm instanceof \Doctrine\DBAL\Schema\OracleSchemaManager) {
             $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\OracleSchemaManagerTest');
-        } else if ($sm instanceof Doctrine\DBAL\Schema\DB2SchemaManager) {
+        } else if ($sm instanceof \Doctrine\DBAL\Schema\DB2SchemaManager) {
             $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\Schema\Db2SchemaManagerTest');
         }
         $suite->addTestSuite('Doctrine\Tests\DBAL\Functional\ConnectionTest');
