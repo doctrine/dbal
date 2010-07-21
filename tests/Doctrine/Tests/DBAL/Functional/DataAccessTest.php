@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Types\Type;
+use PDO;
+
 require_once __DIR__ . '/../../TestInit.php';
 
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
@@ -15,11 +18,12 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table = new \Doctrine\DBAL\Schema\Table("fetch_table");
             $table->addColumn('test_int', 'integer');
             $table->addColumn('test_string', 'string');
+            $table->addColumn('test_datetime', 'datetime', array('notnull' => false));
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
 
-            $this->_conn->insert('fetch_table', array('test_int' => 1, 'test_string' => 'foo'));
+            $this->_conn->insert('fetch_table', array('test_int' => 1, 'test_string' => 'foo', 'test_datetime' => '2010-01-01 10:10:10'));
         } catch(\Exception $e) {
             
         }
@@ -166,5 +170,53 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $testString = $this->_conn->fetchColumn($sql, array(1, 'foo'), 1);
 
         $this->assertEquals('foo', $testString);
+    }
+
+    /**
+     * @group DDC-697
+     */
+    public function testExecuteQueryBindDateTimeType()
+    {
+        $sql = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
+        $stmt = $this->_conn->executeQuery($sql,
+            array(1 => new \DateTime('2010-01-01 10:10:10')),
+            array(1 => Type::DATETIME)
+        );
+
+        $this->assertEquals(1, $stmt->fetchColumn());
+    }
+
+    /**
+     * @group DDC-697
+     */
+    public function testExecuteUpdateBindDateTimeType()
+    {
+        $datetime = new \DateTime('2010-02-02 20:20:20');
+
+        $sql = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
+        $affectedRows = $this->_conn->executeUpdate($sql,
+            array(1 => 1,               2 => 'foo',             3 => $datetime),
+            array(1 => PDO::PARAM_INT,  2 => PDO::PARAM_STR,    3 => Type::DATETIME)
+        );
+
+        $this->assertEquals(1, $affectedRows);
+        $this->assertEquals(1, $this->_conn->executeQuery(
+            'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
+            array(1 => $datetime),
+            array(1 => Type::DATETIME)
+        )->fetchColumn());
+    }
+
+    /**
+     * @group DDC-697
+     */
+    public function testPrepareQueryBindValueDateTimeType()
+    {
+        $sql = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
+        $stmt = $this->_conn->prepare($sql);
+        $stmt->bindValue(1, new \DateTime('2010-01-01 10:10:10'), Type::DATETIME);
+        $stmt->execute();
+
+        $this->assertEquals(1, $stmt->fetchColumn());
     }
 }
