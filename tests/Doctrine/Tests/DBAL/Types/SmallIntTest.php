@@ -19,10 +19,14 @@ class SmallIntTest extends \Doctrine\Tests\DbalTestCase
         $this->_type = Type::getType('smallint');
     }
 
-    public function testDecimalConvertsToPHPValue()
+    public function testSmallIntConvertsToPHPValue()
     {
-        $this->assertTrue(
-            is_integer($this->_type->convertToPHPValue('1', $this->_platform))
-        );
+        $this->assertType('integer', $this->_type->convertToPHPValue('1', $this->_platform));
+        $this->assertType('integer', $this->_type->convertToPHPValue('0', $this->_platform));
+    }
+
+    public function testSmallIntNullConvertsToPHPValue()
+    {
+        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
     }
 }

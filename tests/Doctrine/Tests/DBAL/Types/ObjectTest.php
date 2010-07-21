@@ -26,16 +26,12 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
 
     public function testObjectConvertsToDatabaseValue()
     {
-        $this->assertTrue(
-            is_string($this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform))
-        );
+        $this->assertType('string', $this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform));
     }
 
     public function testObjectConvertsToPHPValue()
     {
-        $this->assertTrue(
-            is_object($this->_type->convertToPHPValue(serialize(new \stdClass), $this->_platform))
-        );
+        $this->assertType('object', $this->_type->convertToPHPValue(serialize(new \stdClass), $this->_platform));
     }
 
     public function testConversionFailure()

@@ -28,4 +28,15 @@ class StringTest extends \Doctrine\Tests\DbalTestCase
     {
         $this->assertEquals(255, $this->_type->getDefaultLength($this->_platform));
     }
+
+    public function testConvertToPHPValue()
+    {
+        $this->assertType("string", $this->_type->convertToPHPValue("foo", $this->_platform));
+        $this->assertType("string", $this->_type->convertToPHPValue("", $this->_platform));
+    }
+
+    public function testNullConversion()
+    {
+        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+    }
 }
