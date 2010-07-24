@@ -35,6 +35,7 @@ class AllTests
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\ObjectTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\DateTimeTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\DateTimeTzTest');
+        $suite->addTestSuite('Doctrine\Tests\DBAL\Types\VarDateTimeTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\DateTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\TimeTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\BooleanTest');

@@ -559,7 +559,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'TIME';
+        return 'TIME(0) WITHOUT TIME ZONE';
     }
 
     /**
