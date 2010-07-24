@@ -1,11 +1,12 @@
 + Introduction
 + Architecture
 + Configuration
-+ Events
 + Data Retrieval and Manipulation
 + Transactions
 + Platforms
 + Types
 + Schema Manager
 + Schema Representation
++ Events
 + Supporting Other Databases
++ Known Vendor Issues

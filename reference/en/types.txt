@@ -22,7 +22,12 @@ the supported database vendors:
 Types are flyweights. This means there is only ever one instance of a type and it is not allowed to contain any state.
 Creation of type instances is abstracted through a static get method `Doctrine\DBAL\Types\Type::getType()`.
 
-++ Schema Detection of Database Types
+> **NOTE**
+>
+> See the [Known Vendor Issue](./known-vendor-issues) section for details about the different
+> handling of microseconds and timezones across all the different vendors.
+
+++ Detection of Database Types
 
 When calling table inspection methods on your connections `SchemaManager` instance
 the retrieved database column types are translated into Doctrine mapping types.

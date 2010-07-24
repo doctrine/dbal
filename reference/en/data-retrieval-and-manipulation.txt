@@ -20,7 +20,7 @@ Prepare a given sql statement and return the `\Doctrine\DBAL\Driver\Statement` i
     )
     */
 
-++ executeUpdate($sql, array $params)
+++ executeUpdate($sql, array $params = array(), array $types = array())
 
 Executes a prepared statement with the given sql and parameters and returns the
 affected rows count:
@@ -29,7 +29,11 @@ affected rows count:
     $count = $conn->executeUpdate('UPDATE user SET username = ? WHERE id = ?', array('jwage', 1));
     echo $count; // 1
 
-++ executeQuery($sql, array $params)
+The `$types` variable contains the PDO or Doctrine Type constants to perform
+necessary type conversions between actual input parameters and expected database values.
+See the [Types](./types#type-conversion) section for more information.
+
+++ executeQuery($sql, array $params = array(), array $types = array())
 
 Creates a prepared statement for the given sql and passes the parameters to the
 execute method, then returning the statement:
@@ -44,6 +48,10 @@ execute method, then returning the statement:
       1 => 'changeme
     )
     */
+
+The `$types` variable contains the PDO or Doctrine Type constants to perform
+necessary type conversions between actual input parameters and expected database values.
+See the [Types](./types#type-conversion) section for more information.
 
 ++ fetchAll($sql, array $params)
 
