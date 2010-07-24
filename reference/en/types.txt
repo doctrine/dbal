@@ -24,7 +24,7 @@ Creation of type instances is abstracted through a static get method `Doctrine\D
 
 > **NOTE**
 >
-> See the [Known Vendor Issue](./known-vendor-issues) section for details about the different
+> See the [Known Vendor Issue](./../known-vendor-issues) section for details about the different
 > handling of microseconds and timezones across all the different vendors.
 
 ++ Detection of Database Types
