@@ -370,6 +370,21 @@ class PostgreSqlPlatform extends AbstractPlatform
                 $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotNull() ? 'SET' : 'DROP') . ' NOT NULL';
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
             }
+            if ($columnDiff->hasChanged('autoincrement')) {
+                if ($column->getAutoincrement()) {
+                    // add autoincrement
+                    $seqName = $diff->name . '_' . $oldColumnName . '_seq';
+
+                    $sql[] = "CREATE SEQUENCE " . $seqName;
+                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->name . "))";
+                    $query = "ALTER " . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
+                    $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+                } else {
+                    // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
+                    $query = "ALTER " . $oldColumnName . " " . "DROP DEFAULT";
+                    $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+                }
+            }
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {

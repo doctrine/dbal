@@ -96,6 +96,15 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
     }
 
+    public function testGenerateTableWithAutoincrement()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table('autoinc_table');
+        $column = $table->addColumn('id', 'integer');
+        $column->setAutoincrement(true);
+
+        $this->assertEquals(array('CREATE TABLE autoinc_table (id SERIAL NOT NULL)'), $this->_platform->getCreateTableSQL($table));
+    }
+
     public function testGeneratesTypeDeclarationForIntegers()
     {
         $this->assertEquals(
