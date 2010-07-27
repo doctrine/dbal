@@ -140,12 +140,13 @@
            <lead user="jwage" name="Jonathan H. Wage" email="jonwage@gmail.com" />
            <lead user="guilhermeblanco" name="Guilherme Blanco" email="guilhermeblanco@gmail.com" />
            <lead user="romanb" name="Roman Borschel" email="roman@code-factory.org" />
+           <lead user="beberlei" name="Benjamin Eberlei" email="kontakt@beberlei.de" />
            <license>LGPL</license>
            <version release="${version}" api="${version}" />
            <stability release="${stability}" api="${stability}" />
            <notes>-</notes>
            <dependencies>
-               <php minimum_version="5.3.0" />
+               <php minimum_version="5.3.2" />
                <pear minimum_version="1.6.0" recommended_version="1.6.1" />
            </dependencies>
            <dirroles key="bin">script</dirroles>
