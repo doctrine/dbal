@@ -123,7 +123,6 @@ class Statement implements DriverStatement
      */
     public function execute($params = null)
     {
-        $this->_params = array();
         $hasLogger = $this->_conn->getConfiguration()->getSQLLogger();
         if ($hasLogger) {
             $queryStart = microtime(true);
@@ -134,6 +133,7 @@ class Statement implements DriverStatement
         if ($hasLogger) {
             $this->_conn->getConfiguration()->getSQLLogger()->logSQL($this->_sql, $this->_params, microtime(true) - $queryStart);
         }
+        $this->_params = array();
         return $stmt;
     }
 
