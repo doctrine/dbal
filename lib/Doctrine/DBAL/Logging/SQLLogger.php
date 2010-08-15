@@ -43,5 +43,12 @@ interface SQLLogger
      * @param float $executionMS The microtime difference it took to execute this query.
      * @return void
      */
-    function logSQL($sql, array $params = null, $executionMS = null);
+    public function startQuery($sql, array $params = null, array $types = null);
+
+    /**
+     * Mark the last started query as stopped. This can be used for timing of queries.
+     *
+     * @return void
+     */
+    public function stopQuery();
 }

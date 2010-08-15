@@ -125,13 +125,13 @@ class Statement implements DriverStatement
     {
         $hasLogger = $this->_conn->getConfiguration()->getSQLLogger();
         if ($hasLogger) {
-            $queryStart = microtime(true);
+            $this->_conn->getConfiguration()->getSQLLogger()->startQuery($this->_sql, $this->_params);
         }
 
         $stmt = $this->_stmt->execute($params);
 
         if ($hasLogger) {
-            $this->_conn->getConfiguration()->getSQLLogger()->logSQL($this->_sql, $this->_params, microtime(true) - $queryStart);
+            $this->_conn->getConfiguration()->getSQLLogger()->stopQuery();
         }
         $this->_params = array();
         return $stmt;

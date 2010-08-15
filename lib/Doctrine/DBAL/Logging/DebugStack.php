@@ -41,14 +41,25 @@ class DebugStack implements SQLLogger
     /** @var boolean $enabled If Debug Stack is enabled (log queries) or not. */
     public $enabled = true;
 
+    public $start = null;
+
     /**
      * {@inheritdoc}
      */
-    public function logSQL($sql, array $params = null, $executionMS = null)
+    public function startQuery($sql, array $params = null, array $types = null)
     {
         if ($this->enabled) {
-            $this->queries[] = array('sql' => $sql, 'params' => $params, 'executionMS' => $executionMS);
+            $this->start = microtime(true);
+            $this->queries[] = array('sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function stopQuery()
+    {
+        $this->queries[(count($this->queries)-1)]['executionMS'] = microtime(true) - $this->start;
     }
 }
 
