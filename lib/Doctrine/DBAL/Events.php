@@ -33,11 +33,6 @@ final class Events
 {
     private function __construct() {}
 
-    const preExec = 'preExec';
-    const postExec = 'postExec';
-    const preExecute = 'preExecute';
-    const postExecute = 'postExecute';
-
     const postConnect = 'postConnect';
 }
 
