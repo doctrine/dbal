@@ -80,12 +80,12 @@ Retrieve only the given column of the first result row.
     $username = $conn->fetchColumn('SELECT username FROM user WHERE id = ?', array(1), 'username');
     echo $username; // jwage
 
-++ fetchRow($sql, array $params)
+++ fetchAssoc($sql, array $params)
 
 Retrieve assoc row of the first result row.
 
     [php]
-    $user = $conn->fetchRow('SELECT * FROM user WHERE username = ?', array('jwage'));
+    $user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', array('jwage'));
     
     /*
     array(
