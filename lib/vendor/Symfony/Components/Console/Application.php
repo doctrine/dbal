@@ -1,22 +1,22 @@
 <?php
 
-namespace Symfony\Components\Console;
+namespace Symfony\Component\Console;
 
-use Symfony\Components\Console\Input\InputInterface;
-use Symfony\Components\Console\Input\ArgvInput;
-use Symfony\Components\Console\Input\ArrayInput;
-use Symfony\Components\Console\Input\InputDefinition;
-use Symfony\Components\Console\Input\InputOption;
-use Symfony\Components\Console\Input\InputArgument;
-use Symfony\Components\Console\Output\OutputInterface;
-use Symfony\Components\Console\Output\Output;
-use Symfony\Components\Console\Output\ConsoleOutput;
-use Symfony\Components\Console\Command\Command;
-use Symfony\Components\Console\Command\HelpCommand;
-use Symfony\Components\Console\Command\ListCommand;
-use Symfony\Components\Console\Helper\HelperSet;
-use Symfony\Components\Console\Helper\FormatterHelper;
-use Symfony\Components\Console\Helper\DialogHelper;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\HelpCommand;
+use Symfony\Component\Console\Command\ListCommand;
+use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Helper\DialogHelper;
 
 /*
  * This file is part of the symfony framework.
