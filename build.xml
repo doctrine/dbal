@@ -21,8 +21,8 @@
         Fileset for command line scripts
     -->
     <fileset id="bin-scripts" dir="./bin">
-        <include name="doctrine"/>
-        <include name="doctrine.php"/>
+        <include name="doctrine-dbal"/>
+        <include name="doctrine-dbal.php"/>
     </fileset>
 
     <!--
@@ -43,7 +43,7 @@
       Fileset for source of the Symfony YAML and Console components.
     -->
     <fileset id="symfony-sources" dir="./lib/vendor">
-        <include name="Symfony/Components/**"/>
+        <include name="Symfony/Component**"/>
     </fileset>
 
     <!--
@@ -76,21 +76,21 @@
         Builds DBAL package, preparing it for distribution.
     -->
     <target name="build-dbal" depends="test">
-        <copy todir="${build.dir}/dbal">
+        <copy todir="${build.dir}/doctrine-dbal">
             <fileset refid="shared-artifacts"/>
         </copy>
-        <copy todir="${build.dir}/dbal">
+        <copy todir="${build.dir}/doctrine-dbal">
             <fileset refid="common-sources"/>
             <fileset refid="dbal-sources"/>
         </copy>
-        <copy todir="${build.dir}/dbal/Doctrine">
+        <copy todir="${build.dir}/doctrine-dbal/Doctrine">
             <fileset refid="symfony-sources"/>
         </copy>
-        <copy todir="${build.dir}/dbal/bin">
+        <copy todir="${build.dir}/doctrine-dbal/bin">
             <fileset refid="bin-scripts"/>
         </copy>
-        <exec command="sed 's/${version}-DEV/${version}/' ${build.dir}/dbal/Doctrine/DBAL/Version.php > ${build.dir}/dbal/Doctrine/DBAL/Version2.php" passthru="true" />
-        <exec command="mv ${build.dir}/dbal/Doctrine/DBAL/Version2.php ${build.dir}/dbal/Doctrine/DBAL/Version.php" passthru="true" />
+        <exec command="sed 's/${version}-DEV/${version}/' ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version.php > ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version2.php" passthru="true" />
+        <exec command="mv ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version2.php ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version.php" passthru="true" />
     </target>
 
     <target name="build" depends="test, build-dbal"/>
@@ -132,7 +132,7 @@
         Builds distributable PEAR packages.
     -->
     <target name="build-packages" depends="build">
-        <d51pearpkg2 baseinstalldir="/" dir="${build.dir}/dbal">
+        <d51pearpkg2 baseinstalldir="/" dir="${build.dir}/doctrine-dbal">
            <name>DoctrineDBAL</name>
            <summary>Doctrine Database Abstraction Layer</summary>
            <channel>pear.doctrine-project.org</channel>
@@ -148,17 +148,22 @@
            <dependencies>
                <php minimum_version="5.3.2" />
                <pear minimum_version="1.6.0" recommended_version="1.6.1" />
+               <package name="DoctrineCommon" channel="pear.doctrine-project.org" minimum_version="2.0.0BETA4" />
            </dependencies>
            <dirroles key="bin">script</dirroles>
-           <replacement path="bin/doctrine" type="pear-config" from="@php_bin@" to="php_bin" />
-           <replacement path="bin/doctrine.php" type="pear-config" from="@php_bin@" to="php_bin" />
-           <replacement path="bin/doctrine.php" type="pear-config" from="@bin_dir@" to="bin_dir" />
+           <ignore>Doctrine/Common/</ignore>
            <release>
-                <install as="doctrine" name="bin/doctrine" />
-                <install as="doctrine.php" name="bin/doctrine.php" />
+                <install as="doctrine-dbal" name="bin/doctrine-dbal" />
+                <install as="doctrine-dbal.php" name="bin/doctrine-dbal.php" />
            </release>
         </d51pearpkg2>
-        <exec command="pear package" dir="${build.dir}/dbal" passthru="true" />
-        <exec command="mv DoctrineDBAL-${version}.tgz ../../dist" dir="${build.dir}/dbal" passthru="true" />
+        <exec command="pear package" dir="${build.dir}/doctrine-dbal" passthru="true" />
+        <exec command="mv DoctrineDBAL-${version}.tgz ../../dist" dir="${build.dir}/doctrine-dbal" passthru="true" />
+        <tar destfile="dist/DoctrineDBAL-${version}-full.tar.gz" compression="gzip" basedir="${build.dir}">
+            <fileset dir="${build.dir}">
+                <include name="**/**" />
+                <exclude name="logs/" />
+            </fileset>
+        </tar>
     </target>
 </project>
