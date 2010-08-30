@@ -21,9 +21,9 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
-use Symfony\Components\Console\Input\InputArgument,
-    Symfony\Components\Console\Input\InputOption,
-    Symfony\Components\Console;
+use Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption,
+    Symfony\Component\Console;
 
 /**
  * Task for executing arbitrary SQL that can come from a file or directly from
