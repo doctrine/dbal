@@ -92,7 +92,11 @@ class OracleSchemaManager extends AbstractSchemaManager
         
         $dbType = strtolower($tableColumn['data_type']);
         if(strpos($dbType, "timestamp(") === 0) {
-            $dbType = "timestamp";
+            if (strpos($dbType, "WITH TIME ZONE")) {
+                $dbType = "timestamptz";
+            } else {
+                $dbType = "timestamp";
+            }
         }
 
         $type = array();
@@ -158,7 +162,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             case 'long raw':
             case 'bfile':
                 $length = null;
-            break;
+                break;
             case 'rowid':
             case 'urowid':
             default:
