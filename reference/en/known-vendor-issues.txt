@@ -62,8 +62,41 @@ very nasty. Derick Rethans explains it very well [in a blog post of his](http://
 
 ++ Oracle
 
++++ DateTimeTz
+
 Oracle does not save the actual Timezone Name but UTC-Offsets. The difference is subtle but can be potentially
 very nasty. Derick Rethans explains it very well [in a blog post of his](http://derickrethans.nl/storing-date-time-in-database.html).
+
++++ OCI8: SQL Queries with Question Marks
+
+We had to implement a question mark to named parameter translation inside the OCI8 DBAL Driver. This means that
+you cannot execute queries that contain question marks in the SQL string. For example:
+
+    [sql]
+    SELECT * FROM users WHERE name = 'bar?'
+
+Will be rewritten into:
+
+    [sql]
+    SELECT * FROM users WHERE name = 'bar:oci1'
+
+For this reason you should always use prepared statements with Oracle OCI8, never use string literals inside the queries.
+A query for the user 'bar?' should look like:
+
+    [php]
+    $sql = 'SELECT * FROM users WHERE name = ?'
+    $stmt = $conn->prepare($sql);
+    $stmt->bindValue(1, 'bar?');
+    $stmt->execute();
+
+We will probably fix this issue in the future by implementing a little parser inside the OCI8 Driver that can detect
+the difference between question mark needles and literal questions marks.
+
++++ OCI-LOB instances
+
+Doctrine 2 always requests CLOB columns as strings, so that you as a developer never get access to the `OCI-LOB` instance.
+Since we are using prepared statements for all write operations inside the ORM,
+using strings instead of the `OCI-LOB` does not cause any problems.
 
 ++ Microsoft SQL Server
 
