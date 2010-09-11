@@ -112,17 +112,21 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $columns = array(new Column("foo", $type), new Column("bar", $type), new Column("baz", $type));
         $table = new Table("foo", $columns);
         
-        $table->addIndex(array("foo", "bar", "baz"));
-        $table->addUniqueIndex(array("foo", "bar", "baz"));
+        $table->addIndex(array("foo", "bar"));
+        $table->addUniqueIndex(array("bar", "baz"));
 
-        $this->assertTrue($table->hasIndex("foo_foo_bar_baz_idx"));
-        $this->assertTrue($table->hasIndex("foo_foo_bar_baz_uniq"));
+        $this->assertTrue($table->hasIndex("foo_foo_bar_idx"));
+        $this->assertTrue($table->hasIndex("foo_bar_baz_uniq"));
     }
 
     public function testIndexCaseInsensitive()
     {
         $type = \Doctrine\DBAL\Types\Type::getType('integer');
-        $columns = array(new Column("foo", $type), new Column("bar", $type), new Column("baz", $type));
+        $columns = array(
+            new Column("foo", $type),
+            new Column("bar", $type),
+            new Column("baz", $type)
+        );
         $table = new Table("foo", $columns);
 
         $table->addIndex(array("foo", "bar", "baz"), "Foo_Idx");
@@ -135,20 +139,23 @@ class TableTest extends \PHPUnit_Framework_TestCase
     public function testAddIndexes()
     {
         $type = \Doctrine\DBAL\Types\Type::getType('integer');
-        $columns = array(new Column("foo", $type));
+        $columns = array(
+            new Column("foo", $type),
+            new Column("bar", $type),
+        );
         $indexes = array(
             new Index("the_primary", array("foo"), true, true),
-            new Index("foo_idx", array("foo"), false, false),
+            new Index("bar_idx", array("bar"), false, false),
         );
         $table = new Table("foo", $columns, $indexes, array());
 
         $this->assertTrue($table->hasIndex("the_primary"));
-        $this->assertTrue($table->hasIndex("foo_idx"));
+        $this->assertTrue($table->hasIndex("bar_idx"));
         $this->assertFalse($table->hasIndex("some_idx"));
 
         $this->assertType('Doctrine\DBAL\Schema\Index', $table->getPrimaryKey());
         $this->assertType('Doctrine\DBAL\Schema\Index', $table->getIndex('the_primary'));
-        $this->assertType('Doctrine\DBAL\Schema\Index', $table->getIndex('foo_idx'));
+        $this->assertType('Doctrine\DBAL\Schema\Index', $table->getIndex('bar_idx'));
     }
 
     public function testGetUnknownIndexThrowsException()
@@ -344,5 +351,53 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table->addIndex(array('baz'));
 
         $this->assertTrue($table->hasIndex('foo_bar_baz_idx'));
+    }
+
+    /**
+     * @group DBAL-50
+     */
+    public function testAddIndexTwice_IgnoreSecond()
+    {
+        $table = new Table("foo.bar");
+        $table->addColumn('baz', 'integer', array());
+        $table->addIndex(array('baz'));
+        $table->addIndex(array('baz'));
+
+        $this->assertEquals(1, count($table->getIndexes()));
+    }
+
+    /**
+     * @group DBAL-50
+     */
+    public function testAddForeignKeyIndexImplicitly()
+    {
+        $table = new Table("foo");
+        $table->addColumn("id", 'integer');
+
+        $foreignTable = new Table("bar");
+        $foreignTable->addColumn("id", 'integer');
+
+        $table->addForeignKeyConstraint($foreignTable, array("id"), array("id"), array("foo" => "bar"));
+
+        $this->assertEquals(1, count($table->getIndexes()));
+        $this->assertTrue($table->hasIndex("foo_id_idx"));
+        $this->assertEquals(array('id'), $table->getIndex('foo_id_idx')->getColumns());
+    }
+
+    /**
+     * @group DBAL-50
+     */
+    public function testOverruleIndex()
+    {
+        $table = new Table("bar");
+        $table->addColumn('baz', 'integer', array());
+        $table->addIndex(array('baz'));
+        $this->assertEquals(1, count($table->getIndexes()));
+        $this->assertTrue($table->hasIndex('bar_baz_idx'));
+
+        $table->addUniqueIndex(array('baz'));
+        $this->assertEquals(1, count($table->getIndexes()));
+        $this->assertFalse($table->hasIndex('bar_baz_idx'));
+        $this->assertTrue($table->hasIndex('bar_baz_uniq'));
     }
 }

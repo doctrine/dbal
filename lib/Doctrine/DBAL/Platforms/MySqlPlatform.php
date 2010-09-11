@@ -577,11 +577,6 @@ class MySqlPlatform extends AbstractPlatform
         return 'mysql';
     }
 
-    public function createsExplicitIndexForForeignKeys()
-    {
-        return true;
-    }
-
     public function getReadLockSQL()
     {
         return 'LOCK IN SHARE MODE';

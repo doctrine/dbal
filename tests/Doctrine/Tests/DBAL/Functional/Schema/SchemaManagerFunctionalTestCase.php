@@ -222,7 +222,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->_sm->dropAndCreateTable($tableA);
 
-        $fkConstraints = $this->_sm->listTableForeignKeys('test_create_fk');
+        $fkTable = $this->_sm->listTableDetails('test_create_fk');
+        $fkConstraints = $fkTable->getForeignKeys();
         $this->assertEquals(1, count($fkConstraints), "Table 'test_create_fk1' has to have one foreign key.");
 
         $fkConstraint = current($fkConstraints);
@@ -230,6 +231,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals('test_foreign',             strtolower($fkConstraint->getForeignTableName()));
         $this->assertEquals(array('foreign_key_test'),  array_map('strtolower', $fkConstraint->getColumns()));
         $this->assertEquals(array('id'),                array_map('strtolower', $fkConstraint->getForeignColumns()));
+        $this->assertTrue($fkTable->columnsAreIndexed($fkConstraint->getColumns()));
     }
 
     public function testListForeignKeys()
