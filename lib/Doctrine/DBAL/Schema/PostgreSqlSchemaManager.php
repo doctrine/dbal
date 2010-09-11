@@ -137,7 +137,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                     if ($colNum == $colRow['attnum']) {
                         $buffer[] = array(
                             'key_name' => $row['relname'],
-                            'column_name' => $colRow['attname'],
+                            'column_name' => trim($colRow['attname']),
                             'non_unique' => !$row['indisunique'],
                             'primary' => $row['indisprimary']
                         );
