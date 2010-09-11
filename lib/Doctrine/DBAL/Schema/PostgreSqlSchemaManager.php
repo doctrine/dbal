@@ -46,8 +46,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
 
         if (preg_match('/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/', $tableForeignKey['condef'], $values)) {
-            $localColumns = explode(",", $values[1]);
-            $foreignColumns = explode(",", $values[3]);
+            $localColumns = array_map('trim', explode(",", $values[1]));
+            $foreignColumns = array_map('trim', explode(",", $values[3]));
             $foreignTable = $values[2];
         }
 
