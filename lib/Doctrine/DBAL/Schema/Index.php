@@ -106,4 +106,73 @@ class Index extends AbstractAsset implements Constraint
         $indexColumns = \array_map('strtolower', $this->getColumns());
         return \array_search($columnName, $indexColumns) === $pos;
     }
+
+    /**
+     * Check if this index exactly spans the given column names in the correct order.
+     *
+     * @param array $columnNames
+     * @return boolean
+     */
+    public function spansColumns(array $columnNames)
+    {
+        $sameColumns = true;
+        for ($i = 0; $i < count($this->_columns); $i++) {
+            if (!isset($columnNames[$i]) || $this->_columns[$i] != $columnNames[$i]) {
+                $sameColumns = false;
+            }
+        }
+        return $sameColumns;
+    }
+
+    /**
+     * Check if the other index already fullfills all the indexing and constraint needs of the current one.
+     *
+     * @param Index $other
+     * @return bool
+     */
+    public function isFullfilledBy(Index $other)
+    {
+        // allow the other index to be equally large only. It being larger is an option
+        // but it creates a problem with scenarios of the kind PRIMARY KEY(foo,bar) UNIQUE(foo)
+        if (count($other->getColumns()) != count($this->getColumns())) {
+            return false;
+        }
+
+        // Check if columns are the same, and even in the same order
+        $sameColumns = $this->spansColumns($other->getColumns());
+
+        if ($sameColumns) {
+            if (!$this->isUnique() && !$this->isPrimary()) {
+                // this is a special case: If the current key is neither primary or unique, any uniqe or
+                // primary key will always have the same effect for the index and there cannot be any constraint
+                // overlaps. This means a primary or unique index can always fullfill the requirements of just an
+                // index that has no constraints.
+                return true;
+            } else if ($other->isPrimary() != $this->isPrimary()) {
+                return false;
+            } else if ($other->isUnique() != $this->isUnique()) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Detect if the other index is a non-unique, non primary index that can be overwritten by this one.
+     *
+     * @param Index $other
+     * @return bool
+     */
+    public function overrules(Index $other)
+    {
+        if ($other->isPrimary() || $other->isUnique()) {
+            return false;
+        }
+
+        if ($this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique())) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -40,4 +40,45 @@ class IndexTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($idx->isUnique());
         $this->assertFalse($idx->isPrimary());
     }
+
+    /**
+     * @group DBAL-50
+     */
+    public function testFullfilledByUnique()
+    {
+        $idx1 = $this->createIndex(true, false);
+        $idx2 = $this->createIndex(true, false);
+        $idx3 = $this->createIndex();
+
+        $this->assertTrue($idx1->isFullfilledBy($idx2));
+        $this->assertFalse($idx1->isFullfilledBy($idx3));
+    }
+
+    /**
+     * @group DBAL-50
+     */
+    public function testFullfilledByPrimary()
+    {
+        $idx1 = $this->createIndex(true, true);
+        $idx2 = $this->createIndex(true, true);
+        $idx3 = $this->createIndex(true, false);
+
+        $this->assertTrue($idx1->isFullfilledBy($idx2));
+        $this->assertFalse($idx1->isFullfilledBy($idx3));
+    }
+
+    /**
+     * @group DBAL-50
+     */
+    public function testFullfilledByIndex()
+    {
+        $idx1 = $this->createIndex();
+        $idx2 = $this->createIndex();
+        $pri = $this->createIndex(true, true);
+        $uniq = $this->createIndex(true);
+
+        $this->assertTrue($idx1->isFullfilledBy($idx2));
+        $this->assertTrue($idx1->isFullfilledBy($pri));
+        $this->assertTrue($idx1->isFullfilledBy($uniq));
+    }
 }

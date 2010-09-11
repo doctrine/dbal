@@ -770,7 +770,6 @@ abstract class AbstractSchemaManager
     public function createSchemaConfig()
     {
         $schemaConfig = new SchemaConfig();
-        $schemaConfig->setExplicitForeignKeyIndexes($this->_platform->createsExplicitIndexForForeignKeys());
         $schemaConfig->setMaxIdentifierLength($this->_platform->getMaxIdentifierLength());
 
         return $schemaConfig;

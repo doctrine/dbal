@@ -167,39 +167,6 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $schema = new Schema(array(), array($sequence, $sequence));
     }
 
-    public function testFixSchema_AddExplicitIndexForForeignKey()
-    {
-        $schema = new Schema();
-        $tableA = $schema->createTable('foo');
-        $tableA->addColumn('id', 'integer');
-
-        $tableB = $schema->createTable('bar');
-        $tableB->addColumn('id', 'integer');
-        $tableB->addColumn('foo_id', 'integer');
-        $tableB->addForeignKeyConstraint($tableA, array('foo_id'), array('id'));
-
-        $this->assertEquals(0, count($tableB->getIndexes()));
-
-        $schema->visit(new \Doctrine\DBAL\Schema\Visitor\FixSchema(true));
-
-        $this->assertEquals(1, count($tableB->getIndexes()));
-        $indexes = $tableB->getIndexes();
-        $index = current($indexes);
-        $this->assertTrue($index->hasColumnAtPosition('foo_id', 0));
-    }
-
-    public function testConfigHasExplicitForeignKeyIndex()
-    {
-        $schemaConfig = new \Doctrine\DBAL\Schema\SchemaConfig();
-        $schemaConfig->setExplicitForeignKeyIndexes(false);
-
-        $schema = new Schema(array(), array(), $schemaConfig);
-        $this->assertFalse($schema->hasExplicitForeignKeyIndexes());
-
-        $schemaConfig->setExplicitForeignKeyIndexes(true);
-        $this->assertTrue($schema->hasExplicitForeignKeyIndexes());
-    }
-
     public function testConfigMaxIdentifierLength()
     {
         $schemaConfig = new \Doctrine\DBAL\Schema\SchemaConfig();

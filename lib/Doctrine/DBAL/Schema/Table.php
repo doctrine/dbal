@@ -185,15 +185,8 @@ class Table extends AbstractAsset
     public function columnsAreIndexed(array $columnsNames)
     {
         foreach ($this->getIndexes() AS $index) {
-            $indexColumns = $index->getColumns();
-            $areIndexed = true;
-            for ($i = 0; $i < count($columnsNames); $i++) {
-                if ($columnsNames[$i] != $indexColumns[$i]) {
-                    $areIndexed = false;
-                }
-            }
-
-            if ($areIndexed) {
+            /* @var $index Index */
+            if ($index->spansColumns($columnsNames)) {
                 return true;
             }
         }
@@ -386,31 +379,37 @@ class Table extends AbstractAsset
     /**
      * Add index to table
      * 
-     * @param Index $index
+     * @param Index $indexCandidate
      * @return Table
      */
-    protected function _addIndex(Index $index)
+    protected function _addIndex(Index $indexCandidate)
     {
         // check for duplicates
-        $c = new Comparator();
         foreach ($this->_indexes AS $existingIndex) {
-            if ($c->diffIndex($index, $existingIndex) == false) {
+            if ($indexCandidate->isFullfilledBy($existingIndex)) {
                 return $this;
             }
         }
 
-        $indexName = $index->getName();
+        $indexName = $indexCandidate->getName();
         $indexName = strtolower($indexName);
 
-        if (isset($this->_indexes[$indexName]) || ($this->_primaryKeyName != false && $index->isPrimary())) {
+        if (isset($this->_indexes[$indexName]) || ($this->_primaryKeyName != false && $indexCandidate->isPrimary())) {
             throw SchemaException::indexAlreadyExists($indexName, $this->_name);
         }
 
-        if ($index->isPrimary()) {
+        // remove overruled indexes
+        foreach ($this->_indexes AS $idxKey => $existingIndex) {
+            if ($indexCandidate->overrules($existingIndex)) {
+                unset($this->_indexes[$idxKey]);
+            }
+        }
+
+        if ($indexCandidate->isPrimary()) {
             $this->_primaryKeyName = $indexName;
         }
 
-        $this->_indexes[$indexName] = $index;
+        $this->_indexes[$indexName] = $indexCandidate;
         return $this;
     }
 
@@ -431,6 +430,10 @@ class Table extends AbstractAsset
         $name = strtolower($name);
 
         $this->_fkConstraints[$name] = $constraint;
+        // add an explicit index on the foreign key columns. If there is already an index that fullfils this requirements drop the request.
+        // In the case of __construct calling this method during hydration from schema-details all the explicitly added indexes
+        // lead to duplicates. This creates compuation overhead in this case, however no duplicate indexes are ever added (based on columns).
+        $this->addIndex($constraint->getColumns());
     }
 
     /**

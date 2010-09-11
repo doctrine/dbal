@@ -57,10 +57,6 @@ class Comparator
      */
     public function compare(Schema $fromSchema, Schema $toSchema)
     {
-        if ($fromSchema->hasExplicitForeignKeyIndexes() && !$toSchema->hasExplicitForeignKeyIndexes()) {
-            $toSchema->visit(new \Doctrine\DBAL\Schema\Visitor\FixSchema(true));
-        }
-
         $diff = new SchemaDiff();
 
         $foreignKeysToTable = array();
@@ -363,31 +359,9 @@ class Comparator
      */
     public function diffIndex(Index $index1, Index $index2)
     {
-        if($index1->isPrimary() != $index2->isPrimary()) {
-            return true;
+        if ($index1->isFullfilledBy($index2) && $index2->isFullfilledBy($index1)) {
+            return false;
         }
-        if($index1->isUnique() != $index2->isUnique()) {
-            return true;
-        }
-
-        // Check for removed index fields in $index2
-        $index1Columns = $index1->getColumns();
-        for($i = 0; $i < count($index1Columns); $i++) {
-            $indexColumn = $index1Columns[$i];
-            if (!$index2->hasColumnAtPosition($indexColumn, $i)) {
-                return true;
-            }
-        }
-
-        // Check for new index fields in $index2
-        $index2Columns = $index2->getColumns();
-        for($i = 0; $i < count($index2Columns); $i++) {
-            $indexColumn = $index2Columns[$i];
-            if (!$index1->hasColumnAtPosition($indexColumn, $i)) {
-                return true;
-            }
-        }
-
-        return false;
+        return true;
     }
 }
