@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -65,7 +63,7 @@ class Index extends AbstractAsset implements Constraint
     protected function _addColumn($column)
     {
         if(is_string($column)) {
-            $this->_columns[] = $column;
+            $this->_columns[] = strtolower($column);
         } else {
             throw new \InvalidArgumentException("Expecting a string as Index Column");
         }
