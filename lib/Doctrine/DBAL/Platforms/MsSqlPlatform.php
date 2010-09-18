@@ -149,6 +149,48 @@ DROP DATABASE ' . $name . ';';
 			}
 		}
     }
+	
+	/**
+     * @override
+     */
+	protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    {
+        $columnListSql = $this->getColumnDeclarationListSQL($columns);
+        
+        if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
+            foreach ($options['uniqueConstraints'] as $name => $definition) {
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
+            }
+        }
+        
+        if (isset($options['primary']) && ! empty($options['primary'])) {
+            $columnListSql .= ', PRIMARY KEY(' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+        }
+
+        $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
+
+        $check = $this->getCheckDeclarationSQL($columns);
+        if ( ! empty($check)) {
+            $query .= ', ' . $check;
+        }
+        $query .= ')';
+
+        $sql[] = $query;
+		
+		if (isset($options['indexes']) && ! empty($options['indexes'])) {
+            foreach ($options['indexes'] AS $index) {
+                $sql[] = $this->getCreateIndexSQL($index, $tableName);
+            }
+        }
+
+        if (isset($options['foreignKeys'])) {
+            foreach ((array) $options['foreignKeys'] AS $definition) {
+                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
+            }
+        }
+
+        return $sql;
+    }
 
     /**
      * @override
@@ -611,15 +653,6 @@ DROP DATABASE ' . $name . ';';
     public function getDateTimeTzFormatString()
     {
         return $this->getDateTimeFormatString();
-    }
-
-    /**
-     * @override
-     */
-    public function getIndexDeclarationSQL($name, Index $index)
-    {
-        // @todo
-        return $this->getUniqueConstraintDeclarationSQL($name, $index);
     }
 
     /**
