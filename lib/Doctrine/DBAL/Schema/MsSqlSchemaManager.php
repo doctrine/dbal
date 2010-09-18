@@ -40,8 +40,10 @@ class MsSqlSchemaManager extends AbstractSchemaManager
     {
         $dbType = strtolower($tableColumn['TYPE_NAME']);
 
+		$autoincrement = false;
         if (stripos($dbType, 'identity')) {
             $dbType = trim(str_ireplace('identity', '', $dbType));
+			$autoincrement = true;
         }
 
         $type = array();
@@ -160,14 +162,10 @@ class MsSqlSchemaManager extends AbstractSchemaManager
             'notnull'       => (bool) ($tableColumn['IS_NULLABLE'] != 'YES'),
             'scale'         => $tableColumn['SCALE'],
             'precision'     => $tableColumn['PRECISION'],
-            'platformOptions' => array(
-                // @todo
-                'primary' =>  false,
-                'unique' => false,
-                'autoincrement' => false,
-            ),
+			'unique' => false, // @todo
+			'autoincrement' => $autoincrement,
         );
-		
+
         return new Column($tableColumn['COLUMN_NAME'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
 
