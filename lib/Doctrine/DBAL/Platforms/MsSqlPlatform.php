@@ -141,12 +141,11 @@ DROP DATABASE ' . $name . ';';
 			if ($table instanceof \Doctrine\DBAL\Schema\Table) {
 				$table = $table->getName();
 			}
-			
-			if (!isset($index_) || $index_->isPrimary() || $index_->isUnique()) {
-				return 'ALTER TABLE ' . $table .' DROP CONSTRAINT ' . $index;
-			} else {
-				return 'DROP INDEX ' . $index . ' ON ' . $table;
-			}
+		
+			return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
+						ALTER TABLE " . $this->quoteIdentifier($table) . " DROP CONSTRAINT " . $this->quoteIdentifier($index) . "
+					ELSE
+						DROP INDEX " . $this->quoteIdentifier($index) . " ON " . $this->quoteIdentifier($table);
 		}
     }
 	
