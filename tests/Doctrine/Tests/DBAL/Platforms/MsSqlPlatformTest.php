@@ -22,14 +22,18 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
         return array(
-            'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL, CONSTRAINT test_foo_bar_uniq UNIQUE (foo, bar))'
+            'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
+			'CREATE UNIQUE INDEX test_foo_bar_uniq ON test (foo, bar)'
         );
     }
 
     public function getGenerateAlterTableSql()
     {
         return array(
-            "ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL"
+			'ALTER TABLE mytable RENAME TO userlist',
+            'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
+            'ALTER TABLE mytable DROP COLUMN foo',
+            'ALTER TABLE mytable CHANGE bar baz VARCHAR(255) DEFAULT \'def\' NOT NULL',            
         );
     }
 
