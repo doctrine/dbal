@@ -105,7 +105,9 @@ class MsSqlSchemaManager extends AbstractSchemaManager
                 $type = 'date';
                 break;
             case 'datetime':
+            case 'datetime2':
             case 'timestamp':
+            case 'smalldatettime':
                 $type = 'datetime';
                 break;
             case 'time':
@@ -144,22 +146,14 @@ class MsSqlSchemaManager extends AbstractSchemaManager
                 $type = 'string';
         }
         
-        $def =  array(
-            'type' => $type,
-            'length' => ((int) $tableColumn['LENGTH'] == 0) ? null : (int) $tableColumn['LENGTH'],
-            'unsigned' => (bool) $unsigned,
-            'fixed' => (bool) $fixed
-        );
-
-
         $default = $tableColumn['COLUMN_DEF'];
 
         while($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
             $default = $default2;
         }
-        
+
         $options = array(
-            'length'        => ((int) $tableColumn['LENGTH'] == 0) ? null : (int) $tableColumn['LENGTH'],
+            'length'        => ((int) $tableColumn['LENGTH'] == 0 || !in_array($type, array('text', 'string'))) ? null : (int) $tableColumn['LENGTH'],
             'unsigned'      => (bool)$unsigned,
             'fixed'         => (bool)$fixed,
             'default'       => $default !== 'NULL' ? $default : null,
@@ -173,7 +167,7 @@ class MsSqlSchemaManager extends AbstractSchemaManager
                 'autoincrement' => false,
             ),
         );
-
+		
         return new Column($tableColumn['COLUMN_NAME'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
 
