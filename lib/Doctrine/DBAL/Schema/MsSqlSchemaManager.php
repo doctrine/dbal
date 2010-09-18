@@ -165,7 +165,7 @@ class MsSqlSchemaManager extends AbstractSchemaManager
 			'unique' => false, // @todo
 			'autoincrement' => $autoincrement,
         );
-		
+
         return new Column($tableColumn['COLUMN_NAME'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
 
