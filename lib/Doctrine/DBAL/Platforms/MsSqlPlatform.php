@@ -122,14 +122,27 @@ DROP DATABASE ' . $name . ';';
 
         return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
     }
+	
+	/**
+     * @override
+     */
+	public function getDropIndexSQL($index, $table=null)
+    {
+        if($index instanceof \Doctrine\DBAL\Schema\Index) {
+            $index = $index->getName();
+        } else if(!is_string($index)) {
+            throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+        }
+
+		if (!isset($table)) {
+			return 'DROP INDEX ' . $index;
+		} else {
+			return 'DROP INDEX ' . $index . ' ON ' . $table;
+		}
+    }
 
     /**
-     * Gets the sql statements for altering an existing table.
-     *
-     * The method returns an array of sql statements, since some platforms need several statements.
-     *
-     * @param TableDiff $diff
-     * @return array
+     * @override
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
@@ -143,7 +156,7 @@ DROP DATABASE ' . $name . ';';
         }
 
         foreach ($diff->removedColumns AS $column) {
-            $queryParts[] =  'DROP ' . $column->getName();
+            $queryParts[] =  'DROP COLUMN ' . $column->getName();
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
@@ -159,9 +172,11 @@ DROP DATABASE ' . $name . ';';
         }
 
         $sql = array();
-        if (count($queryParts) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
-        }
+
+		foreach ($queryParts as $query) {
+			$sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+		}
+
         $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
         return $sql;
     }
