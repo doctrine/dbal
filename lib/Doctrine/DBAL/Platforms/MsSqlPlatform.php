@@ -405,7 +405,7 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'TIME';
+        return 'TIME(0)';
     }
 
     /**
@@ -545,6 +545,14 @@ class MsSqlPlatform extends AbstractPlatform
     public function getDateTimeFormatString()
     {
         return 'Y-m-d H:i:s.u';
+    }
+	
+    /**
+     * @override
+     */
+    public function getDateTimeTzFormatString()
+    {
+        return $this->getDateTimeFormatString();
     }
 
     /**
