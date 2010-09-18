@@ -226,6 +226,30 @@ DROP DATABASE ' . $name . ';';
     {
         return "exec sp_helpindex '" . $table . "'";
     }
+	
+	/**
+     * @override
+     */
+	public function getCreateViewSQL($name, $sql)
+    {
+        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
+    }
+	
+	/**
+     * @override
+     */
+	public function getListViewsSQL($database)
+    {
+        return "SELECT name FROM sysobjects WHERE type = 'V' ORDER BY name";
+    }
+
+	/**
+     * @override
+     */
+    public function getDropViewSQL($name)
+    {
+        return 'DROP VIEW '. $name;
+    }
 
     /**
      * Returns the regular expression operator.

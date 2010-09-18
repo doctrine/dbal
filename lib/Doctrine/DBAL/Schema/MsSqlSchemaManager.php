@@ -230,4 +230,13 @@ class MsSqlSchemaManager extends AbstractSchemaManager
     {
         return $database['name'];
     }
+	
+	/**
+     * @override
+     */
+	protected function _getPortableViewDefinition($view)
+    {
+		// @todo
+        return new View($view['name'], null);
+    }
 }
