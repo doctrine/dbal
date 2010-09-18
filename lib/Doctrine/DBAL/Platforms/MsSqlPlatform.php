@@ -92,6 +92,10 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($name)
     {
+	return 'ALTER DATABASE [' . $name . ']
+SET SINGLE_USER --or RESTRICTED_USER
+WITH ROLLBACK IMMEDIATE;
+DROP DATABASE ' . $name . ';';
         return 'DROP DATABASE ' . $name;
     }
 
@@ -292,6 +296,11 @@ class MsSqlPlatform extends AbstractPlatform
     {
         $args = func_get_args();
         return '(' . implode(' + ', $args) . ')';
+    }
+	
+	public function getListDatabasesSQL()
+    {
+        return 'SELECT * FROM SYS.DATABASES';
     }
 
     /**

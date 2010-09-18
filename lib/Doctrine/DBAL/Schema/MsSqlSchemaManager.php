@@ -230,4 +230,12 @@ class MsSqlSchemaManager extends AbstractSchemaManager
     {
         return $table['name'];
     }
+	
+	/**
+     * @override
+     */
+	protected function _getPortableDatabaseDefinition($database)
+    {
+        return $database['name'];
+    }
 }
