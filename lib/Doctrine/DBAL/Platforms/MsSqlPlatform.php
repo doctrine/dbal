@@ -129,6 +129,7 @@ DROP DATABASE ' . $name . ';';
 	public function getDropIndexSQL($index, $table=null)
     {
         if($index instanceof \Doctrine\DBAL\Schema\Index) {
+			$index_ = $index;
             $index = $index->getName();
         } else if(!is_string($index)) {
             throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
@@ -137,7 +138,15 @@ DROP DATABASE ' . $name . ';';
 		if (!isset($table)) {
 			return 'DROP INDEX ' . $index;
 		} else {
-			return 'DROP INDEX ' . $index . ' ON ' . $table;
+			if ($table instanceof \Doctrine\DBAL\Schema\Table) {
+				$table = $table->getName();
+			}
+			
+			if (!isset($index_) || $index_->isPrimary() || $index_->isUnique()) {
+				return 'ALTER TABLE ' . $table .' DROP CONSTRAINT ' . $index;
+			} else {
+				return 'DROP INDEX ' . $index . ' ON ' . $table;
+			}
 		}
     }
 
@@ -178,6 +187,7 @@ DROP DATABASE ' . $name . ';';
 		}
 
         $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
+
         return $sql;
     }
 
