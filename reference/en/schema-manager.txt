@@ -7,6 +7,13 @@ To retrieve the `SchemaManager` for your connection you can use the `getSchemaMa
 
 Now with the `SchemaManager` instance in `$em` you can use the available methods to learn about your database schema:
 
+> **NOTE**
+>
+> Parameters containing identifiers passed to the SchemaManager methods are *NOT* quoted automatically!
+> Identifier quoting is really difficult to do manually in a consistent way across different databases.
+> You have to manually quote the identifiers when you accept data from user- or other sources not under
+> your control.
+
 ++ listDatabases()
 
 Retrieve an array of databases on the configured connection:
