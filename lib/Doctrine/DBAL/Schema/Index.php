@@ -115,7 +115,7 @@ class Index extends AbstractAsset implements Constraint
     {
         $sameColumns = true;
         for ($i = 0; $i < count($this->_columns); $i++) {
-            if (!isset($columnNames[$i]) || $this->_columns[$i] != $columnNames[$i]) {
+            if (!isset($columnNames[$i]) || strtolower($this->_columns[$i]) != strtolower($columnNames[$i])) {
                 $sameColumns = false;
             }
         }

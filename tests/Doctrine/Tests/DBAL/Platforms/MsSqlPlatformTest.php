@@ -66,9 +66,16 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesDDLSnippets()
     {
+        $dropDatabaseExpectation = <<<DDB
+ALTER DATABASE [foobar]
+SET SINGLE_USER --or RESTRICTED_USER
+WITH ROLLBACK IMMEDIATE;
+DROP DATABASE foobar;
+DDB;
+
         $this->assertEquals('SHOW DATABASES', $this->_platform->getShowDatabasesSQL());
         $this->assertEquals('CREATE DATABASE foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
-        $this->assertEquals('DROP DATABASE foobar', $this->_platform->getDropDatabaseSQL('foobar'));
+        $this->assertEquals($dropDatabaseExpectation, $this->_platform->getDropDatabaseSQL('foobar'));
         $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
     }
 

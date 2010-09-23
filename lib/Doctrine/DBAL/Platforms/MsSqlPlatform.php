@@ -96,7 +96,6 @@ class MsSqlPlatform extends AbstractPlatform
 SET SINGLE_USER --or RESTRICTED_USER
 WITH ROLLBACK IMMEDIATE;
 DROP DATABASE ' . $name . ';';
-        return 'DROP DATABASE ' . $name;
     }
 
     /**

@@ -53,7 +53,7 @@ class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
         $sql = $schema->toDropSql($platformMock);
 
-        $this->assertEquals(array("fk", "seq", "tbl", "tbl"), $sql);
+        $this->assertEquals(array("fk", "tbl", "tbl", "seq"), $sql);
     }
 
     /**

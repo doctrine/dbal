@@ -231,7 +231,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals('test_foreign',             strtolower($fkConstraint->getForeignTableName()));
         $this->assertEquals(array('foreign_key_test'),  array_map('strtolower', $fkConstraint->getColumns()));
         $this->assertEquals(array('id'),                array_map('strtolower', $fkConstraint->getForeignColumns()));
-        $this->assertTrue($fkTable->columnsAreIndexed($fkConstraint->getColumns()));
+
+        $this->assertTrue($fkTable->columnsAreIndexed($fkConstraint->getColumns()), "The columns of a foreign key constraint should always be indexed.");
     }
 
     public function testListForeignKeys()
