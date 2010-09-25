@@ -76,6 +76,14 @@ class MsSqlSchemaManager extends AbstractSchemaManager
 				$fixed = false;
 				break;
         }
+        switch ($dbType) {
+            case 'nchar':
+            case 'nvarchar':
+            case 'ntext':
+				// Unicode data requires 2 bytes per character
+				$length = $length / 2;
+				break;
+        }
 
         $options = array(
             'length'        => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,

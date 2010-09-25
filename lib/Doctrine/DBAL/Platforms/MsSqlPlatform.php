@@ -485,8 +485,8 @@ DROP DATABASE ' . $name . ';';
         $length = ($field['length'] <= $this->getVarcharMaxLength()) ? $field['length'] : false;
         $fixed = (isset($field['fixed'])) ? $field['fixed'] : false;
 
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
+        return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'CHAR(255)')
+                : ($length ? 'NVARCHAR(' . $length . ')' : 'NTEXT');
     }
 
     /** @override */

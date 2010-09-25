@@ -16,13 +16,13 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
+        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
         return array(
-            'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
+            'CREATE TABLE test (foo NVARCHAR(255) DEFAULT NULL, bar NVARCHAR(255) DEFAULT NULL)',
 			'CREATE UNIQUE INDEX test_foo_bar_uniq ON test (foo, bar)'
         );
     }
@@ -33,7 +33,7 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
 			'ALTER TABLE mytable RENAME TO userlist',
             'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
             'ALTER TABLE mytable DROP COLUMN foo',
-            'ALTER TABLE mytable CHANGE bar baz VARCHAR(255) DEFAULT \'def\' NOT NULL',            
+            'ALTER TABLE mytable CHANGE bar baz NVARCHAR(255) DEFAULT \'def\' NOT NULL',            
         );
     }
 
@@ -99,17 +99,17 @@ DDB;
     public function testGeneratesTypeDeclarationsForStrings()
     {
         $this->assertEquals(
-            'CHAR(10)',
+            'NCHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
                 array('length' => 10, 'fixed' => true)
         ));
         $this->assertEquals(
-            'VARCHAR(50)',
+            'NVARCHAR(50)',
             $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
             'Variable string declaration is not correct'
         );
         $this->assertEquals(
-            'TEXT',
+            'NTEXT',
             $this->_platform->getVarcharTypeDeclarationSQL(array()),
             'Long string declaration is not correct'
         );
