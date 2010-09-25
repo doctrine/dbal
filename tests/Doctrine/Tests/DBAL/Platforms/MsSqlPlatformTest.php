@@ -148,24 +148,30 @@ DDB;
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
-        $this->assertEquals('SELECT * FROM (SELECT TOP 10 * FROM (SELECT TOP 10 * FROM user) AS inner_tbl) AS outer_tbl', $sql);
+        $this->assertEquals('SELECT TOP 10 * FROM user', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
-        $this->assertEquals('SELECT * FROM (SELECT TOP 10 * FROM (SELECT TOP 10 * FROM user) AS inner_tbl) AS outer_tbl', $sql);
+        $this->assertEquals('SELECT TOP 10 * FROM user', $sql);
+    }
+
+    public function testModifyLimitQueryWithOffset()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10, 5);
+        $this->assertEquals('WITH outer_tbl AS (SELECT ROW_NUMBER() OVER (ORDER BY username DESC) AS "doctrine_rownum", * FROM (SELECT * FROM user) AS inner_tbl) SELECT * FROM outer_tbl WHERE "doctrine_rownum" BETWEEN 6 AND 15', $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
-        $this->assertEquals('SELECT * FROM (SELECT TOP 10 * FROM (SELECT TOP 10 * FROM user ORDER BY username ASC) AS inner_tbl ORDER BY inner_tbl.u DESC) AS outer_tbl ORDER BY outer_tbl.u ASC', $sql);
+        $this->assertEquals('SELECT TOP 10 * FROM user ORDER BY username ASC', $sql);
     }
 
     public function testModifyLimitQueryWithDescOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
-        $this->assertEquals('SELECT * FROM (SELECT TOP 10 * FROM (SELECT TOP 10 * FROM user ORDER BY username DESC) AS inner_tbl ORDER BY inner_tbl.u ASC) AS outer_tbl ORDER BY outer_tbl.u DESC', $sql);
+        $this->assertEquals('SELECT TOP 10 * FROM user ORDER BY username DESC', $sql);
     }
 }

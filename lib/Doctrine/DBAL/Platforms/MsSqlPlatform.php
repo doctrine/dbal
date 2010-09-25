@@ -93,7 +93,7 @@ class MsSqlPlatform extends AbstractPlatform
     public function getDropDatabaseSQL($name)
     {
 	return 'ALTER DATABASE [' . $name . ']
-SET SINGLE_USER --or RESTRICTED_USER
+SET SINGLE_USER
 WITH ROLLBACK IMMEDIATE;
 DROP DATABASE ' . $name . ';';
     }
@@ -526,77 +526,35 @@ DROP DATABASE ' . $name . ';';
     public function modifyLimitQuery($query, $limit, $offset = null)
     {
         if ($limit > 0) {
-            $count = intval($limit);
+			$count = intval($limit);
             $offset = intval($offset);
 
             if ($offset < 0) {
                 throw new Doctrine_Connection_Exception("LIMIT argument offset=$offset is not valid");
             }
 
-            $orderby = stristr($query, 'ORDER BY');
+			if ($offset == 0) {
+				$query = preg_replace('/^SELECT\s/i', 'SELECT TOP ' . $count . ' ', $query);
+			} else {
+				$orderby = stristr($query, 'ORDER BY');
 
-            if ($orderby !== false) {
-                // Ticket #1835: Fix for ORDER BY alias
-                // Ticket #2050: Fix for multiple ORDER BY clause
-                $order = str_ireplace('ORDER BY', '', $orderby);
-                $orders = explode(',', $order);
+				if (!$orderby) {
+					$over = 'ORDER BY (SELECT 0)';
+				} else {
+					$over = preg_replace('/\"[^,]*\".\"([^,]*)\"/i', '"inner_tbl"."$1"', $orderby);
+				}
+				
+				// Remove ORDER BY clause from $query
+				$query = preg_replace('/\s+ORDER BY(.*)/', '', $query);
+				
+				// Add ORDER BY clause as an argument for ROW_NUMBER()
+				$query = "SELECT ROW_NUMBER() OVER ($over) AS \"doctrine_rownum\", * FROM ($query) AS inner_tbl";
+			  
+				$start = $offset + 1;
+				$end = $offset + $count;
 
-                for ($i = 0; $i < count($orders); $i++) {
-                    $sorts[$i] = (stripos($orders[$i], ' DESC') !== false) ? 'DESC' : 'ASC';
-                    $orders[$i] = trim(preg_replace('/\s+(ASC|DESC)$/i', '', $orders[$i]));
-
-                    // find alias in query string
-                    $helperString = stristr($query, $orders[$i]);
-
-                    $fromClausePos = strpos($helperString, ' FROM ');
-                    $fieldsString = substr($helperString, 0, $fromClausePos + 1);
-
-                    $fieldArray = explode(',', $fieldsString);
-                    $fieldArray = array_shift($fieldArray);
-                    $aux2 = preg_split('/ as /i', $fieldArray);
-
-                    $aliases[$i] = trim(end($aux2));
-                }
-            }
-
-            // Ticket #1259: Fix for limit-subquery in MSSQL
-            $selectRegExp = 'SELECT\s+';
-            $selectReplace = 'SELECT ';
-
-            if (preg_match('/^SELECT(\s+)DISTINCT/i', $query)) {
-                $selectRegExp .= 'DISTINCT\s+';
-                $selectReplace .= 'DISTINCT ';
-            }
-
-            $query = preg_replace('/^'.$selectRegExp.'/i', $selectReplace . 'TOP ' . ($count + $offset) . ' ', $query);
-            $query = 'SELECT * FROM (SELECT TOP ' . $count . ' * FROM (' . $query . ') AS ' . 'inner_tbl';
-
-            if ($orderby !== false) {
-                $query .= ' ORDER BY ';
-
-                for ($i = 0, $l = count($orders); $i < $l; $i++) {
-                    if ($i > 0) { // not first order clause
-                        $query .= ', ';
-                    }
-
-                    $query .= 'inner_tbl' . '.' . $aliases[$i] . ' ';
-                    $query .= (stripos($sorts[$i], 'ASC') !== false) ? 'DESC' : 'ASC';
-                }
-            }
-
-            $query .= ') AS ' . 'outer_tbl';
-
-            if ($orderby !== false) {
-                $query .= ' ORDER BY ';
-
-                for ($i = 0, $l = count($orders); $i < $l; $i++) {
-                    if ($i > 0) { // not first order clause
-                        $query .= ', ';
-                    }
-
-                    $query .= 'outer_tbl' . '.' . $aliases[$i] . ' ' . $sorts[$i];
-                }
-            }
+				$query = "WITH outer_tbl AS ($query) SELECT * FROM outer_tbl WHERE \"doctrine_rownum\" BETWEEN $start AND $end";
+			}
         }
 
         return $query;
