@@ -53,116 +53,38 @@ class MsSqlSchemaManager extends AbstractSchemaManager
             $tableColumn['name'] = '';
         }
         
-        // Map db type to Doctrine mapping type
-        switch ($dbType) {
-            case 'tinyint':
-                $type = 'boolean';
-                break;
-            case 'smallint':
-                $type = 'smallint';
-                break;
-            case 'mediumint':
-                $type = 'integer';
-                break;
-            case 'int':
-            case 'integer':
-                $type = 'integer';
-                break;
-            case 'bigint':
-                $type = 'bigint';
-                break;
-            case 'tinytext':
-            case 'mediumtext':
-            case 'longtext':
-            case 'text':
-                $type = 'text';
-                $fixed = false;
-                break;
-            case 'varchar':
-                $fixed = false;
-            case 'string':
-            case 'char':
-                $type = 'string';
-                if ($tableColumn['LENGTH'] == '1') {
-                    $type = 'boolean';
-                    if (preg_match('/^(is|has)/', $tableColumn['name'])) {
-                        $type = array_reverse($type);
-                    }
-                } else if (strstr($dbType, 'text')) {
-                    $type = 'text';
-                    if ($decimal == 'binary') {
-                        $type = 'blob';
-                    }
-                }
-                if ($fixed !== false) {
-                    $fixed = true;
-                }
-                break;
-            case 'set':
-                $fixed = false;
-                $type = 'text';
-                $type = 'integer'; //FIXME:???
-                break;
-            case 'date':
-                $type = 'date';
-                break;
-            case 'datetime':
-            case 'datetime2':
-            case 'timestamp':
-            case 'smalldatettime':
-                $type = 'datetime';
-                break;
-            case 'time':
-                $type = 'time';
-                break;
-            case 'float':
-            case 'double':
-            case 'real':
-            case 'numeric':
-            case 'decimal':
-                $type = 'decimal';
-                break;
-            case 'tinyblob':
-            case 'mediumblob':
-            case 'longblob':
-            case 'blob':
-            case 'binary':
-            case 'varbinary':
-                $type = 'blob';
-                break;
-            case 'year':
-                $type = 'integer';
-                $type = 'date';
-                break;
-            case 'geometry':
-            case 'geometrycollection':
-            case 'point':
-            case 'multipoint':
-            case 'linestring':
-            case 'multilinestring':
-            case 'polygon':
-            case 'multipolygon':
-                $type = 'blob';
-                break;
-            default:
-                $type = 'string';
-        }
-        
         $default = $tableColumn['COLUMN_DEF'];
 
         while($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
             $default = $default2;
         }
+		
+		$length = (int) $tableColumn['LENGTH'];
+		
+		$type = $this->_platform->getDoctrineTypeMapping($dbType);
+        switch ($type) {
+            case 'char':
+                if ($tableColumn['LENGTH'] == '1') {
+                    $type = 'boolean';
+                    if (preg_match('/^(is|has)/', $tableColumn['name'])) {
+                        $type = array_reverse($type);
+                    }
+                }
+                $fixed = true;
+                break;
+			case 'text':
+				$fixed = false;
+				break;
+        }
 
         $options = array(
-            'length'        => ((int) $tableColumn['LENGTH'] == 0 || !in_array($type, array('text', 'string'))) ? null : (int) $tableColumn['LENGTH'],
+            'length'        => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
             'unsigned'      => (bool)$unsigned,
             'fixed'         => (bool)$fixed,
             'default'       => $default !== 'NULL' ? $default : null,
             'notnull'       => (bool) ($tableColumn['IS_NULLABLE'] != 'YES'),
             'scale'         => $tableColumn['SCALE'],
             'precision'     => $tableColumn['PRECISION'],
-			'unique' => false, // @todo
 			'autoincrement' => $autoincrement,
         );
 

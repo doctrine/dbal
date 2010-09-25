@@ -651,6 +651,38 @@ DROP DATABASE ' . $name . ';';
 
     protected function initializeDoctrineTypeMappings()
     {
-        
+        $this->doctrineTypeMapping = array(
+			'bigint' => 'bigint',
+			'numeric' => 'decimal',
+			'bit' => 'boolean',
+			'smallint' => 'smallint',
+			'decimal' => 'decimal',
+			'smallmoney' => 'integer',
+			'int' => 'integer',
+			'tinyint' => 'smallint',
+			'money' => 'integer',
+			
+			'float' => 'decimal',
+			'real' => 'decimal',
+			
+            'date' => 'date',
+			'datetimeoffset' => 'datetimetz',
+			'datetime2' => 'datetime',
+			'smalldatetime' => 'datetime',
+			'datetime' => 'datetime',
+			'time' => 'time',
+			
+			'char' => 'string',
+			'varchar' => 'string',
+			'text' => 'text',
+			
+			'nchar' => 'string',
+			'nvarchar' => 'string',
+			'ntext' => 'text',
+			
+			'binary' => 'text',
+			'varbinary' => 'text',
+			'image' => 'text',
+        );
     }
 }
