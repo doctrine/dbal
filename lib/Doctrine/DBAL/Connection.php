@@ -68,7 +68,7 @@ class Connection implements DriverConnection
      *
      * @var Doctrine\DBAL\Driver\Connection
      */
-    protected $_conn;
+    protected $_conn = null;
 
     /**
      * @var Doctrine\DBAL\Configuration
@@ -79,13 +79,6 @@ class Connection implements DriverConnection
      * @var Doctrine\Common\EventManager
      */
     protected $_eventManager;
-
-    /**
-     * Whether or not a connection has been established.
-     *
-     * @var boolean
-     */
-    private $_isConnected = false;
 
     /**
      * The transaction nesting level.
@@ -284,7 +277,7 @@ class Connection implements DriverConnection
      */
     public function connect()
     {
-        if ($this->_isConnected) return false;
+        if ($this->_conn) return false;
 
         $driverOptions = isset($this->_params['driverOptions']) ?
                 $this->_params['driverOptions'] : array();
@@ -293,7 +286,6 @@ class Connection implements DriverConnection
                 $this->_params['password'] : null;
 
         $this->_conn = $this->_driver->connect($this->_params, $user, $password, $driverOptions);
-        $this->_isConnected = true;
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
             $eventArgs = new Event\ConnectionEventArgs($this);
@@ -350,7 +342,7 @@ class Connection implements DriverConnection
      */
     public function isConnected()
     {
-        return $this->_isConnected;
+        return (bool)$this->_conn;
     }
 
     /**
@@ -391,8 +383,6 @@ class Connection implements DriverConnection
     public function close()
     {
         unset($this->_conn);
-
-        $this->_isConnected = false;
     }
 
     /**
@@ -484,7 +474,6 @@ class Connection implements DriverConnection
     {
         //TODO: add typehinting or check instanceof
         $this->_conn = $conn;
-        $this->_isConnected = true;
     }
 
     /**
