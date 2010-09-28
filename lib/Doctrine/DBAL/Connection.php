@@ -152,8 +152,7 @@ class Connection implements DriverConnection
         $this->_params = $params;
 
         if (isset($params['pdo'])) {
-            $this->_conn = $params['pdo'];
-            $this->_isConnected = true;
+            $this->setConnection($params['pdo']);
         }
 
         // Create default config and event manager if none given
@@ -477,6 +476,18 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Sets the given connection.
+     *
+     * @param object $conn The connection to set.
+     */
+    public function setConnection($conn)
+    {
+        //TODO: add typehinting or check instanceof
+        $this->_conn = $conn;
+        $this->_isConnected = true;
+    }
+
+    /**
      * Quote a string so it can be safely used as a table or column name, even if
      * it is a reserved name.
      *
@@ -544,10 +555,8 @@ class Connection implements DriverConnection
      */
     public function executeQuery($query, array $params = array(), $types = array())
     {
-        $hasLogger = $this->_config->getSQLLogger() !== null;
-        if ($hasLogger) {
-            $this->_config->getSQLLogger()->startQuery($query, $params, $types);
-        }
+        $logger = $this->_config->getSQLLogger();
+        $logger && $logger->startQuery($query, $params, $types);
 
         if ($params) {
             $stmt = $this->getWrappedConnection()->prepare($query);
@@ -561,9 +570,7 @@ class Connection implements DriverConnection
             $stmt = $this->getWrappedConnection()->query($query);
         }
 
-        if ($hasLogger) {
-            $this->_config->getSQLLogger()->stopQuery();
-        }
+        $logger && $this->_config->getSQLLogger()->stopQuery();
 
         return $stmt;
     }
@@ -619,10 +626,8 @@ class Connection implements DriverConnection
      */
     public function executeUpdate($query, array $params = array(), array $types = array())
     {
-        $hasLogger = $this->_config->getSQLLogger() !== null;
-        if ($hasLogger) {
-            $this->_config->getSQLLogger()->startQuery($query, $params, $types);
-        }
+        $logger = $this->_config->getSQLLogger();
+        $logger && $logger->startQuery($query, $params, $types);
 
         if ($params) {
             $stmt = $this->getWrappedConnection()->prepare($query);
@@ -637,9 +642,7 @@ class Connection implements DriverConnection
             $result = $this->getWrappedConnection()->exec($query);
         }
 
-        if ($hasLogger) {
-            $this->_config->getSQLLogger()->stopQuery();
-        }
+        $logger && $logger->stopQuery();
 
         return $result;
     }
