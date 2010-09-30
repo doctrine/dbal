@@ -1986,4 +1986,37 @@ abstract class AbstractPlatform
     {
         return 'SELECT 1';
     }
+
+    /**
+     * Generate SQL to create a new savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function createSavePoint($savepoint)
+    {
+        return 'SAVEPOINT ' . $savepoint;
+    }
+
+    /**
+     * Generate SQL to release a savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function releaseSavePoint($savepoint)
+    {
+        return 'RELEASE SAVEPOINT ' . $savepoint;
+    }
+
+    /**
+     * Generate SQL to rollback a savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function rollbackSavePoint($savepoint)
+    {
+        return 'ROLLBACK TO SAVEPOINT ' . $savepoint;
+    }
 }

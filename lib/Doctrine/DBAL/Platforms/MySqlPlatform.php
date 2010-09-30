@@ -267,7 +267,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function supportsSavepoints()
     {
-        return false;
+        return true;
     }
 
     public function getShowDatabasesSQL()

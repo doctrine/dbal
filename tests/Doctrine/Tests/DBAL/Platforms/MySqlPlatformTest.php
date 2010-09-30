@@ -125,9 +125,9 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $this->assertTrue($this->_platform->supportsIdentityColumns());
     }
 
-    public function testDoesNotSupportSavePoints()
+    public function testDoesSupportSavePoints()
     {
-        $this->assertFalse($this->_platform->supportsSavepoints());   
+        $this->assertTrue($this->_platform->supportsSavepoints());   
     }
 
     public function getGenerateIndexSql()
