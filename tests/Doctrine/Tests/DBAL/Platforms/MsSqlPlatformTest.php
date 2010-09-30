@@ -23,14 +23,14 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
-			'CREATE UNIQUE INDEX test_foo_bar_uniq ON test (foo, bar)'
+            'CREATE UNIQUE INDEX test_foo_bar_uniq ON test (foo, bar)'
         );
     }
 
     public function getGenerateAlterTableSql()
     {
         return array(
-			'ALTER TABLE mytable RENAME TO userlist',
+            'ALTER TABLE mytable RENAME TO userlist',
             'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
             'ALTER TABLE mytable DROP COLUMN foo',
             'ALTER TABLE mytable CHANGE bar baz VARCHAR(255) DEFAULT \'def\' NOT NULL',            
@@ -127,7 +127,7 @@ DDB;
 
     public function testDoesNotSupportSavePoints()
     {
-        $this->assertFalse($this->_platform->supportsSavepoints());   
+        $this->assertTrue($this->_platform->supportsSavepoints());   
     }
 
     public function getGenerateIndexSql()
