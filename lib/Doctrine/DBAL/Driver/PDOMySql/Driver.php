@@ -92,46 +92,4 @@ class Driver implements \Doctrine\DBAL\Driver
         $params = $conn->getParams();
         return $params['dbname'];
     }
-
-    /**
-     * createSavepoint
-     * creates a new savepoint
-     *
-     * @param string $savepoint     name of a savepoint to set
-     * @return void
-     */
-    protected function createSavePoint($savepoint)
-    {
-        $query = 'SAVEPOINT ' . $savepoint;
-
-        return $this->conn->execute($query);
-    }
-
-    /**
-     * releaseSavePoint
-     * releases given savepoint
-     *
-     * @param string $savepoint     name of a savepoint to release
-     * @return void
-     */
-    protected function releaseSavePoint($savepoint)
-    {
-        $query = 'RELEASE SAVEPOINT ' . $savepoint;
-
-        return $this->conn->execute($query);
-    }
-
-    /**
-     * rollbackSavePoint
-     * releases given savepoint
-     *
-     * @param string $savepoint     name of a savepoint to rollback to
-     * @return void
-     */
-    protected function rollbackSavePoint($savepoint)
-    {
-        $query = 'ROLLBACK TO SAVEPOINT ' . $savepoint;
-
-        return $this->conn->execute($query);
-    }
 }
