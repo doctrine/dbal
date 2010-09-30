@@ -526,7 +526,7 @@ class Connection implements DriverConnection
      */
     public function prepare($statement)
     {
-        $this->_isConnected || $this->connect();
+        $this->_conn || $this->connect();
 
         return new Statement($statement, $this);
     }
@@ -783,7 +783,7 @@ class Connection implements DriverConnection
      */
     public function getWrappedConnection()
     {
-        $this->_isConnected || $this->connect();
+        $this->_conn || $this->connect();
 
         return $this->_conn;
     }
