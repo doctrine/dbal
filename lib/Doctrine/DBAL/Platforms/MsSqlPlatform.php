@@ -61,12 +61,11 @@ class MsSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Whether the platform supports savepoints. MsSql does not.
+     * Whether the platform supports releasing savepoints.
      *
      * @return boolean
-     * @override
      */
-    public function supportsSavepoints()
+    public function supportsReleaseSavepoints()
     {
         return false;
     }
@@ -685,5 +684,38 @@ DROP DATABASE ' . $name . ';';
 			'varbinary' => 'text',
 			'image' => 'text',
         );
+    }
+
+    /**
+     * Generate SQL to create a new savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function createSavePoint($savepoint)
+    {
+        return 'SAVE TRANSACTION ' . $savepoint;
+    }
+
+    /**
+     * Generate SQL to release a savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function releaseSavePoint($savepoint)
+    {
+        return '';
+    }
+
+    /**
+     * Generate SQL to rollback a savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function rollbackSavePoint($savepoint)
+    {
+        return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
 }
