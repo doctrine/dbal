@@ -832,7 +832,7 @@ class Connection implements DriverConnection
             $this->_conn->commit();
         } else {
             $savepointName = $this->_getNestedTransactionSavePointName($this->_transactionNestingLevel);
-            if ($savepointName) {
+            if ($savepointName && $this->_platform->supportsReleaseSavepoints()) {
                 $this->releaseSavePoint($savepointName);
             }
         }
