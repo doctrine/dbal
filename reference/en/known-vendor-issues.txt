@@ -100,4 +100,7 @@ using strings instead of the `OCI-LOB` does not cause any problems.
 
 ++ Microsoft SQL Server
 
-Nothing yet.
++++ Unique and NULL
+
+Microsoft SQL Server takes Unique very seriously. There is only ever one NULL allowed contrary to the standard
+where you can have multiple NULLs in a unique column.
