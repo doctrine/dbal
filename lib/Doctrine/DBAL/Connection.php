@@ -107,6 +107,7 @@ class Connection implements DriverConnection
      * @var integer
      */
     private $_nestTransactionsWithSavepoints;
+
     /**
      * The parameters used during creation of the Connection instance.
      *
