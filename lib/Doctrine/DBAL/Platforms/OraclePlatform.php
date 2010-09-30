@@ -700,4 +700,15 @@ LEFT JOIN all_cons_columns r_cols
             'urowid'            => 'string'
         );
     }
+
+    /**
+     * Generate SQL to release a savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function releaseSavePoint($savepoint)
+    {
+        return '';
+    }
 }
