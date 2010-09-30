@@ -46,4 +46,9 @@ class ConnectionException extends DBALException
     {
         return new self("Savepoints are not supported transaction.");
     }
+
+    public static function mayNotAlterNestedTransactionWithSavepointsInTransaction()
+    {
+        return new self("May not alter the nested transaction with savepoints behavior while a transaction is open.");
+    }
 }

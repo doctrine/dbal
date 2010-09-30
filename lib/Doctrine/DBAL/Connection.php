@@ -754,6 +754,10 @@ class Connection implements DriverConnection
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
+        if ($this->_transactionNestingLevel > 0) {
+            throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
+        }
+
         if ($nestTransactionsWithSavepoints && !$this->_platform->supportsSavepoints()) {
             ConnectionException::savepointsNotSupported();
         }

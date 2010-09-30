@@ -77,6 +77,12 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                     //no rethrow
                 }
                 $this->assertFalse($this->_conn->isRollbackOnly());
+                try {
+                    $this->_conn->setNestTransactionsWithSavepoints(false);                    
+                    $this->fail('Should not be able to disable savepoints in usage for nested transactions inside an open transaction.');
+                } catch (ConnectionException $e) {
+                    $this->assertTrue($this->_conn->getNestTransactionsWithSavepoints());
+                }
                 $this->_conn->commit(); // should not throw exception
             } catch (ConnectionException $e) {
                 $this->fail('Transaction commit after failed nested transaction should not fail when using savepoints.');
