@@ -102,6 +102,12 @@ class Connection implements DriverConnection
     private $_transactionIsolationLevel;
 
     /**
+     * If nested transations should use savepoints
+     *
+     * @var integer
+     */
+    private $_nestTransactionsWithSavepoints;
+    /**
      * The parameters used during creation of the Connection instance.
      *
      * @var array
@@ -741,17 +747,38 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Set if nested transactions should use savepoints
+     *
+     * @param boolean
+     */
+    public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
+    {
+        if ($nestTransactionsWithSavepoints && !$this->_platform->supportsSavepoints()) {
+            ConnectionException::savepointsNotSupported();
+        }
+
+        $this->_nestTransactionsWithSavepoints = $nestTransactionsWithSavepoints;
+    }
+
+    /**
+     * Get if nested transactions should use savepoints
+     *
+     * @return boolean
+     */
+    public function getNestTransactionsWithSavepoints()
+    {
+        return $this->_nestTransactionsWithSavepoints;
+    }
+
+    /**
      * Returns the savepoint name to use for nested transactions are false if they are not supported
      * "savepointFormat" parameter is not set
      *
      * @return mixed a string with the savepoint name or false
      */
-    protected function _getNestedTransactionSavePointName($transactionNestingLevel) {
-        //TODO this should be configured not hardcoded, but how to do user configuration
-        $this->_params['savepointFormat'] = 'DOCTRINE2_SAVEPOINT_%s';
-
-        if ($this->_platform->supportsSavepoints() && !empty($this->_params['savepointFormat'])) {
-            return sprintf($this->_params['savepointFormat'], $this->_transactionNestingLevel);
+    protected function _getNestedTransactionSavePointName() {
+        if ($this->_platform->supportsSavepoints() && !empty($this->_nestTransactionsWithSavepoints)) {
+            return 'DOCTRINE2_SAVEPOINT_'.$this->_transactionNestingLevel;
         }
 
         return false;
@@ -848,7 +875,10 @@ class Connection implements DriverConnection
      */
     public function createSavePoint($savepoint)
     {
-        //TODO check if save points are supported? if so where?
+        if (!$this->_platform->supportsSavepoints()) {
+            ConnectionException::savepointsNotSupported();
+        }
+
         return $this->_conn->exec($this->_platform->createSavePoint($savepoint));
     }
 
@@ -861,7 +891,10 @@ class Connection implements DriverConnection
      */
     public function releaseSavePoint($savepoint)
     {
-        //TODO check if save points are supported? if so where?
+        if (!$this->_platform->supportsSavepoints()) {
+            ConnectionException::savepointsNotSupported();
+        }
+
         return $this->_conn->exec($this->_platform->releaseSavePoint($savepoint));
     }
 
@@ -874,7 +907,10 @@ class Connection implements DriverConnection
      */
     public function rollbackSavePoint($savepoint)
     {
-        //TODO check if save points are supported? if so where?
+        if (!$this->_platform->supportsSavepoints()) {
+            ConnectionException::savepointsNotSupported();
+        }
+
         return $this->_conn->exec($this->_platform->rollbackSavePoint($savepoint));
     }
 

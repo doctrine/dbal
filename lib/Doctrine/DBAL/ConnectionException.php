@@ -41,4 +41,9 @@ class ConnectionException extends DBALException
     {
         return new self("There is no active transaction.");
     }
+
+    public static function savepointsNotSupported()
+    {
+        return new self("Savepoints are not supported transaction.");
+    }
 }
