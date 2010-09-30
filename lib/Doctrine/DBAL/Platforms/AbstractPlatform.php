@@ -1774,6 +1774,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Whether the platform supports releasing savepoints.
+     *
+     * @return boolean
+     */
+    public function supportsReleaseSavepoints()
+    {
+        return $this->supportsSavepoints();
+    }
+
+    /**
      * Whether the platform supports primary key constraints.
      *
      * @return boolean
