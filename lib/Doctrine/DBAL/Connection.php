@@ -900,9 +900,8 @@ class Connection implements DriverConnection
             ConnectionException::savepointsNotSupported();
         }
 
-        $sql = $this->_platform->releaseSavePoint($savepoint);
-        if ($sql) {
-            $this->_conn->exec($sql);
+        if ($this->_platform->supportsReleaseSavepoints()) {
+            $this->_conn->exec($this->_platform->releaseSavePoint($savepoint));
         }
     }
 
