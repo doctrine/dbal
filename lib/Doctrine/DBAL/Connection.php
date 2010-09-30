@@ -741,6 +741,23 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Returns the savepoint name to use for nested transactions are false if they are not supported
+     * "savepointFormat" parameter is not set
+     *
+     * @return mixed a string with the savepoint name or false
+     */
+    protected function _getNestedTransactionSavePointName($transactionNestingLevel) {
+        //TODO this should be configured not hardcoded, but how to do user configuration
+        $this->_params['savepointFormat'] = 'DOCTRINE2_SAVEPOINT_%s';
+
+        if ($this->_platform->supportsSavepoints() && !empty($this->_params['savepointFormat'])) {
+            return sprintf($this->_params['savepointFormat'], $this->_transactionNestingLevel);
+        }
+
+        return false;
+    }
+
+    /**
      * Starts a transaction by suspending auto-commit mode.
      *
      * @return void
@@ -749,11 +766,16 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
-        if ($this->_transactionNestingLevel == 0) {
-            $this->_conn->beginTransaction();
-        }
-
         ++$this->_transactionNestingLevel;
+
+        if ($this->_transactionNestingLevel == 1) {
+            $this->_conn->beginTransaction();
+        } else {
+            $savepointName = $this->_getNestedTransactionSavePointName($this->_transactionNestingLevel);
+            if ($savepointName) {
+                $this->createSavePoint($savepointName);
+            }
+        }
     }
 
     /**
@@ -776,6 +798,11 @@ class Connection implements DriverConnection
 
         if ($this->_transactionNestingLevel == 1) {
             $this->_conn->commit();
+        } else {
+            $savepointName = $this->_getNestedTransactionSavePointName($this->_transactionNestingLevel);
+            if ($savepointName) {
+                $this->releaseSavePoint($savepointName);
+            }
         }
 
         --$this->_transactionNestingLevel;
@@ -802,9 +829,53 @@ class Connection implements DriverConnection
             $this->_conn->rollback();
             $this->_isRollbackOnly = false;
         } else {
-            $this->_isRollbackOnly = true;
+            $savepointName = $this->_getNestedTransactionSavePointName($this->_transactionNestingLevel);
+            if (!$this->_isRollbackOnly && $savepointName) {
+                $this->rollbackSavePoint($savepointName);
+            } else {
+                $this->_isRollbackOnly = true;
+            }
             --$this->_transactionNestingLevel;
         }
+    }
+
+    /**
+     * createSavepoint
+     * creates a new savepoint
+     *
+     * @param string $savepoint     name of a savepoint to set
+     * @return void
+     */
+    public function createSavePoint($savepoint)
+    {
+        //TODO check if save points are supported? if so where?
+        return $this->_conn->exec($this->_platform->createSavePoint($savepoint));
+    }
+
+    /**
+     * releaseSavePoint
+     * releases given savepoint
+     *
+     * @param string $savepoint     name of a savepoint to release
+     * @return void
+     */
+    public function releaseSavePoint($savepoint)
+    {
+        //TODO check if save points are supported? if so where?
+        return $this->_conn->exec($this->_platform->releaseSavePoint($savepoint));
+    }
+
+    /**
+     * rollbackSavePoint
+     * releases given savepoint
+     *
+     * @param string $savepoint     name of a savepoint to rollback to
+     * @return void
+     */
+    public function rollbackSavePoint($savepoint)
+    {
+        //TODO check if save points are supported? if so where?
+        return $this->_conn->exec($this->_platform->rollbackSavePoint($savepoint));
     }
 
     /**
