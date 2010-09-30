@@ -884,7 +884,7 @@ class Connection implements DriverConnection
             ConnectionException::savepointsNotSupported();
         }
 
-        return $this->_conn->exec($this->_platform->createSavePoint($savepoint));
+        $this->_conn->exec($this->_platform->createSavePoint($savepoint));
     }
 
     /**
@@ -900,7 +900,10 @@ class Connection implements DriverConnection
             ConnectionException::savepointsNotSupported();
         }
 
-        return $this->_conn->exec($this->_platform->releaseSavePoint($savepoint));
+        $sql = $this->_platform->releaseSavePoint($savepoint);
+        if ($sql) {
+            $this->_conn->exec($sql);
+        }
     }
 
     /**
@@ -916,7 +919,7 @@ class Connection implements DriverConnection
             ConnectionException::savepointsNotSupported();
         }
 
-        return $this->_conn->exec($this->_platform->rollbackSavePoint($savepoint));
+        $this->_conn->exec($this->_platform->rollbackSavePoint($savepoint));
     }
 
     /**
