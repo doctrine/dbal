@@ -803,7 +803,7 @@ class Connection implements DriverConnection
         if ($this->_transactionNestingLevel == 1) {
             $this->_conn->beginTransaction();
         } else {
-            $savepointName = $this->_getNestedTransactionSavePointName($this->_transactionNestingLevel);
+            $savepointName = $this->_getNestedTransactionSavePointName();
             if ($savepointName) {
                 $this->createSavePoint($savepointName);
             }
@@ -831,7 +831,7 @@ class Connection implements DriverConnection
         if ($this->_transactionNestingLevel == 1) {
             $this->_conn->commit();
         } else {
-            $savepointName = $this->_getNestedTransactionSavePointName($this->_transactionNestingLevel);
+            $savepointName = $this->_getNestedTransactionSavePointName();
             if ($savepointName && $this->_platform->supportsReleaseSavepoints()) {
                 $this->releaseSavePoint($savepointName);
             }
@@ -861,7 +861,7 @@ class Connection implements DriverConnection
             $this->_conn->rollback();
             $this->_isRollbackOnly = false;
         } else {
-            $savepointName = $this->_getNestedTransactionSavePointName($this->_transactionNestingLevel);
+            $savepointName = $this->_getNestedTransactionSavePointName();
             if (!$this->_isRollbackOnly && $savepointName) {
                 $this->rollbackSavePoint($savepointName);
             } else {

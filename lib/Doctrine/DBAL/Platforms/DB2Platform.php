@@ -549,4 +549,16 @@ class DB2Platform extends AbstractPlatform
     {
         return 'SELECT 1 FROM sysibm.sysdummy1';
     }
+
+    /**
+     * DB2 supports savepoints, but they work semantically different than on other vendor platforms.
+     *
+     * TODO: We have to investigate how to get DB2 up and running with savepoints.
+     *
+     * @return bool
+     */
+    public function supportsSavepoints()
+    {
+        return false;
+    }
 }
