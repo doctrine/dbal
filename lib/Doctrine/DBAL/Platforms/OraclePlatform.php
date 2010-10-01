@@ -660,6 +660,16 @@ LEFT JOIN all_cons_columns r_cols
     }
 
     /**
+     * Whether the platform supports releasing savepoints.
+     *
+     * @return boolean
+     */
+    public function supportsReleaseSavepoints()
+    {
+        return false;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
@@ -699,5 +709,16 @@ LEFT JOIN all_cons_columns r_cols
             'rowid'             => 'string',
             'urowid'            => 'string'
         );
+    }
+
+    /**
+     * Generate SQL to release a savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function releaseSavePoint($savepoint)
+    {
+        return '';
     }
 }

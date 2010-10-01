@@ -292,6 +292,16 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * Whether the platform supports releasing savepoints.
+     *
+     * @return boolean
+     */
+    public function supportsReleaseSavepoints()
+    {
+        return false;
+    }
+
+    /**
      * Gets the SQL specific for the platform to get the current date.
      *
      * @return string
