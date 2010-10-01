@@ -292,6 +292,16 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * Whether the platform supports releasing savepoints.
+     *
+     * @return boolean
+     */
+    public function supportsReleaseSavepoints()
+    {
+        return false;
+    }
+
+    /**
      * Gets the SQL specific for the platform to get the current date.
      *
      * @return string
@@ -538,5 +548,17 @@ class DB2Platform extends AbstractPlatform
     public function getDummySelectSQL()
     {
         return 'SELECT 1 FROM sysibm.sysdummy1';
+    }
+
+    /**
+     * DB2 supports savepoints, but they work semantically different than on other vendor platforms.
+     *
+     * TODO: We have to investigate how to get DB2 up and running with savepoints.
+     *
+     * @return bool
+     */
+    public function supportsSavepoints()
+    {
+        return false;
     }
 }

@@ -44,7 +44,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 //no rethrow                
             }
             $this->assertTrue($this->_conn->isRollbackOnly());
-              
+
             $this->_conn->commit(); // should throw exception
             $this->fail('Transaction commit after failed nested transaction should fail.');
         } catch (ConnectionException $e) {
@@ -53,7 +53,46 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
-    
+
+    public function testTransactionNestingBehaviorWithSavepoints()
+    {
+        if (!$this->_conn->getDatabasePlatform()->supportsSavepoints()) {
+            $this->markTestSkipped('This test requires the platform to support savepoints.');
+        }
+
+        $this->_conn->setNestTransactionsWithSavepoints(true);
+        try {
+            $this->_conn->beginTransaction();
+            $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
+
+            try {
+                $this->_conn->beginTransaction();
+                $this->assertEquals(2, $this->_conn->getTransactionNestingLevel());
+                $this->_conn->beginTransaction();
+                $this->assertEquals(3, $this->_conn->getTransactionNestingLevel());
+                $this->_conn->commit();
+                $this->assertEquals(2, $this->_conn->getTransactionNestingLevel());
+                throw new \Exception;
+                $this->_conn->commit(); // never reached
+            } catch (\Exception $e) {
+                $this->_conn->rollback();
+                $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
+                //no rethrow
+            }
+            $this->assertFalse($this->_conn->isRollbackOnly());
+            try {
+                $this->_conn->setNestTransactionsWithSavepoints(false);
+                $this->fail('Should not be able to disable savepoints in usage for nested transactions inside an open transaction.');
+            } catch (ConnectionException $e) {
+                $this->assertTrue($this->_conn->getNestTransactionsWithSavepoints());
+            }
+            $this->_conn->commit(); // should not throw exception
+        } catch (ConnectionException $e) {
+            $this->fail('Transaction commit after failed nested transaction should not fail when using savepoints.');
+            $this->_conn->rollback();
+        }
+    }
+
     public function testTransactionBehaviorWithRollback()
     {
         try {

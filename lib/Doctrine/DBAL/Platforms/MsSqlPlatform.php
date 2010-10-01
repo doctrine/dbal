@@ -61,12 +61,11 @@ class MsSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Whether the platform supports savepoints. MsSql does not.
+     * Whether the platform supports releasing savepoints.
      *
      * @return boolean
-     * @override
      */
-    public function supportsSavepoints()
+    public function supportsReleaseSavepoints()
     {
         return false;
     }
@@ -92,7 +91,7 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($name)
     {
-	return 'ALTER DATABASE [' . $name . ']
+    return 'ALTER DATABASE [' . $name . ']
 SET SINGLE_USER --or RESTRICTED_USER
 WITH ROLLBACK IMMEDIATE;
 DROP DATABASE ' . $name . ';';
@@ -121,37 +120,36 @@ DROP DATABASE ' . $name . ';';
 
         return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
     }
-	
-	/**
+
+    /**
      * @override
      */
-	public function getDropIndexSQL($index, $table=null)
+    public function getDropIndexSQL($index, $table=null)
     {
         if($index instanceof \Doctrine\DBAL\Schema\Index) {
-			$index_ = $index;
             $index = $index->getName();
         } else if(!is_string($index)) {
             throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
         }
 
-		if (!isset($table)) {
-			return 'DROP INDEX ' . $index;
-		} else {
-			if ($table instanceof \Doctrine\DBAL\Schema\Table) {
-				$table = $table->getName();
-			}
-		
-			return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
-						ALTER TABLE " . $this->quoteIdentifier($table) . " DROP CONSTRAINT " . $this->quoteIdentifier($index) . "
-					ELSE
-						DROP INDEX " . $this->quoteIdentifier($index) . " ON " . $this->quoteIdentifier($table);
-		}
+        if (!isset($table)) {
+            return 'DROP INDEX ' . $index;
+        } else {
+            if ($table instanceof \Doctrine\DBAL\Schema\Table) {
+                $table = $table->getName();
+            }
+
+            return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
+                        ALTER TABLE " . $this->quoteIdentifier($table) . " DROP CONSTRAINT " . $this->quoteIdentifier($index) . "
+                    ELSE
+                        DROP INDEX " . $this->quoteIdentifier($index) . " ON " . $this->quoteIdentifier($table);
+        }
     }
-	
-	/**
+
+    /**
      * @override
      */
-	protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
         
@@ -174,8 +172,8 @@ DROP DATABASE ' . $name . ';';
         $query .= ')';
 
         $sql[] = $query;
-		
-		if (isset($options['indexes']) && ! empty($options['indexes'])) {
+
+        if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] AS $index) {
                 $sql[] = $this->getCreateIndexSQL($index, $tableName);
             }
@@ -222,9 +220,9 @@ DROP DATABASE ' . $name . ';';
 
         $sql = array();
 
-		foreach ($queryParts as $query) {
-			$sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
-		}
+        foreach ($queryParts as $query) {
+            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+        }
 
         $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
 
@@ -291,24 +289,24 @@ DROP DATABASE ' . $name . ';';
     {
         return "exec sp_helpindex '" . $table . "'";
     }
-	
-	/**
+
+    /**
      * @override
      */
-	public function getCreateViewSQL($name, $sql)
+    public function getCreateViewSQL($name, $sql)
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
-	
-	/**
+
+    /**
      * @override
      */
-	public function getListViewsSQL($database)
+    public function getListViewsSQL($database)
     {
         return "SELECT name FROM sysobjects WHERE type = 'V' ORDER BY name";
     }
 
-	/**
+    /**
      * @override
      */
     public function getDropViewSQL($name)
@@ -386,8 +384,8 @@ DROP DATABASE ' . $name . ';';
         $args = func_get_args();
         return '(' . implode(' + ', $args) . ')';
     }
-	
-	public function getListDatabasesSQL()
+
+    public function getListDatabasesSQL()
     {
         return 'SELECT * FROM SYS.DATABASES';
     }
@@ -644,7 +642,7 @@ DROP DATABASE ' . $name . ';';
     {
         return 'Y-m-d H:i:s.u';
     }
-	
+
     /**
      * @override
      */
@@ -666,5 +664,38 @@ DROP DATABASE ' . $name . ';';
     protected function initializeDoctrineTypeMappings()
     {
         
+    }
+
+    /**
+     * Generate SQL to create a new savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function createSavePoint($savepoint)
+    {
+        return 'SAVE TRANSACTION ' . $savepoint;
+    }
+
+    /**
+     * Generate SQL to release a savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function releaseSavePoint($savepoint)
+    {
+        return '';
+    }
+
+    /**
+     * Generate SQL to rollback a savepoint
+     *
+     * @param string $savepoint
+     * @return string
+     */
+    public function rollbackSavePoint($savepoint)
+    {
+        return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
 }
