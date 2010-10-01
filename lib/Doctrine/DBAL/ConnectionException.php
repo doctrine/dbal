@@ -44,7 +44,7 @@ class ConnectionException extends DBALException
 
     public static function savepointsNotSupported()
     {
-        return new self("Savepoints are not supported transaction.");
+        return new self("Savepoints are not supported by this driver.");
     }
 
     public static function mayNotAlterNestedTransactionWithSavepointsInTransaction()

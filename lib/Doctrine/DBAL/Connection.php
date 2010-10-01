@@ -751,6 +751,7 @@ class Connection implements DriverConnection
      * Set if nested transactions should use savepoints
      *
      * @param boolean
+     * @return void
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
@@ -758,8 +759,8 @@ class Connection implements DriverConnection
             throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
         }
 
-        if ($nestTransactionsWithSavepoints && !$this->_platform->supportsSavepoints()) {
-            ConnectionException::savepointsNotSupported();
+        if (!$this->_platform->supportsSavepoints()) {
+            throw ConnectionException::savepointsNotSupported();
         }
 
         $this->_nestTransactionsWithSavepoints = $nestTransactionsWithSavepoints;
@@ -781,12 +782,9 @@ class Connection implements DriverConnection
      *
      * @return mixed a string with the savepoint name or false
      */
-    protected function _getNestedTransactionSavePointName() {
-        if ($this->_platform->supportsSavepoints() && !empty($this->_nestTransactionsWithSavepoints)) {
-            return 'DOCTRINE2_SAVEPOINT_'.$this->_transactionNestingLevel;
-        }
-
-        return false;
+    protected function _getNestedTransactionSavePointName()
+    {
+        return 'DOCTRINE2_SAVEPOINT_'.$this->_transactionNestingLevel;
     }
 
     /**
@@ -802,11 +800,8 @@ class Connection implements DriverConnection
 
         if ($this->_transactionNestingLevel == 1) {
             $this->_conn->beginTransaction();
-        } else {
-            $savepointName = $this->_getNestedTransactionSavePointName();
-            if ($savepointName) {
-                $this->createSavePoint($savepointName);
-            }
+        } else if ($this->_nestTransactionsWithSavepoints) {
+            $this->createSavepoint($this->_getNestedTransactionSavePointName());
         }
     }
 
@@ -830,11 +825,8 @@ class Connection implements DriverConnection
 
         if ($this->_transactionNestingLevel == 1) {
             $this->_conn->commit();
-        } else {
-            $savepointName = $this->_getNestedTransactionSavePointName();
-            if ($savepointName && $this->_platform->supportsReleaseSavepoints()) {
-                $this->releaseSavePoint($savepointName);
-            }
+        } else if ($this->_nestTransactionsWithSavepoints) {
+            $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
         }
 
         --$this->_transactionNestingLevel;
@@ -860,13 +852,11 @@ class Connection implements DriverConnection
             $this->_transactionNestingLevel = 0;
             $this->_conn->rollback();
             $this->_isRollbackOnly = false;
+        } else if ($this->_nestTransactionsWithSavepoints) {
+            $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
+            --$this->_transactionNestingLevel;
         } else {
-            $savepointName = $this->_getNestedTransactionSavePointName();
-            if (!$this->_isRollbackOnly && $savepointName) {
-                $this->rollbackSavePoint($savepointName);
-            } else {
-                $this->_isRollbackOnly = true;
-            }
+            $this->_isRollbackOnly = true;
             --$this->_transactionNestingLevel;
         }
     }
@@ -878,10 +868,10 @@ class Connection implements DriverConnection
      * @param string $savepoint     name of a savepoint to set
      * @return void
      */
-    public function createSavePoint($savepoint)
+    public function createSavepoint($savepoint)
     {
         if (!$this->_platform->supportsSavepoints()) {
-            ConnectionException::savepointsNotSupported();
+            throw ConnectionException::savepointsNotSupported();
         }
 
         $this->_conn->exec($this->_platform->createSavePoint($savepoint));
@@ -894,10 +884,10 @@ class Connection implements DriverConnection
      * @param string $savepoint     name of a savepoint to release
      * @return void
      */
-    public function releaseSavePoint($savepoint)
+    public function releaseSavepoint($savepoint)
     {
         if (!$this->_platform->supportsSavepoints()) {
-            ConnectionException::savepointsNotSupported();
+            throw ConnectionException::savepointsNotSupported();
         }
 
         if ($this->_platform->supportsReleaseSavepoints()) {
@@ -912,10 +902,10 @@ class Connection implements DriverConnection
      * @param string $savepoint     name of a savepoint to rollback to
      * @return void
      */
-    public function rollbackSavePoint($savepoint)
+    public function rollbackSavepoint($savepoint)
     {
         if (!$this->_platform->supportsSavepoints()) {
-            ConnectionException::savepointsNotSupported();
+            throw ConnectionException::savepointsNotSupported();
         }
 
         $this->_conn->exec($this->_platform->rollbackSavePoint($savepoint));
