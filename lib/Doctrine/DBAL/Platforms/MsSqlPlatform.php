@@ -714,38 +714,4 @@ DROP DATABASE ' . $name . ';';
     {
         return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
-
-    /**
-     * Generate SQL to create a new savepoint
-     *
-     * @param string $savepoint
-     * @return string
-     */
-    public function createSavePoint($savepoint)
-    {
-        return 'SAVE TRANSACTION ' . $savepoint;
-    }
-
-    /**
-     * Generate SQL to release a savepoint
-     *
-     * @param string $savepoint
-     * @return string
-     */
-    public function releaseSavePoint($savepoint)
-    {
-        return '';
-    }
-
-    /**
-     * Generate SQL to rollback a savepoint
-     *
-     * @param string $savepoint
-     * @return string
-     */
-    public function rollbackSavePoint($savepoint)
-    {
-        return 'ROLLBACK TRANSACTION ' . $savepoint;
-    }
-
 }

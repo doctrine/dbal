@@ -68,6 +68,9 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
     public function testGeneratesDDLSnippets()
     {
         $dropDatabaseExpectation = <<<DDB
+ALTER DATABASE [foobar]
+SET SINGLE_USER
+WITH ROLLBACK IMMEDIATE;
 DROP DATABASE foobar;
 DDB;
 
