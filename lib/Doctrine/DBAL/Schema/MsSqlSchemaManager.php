@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -33,6 +31,7 @@ namespace Doctrine\DBAL\Schema;
  */
 class MsSqlSchemaManager extends AbstractSchemaManager
 {
+
     /**
      * @override
      */
@@ -40,130 +39,60 @@ class MsSqlSchemaManager extends AbstractSchemaManager
     {
         $dbType = strtolower($tableColumn['TYPE_NAME']);
 
-		$autoincrement = false;
+        $autoincrement = false;
         if (stripos($dbType, 'identity')) {
             $dbType = trim(str_ireplace('identity', '', $dbType));
-			$autoincrement = true;
+            $autoincrement = true;
         }
 
         $type = array();
         $unsigned = $fixed = null;
 
-        if ( ! isset($tableColumn['name'])) {
+        if (!isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
-        
-        // Map db type to Doctrine mapping type
-        switch ($dbType) {
-            case 'tinyint':
-                $type = 'boolean';
-                break;
-            case 'smallint':
-                $type = 'smallint';
-                break;
-            case 'mediumint':
-                $type = 'integer';
-                break;
-            case 'int':
-            case 'integer':
-                $type = 'integer';
-                break;
-            case 'bigint':
-                $type = 'bigint';
-                break;
-            case 'tinytext':
-            case 'mediumtext':
-            case 'longtext':
-            case 'text':
-                $type = 'text';
-                $fixed = false;
-                break;
-            case 'varchar':
-                $fixed = false;
-            case 'string':
+
+        $default = $tableColumn['COLUMN_DEF'];
+
+        while ($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
+            $default = $default2;
+        }
+
+        $length = (int) $tableColumn['LENGTH'];
+
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        switch ($type) {
             case 'char':
-                $type = 'string';
                 if ($tableColumn['LENGTH'] == '1') {
                     $type = 'boolean';
                     if (preg_match('/^(is|has)/', $tableColumn['name'])) {
                         $type = array_reverse($type);
                     }
-                } else if (strstr($dbType, 'text')) {
-                    $type = 'text';
-                    if ($decimal == 'binary') {
-                        $type = 'blob';
-                    }
                 }
-                if ($fixed !== false) {
-                    $fixed = true;
-                }
+                $fixed = true;
                 break;
-            case 'set':
+            case 'text':
                 $fixed = false;
-                $type = 'text';
-                $type = 'integer'; //FIXME:???
                 break;
-            case 'date':
-                $type = 'date';
-                break;
-            case 'datetime':
-            case 'datetime2':
-            case 'timestamp':
-            case 'smalldatettime':
-                $type = 'datetime';
-                break;
-            case 'time':
-                $type = 'time';
-                break;
-            case 'float':
-            case 'double':
-            case 'real':
-            case 'numeric':
-            case 'decimal':
-                $type = 'decimal';
-                break;
-            case 'tinyblob':
-            case 'mediumblob':
-            case 'longblob':
-            case 'blob':
-            case 'binary':
-            case 'varbinary':
-                $type = 'blob';
-                break;
-            case 'year':
-                $type = 'integer';
-                $type = 'date';
-                break;
-            case 'geometry':
-            case 'geometrycollection':
-            case 'point':
-            case 'multipoint':
-            case 'linestring':
-            case 'multilinestring':
-            case 'polygon':
-            case 'multipolygon':
-                $type = 'blob';
-                break;
-            default:
-                $type = 'string';
         }
-        
-        $default = $tableColumn['COLUMN_DEF'];
-
-        while($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
-            $default = $default2;
+        switch ($dbType) {
+            case 'nchar':
+            case 'nvarchar':
+            case 'ntext':
+                // Unicode data requires 2 bytes per character
+                $length = $length / 2;
+                break;
         }
 
         $options = array(
-            'length'        => ((int) $tableColumn['LENGTH'] == 0 || !in_array($type, array('text', 'string'))) ? null : (int) $tableColumn['LENGTH'],
-            'unsigned'      => (bool)$unsigned,
-            'fixed'         => (bool)$fixed,
-            'default'       => $default !== 'NULL' ? $default : null,
-            'notnull'       => (bool) ($tableColumn['IS_NULLABLE'] != 'YES'),
-            'scale'         => $tableColumn['SCALE'],
-            'precision'     => $tableColumn['PRECISION'],
-			'unique' => false, // @todo
-			'autoincrement' => $autoincrement,
+            'length' => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
+            'unsigned' => (bool) $unsigned,
+            'fixed' => (bool) $fixed,
+            'default' => $default !== 'NULL' ? $default : null,
+            'notnull' => (bool) ($tableColumn['IS_NULLABLE'] != 'YES'),
+            'scale' => $tableColumn['SCALE'],
+            'precision' => $tableColumn['PRECISION'],
+            'autoincrement' => $autoincrement,
         );
 
         return new Column($tableColumn['COLUMN_NAME'], \Doctrine\DBAL\Types\Type::getType($type), $options);
@@ -175,9 +104,9 @@ class MsSqlSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
     {
         $result = array();
-        foreach($tableIndexRows AS $tableIndex) {
+        foreach ($tableIndexRows AS $tableIndex) {
             $indexName = $keyName = $tableIndex['index_name'];
-            if(strpos($tableIndex['index_description'], 'primary key') !== false) {
+            if (strpos($tableIndex['index_description'], 'primary key') !== false) {
                 $keyName = 'primary';
             }
             $keyName = strtolower($keyName);
@@ -191,7 +120,7 @@ class MsSqlSchemaManager extends AbstractSchemaManager
         }
 
         $indexes = array();
-        foreach($result AS $indexKey => $data) {
+        foreach ($result AS $indexKey => $data) {
             $indexes[$indexKey] = new Index($data['name'], $data['columns'], $data['unique'], $data['primary']);
         }
 
@@ -204,14 +133,14 @@ class MsSqlSchemaManager extends AbstractSchemaManager
     public function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         return new ForeignKeyConstraint(
-            (array)$tableForeignKey['ColumnName'],
-            $tableForeignKey['ReferenceTableName'],
-            (array)$tableForeignKey['ReferenceColumnName'],
-            $tableForeignKey['ForeignKey'],
-            array(
-                'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
-                'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc']),
-            )
+                (array) $tableForeignKey['ColumnName'],
+                $tableForeignKey['ReferenceTableName'],
+                (array) $tableForeignKey['ReferenceColumnName'],
+                $tableForeignKey['ForeignKey'],
+                array(
+                    'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
+                    'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc']),
+                )
         );
     }
 
@@ -222,21 +151,22 @@ class MsSqlSchemaManager extends AbstractSchemaManager
     {
         return $table['name'];
     }
-	
-	/**
+
+    /**
      * @override
      */
-	protected function _getPortableDatabaseDefinition($database)
+    protected function _getPortableDatabaseDefinition($database)
     {
         return $database['name'];
     }
-	
-	/**
+
+    /**
      * @override
      */
-	protected function _getPortableViewDefinition($view)
+    protected function _getPortableViewDefinition($view)
     {
-		// @todo
+        // @todo
         return new View($view['name'], null);
     }
+
 }

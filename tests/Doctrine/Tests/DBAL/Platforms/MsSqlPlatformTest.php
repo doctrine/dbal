@@ -6,9 +6,10 @@ use Doctrine\DBAL\Platforms\MsSqlPlatform;
 use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
- 
+
 class MsSqlPlatformTest extends AbstractPlatformTestCase
 {
+
     public function createPlatform()
     {
         return new MsSqlPlatform;
@@ -16,13 +17,13 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
+        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
         return array(
-            'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
+            'CREATE TABLE test (foo NVARCHAR(255) DEFAULT NULL, bar NVARCHAR(255) DEFAULT NULL)',
             'CREATE UNIQUE INDEX test_foo_bar_uniq ON test (foo, bar)'
         );
     }
@@ -33,7 +34,7 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable RENAME TO userlist',
             'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
             'ALTER TABLE mytable DROP COLUMN foo',
-            'ALTER TABLE mytable CHANGE bar baz VARCHAR(255) DEFAULT \'def\' NOT NULL',            
+            'ALTER TABLE mytable CHANGE bar baz NVARCHAR(255) DEFAULT \'def\' NOT NULL',
         );
     }
 
@@ -47,29 +48,26 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
     public function testGeneratesTransactionsCommands()
     {
         $this->assertEquals(
-            'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
+                'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
+                $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
         );
         $this->assertEquals(
-            'SET TRANSACTION ISOLATION LEVEL READ COMMITTED',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
+                'SET TRANSACTION ISOLATION LEVEL READ COMMITTED',
+                $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
         );
         $this->assertEquals(
-            'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
+                'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ',
+                $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
         );
         $this->assertEquals(
-            'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
+                'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
+                $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
         );
     }
 
     public function testGeneratesDDLSnippets()
     {
         $dropDatabaseExpectation = <<<DDB
-ALTER DATABASE [foobar]
-SET SINGLE_USER --or RESTRICTED_USER
-WITH ROLLBACK IMMEDIATE;
 DROP DATABASE foobar;
 DDB;
 
@@ -82,36 +80,36 @@ DDB;
     public function testGeneratesTypeDeclarationForIntegers()
     {
         $this->assertEquals(
-            'INT',
-            $this->_platform->getIntegerTypeDeclarationSQL(array())
+                'INT',
+                $this->_platform->getIntegerTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'INT IDENTITY',
-            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
+                'INT IDENTITY',
+                $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
         ));
         $this->assertEquals(
-            'INT IDENTITY',
-            $this->_platform->getIntegerTypeDeclarationSQL(
-                array('autoincrement' => true, 'primary' => true)
+                'INT IDENTITY',
+                $this->_platform->getIntegerTypeDeclarationSQL(
+                        array('autoincrement' => true, 'primary' => true)
         ));
     }
 
     public function testGeneratesTypeDeclarationsForStrings()
     {
         $this->assertEquals(
-            'CHAR(10)',
-            $this->_platform->getVarcharTypeDeclarationSQL(
-                array('length' => 10, 'fixed' => true)
+                'NCHAR(10)',
+                $this->_platform->getVarcharTypeDeclarationSQL(
+                        array('length' => 10, 'fixed' => true)
         ));
         $this->assertEquals(
-            'VARCHAR(50)',
-            $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
-            'Variable string declaration is not correct'
+                'NVARCHAR(50)',
+                $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
+                'Variable string declaration is not correct'
         );
         $this->assertEquals(
-            'TEXT',
-            $this->_platform->getVarcharTypeDeclarationSQL(array()),
-            'Long string declaration is not correct'
+                'NTEXT',
+                $this->_platform->getVarcharTypeDeclarationSQL(array()),
+                'Long string declaration is not correct'
         );
     }
 
@@ -127,7 +125,7 @@ DDB;
 
     public function testDoesNotSupportSavePoints()
     {
-        $this->assertTrue($this->_platform->supportsSavepoints());   
+        $this->assertTrue($this->_platform->supportsSavepoints());
     }
 
     public function getGenerateIndexSql()
@@ -142,30 +140,37 @@ DDB;
 
     public function getGenerateForeignKeySql()
     {
-        return  'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table(id)';
+        return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table(id)';
     }
 
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
-        $this->assertEquals('SELECT * FROM (SELECT TOP 10 * FROM (SELECT TOP 10 * FROM user) AS inner_tbl) AS outer_tbl', $sql);
+        $this->assertEquals('SELECT TOP 10 * FROM user', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
-        $this->assertEquals('SELECT * FROM (SELECT TOP 10 * FROM (SELECT TOP 10 * FROM user) AS inner_tbl) AS outer_tbl', $sql);
+        $this->assertEquals('SELECT TOP 10 * FROM user', $sql);
+    }
+
+    public function testModifyLimitQueryWithOffset()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10, 5);
+        $this->assertEquals('WITH outer_tbl AS (SELECT ROW_NUMBER() OVER (ORDER BY username DESC) AS "doctrine_rownum", * FROM (SELECT * FROM user) AS inner_tbl) SELECT * FROM outer_tbl WHERE "doctrine_rownum" BETWEEN 6 AND 15', $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
-        $this->assertEquals('SELECT * FROM (SELECT TOP 10 * FROM (SELECT TOP 10 * FROM user ORDER BY username ASC) AS inner_tbl ORDER BY inner_tbl.u DESC) AS outer_tbl ORDER BY outer_tbl.u ASC', $sql);
+        $this->assertEquals('SELECT TOP 10 * FROM user ORDER BY username ASC', $sql);
     }
 
     public function testModifyLimitQueryWithDescOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
-        $this->assertEquals('SELECT * FROM (SELECT TOP 10 * FROM (SELECT TOP 10 * FROM user ORDER BY username DESC) AS inner_tbl ORDER BY inner_tbl.u ASC) AS outer_tbl ORDER BY outer_tbl.u DESC', $sql);
+        $this->assertEquals('SELECT TOP 10 * FROM user ORDER BY username DESC', $sql);
     }
+
 }
