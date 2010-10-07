@@ -526,8 +526,6 @@ class Connection implements DriverConnection
      */
     public function prepare($statement)
     {
-        $this->_conn || $this->connect();
-
         return new Statement($statement, $this);
     }
 

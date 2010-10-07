@@ -28,7 +28,7 @@ use PDO,
 /**
  * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
  * for logging, DBAL mapping types, etc.
- * 
+ *
  * @author Roman Borschel <roman@code-factory.org>
  * @since 2.0
  */
@@ -71,12 +71,12 @@ class Statement implements DriverStatement
 
     /**
      * Binds a parameter value to the statement.
-     * 
+     *
      * The value can optionally be bound with a PDO binding type or a DBAL mapping type.
      * If bound with a DBAL mapping type, the binding type is derived from the mapping
      * type and the value undergoes the conversion routines of the mapping type before
      * being bound.
-     * 
+     *
      * @param $name The name or position of the parameter.
      * @param $value The value of the parameter.
      * @param mixed $type Either a PDO binding type or a DBAL mapping type name or instance.
@@ -103,9 +103,9 @@ class Statement implements DriverStatement
 
     /**
      * Binds a parameter to a value by reference.
-     * 
+     *
      * Binding a parameter by reference does not support DBAL mapping types.
-     * 
+     *
      * @param string $name The name or position of the parameter.
      * @param mixed $value The reference to the variable to bind
      * @param integer $type The PDO binding type.
@@ -118,28 +118,24 @@ class Statement implements DriverStatement
 
     /**
      * Executes the statement with the currently bound parameters.
-     * 
+     *
      * @return boolean TRUE on success, FALSE on failure.
      */
     public function execute($params = null)
     {
-        $hasLogger = $this->_conn->getConfiguration()->getSQLLogger();
-        if ($hasLogger) {
-            $this->_conn->getConfiguration()->getSQLLogger()->startQuery($this->_sql, $this->_params);
-        }
+        $logger = $this->_conn->getConfiguration()->getSQLLogger();
 
+        $logger && $logger->startQuery($this->_sql, $this->_params);
         $stmt = $this->_stmt->execute($params);
-
-        if ($hasLogger) {
-            $this->_conn->getConfiguration()->getSQLLogger()->stopQuery();
-        }
+        $logger && $logger->stopQuery();
         $this->_params = array();
+
         return $stmt;
     }
 
     /**
-     * Closes the cursor, freeing the database resources used by this statement. 
-     * 
+     * Closes the cursor, freeing the database resources used by this statement.
+     *
      * @return boolean TRUE on success, FALSE on failure.
      */
     public function closeCursor()
@@ -149,7 +145,7 @@ class Statement implements DriverStatement
 
     /**
      * Returns the number of columns in the result set.
-     * 
+     *
      * @return integer
      */
     public function columnCount()
@@ -159,7 +155,7 @@ class Statement implements DriverStatement
 
     /**
      * Fetches the SQLSTATE associated with the last operation on the statement.
-     * 
+     *
      * @return string
      */
     public function errorCode()
@@ -169,7 +165,7 @@ class Statement implements DriverStatement
 
     /**
      * Fetches extended error information associated with the last operation on the statement.
-     * 
+     *
      * @return array
      */
     public function errorInfo()
@@ -179,7 +175,7 @@ class Statement implements DriverStatement
 
     /**
      * Fetches the next row from a result set.
-     * 
+     *
      * @param integer $fetchStyle
      * @return mixed The return value of this function on success depends on the fetch type.
      *               In all cases, FALSE is returned on failure.
@@ -191,7 +187,7 @@ class Statement implements DriverStatement
 
     /**
      * Returns an array containing all of the result set rows.
-     * 
+     *
      * @param integer $fetchStyle
      * @param integer $columnIndex
      * @return array An array containing all of the remaining rows in the result set.
@@ -206,9 +202,9 @@ class Statement implements DriverStatement
 
     /**
      * Returns a single column from the next row of a result set.
-     * 
+     *
      * @param integer $columnIndex
-     * @return mixed A single column from the next row of a result set or FALSE if there are no more rows. 
+     * @return mixed A single column from the next row of a result set or FALSE if there are no more rows.
      */
     public function fetchColumn($columnIndex = 0)
     {
@@ -217,7 +213,7 @@ class Statement implements DriverStatement
 
     /**
      * Returns the number of rows affected by the last execution of this statement.
-     * 
+     *
      * @return integer The number of affected rows.
      */
     public function rowCount()
@@ -227,7 +223,7 @@ class Statement implements DriverStatement
 
     /**
      * Gets the wrapped driver statement.
-     * 
+     *
      * @return Doctrine\DBAL\Driver\Statement
      */
     public function getWrappedStatement()
