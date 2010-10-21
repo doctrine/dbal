@@ -41,6 +41,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
         PDO::FETCH_NUM => OCI_NUM
     );
     private $_paramMap = array();
+    private $_connection;
 
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
@@ -48,9 +49,10 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
      * @param resource $dbh The connection handle.
      * @param string $statement The SQL statement.
      */
-    public function __construct($dbh, $statement)
+    public function __construct($connection, $statement)
     {
-        $this->_sth = oci_parse($dbh, $this->_convertPositionalToNamedPlaceholders($statement));
+        $this->_connection = $connection;
+        $this->_sth = oci_parse($connection->getDbh(), $this->_convertPositionalToNamedPlaceholders($statement));
     }
 
     /**
@@ -146,7 +148,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
             }
         }
 
-        $ret = @oci_execute($this->_sth, OCI_DEFAULT);
+        $ret = @oci_execute($this->_sth, $this->_connection->getExecutionMode());
         if ( ! $ret) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }

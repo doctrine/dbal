@@ -30,6 +30,8 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
 {
     private $_dbh;
     
+    private $_executionMode = OCI_COMMIT_ON_SUCCESS;
+    
     public function __construct($username, $password, $db, $charset = null, $session_mode = OCI_DEFAULT)
     {
         $this->_dbh = @oci_connect($username, $password, $db, $charset, $session_mode);
@@ -40,7 +42,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     
     public function prepare($prepareString)
     {
-        return new OCI8Statement($this->_dbh, $prepareString);
+        return new OCI8Statement($this, $prepareString);
     }
     
     public function query()
@@ -72,11 +74,13 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     
     public function beginTransaction()
     {
+        $this->_executionMode = OCI_NO_AUTO_COMMIT;
         return true;
     }
     
     public function commit()
     {
+        $this->_executionMode = OCI_COMMIT_ON_SUCCESS;
         if (!oci_commit($this->_dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
@@ -85,6 +89,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     
     public function rollBack()
     {
+        $this->_executionMode = OCI_COMMIT_ON_SUCCESS;
         if (!oci_rollback($this->_dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
@@ -111,6 +116,16 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
             return oci_error();
         }
         return oci_error($this->_dbh);
+    }
+    
+    public function getDbh()
+    {
+        return $this->_dbh;
+    }
+    
+    public function getExecutionMode()
+    {
+        return $this->_executionMode;
     }
     
 }
