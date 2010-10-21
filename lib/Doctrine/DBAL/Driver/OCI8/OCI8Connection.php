@@ -30,11 +30,11 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
 {
     private $_dbh;
     
-    public function __construct($username, $password, $db)
+    public function __construct($username, $password, $db, $charset = null, $session_mode = OCI_DEFAULT)
     {
-        $this->_dbh = @oci_connect($username, $password, $db);
+        $this->_dbh = @oci_connect($username, $password, $db, $charset, $session_mode);
         if (!$this->_dbh) {
-            throw new OCI8Exception($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
     }
     
@@ -93,7 +93,12 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     
     public function errorCode()
     {
-        $error = oci_error($this->_dbh);
+        if (!is_resource($this->_dbh)) {
+            $error = oci_error();
+        } else {
+            $error = oci_error($this->_dbh);
+        }
+        
         if ($error !== false) {
             $error = $error['code'];
         }
@@ -102,6 +107,9 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     
     public function errorInfo()
     {
+        if (!is_resource($this->_dbh)) {
+            return oci_error();
+        }
         return oci_error($this->_dbh);
     }
     
