@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -29,7 +27,14 @@ namespace Doctrine\DBAL\Driver\OCI8;
 class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
 {
     private $_dbh;
-    
+
+    /**
+     * Create a Connection to an Oracle Database using oci8 extension.
+     * 
+     * @param string $username
+     * @param string $password
+     * @param string $db
+     */
     public function __construct($username, $password, $db)
     {
         $this->_dbh = @oci_connect($username, $password, $db);
@@ -37,12 +42,22 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
             throw new OCI8Exception($this->errorInfo());
         }
     }
-    
+
+    /**
+     * Create a non-executed prepared statement.
+     * 
+     * @param  string $prepareString
+     * @return OCI8Statement
+     */
     public function prepare($prepareString)
     {
         return new OCI8Statement($this->_dbh, $prepareString);
     }
-    
+
+    /**
+     * @param string $sql
+     * @return OCI8Statement
+     */
     public function query()
     {
         $args = func_get_args();
@@ -52,12 +67,24 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         $stmt->execute();
         return $stmt;
     }
-    
+
+    /**
+     * Quote input value.
+     *
+     * @param mixed $input
+     * @param int $type PDO::PARAM* 
+     * @return mixed
+     */
     public function quote($input, $type=\PDO::PARAM_STR)
     {
         return is_numeric($input) ? $input : "'$input'";
     }
-    
+
+    /**
+     *
+     * @param  string $statement
+     * @return int
+     */
     public function exec($statement)
     {
         $stmt = $this->prepare($statement);
@@ -69,12 +96,25 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     {
         //TODO: throw exception or support sequences?
     }
-    
+
+    /**
+     * Start a transactiom
+     *
+     * Oracle has to explicitly set the autocommit mode off. That means
+     * after connection, a commit or rollback there is always automatically
+     * opened a new transaction.
+     *
+     * @return bool
+     */
     public function beginTransaction()
     {
         return true;
     }
-    
+
+    /**
+     * @throws OCI8Exception
+     * @return bool
+     */
     public function commit()
     {
         if (!oci_commit($this->_dbh)) {
@@ -82,7 +122,11 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         }
         return true;
     }
-    
+
+    /**
+     * @throws OCI8Exception
+     * @return bool
+     */
     public function rollBack()
     {
         if (!oci_rollback($this->_dbh)) {
@@ -104,5 +148,4 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     {
         return oci_error($this->_dbh);
     }
-    
 }
