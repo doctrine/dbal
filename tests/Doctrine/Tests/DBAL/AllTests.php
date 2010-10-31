@@ -43,6 +43,7 @@ class AllTests
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\IntegerTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\SmallIntTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\StringTest');
+        $suite->addTestSuite('Doctrine\Tests\DBAL\Types\FloatTest');
 
         // Schema tests
         $suite->addTestSuite('Doctrine\Tests\DBAL\Schema\ColumnTest');

@@ -47,6 +47,7 @@ abstract class Type
     const SMALLINT = 'smallint';
     const STRING = 'string';
     const TEXT = 'text';
+    const FLOAT = 'float';
 
     /** Map of already instantiated type objects. One instance per type (flyweight). */
     private static $_typeObjects = array();
@@ -65,7 +66,8 @@ abstract class Type
         self::DATETIMETZ => 'Doctrine\DBAL\Types\DateTimeTzType',
         self::DATE => 'Doctrine\DBAL\Types\DateType',
         self::TIME => 'Doctrine\DBAL\Types\TimeType',
-        self::DECIMAL => 'Doctrine\DBAL\Types\DecimalType'
+        self::DECIMAL => 'Doctrine\DBAL\Types\DecimalType',
+        self::FLOAT => 'Doctrine\DBAL\Types\FloatType',
     );
 
     /* Prevent instantiation and force use of the factory method. */

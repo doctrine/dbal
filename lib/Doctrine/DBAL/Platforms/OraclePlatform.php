@@ -702,7 +702,7 @@ LEFT JOIN all_cons_columns r_cols
             'date'              => 'datetime',
             'timestamp'         => 'datetime',
             'timestamptz'       => 'datetimetz',
-            'float'             => 'decimal',
+            'float'             => 'float',
             'long'              => 'string',
             'clob'              => 'text',
             'nclob'             => 'text',
