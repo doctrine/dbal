@@ -1,0 +1,200 @@
+Data Retrieval And Manipulation
+===============================
+
+The DBAL contains several methods for executing queries against
+your configured database for data retrieval and manipulation. Below
+we'll introduce these methods and provide some examples for each of
+them.
+
+prepare($sql)
+-------------
+
+Prepare a given sql statement and return the
+``\Doctrine\DBAL\Driver\Statement`` instance:
+
+::
+
+    <?php
+    $statement = $conn->prepare('SELECT * FROM user');
+    $statement->execute();
+    $users = $statement->fetchAll();
+    
+    /*
+    array(
+      0 => array(
+        'username' => 'jwage',
+        'password' => 'changeme
+      )
+    )
+    */
+
+executeUpdate($sql, array $params = array(), array $types = array())
+--------------------------------------------------------------------
+
+Executes a prepared statement with the given sql and parameters and
+returns the affected rows count:
+
+::
+
+    <?php
+    $count = $conn->executeUpdate('UPDATE user SET username = ? WHERE id = ?', array('jwage', 1));
+    echo $count; // 1
+
+The ``$types`` variable contains the PDO or Doctrine Type constants
+to perform necessary type conversions between actual input
+parameters and expected database values. See the
+`Types <./types#type-conversion>`_ section for more information.
+
+executeQuery($sql, array $params = array(), array $types = array())
+-------------------------------------------------------------------
+
+Creates a prepared statement for the given sql and passes the
+parameters to the execute method, then returning the statement:
+
+::
+
+    <?php
+    $statement = $conn->execute('SELECT * FROM user WHERE username = ?', array('jwage'));
+    $user = $statement->fetch();
+    
+    /*
+    array(
+      0 => 'jwage',
+      1 => 'changeme
+    )
+    */
+
+The ``$types`` variable contains the PDO or Doctrine Type constants
+to perform necessary type conversions between actual input
+parameters and expected database values. See the
+`Types <./types#type-conversion>`_ section for more information.
+
+fetchAll($sql, array $params)
+-----------------------------
+
+Execute the query and fetch all results into an array:
+
+::
+
+    <?php
+    $users = $conn->fetchAll('SELECT * FROM user');
+    
+    /*
+    array(
+      0 => array(
+        'username' => 'jwage',
+        'password' => 'changeme
+      )
+    )
+    */
+
+fetchArray($sql, array $params)
+-------------------------------
+
+Numeric index retrieval of first result row of the given query:
+
+::
+
+    <?php
+    $user = $conn->fetchArray('SELECT * FROM user WHERE username = ?', array('jwage'));
+    
+    /*
+    array(
+      0 => 'jwage',
+      1 => 'changeme
+    )
+    */
+
+fetchColumn($sql, array $params, $colnum)
+-----------------------------------------
+
+Retrieve only the given column of the first result row.
+
+::
+
+    <?php
+    $username = $conn->fetchColumn('SELECT username FROM user WHERE id = ?', array(1), 0);
+    echo $username; // jwage
+
+fetchAssoc($sql, array $params)
+-------------------------------
+
+Retrieve assoc row of the first result row.
+
+::
+
+    <?php
+    $user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', array('jwage'));
+    /*
+    array(
+      'username' => 'jwage',
+      'password' => 'changeme
+    )
+    */
+
+There are also convenience methods for data manipulation queries:
+
+delete($tableName, array $identifier)
+-------------------------------------
+
+Delete all rows of a table matching the given identifier, where
+keys are column names.
+
+::
+
+    <?php
+    $conn->delete('user', array('id' => 1));
+    // DELETE FROM user WHERE id = ? (1)
+
+insert($tableName, array $data)
+-------------------------------
+
+Insert a row into the given table name using the key value pairs of
+data.
+
+::
+
+    <?php
+    $conn->insert('user', array('username' => 'jwage'));
+    // INSERT INTO user (username) VALUES (?) (jwage)
+
+update($tableName, array $data, array $identifier)
+--------------------------------------------------
+
+Update all rows for the matching key value identifiers with the
+given data.
+
+::
+
+    <?php
+    $conn->update('user', array('username' => 'jwage'), array('id' => 1));
+    // UPDATE user (username) VALUES (?) WHERE id = ? (jwage, 1)
+
+By default the Doctrine DBAL does no escaping. Escaping is a very
+tricky business to do automatically, therefore there is none by
+default. The ORM internally escapes all your values, because it has
+lots of metadata available about the current context. When you use
+the Doctrine DBAL as standalone, you have to take care of this
+yourself. The following methods help you with it:
+
+quote($input, $type = null)
+---------------------------
+
+Quote a value:
+
+::
+
+    <?php
+    $quoted = $conn->quote('value');
+
+quoteIdentifier($identifier)
+----------------------------
+
+Quote an identifier according to the platform details.
+
+::
+
+    <?php
+    $quoted = $conn->quoteIdentifier('id');
+
+
