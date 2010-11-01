@@ -36,7 +36,7 @@ Retrieve an array of databases on the configured connection:
     <?php
     $databases = $sm->listDatabases();
 
-listSequences($database = null)
+listSequences()
 -------------------------------
 
 Retrieve an array of ``Doctrine\DBAL\Schema\Sequence`` instances
@@ -63,7 +63,7 @@ Now you can loop over the array inspecting each sequence object:
         echo $sequence->getName() . "\n";
     }
 
-listTableColumns($tableName)
+listTableColumns()
 ----------------------------
 
 Retrieve an array of ``Doctrine\DBAL\Schema\Column`` instances that
@@ -83,7 +83,7 @@ Now you can loop over the array inspecting each column object:
         echo $column->getName() . ': ' . $column->getType() . "\n";
     }
 
-listTableDetails($tableName)
+listTableDetails()
 ----------------------------
 
 Retrieve a single ``Doctrine\DBAL\Schema\Table`` instance that
@@ -102,7 +102,7 @@ schema for that table. For example we can add a new column:
     <?php
     $table->addColumn('email_address', 'string');
 
-listTableForeignKeys($tableName)
+listTableForeignKeys()
 --------------------------------
 
 Retrieve an array of ``Doctrine\DBAL\Schema\ForeignKeyConstraint``
@@ -123,7 +123,7 @@ object:
         echo $foreignKey->getName() . ': ' . $foreignKey->getLocalTableName() ."\n";
     }
 
-listTableIndexes($tableName)
+listTableIndexes()
 ----------------------------
 
 Retrieve an array of ``Doctrine\DBAL\Schema\Index`` instances that

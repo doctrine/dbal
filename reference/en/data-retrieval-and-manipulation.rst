@@ -6,7 +6,7 @@ your configured database for data retrieval and manipulation. Below
 we'll introduce these methods and provide some examples for each of
 them.
 
-prepare($sql)
+prepare()
 -------------
 
 Prepare a given sql statement and return the
@@ -28,7 +28,7 @@ Prepare a given sql statement and return the
     )
     */
 
-executeUpdate($sql, array $params = array(), array $types = array())
+executeUpdate()
 --------------------------------------------------------------------
 
 Executes a prepared statement with the given sql and parameters and
@@ -45,7 +45,7 @@ to perform necessary type conversions between actual input
 parameters and expected database values. See the
 `Types <./types#type-conversion>`_ section for more information.
 
-executeQuery($sql, array $params = array(), array $types = array())
+executeQuery()
 -------------------------------------------------------------------
 
 Creates a prepared statement for the given sql and passes the
@@ -69,7 +69,7 @@ to perform necessary type conversions between actual input
 parameters and expected database values. See the
 `Types <./types#type-conversion>`_ section for more information.
 
-fetchAll($sql, array $params)
+fetchAll()
 -----------------------------
 
 Execute the query and fetch all results into an array:
@@ -88,7 +88,7 @@ Execute the query and fetch all results into an array:
     )
     */
 
-fetchArray($sql, array $params)
+fetchArray()
 -------------------------------
 
 Numeric index retrieval of first result row of the given query:
@@ -105,7 +105,7 @@ Numeric index retrieval of first result row of the given query:
     )
     */
 
-fetchColumn($sql, array $params, $colnum)
+fetchColumn()
 -----------------------------------------
 
 Retrieve only the given column of the first result row.
@@ -116,7 +116,7 @@ Retrieve only the given column of the first result row.
     $username = $conn->fetchColumn('SELECT username FROM user WHERE id = ?', array(1), 0);
     echo $username; // jwage
 
-fetchAssoc($sql, array $params)
+fetchAssoc()
 -------------------------------
 
 Retrieve assoc row of the first result row.
@@ -134,7 +134,7 @@ Retrieve assoc row of the first result row.
 
 There are also convenience methods for data manipulation queries:
 
-delete($tableName, array $identifier)
+delete()
 -------------------------------------
 
 Delete all rows of a table matching the given identifier, where
@@ -146,7 +146,7 @@ keys are column names.
     $conn->delete('user', array('id' => 1));
     // DELETE FROM user WHERE id = ? (1)
 
-insert($tableName, array $data)
+insert()
 -------------------------------
 
 Insert a row into the given table name using the key value pairs of
@@ -158,7 +158,7 @@ data.
     $conn->insert('user', array('username' => 'jwage'));
     // INSERT INTO user (username) VALUES (?) (jwage)
 
-update($tableName, array $data, array $identifier)
+update()
 --------------------------------------------------
 
 Update all rows for the matching key value identifiers with the
@@ -177,7 +177,7 @@ lots of metadata available about the current context. When you use
 the Doctrine DBAL as standalone, you have to take care of this
 yourself. The following methods help you with it:
 
-quote($input, $type = null)
+quote()
 ---------------------------
 
 Quote a value:
@@ -186,8 +186,9 @@ Quote a value:
 
     <?php
     $quoted = $conn->quote('value');
+    $quoted = $conn->quote('1234', \PDO::PARAM_INT);
 
-quoteIdentifier($identifier)
+quoteIdentifier()
 ----------------------------
 
 Quote an identifier according to the platform details.
