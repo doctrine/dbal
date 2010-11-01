@@ -70,7 +70,9 @@ as the credentials to use. The connection details can differ
 depending on the used driver. The following sections describe the
 options recognized by each built-in driver.
 
-    **NOTE** When using an existing PDO instance through the ``pdo``
+.. note::
+
+    When using an existing PDO instance through the ``pdo``
     option, specifying connection details is obviously not necessary.
 
 

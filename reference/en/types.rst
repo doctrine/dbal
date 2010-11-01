@@ -36,7 +36,7 @@ a type and it is not allowed to contain any state. Creation of type
 instances is abstracted through a static get method
 ``Doctrine\DBAL\Types\Type::getType()``.
 
-    **NOTE**
+.. note::
 
     See the `Known Vendor Issue <./../known-vendor-issues>`_ section
     for details about the different handling of microseconds and
@@ -63,7 +63,7 @@ If you want to change how Doctrine maps a database type to a
 ``AbstractPlatform::registerDoctrineTypeMapping($dbType, $doctrineType)``
 method to add new database types or overwrite existing ones.
 
-    **NOTE**
+.. note::
 
     You can only map a database type to exactly one Doctrine type.
     Database vendors that allow to define custom types like PostgreSql

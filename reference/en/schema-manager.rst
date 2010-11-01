@@ -16,7 +16,7 @@ the ``getSchemaManager()`` method:
 Now with the ``SchemaManager`` instance in ``$em`` you can use the
 available methods to learn about your database schema:
 
-    **NOTE**
+.. note::
 
     Parameters containing identifiers passed to the SchemaManager
     methods are *NOT* quoted automatically! Identifier quoting is
