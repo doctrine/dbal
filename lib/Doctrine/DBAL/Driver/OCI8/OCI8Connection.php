@@ -35,9 +35,9 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
      * @param string $password
      * @param string $db
      */
-    public function __construct($username, $password, $db)
+    public function __construct($username, $password, $db, $charset = null)
     {
-        $this->_dbh = @oci_connect($username, $password, $db);
+        $this->_dbh = @oci_connect($username, $password, $db, $charset);
         if (!$this->_dbh) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }

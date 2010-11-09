@@ -36,7 +36,8 @@ class Driver implements \Doctrine\DBAL\Driver
         return new OCI8Connection(
             $username,
             $password,
-            $this->_constructDsn($params)
+            $this->_constructDsn($params),
+            isset($params['charset']) ? $params['charset'] : null
         );
     }
 
@@ -65,10 +66,6 @@ class Driver implements \Doctrine\DBAL\Driver
             $dsn .= '))';
         } else {
             $dsn .= $params['dbname'];
-        }
-
-        if (isset($params['charset'])) {
-            $dsn .= ';charset=' . $params['charset'];
         }
 
         return $dsn;
