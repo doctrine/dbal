@@ -30,6 +30,8 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
 {
     private $_dbh;
     
+    protected $_executeMode = OCI_COMMIT_ON_SUCCESS;
+    
     public function __construct($username, $password, $db)
     {
         $this->_dbh = @oci_connect($username, $password, $db);
@@ -40,7 +42,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     
     public function prepare($prepareString)
     {
-        return new OCI8Statement($this->_dbh, $prepareString);
+        return new OCI8Statement($this->_dbh, $prepareString, $this->_executeMode);
     }
     
     public function query()
@@ -72,6 +74,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     
     public function beginTransaction()
     {
+        $this->_executeMode = OCI_NO_AUTO_COMMIT;
         return true;
     }
     
@@ -80,6 +83,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         if (!oci_commit($this->_dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
+        $this->_executeMode = OCI_COMMIT_ON_SUCCESS;
         return true;
     }
     
@@ -88,6 +92,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         if (!oci_rollback($this->_dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
+        $this->_executeMode = OCI_COMMIT_ON_SUCCESS;
         return true;
     }
     
