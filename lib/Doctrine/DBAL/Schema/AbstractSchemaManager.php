@@ -201,9 +201,18 @@ abstract class AbstractSchemaManager
      *
      * @return Table[]
      */
-    public function listTables()
+    public function listTables(array $classes)
     {
-        $tableNames = $this->listTableNames();
+        if(!empty($classes)){
+            foreach($classes as $class){
+                $tableNames[] = $class->table['name'];
+                foreach($class->associationMappings as $associationMapping)
+                    if($associationMapping['isOwningSide'] && !\is_null($associationMapping['joinTable']['name']))
+                        $tableNames[] = $associationMapping['joinTable']['name'];
+            }
+        } else {
+            $tableNames = $this->listTableNames();
+        }
 
         $tables = array();
         foreach ($tableNames AS $tableName) {
@@ -751,13 +760,13 @@ abstract class AbstractSchemaManager
      * 
      * @return Schema
      */
-    public function createSchema()
+    public function createSchema(array $classes = null)
     {
         $sequences = array();
         if($this->_platform->supportsSequences()) {
             $sequences = $this->listSequences();
         }
-        $tables = $this->listTables();
+        $tables = $this->listTables($classes);
 
         return new Schema($tables, $sequences, $this->createSchemaConfig());
     }
