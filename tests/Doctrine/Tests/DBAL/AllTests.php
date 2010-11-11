@@ -59,6 +59,7 @@ class AllTests
 
         // Connection test
         $suite->addTestSuite('Doctrine\Tests\DBAL\ConnectionTest');
+        $suite->addTestSuite('Doctrine\Tests\DBAL\SQLParserUtilsTest');
         
         // Events and Listeners
         $suite->addTestSuite('Doctrine\Tests\DBAL\Events\OracleSessionInitTest');

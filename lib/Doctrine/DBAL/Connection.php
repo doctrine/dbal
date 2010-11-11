@@ -62,6 +62,27 @@ class Connection implements DriverConnection
      * Constant for transaction isolation level SERIALIZABLE.
      */
     const TRANSACTION_SERIALIZABLE = 4;
+    
+    /**
+     * Represents an array of ints to be expanded by Doctrine SQL parsing.
+     * 
+     * @var int
+     */
+    const PARAM_INT_ARRAY = 101;
+    
+    /**
+     * Represents an array of strings to be expanded by Doctrine SQL parsing.
+     * 
+     * @var int
+     */
+    const PARAM_STR_ARRAY = 102;
+    
+    /**
+     * Offset by which PARAM_* constants are detected as arrays of the param type.
+     * 
+     * @var int
+     */
+    const ARRAY_PARAM_OFFSET = 100;
 
     /**
      * The wrapped driver connection.
@@ -566,6 +587,8 @@ class Connection implements DriverConnection
         }
 
         if ($params) {
+            list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
+            
             $stmt = $this->_conn->prepare($query);
             if ($types) {
                 $this->_bindTypedValues($stmt, $params, $types);
@@ -645,6 +668,8 @@ class Connection implements DriverConnection
         }
 
         if ($params) {
+            list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
+            
             $stmt = $this->_conn->prepare($query);
             if ($types) {
                 $this->_bindTypedValues($stmt, $params, $types);
