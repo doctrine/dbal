@@ -31,6 +31,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
 {
     /** Statement handle. */
     private $_sth;
+    private $_executeMode;
     private static $_PARAM = ':param';
     private static $fetchStyleMap = array(
         PDO::FETCH_BOTH => OCI_BOTH,
@@ -45,11 +46,12 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
      * @param resource $dbh The connection handle.
      * @param string $statement The SQL statement.
      */
-    public function __construct($dbh, $statement)
+    public function __construct($dbh, $statement, $executeMode)
     {
         list($statement, $paramMap) = self::convertPositionalToNamedPlaceholders($statement);
         $this->_sth = oci_parse($dbh, $statement);
         $this->_paramMap = $paramMap;
+        $this->_executeMode = $executeMode;
     }
 
     /**
@@ -164,7 +166,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
             }
         }
 
-        $ret = @oci_execute($this->_sth, OCI_DEFAULT);
+        $ret = @oci_execute($this->_sth, $this->_executeMode);
         if ( ! $ret) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }

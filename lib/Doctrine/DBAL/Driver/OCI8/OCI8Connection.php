@@ -28,6 +28,8 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
 {
     private $_dbh;
 
+    private $_executeMode = OCI_COMMIT_ON_SUCCESS;
+
     /**
      * Create a Connection to an Oracle Database using oci8 extension.
      * 
@@ -37,9 +39,13 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
      */
     public function __construct($username, $password, $db)
     {
+        if (!defined('OCI_NO_AUTO_COMMIT')) {
+            define('OCI_NO_AUTO_COMMIT', 0);
+        }
+
         $this->_dbh = @oci_connect($username, $password, $db);
         if (!$this->_dbh) {
-            throw new OCI8Exception($this->errorInfo());
+            throw OCI8Exception::fromErrorInfo(oci_error());
         }
     }
 
@@ -51,7 +57,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
      */
     public function prepare($prepareString)
     {
-        return new OCI8Statement($this->_dbh, $prepareString);
+        return new OCI8Statement($this->_dbh, $prepareString, $this->_executeMode);
     }
 
     /**
@@ -108,6 +114,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
      */
     public function beginTransaction()
     {
+        $this->_executeMode = OCI_NO_AUTO_COMMIT;
         return true;
     }
 
@@ -120,6 +127,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         if (!oci_commit($this->_dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
+        $this->_executeMode = OCI_COMMIT_ON_SUCCESS;
         return true;
     }
 
@@ -132,6 +140,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         if (!oci_rollback($this->_dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
+        $this->_executeMode = OCI_COMMIT_ON_SUCCESS;
         return true;
     }
     
