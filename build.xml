@@ -75,7 +75,7 @@
     <!--
         Builds DBAL package, preparing it for distribution.
     -->
-    <target name="build-dbal" depends="test">
+    <target name="build-dbal" depends="prepare">
         <copy todir="${build.dir}/doctrine-dbal">
             <fileset refid="shared-artifacts"/>
         </copy>
@@ -93,7 +93,7 @@
         <exec command="mv ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version2.php ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version.php" passthru="true" />
     </target>
 
-    <target name="build" depends="test, build-dbal"/>
+    <target name="build" depends="build-dbal"/>
 
     <!--
         Runs the full test suite.
