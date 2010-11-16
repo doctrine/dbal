@@ -93,11 +93,15 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($name)
     {
-        // @todo do we really need to force drop?
-        return 'ALTER DATABASE [' . $name . ']
-SET SINGLE_USER
-WITH ROLLBACK IMMEDIATE;
-DROP DATABASE ' . $name . ';';
+        return 'DROP DATABASE ' . $name;
+    }
+
+    /**
+     * @override
+     */
+	public function supportsCreateDropDatabase()
+    {
+        return false;
     }
 
     /**
