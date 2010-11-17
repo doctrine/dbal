@@ -439,19 +439,38 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
     {
-        // @todo
         $trimFn = '';
-        $trimChar = ($char != false) ? (', ' . $char) : '';
 
-        if ($pos == self::TRIM_LEADING) {
-            $trimFn = 'LTRIM';
-        } else if ($pos == self::TRIM_TRAILING) {
-            $trimFn = 'RTRIM';
-        } else {
-            return 'LTRIM(RTRIM(' . $str . '))';
-        }
+		if (!$char) {
+			if ($pos == self::TRIM_LEADING) {
+				$trimFn = 'LTRIM';
+			} else if ($pos == self::TRIM_TRAILING) {
+				$trimFn = 'RTRIM';
+			} else {
+				return 'LTRIM(RTRIM(' . $str . '))';
+			}
 
-        return $trimFn . '(' . $str . ')';
+			return $trimFn . '(' . $str . ')';
+		} else {
+			/** Original query used to get those expressions
+				declare @c varchar(100) = 'xxxBarxxx', @trim_char char(1) = 'x';
+				declare @pat varchar(10) = '%[^' + @trim_char + ']%';
+				select @c as string
+					 , @trim_char as trim_char
+					 , stuff(@c, 1, patindex(@pat, @c) - 1, null) as trim_leading
+					 , reverse(stuff(reverse(@c), 1, patindex(@pat, reverse(@c)) - 1, null)) as trim_trailing
+					 , reverse(stuff(reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null)), 1, patindex(@pat, reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null))) - 1, null)) as trim_both;
+			 */
+			$pattern = "'%[^' + $char + ']%'";
+			
+			if ($pos == self::TRIM_LEADING) {
+				return 'stuff(' . $str . ', 1, patindex(' . $pattern .', ' . $str . ') - 1, null)';
+			} else if ($pos == self::TRIM_TRAILING) {
+				return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern .', reverse(' . $str . ')) - 1, null))';
+			} else {
+				return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern .', ' . $str . ') - 1, null)), 1, patindex(' . $pattern .', reverse(stuff(' . $str . ', 1, patindex(' . $pattern .', ' . $str . ') - 1, null))) - 1, null))';
+			}
+		}
     }
 
     /**
