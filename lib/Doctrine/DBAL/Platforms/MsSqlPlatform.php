@@ -114,11 +114,11 @@ DROP DATABASE ' . $name . ';';
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         if ($foreignKey instanceof \Doctrine\DBAL\Schema\ForeignKeyConstraint) {
-            $foreignKey = $foreignKey->getName();
+            $foreignKey = $foreignKey->getQuotedName($this);
         }
 
         if ($table instanceof \Doctrine\DBAL\Schema\Table) {
-            $table = $table->getName();
+            $table = $table->getQuotedName($this);
         }
 
         return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
@@ -131,7 +131,7 @@ DROP DATABASE ' . $name . ';';
     {
         if ($index instanceof \Doctrine\DBAL\Schema\Index) {
             $index_ = $index;
-            $index = $index->getName();
+            $index = $index->getQuotedName($this);
         } else if (!is_string($index)) {
             throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
         }
@@ -140,7 +140,7 @@ DROP DATABASE ' . $name . ';';
             return 'DROP INDEX ' . $index;
         } else {
             if ($table instanceof \Doctrine\DBAL\Schema\Table) {
-                $table = $table->getName();
+                $table = $table->getQuotedName($this);
             }
 
             return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
@@ -231,23 +231,23 @@ DROP DATABASE ' . $name . ';';
         }
 
         foreach ($diff->addedColumns AS $fieldName => $column) {
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getName(), $column->toArray());
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->removedColumns AS $column) {
-            $queryParts[] = 'DROP COLUMN ' . $column->getName();
+            $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
             /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $queryParts[] = 'CHANGE ' . ($columnDiff->oldColumnName) . ' '
-                    . $this->getColumnDeclarationSQL($column->getName(), $column->toArray());
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
             $queryParts[] = 'CHANGE ' . $oldColumnName . ' '
-                    . $this->getColumnDeclarationSQL($column->getName(), $column->toArray());
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         $sql = array();

@@ -410,23 +410,23 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->addedColumns AS $fieldName => $column) {
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getName(), $column->toArray());
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->removedColumns AS $column) {
-            $queryParts[] =  'DROP ' . $column->getName();
+            $queryParts[] =  'DROP ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
             /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $queryParts[] =  'CHANGE ' . ($columnDiff->oldColumnName) . ' '
-                    . $this->getColumnDeclarationSQL($column->getName(), $column->toArray());
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
             $queryParts[] =  'CHANGE ' . $oldColumnName . ' '
-                    . $this->getColumnDeclarationSQL($column->getName(), $column->toArray());
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         $sql = array();
@@ -520,13 +520,13 @@ class MySqlPlatform extends AbstractPlatform
     public function getDropIndexSQL($index, $table=null)
     {
         if($index instanceof \Doctrine\DBAL\Schema\Index) {
-            $index = $index->getName();
+            $index = $index->getQuotedName($this);
         } else if(!is_string($index)) {
             throw new \InvalidArgumentException('MysqlPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
         }
         
         if($table instanceof \Doctrine\DBAL\Schema\Table) {
-            $table = $table->getName();
+            $table = $table->getQuotedName($this);
         } else if(!is_string($table)) {
             throw new \InvalidArgumentException('MysqlPlatform::getDropIndexSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
@@ -543,7 +543,7 @@ class MySqlPlatform extends AbstractPlatform
     public function getDropTableSQL($table)
     {
         if ($table instanceof \Doctrine\DBAL\Schema\Table) {
-            $table = $table->getName();
+            $table = $table->getQuotedName($this);
         } else if(!is_string($table)) {
             throw new \InvalidArgumentException('MysqlPlatform::getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }

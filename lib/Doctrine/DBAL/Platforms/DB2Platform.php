@@ -379,22 +379,22 @@ class DB2Platform extends AbstractPlatform
 
         $queryParts = array();
         foreach ($diff->addedColumns AS $fieldName => $column) {
-            $queryParts[] = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getName(), $column->toArray());
+            $queryParts[] = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->removedColumns AS $column) {
-            $queryParts[] =  'DROP COLUMN ' . $column->getName();
+            $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
             /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $queryParts[] =  'ALTER ' . ($columnDiff->oldColumnName) . ' '
-                    . $this->getColumnDeclarationSQL($column->getName(), $column->toArray());
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
-            $queryParts[] =  'RENAME ' . $oldColumnName . ' TO ' . $column->getName();
+            $queryParts[] =  'RENAME ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
         }
 
         if (count($queryParts) > 0) {

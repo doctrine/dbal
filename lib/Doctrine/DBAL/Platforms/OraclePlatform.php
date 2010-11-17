@@ -113,7 +113,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getCreateSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
-        return 'CREATE SEQUENCE ' . $sequence->getName() .
+        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' START WITH ' . $sequence->getInitialValue() .
                ' MINVALUE ' . $sequence->getInitialValue() . 
                ' INCREMENT BY ' . $sequence->getAllocationSize();
@@ -455,7 +455,7 @@ LEFT JOIN all_cons_columns r_cols
     public function getDropSequenceSQL($sequence)
     {
         if ($sequence instanceof \Doctrine\DBAL\Schema\Sequence) {
-            $sequence = $sequence->getName();
+            $sequence = $sequence->getQuotedName($this);
         }
 
         return 'DROP SEQUENCE ' . $sequence;
@@ -469,11 +469,11 @@ LEFT JOIN all_cons_columns r_cols
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         if ($foreignKey instanceof \Doctrine\DBAL\Schema\ForeignKeyConstraint) {
-            $foreignKey = $foreignKey->getName();
+            $foreignKey = $foreignKey->getQuotedName($this);
         }
 
         if ($table instanceof \Doctrine\DBAL\Schema\Table) {
-            $table = $table->getName();
+            $table = $table->getQuotedName($this);
         }
 
         return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
@@ -502,7 +502,7 @@ LEFT JOIN all_cons_columns r_cols
 
         $fields = array();
         foreach ($diff->addedColumns AS $column) {
-            $fields[] = $this->getColumnDeclarationSQL($column->getName(), $column->toArray());
+            $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ADD (' . implode(', ', $fields) . ')';
@@ -511,19 +511,19 @@ LEFT JOIN all_cons_columns r_cols
         $fields = array();
         foreach ($diff->changedColumns AS $columnDiff) {
             $column = $columnDiff->column;
-            $fields[] = $column->getName(). ' ' . $this->getColumnDeclarationSQL('', $column->toArray());
+            $fields[] = $column->getQuotedName($this). ' ' . $this->getColumnDeclarationSQL('', $column->toArray());
         }
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getName();
+            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
         }
 
         $fields = array();
         foreach ($diff->removedColumns AS $column) {
-            $fields[] = $column->getName();
+            $fields[] = $column->getQuotedName($this);
         }
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' DROP COLUMN ' . implode(', ', $fields);
