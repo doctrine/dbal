@@ -179,6 +179,14 @@ class MsSqlPlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
+		// @todo does other code breaks because of this?
+		// foce primary keys to be not null
+		foreach ($columns as &$column) {
+			if (isset($column['primary']) && $column['primary']) {
+				$column['notnull'] = true;
+			}
+		}
+	
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && !empty($options['uniqueConstraints'])) {
@@ -215,6 +223,53 @@ class MsSqlPlatform extends AbstractPlatform
 
         return $sql;
     }
+	
+	/**
+     * @override
+     */
+	public function getUniqueConstraintDeclarationSQL($name, Index $index)
+    {
+        $constraint = parent::getUniqueConstraintDeclarationSQL($name, $index);
+		
+		$constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
+		
+		return $constraint;
+    }
+	
+	/**
+     * @override
+     */
+	public function getCreateIndexSQL(Index $index, $table)
+    {	
+		$constraint = parent::getCreateIndexSQL($index, $table);
+		
+		if ($index->isUnique()) {
+			$constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
+		}
+		
+		return $constraint;
+	}
+	
+	/**
+     * Extend unique key constraint with required filters
+	 *
+	 * @param string $sql
+	 * @param Index $index
+	 * @return string
+     */
+	private function _appendUniqueConstraintDefinition($sql, Index $index)
+	{
+		$fields = array();
+        foreach ($index->getColumns() as $field => $definition) {
+            if (!is_array($definition)) {
+                $field = $definition;
+            }
+			
+			$fields[] = $field . ' IS NOT NULL';
+        }
+	
+		return $sql . ' WHERE ' . implode(' OR ', $fields);
+	}
 
     /**
      * @override
