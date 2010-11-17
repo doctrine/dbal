@@ -151,27 +151,22 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getCreateTableSQL(Table $table, $createFlags=self::CREATE_INDEXES)
     {
-        $sql = parent::getCreateTableSQL($table, $createFlags);
-
-        $primary = array();
-
-        foreach ($table->getIndexes() AS $index) {
-            /* @var $index Index */
-            if ($index->isPrimary()) {
-                $primary = $index->getColumns();
-            }
-        }
-
-        if (count($primary) === 1) {
-            foreach ($table->getForeignKeys() AS $definition) {
-                $columns = $definition->getLocalColumns();
-                if (count($columns) === 1 && in_array($columns[0], $primary)) {
-                    $sql[0] = str_replace(' IDENTITY', '', $sql[0]);
-                }
-            }
-        }
-
-        return $sql;
+		// Foreign keys cannot be identity columns at the same time
+		foreach ($table->getForeignKeys() AS $definition) {
+			$columns = $definition->getLocalColumns();
+			
+			if (count($columns) != 1)
+				continue;
+			
+			foreach ($table->getIndexes() AS $index) {
+				/* @var $index Index */
+				if ($index->isPrimary() && in_array($columns[0], $index->getColumns())) {
+					$table->getColumn($columns[0])->setAutoincrement(false);
+				}
+			}
+		}
+	
+        return parent::getCreateTableSQL($table, $createFlags);
     }
 
     /**
