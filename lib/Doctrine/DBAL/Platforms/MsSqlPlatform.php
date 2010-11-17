@@ -654,6 +654,9 @@ class MsSqlPlatform extends AbstractPlatform
         return 'mssql';
     }
 
+    /**
+     * @override
+     */
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = array(
@@ -719,5 +722,29 @@ class MsSqlPlatform extends AbstractPlatform
     public function rollbackSavePoint($savepoint)
     {
         return 'ROLLBACK TRANSACTION ' . $savepoint;
+    }
+	
+	/**
+     * @override
+     */
+	public function appendLockHint($fromClause, $lockMode)
+    {
+		// @todo coorect
+		if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_READ) {
+            return $fromClause . ' WITH (tablockx)';
+        } else if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) {
+            return $fromClause . ' WITH (tablockx)';
+        }
+		else {
+			return $fromClause;
+		}
+    }
+
+    /**
+     * @override
+     */
+    public function getForUpdateSQL()
+    {
+        return ' ';
     }
 }
