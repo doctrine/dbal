@@ -400,4 +400,19 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($table->hasIndex('bar_baz_idx'));
         $this->assertTrue($table->hasIndex('bar_baz_uniq'));
     }
+
+    /**
+     * @group DBAL-64
+     */
+    public function testQuotedTableName()
+    {
+        $table = new Table("`bar`");
+
+        $mysqlPlatform = new \Doctrine\DBAL\Platforms\MySqlPlatform();
+        $sqlitePlatform = new \Doctrine\DBAL\Platforms\SqlitePlatform();
+
+        $this->assertEquals('bar', $table->getName());
+        $this->assertEquals('`bar`', $table->getQuotedName($mysqlPlatform));
+        $this->assertEquals('"bar"', $table->getQuotedName($sqlitePlatform));
+    }
 }

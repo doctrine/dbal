@@ -293,7 +293,7 @@ abstract class AbstractSchemaManager
     public function dropIndex($index, $table)
     {
         if($index instanceof Index) {
-            $index = $index->getName();
+            $index = $index->getQuotedName($this->_platform);
         }
 
         $this->_execSql($this->_platform->getDropIndexSQL($index, $table));
@@ -418,7 +418,7 @@ abstract class AbstractSchemaManager
      */
     public function createView(View $view)
     {
-        $this->_execSql($this->_platform->getCreateViewSQL($view->getName(), $view->getSql()));
+        $this->_execSql($this->_platform->getCreateViewSQL($view->getQuotedName($this->_platform), $view->getSql()));
     }
 
     /* dropAndCreate*() Methods */
@@ -445,7 +445,7 @@ abstract class AbstractSchemaManager
      */
     public function dropAndCreateIndex(Index $index, $table)
     {
-        $this->tryMethod('dropIndex', $index->getName(), $table);
+        $this->tryMethod('dropIndex', $index->getQuotedName($this->_platform), $table);
         $this->createIndex($index, $table);
     }
 
@@ -480,7 +480,7 @@ abstract class AbstractSchemaManager
      */
     public function dropAndCreateTable(Table $table)
     {
-        $this->tryMethod('dropTable', $table->getName());
+        $this->tryMethod('dropTable', $table->getQuotedName($this->_platform));
         $this->createTable($table);
     }
 
@@ -502,7 +502,7 @@ abstract class AbstractSchemaManager
      */
     public function dropAndCreateView(View $view)
     {
-        $this->tryMethod('dropView', $view->getName());
+        $this->tryMethod('dropView', $view->getQuotedName($this->_platform));
         $this->createView($view);
     }
 
@@ -622,7 +622,7 @@ abstract class AbstractSchemaManager
         $list = array();
         foreach ($tableColumns as $key => $column) {
             if ($column = $this->_getPortableTableColumnDefinition($column)) {
-                $name = strtolower($column->getName());
+                $name = strtolower($column->getQuotedName($this->_platform));
                 $list[$name] = $column;
             }
         }
@@ -711,7 +711,7 @@ abstract class AbstractSchemaManager
         $list = array();
         foreach ($views as $key => $value) {
             if ($view = $this->_getPortableViewDefinition($value)) {
-                $viewName = strtolower($view->getName());
+                $viewName = strtolower($view->getQuotedName($this->_platform));
                 $list[$viewName] = $view;
             }
         }

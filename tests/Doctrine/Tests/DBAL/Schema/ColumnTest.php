@@ -71,4 +71,20 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
         $string = Type::getType('string');
         return new Column("foo", $string, $options);
     }
+
+    /**
+     * @group DBAL-64
+     */
+    public function testQuotedColumnName()
+    {
+        $string = Type::getType('string');
+        $column = new Column("`bar`", $string, array());
+
+        $mysqlPlatform = new \Doctrine\DBAL\Platforms\MySqlPlatform();
+        $sqlitePlatform = new \Doctrine\DBAL\Platforms\SqlitePlatform();
+
+        $this->assertEquals('bar', $column->getName());
+        $this->assertEquals('`bar`', $column->getQuotedName($mysqlPlatform));
+        $this->assertEquals('"bar"', $column->getQuotedName($sqlitePlatform));
+    }
 }

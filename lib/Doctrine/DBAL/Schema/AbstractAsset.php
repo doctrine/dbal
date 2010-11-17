@@ -21,6 +21,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * The abstract asset allows to reset the name of all assets without publishing this to the public userland.
  *
@@ -40,6 +42,8 @@ abstract class AbstractAsset
      */
     protected $_name;
 
+    protected $_quoted = false;
+
     /**
      * Set name of this asset
      *
@@ -47,6 +51,10 @@ abstract class AbstractAsset
      */
     protected function _setName($name)
     {
+        if (strlen($name) && $name[0] == '`') {
+            $this->_quoted = true;
+            $name = trim($name, '`');
+        }
         $this->_name = $name;
     }
 
@@ -58,6 +66,18 @@ abstract class AbstractAsset
     public function getName()
     {
         return $this->_name;
+    }
+
+    /**
+     * Get the quoted representation of this asset but only if it was defined with one. Otherwise
+     * return the plain unquoted value as inserted.
+     *
+     * @param AbstractPlatform $platform
+     * @return string
+     */
+    public function getQuotedName(AbstractPlatform $platform)
+    {
+        return ($this->_quoted) ? $platform->quoteIdentifier($this->_name) : $this->_name;
     }
 
     /**
