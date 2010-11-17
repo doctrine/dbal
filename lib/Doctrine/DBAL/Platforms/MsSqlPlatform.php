@@ -140,9 +140,9 @@ class MsSqlPlatform extends AbstractPlatform
             }
 
             return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
-						ALTER TABLE " . $this->quoteIdentifier($table) . " DROP CONSTRAINT " . $this->quoteIdentifier($index) . "
+						ALTER TABLE " . $table . " DROP CONSTRAINT " . $index . "
 					ELSE
-						DROP INDEX " . $this->quoteIdentifier($index) . " ON " . $this->quoteIdentifier($table);
+						DROP INDEX " . $index . " ON " . $table;
         }
     }
 
