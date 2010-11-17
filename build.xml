@@ -137,7 +137,7 @@
     <!--
         Builds distributable PEAR packages.
     -->
-    <target name="build-packages" depends="build">
+    <target name="build-packages" depends="build-dbal">
         <d51pearpkg2 baseinstalldir="/" dir="${build.dir}/doctrine-dbal">
            <name>DoctrineDBAL</name>
            <summary>Doctrine Database Abstraction Layer</summary>
@@ -173,5 +173,28 @@
         </tar>
     </target>
 
-    <!-- Distribute Package using Pirum -->
+    <target name="git-tag">
+        <exec command="git tag -a ${version}" />
+        <exec command="git push origin ${version}" />
+    </target>
+
+    <target name="pirum-release">
+        <exec command="pirum add ${project.pirum_dir} ${project.basedir}/dist/DoctrineDBAL-${version}.tgz" command="." />
+        <exec command="prium build ${project.pirum_dir}" />
+    </target>
+
+    <target name="distribute-download">
+        <copy file="dist/DoctrineDBAL-${version}-full.tar.gz" todir="${project.download_dir}" />
+    </target>
+
+    <target name="update-dev-version">
+        <propertyprompt propertyName="next_version" defaultValue="${version}" promptText="Enter next version string (without -DEV)" />
+        <exec command="sed 's/${version}-DEV/${next_version}-DEV/' ${project.basedir}/lib/Doctrine/DBAL/Version.php > ${project.basedir}/lib/Doctrine/DBAL/Version2.php" passthru="true" />
+        <exec command="mv ${project.basedir}/lib/Doctrine/DBAL/Version2.php ${project.basedir}/lib/Doctrine/DBAL/Version.php" passthru="true" />
+        <exec command="git add ${project.basedir}/lib/Doctrine/DBAL/Version.php" />
+        <exec command="git commit -m 'Bump Dev Version to ${next_version}'" />
+        <exec command="git push origin master" />
+    </target>
+
+    <target name="release" depends="git-tag,build-packages,distribute-download,pirum-release,update-dev-version" />
 </project>
