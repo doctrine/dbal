@@ -107,14 +107,6 @@ class MsSqlPlatform extends AbstractPlatform
     /**
      * @override
      */
-    public function quoteIdentifier($str)
-    {
-        return '[' . $str . ']';
-    }
-
-    /**
-     * @override
-     */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         if ($foreignKey instanceof \Doctrine\DBAL\Schema\ForeignKeyConstraint) {
