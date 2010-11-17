@@ -24,7 +24,7 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'CREATE TABLE test (foo NVARCHAR(255) DEFAULT NULL, bar NVARCHAR(255) DEFAULT NULL)',
-            'CREATE UNIQUE INDEX test_foo_bar_uniq ON test (foo, bar)'
+            'CREATE UNIQUE INDEX test_foo_bar_uniq ON test (foo, bar) WHERE foo IS NOT NULL AND bar IS NOT NULL'
         );
     }
 
@@ -133,7 +133,7 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateUniqueIndexSql()
     {
-        return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
+        return 'CREATE UNIQUE INDEX index_name ON test (test, test2) WHERE test IS NOT NULL AND test2 IS NOT NULL';
     }
 
     public function getGenerateForeignKeySql()

@@ -263,7 +263,7 @@ class MsSqlPlatform extends AbstractPlatform
 			$fields[] = $field . ' IS NOT NULL';
         }
 	
-		return $sql . ' WHERE ' . implode(' OR ', $fields);
+		return $sql . ' WHERE ' . implode(' AND ', $fields);
 	}
 
     /**
