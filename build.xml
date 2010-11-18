@@ -178,7 +178,7 @@
     </target>
 
     <target name="pirum-release">
-        <exec command="pirum add ${project.pirum_dir} ${project.basedir}/dist/DoctrineDBAL-${version}.tgz" command="." />
+        <exec command="pirum add ${project.pirum_dir} ${project.basedir}/dist/DoctrineDBAL-${version}.tgz" dir="." />
         <exec command="prium build ${project.pirum_dir}" />
     </target>
 
