@@ -149,29 +149,6 @@ class MsSqlPlatform extends AbstractPlatform
     /**
      * @override
      */
-    public function getCreateTableSQL(Table $table, $createFlags=self::CREATE_INDEXES)
-    {
-		// Foreign keys cannot be identity columns at the same time
-		foreach ($table->getForeignKeys() AS $definition) {
-			$columns = $definition->getLocalColumns();
-			
-			if (count($columns) != 1)
-				continue;
-			
-			foreach ($table->getIndexes() AS $index) {
-				/* @var $index Index */
-				if ($index->isPrimary() && in_array($columns[0], $index->getColumns())) {
-					$table->getColumn($columns[0])->setAutoincrement(false);
-				}
-			}
-		}
-	
-        return parent::getCreateTableSQL($table, $createFlags);
-    }
-
-    /**
-     * @override
-     */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
 		// @todo does other code breaks because of this?
