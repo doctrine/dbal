@@ -40,7 +40,6 @@ final class DriverManager
             'pdo_sqlite' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver',
             'pdo_pgsql'  => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
             'pdo_oci' => 'Doctrine\DBAL\Driver\PDOOracle\Driver',
-            'pdo_mssql'  => 'Doctrine\DBAL\Driver\PDOMsSql\Driver',
             'oci8' => 'Doctrine\DBAL\Driver\OCI8\Driver',
             'ibm_db2' => 'Doctrine\DBAL\Driver\IBMDB2\DB2Driver',
             'pdo_ibm' => 'Doctrine\DBAL\Driver\PDOIbm\Driver',
@@ -62,7 +61,7 @@ final class DriverManager
      *     pdo_sqlite
      *     pdo_pgsql
      *     pdo_oracle
-     *     pdo_mssql
+     *     pdo_sqlsrv
      * 
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
