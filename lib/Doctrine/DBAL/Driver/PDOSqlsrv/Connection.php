@@ -19,42 +19,27 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\PDOMsSql;
+namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 /**
- * MsSql Connection implementation.
+ * Sqlsrv Connection implementation.
  *
  * @since 2.0
  */
-class Connection extends \PDO implements \Doctrine\DBAL\Driver\Connection
+class Connection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doctrine\DBAL\Driver\Connection
 {
     /**
-     * Performs the rollback.
-     * 
      * @override
      */
-    public function rollback()
+    public function quote($value, $type=\PDO::PARAM_STR)
     {
-        $this->exec('ROLLBACK TRANSACTION');
-    }
-
-    /**
-     * Performs the commit.
-     * 
-     * @override
-     */
-    public function commit()
-    {
-        $this->exec('COMMIT TRANSACTION');
-    }
-
-    /**
-     * Begins a database transaction.
-     * 
-     * @override
-     */
-    public function beginTransaction()
-    {
-        $this->exec('BEGIN TRANSACTION');
+        $val = parent::quote($value, $type);
+		
+		// Fix for a driver version terminating all values with null byte
+		if (strpos($val, "\0") !== false) {
+			$val = substr($val, 0, -1);
+		}
+		
+		return $val;
     }
 }
