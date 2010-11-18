@@ -51,9 +51,15 @@ abstract class AbstractAsset
      */
     protected function _setName($name)
     {
-        if (strlen($name) && $name[0] == '`') {
-            $this->_quoted = true;
-            $name = trim($name, '`');
+        if (strlen($name)) {
+            // TODO: find more elegant way to solve this issue.
+            if ($name[0] == '`') {
+                $this->_quoted = true;
+                $name = trim($name, '`');
+            } else if ($name[0] == '"') {
+                $this->_quoted = true;
+                $name = trim($name, '"');
+            }
         }
         $this->_name = $name;
     }

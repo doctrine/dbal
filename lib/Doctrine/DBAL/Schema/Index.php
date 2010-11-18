@@ -63,7 +63,7 @@ class Index extends AbstractAsset implements Constraint
     protected function _addColumn($column)
     {
         if(is_string($column)) {
-            $this->_columns[] = strtolower($column);
+            $this->_columns[] = $column;
         } else {
             throw new \InvalidArgumentException("Expecting a string as Index Column");
         }
