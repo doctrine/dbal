@@ -173,13 +173,13 @@
     </target>
 
     <target name="git-tag">
-        <exec command="git tag -a ${version}" />
-        <exec command="git push origin ${version}" />
+        <exec command="git tag -a ${version}" passthru="true" />
+        <exec command="git push origin ${version}" passthru="true" />
     </target>
 
     <target name="pirum-release">
-        <exec command="pirum add ${project.pirum_dir} ${project.basedir}/dist/DoctrineDBAL-${version}.tgz" dir="." />
-        <exec command="prium build ${project.pirum_dir}" />
+        <exec command="pirum add ${project.pirum_dir} ${project.basedir}/dist/DoctrineDBAL-${version}.tgz" dir="."  passthru="true" />
+        <exec command="pirum build ${project.pirum_dir}" passthru="true" />
     </target>
 
     <target name="distribute-download">
@@ -190,9 +190,9 @@
         <propertyprompt propertyName="next_version" defaultValue="${version}" promptText="Enter next version string (without -DEV)" />
         <exec command="sed 's/${version}-DEV/${next_version}-DEV/' ${project.basedir}/lib/Doctrine/DBAL/Version.php > ${project.basedir}/lib/Doctrine/DBAL/Version2.php" passthru="true" />
         <exec command="mv ${project.basedir}/lib/Doctrine/DBAL/Version2.php ${project.basedir}/lib/Doctrine/DBAL/Version.php" passthru="true" />
-        <exec command="git add ${project.basedir}/lib/Doctrine/DBAL/Version.php" />
-        <exec command="git commit -m 'Bump Dev Version to ${next_version}'" />
-        <exec command="git push origin master" />
+        <exec command="git add ${project.basedir}/lib/Doctrine/DBAL/Version.php" passthru="true" />
+        <exec command="git commit -m 'Bump Dev Version to ${next_version}'" passthru="true" />
+        <exec command="git push origin master" passthru="true" />
     </target>
 
     <target name="release" depends="git-tag,build-packages,distribute-download,pirum-release,update-dev-version" />
