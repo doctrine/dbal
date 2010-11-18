@@ -6,7 +6,6 @@
 
 <project name="Doctrine DBAL" default="build" basedir=".">
     <taskdef classname="phing.tasks.ext.d51PearPkg2Task" name="d51pearpkg2" />
-    <taskdef classname="NativePhpunitTask" classpath="./tests/" name="nativephpunit" />
 
     <property file="build.properties" />
 
