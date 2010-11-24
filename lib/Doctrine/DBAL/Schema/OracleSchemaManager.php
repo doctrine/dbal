@@ -119,15 +119,22 @@ class OracleSchemaManager extends AbstractSchemaManager
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
         switch ($dbType) {
             case 'number':
-                // @todo this sucks for the mapping stuff, is this deterministic maybe?
-                if($tableColumn['data_scale'] > 0) {
+                if ($tableColumn['data_precision'] == 20 && $tableColumn['data_scale'] == 0) {
+                    $precision = 20;
+                    $scale = 0;
+                    $type = 'bigint';
+                } elseif ($tableColumn['data_precision'] == 5 && $tableColumn['data_scale'] == 0) {
+                    $type = 'smallint';
+                    $precision = 5;
+                    $scale = 0;
+                } elseif ($tableColumn['data_precision'] == 1 && $tableColumn['data_scale'] == 0) {
+                    $precision = 1;
+                    $scale = 0;
+                    $type = 'boolean';
+                } elseif ($tableColumn['data_scale'] > 0) {
                     $precision = $tableColumn['data_precision'];
                     $scale = $tableColumn['data_scale'];
-                    if ($precision == 0 && $scale == 1) {
-                        $type = 'boolean';
-                    } else {
-                        $type = 'decimal';
-                    }
+                    $type = 'decimal';
                 }
                 $length = null;
                 break;
