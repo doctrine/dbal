@@ -238,7 +238,7 @@ class OraclePlatform extends AbstractPlatform
     {
         if ( ! isset($field['length'])) {
             if (array_key_exists('default', $field)) {
-                $field['length'] = $this->getVarcharMaxLength();
+                $field['length'] = $this->getVarcharDefaultLength();
             } else {
                 $field['length'] = false;
             }

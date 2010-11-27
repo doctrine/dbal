@@ -246,6 +246,16 @@ abstract class AbstractPlatform
      */
     public function getVarcharMaxLength()
     {
+        return 4000;
+    }
+
+    /**
+     * Gets the default length of a varchar field.
+     *
+     * @return integer
+     */
+    public function getVarcharDefaultLength()
+    {
         return 255;
     }
 
