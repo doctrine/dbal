@@ -50,7 +50,7 @@ class RunSqlCommand extends Console\Command\Command
         ->setDescription('Executes arbitrary SQL directly from the command line.')
         ->setDefinition(array(
             new InputArgument('sql', InputArgument::REQUIRED, 'The SQL statement to execute.'),
-            new InputOption('depth', null, InputOption::PARAMETER_REQUIRED, 'Dumping depth of result set.', 7)
+            new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'Dumping depth of result set.', 7)
         ))
         ->setHelp(<<<EOT
 Executes arbitrary SQL directly from the command line.
