@@ -93,7 +93,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertTrue( $foundTable , "The 'list_tables_test' table has to be found.");
     }
 
-    public function testListTableColumns()
+    public function createListTableColumns()
     {
         $table = new \Doctrine\DBAL\Schema\Table('list_table_columns');
         $table->addColumn('id', 'integer', array('notnull' => true));
@@ -103,6 +103,13 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table->addColumn('baz1', 'datetime');
         $table->addColumn('baz2', 'time');
         $table->addColumn('baz3', 'date');
+
+        return $table;
+    }
+
+    public function testListTableColumns()
+    {
+        $table = $this->createListTableColumns();
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -161,6 +168,21 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(true,   $columns['baz3']->getnotnull());
         $this->assertEquals(null,   $columns['baz3']->getdefault());
         $this->assertType('array',  $columns['baz3']->getPlatformOptions());
+    }
+
+    public function testDiffListTableColumns()
+    {
+        if ($this->_sm->getDatabasePlatform()->getName() == 'oracle') {
+            $this->markTestSkipped('Does not work with Oracle, since it cannot detect DateTime, Date and Time differenecs (at the moment).');
+        }
+
+        $offlineTable = $this->createListTableColumns();
+        $onlineTable = $this->_sm->listTableDetails('list_table_columns');
+
+        $comparator = new \Doctrine\DBAL\Schema\Comparator();
+        $diff = $comparator->diffTable($offlineTable, $onlineTable);
+
+        $this->assertFalse($diff, "No differences should be detected with the offline vs online schema.");
     }
 
     public function testListTableIndexes()

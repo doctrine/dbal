@@ -46,7 +46,7 @@ class Column extends AbstractAsset
     /**
      * @var int
      */
-    protected $_precision = 0;
+    protected $_precision = 10;
 
     /**
      * @var int
