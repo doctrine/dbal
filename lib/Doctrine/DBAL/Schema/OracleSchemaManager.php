@@ -145,10 +145,12 @@ class OracleSchemaManager extends AbstractSchemaManager
             case 'varchar':
             case 'varchar2':
             case 'nvarchar2':
+                $length = $tableColumn['char_length'];
                 $fixed = false;
                 break;
             case 'char':
             case 'nchar':
+                $length = $tableColumn['char_length'];
                 $fixed = true;
                 break;
             case 'date':
