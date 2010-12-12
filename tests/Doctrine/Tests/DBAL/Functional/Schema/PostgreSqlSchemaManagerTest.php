@@ -98,6 +98,40 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableFinal = $this->_sm->listTableDetails('autoinc_table_drop');
         $this->assertFalse($tableFinal->getColumn('id')->getAutoincrement());
     }
+
+    /**
+     * @group DBAL-75
+     */
+    public function testTableWithSchema()
+    {
+        $this->_conn->exec('CREATE SCHEMA nested');
+
+        $nestedRelatedTable = new \Doctrine\DBAL\Schema\Table('nested.schemarelated');
+        $column = $nestedRelatedTable->addColumn('id', 'integer');
+        $column->setAutoincrement(true);
+        $nestedRelatedTable->setPrimaryKey(array('id'));
+
+        $nestedSchemaTable = new \Doctrine\DBAL\Schema\Table('nested.schematable');
+        $column = $nestedSchemaTable->addColumn('id', 'integer');
+        $column->setAutoincrement(true);
+        $nestedSchemaTable->setPrimaryKey(array('id'));
+        $nestedSchemaTable->addUnnamedForeignKeyConstraint($nestedRelatedTable, array('id'), array('id'));
+        
+        $this->_sm->createTable($nestedRelatedTable);
+        $this->_sm->createTable($nestedSchemaTable);
+
+        $tables = $this->_sm->listTableNames();
+        $this->assertContains('nested.schematable', $tables, "The table should be detected with its non-public schema.");
+
+        $nestedSchemaTable = $this->_sm->listTableDetails('nested.schematable');
+        $this->assertTrue($nestedSchemaTable->hasColumn('id'));
+        $this->assertEquals(array('id'), $nestedSchemaTable->getPrimaryKey()->getColumns());
+
+        $relatedFks = $nestedSchemaTable->getForeignKeys();
+        $this->assertEquals(1, count($relatedFks));
+        $relatedFk = array_pop($relatedFks);
+        $this->assertEquals("nested.schemarelated", $relatedFk->getForeignTableName());
+    }
 }
 
 class MoneyType extends Type
