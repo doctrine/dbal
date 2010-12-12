@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -46,7 +44,7 @@ class ArrayType extends Type
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
         $val = unserialize($value);
-        if ($val === false) {
+        if ($val === false && $value != 'b:0;') {
             throw ConversionException::conversionFailed($value, $this->getName());
         }
         return $val;
