@@ -43,6 +43,8 @@ class DebugStack implements SQLLogger
 
     public $start = null;
 
+    public $currentQuery = 0;
+
     /**
      * {@inheritdoc}
      */
@@ -50,7 +52,7 @@ class DebugStack implements SQLLogger
     {
         if ($this->enabled) {
             $this->start = microtime(true);
-            $this->queries[] = array('sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0);
+            $this->queries[++$this->currentQuery] = array('sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0);
         }
     }
 
@@ -59,7 +61,7 @@ class DebugStack implements SQLLogger
      */
     public function stopQuery()
     {
-        $this->queries[(count($this->queries)-1)]['executionMS'] = microtime(true) - $this->start;
+        $this->queries[$this->currentQuery]['executionMS'] = microtime(true) - $this->start;
     }
 }
 

@@ -16,6 +16,12 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->_platform = $this->createPlatform();
     }
 
+    public function testGetInvalidtForeignKeyReferentialActionSQL()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+        $this->_platform->getForeignKeyReferentialActionSQL('unknown');
+    }
+
     public function testGetUnknownDoctrineMappingType()
     {
         $this->setExpectedException('Doctrine\DBAL\DBALException');
