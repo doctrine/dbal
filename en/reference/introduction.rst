@@ -19,7 +19,7 @@ the ``Doctrine\Common`` and ``Doctrine\DBAL`` namespaces. Once you
 have the Common and DBAL namespaces you must setup a class loader
 to be able to autoload the classes:
 
-::
+.. code-block:: php
 
     <?php
     use Doctrine\Common\ClassLoader;

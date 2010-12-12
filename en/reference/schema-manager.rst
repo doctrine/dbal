@@ -8,7 +8,7 @@ and Indexes.
 To retrieve the ``SchemaManager`` for your connection you can use
 the ``getSchemaManager()`` method:
 
-::
+.. code-block:: php
 
     <?php
     $sm = $conn->getSchemaManager();
@@ -31,7 +31,7 @@ listDatabases()
 
 Retrieve an array of databases on the configured connection:
 
-::
+.. code-block:: php
 
     <?php
     $databases = $sm->listDatabases();
@@ -42,21 +42,21 @@ listSequences()
 Retrieve an array of ``Doctrine\DBAL\Schema\Sequence`` instances
 that exist for a database:
 
-::
+.. code-block:: php
 
     <?php
     $sequences = $sm->listSequences();
 
 Or if you want to manually specify a database name:
 
-::
+.. code-block:: php
 
     <?php
     $sequences = $sm->listSequences('dbname');
 
 Now you can loop over the array inspecting each sequence object:
 
-::
+.. code-block:: php
 
     <?php
     foreach ($sequences as $sequence) {
@@ -69,14 +69,14 @@ listTableColumns()
 Retrieve an array of ``Doctrine\DBAL\Schema\Column`` instances that
 exist for the given table:
 
-::
+.. code-block:: php
 
     <?php
     $columns = $sm->listTableColumns('user');
 
 Now you can loop over the array inspecting each column object:
 
-::
+.. code-block:: php
 
     <?php
     foreach ($columns as $column) {
@@ -89,7 +89,7 @@ listTableDetails()
 Retrieve a single ``Doctrine\DBAL\Schema\Table`` instance that
 encapsulates all the details of the given table:
 
-::
+.. code-block:: php
 
     <?php
     $table = $sm->listTableDetails('user');
@@ -97,7 +97,7 @@ encapsulates all the details of the given table:
 Now you can call methods on the table to manipulate the in memory
 schema for that table. For example we can add a new column:
 
-::
+.. code-block:: php
 
     <?php
     $table->addColumn('email_address', 'string');
@@ -108,7 +108,7 @@ listTableForeignKeys()
 Retrieve an array of ``Doctrine\DBAL\Schema\ForeignKeyConstraint``
 instances that exist for the given table:
 
-::
+.. code-block:: php
 
     <?php
     $foreignKeys = $sm->listTableForeignKeys('user');
@@ -116,7 +116,7 @@ instances that exist for the given table:
 Now you can loop over the array inspecting each foreign key
 object:
 
-::
+.. code-block:: php
 
     <?php
     foreach ($foreignKeys as $foreignKey) {
@@ -129,14 +129,14 @@ listTableIndexes()
 Retrieve an array of ``Doctrine\DBAL\Schema\Index`` instances that
 exist for the given table:
 
-::
+.. code-block:: php
 
     <?php
     $indexes = $sm->listTableIndexes('user');
 
 Now you can loop over the array inspecting each index object:
 
-::
+.. code-block:: php
 
     <?php
     foreach ($indexes as $index) {
@@ -149,7 +149,7 @@ listTables()
 Retrieve an array of ``Doctrine\DBAL\Schema\Table`` instances that
 exist in the connections database:
 
-::
+.. code-block:: php
 
     <?php
     $tables = $sm->listTables();
@@ -159,7 +159,7 @@ information provided by all the above methods. So it encapsulates
 an array of ``Doctrine\DBAL\Schema\Column`` instances that can be
 retrieved with the ``getColumns()`` method:
 
-::
+.. code-block:: php
 
     <?php
     foreach ($tables as $table) {
@@ -175,14 +175,14 @@ listViews()
 Retrieve an array of ``Doctrine\DBAL\Schema\View`` instances that
 exist in the connections database:
 
-::
+.. code-block:: php
 
     <?php
     $views = $sm->listViews();
 
 Now you can loop over the array inspecting each view object:
 
-::
+.. code-block:: php
 
     <?php
     foreach ($views as $view) {
@@ -197,7 +197,7 @@ the ``createSchema()`` method which returns an instance of
 ``Doctrine\DBAL\Schema\Schema``, which you can use in conjunction
 with the SchemaTool or Schema Comparator.
 
-::
+.. code-block:: php
 
     <?php
     $fromSchema = $sm->createSchema();
@@ -205,7 +205,7 @@ with the SchemaTool or Schema Comparator.
 Now we can clone the ``$fromSchema`` to ``$toSchema`` and drop a
 table:
 
-::
+.. code-block:: php
 
     <?php
     $toSchema = clone $fromSchema;
@@ -215,7 +215,7 @@ Now we can compare the two schema instances in order to calculate
 the differences between them and return the sql required to make
 the changes on the database:
 
-::
+.. code-block:: php
 
     <?php
     $sql = $fromSchema->getMigrateToSql($toSchema, $conn->getDatabasePlatform());
@@ -223,7 +223,7 @@ the changes on the database:
 The ``$sql`` array should give you a sql query to drop the user
 table:
 
-::
+.. code-block:: php
 
     <?php
     print_r($sql);

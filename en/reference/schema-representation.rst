@@ -19,7 +19,7 @@ or for SQL schema generation for any metadata model that your
 application has. You can easily generate a Schema, as a simple
 example shows:
 
-::
+.. code-block:: php
 
     <?php
     $schema = new \Doctrine\DBAL\Schema\Schema();
@@ -43,7 +43,7 @@ use the ``Comparator`` class to get instances of ``SchemaDiff``,
 ``TableDiff`` and ``ColumnDiff``, aswell as information about other
 foreign key, sequence and index changes.
 
-::
+.. code-block:: php
 
     <?php
     $comparator = new \Doctrine\DBAL\Schema\Comparator();

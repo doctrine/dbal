@@ -7,7 +7,7 @@ Getting a Connection
 You can get a DBAL Connection through the
 ``Doctrine\DBAL\DriverManager`` class.
 
-::
+.. code-block:: php
 
     <?php
     $config = new \Doctrine\DBAL\Configuration();
@@ -143,7 +143,6 @@ Custom Driver Options
 
 The ``driverOptions`` option allows to pass arbitrary options
 through to the driver. This is equivalent to the 4th argument of
-the
-`PDO constructor <http://php.net/manual/en/pdo.construct.php>`_.
+the `PDO constructor <http://php.net/manual/en/pdo.construct.php>`_.
 
 

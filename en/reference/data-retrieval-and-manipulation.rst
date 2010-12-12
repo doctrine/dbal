@@ -12,7 +12,7 @@ prepare()
 Prepare a given sql statement and return the
 ``\Doctrine\DBAL\Driver\Statement`` instance:
 
-::
+.. code-block:: php
 
     <?php
     $statement = $conn->prepare('SELECT * FROM user');
@@ -34,7 +34,7 @@ executeUpdate()
 Executes a prepared statement with the given sql and parameters and
 returns the affected rows count:
 
-::
+.. code-block:: php
 
     <?php
     $count = $conn->executeUpdate('UPDATE user SET username = ? WHERE id = ?', array('jwage', 1));
@@ -51,7 +51,7 @@ executeQuery()
 Creates a prepared statement for the given sql and passes the
 parameters to the execute method, then returning the statement:
 
-::
+.. code-block:: php
 
     <?php
     $statement = $conn->execute('SELECT * FROM user WHERE username = ?', array('jwage'));
@@ -74,7 +74,7 @@ fetchAll()
 
 Execute the query and fetch all results into an array:
 
-::
+.. code-block:: php
 
     <?php
     $users = $conn->fetchAll('SELECT * FROM user');
@@ -93,7 +93,7 @@ fetchArray()
 
 Numeric index retrieval of first result row of the given query:
 
-::
+.. code-block:: php
 
     <?php
     $user = $conn->fetchArray('SELECT * FROM user WHERE username = ?', array('jwage'));
@@ -110,7 +110,7 @@ fetchColumn()
 
 Retrieve only the given column of the first result row.
 
-::
+.. code-block:: php
 
     <?php
     $username = $conn->fetchColumn('SELECT username FROM user WHERE id = ?', array(1), 0);
@@ -121,7 +121,7 @@ fetchAssoc()
 
 Retrieve assoc row of the first result row.
 
-::
+.. code-block:: php
 
     <?php
     $user = $conn->fetchAssoc('SELECT * FROM user WHERE username = ?', array('jwage'));
@@ -140,7 +140,7 @@ delete()
 Delete all rows of a table matching the given identifier, where
 keys are column names.
 
-::
+.. code-block:: php
 
     <?php
     $conn->delete('user', array('id' => 1));
@@ -152,7 +152,7 @@ insert()
 Insert a row into the given table name using the key value pairs of
 data.
 
-::
+.. code-block:: php
 
     <?php
     $conn->insert('user', array('username' => 'jwage'));
@@ -164,7 +164,7 @@ update()
 Update all rows for the matching key value identifiers with the
 given data.
 
-::
+.. code-block:: php
 
     <?php
     $conn->update('user', array('username' => 'jwage'), array('id' => 1));
@@ -182,7 +182,7 @@ quote()
 
 Quote a value:
 
-::
+.. code-block:: php
 
     <?php
     $quoted = $conn->quote('value');
@@ -193,7 +193,7 @@ quoteIdentifier()
 
 Quote an identifier according to the platform details.
 
-::
+.. code-block:: php
 
     <?php
     $quoted = $conn->quoteIdentifier('id');

@@ -32,7 +32,7 @@ Doctrine is already shipped with two implementations for the
 You can register events by subscribing them to the ``EventManager``
 instance passed to the Connection factory:
 
-::
+.. code-block:: php
 
     <?php
     $evm = new EventManager();

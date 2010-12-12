@@ -105,15 +105,15 @@ OCI8: SQL Queries with Question Marks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We had to implement a question mark to named parameter translation
-inside the OCI8 DBAL Driver. This means that you cannot execute
-queries that contain question marks in the SQL string. For
-example:
+inside the OCI8 DBAL Driver. It works as a very simple parser with two states: Inside Literal, Outside Literal.
+From our perspective it should be working in all cases, but you have to be careful with certain
+queries:
 
 .. code-block:: sql
 
     SELECT * FROM users WHERE name = 'bar?'
 
-Will be rewritten into:
+Could in case of a bug with the parser be rewritten into:
 
 .. code-block:: sql
 
@@ -123,16 +123,12 @@ For this reason you should always use prepared statements with
 Oracle OCI8, never use string literals inside the queries. A query
 for the user 'bar?' should look like:
 
-::
+.. code-block:: php
 
     $sql = 'SELECT * FROM users WHERE name = ?'
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(1, 'bar?');
     $stmt->execute();
-
-We will probably fix this issue in the future by implementing a
-little parser inside the OCI8 Driver that can detect the difference
-between question mark needles and literal questions marks.
 
 OCI-LOB instances
 ~~~~~~~~~~~~~~~~~

@@ -9,25 +9,24 @@ Welcome to Doctrine DBAL's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :numbered:
 
-   introduction
-   architecture
-   configuration
-   data-retrieval-and-manipulation
-   transactions
-   platforms
-   types
-   schema-manager
-   schema-representation
-   events
-   supporting-other-databases
-   known-vendor-issues
+   reference/introduction
+   reference/architecture
+   reference/configuration
+   reference/data-retrieval-and-manipulation
+   reference/transactions
+   reference/platforms
+   reference/types
+   reference/schema-manager
+   reference/schema-representation
+   reference/events
+   reference/supporting-other-databases
+   reference/known-vendor-issues
 
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 

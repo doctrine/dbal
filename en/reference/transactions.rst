@@ -124,17 +124,18 @@ All that is guaruanteed to the inner transaction is that it still
 happens atomically, all or nothing, the transaction just gets a
 wider scope and the control is handed to the outer scope.
 
-    **CAUTION** The transaction nesting described here is a debated
+.. note::
+
+    The transaction nesting described here is a debated
     feature that has it's critics. Form your own opinion. We recommend
     avoiding nesting transaction blocks when possible, and most of the
     time, it is possible. Transaction control should mostly be left to
     a service layer and not be handled in data access objects or
     similar.
 
+.. warning::
 
--
-
-    **CAUTION** Directly invoking ``PDO#beginTransaction()``,
+    Directly invoking ``PDO#beginTransaction()``,
     ``PDO#commit()`` or ``PDO#rollback()`` or the corresponding methods
     on the particular ``Doctrine\DBAL\Driver\Connection`` instance in
     use bybasses the transparent transaction nesting that is provided

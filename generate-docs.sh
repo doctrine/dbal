@@ -1,2 +1,2 @@
 #!/bin/bash
-sphinx-build reference/en /var/www/docs
+sphinx-build en /var/www/docs
