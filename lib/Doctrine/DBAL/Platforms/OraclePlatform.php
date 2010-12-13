@@ -251,6 +251,15 @@ class OraclePlatform extends AbstractPlatform
                 : ($length ? 'VARCHAR2(' . $length . ')' : 'VARCHAR2(4000)');
     }
     
+    public function getChangedColumnDeclarationSQL($name, $field, $changedProperties)
+    {
+        if (!in_array('notnull', $changedProperties)) {
+            unset($field['notnull']);
+        }
+
+        return $this->getColumnDeclarationSQL($name, $field);
+    }
+    
     /** @override */
     public function getClobTypeDeclarationSQL(array $field)
     {
@@ -511,7 +520,7 @@ LEFT JOIN all_cons_columns r_cols
         $fields = array();
         foreach ($diff->changedColumns AS $columnDiff) {
             $column = $columnDiff->column;
-            $fields[] = $column->getQuotedName($this). ' ' . $this->getColumnDeclarationSQL('', $column->toArray());
+            $fields[] = $this->getChangedColumnDeclarationSQL($column->getQuotedName($this), $column->toArray(), $columnDiff->changedProperties);
         }
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' MODIFY (' . implode(', ', $fields) . ')';
