@@ -75,6 +75,7 @@
         Builds DBAL package, preparing it for distribution.
     -->
     <target name="build-dbal" depends="prepare">
+        <exec command="grep '${version}' ${project.basedir}/lib/Doctrine/DBAL/Version.php" checkreturn="true"/>
         <copy todir="${build.dir}/doctrine-dbal">
             <fileset refid="shared-artifacts"/>
         </copy>
@@ -173,13 +174,14 @@
     </target>
 
     <target name="git-tag">
+        <exec command="grep '${version}' ${project.basedir}/lib/Doctrine/DBAL/Version.php" checkreturn="true"/>
         <exec command="git tag -a ${version}" passthru="true" />
         <exec command="git push origin ${version}" passthru="true" />
     </target>
 
     <target name="pirum-release">
-        <exec command="pirum add ${project.pirum_dir} ${project.basedir}/dist/DoctrineDBAL-${version}.tgz" dir="."  passthru="true" />
-        <exec command="pirum build ${project.pirum_dir}" passthru="true" />
+        <exec command="sudo pirum add ${project.pirum_dir} ${project.basedir}/dist/DoctrineDBAL-${version}.tgz" dir="."  passthru="true" />
+        <exec command="sudo pirum build ${project.pirum_dir}" passthru="true" />
     </target>
 
     <target name="distribute-download">
@@ -187,6 +189,7 @@
     </target>
 
     <target name="update-dev-version">
+        <exec command="grep '${version}' ${project.basedir}/lib/Doctrine/DBAL/Version.php" checkreturn="true"/>
         <propertyprompt propertyName="next_version" defaultValue="${version}" promptText="Enter next version string (without -DEV)" />
         <exec command="sed 's/${version}-DEV/${next_version}-DEV/' ${project.basedir}/lib/Doctrine/DBAL/Version.php > ${project.basedir}/lib/Doctrine/DBAL/Version2.php" passthru="true" />
         <exec command="mv ${project.basedir}/lib/Doctrine/DBAL/Version2.php ${project.basedir}/lib/Doctrine/DBAL/Version.php" passthru="true" />
