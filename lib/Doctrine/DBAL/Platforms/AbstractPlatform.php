@@ -1131,6 +1131,12 @@ abstract class AbstractPlatform
                     ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
             $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+            
+            if (isset($field['notnull'])) {
+                $notnull = $field['notnull'] ? ' NOT NULL' : ' NULL';
+            } else {
+                $notnull = '';
+            }
 
             $unique = (isset($field['unique']) && $field['unique']) ?
                     ' ' . $this->getUniqueFieldDeclarationSQL() : '';
