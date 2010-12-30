@@ -525,6 +525,16 @@ class Table extends AbstractAsset
     }
 
     /**
+     * Check if this table has a primary key.
+     *
+     * @return bool
+     */
+    public function hasPrimaryKey()
+    {
+        return ($this->_primaryKeyName && $this->hasIndex($this->_primaryKeyName));
+    }
+
+    /**
      * @param  string $indexName
      * @return bool
      */

@@ -416,4 +416,19 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('`bar`', $table->getQuotedName($mysqlPlatform));
         $this->assertEquals('"bar"', $table->getQuotedName($sqlitePlatform));
     }
+
+    /**
+     * @group DBAL-79
+     */
+    public function testTableHasPrimaryKey()
+    {
+        $table = new Table("test");
+
+        $this->assertFalse($table->hasPrimaryKey());
+
+        $table->addColumn("foo", "integer");
+        $table->setPrimaryKey(array("foo"));
+
+        $this->assertTrue($table->hasPrimaryKey());
+    }
 }
