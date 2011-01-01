@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Types\Type;
+use PDO;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -23,6 +24,18 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         }
         $this->_conn->executeUpdate('DELETE FROM write_table');
+    }
+
+    /**
+     * @group DBAL-80
+     */
+    public function testExecuteUpdateFirstTypeIsNull()
+    {
+        $sql = "INSERT INTO write_table (test_string, test_int) VALUES (?, ?)";
+        $this->_conn->executeUpdate($sql, array("text", 1111), array(null, PDO::PARAM_INT));
+
+        $sql = "SELECT * FROM write_table WHERE test_string = ? AND test_int = ?";
+        $this->assertTrue((bool)$this->_conn->fetchColumn($sql, array("text", 1111)));
     }
 
     public function testExecuteUpdate()

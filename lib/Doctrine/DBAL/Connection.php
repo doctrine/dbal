@@ -1007,7 +1007,7 @@ class Connection implements DriverConnection
         // Check whether parameters are positional or named. Mixing is not allowed, just like in PDO.
         if (is_int(key($params))) {
             // Positional parameters
-            $typeOffset = isset($types[0]) ? -1 : 0;
+            $typeOffset = array_key_exists(0, $types) ? -1 : 0;
             $bindIndex = 1;
             foreach ($params as $position => $value) {
                 $typeIndex = $bindIndex + $typeOffset;
