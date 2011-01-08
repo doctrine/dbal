@@ -1004,12 +1004,12 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Common code for alter table statement generation that updates the changed Index and Foreign Key definitions.
+     * Common code for alter table statement generation that updates the deleted Index and Foreign Key definitions.
      *
      * @param TableDiff $diff
      * @return array
      */
-    protected function _getAlterTableIndexForeignKeySQL(TableDiff $diff)
+    protected function _getAlterTableIndexForeignKeySQLDelete(TableDiff $diff)
     {
         if ($diff->newName !== false) {
             $tableName = $diff->newName;
@@ -1022,6 +1022,30 @@ abstract class AbstractPlatform
             foreach ($diff->removedForeignKeys AS $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
             }
+        }
+
+        foreach ($diff->removedIndexes AS $index) {
+            $sql[] = $this->getDropIndexSQL($index, $tableName);
+        }
+
+        return $sql;
+    }
+    /**
+     * Common code for alter table statement generation that updates the added or changed Index and Foreign Key definitions.
+     *
+     * @param TableDiff $diff
+     * @return array
+     */
+    protected function _getAlterTableIndexForeignKeySQLInsertUpdate(TableDiff $diff)
+    {
+        if ($diff->newName !== false) {
+            $tableName = $diff->newName;
+        } else {
+            $tableName = $diff->name;
+        }
+
+        $sql = array();
+        if ($this->supportsForeignKeyConstraints()) {
             foreach ($diff->addedForeignKeys AS $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
@@ -1034,9 +1058,7 @@ abstract class AbstractPlatform
         foreach ($diff->addedIndexes AS $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
-        foreach ($diff->removedIndexes AS $index) {
-            $sql[] = $this->getDropIndexSQL($index, $tableName);
-        }
+
         foreach ($diff->changedIndexes AS $index) {
             $sql[] = $this->getDropIndexSQL($index, $tableName);
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
@@ -1044,6 +1066,19 @@ abstract class AbstractPlatform
 
         return $sql;
     }
+
+    /**
+     * Common code for alter table statement generation that updates the changed Index and Foreign Key definitions.
+     *
+     * @param TableDiff $diff
+     * @return array
+     */
+     protected function _getAlterTableIndexForeignKeySQL(TableDiff $diff) {
+        return array_merge(
+            $this->_getAlterTableIndexForeignKeySQLDelete($diff),
+            $this->_getAlterTableIndexForeignKeySQLInsertUpdate($diff)
+        );
+     }
 
     /**
      * Get declaration of a number of fields in bulk

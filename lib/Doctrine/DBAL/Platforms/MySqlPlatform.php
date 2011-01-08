@@ -433,7 +433,11 @@ class MySqlPlatform extends AbstractPlatform
         if (count($queryParts) > 0) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
         }
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
+        $sql = array_merge(
+            $this->_getAlterTableIndexForeignKeySQLDelete($diff),
+            $sql,
+            $this->_getAlterTableIndexForeignKeySQLInsertUpdate($diff)
+        );
         return $sql;
     }
 
