@@ -41,6 +41,11 @@ class BigIntType extends Type
         return $platform->getBigIntTypeDeclarationSQL($fieldDeclaration);
     }
 
+    public function convertToPHPValue($value, AbstractPlatform $platform)
+    {
+        return (null === $value) ? null : (int) $value;
+    }
+
     public function getBindingType()
     {
         return \PDO::PARAM_INT;

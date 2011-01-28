@@ -24,6 +24,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('test_string', 'string', array('notnull' => false));
             $table->addColumn('test_boolean', 'boolean', array('notnull' => false));
             $table->addColumn('test_bigint', 'bigint', array('notnull' => false));
+            $table->addColumn('test_integer', 'integer', array('notnull' => false));
             $table->addColumn('test_smallint', 'bigint', array('notnull' => false));
             $table->addColumn('test_datetime', 'datetime', array('notnull' => false));
             $table->addColumn('test_datetimetz', 'datetimetz', array('notnull' => false));
@@ -50,7 +51,8 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             array('string',     'ABCDEFGaaaBBB', 'string'),
             array('boolean',    true, 'bool'),
             array('boolean',    false, 'bool'),
-            array('bigint',     12345678, 'string'),
+            array('bigint',     12345678, 'int'),
+            array('integer',    12345, 'int'),
             array('smallint',   123, 'int'),
             array('datetime',   new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
             array('datetimetz', new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
