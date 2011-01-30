@@ -154,7 +154,7 @@
            <dependencies>
                <php minimum_version="5.3.2" />
                <pear minimum_version="1.6.0" recommended_version="1.6.1" />
-               <package name="DoctrineCommon" channel="pear.doctrine-project.org" minimum_version="2.0.0BETA4" />
+               <package name="DoctrineCommon" channel="pear.doctrine-project.org" minimum_version="${dependencies.common}" />
            </dependencies>
            <dirroles key="bin">script</dirroles>
            <ignore>Doctrine/Common/</ignore>
