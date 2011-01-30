@@ -178,7 +178,7 @@
         <exec command="sed 's/${version}-DEV/${version}/' ${project.basedir}/lib/Doctrine/DBAL/Version.php > ${project.basedir}/lib/Doctrine/DBAL/Version2.php" passthru="true" />
         <exec command="mv ${project.basedir}/lib/Doctrine/DBAL/Version2.php ${project.basedir}/lib/Doctrine/DBAL/Version.php" passthru="true" />
         <exec command="git add ${project.basedir}/lib/Doctrine/DBAL/Version.php" passthru="true" />
-        <exec command="git commit -m 'Release {$version}'" />
+        <exec command="git commit -m 'Release ${version}'" />
         <exec command="git tag -a ${version}" passthru="true" />
     </target>
 
