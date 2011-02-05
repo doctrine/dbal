@@ -110,7 +110,7 @@ EOT
                     $rs = $stmt->execute();
 
                     if ($rs) {
-                        $printer->writeln('OK!');
+                        $output->writeln('OK!');
                     } else {
                         $error = $stmt->errorInfo();
 
