@@ -54,7 +54,7 @@ parameters to the execute method, then returning the statement:
 .. code-block:: php
 
     <?php
-    $statement = $conn->execute('SELECT * FROM user WHERE username = ?', array('jwage'));
+    $statement = $conn->executeQuery('SELECT * FROM user WHERE username = ?', array('jwage'));
     $user = $statement->fetch();
     
     /*
