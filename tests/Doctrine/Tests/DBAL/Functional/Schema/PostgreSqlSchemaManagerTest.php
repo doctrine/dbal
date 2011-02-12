@@ -132,6 +132,29 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $relatedFk = array_pop($relatedFks);
         $this->assertEquals("nested.schemarelated", $relatedFk->getForeignTableName());
     }
+
+    /**
+     * @group DBAL-91
+     * @group DBAL-88
+     */
+    public function testReturnQuotedAssets()
+    {
+        $sql = 'create table dbal91_something ( id integer  CONSTRAINT id_something PRIMARY KEY NOT NULL  ,"table"   integer );';
+        $this->_conn->exec($sql);
+
+        $sql = 'ALTER TABLE dbal91_something ADD CONSTRAINT something_input FOREIGN KEY( "table" ) REFERENCES dbal91_something ON UPDATE CASCADE;';
+        $this->_conn->exec($sql);
+
+        $table = $this->_sm->listTableDetails('dbal91_something');
+
+        $this->assertEquals(
+            array(
+                "CREATE TABLE dbal91_something (id INT NOT NULL, table INT DEFAULT NULL, PRIMARY KEY(id))",
+                "CREATE INDEX IDX_A9401304ECA7352B ON dbal91_something (\"table\")",
+            ),
+            $this->_conn->getDatabasePlatform()->getCreateTableSQL($table)
+        );
+    }
 }
 
 class MoneyType extends Type
