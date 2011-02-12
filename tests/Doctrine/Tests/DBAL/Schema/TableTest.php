@@ -112,8 +112,8 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $columns = array(new Column("foo", $type), new Column("bar", $type), new Column("baz", $type));
         $table = new Table("foo", $columns);
         
-        $table->addIndex(array("foo", "bar"));
-        $table->addUniqueIndex(array("bar", "baz"));
+        $table->addIndex(array("foo", "bar"), "foo_foo_bar_idx");
+        $table->addUniqueIndex(array("bar", "baz"), "foo_bar_baz_uniq");
 
         $this->assertTrue($table->hasIndex("foo_foo_bar_idx"));
         $this->assertTrue($table->hasIndex("foo_bar_baz_uniq"));
@@ -311,11 +311,12 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
         $constraints = $table->getForeignKeys();
         $this->assertEquals(1, count($constraints));
-        $this->assertType('Doctrine\DBAL\Schema\ForeignKeyConstraint', $constraints["foo_id_fk"]);
+        $constraint = current($constraints);
+        
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $constraint);
 
-        $this->assertEquals("foo_id_fk", $constraints["foo_id_fk"]->getName());
-        $this->assertTrue($constraints["foo_id_fk"]->hasOption("foo"));
-        $this->assertEquals("bar", $constraints["foo_id_fk"]->getOption("foo"));
+        $this->assertTrue($constraint->hasOption("foo"));
+        $this->assertEquals("bar", $constraint->getOption("foo"));
     }
 
     public function testAddIndexWithCaseSensitiveColumnProblem()
@@ -351,7 +352,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('baz', 'integer', array());
         $table->addIndex(array('baz'));
 
-        $this->assertTrue($table->hasIndex('foo_bar_baz_idx'));
+        $this->assertEquals(1, count($table->getIndexes()));
     }
 
     /**
@@ -380,9 +381,12 @@ class TableTest extends \PHPUnit_Framework_TestCase
 
         $table->addForeignKeyConstraint($foreignTable, array("id"), array("id"), array("foo" => "bar"));
 
-        $this->assertEquals(1, count($table->getIndexes()));
-        $this->assertTrue($table->hasIndex("foo_id_idx"));
-        $this->assertEquals(array('id'), $table->getIndex('foo_id_idx')->getColumns());
+        $indexes = $table->getIndexes();
+        $this->assertEquals(1, count($indexes));
+        $index = current($indexes);
+
+        $this->assertTrue($table->hasIndex($index->getName()));
+        $this->assertEquals(array('id'), $index->getColumns());
     }
 
     /**
@@ -393,13 +397,14 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table = new Table("bar");
         $table->addColumn('baz', 'integer', array());
         $table->addIndex(array('baz'));
-        $this->assertEquals(1, count($table->getIndexes()));
-        $this->assertTrue($table->hasIndex('bar_baz_idx'));
+
+        $indexes = $table->getIndexes();
+        $this->assertEquals(1, count($indexes));
+        $index = current($indexes);
 
         $table->addUniqueIndex(array('baz'));
         $this->assertEquals(1, count($table->getIndexes()));
-        $this->assertFalse($table->hasIndex('bar_baz_idx'));
-        $this->assertTrue($table->hasIndex('bar_baz_uniq'));
+        $this->assertFalse($table->hasIndex($index->getName()));
     }
 
     /**
@@ -430,5 +435,27 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $table->setPrimaryKey(array("foo"));
 
         $this->assertTrue($table->hasPrimaryKey());
+    }
+
+    /**
+     * @group DBAL-91
+     */
+    public function testAddIndexWithQuotedColumns()
+    {
+        $table = new Table("test");
+        $table->addColumn('"foo"', 'integer');
+        $table->addColumn('bar', 'integer');
+        $table->addIndex(array('"foo"', '"bar"'));
+    }
+
+    /**
+     * @group DBAL-91
+     */
+    public function testAddForeignKeyWithQuotedColumnsAndTable()
+    {
+        $table = new Table("test");
+        $table->addColumn('"foo"', 'integer');
+        $table->addColumn('bar', 'integer');
+        $table->addForeignKeyConstraint('"boing"', array('"foo"', '"bar"'), array("id"));
     }
 }
