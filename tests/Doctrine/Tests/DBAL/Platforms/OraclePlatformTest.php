@@ -23,7 +23,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'CREATE TABLE test (foo VARCHAR2(255) DEFAULT NULL, bar VARCHAR2(255) DEFAULT NULL)',
-            'CREATE UNIQUE INDEX test_foo_bar_uniq ON test (foo, bar)',
+            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
         );
     }
 

@@ -51,17 +51,33 @@ abstract class AbstractAsset
      */
     protected function _setName($name)
     {
-        if (strlen($name)) {
-            // TODO: find more elegant way to solve this issue.
-            if ($name[0] == '`') {
-                $this->_quoted = true;
-                $name = trim($name, '`');
-            } else if ($name[0] == '"') {
-                $this->_quoted = true;
-                $name = trim($name, '"');
-            }
+        if ($this->isQuoted($name)) {
+            $this->_quoted = true;
+            $name = $this->trimQuotes($name);
         }
         $this->_name = $name;
+    }
+
+    /**
+     * Check if this identifier is quoted.
+     *
+     * @param  string $identifier
+     * @return bool
+     */
+    protected function isQuoted($identifier)
+    {
+        return (isset($identifier[0]) && ($identifier[0] == '`' || $identifier[0] == '"'));
+    }
+
+    /**
+     * Trim quotes from the identifier.
+     * 
+     * @param  string $identifier
+     * @return string
+     */
+    protected function trimQuotes($identifier)
+    {
+        return trim($identifier, '`"');
     }
 
     /**
@@ -94,13 +110,13 @@ abstract class AbstractAsset
      * very long names.
      *
      * @param  array $columnNames
-     * @param  string $postfix
+     * @param  string $prefix
      * @param  int $maxSize
      * @return string
      */
-    protected function _generateIdentifierName($columnNames, $postfix='', $maxSize=30)
+    protected function _generateIdentifierName($columnNames, $prefix='', $maxSize=30)
     {
-        $columnCount = count($columnNames);
+        /*$columnCount = count($columnNames);
         $postfixLen = strlen($postfix);
         $parts = array_map(function($columnName) use($columnCount, $postfixLen, $maxSize) {
             return substr($columnName, -floor(($maxSize-$postfixLen)/$columnCount - 1));
@@ -116,6 +132,12 @@ abstract class AbstractAsset
             $identifier = "i" . substr($identifier, 0, strlen($identifier)-1);
         }
 
-        return $identifier;
+        return $identifier;*/
+
+
+        $hash = implode("", array_map(function($column) {
+            return dechex(crc32($column));
+        }, $columnNames));
+        return substr(strtoupper($prefix . "_" . $hash), 0, $maxSize);
     }
 }
