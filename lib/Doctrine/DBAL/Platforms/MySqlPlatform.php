@@ -266,7 +266,7 @@ class MySqlPlatform extends AbstractPlatform
 
     public function getListTablesSQL()
     {
-        return 'SHOW FULL TABLES WHERE Table_type = "BASE TABLE"';
+        return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
     }
 
     public function getListTableColumnsSQL($table)
