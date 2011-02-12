@@ -170,14 +170,15 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     public function testConfigMaxIdentifierLength()
     {
         $schemaConfig = new \Doctrine\DBAL\Schema\SchemaConfig();
-        $schemaConfig->setMaxIdentifierLength(10);
+        $schemaConfig->setMaxIdentifierLength(5);
 
         $schema = new Schema(array(), array(), $schemaConfig);
         $table = $schema->createTable("smalltable");
         $table->addColumn('long_id', 'integer');
         $table->addIndex(array('long_id'));
 
-        $this->assertTrue($table->hasIndex('le_id_idx'));
+        $index = current($table->getIndexes());
+        $this->assertEquals(5, strlen($index->getName()));
     }
 
     public function testDeepClone()
