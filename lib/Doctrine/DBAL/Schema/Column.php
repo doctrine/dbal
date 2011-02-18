@@ -89,6 +89,11 @@ class Column extends AbstractAsset
     protected $_columnDefinition = null;
 
     /**
+     * @var string
+     */
+    protected $_comment = null;
+
+    /**
      * Create a new Column
      * 
      * @param string $columnName
@@ -314,6 +319,17 @@ class Column extends AbstractAsset
     {
         $this->_autoincrement = $flag;
         return $this;
+    }
+
+    public function setComment($comment)
+    {
+        $this->_comment = $comment;
+        return $this;
+    }
+
+    public function getComment()
+    {
+        return $this->_comment;
     }
 
     /**

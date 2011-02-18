@@ -87,4 +87,16 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('`bar`', $column->getQuotedName($mysqlPlatform));
         $this->assertEquals('"bar"', $column->getQuotedName($sqlitePlatform));
     }
+
+    /**
+     * @group DBAL-42
+     */
+    public function testColumnComment()
+    {
+        $column = new Column("`bar`", Type::getType('string'));
+        $this->assertNull($column->getComment());
+
+        $column->setComment("foo");
+        $this->assertEquals("foo", $column->getComment());
+    }
 }
