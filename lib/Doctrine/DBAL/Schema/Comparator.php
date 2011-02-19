@@ -344,7 +344,8 @@ class Comparator
             $changedProperties[] = 'autoincrement';
         }
 
-        if ($column1->getComment() != $column2->getComment()) {
+        // only allow to delete comment if its set to '' not to null.
+        if ($column1->getComment() !== null && $column1->getComment() != $column2->getComment()) {
             $changedProperties[] = 'comment';
         }
 
