@@ -33,7 +33,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertType('Doctrine\DBAL\Statement', $stmt);
+        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindValue(1, 1);
         $stmt->bindValue(2, 'foo');
@@ -51,7 +51,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertType('Doctrine\DBAL\Statement', $stmt);
+        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
@@ -69,7 +69,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertType('Doctrine\DBAL\Statement', $stmt);
+        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
@@ -87,7 +87,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertType('Doctrine\DBAL\Statement', $stmt);
+        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
@@ -106,7 +106,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT test_int, test_string FROM " . $this->_conn->quoteIdentifier($table) . " ".
                "WHERE test_int = " . $this->_conn->quote($paramInt) . " AND test_string = " . $this->_conn->quote($paramStr);
         $stmt = $this->_conn->prepare($sql);
-        $this->assertType('Doctrine\DBAL\Statement', $stmt);
+        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
     }
 
     public function testPrepareWithExecuteParams()
@@ -116,7 +116,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertType('Doctrine\DBAL\Statement', $stmt);
+        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
         $stmt->execute(array($paramInt, $paramStr));
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);

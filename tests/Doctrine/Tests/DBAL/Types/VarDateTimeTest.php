@@ -36,7 +36,7 @@ class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         $date = $this->_type->convertToPHPValue('1985-09-01 00:00:00', $this->_platform);
-        $this->assertType('DateTime', $date);
+        $this->assertInstanceOf('DateTime', $date);
         $this->assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
         $this->assertEquals('000000', $date->format('u'));
     }
@@ -50,7 +50,7 @@ class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
     public function testConversionWithMicroseconds()
     {
         $date = $this->_type->convertToPHPValue('1985-09-01 00:00:00.123456', $this->_platform);
-        $this->assertType('DateTime', $date);
+        $this->assertInstanceOf('DateTime', $date);
         $this->assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
         $this->assertEquals('123456', $date->format('u'));
     }

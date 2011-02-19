@@ -21,7 +21,7 @@ class DecimalTest extends \Doctrine\Tests\DbalTestCase
 
     public function testDecimalConvertsToPHPValue()
     {
-        $this->assertType('float', $this->_type->convertToPHPValue('5.5', $this->_platform));
+        $this->assertInternalType('float', $this->_type->convertToPHPValue('5.5', $this->_platform));
     }
 
     public function testDecimalNullConvertsToPHPValue()

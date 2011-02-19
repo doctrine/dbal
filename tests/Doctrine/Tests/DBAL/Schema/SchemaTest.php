@@ -92,7 +92,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
         $table = $schema->createTable("foo");
 
-        $this->assertType('Doctrine\DBAL\Schema\Table', $table);
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\Table', $table);
         $this->assertEquals("foo", $table->getName());
         $this->assertTrue($schema->hasTable("foo"));
     }
@@ -104,7 +104,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $schema = new Schema(array(), array($sequence));
 
         $this->assertTrue($schema->hasSequence("a_seq"));
-        $this->assertType('Doctrine\DBAL\Schema\Sequence', $schema->getSequence("a_seq"));
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\Sequence', $schema->getSequence("a_seq"));
 
         $sequences = $schema->getSequences();
         $this->assertArrayHasKey('a_seq', $sequences);
@@ -142,7 +142,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(20, $sequence->getInitialValue());
 
         $this->assertTrue($schema->hasSequence("a_seq"));
-        $this->assertType('Doctrine\DBAL\Schema\Sequence', $schema->getSequence("a_seq"));
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\Sequence', $schema->getSequence("a_seq"));
 
         $sequences = $schema->getSequences();
         $this->assertArrayHasKey('a_seq', $sequences);
