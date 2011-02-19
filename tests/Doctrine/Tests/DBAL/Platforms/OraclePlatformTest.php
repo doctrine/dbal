@@ -191,7 +191,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         return array(
             "CREATE TABLE test (id NUMBER(10) NOT NULL, PRIMARY KEY(id))",
-            "COMMENT ON test.id IS 'This is a comment'",
+            "COMMENT ON COLUMN test.id IS 'This is a comment'",
         );
     }
 
@@ -200,8 +200,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         return array(
             "ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)",
             "ALTER TABLE mytable MODIFY (baz  VARCHAR2(255) NOT NULL)",
-            "COMMENT ON mytable.quota IS 'A comment'",
-            "COMMENT ON mytable.baz IS 'B comment'",
+            "COMMENT ON COLUMN mytable.quota IS 'A comment'",
+            "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }
 }

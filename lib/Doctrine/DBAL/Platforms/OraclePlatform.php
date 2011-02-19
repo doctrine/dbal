@@ -441,10 +441,12 @@ LEFT JOIN all_cons_columns r_cols
         return 'SELECT * FROM user_constraints WHERE table_name = \'' . $table . '\'';
     }
 
-    public function getListTableColumnsSQL($table)
+    public function getListTableColumnsSQL($table, $database = null)
     {
         $table = strtoupper($table);
-        return "SELECT * FROM all_tab_columns WHERE table_name = '" . $table . "' ORDER BY column_name";
+        return "SELECT c.*, d.comments FROM all_tab_columns c ".
+               "INNER JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME ".
+               "WHERE c.table_name = '" . $table . "' ORDER BY c.column_name";
     }
 
     /**

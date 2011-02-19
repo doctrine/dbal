@@ -397,10 +397,32 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $inferredTable = $this->_sm->listTableDetails('test_autoincrement');
         $this->assertTrue($inferredTable->hasColumn('id'));
         $this->assertTrue($inferredTable->getColumn('id')->getAutoincrement());
-
-
     }
 
+    /**
+     * @group DBAL-42
+     */
+    public function testGetColumnComment()
+    {
+        if (!$this->_conn->getDatabasePlatform()->supportsInlineColumnComments() && !$this->_conn->getDatabasePlatform()->supportsCommentOnStatement()) {
+            $this->markTestSkipped('Database does not support column comments.');
+        }
+
+        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns("test");
+        $this->assertEquals(1, count($columns));
+        $this->assertEquals('This is a comment', $columns['id']->getComment());
+    }
+
+    /**
+     * @param string $name
+     * @param array $data
+     */
     protected function createTestTable($name = 'test_table', $data = array())
     {
         $options = array();

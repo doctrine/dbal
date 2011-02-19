@@ -826,7 +826,7 @@ abstract class AbstractPlatform
 
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        return "COMMENT ON " . $tableName . "." . $columnName . " IS '" . $comment . "'";
+        return "COMMENT ON COLUMN " . $tableName . "." . $columnName . " IS '" . $comment . "'";
     }
 
     /**
@@ -1634,7 +1634,7 @@ abstract class AbstractPlatform
         throw DBALException::notSupported(__METHOD__);
     }
 
-    public function getListTableColumnsSQL($table)
+    public function getListTableColumnsSQL($table, $database = null)
     {
         throw DBALException::notSupported(__METHOD__);
     }

@@ -279,6 +279,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             'fixed' => $fixed,
             'unsigned' => false,
             'autoincrement' => $autoincrement,
+            'comment' => $tableColumn['comment'],
         );
 
         return new Column($tableColumn['field'], \Doctrine\DBAL\Types\Type::getType($type), $options);

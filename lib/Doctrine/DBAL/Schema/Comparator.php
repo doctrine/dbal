@@ -344,6 +344,10 @@ class Comparator
             $changedProperties[] = 'autoincrement';
         }
 
+        if ($column1->getComment() != $column2->getComment()) {
+            $changedProperties[] = 'comment';
+        }
+
         return $changedProperties;
     }
 

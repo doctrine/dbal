@@ -204,7 +204,7 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
     {
         return array(
             "CREATE TABLE test (id INT NOT NULL, PRIMARY KEY(id))",
-            "COMMENT ON test.id IS 'This is a comment'",
+            "COMMENT ON COLUMN test.id IS 'This is a comment'",
         );
     }
 
@@ -212,7 +212,7 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
     {
         return array(
             "ALTER TABLE mytable ADD quota INT NOT NULL",
-            "COMMENT ON mytable.baz IS 'B comment'",
+            "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }
 }

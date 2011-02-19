@@ -274,9 +274,16 @@ class MySqlPlatform extends AbstractPlatform
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
     }
 
-    public function getListTableColumnsSQL($table)
+    public function getListTableColumnsSQL($table, $database = null)
     {
-        return 'DESCRIBE ' . $table;
+        if ($database) {
+            return "SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ".
+                   "COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, " .
+                   "CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS CollactionName ".
+                   "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" . $database . "' AND TABLE_NAME = '" . $table . "'";
+        } else {
+            return 'DESCRIBE ' . $table;
+        }
     }
 
     /**

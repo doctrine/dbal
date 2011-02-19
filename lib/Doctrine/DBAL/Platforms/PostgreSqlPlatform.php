@@ -246,7 +246,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $whereClause;
     }
 
-    public function getListTableColumnsSQL($table)
+    public function getListTableColumnsSQL($table, $database = null)
     {
         return "SELECT
                     a.attnum,
@@ -267,8 +267,11 @@ class PostgreSqlPlatform extends AbstractPlatform
                      FROM pg_attrdef
                      WHERE c.oid = pg_attrdef.adrelid
                         AND pg_attrdef.adnum=a.attnum
-                    ) AS default
-                    FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n 
+                    ) AS default,
+                    (SELECT pg_description.description
+                        FROM pg_description WHERE pg_description.objoid = c.oid
+                    ) AS comment
+                    FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
                     WHERE ".$this->getTableWhereClause($table, 'c', 'n') ."
                         AND a.attnum > 0
                         AND a.attrelid = c.oid

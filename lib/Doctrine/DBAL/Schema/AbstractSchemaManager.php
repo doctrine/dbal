@@ -141,11 +141,16 @@ abstract class AbstractSchemaManager
      * in the platformDetails array.
      *
      * @param string $table The name of the table.
+     * @param string $database
      * @return Column[]
      */
-    public function listTableColumns($table)
+    public function listTableColumns($table, $database = null)
     {
-        $sql = $this->_platform->getListTableColumnsSQL($table);
+        if (!$database) {
+            $database = $this->_conn->getDatabase();
+        }
+
+        $sql = $this->_platform->getListTableColumnsSQL($table, $database);
 
         $tableColumns = $this->_conn->fetchAll($sql);
 
