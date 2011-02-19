@@ -165,4 +165,43 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $field = array('columnDefinition' => 'MEDIUMINT(6) UNSIGNED');
         $this->assertEquals('foo MEDIUMINT(6) UNSIGNED', $this->_platform->getColumnDeclarationSQL('foo', $field));
     }
+
+    /**
+     * @group DBAL-42
+     */
+    public function testCreateTableColumnComments()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
+        $table->setPrimaryKey(array('id'));
+
+        $this->assertEquals($this->getCreateTableColumnCommentsSQL(), $this->_platform->getCreateTableSQL($table));
+    }
+
+    /**
+     * @group DBAL-42
+     */
+    public function testAlterTableColumnComments()
+    {
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff->addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('comment' => 'A comment'));
+        $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'bar', new \Doctrine\DBAL\Schema\Column(
+                'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('comment' => 'B comment')
+            ),
+            array('comment')
+        );
+
+        $this->assertEquals($this->getAlterTableColumnCommentsSQL(), $this->_platform->getAlterTableSQL($tableDiff));
+    }
+
+    public function getCreateTableColumnCommentsSQL()
+    {
+        $this->markTestSkipped('Platform does not support Column comments.');
+    }
+
+    public function getAlterTableColumnCommentsSQL()
+    {
+        $this->markTestSkipped('Platform does not support Column comments.');
+    }
 }

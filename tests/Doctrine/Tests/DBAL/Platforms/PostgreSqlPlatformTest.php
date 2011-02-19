@@ -199,4 +199,20 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
         $this->assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
+
+    public function getCreateTableColumnCommentsSQL()
+    {
+        return array(
+            "CREATE TABLE test (id INT NOT NULL, PRIMARY KEY(id))",
+            "COMMENT ON test.id IS 'This is a comment'",
+        );
+    }
+
+    public function getAlterTableColumnCommentsSQL()
+    {
+        return array(
+            "ALTER TABLE mytable ADD quota INT NOT NULL",
+            "COMMENT ON mytable.baz IS 'B comment'",
+        );
+    }
 }

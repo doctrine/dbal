@@ -259,6 +259,11 @@ class MySqlPlatform extends AbstractPlatform
         return true;
     }
 
+    public function supportsInlineColumnComments()
+    {
+        return true;
+    }
+
     public function getShowDatabasesSQL()
     {
         return 'SHOW DATABASES';

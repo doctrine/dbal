@@ -357,6 +357,7 @@ class Column extends AbstractAsset
             'unsigned'      => $this->_unsigned,
             'autoincrement' => $this->_autoincrement,
             'columnDefinition' => $this->_columnDefinition,
+            'comment' => $this->_comment,
         ), $this->_platformOptions);
     }
 }

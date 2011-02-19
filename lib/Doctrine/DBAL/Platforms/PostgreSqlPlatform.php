@@ -135,6 +135,11 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         return true;
     }
+
+    public function supportsCommentOnStatement()
+    {
+        return true;
+    }
     
     /**
      * Whether the platform prefers sequences for ID generation.
@@ -384,6 +389,9 @@ class PostgreSqlPlatform extends AbstractPlatform
                     $query = "ALTER " . $oldColumnName . " " . "DROP DEFAULT";
                     $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
                 }
+            }
+            if ($columnDiff->hasChanged('comment')) {
+                $sql[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $column->getComment());
             }
         }
 

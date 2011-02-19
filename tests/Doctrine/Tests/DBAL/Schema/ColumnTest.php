@@ -46,6 +46,7 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
             'unsigned' => true,
             'autoincrement' => false,
             'columnDefinition' => null,
+            'comment' => null,
             'foo' => 'bar',
         );
 
@@ -93,10 +94,14 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
      */
     public function testColumnComment()
     {
-        $column = new Column("`bar`", Type::getType('string'));
+        $column = new Column("bar", Type::getType('string'));
         $this->assertNull($column->getComment());
 
         $column->setComment("foo");
         $this->assertEquals("foo", $column->getComment());
+
+        $columnArray = $column->toArray();
+        $this->assertArrayHasKey('comment', $columnArray);
+        $this->assertEquals('foo', $columnArray['comment']);
     }
 }

@@ -499,10 +499,14 @@ LEFT JOIN all_cons_columns r_cols
     public function getAlterTableSQL(TableDiff $diff)
     {
         $sql = array();
+        $commentsSQL = array();
 
         $fields = array();
         foreach ($diff->addedColumns AS $column) {
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            if ($column->getComment()) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $column->getComment());
+            }
         }
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ADD (' . implode(', ', $fields) . ')';
@@ -512,6 +516,9 @@ LEFT JOIN all_cons_columns r_cols
         foreach ($diff->changedColumns AS $columnDiff) {
             $column = $columnDiff->column;
             $fields[] = $column->getQuotedName($this). ' ' . $this->getColumnDeclarationSQL('', $column->toArray());
+            if ($columnDiff->hasChanged('comment') && $column->getComment()) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $column->getComment());
+            }
         }
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' MODIFY (' . implode(', ', $fields) . ')';
@@ -533,9 +540,7 @@ LEFT JOIN all_cons_columns r_cols
             $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
         }
 
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
-
-        return $sql;
+        return array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
     }
 
     /**
@@ -544,6 +549,11 @@ LEFT JOIN all_cons_columns r_cols
      * @return boolean
      */
     public function prefersSequences()
+    {
+        return true;
+    }
+
+    public function supportsCommentOnStatement()
     {
         return true;
     }

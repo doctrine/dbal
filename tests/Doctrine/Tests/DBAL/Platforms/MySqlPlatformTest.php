@@ -166,4 +166,14 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals("TIMESTAMP", $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => true)));
         $this->assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array()));
     }
+
+    public function getCreateTableColumnCommentsSQL()
+    {
+        return array("CREATE TABLE test (id INT NOT NULL COMMENT 'This is a comment', PRIMARY KEY(id)) ENGINE = InnoDB");
+    }
+
+    public function getAlterTableColumnCommentsSQL()
+    {
+        return array("ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'");
+    }
 }

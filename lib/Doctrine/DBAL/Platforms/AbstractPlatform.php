@@ -797,6 +797,7 @@ abstract class AbstractPlatform
             $columnData['default'] = $column->getDefault();
             $columnData['columnDefinition'] = $column->getColumnDefinition();
             $columnData['autoincrement'] = $column->getAutoincrement();
+            $columnData['comment'] = $column->getComment();
 
             if(in_array($column->getName(), $options['primary'])) {
                 $columnData['primary'] = true;
@@ -812,7 +813,20 @@ abstract class AbstractPlatform
             }
         }
 
-        return $this->_getCreateTableSQL($tableName, $columns, $options);
+        $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
+        if ($this->supportsCommentOnStatement()) {
+            foreach ($table->getColumns() AS $column) {
+                if ($column->getComment()) {
+                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $column->getComment());
+                }
+            }
+        }
+        return $sql;
+    }
+
+    public function getCommentOnColumnSQL($tableName, $columnName, $comment)
+    {
+        return "COMMENT ON " . $tableName . "." . $columnName . " IS '" . $comment . "'";
     }
 
     /**
@@ -1140,6 +1154,10 @@ abstract class AbstractPlatform
 
             $typeDecl = $field['type']->getSqlDeclaration($field, $this);
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
+        }
+
+        if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment']) {
+            $columnDef .= " COMMENT '" . $field['comment'] . "'";
         }
 
         return $name . ' ' . $columnDef;
@@ -1878,6 +1896,26 @@ abstract class AbstractPlatform
     public function supportsGettingAffectedRows()
     {
         return true;
+    }
+
+    /**
+     * Does this plaform support to add inline column comments as postfix.
+     *
+     * @return bool
+     */
+    public function supportsInlineColumnComments()
+    {
+        return false;
+    }
+
+    /**
+     * Does this platform support the propriortary synatx "COMMENT ON asset"
+     * 
+     * @return bool
+     */
+    public function supportsCommentOnStatement()
+    {
+        return false;
     }
 
     public function getIdentityColumnNullInsertSQL()
