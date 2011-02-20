@@ -152,19 +152,8 @@ class MySqlPlatform extends AbstractPlatform
      *
      * @params array $field
      */
-    public function getVarcharTypeDeclarationSQL(array $field)
+    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        if ( ! isset($field['length'])) {
-            if (array_key_exists('default', $field)) {
-                $field['length'] = $this->getVarcharDefaultLength();
-            } else {
-                $field['length'] = false;
-            }
-        }
-
-        $length = ($field['length'] <= $this->getVarcharMaxLength()) ? $field['length'] : false;
-        $fixed = (isset($field['fixed'])) ? $field['fixed'] : false;
-
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
                 : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
@@ -616,5 +605,10 @@ class MySqlPlatform extends AbstractPlatform
             'numeric'       => 'decimal',
             'year'          => 'date',
         );
+    }
+
+    public function getVarcharMaxLength()
+    {
+        return 65535;
     }
 }
