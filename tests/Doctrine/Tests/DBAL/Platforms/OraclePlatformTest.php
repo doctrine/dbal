@@ -127,7 +127,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'Variable string declaration is not correct'
         );
         $this->assertEquals(
-            'VARCHAR2(4000)',
+            'VARCHAR2(255)',
             $this->_platform->getVarcharTypeDeclarationSQL(array()),
             'Long string declaration is not correct'
         );

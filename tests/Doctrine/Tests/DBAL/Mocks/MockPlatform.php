@@ -34,4 +34,8 @@ class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     }
     protected function initializeDoctrineTypeMappings() {
     }
+    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
+    {
+
+    }
 }
