@@ -26,6 +26,7 @@ use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Schema\Index,
     Doctrine\DBAL\Schema\ForeignKeyConstraint,
     Doctrine\DBAL\Schema\TableDiff,
+    Doctrine\DBAL\Schema\Column,
     Doctrine\DBAL\Types\Type;
 
 /**
@@ -266,6 +267,21 @@ abstract class AbstractPlatform
     public function getDoctrineTypeComment(Type $doctrineType)
     {
         return '(DC2Type:' . $doctrineType->getName() . ')';
+    }
+
+    /**
+     * Return the comment of a passed column modified by potential doctrine type comment hints.
+     * 
+     * @param Column $column
+     * @return string
+     */
+    protected function getColumnComment(Column $column)
+    {
+        $comment = $column->getComment();
+        if ($this->isCommentedDoctrineType($column->getType())) {
+            $comment .= $this->getDoctrineTypeComment($column->getType());
+        }
+        return $comment;
     }
 
     /**
@@ -856,10 +872,7 @@ abstract class AbstractPlatform
             $columnData['default'] = $column->getDefault();
             $columnData['columnDefinition'] = $column->getColumnDefinition();
             $columnData['autoincrement'] = $column->getAutoincrement();
-            $columnData['comment'] = $column->getComment();
-            if ($this->isCommentedDoctrineType($column->getType())) {
-                $columnData['comment'] .= $this->getDoctrineTypeComment($column->getType());
-            }
+            $columnData['comment'] = $this->getColumnComment($column);
 
             if(in_array($column->getName(), $options['primary'])) {
                 $columnData['primary'] = true;
@@ -879,7 +892,7 @@ abstract class AbstractPlatform
         if ($this->supportsCommentOnStatement()) {
             foreach ($table->getColumns() AS $column) {
                 if ($column->getComment()) {
-                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $column->getComment());
+                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $this->getColumnComment($column));
                 }
             }
         }

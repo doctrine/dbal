@@ -269,7 +269,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                         AND pg_attrdef.adnum=a.attnum
                     ) AS default,
                     (SELECT pg_description.description
-                        FROM pg_description WHERE pg_description.objoid = c.oid
+                        FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
                     ) AS comment
                     FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
                     WHERE ".$this->getTableWhereClause($table, 'c', 'n') ."
@@ -348,10 +348,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getAlterTableSQL(TableDiff $diff)
     {
         $sql = array();
+        $commentsSQL = array();
 
         foreach ($diff->addedColumns as $column) {
             $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            if ($column->getComment()) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $this->getColumnComment($column));
+            }
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -393,8 +397,8 @@ class PostgreSqlPlatform extends AbstractPlatform
                     $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
                 }
             }
-            if ($columnDiff->hasChanged('comment')) {
-                $sql[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $column->getComment());
+            if ($columnDiff->hasChanged('comment') && $column->getComment()) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $this->getColumnComment($column));
             }
         }
 
@@ -406,9 +410,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
         }
 
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
-
-        return $sql;
+        return array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
     }
     
     /**
