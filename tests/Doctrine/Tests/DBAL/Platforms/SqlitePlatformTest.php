@@ -89,7 +89,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'Variable string declaration is not correct'
         );
         $this->assertEquals(
-            'TEXT',
+            'VARCHAR(255)',
             $this->_platform->getVarcharTypeDeclarationSQL(array()),
             'Long string declaration is not correct'
         );
