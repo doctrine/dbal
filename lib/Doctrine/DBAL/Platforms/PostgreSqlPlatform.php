@@ -604,21 +604,10 @@ class PostgreSqlPlatform extends AbstractPlatform
      * @params array $field
      * @override
      */
-    public function getVarcharTypeDeclarationSQL(array $field)
+    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        if ( ! isset($field['length'])) {
-            if (array_key_exists('default', $field)) {
-                $field['length'] = $this->getVarcharDefaultLength();
-            } else {
-                $field['length'] = false;
-            }
-        }
-
-        $length = ($field['length'] <= $this->getVarcharMaxLength()) ? $field['length'] : false;
-        $fixed = (isset($field['fixed'])) ? $field['fixed'] : false;
-
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
+                : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
     
     /** @override */
@@ -719,5 +708,10 @@ class PostgreSqlPlatform extends AbstractPlatform
             'numeric'       => 'decimal',
             'year'          => 'date',
         );
+    }
+
+    public function getVarcharMaxLength()
+    {
+        return 65535;
     }
 }
