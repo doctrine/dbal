@@ -408,15 +408,41 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->markTestSkipped('Database does not support column comments.');
         }
 
-        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table = new \Doctrine\DBAL\Schema\Table('column_comment_test');
         $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
         $table->setPrimaryKey(array('id'));
 
         $this->_sm->createTable($table);
 
-        $columns = $this->_sm->listTableColumns("test");
+        $columns = $this->_sm->listTableColumns("column_comment_test");
         $this->assertEquals(1, count($columns));
         $this->assertEquals('This is a comment', $columns['id']->getComment());
+    }
+
+    /**
+     * @group DBAL-42
+     */
+    public function testAutomaticallyAppendCommentOnMarkedColumns()
+    {
+        if (!$this->_conn->getDatabasePlatform()->supportsInlineColumnComments() && !$this->_conn->getDatabasePlatform()->supportsCommentOnStatement()) {
+            $this->markTestSkipped('Database does not support column comments.');
+        }
+
+        $table = new \Doctrine\DBAL\Schema\Table('column_comment_test2');
+        $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
+        $table->addColumn('obj', 'object', array('comment' => 'This is a comment'));
+        $table->addColumn('arr', 'array', array('comment' => 'This is a comment'));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns("column_comment_test2");
+        $this->assertEquals(3, count($columns));
+        $this->assertEquals('This is a comment', $columns['id']->getComment());
+        $this->assertEquals('This is a comment', $columns['obj']->getComment(), "The Doctrine2 Typehint should be stripped from comment.");
+        $this->assertInstanceOf('Doctrine\DBAL\Types\ObjectType', $columns['obj']->getType(), "The Doctrine2 should be detected from comment hint.");
+        $this->assertEquals('This is a comment', $columns['arr']->getComment(), "The Doctrine2 Typehint should be stripped from comment.");
+        $this->assertInstanceOf('Doctrine\DBAL\Types\ArrayType', $columns['arr']->getType(), "The Doctrine2 should be detected from comment hint.");
     }
 
     /**

@@ -25,7 +25,8 @@ use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Schema\Table,
     Doctrine\DBAL\Schema\Index,
     Doctrine\DBAL\Schema\ForeignKeyConstraint,
-    Doctrine\DBAL\Schema\TableDiff;
+    Doctrine\DBAL\Schema\TableDiff,
+    Doctrine\DBAL\Types\Type;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -79,6 +80,14 @@ abstract class AbstractPlatform
      * @var array
      */
     protected $doctrineTypeMapping = null;
+
+    /**
+     * Contains a list of all columns that should generate parseable column comments for type-detection
+     * in reverse engineering scenarios.
+     *
+     * @var array
+     */
+    protected $doctrineTypeComments = null;
 
     /**
      * Constructor.
@@ -207,6 +216,56 @@ abstract class AbstractPlatform
 
         $dbType = strtolower($dbType);
         return isset($this->doctrineTypeMapping[$dbType]);
+    }
+
+    /**
+     * Initialize the Doctrine Type comments instance variable for in_array() checks.
+     *
+     * @return void
+     */
+    protected function initializeCommentedDoctrineTypes()
+    {
+        $this->doctrineTypeComments = array(Type::TARRAY, Type::OBJECT);
+    }
+
+    /**
+     * Is it necessary for the platform to add a parsable type comment to allow reverse engineering the given type?
+     *
+     * @param Type $doctrineType
+     * @return bool
+     */
+    public function isCommentedDoctrineType(Type $doctrineType)
+    {
+        if ($this->doctrineTypeComments === null) {
+            $this->initializeCommentedDoctrineTypes();
+        }
+
+        return in_array($doctrineType->getName(), $this->doctrineTypeComments);
+    }
+
+    /**
+     * Mark this type as to be commented in ALTER TABLE and CREATE TABLE statements.
+     * 
+     * @param Type $doctrineType
+     * @return void
+     */
+    public function markDoctrineTypeCommented(Type $doctrineType)
+    {
+        if ($this->doctrineTypeComments === null) {
+            $this->initializeCommentedDoctrineTypes();
+        }
+        $this->doctrineTypeComments[] = $doctrineType->getName();
+    }
+
+    /**
+     * Get the comment to append to a column comment that helps parsing this type in reverse engineering.
+     * 
+     * @param Type $doctrineType
+     * @return string
+     */
+    public function getDoctrineTypeComment(Type $doctrineType)
+    {
+        return '(DC2Type:' . $doctrineType->getName() . ')';
     }
 
     /**
@@ -798,6 +857,9 @@ abstract class AbstractPlatform
             $columnData['columnDefinition'] = $column->getColumnDefinition();
             $columnData['autoincrement'] = $column->getAutoincrement();
             $columnData['comment'] = $column->getComment();
+            if ($this->isCommentedDoctrineType($column->getType())) {
+                $columnData['comment'] .= $this->getDoctrineTypeComment($column->getType());
+            }
 
             if(in_array($column->getName(), $options['primary'])) {
                 $columnData['primary'] = true;

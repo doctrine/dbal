@@ -779,4 +779,25 @@ abstract class AbstractSchemaManager
 
         return $schemaConfig;
     }
+
+    /**
+     * Given a table comment this method tries to extract a typehint for Doctrine Type, or returns
+     * the type given as default.
+     * 
+     * @param  string $comment
+     * @param  string $currentType
+     * @return string
+     */
+    public function extractDoctrineTypeFromComment($comment, $currentType)
+    {
+        if (preg_match("(\(DC2Type:([a-zA-Z0-9]+)\))", $comment, $match)) {
+            $currentType = $match[1];
+        }
+        return $currentType;
+    }
+
+    public function removeDoctrineTypeFromComment($comment, $type)
+    {
+        return str_replace('(DC2Type:'.$type.')', '', $comment);
+    }
 }
