@@ -22,13 +22,13 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_conn->exec($createTableSQL);
 
         $table = $this->_conn->getSchemaManager()->listTableDetails('domain_type_test');
-        $this->assertType('Doctrine\DBAL\Types\DecimalType', $table->getColumn('value')->getType());
+        $this->assertInstanceOf('Doctrine\DBAL\Types\DecimalType', $table->getColumn('value')->getType());
 
         Type::addType('MyMoney', 'Doctrine\Tests\DBAL\Functional\Schema\MoneyType');
         $this->_conn->getDatabasePlatform()->registerDoctrineTypeMapping('MyMoney', 'MyMoney');
 
         $table = $this->_conn->getSchemaManager()->listTableDetails('domain_type_test');
-        $this->assertType('Doctrine\Tests\DBAL\Functional\Schema\MoneyType', $table->getColumn('value')->getType());
+        $this->assertInstanceOf('Doctrine\Tests\DBAL\Functional\Schema\MoneyType', $table->getColumn('value')->getType());
     }
 
     /**
@@ -91,7 +91,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $c = new \Doctrine\DBAL\Schema\Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
-        $this->assertType('Doctrine\DBAL\Schema\TableDiff', $diff, "There should be a difference and not false being returned from the table comparison");
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $diff, "There should be a difference and not false being returned from the table comparison");
         $this->assertEquals(array("ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT"), $this->_conn->getDatabasePlatform()->getAlterTableSQL($diff));
 
         $this->_sm->alterTable($diff);

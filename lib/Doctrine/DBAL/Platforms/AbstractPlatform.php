@@ -25,7 +25,9 @@ use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Schema\Table,
     Doctrine\DBAL\Schema\Index,
     Doctrine\DBAL\Schema\ForeignKeyConstraint,
-    Doctrine\DBAL\Schema\TableDiff;
+    Doctrine\DBAL\Schema\TableDiff,
+    Doctrine\DBAL\Schema\Column,
+    Doctrine\DBAL\Types\Type;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -79,6 +81,14 @@ abstract class AbstractPlatform
      * @var array
      */
     protected $doctrineTypeMapping = null;
+
+    /**
+     * Contains a list of all columns that should generate parseable column comments for type-detection
+     * in reverse engineering scenarios.
+     *
+     * @var array
+     */
+    protected $doctrineTypeComments = null;
 
     /**
      * Constructor.
@@ -207,6 +217,71 @@ abstract class AbstractPlatform
 
         $dbType = strtolower($dbType);
         return isset($this->doctrineTypeMapping[$dbType]);
+    }
+
+    /**
+     * Initialize the Doctrine Type comments instance variable for in_array() checks.
+     *
+     * @return void
+     */
+    protected function initializeCommentedDoctrineTypes()
+    {
+        $this->doctrineTypeComments = array(Type::TARRAY, Type::OBJECT);
+    }
+
+    /**
+     * Is it necessary for the platform to add a parsable type comment to allow reverse engineering the given type?
+     *
+     * @param Type $doctrineType
+     * @return bool
+     */
+    public function isCommentedDoctrineType(Type $doctrineType)
+    {
+        if ($this->doctrineTypeComments === null) {
+            $this->initializeCommentedDoctrineTypes();
+        }
+
+        return in_array($doctrineType->getName(), $this->doctrineTypeComments);
+    }
+
+    /**
+     * Mark this type as to be commented in ALTER TABLE and CREATE TABLE statements.
+     * 
+     * @param Type $doctrineType
+     * @return void
+     */
+    public function markDoctrineTypeCommented(Type $doctrineType)
+    {
+        if ($this->doctrineTypeComments === null) {
+            $this->initializeCommentedDoctrineTypes();
+        }
+        $this->doctrineTypeComments[] = $doctrineType->getName();
+    }
+
+    /**
+     * Get the comment to append to a column comment that helps parsing this type in reverse engineering.
+     * 
+     * @param Type $doctrineType
+     * @return string
+     */
+    public function getDoctrineTypeComment(Type $doctrineType)
+    {
+        return '(DC2Type:' . $doctrineType->getName() . ')';
+    }
+
+    /**
+     * Return the comment of a passed column modified by potential doctrine type comment hints.
+     * 
+     * @param Column $column
+     * @return string
+     */
+    protected function getColumnComment(Column $column)
+    {
+        $comment = $column->getComment();
+        if ($this->isCommentedDoctrineType($column->getType())) {
+            $comment .= $this->getDoctrineTypeComment($column->getType());
+        }
+        return $comment;
     }
 
     /**
@@ -797,6 +872,7 @@ abstract class AbstractPlatform
             $columnData['default'] = $column->getDefault();
             $columnData['columnDefinition'] = $column->getColumnDefinition();
             $columnData['autoincrement'] = $column->getAutoincrement();
+            $columnData['comment'] = $this->getColumnComment($column);
 
             if(in_array($column->getName(), $options['primary'])) {
                 $columnData['primary'] = true;
@@ -812,7 +888,20 @@ abstract class AbstractPlatform
             }
         }
 
-        return $this->_getCreateTableSQL($tableName, $columns, $options);
+        $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
+        if ($this->supportsCommentOnStatement()) {
+            foreach ($table->getColumns() AS $column) {
+                if ($column->getComment()) {
+                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $this->getColumnComment($column));
+                }
+            }
+        }
+        return $sql;
+    }
+
+    public function getCommentOnColumnSQL($tableName, $columnName, $comment)
+    {
+        return "COMMENT ON COLUMN " . $tableName . "." . $columnName . " IS '" . $comment . "'";
     }
 
     /**
@@ -1140,6 +1229,10 @@ abstract class AbstractPlatform
 
             $typeDecl = $field['type']->getSqlDeclaration($field, $this);
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
+        }
+
+        if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment']) {
+            $columnDef .= " COMMENT '" . $field['comment'] . "'";
         }
 
         return $name . ' ' . $columnDef;
@@ -1616,7 +1709,7 @@ abstract class AbstractPlatform
         throw DBALException::notSupported(__METHOD__);
     }
 
-    public function getListTableColumnsSQL($table)
+    public function getListTableColumnsSQL($table, $database = null)
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -1878,6 +1971,26 @@ abstract class AbstractPlatform
     public function supportsGettingAffectedRows()
     {
         return true;
+    }
+
+    /**
+     * Does this plaform support to add inline column comments as postfix.
+     *
+     * @return bool
+     */
+    public function supportsInlineColumnComments()
+    {
+        return false;
+    }
+
+    /**
+     * Does this platform support the propriortary synatx "COMMENT ON asset"
+     * 
+     * @return bool
+     */
+    public function supportsCommentOnStatement()
+    {
+        return false;
     }
 
     public function getIdentityColumnNullInsertSQL()

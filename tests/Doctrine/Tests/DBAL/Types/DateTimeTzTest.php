@@ -33,7 +33,7 @@ class DateTimeTzTest extends \Doctrine\Tests\DbalTestCase
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         $date = $this->_type->convertToPHPValue('1985-09-01 00:00:00', $this->_platform);
-        $this->assertType('DateTime', $date);
+        $this->assertInstanceOf('DateTime', $date);
         $this->assertEquals('1985-09-01 00:00:00', $date->format('Y-m-d H:i:s'));
     }
     

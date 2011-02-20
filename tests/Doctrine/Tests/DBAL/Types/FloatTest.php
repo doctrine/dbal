@@ -19,7 +19,7 @@ class FloatTest extends \Doctrine\Tests\DbalTestCase
 
     public function testFloatConvertsToPHPValue()
     {
-        $this->assertType('float', $this->_type->convertToPHPValue('5.5', $this->_platform));
+        $this->assertInternalType('float', $this->_type->convertToPHPValue('5.5', $this->_platform));
     }
 
     public function testFloatNullConvertsToPHPValue()
@@ -29,7 +29,7 @@ class FloatTest extends \Doctrine\Tests\DbalTestCase
 
     public function testFloatConvertToDatabaseValue()
     {
-        $this->assertType('float', $this->_type->convertToDatabaseValue(5.5, $this->_platform));
+        $this->assertInternalType('float', $this->_type->convertToDatabaseValue(5.5, $this->_platform));
     }
 
     public function testFloatNullConvertToDatabaseValue()

@@ -21,8 +21,8 @@ class SmallIntTest extends \Doctrine\Tests\DbalTestCase
 
     public function testSmallIntConvertsToPHPValue()
     {
-        $this->assertType('integer', $this->_type->convertToPHPValue('1', $this->_platform));
-        $this->assertType('integer', $this->_type->convertToPHPValue('0', $this->_platform));
+        $this->assertInternalType('integer', $this->_type->convertToPHPValue('1', $this->_platform));
+        $this->assertInternalType('integer', $this->_type->convertToPHPValue('0', $this->_platform));
     }
 
     public function testSmallIntNullConvertsToPHPValue()

@@ -171,4 +171,5 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('SELECT TOP 10 * FROM user ORDER BY username DESC', $sql);
     }
 
+    
 }
