@@ -353,8 +353,8 @@ class PostgreSqlPlatform extends AbstractPlatform
         foreach ($diff->addedColumns as $column) {
             $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
-            if ($column->getComment()) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $this->getColumnComment($column));
+            if ($comment = $this->getColumnComment($column)) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
         }
 
@@ -397,8 +397,8 @@ class PostgreSqlPlatform extends AbstractPlatform
                     $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
                 }
             }
-            if ($columnDiff->hasChanged('comment') && $column->getComment()) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $this->getColumnComment($column));
+            if ($columnDiff->hasChanged('comment') && $comment = $this->getColumnComment($column)) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
         }
 

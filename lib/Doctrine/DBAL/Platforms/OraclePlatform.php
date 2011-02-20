@@ -506,8 +506,8 @@ LEFT JOIN all_cons_columns r_cols
         $fields = array();
         foreach ($diff->addedColumns AS $column) {
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-            if ($column->getComment()) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $this->getColumnComment($column));
+            if ($comment = $this->getColumnComment($column)) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
         }
         if (count($fields)) {
@@ -518,8 +518,8 @@ LEFT JOIN all_cons_columns r_cols
         foreach ($diff->changedColumns AS $columnDiff) {
             $column = $columnDiff->column;
             $fields[] = $column->getQuotedName($this). ' ' . $this->getColumnDeclarationSQL('', $column->toArray());
-            if ($columnDiff->hasChanged('comment') && $column->getComment()) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $this->getColumnComment($column));
+            if ($columnDiff->hasChanged('comment') && $comment = $this->getColumnComment($column)) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
         }
         if (count($fields)) {
