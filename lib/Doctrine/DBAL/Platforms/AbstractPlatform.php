@@ -137,7 +137,25 @@ abstract class AbstractPlatform
      *
      * @param array $field
      */
-    abstract public function getVarcharTypeDeclarationSQL(array $field);
+    public function getVarcharTypeDeclarationSQL(array $field)
+    {
+        if ( !isset($field['length'])) {
+            $field['length'] = $this->getVarcharDefaultLength();
+        }
+
+        $fixed = (isset($field['fixed'])) ? $field['fixed'] : false;
+
+        if ($field['length'] > $this->getVarcharMaxLength()) {
+            return $this->getClobTypeDeclarationSQL($field);
+        } else {
+            return $this->getVarcharTypeDeclarationSQLSnippet($field['length'], $fixed);
+        }
+    }
+
+    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        throw DBALException::notSupported('VARCHARs not supported by Platform.');
+    }
 
     /**
      * Gets the SQL snippet used to declare a CLOB column type.

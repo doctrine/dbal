@@ -105,7 +105,7 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
                 'Variable string declaration is not correct'
         );
         $this->assertEquals(
-                'NTEXT',
+                'NVARCHAR(255)',
                 $this->_platform->getVarcharTypeDeclarationSQL(array()),
                 'Long string declaration is not correct'
         );
