@@ -259,6 +259,11 @@ class MySqlPlatform extends AbstractPlatform
         return true;
     }
 
+    public function supportsInlineColumnComments()
+    {
+        return true;
+    }
+
     public function getShowDatabasesSQL()
     {
         return 'SHOW DATABASES';
@@ -269,9 +274,16 @@ class MySqlPlatform extends AbstractPlatform
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
     }
 
-    public function getListTableColumnsSQL($table)
+    public function getListTableColumnsSQL($table, $database = null)
     {
-        return 'DESCRIBE ' . $table;
+        if ($database) {
+            return "SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ".
+                   "COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, " .
+                   "CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS CollactionName ".
+                   "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" . $database . "' AND TABLE_NAME = '" . $table . "'";
+        } else {
+            return 'DESCRIBE ' . $table;
+        }
     }
 
     /**
@@ -410,7 +422,9 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->addedColumns AS $fieldName => $column) {
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $columnArray = $column->toArray();
+            $columnArray['comment'] = $this->getColumnComment($column);
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
         foreach ($diff->removedColumns AS $column) {
@@ -420,13 +434,17 @@ class MySqlPlatform extends AbstractPlatform
         foreach ($diff->changedColumns AS $columnDiff) {
             /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
+            $columnArray = $column->toArray();
+            $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[] =  'CHANGE ' . ($columnDiff->oldColumnName) . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+            $columnArray = $column->toArray();
+            $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[] =  'CHANGE ' . $oldColumnName . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
         $sql = array();

@@ -186,4 +186,22 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
         $this->assertEquals('SELECT a.* FROM (SELECT * FROM user ORDER BY username DESC) a WHERE ROWNUM <= 10', $sql);
     }
+
+    public function getCreateTableColumnCommentsSQL()
+    {
+        return array(
+            "CREATE TABLE test (id NUMBER(10) NOT NULL, PRIMARY KEY(id))",
+            "COMMENT ON COLUMN test.id IS 'This is a comment'",
+        );
+    }
+
+    public function getAlterTableColumnCommentsSQL()
+    {
+        return array(
+            "ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)",
+            "ALTER TABLE mytable MODIFY (baz  VARCHAR2(255) NOT NULL)",
+            "COMMENT ON COLUMN mytable.quota IS 'A comment'",
+            "COMMENT ON COLUMN mytable.baz IS 'B comment'",
+        );
+    }
 }

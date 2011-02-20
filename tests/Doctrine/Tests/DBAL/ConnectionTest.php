@@ -66,7 +66,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     {
         $config = $this->_conn->getConfiguration();
 
-        $this->assertType('Doctrine\DBAL\Configuration', $config);
+        $this->assertInstanceOf('Doctrine\DBAL\Configuration', $config);
     }
 
     public function testGetHost()
@@ -91,12 +91,12 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
     public function testGetDriver()
     {
-        $this->assertType('Doctrine\DBAL\Driver\PDOMySql\Driver', $this->_conn->getDriver());
+        $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $this->_conn->getDriver());
     }
 
     public function testGetEventManager()
     {
-        $this->assertType('Doctrine\Common\EventManager', $this->_conn->getEventManager());
+        $this->assertInstanceOf('Doctrine\Common\EventManager', $this->_conn->getEventManager());
     }
 
     public function testConnectDispatchEvent()

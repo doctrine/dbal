@@ -201,7 +201,6 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         if ((int) $length <= 0) {
             $length = null;
         }
-        $type = array();
         $fixed = null;
 
         if (!isset($tableColumn['name'])) {
@@ -219,6 +218,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+        $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
+
         switch ($dbType) {
             case 'smallint':
             case 'int2':
@@ -270,15 +272,16 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
 
         $options = array(
-            'length' => $length,
-            'notnull' => (bool) $tableColumn['isnotnull'],
-            'default' => $tableColumn['default'],
-            'primary' => (bool) ($tableColumn['pri'] == 't'),
-            'precision' => $precision,
-            'scale' => $scale,
-            'fixed' => $fixed,
-            'unsigned' => false,
+            'length'        => $length,
+            'notnull'       => (bool) $tableColumn['isnotnull'],
+            'default'       => $tableColumn['default'],
+            'primary'       => (bool) ($tableColumn['pri'] == 't'),
+            'precision'     => $precision,
+            'scale'         => $scale,
+            'fixed'         => $fixed,
+            'unsigned'      => false,
             'autoincrement' => $autoincrement,
+            'comment'       => $tableColumn['comment'],
         );
 
         return new Column($tableColumn['field'], \Doctrine\DBAL\Types\Type::getType($type), $options);

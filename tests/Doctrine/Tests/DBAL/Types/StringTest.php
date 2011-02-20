@@ -31,8 +31,8 @@ class StringTest extends \Doctrine\Tests\DbalTestCase
 
     public function testConvertToPHPValue()
     {
-        $this->assertType("string", $this->_type->convertToPHPValue("foo", $this->_platform));
-        $this->assertType("string", $this->_type->convertToPHPValue("", $this->_platform));
+        $this->assertInternalType("string", $this->_type->convertToPHPValue("foo", $this->_platform));
+        $this->assertInternalType("string", $this->_type->convertToPHPValue("", $this->_platform));
     }
 
     public function testNullConversion()

@@ -135,6 +135,11 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         return true;
     }
+
+    public function supportsCommentOnStatement()
+    {
+        return true;
+    }
     
     /**
      * Whether the platform prefers sequences for ID generation.
@@ -241,7 +246,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $whereClause;
     }
 
-    public function getListTableColumnsSQL($table)
+    public function getListTableColumnsSQL($table, $database = null)
     {
         return "SELECT
                     a.attnum,
@@ -262,8 +267,11 @@ class PostgreSqlPlatform extends AbstractPlatform
                      FROM pg_attrdef
                      WHERE c.oid = pg_attrdef.adrelid
                         AND pg_attrdef.adnum=a.attnum
-                    ) AS default
-                    FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n 
+                    ) AS default,
+                    (SELECT pg_description.description
+                        FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
+                    ) AS comment
+                    FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
                     WHERE ".$this->getTableWhereClause($table, 'c', 'n') ."
                         AND a.attnum > 0
                         AND a.attrelid = c.oid
@@ -340,10 +348,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getAlterTableSQL(TableDiff $diff)
     {
         $sql = array();
+        $commentsSQL = array();
 
         foreach ($diff->addedColumns as $column) {
             $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            if ($comment = $this->getColumnComment($column)) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
+            }
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -385,6 +397,9 @@ class PostgreSqlPlatform extends AbstractPlatform
                     $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
                 }
             }
+            if ($columnDiff->hasChanged('comment') && $comment = $this->getColumnComment($column)) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
+            }
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -395,9 +410,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
         }
 
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
-
-        return $sql;
+        return array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
     }
     
     /**
