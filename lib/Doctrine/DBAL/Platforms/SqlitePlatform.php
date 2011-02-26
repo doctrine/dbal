@@ -316,12 +316,12 @@ class SqlitePlatform extends AbstractPlatform
         return "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = '$table' AND sql NOT NULL ORDER BY name";
     }
 
-    public function getListTableColumnsSQL($table, $database = null)
+    public function getListTableColumnsSQL($table, $currentDatabase = null)
     {
         return "PRAGMA table_info($table)";
     }
 
-    public function getListTableIndexesSQL($table)
+    public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         return "PRAGMA index_list($table)";
     }

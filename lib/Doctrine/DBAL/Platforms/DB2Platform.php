@@ -234,7 +234,7 @@ class DB2Platform extends AbstractPlatform
         return "SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS";
     }
 
-    public function getListTableIndexesSQL($table)
+    public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         return "SELECT NAME, COLNAMES, UNIQUERULE FROM SYSIBM.SYSINDEXES WHERE TBNAME = UPPER('" . $table . "')";
     }

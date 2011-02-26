@@ -296,7 +296,7 @@ class OraclePlatform extends AbstractPlatform
      * @param  string $table
      * @return string
      */
-    public function getListTableIndexesSQL($table)
+    public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         $table = strtoupper($table);
         
