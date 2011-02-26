@@ -423,21 +423,6 @@ class TableTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group DBAL-79
-     */
-    public function testTableHasPrimaryKey()
-    {
-        $table = new Table("test");
-
-        $this->assertFalse($table->hasPrimaryKey());
-
-        $table->addColumn("foo", "integer");
-        $table->setPrimaryKey(array("foo"));
-
-        $this->assertTrue($table->hasPrimaryKey());
-    }
-
-    /**
      * @group DBAL-91
      */
     public function testAddIndexWithQuotedColumns()
