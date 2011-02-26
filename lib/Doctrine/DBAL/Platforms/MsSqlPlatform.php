@@ -774,4 +774,9 @@ class MsSqlPlatform extends AbstractPlatform
     {
         return ' ';
     }
+    
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\DBAL\Platforms\Keywords\MsSQLKeywords';
+    }
 }

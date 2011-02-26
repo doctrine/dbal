@@ -29,6 +29,7 @@ class AllTests
         $suite->addTestSuite('Doctrine\Tests\DBAL\Platforms\PostgreSqlPlatformTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Platforms\MsSqlPlatformTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Platforms\OraclePlatformTest');
+        $suite->addTestSuite('Doctrine\Tests\DBAL\Platforms\ReservedKeywordsValidatorTest');
 
         // Type tests
         $suite->addTestSuite('Doctrine\Tests\DBAL\Types\ArrayTest');

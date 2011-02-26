@@ -461,4 +461,9 @@ class SqlitePlatform extends AbstractPlatform
             'numeric'       => 'decimal',
         );
     }
+    
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords';
+    }
 }

@@ -2188,4 +2188,32 @@ abstract class AbstractPlatform
     {
         return 'ROLLBACK TO SAVEPOINT ' . $savepoint;
     }
+
+    /**
+     * Return the keyword list instance of this platform.
+     * 
+     * Throws exception if no keyword list is specified.
+     * 
+     * @throws DBALException
+     * @return KeywordList
+     */
+    final public function getReservedKeywordsList()
+    {
+        $class = $this->getReservedKeywordsClass();
+        $keywords = new $class;
+        if (!$keywords instanceof \Doctrine\DBAL\Platforms\Keywords\KeywordList) {
+            throw DBALException::notSupported(__METHOD__);
+        }
+        return $keywords;
+    }
+    
+    /**
+     * The class name of the reserved keywords list.
+     * 
+     * @return string
+     */
+    protected function getReservedKeywordsClass()
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
 }
