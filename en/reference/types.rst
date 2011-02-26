@@ -42,6 +42,14 @@ instances is abstracted through a static get method
     for details about the different handling of microseconds and
     timezones across all the different vendors.
 
+.. warning::
+
+    All Date types assume that you are exclusively using the default timezone
+    set by `date_default_timezone_set() <http://docs.php.net/manual/en/function.date-default-timezone-set.php>`_
+    or by the php.ini configuration ``date.timezone``.
+
+    If you need specific timezone handling you have to handle this
+    in your domain, converting all the values back and forth from UTC.
 
 Detection of Database Types
 ---------------------------
