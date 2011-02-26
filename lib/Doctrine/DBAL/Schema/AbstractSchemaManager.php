@@ -33,7 +33,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * @author      Roman Borschel <roman@code-factory.org>
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
- * @version     $Revision$
  * @since       2.0
  */
 abstract class AbstractSchemaManager
@@ -162,7 +161,7 @@ abstract class AbstractSchemaManager
      */
     public function listTableIndexes($table)
     {
-        $sql = $this->_platform->getListTableIndexesSQL($table);
+        $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
 
         $tableIndexes = $this->_conn->fetchAll($sql);
 
