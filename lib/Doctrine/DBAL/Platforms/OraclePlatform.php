@@ -722,4 +722,9 @@ LEFT JOIN all_cons_columns r_cols
     {
         return '';
     }
+    
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords';
+    }
 }

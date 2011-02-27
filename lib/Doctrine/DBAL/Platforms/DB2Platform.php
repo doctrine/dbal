@@ -550,4 +550,9 @@ class DB2Platform extends AbstractPlatform
     {
         return false;
     }
+    
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords';
+    }
 }
