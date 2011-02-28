@@ -204,12 +204,14 @@ abstract class AbstractSchemaManager
     public function listTables(array $classes)
     {
         if(!empty($classes)){
+
             foreach($classes as $class){
                 $tableNames[] = $class->table['name'];
                 foreach($class->associationMappings as $associationMapping)
-                    if($associationMapping['isOwningSide'] && !\is_null($associationMapping['joinTable']['name']))
+                    if($associationMapping['isOwningSide'] && array_key_exists('joinTable', $associationMapping) && !\is_null($associationMapping['joinTable']['name']))
                         $tableNames[] = $associationMapping['joinTable']['name'];
             }
+
         } else {
             $tableNames = $this->listTableNames();
         }
