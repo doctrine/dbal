@@ -1,3 +1,6 @@
 [submodule "lib/vendor/doctrine-common"]
 	path = lib/vendor/doctrine-common
 	url = git://github.com/doctrine/common.git
+[submodule "lib/vendor/Symfony/Component/Console"]
+	path = lib/vendor/Symfony/Component/Console
+	url = git://github.com/symfony/Console.git
