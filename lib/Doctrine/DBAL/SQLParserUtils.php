@@ -22,8 +22,26 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Connection;
 
+/**
+ * Utility class that parses sql statements with regard to types and parameters.
+ *
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link        www.doctrine-project.com
+ * @since       2.0
+ * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ */
 class SQLParserUtils
 {
+    /**
+     * Get an array of the placeholders in an sql statements as keys and their positions in the query string.
+     * 
+     * Returns an integer => integer pair for a positional statement and a string => int[] pair for
+     * a named statement.
+     * 
+     * @param string $statement
+     * @param bool $isPositional
+     * @return array
+     */
     static public function getPlaceholderPositions($statement, $isPositional = true)
     {   
         $match = ($isPositional) ? '?' : ':';
@@ -59,6 +77,8 @@ class SQLParserUtils
     }
     
     /**
+     * For a positional query this method can rewrite the sql statement with regard to array parameters.
+     * 
      * @param string $query
      * @param array $params
      * @param array $types 
