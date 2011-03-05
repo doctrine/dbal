@@ -1,6 +1,5 @@
 version_name=2.0.1
-dependencies.common=2.0.1
-stability=beta
+stability=stable
 build.dir=build
 dist.dir=dist
 report.dir=reports
@@ -13,3 +12,5 @@ test.phpunit_generate_coverage=0
 test.pmd_reports=0
 test.pdepend_exec=
 test.phpmd_exec=
+dependencies.common=2.0.1
+dependencies.sfconsole=2.0.0
