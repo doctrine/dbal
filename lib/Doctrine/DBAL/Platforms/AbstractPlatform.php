@@ -880,6 +880,7 @@ abstract class AbstractPlatform
             $columnData['type'] = $column->getType();
             $columnData['length'] = $column->getLength();
             $columnData['notnull'] = $column->getNotNull();
+            $columnData['fixed'] = $column->getFixed();
             $columnData['unique'] = false; // TODO: what do we do about this?
             $columnData['version'] = ($column->hasPlatformOption("version"))?$column->getPlatformOption('version'):false;
             if(strtolower($columnData['type']) == "string" && $columnData['length'] === null) {
