@@ -1,13 +1,127 @@
 Data Retrieval And Manipulation
 ===============================
 
+Doctrine DBAL follows the PDO API very closely. If you have worked with PDO
+before you will get to know Doctrine DBAL very quickly. On top of API provided
+by PDO there are tons of convenience functions in Doctrine DBAL.
+
+Types
+-----
+
+Doctrine DBAL extends PDOs handling of binding types in prepared statement
+considerably. Besides the well known ``\PDO::PARAM_*`` constants you
+can make use of two very powerful additional features.
+
+Doctrine\DBAL\Types Conversion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you don't specify an integer (through a ``PDO::PARAM*`` constant) to
+any of the parameter binding methods but a string, Doctrine DBAL will
+ask the type abstraction layer to convert the passed value from
+its PHP to a database representation. This way you can pass ``\DateTime``
+instances to a prepared statement and have Doctrine convert them 
+to the apropriate vendors database format:
+
+.. code-block:: php
+
+    <?php
+    $date = new \DateTime("2011-03-05 14:00:21");
+    $stmt = $conn->prepare("SELECT * FROM articles WHERE publish_date > ?");
+    $stmt->bindValue(1, $date, "datetime");
+    $stmt->execute();
+
+If you take a look at ``Doctrine\DBAL\Types\DateTimeType`` you will see that
+parts of the conversion is delegated to a method on the current database platform,
+which means this code works independent of the database you are using.
+
+.. note::
+
+    Be aware this type conversion only works with ``Statement#bindValue()``,
+    ``Connection#executeQuery()`` and ``Connection#executeUpdate()``. It
+    is not supported to pass a doctrine type name to ``Statement#bindParam()``,
+    because this would not work with binding by reference.
+
+List of Parameters Conversion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+    This is a Doctrine 2.1 feature.
+
+One rather annoying bit of missing functionality in SQL is the support for lists of parameters.
+You cannot bind an array of values into a single prepared statement parameter. Consider
+the following very common SQL statement:
+
+.. code-block:: sql
+
+    SELECT * FROM articles WHERE id IN (?)
+
+Since you are using an ``IN`` expression you would really like to use it in the following way
+(and I guess everybody has tried to do this once in his life, before realizing it doesn't work):
+
+.. code-block:: php
+
+    <?php
+    $stmt = $conn->prepare('SELECT * FROM articles WHERE id IN (?)');
+    // THIS WILL NOT WORK:
+    $stmt->bindValue(1, array(1, 2, 3, 4, 5, 6));
+    $stmt->execute();
+
+Implementing a generic way to handle this kind of query is tedious work. This is why most
+developers fallback to inserting the parameters directly into the query, which can open
+SQL injection possibilities if not handled carefully.
+
+Doctrine DBAL implements a very powerful parsing process that will make this kind of prepared
+statement possible natively in the binding type system.
+The parsing necessarily comes with a performance overhead, but only if you really use a list of parameters.
+There are two special binding types that describe a list of integers or strings:
+
+*   \Doctrine\DBAL\Connection::PARAM_INT_ARRAY
+*   \Doctrine\DBAL\Connection::PARAM_STR_ARRAY
+
+Using one of this constants as a type you can activate the SQLParser inside Doctrine that rewrites
+the SQL and flattens the specified values into the set of parameters. Consider our previous example:
+
+.. code-block:: php
+
+    <?php
+    $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?)',
+        array(1 => array(1, 2, 3, 4, 5, 6)),
+        array(1 => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+    );
+
+The sql statement passed to ``Connection#executeQuery`` is not the one actually passed to the
+database. It is internally rewritten to look like the following explicit code that could
+be specified aswell:
+
+    <?php
+    // Same SQL WITHOUT usage of Doctrine\DBAL\Connection::PARAM_INT_ARRAY
+    $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?, ?, ?, ?, ?, ?)',
+        array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6),
+        array(
+            1 => \PDO::PARAM_INT, 2 => \PDO::PARAM_INT, 3 => \PDO::PARAM_INT,
+            4 => \PDO::PARAM_INT, 5 => \PDO::PARAM_INT, 6 => \PDO::PARAM_INT,
+        )
+    );
+
+This is much more complicated and is ugly to write generically.
+
+.. note::
+
+    The parameter list support only works with ``Doctrine\DBAL\Connection::executeQuery()``
+    and ``Doctrine\DBAL\Connection::executeUpdate()``, NOT with the binding methods of
+    a prepared statement.
+
+API
+---
+
 The DBAL contains several methods for executing queries against
 your configured database for data retrieval and manipulation. Below
 we'll introduce these methods and provide some examples for each of
 them.
 
 prepare()
--------------
+~~~~~~~~~
 
 Prepare a given sql statement and return the
 ``\Doctrine\DBAL\Driver\Statement`` instance:
@@ -29,7 +143,7 @@ Prepare a given sql statement and return the
     */
 
 executeUpdate()
---------------------------------------------------------------------
+~~~~~~~~~~~~~~~
 
 Executes a prepared statement with the given sql and parameters and
 returns the affected rows count:
@@ -46,7 +160,7 @@ parameters and expected database values. See the
 `Types <./types#type-conversion>`_ section for more information.
 
 executeQuery()
--------------------------------------------------------------------
+~~~~~~~~~~~~~~
 
 Creates a prepared statement for the given sql and passes the
 parameters to the execute method, then returning the statement:
@@ -70,7 +184,7 @@ parameters and expected database values. See the
 `Types <./types#type-conversion>`_ section for more information.
 
 fetchAll()
------------------------------
+~~~~~~~~~~
 
 Execute the query and fetch all results into an array:
 
@@ -89,7 +203,7 @@ Execute the query and fetch all results into an array:
     */
 
 fetchArray()
--------------------------------
+~~~~~~~~~~~~
 
 Numeric index retrieval of first result row of the given query:
 
@@ -106,7 +220,7 @@ Numeric index retrieval of first result row of the given query:
     */
 
 fetchColumn()
------------------------------------------
+~~~~~~~~~~~~~
 
 Retrieve only the given column of the first result row.
 
@@ -117,7 +231,7 @@ Retrieve only the given column of the first result row.
     echo $username; // jwage
 
 fetchAssoc()
--------------------------------
+~~~~~~~~~~~~
 
 Retrieve assoc row of the first result row.
 
@@ -135,7 +249,7 @@ Retrieve assoc row of the first result row.
 There are also convenience methods for data manipulation queries:
 
 delete()
--------------------------------------
+~~~~~~~~~
 
 Delete all rows of a table matching the given identifier, where
 keys are column names.
@@ -147,7 +261,7 @@ keys are column names.
     // DELETE FROM user WHERE id = ? (1)
 
 insert()
--------------------------------
+~~~~~~~~~
 
 Insert a row into the given table name using the key value pairs of
 data.
@@ -159,7 +273,7 @@ data.
     // INSERT INTO user (username) VALUES (?) (jwage)
 
 update()
---------------------------------------------------
+~~~~~~~~~
 
 Update all rows for the matching key value identifiers with the
 given data.
@@ -178,7 +292,7 @@ the Doctrine DBAL as standalone, you have to take care of this
 yourself. The following methods help you with it:
 
 quote()
----------------------------
+~~~~~~~~~
 
 Quote a value:
 
@@ -189,7 +303,7 @@ Quote a value:
     $quoted = $conn->quote('1234', \PDO::PARAM_INT);
 
 quoteIdentifier()
-----------------------------
+~~~~~~~~~~~~~~~~~
 
 Quote an identifier according to the platform details.
 
@@ -197,5 +311,4 @@ Quote an identifier according to the platform details.
 
     <?php
     $quoted = $conn->quoteIdentifier('id');
-
 

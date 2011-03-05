@@ -23,6 +23,7 @@ Contents:
    reference/schema-representation
    reference/events
    reference/supporting-other-databases
+   reference/portability
    reference/known-vendor-issues
 
 Indices and tables
