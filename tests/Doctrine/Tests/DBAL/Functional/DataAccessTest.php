@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Connection;
 use PDO;
 
 require_once __DIR__ . '/../../TestInit.php';
@@ -218,5 +219,29 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute();
 
         $this->assertEquals(1, $stmt->fetchColumn());
+    }
+    
+    /**
+     * @group DBAL-78
+     */
+    public function testNativeArrayListSupport()
+    {
+        for ($i = 100; $i < 110; $i++) {
+            $this->_conn->insert('fetch_table', array('test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10'));
+        }
+        
+        $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int IN (?)',
+            array(1 => array(100, 101, 102, 103, 104)), array(1 => Connection::PARAM_INT_ARRAY));
+        
+        $data = $stmt->fetchAll(PDO::FETCH_NUM);
+        $this->assertEquals(5, count($data));
+        $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
+        
+        $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_string IN (?)',
+            array(1 => array('foo100', 'foo101', 'foo102', 'foo103', 'foo104')), array(1 => Connection::PARAM_STR_ARRAY));
+        
+        $data = $stmt->fetchAll(PDO::FETCH_NUM);
+        $this->assertEquals(5, count($data));
+        $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
     }
 }
