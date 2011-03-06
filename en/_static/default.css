@@ -27,6 +27,11 @@ fieldset { border: 0; }
 q:before,q:after { content:''; }
 abbr,acronym { border:0; }
 
+.body ul li, .body ol li {
+    padding-left: 35px;
+    padding-bottom: 4px;
+}
+
 .reset div,
 .reset dl,
 .reset dt,

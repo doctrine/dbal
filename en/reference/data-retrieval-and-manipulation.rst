@@ -247,8 +247,8 @@ statement possible natively in the binding type system.
 The parsing necessarily comes with a performance overhead, but only if you really use a list of parameters.
 There are two special binding types that describe a list of integers or strings:
 
-*   \Doctrine\DBAL\Connection::PARAM_INT_ARRAY
-*   \Doctrine\DBAL\Connection::PARAM_STR_ARRAY
+-   ``\Doctrine\DBAL\Connection::PARAM_INT_ARRAY``
+-   ``\Doctrine\DBAL\Connection::PARAM_STR_ARRAY``
 
 Using one of this constants as a type you can activate the SQLParser inside Doctrine that rewrites
 the SQL and flattens the specified values into the set of parameters. Consider our previous example:
