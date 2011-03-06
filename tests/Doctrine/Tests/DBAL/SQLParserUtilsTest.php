@@ -20,13 +20,13 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT * FROM Foo', false, array()),
             
             // Positionals
-            array('SELECT ?', true, array(1 => 7)),
-            array('SELECT * FROM Foo WHERE bar IN (?, ?, ?)', true, array(1 => 32, 2 => 35, 3 => 38)),
-            array('SELECT ? FROM ?', true, array(1 => 7, 2 => 14)),
+            array('SELECT ?', true, array(7)),
+            array('SELECT * FROM Foo WHERE bar IN (?, ?, ?)', true, array(32, 35, 38)),
+            array('SELECT ? FROM ?', true, array(7, 14)),
             array('SELECT "?" FROM foo', true, array()),
             array("SELECT '?' FROM foo", true, array()),
-            array('SELECT "?" FROM foo WHERE bar = ?', true, array(1 => 32)),
-            array("SELECT '?' FROM foo WHERE bar = ?", true, array(1 => 32)),
+            array('SELECT "?" FROM foo WHERE bar = ?', true, array(32)),
+            array("SELECT '?' FROM foo WHERE bar = ?", true, array(32)),
             
             // named
             array('SELECT :foo FROM :bar', false, array(':foo' => array(7), ':bar' => array(17))),
@@ -54,56 +54,47 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             // Positional: Very simple with one needle
             array(
                 "SELECT * FROM Foo WHERE foo IN (?)",
-                array(1 => array(1, 2, 3)),
-                array(1 => Connection::PARAM_INT_ARRAY),
+                array(array(1, 2, 3)),
+                array(Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
-                array(1 => 1, 2 => 2, 3 => 3),
-                array(1 => \PDO::PARAM_INT, 2 => \PDO::PARAM_INT, 3 => \PDO::PARAM_INT)
+                array(1, 2, 3),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
             // Positional: One non-list before d one after list-needle
             array(
                 "SELECT * FROM Foo WHERE foo = ? AND bar IN (?)",
-                array(1 => "string", 2 => array(1, 2, 3)),
-                array(1 => \PDO::PARAM_STR, 2 => Connection::PARAM_INT_ARRAY),
+                array("string", array(1, 2, 3)),
+                array(\PDO::PARAM_STR, Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?)',
-                array(1 => "string", 2 => 1, 3 => 2, 4 => 3),
-                array(1 => \PDO::PARAM_STR, 2 => \PDO::PARAM_INT, 3 => \PDO::PARAM_INT, 4 => \PDO::PARAM_INT)
-            ),
-            // Positional: One non-list before d one after list-needle, parameters and types reversed.
-            array(
-                "SELECT * FROM Foo WHERE foo = ? AND bar IN (?)",
-                array(2 => array(1, 2, 3), 1 => "string"),
-                array(2 => Connection::PARAM_INT_ARRAY, 1 => \PDO::PARAM_STR),
-                'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?)',
-                array(1 => "string", 2 => 1, 3 => 2, 4 => 3),
-                array(1 => \PDO::PARAM_STR, 2 => \PDO::PARAM_INT, 3 => \PDO::PARAM_INT, 4 => \PDO::PARAM_INT)
+                array("string", 1, 2, 3),
+                array(\PDO::PARAM_STR, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
             // Positional: One non-list after list-needle
             array(
                 "SELECT * FROM Foo WHERE bar IN (?) AND baz = ?",
-                array(1 => array(1, 2, 3), 3 => "foo"),
-                array(1 => Connection::PARAM_INT_ARRAY, 3 => \PDO::PARAM_STR),
+                array(array(1, 2, 3), "foo"),
+                array(Connection::PARAM_INT_ARRAY, \PDO::PARAM_STR),
                 'SELECT * FROM Foo WHERE bar IN (?, ?, ?) AND baz = ?',
-                array(1 => 1, 2 => 2, 3 => 3, 4 => "foo"),
-                array(1 => \PDO::PARAM_INT, 2 => \PDO::PARAM_INT, 3 => \PDO::PARAM_INT, 4 => \PDO::PARAM_STR)
+                array(1, 2, 3, "foo"),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
             ),
             // Positional: One non-list before and one after list-needle
             array(
                 "SELECT * FROM Foo WHERE foo = ? AND bar IN (?) AND baz = ?",
-                array(1 => 1, 2 => array(1, 2, 3), 3 => 4),
-                array(1 => \PDO::PARAM_INT, 2 => Connection::PARAM_INT_ARRAY, 3 => \PDO::PARAM_INT),
+                array(1, array(1, 2, 3), 4),
+                array(\PDO::PARAM_INT, Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT),
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?) AND baz = ?',
-                array(1 => 1, 2 => 1, 3 => 2, 4 => 3, 5 => 4),
-                array(1 => \PDO::PARAM_INT, 2 => \PDO::PARAM_INT, 3 => \PDO::PARAM_INT, 4 => \PDO::PARAM_INT, 5 => \PDO::PARAM_INT)
+                array(1, 1, 2, 3, 4),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
             // Positional: Two lists
             array(
                 "SELECT * FROM Foo WHERE foo IN (?, ?)",
-                array(1 => array(1, 2, 3), 2 => array(4, 5)),
-                array(1 => Connection::PARAM_INT_ARRAY, 2 => Connection::PARAM_INT_ARRAY),
+                array(array(1, 2, 3), array(4, 5)),
+                array(Connection::PARAM_INT_ARRAY, Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
-                array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5),
-                array(1 => \PDO::PARAM_INT, 2 => \PDO::PARAM_INT, 3 => \PDO::PARAM_INT, 4 => \PDO::PARAM_INT, 5 => \PDO::PARAM_INT)
+                array(1, 2, 3, 4, 5),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
         );
     }

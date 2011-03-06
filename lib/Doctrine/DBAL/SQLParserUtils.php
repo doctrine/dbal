@@ -35,8 +35,8 @@ class SQLParserUtils
     /**
      * Get an array of the placeholders in an sql statements as keys and their positions in the query string.
      * 
-     * Returns an integer => integer pair for a positional statement and a string => int[] pair for
-     * a named statement.
+     * Returns an integer => integer pair (indexed from zero) for a positional statement
+     * and a string => int[] pair for a named statement.
      * 
      * @param string $statement
      * @param bool $isPositional
@@ -49,7 +49,7 @@ class SQLParserUtils
             return array();
         }
         
-        $count = 1;
+        $count = 0;
         $inLiteral = false; // a valid query never starts with quotes
         $stmtLen = strlen($statement);
         $paramMap = array();
@@ -85,21 +85,23 @@ class SQLParserUtils
      */
     static public function expandListParameters($query, $params, $types)
     {        
-        $isPositional = false;
+        $isPositional = is_int(key($params));
         $arrayPositions = array();
+        $bindIndex = -1;
         foreach ($types AS $name => $type) {
+            ++$bindIndex;
             if ($type === Connection::PARAM_INT_ARRAY || $type == Connection::PARAM_STR_ARRAY) {
+                if ($isPositional) {
+                    $name = $bindIndex;
+                }
+                
                 $arrayPositions[$name] = false;
-                $isPositional = (is_numeric($name));
             }
         }
         
-        if (!$arrayPositions) {
+        if (!$arrayPositions || count($params) != count($types)) {
             return array($query, $params, $types);
         }
-        
-        ksort($params);
-        ksort($types);
         
         $paramPos = self::getPlaceholderPositions($query, $isPositional);
         if ($isPositional) {
@@ -115,25 +117,21 @@ class SQLParserUtils
                 $len = count($params[$needle]);
                 
                 $params = array_merge(
-                    array_slice($params, 0, $needle-1),
+                    array_slice($params, 0, $needle),
                     $params[$needle],
-                    array_slice($params, $needle)
+                    array_slice($params, $needle + 1)
                 );
-                array_unshift($params, -1); // temporary to shift keys
-                unset($params[0]);
                 
                 $types = array_merge(
-                    array_slice($types, 0, $needle-1),
+                    array_slice($types, 0, $needle),
                     array_fill(0, $len, $types[$needle] - Connection::ARRAY_PARAM_OFFSET), // array needles are at PDO::PARAM_* + 100
-                    array_slice($types, $needle)
+                    array_slice($types, $needle + 1)
                 );
-                array_unshift($types, -1);
-                unset($types[0]);
                 
                 $expandStr = implode(", ", array_fill(0, $len, "?"));
                 $query = substr($query, 0, $needlePos) . $expandStr . substr($query, $needlePos + 1);
                 
-                $paramOffset += ($len -1);
+                $paramOffset += ($len - 1); // Grows larger by number of parameters minus the replaced needle.
                 $queryOffset += (strlen($expandStr) - 1);
             }
         } else {
