@@ -5,8 +5,177 @@ Doctrine DBAL follows the PDO API very closely. If you have worked with PDO
 before you will get to know Doctrine DBAL very quickly. On top of API provided
 by PDO there are tons of convenience functions in Doctrine DBAL.
 
-Types
------
+Data Retrieval
+--------------
+
+Using a database implies retrieval of data. Its the primary use-case of a database.
+For this purpose each database vendor exposes a Client API that can be integrated into
+all the programming languages. PHP has a generic abstraction layer for this
+kind of Client API called PDO (PHP Data Objects). However because of disagreements
+between the PHP community there are often native extensions for each database
+vendor that are much more maintained (OCI8 for example).
+
+Doctrine DBAL API builds on top of PDO and integrates native extensions by
+wrapping them into the PDO API aswell. If you already have an open connection
+through the ``Doctrine\DBAL\DriverManager::getConnection()`` method you
+can start using this API for data retrieval easily.
+
+Start writing an SQL query and pass it to the ``query()`` method of your
+connection:
+
+.. code-block::
+
+    <?php
+    use Doctrine\DBAL\DriverManager;
+
+    $conn = DriverManager::getConnection($params, $config);
+
+    $sql = "SELECT * FROM articles";
+    $stmt = $conn->query($sql); // Simple, but has several drawbacks
+
+The query method executes and the sql and returns a database statement object.
+A database statement object can be iterated to retrieve all the rows that matched
+the query until there are no more rows:
+
+    <?php
+
+    while ($row = $stmt->fetch()) {
+        echo $row['headline'];
+    }
+
+The query method is the most simple one for fetching data, but it also has
+several drawbacks:
+
+1.  There is no way to add dynamic parameters to the SQL query without modifying
+    the sql query (``$sql``) itself. This can easily lead to a category of security
+    holes called **SQL injection**, where a third party can modify the SQL executed 
+    and even execute their own queries through clever exploiting of the security hole.
+2.  **Quoting** dynamic parameters for an SQL query is tedious work and requires lots
+    of use of the ``Doctrine\DBAL\Connection#quote()`` method, which makes the
+    original SQL query hard to read/understand.
+3.  Databases optimize the SQL query to be executed, using the query method
+    you will trigger the optimization process over and over again, although
+    it could re-use this information easily using a technique called **prepared statement**.
+
+This three arguments and some more technical details hopefully convinced you to investigate
+prepared statements for accessing your database. 
+
+Dynamic Parameters and Prepared Statements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Consider the previous query, now parameterized to fetch only a single article by id.
+Using **ext/mysql** (still the primary choice of MySQL access for many developers) you had to escape
+every value passed into the query using ``mysql_real_escape_string()`` to avoid SQL injection:
+
+.. code-block:: php
+
+    <?php
+    $sql = "SELECT * FROM articles WHERE id = '" . mysql_real_escape_string($id) . "'";
+    $rs = mysql_query($sql);
+
+If you start adding more and more parameters to a query (for example in UPDATE or INSERT statements)
+this approach might lead to complex to maintain sql queries. The reason is simple, the actual
+sql query is not separated clearly from the input parameters. Prepared statements separate
+these two concepts by requiring the developer to add **placeholders** to the SQL query (prepare) which
+are then replaced by their actual values in a second step (execute).
+
+.. code-block:: php
+
+    <?php
+    // $conn instanceof Doctrine\DBAL\Connection
+
+    $sql = "SELECT * FROM articles WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindValue(1, $id);
+    $stmt->execute();
+
+Placeholders in prepared statements are either simple positional question marks (?) or named labels starting with
+a double-colon (:name1). You cannot mix the positional and the named approach. The approach
+using question marks is called positional, because the values are bound in order from left to right
+to any question mark found in the previously prepared sql query. That is why you specify the
+position of the variable to bind into the ``bindValue()`` method:
+
+.. code-block:: php
+
+    <?php
+    // $conn instanceof Doctrine\DBAL\Connection
+
+    $sql = "SELECT * FROM articles WHERE id = ? AND status = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindValue(1, $id);
+    $stmt->bindValue(2, $status);
+    $stmt->execute();
+
+Named parameters have the advantage that their labels can be re-used and only need to be bound once:
+
+.. code-block:: php
+
+    <?php
+    // $conn instanceof Doctrine\DBAL\Connection
+
+    $sql = "SELECT * FROM users WHERE name = :name OR username = :name";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindValue("name", $name);
+    $stmt->execute();
+
+The following section describes the API of Doctrine DBAL with regard to prepared statements.
+
+.. note::
+
+    The support for positional and named prepared statements varies between the different
+    database extensions. PDO implements its own client side parser so that both approaches
+    are feasible for all PDO drivers. OCI8/Oracle only supports named parameters, but
+    Doctrine implements a client side parser to allow positional parameters also.
+
+Using Prepared Statements
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are three low-level methods on ``Doctrine\DBAL\Connection`` that allow you to
+use prepared statements:
+
+*   ``prepare($sql)`` - Create a prepared statement of the type ``Doctrine\DBAL\Statement``.
+    Using this method is preferred if you want to re-use the statement to execute several
+    queries with the same sql statement only with different parameters.
+*   ``executeQuery($sql, $params, $types)`` - Create a prepared statement for the passed
+    sql query, bind the given params with their binding types and execute the query.
+    This method returns the executed prepared statement for iteration and is useful
+    for SELECT statements.
+*   ``executeUpdate($sql, $params, $types)`` - Create a prepared statement for the passed
+    sql query, bind the given params with their binding types and execute the query.
+    This method returns the number of affected rows by the executed query and is useful
+    for UPDATE, DELETE and INSERT statements.
+
+A simple usage of prepare was shown in the previous section, however it is useful to
+dig into the features of a ``Doctrine\DBAL\Statement`` a little bit more. There are essentially
+two different types of methods available on a statement. Methods for binding parameters and types
+and methods to retrieve data from a statement.
+
+*   ``bindValue($pos, $value, $type)`` - Bind a given value to the positional or named parameter
+    in the prepared statement.
+*   ``bindParam($pos, &$param, $type)`` - Bind a given reference to the positional or
+    named parameter in the prepared statement.
+
+If you are finished with binding parameters you have to call ``execute()`` on the statement, which
+will trigger a query to the database. After the query is finished you can access the results
+of this query using the fetch API of a statement:
+
+*   ``fetch($fetchStyle)`` - Retrieves the next row from the statement or false if there are none.
+    Moves the pointer forward one row, so that consecutive calls will always return the next row.
+*   ``fetchColumn($column)`` - Retrieves only one column of the next row specified by column index.
+    Moves the pointer forward one row, so that consecutive calls will always return the next row.
+*   ``fetchAll($fetchStyle)`` - Retrieves all rows from the statement.
+
+The fetch API of a prepared statement obviously works only for ``SELECT`` queries.
+
+If you find it tedious to write all the prepared statement code you can alternatively use
+the ``Doctrine\DBAL\Connection#executeQuery()`` and ``Doctrine\DBAL\Connection#executeUpdate()``
+methods. See the API section below on details how to use them.
+
+Additionally there are lots of convenience methods for data-retrieval and mainpulation
+on the Connection, which are all described in the API section below.
+
+Binding Types
+-------------
 
 Doctrine DBAL extends PDOs handling of binding types in prepared statement
 considerably. Besides the well known ``\PDO::PARAM_*`` constants you
