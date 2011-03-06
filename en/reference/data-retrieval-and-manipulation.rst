@@ -257,8 +257,8 @@ the SQL and flattens the specified values into the set of parameters. Consider o
 
     <?php
     $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?)',
-        array(1 => array(1, 2, 3, 4, 5, 6)),
-        array(1 => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+        array(array(1, 2, 3, 4, 5, 6)),
+        array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
     );
 
 The sql statement passed to ``Connection#executeQuery`` is not the one actually passed to the
@@ -270,11 +270,8 @@ be specified aswell:
     <?php
     // Same SQL WITHOUT usage of Doctrine\DBAL\Connection::PARAM_INT_ARRAY
     $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?, ?, ?, ?, ?, ?)',
-        array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6),
-        array(
-            1 => \PDO::PARAM_INT, 2 => \PDO::PARAM_INT, 3 => \PDO::PARAM_INT,
-            4 => \PDO::PARAM_INT, 5 => \PDO::PARAM_INT, 6 => \PDO::PARAM_INT,
-        )
+        array(1, 2, 3, 4, 5, 6),
+        array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
     );
 
 This is much more complicated and is ugly to write generically.
