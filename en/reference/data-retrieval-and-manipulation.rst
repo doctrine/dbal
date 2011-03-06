@@ -23,7 +23,7 @@ can start using this API for data retrieval easily.
 Start writing an SQL query and pass it to the ``query()`` method of your
 connection:
 
-.. code-block::
+.. code-block:: php
 
     <?php
     use Doctrine\DBAL\DriverManager;
@@ -37,6 +37,8 @@ The query method executes and the sql and returns a database statement object.
 A database statement object can be iterated to retrieve all the rows that matched
 the query until there are no more rows:
 
+.. code-block:: php
+
     <?php
 
     while ($row = $stmt->fetch()) {
@@ -46,14 +48,14 @@ the query until there are no more rows:
 The query method is the most simple one for fetching data, but it also has
 several drawbacks:
 
-1.  There is no way to add dynamic parameters to the SQL query without modifying
+-   There is no way to add dynamic parameters to the SQL query without modifying
     the sql query (``$sql``) itself. This can easily lead to a category of security
     holes called **SQL injection**, where a third party can modify the SQL executed 
     and even execute their own queries through clever exploiting of the security hole.
-2.  **Quoting** dynamic parameters for an SQL query is tedious work and requires lots
+-   **Quoting** dynamic parameters for an SQL query is tedious work and requires lots
     of use of the ``Doctrine\DBAL\Connection#quote()`` method, which makes the
     original SQL query hard to read/understand.
-3.  Databases optimize the SQL query to be executed, using the query method
+-   Databases optimize the SQL query to be executed, using the query method
     you will trigger the optimization process over and over again, although
     it could re-use this information easily using a technique called **prepared statement**.
 
@@ -133,14 +135,14 @@ Using Prepared Statements
 There are three low-level methods on ``Doctrine\DBAL\Connection`` that allow you to
 use prepared statements:
 
-*   ``prepare($sql)`` - Create a prepared statement of the type ``Doctrine\DBAL\Statement``.
+-   ``prepare($sql)`` - Create a prepared statement of the type ``Doctrine\DBAL\Statement``.
     Using this method is preferred if you want to re-use the statement to execute several
     queries with the same sql statement only with different parameters.
-*   ``executeQuery($sql, $params, $types)`` - Create a prepared statement for the passed
+-   ``executeQuery($sql, $params, $types)`` - Create a prepared statement for the passed
     sql query, bind the given params with their binding types and execute the query.
     This method returns the executed prepared statement for iteration and is useful
     for SELECT statements.
-*   ``executeUpdate($sql, $params, $types)`` - Create a prepared statement for the passed
+-   ``executeUpdate($sql, $params, $types)`` - Create a prepared statement for the passed
     sql query, bind the given params with their binding types and execute the query.
     This method returns the number of affected rows by the executed query and is useful
     for UPDATE, DELETE and INSERT statements.
@@ -150,20 +152,20 @@ dig into the features of a ``Doctrine\DBAL\Statement`` a little bit more. There 
 two different types of methods available on a statement. Methods for binding parameters and types
 and methods to retrieve data from a statement.
 
-*   ``bindValue($pos, $value, $type)`` - Bind a given value to the positional or named parameter
+-   ``bindValue($pos, $value, $type)`` - Bind a given value to the positional or named parameter
     in the prepared statement.
-*   ``bindParam($pos, &$param, $type)`` - Bind a given reference to the positional or
+-   ``bindParam($pos, &$param, $type)`` - Bind a given reference to the positional or
     named parameter in the prepared statement.
 
 If you are finished with binding parameters you have to call ``execute()`` on the statement, which
 will trigger a query to the database. After the query is finished you can access the results
 of this query using the fetch API of a statement:
 
-*   ``fetch($fetchStyle)`` - Retrieves the next row from the statement or false if there are none.
+-   ``fetch($fetchStyle)`` - Retrieves the next row from the statement or false if there are none.
     Moves the pointer forward one row, so that consecutive calls will always return the next row.
-*   ``fetchColumn($column)`` - Retrieves only one column of the next row specified by column index.
+-   ``fetchColumn($column)`` - Retrieves only one column of the next row specified by column index.
     Moves the pointer forward one row, so that consecutive calls will always return the next row.
-*   ``fetchAll($fetchStyle)`` - Retrieves all rows from the statement.
+-   ``fetchAll($fetchStyle)`` - Retrieves all rows from the statement.
 
 The fetch API of a prepared statement obviously works only for ``SELECT`` queries.
 
@@ -262,6 +264,8 @@ the SQL and flattens the specified values into the set of parameters. Consider o
 The sql statement passed to ``Connection#executeQuery`` is not the one actually passed to the
 database. It is internally rewritten to look like the following explicit code that could
 be specified aswell:
+
+.. code-block:: php
 
     <?php
     // Same SQL WITHOUT usage of Doctrine\DBAL\Connection::PARAM_INT_ARRAY

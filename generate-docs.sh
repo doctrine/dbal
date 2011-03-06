@@ -1,2 +1,3 @@
 #!/bin/bash
-sphinx-build en /var/www/docs
+rm /var/www/doctrine-docs -Rf
+sphinx-build en /var/www/doctrine-docs
