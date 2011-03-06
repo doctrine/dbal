@@ -231,14 +231,14 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
         
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int IN (?)',
-            array(1 => array(100, 101, 102, 103, 104)), array(1 => Connection::PARAM_INT_ARRAY));
+            array(array(100, 101, 102, 103, 104)), array(Connection::PARAM_INT_ARRAY));
         
         $data = $stmt->fetchAll(PDO::FETCH_NUM);
         $this->assertEquals(5, count($data));
         $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
         
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_string IN (?)',
-            array(1 => array('foo100', 'foo101', 'foo102', 'foo103', 'foo104')), array(1 => Connection::PARAM_STR_ARRAY));
+            array(array('foo100', 'foo101', 'foo102', 'foo103', 'foo104')), array(Connection::PARAM_STR_ARRAY));
         
         $data = $stmt->fetchAll(PDO::FETCH_NUM);
         $this->assertEquals(5, count($data));
