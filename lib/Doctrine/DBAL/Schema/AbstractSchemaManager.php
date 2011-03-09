@@ -201,7 +201,7 @@ abstract class AbstractSchemaManager
      *
      * @return Table[]
      */
-    public function listTables(array $classes)
+    public function listTables($classes)
     {
         if(!empty($classes)){
 
