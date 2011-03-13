@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -30,6 +28,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform,
  * A Type object is obtained by calling the static {@link getType()} method.
  *
  * @author Roman Borschel <roman@code-factory.org>
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
  * @since 2.0
  */
 abstract class Type
@@ -226,5 +225,44 @@ abstract class Type
     {
         $e = explode('\\', get_class($this));
         return str_replace('Type', '', end($e));
+    }
+
+    /**
+     * Does working with this column require SQL conversion functions?
+     *
+     * This is a metadata function that is required for example in the ORM.
+     * Usage of {@link convertToDatabaseValueSQL} and
+     * {@link convertToPHPValueSQL} works for any type and mostly
+     * does nothing. This method can additionally be used for optimization purposes.
+     *
+     * @return bool
+     */
+    public function canRequireSQLConversion()
+    {
+        return false;
+    }
+
+    /**
+     * Modifies the SQL expression (identifier, parameter) to convert to a database value.
+     * 
+     * @param string $sqlExpr
+     * @param AbstractPlatform $platform
+     * @return string
+     */
+    public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform)
+    {
+        return $sqlExpr;
+    }
+
+    /**
+     * Modifies the SQL expression (identifier, parameter) to convert to a PHP value.
+     *
+     * @param string $sqlExpr
+     * @param AbstractPlatform $platform
+     * @return string
+     */
+    public function convertToPHPValueSQL($sqlExpr, $platform)
+    {
+        return $sqlExpr;
     }
 }
