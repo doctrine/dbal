@@ -296,7 +296,7 @@ class OraclePlatform extends AbstractPlatform
      * @param  string $table
      * @return string
      */
-    public function getListTableIndexesSQL($table)
+    public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         $table = strtoupper($table);
         
@@ -721,5 +721,10 @@ LEFT JOIN all_cons_columns r_cols
     public function releaseSavePoint($savepoint)
     {
         return '';
+    }
+    
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords';
     }
 }

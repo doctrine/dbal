@@ -204,4 +204,15 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $this->markTestSkipped('Platform does not support Column comments.');
     }
+    
+    /**
+     * @group DBAL-45
+     */
+    public function testKeywordList()
+    {
+        $keywordList = $this->_platform->getReservedKeywordsList();
+        $this->assertInstanceOf('Doctrine\DBAL\Platforms\Keywords\KeywordList', $keywordList);
+        
+        $this->assertTrue($keywordList->isKeyword('table'));
+    }
 }

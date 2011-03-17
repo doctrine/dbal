@@ -234,7 +234,7 @@ class DB2Platform extends AbstractPlatform
         return "SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS";
     }
 
-    public function getListTableIndexesSQL($table)
+    public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         return "SELECT NAME, COLNAMES, UNIQUERULE FROM SYSIBM.SYSINDEXES WHERE TBNAME = UPPER('" . $table . "')";
     }
@@ -549,5 +549,10 @@ class DB2Platform extends AbstractPlatform
     public function supportsSavepoints()
     {
         return false;
+    }
+    
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords';
     }
 }

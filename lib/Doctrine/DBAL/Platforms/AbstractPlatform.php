@@ -264,7 +264,7 @@ abstract class AbstractPlatform
 
     /**
      * Mark this type as to be commented in ALTER TABLE and CREATE TABLE statements.
-     * 
+     *
      * @param Type $doctrineType
      * @return void
      */
@@ -278,7 +278,7 @@ abstract class AbstractPlatform
 
     /**
      * Get the comment to append to a column comment that helps parsing this type in reverse engineering.
-     * 
+     *
      * @param Type $doctrineType
      * @return string
      */
@@ -289,7 +289,7 @@ abstract class AbstractPlatform
 
     /**
      * Return the comment of a passed column modified by potential doctrine type comment hints.
-     * 
+     *
      * @param Column $column
      * @return string
      */
@@ -880,6 +880,7 @@ abstract class AbstractPlatform
             $columnData['type'] = $column->getType();
             $columnData['length'] = $column->getLength();
             $columnData['notnull'] = $column->getNotNull();
+            $columnData['fixed'] = $column->getFixed();
             $columnData['unique'] = false; // TODO: what do we do about this?
             $columnData['version'] = ($column->hasPlatformOption("version"))?$column->getPlatformOption('version'):false;
             if(strtolower($columnData['type']) == "string" && $columnData['length'] === null) {
@@ -1788,7 +1789,20 @@ abstract class AbstractPlatform
         throw DBALException::notSupported(__METHOD__);
     }
 
-    public function getListTableIndexesSQL($table)
+    /**
+     * Get the list of indexes for the current database.
+     *
+     * The current database parameter is optional but will always be passed
+     * when using the SchemaManager API and is the database the given table is in.
+     *
+     * Attention: Some platforms only support currentDatabase when they
+     * are connected with that database. Cross-database information schema
+     * requests may be impossible.
+     *
+     * @param string $table
+     * @param string $currentDatabase
+     */
+    public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -2038,7 +2052,7 @@ abstract class AbstractPlatform
 
     /**
      * Does this platform support the propriortary synatx "COMMENT ON asset"
-     * 
+     *
      * @return bool
      */
     public function supportsCommentOnStatement()
@@ -2209,5 +2223,33 @@ abstract class AbstractPlatform
     public function rollbackSavePoint($savepoint)
     {
         return 'ROLLBACK TO SAVEPOINT ' . $savepoint;
+    }
+
+    /**
+     * Return the keyword list instance of this platform.
+     *
+     * Throws exception if no keyword list is specified.
+     *
+     * @throws DBALException
+     * @return KeywordList
+     */
+    final public function getReservedKeywordsList()
+    {
+        $class = $this->getReservedKeywordsClass();
+        $keywords = new $class;
+        if (!$keywords instanceof \Doctrine\DBAL\Platforms\Keywords\KeywordList) {
+            throw DBALException::notSupported(__METHOD__);
+        }
+        return $keywords;
+    }
+
+    /**
+     * The class name of the reserved keywords list.
+     *
+     * @return string
+     */
+    protected function getReservedKeywordsClass()
+    {
+        throw DBALException::notSupported(__METHOD__);
     }
 }

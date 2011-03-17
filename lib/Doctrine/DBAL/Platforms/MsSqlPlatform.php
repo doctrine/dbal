@@ -340,7 +340,7 @@ class MsSqlPlatform extends AbstractPlatform
     /**
      * @override
      */
-    public function getListTableIndexesSQL($table)
+    public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         return "exec sp_helpindex '" . $table . "'";
     }
@@ -773,5 +773,10 @@ class MsSqlPlatform extends AbstractPlatform
     public function getForUpdateSQL()
     {
         return ' ';
+    }
+    
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\DBAL\Platforms\Keywords\MsSQLKeywords';
     }
 }
