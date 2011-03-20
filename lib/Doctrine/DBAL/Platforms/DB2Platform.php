@@ -453,7 +453,7 @@ class DB2Platform extends AbstractPlatform
         return "SESSION." . $tableName;
     }
 
-    public function modifyLimitQuery($query, $limit, $offset = null)
+    protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
         if ($limit === null && $offset === null) {
             return $query;

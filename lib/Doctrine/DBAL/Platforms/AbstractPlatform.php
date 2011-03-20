@@ -1960,13 +1960,40 @@ abstract class AbstractPlatform
         return 'H:i:s';
     }
 
-    public function modifyLimitQuery($query, $limit, $offset = null)
+    /**
+     * Modify limit query
+     * 
+     * @param string $query
+     * @param int $limit
+     * @param int $offset
+     * @return string
+     */
+    final public function modifyLimitQuery($query, $limit, $offset = null)
     {
-        if ( ! is_null($limit)) {
+        if ( $limit !== null) {
+            $limit = (int)$limit;
+        }
+
+        if ( $offset !== null) {
+            $offset = (int)$offset;
+        }
+
+        return $this->doModifyLimitQuery($query, $limit, $offset);
+    }
+
+    /**
+     * @param string $query
+     * @param int $limit
+     * @param int $offset
+     * @return string
+     */
+    protected function doModifyLimitQuery($query, $limit, $offset)
+    {
+        if ( $limit !== null) {
             $query .= ' LIMIT ' . $limit;
         }
 
-        if ( ! is_null($offset)) {
+        if ( $offset !== null) {
             $query .= ' OFFSET ' . $offset;
         }
 

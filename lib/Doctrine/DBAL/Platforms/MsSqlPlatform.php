@@ -583,14 +583,14 @@ class MsSqlPlatform extends AbstractPlatform
      * @link http://lists.bestpractical.com/pipermail/rt-devel/2005-June/007339.html
      * @return string
      */
-    public function modifyLimitQuery($query, $limit, $offset = null)
+    protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
         if ($limit > 0) {
             $count = intval($limit);
             $offset = intval($offset);
 
             if ($offset < 0) {
-                throw new Doctrine_Connection_Exception("LIMIT argument offset=$offset is not valid");
+                throw new DBALException("LIMIT argument offset=$offset is not valid");
             }
 
             if ($offset == 0) {
