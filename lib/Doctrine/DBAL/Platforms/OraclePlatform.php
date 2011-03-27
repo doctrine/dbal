@@ -99,6 +99,31 @@ class OraclePlatform extends AbstractPlatform
     {
         return 'SYS_GUID()';
     }
+
+    public function getDateDiffExpression($date1, $date2)
+    {
+        return '('.$date1 . '-'.$date2.')';
+    }
+
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return '(' . $date . '+' . (int)$days . ')';
+    }
+
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return '(' . $date . '-' . (int)$days . ')';
+    }
+
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return "ADD_MONTHS(" . $date . ", " . (int)$months . ")";
+    }
+
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return "ADD_MONTHS(" . $date . ", -" . (int)$months . ")";
+    }
     
     /**
      * Gets the SQL used to create a sequence that starts with a given value
