@@ -719,6 +719,68 @@ abstract class AbstractPlatform
         return 'COS(' . $value . ')';
     }
 
+    /**
+     * Calculate the difference in days between the two passed dates.
+     *
+     * Computes diff = date1 - date2
+     *
+     * @param string $date1
+     * @param string $date2
+     * @return string
+     */
+    public function getDateDiffExpression($date1, $date2)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Add the number of given days to a date.
+     *
+     * @param string $date
+     * @param int $days
+     * @return string
+     */
+    public function getDateAddDaysExpression($date, $days)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Substract the number of given days to a date.
+     *
+     * @param string $date
+     * @param int $days
+     * @return string
+     */
+    public function getDateSubDaysExpression($date, $days)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Add the number of given months to a date.
+     *
+     * @param string $date
+     * @param int $months
+     * @return string
+     */
+    public function getDateAddMonthExpression($date, $months)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Substract the number of given months to a date.
+     *
+     * @param string $date
+     * @param int $months
+     * @return string
+     */
+    public function getDateSubMonthExpression($date, $months)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
     public function getForUpdateSQL()
     {
         return 'FOR UPDATE';

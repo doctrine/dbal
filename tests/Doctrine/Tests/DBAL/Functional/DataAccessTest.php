@@ -244,4 +244,27 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(5, count($data));
         $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
     }
+
+    /**
+     * @group DDC-1014
+     */
+    public function testDateArithmetics()
+    {
+        $p = $this->_conn->getDatabasePlatform();
+        $sql = 'SELECT ';
+        $sql .= $p->getDateDiffExpression('test_datetime', "'2010-12-24 12:00:00'") .' AS diff, ';
+        $sql .= $p->getDateAddDaysExpression('test_datetime', 10) .' AS add_days, ';
+        $sql .= $p->getDateSubDaysExpression('test_datetime', 10) .' AS sub_days, ';
+        $sql .= $p->getDateAddMonthExpression('test_datetime', 2) .' AS add_month, ';
+        $sql .= $p->getDateSubMonthExpression('test_datetime', 2) .' AS sub_month ';
+        $sql .= 'FROM fetch_table';
+
+        $row = $this->_conn->fetchAssoc($sql);
+
+        $this->assertEquals(-357, (int)$row['diff'], "Date difference should be -356 days.");
+        $this->assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])), "Adding date should end up on 2010-01-11");
+        $this->assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])), "Subtracting date should end up on 2009-12-22");
+        $this->assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");
+        $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Adding month should end up on 2009-11-01");
+    }
 }

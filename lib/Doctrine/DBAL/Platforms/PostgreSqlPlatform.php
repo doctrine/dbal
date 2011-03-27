@@ -91,6 +91,31 @@ class PostgreSqlPlatform extends AbstractPlatform
             return 'POSITION('.$substr.' IN '.$str.')';
         }
     }
+
+    public function getDateDiffExpression($date1, $date2)
+    {
+        return '('.$date1 . '-'.$date2.')';
+    }
+
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return "(" . $date . "+ interval '" . (int)$days . " day')";
+    }
+
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return "(" . $date . "- interval '" . (int)$days . " day')";
+    }
+
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return "(" . $date . "+ interval '" . (int)$months . " month')";
+    }
+
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return "(" . $date . "- interval '" . (int)$months . " month')";
+    }
     
     /**
      * parses a literal boolean value and returns
