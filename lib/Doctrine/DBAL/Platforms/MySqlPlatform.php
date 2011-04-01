@@ -369,7 +369,13 @@ class MySqlPlatform extends AbstractPlatform
      *                              'comment' => 'Foo',
      *                              'charset' => 'utf8',
      *                              'collate' => 'utf8_unicode_ci',
-     *                              'type'    => 'innodb',
+     *                              'engine' => 'innodb',
+     *                              'foreignKeys' => array(
+     *                                  new ForeignKeyConstraint(),
+     *                                  new ForeignKeyConstraint(),
+     *                                  new ForeignKeyConstraint(),
+     *                                  // etc
+     *                              )
      *                          );
      *
      * @return void
