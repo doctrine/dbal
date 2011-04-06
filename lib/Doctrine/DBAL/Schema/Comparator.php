@@ -335,7 +335,7 @@ class Comparator
         }
 
         if ($column1->getType() instanceof \Doctrine\DBAL\Types\DecimalType) {
-            if ($column1->getPrecision() != $column2->getPrecision()) {
+            if (($column1->getPrecision()?:10) != ($column2->getPrecision()?:10)) {
                 $changedProperties[] = 'precision';
             }
             if ($column1->getScale() != $column2->getScale()) {

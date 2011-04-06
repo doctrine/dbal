@@ -654,6 +654,20 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group DBAL-106
+     */
+    public function testDiffDecimalWithNullPrecision()
+    {
+        $column = new Column('foo', Type::getType('decimal'));
+        $column->setPrecision(null);
+
+        $column2 = new Column('foo', Type::getType('decimal'));
+
+        $c = new Comparator();
+        $this->assertEquals(array(), $c->diffColumn($column, $column2));
+    }
+
+    /**
      * @param SchemaDiff $diff
      * @param int $newTableCount
      * @param int $changeTableCount
