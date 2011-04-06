@@ -154,6 +154,10 @@ class Column extends AbstractAsset
      */
     public function setPrecision($precision)
     {
+        if (!is_numeric($precision)) {
+            $precision = 10; // defaults to 10 when no valid precision is given.
+        }
+
         $this->_precision = (int)$precision;
         return $this;
     }
@@ -164,7 +168,11 @@ class Column extends AbstractAsset
      */
     public function setScale($scale)
     {
-        $this->_scale = $scale;
+        if (!is_numeric($scale)) {
+            $scale = 0;
+        }
+
+        $this->_scale = (int)$scale;
         return $this;
     }
 
