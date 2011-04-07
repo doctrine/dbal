@@ -89,6 +89,8 @@
         <copy todir="${build.dir}/doctrine-dbal/bin">
             <fileset refid="bin-scripts"/>
         </copy>
+	<delete dir="${build.dir}/doctrine-dbal/Doctrine/Symfony/Component/Yaml/.git" includeemptydirs="true"/>
+	<delete dir="${build.dir}/doctrine-dbal/Doctrine/Symfony/Component/Console/.git" includeemptydirs="true"/>
         <exec command="sed 's/${version}-DEV/${version}/' ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version.php > ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version2.php" passthru="true" />
         <exec command="mv ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version2.php ${build.dir}/doctrine-dbal/Doctrine/DBAL/Version.php" passthru="true" />
     </target>
