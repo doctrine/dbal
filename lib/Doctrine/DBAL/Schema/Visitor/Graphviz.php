@@ -86,7 +86,7 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
         $this->output .= $this->createNode(
             $table->getName(),
             array(
-                'label' => $this->createTableLabel( $name, $columns ),
+                'label' => $this->createTableLabel( $table->getName(), $columns ),
                 'shape' => 'plaintext',
             )
         );
