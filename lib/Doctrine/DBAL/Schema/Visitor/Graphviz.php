@@ -41,8 +41,8 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
         $this->output .= $this->createNodeRelation(
-            $fkConstraint->getLocalTableName(),
-            $fkConstraint->getForeignTableName(),
+            $fkConstraint->getLocalTableName() . ":col" . current($fkConstraint->getLocalColumns()).":se",
+            $fkConstraint->getForeignTableName() . ":col" . current($fkConstraint->getForeignColumns()).":se",
             array(
                 'dir'       => 'back',
                 'arrowtail' => 'dot',
@@ -61,6 +61,7 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
         $this->output  = 'digraph "' . sha1( mt_rand() ) . '" {' . "\n";
         $this->output .= 'splines = true;' . "\n";
         $this->output .= 'overlap = false;' . "\n";
+        $this->output .= 'outputorder=edgesfirst;'."\n";
         $this->output .= 'mindist = 0.6;' . "\n";
         $this->output .= 'sep = .2;' . "\n";
     }
@@ -72,43 +73,37 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
 
     public function acceptTable(Table $table)
     {
-        $name = $table->getName();
-        $columns = array();
-        foreach ($table->getColumns() AS $column) {
-            $name = $column->getName();
-            if (in_array($name, $table->getPrimaryKey()->getColumns())) {
-                $name =  $name . " \xe2\x9c\xb6";
-            }
-
-            $columns[] = $name;
-        }
-
         $this->output .= $this->createNode(
             $table->getName(),
             array(
-                'label' => $this->createTableLabel( $table->getName(), $columns ),
+                'label' => $this->createTableLabel( $table ),
                 'shape' => 'plaintext',
             )
         );
     }
 
-    private function createTableLabel( $name, $columns )
+    private function createTableLabel( Table $table )
     {
         // Start the table
-        $label = '<<TABLE CELLSPACING="0" BORDER="0" ALIGN="LEFT">';
+        $label = '<<TABLE CELLSPACING="0" BORDER="1" ALIGN="LEFT">';
 
         // The title
-        $label .= '<TR><TD BORDER="1" ALIGN="CENTER" BGCOLOR="#fcaf3e"><FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $name . '</FONT></TD></TR>';
+        $label .= '<TR><TD BORDER="1" COLSPAN="3" ALIGN="CENTER" BGCOLOR="#fcaf3e"><FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $table->getName() . '</FONT></TD></TR>';
 
         // The attributes block
-        $label .= '<TR><TD BORDER="1" ALIGN="LEFT" BGCOLOR="#eeeeec">';
-        if ( count( $columns ) === 0 ) {
-            $label .= ' ';
+        foreach( $table->getColumns() as $column ) {
+            $columnLabel = $column->getName();
+
+            $label .= '<TR>';
+            $label .= '<TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec">';
+            $label .= '<FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $columnLabel . '</FONT>';
+            $label .= '</TD><TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec"><FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="10">' . strtolower($column->getType()) . '</FONT></TD>';
+            $label .= '<TD BORDER="0" ALIGN="RIGHT" BGCOLOR="#eeeeec" PORT="col'.$column->getName().'">';
+            if (in_array($column->getName(), $table->getPrimaryKey()->getColumns())) {
+                $label .= "\xe2\x9c\xb7";
+            }
+            $label .= '</TD></TR>';
         }
-        foreach( $columns as $attribute ) {
-            $label .= '<FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="10">' . $attribute . '</FONT><BR ALIGN="LEFT"/>';
-        }
-        $label .= '</TD></TR>';
 
         // End the table
         $label .= '</TABLE>>';
