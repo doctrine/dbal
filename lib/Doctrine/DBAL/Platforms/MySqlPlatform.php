@@ -44,7 +44,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         return '`';
     }
-    
+
     /**
      * Returns the regular expression operator.
      *
@@ -226,7 +226,7 @@ class MySqlPlatform extends AbstractPlatform
             return 'DATETIME';
         }
     }
-    
+
     /**
      * @override
      */
@@ -238,10 +238,10 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * @override
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration) 
+    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
         return 'TIME';
-    }	
+    }
 
     /**
      * @override
@@ -263,7 +263,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         return 'COLLATE ' . $collation;
     }
-    
+
     /**
      * Whether the platform prefers identity columns for ID generation.
      * MySql prefers "autoincrement" identity columns since sequences can only
@@ -276,7 +276,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         return true;
     }
-    
+
     /**
      * Whether the platform supports identity columns.
      * MySql supports this through AUTO_INCREMENT columns.
@@ -298,7 +298,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         return 'SHOW DATABASES';
     }
-    
+
     public function getListTablesSQL()
     {
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
@@ -327,7 +327,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         return 'CREATE DATABASE ' . $name;
     }
-    
+
     /**
      * drop an existing database
      *
@@ -339,7 +339,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         return 'DROP DATABASE ' . $name;
     }
-    
+
     /**
      * create a new table
      *
@@ -423,7 +423,7 @@ class MySqlPlatform extends AbstractPlatform
             // default to innodb
             $optionStrings[] = 'ENGINE = InnoDB';
         }
-        
+
         if ( ! empty($optionStrings)) {
             $query.= ' '.implode(' ', $optionStrings);
         }
@@ -434,10 +434,10 @@ class MySqlPlatform extends AbstractPlatform
                 $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
             }
         }
-        
+
         return $sql;
     }
-    
+
     /**
      * Gets the SQL to alter an existing table.
      *
@@ -481,10 +481,14 @@ class MySqlPlatform extends AbstractPlatform
         if (count($queryParts) > 0) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
         }
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
+        $sql = array_merge(
+            $this->_getAlterTableIndexForeignKeySQLDelete($diff),
+            $sql,
+            $this->_getAlterTableIndexForeignKeySQLInsertUpdate($diff)
+        );
         return $sql;
     }
-    
+
     /**
      * Obtain DBMS specific SQL code portion needed to declare an integer type
      * field to be used in statements like CREATE TABLE.
@@ -539,7 +543,7 @@ class MySqlPlatform extends AbstractPlatform
 
         return $unsigned . $autoinc;
     }
-    
+
     /**
      * Return the FOREIGN KEY query section dealing with non-standard options
      * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
@@ -557,7 +561,7 @@ class MySqlPlatform extends AbstractPlatform
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
         return $query;
     }
-    
+
     /**
      * Gets the SQL to drop an index of a table.
      *
@@ -572,7 +576,7 @@ class MySqlPlatform extends AbstractPlatform
         } else if(!is_string($index)) {
             throw new \InvalidArgumentException('MysqlPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
         }
-        
+
         if($table instanceof \Doctrine\DBAL\Schema\Table) {
             $table = $table->getQuotedName($this);
         } else if(!is_string($table)) {
@@ -581,7 +585,7 @@ class MySqlPlatform extends AbstractPlatform
 
         return 'DROP INDEX ' . $index . ' ON ' . $table;
     }
-    
+
     /**
      * Gets the SQL to drop a table.
      *
