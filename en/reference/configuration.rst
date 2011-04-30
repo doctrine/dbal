@@ -47,6 +47,7 @@ interfaces to use. It can be configured in one of three ways:
    -  ``pdo_oci``: An Oracle driver that uses the pdo\_oci PDO
       extension.
       **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
+   -  ``pdo_sqlsrv``: An MSSQL driver that uses pdo\_sqlsrv PDO
    -  ``oci8``:\` An Oracle driver that uses the oci8 PHP extension.
 
 -  ``driverClass``: Specifies a custom driver implementation if no
@@ -129,6 +130,18 @@ pdo\_oci / oci8
 -  ``dbname`` (string): Name of the database/schema to connect to.
 -  ``charset`` (string): The charset used when connecting to the
    database.
+
+pdo\_sqlsrv
+^^^^^^^^^^
+
+
+-  ``user`` (string): Username to use when connecting to the
+   database.
+-  ``password`` (string): Password to use when connecting to the
+   database.
+-  ``host`` (string): Hostname of the database to connect to.
+-  ``port`` (integer): Port of the database to connect to.
+-  ``dbname`` (string): Name of the database/schema to connect to.
 
 Custom Platform
 ~~~~~~~~~~~~~~~
