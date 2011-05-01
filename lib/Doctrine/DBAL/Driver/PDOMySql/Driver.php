@@ -68,6 +68,9 @@ class Driver implements \Doctrine\DBAL\Driver
         if (isset($params['unix_socket'])) {
             $dsn .= 'unix_socket=' . $params['unix_socket'] . ';';
         }
+        if (isset($params['charset'])) {
+            $dsn .= 'charset=' . $params['charset'] . ';';
+        }
         
         return $dsn;
     }
