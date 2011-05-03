@@ -99,6 +99,31 @@ class MySqlPlatform extends AbstractPlatform
         return 'CONCAT(' . join(', ', (array) $args) . ')';
     }
 
+    public function getDateDiffExpression($date1, $date2)
+    {
+        return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
+    }
+
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . (int)$days . ' DAY)';
+    }
+
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . (int)$days . ' DAY)';
+    }
+
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . (int)$months . ' MONTH)';
+    }
+
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . (int)$months . ' MONTH)';
+    }
+
     public function getListDatabasesSQL()
     {
         return 'SHOW DATABASES';
@@ -382,7 +407,7 @@ class MySqlPlatform extends AbstractPlatform
         $optionStrings = array();
 
         if (isset($options['comment'])) {
-            $optionStrings['comment'] = 'COMMENT = ' . $this->quote($options['comment'], 'text');
+            $optionStrings['comment'] = 'COMMENT = ' . $options['comment'];
         }
         if (isset($options['charset'])) {
             $optionStrings['charset'] = 'DEFAULT CHARACTER SET ' . $options['charset'];

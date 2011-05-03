@@ -625,6 +625,48 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('id', $tableDiff->changedColumns);
     }
 
+
+    /**
+     * @group DBAL-105
+     */
+    public function testDiff()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table('twitter_users');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('twitterId', 'integer', array('nullable' => false));
+        $table->addColumn('displayName', 'string', array('nullable' => false));
+        $table->setPrimaryKey(array('id'));
+
+        $newtable = new \Doctrine\DBAL\Schema\Table('twitter_users');
+        $newtable->addColumn('id', 'integer', array('autoincrement' => true));
+        $newtable->addColumn('twitter_id', 'integer', array('nullable' => false));
+        $newtable->addColumn('display_name', 'string', array('nullable' => false));
+        $newtable->addColumn('logged_in_at', 'datetime', array('nullable' => true));
+        $newtable->setPrimaryKey(array('id'));
+
+        $c = new Comparator();
+        $tableDiff = $c->diffTable($table, $newtable);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        $this->assertEquals(array('twitterid', 'displayname'), array_keys($tableDiff->renamedColumns));
+        $this->assertEquals(array('logged_in_at'), array_keys($tableDiff->addedColumns));
+        $this->assertEquals(0, count($tableDiff->removedColumns));
+    }
+
+    /**
+     * @group DBAL-106
+     */
+    public function testDiffDecimalWithNullPrecision()
+    {
+        $column = new Column('foo', Type::getType('decimal'));
+        $column->setPrecision(null);
+
+        $column2 = new Column('foo', Type::getType('decimal'));
+
+        $c = new Comparator();
+        $this->assertEquals(array(), $c->diffColumn($column, $column2));
+    }
+
     /**
      * @param SchemaDiff $diff
      * @param int $newTableCount
