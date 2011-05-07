@@ -55,6 +55,11 @@ class AllTests
         $suite->addTestSuite('Doctrine\Tests\DBAL\Schema\ComparatorTest');
         $suite->addTestSuite('Doctrine\Tests\DBAL\Schema\SchemaDiffTest');
 
+        // Query Builder tests
+        $suite->addTestSuite('Doctrine\Tests\DBAL\Query\Expression\CompositeExpressionTest');
+        $suite->addTestSuite('Doctrine\Tests\DBAL\Query\Expression\ExpressionBuilderTest');
+        $suite->addTestSuite('Doctrine\Tests\DBAL\Query\QueryBuilderTest');
+        
         // Driver manager test
         $suite->addTestSuite('Doctrine\Tests\DBAL\DriverManagerTest');
 
