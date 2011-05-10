@@ -645,6 +645,7 @@ class MySqlPlatform extends AbstractPlatform
             'decimal'       => 'decimal',
             'numeric'       => 'decimal',
             'year'          => 'date',
+            'enum'          => 'string'
         );
     }
 
