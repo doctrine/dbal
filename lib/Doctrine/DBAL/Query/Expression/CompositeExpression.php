@@ -117,4 +117,14 @@ class CompositeExpression implements \Countable
         
         return '(' . implode(') ' . $this->type . ' (', $this->parts) . ')';
     }
+    
+    /**
+     * Return type of this composite expression (AND/OR)
+     * 
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
 }

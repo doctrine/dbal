@@ -6,6 +6,9 @@ use Doctrine\DBAL\Query\Expression\CompositeExpression;
 
 require_once __DIR__ . '/../../../TestInit.php';
 
+/**
+ * @group DBAL-12
+ */
 class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
 {
     public function testCount()

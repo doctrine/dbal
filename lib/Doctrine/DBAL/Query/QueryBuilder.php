@@ -49,7 +49,7 @@ class QueryBuilder
     private $connection = null;
 
     /**
-     * @var array The array of DQL parts collected.
+     * @var array The array of SQL parts collected.
      */
     private $sqlParts = array(
         'select'  => array(),
@@ -159,16 +159,16 @@ class QueryBuilder
     }
 
     /**
-     * Get the complete DQL string formed by the current specifications of this QueryBuilder.
+     * Get the complete SQL string formed by the current specifications of this QueryBuilder.
      *
      * <code>
      *     $qb = $em->createQueryBuilder()
      *         ->select('u')
      *         ->from('User', 'u')
-     *     echo $qb->getDql(); // SELECT u FROM User u
+     *     echo $qb->getSQL(); // SELECT u FROM User u
      * </code>
      *
-     * @return string The DQL query string.
+     * @return string The sql query string.
      */
     public function getSQL()
     {
@@ -342,7 +342,9 @@ class QueryBuilder
         if ($append) {
             $key = key($sqlPart);
             
-            if (is_array($sqlPart[$key])) {
+            if ($sqlPartName == 'where' || $sqlPartName == 'having') {
+                $this->sqlParts[$sqlPartName] = $sqlPart;
+            } else if (is_array($sqlPart[$key])) {
                 $this->sqlParts[$sqlPartName][$key][] = $sqlPart[$key];
             } else if ($isMultiple) {
                 $this->sqlParts[$sqlPartName][] = $sqlPart;
@@ -414,7 +416,7 @@ class QueryBuilder
 
     /**
      * Turns the query being built into a bulk delete query that ranges over
-     * a certain entity type.
+     * a certain table.
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -423,8 +425,8 @@ class QueryBuilder
      *         ->setParameter(':user_id', 1);
      * </code>
      *
-     * @param string $delete The class/type whose instances are subject to the deletion.
-     * @param string $alias The class/type alias used in the constructed query.
+     * @param string $delete The table whose rows are subject to the deletion.
+     * @param string $alias The table alias used in the constructed query.
      * @return QueryBuilder This QueryBuilder instance.
      */
     public function delete($delete = null, $alias = null)
@@ -443,7 +445,7 @@ class QueryBuilder
 
     /**
      * Turns the query being built into a bulk update query that ranges over
-     * a certain entity type.
+     * a certain table
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -452,8 +454,8 @@ class QueryBuilder
      *         ->where('u.id = ?');
      * </code>
      *
-     * @param string $update The class/type whose instances are subject to the update.
-     * @param string $alias The class/type alias used in the constructed query.
+     * @param string $update The table whose rows are subject to the update.
+     * @param string $alias The table alias used in the constructed query.
      * @return QueryBuilder This QueryBuilder instance.
      */
     public function update($update = null, $alias = null)
@@ -471,7 +473,7 @@ class QueryBuilder
     }
 
     /**
-     * Create and add a query root corresponding to the entity identified by the
+     * Create and add a query root corresponding to the table identified by the
      * given alias, forming a cartesian product with any existing query roots.
      *
      * <code>
@@ -480,8 +482,8 @@ class QueryBuilder
      *         ->from('users', 'u')
      * </code>
      *
-     * @param string $from   The class name.
-     * @param string $alias  The alias of the class.
+     * @param string $from   The table
+     * @param string $alias  The alias of the table
      * @return QueryBuilder This QueryBuilder instance.
      */
     public function from($from, $alias)
@@ -493,11 +495,7 @@ class QueryBuilder
     }
 
     /**
-     * Creates and adds a join over an entity association to the query.
-     *
-     * The entities in the joined association will be fetched as part of the query
-     * result if the alias used for the joined association is placed in the select
-     * expressions.
+     * Creates and adds a join to the query.
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -518,11 +516,7 @@ class QueryBuilder
     }
 
     /**
-     * Creates and adds a join over an entity association to the query.
-     *
-     * The entities in the joined association will be fetched as part of the query
-     * result if the alias used for the joined association is placed in the select
-     * expressions.
+     * Creates and adds a join to the query.
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -550,11 +544,7 @@ class QueryBuilder
     }
 
     /**
-     * Creates and adds a left join over an entity association to the query.
-     *
-     * The entities in the joined association will be fetched as part of the query
-     * result if the alias used for the joined association is placed in the select
-     * expressions.
+     * Creates and adds a left join to the query.
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -580,9 +570,37 @@ class QueryBuilder
             )
         ), true);
     }
+    
+    /**
+     * Creates and adds a right join to the query.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u.name')
+     *         ->from('users', 'u')
+     *         ->rightJoin('u', 'phonenumbers', 'p', 'p.is_primary = 1');
+     * </code>
+     *
+     * @param string $fromAlias The alias that points to a from clause
+     * @param string $join The table name to join
+     * @param string $alias The alias of the join table
+     * @param string $condition The condition for the join
+     * @return QueryBuilder This QueryBuilder instance.
+     */
+    public function rightJoin($fromAlias, $join, $alias, $condition = null)
+    {
+        return $this->add('join', array(
+            $fromAlias => array(
+                'joinType'      => 'right',
+                'joinTable'     => $join,
+                'joinAlias'     => $alias,
+                'joinCondition' => $condition
+            )
+        ), true);
+    }
 
     /**
-     * Sets a new value for a field in a bulk update query.
+     * Sets a new value for a column in a bulk update query.
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
@@ -591,7 +609,7 @@ class QueryBuilder
      *         ->where('u.id = ?');
      * </code>
      *
-     * @param string $key The key/field to set.
+     * @param string $key The column to set.
      * @param string $value The value, expression, placeholder, etc.
      * @return QueryBuilder This QueryBuilder instance.
      */
@@ -627,8 +645,8 @@ class QueryBuilder
      */
     public function where($predicates)
     {
-        if ( ! (func_num_args() == 1 && $predicates instanceof CompositeExpression)) {
-            $predicates = $this->expr()->andX(func_get_args());
+        if ( ! (func_num_args() == 1 && $predicates instanceof CompositeExpression) ) {
+            $predicates = new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
         }
 
         return $this->add('where', $predicates);
@@ -659,7 +677,7 @@ class QueryBuilder
             $where->addMultiple($args);
         } else {
             array_unshift($args, $where);
-            $where = $this->expr()->andX($args);
+            $where = new CompositeExpression(CompositeExpression::TYPE_AND, $args);
         }
 
         return $this->add('where', $where, true);
@@ -690,7 +708,7 @@ class QueryBuilder
             $where->addMultiple($args);
         } else {
             array_unshift($args, $where);
-            $where = $this->expr()->orX($args);
+            $where = new CompositeExpression(CompositeExpression::TYPE_OR, $args);
         }
 
         return $this->add('where', $where, true);
@@ -757,7 +775,7 @@ class QueryBuilder
     public function having($having)
     {
         if ( ! (func_num_args() == 1 && $having instanceof CompositeExpression)) {
-            $having = $this->expr()->andX(func_get_args());
+            $having = new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
         }
 
         return $this->add('having', $having);
@@ -775,11 +793,11 @@ class QueryBuilder
         $having = $this->getQueryPart('having');
         $args = func_get_args();
 
-        if ($having instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_AND) {
+        if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_AND) {
             $having->addMultiple($args);
         } else {
             array_unshift($args, $having);
-            $having = $this->expr()->andX($args);
+            $having = new CompositeExpression(CompositeExpression::TYPE_AND, $args);
         }
 
         return $this->add('having', $having);
@@ -797,11 +815,11 @@ class QueryBuilder
         $having = $this->getQueryPart('having');
         $args = func_get_args();
 
-        if ($having instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_OR) {
+        if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_OR) {
             $having->addMultiple($args);
         } else {
             array_unshift($args, $having);
-            $having = $this->expr()->orX($args);
+            $having = new CompositeExpression(CompositeExpression::TYPE_OR, $args);
         }
 
         return $this->add('having', $having);
@@ -817,10 +835,7 @@ class QueryBuilder
      */
     public function orderBy($sort, $order = null)
     {
-        return $this->add('orderBy', array(
-            'sort'  => $sort,
-            'order' => ! $order ? 'ASC' : $order
-        ), false);
+        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), false);
     }
 
     /**
@@ -832,10 +847,7 @@ class QueryBuilder
      */
     public function addOrderBy($sort, $order = null)
     {
-        return $this->add('orderBy', array(
-            'sort'  => $sort,
-            'order' => ! $order ? 'ASC' : $order
-        ), true);
+        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), true);
     }
 
     /**
@@ -860,7 +872,7 @@ class QueryBuilder
     }
 
     /**
-     * Reset DQL parts
+     * Reset SQL parts
      *
      * @param array $queryPartNames
      * @return QueryBuilder
@@ -879,7 +891,7 @@ class QueryBuilder
     }
 
     /**
-     * Reset single DQL part
+     * Reset single SQL part
      *
      * @param string $queryPartName
      * @return QueryBuilder

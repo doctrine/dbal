@@ -1093,4 +1093,14 @@ class Connection implements DriverConnection
             }
         }
     }
+    
+    /**
+     * Create a new instance of a SQL query builder.
+     * 
+     * @return Query\QueryBuilder 
+     */
+    public function createQueryBuilder()
+    {
+        return new Query\QueryBuilder($this);
+    }
 }
