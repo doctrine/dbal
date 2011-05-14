@@ -72,7 +72,7 @@ every value passed into the query using ``mysql_real_escape_string()`` to avoid 
 .. code-block:: php
 
     <?php
-    $sql = "SELECT * FROM articles WHERE id = '" . mysql_real_escape_string($id) . "'";
+    $sql = "SELECT * FROM articles WHERE id = '" . mysql_real_escape_string($id, $link) . "'";
     $rs = mysql_query($sql);
 
 If you start adding more and more parameters to a query (for example in UPDATE or INSERT statements)
