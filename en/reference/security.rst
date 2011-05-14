@@ -129,3 +129,11 @@ Up until PHP 5.3.6 PDO has a security problem when using non ascii compatible ch
 the charset using "SET NAMES", emulated prepared statements and ``PDO#quote`` could not reliably escape
 values, opening up to potential SQL injections. If you are running PHP 5.3.6 you can solve this issue
 by passing the driver option "charset" to Doctrine PDO MySQL driver. Using SET NAMES does not suffice!
+
+.. code-block::
+
+    <?php    
+    $conn = DriverManager::getConnection(array(
+        'driver' => 'pdo_mysql',
+        'charset' => 'UTF8',
+    ));

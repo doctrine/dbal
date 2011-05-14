@@ -18,16 +18,12 @@ connection management via an instance of
 ``Doctrine\DBAL\Event\ConnectionEventArgs`` event arguments
 instance.
 
-Doctrine is already shipped with two implementations for the
-"PostConnect" event:
+Doctrine ships with one implementation for the "PostConnect" event:
 
 
 -  ``Doctrine\DBAL\Event\Listeners\OracleSessionInit`` allows to
    specify any number of Oracle Session related enviroment variables
    that are set right after the connection is established.
--  ``Doctrine\DBAL\Event\Listeners\MysqlSessionInit`` allows to
-   specify the Charset and Collation of the Client Connection if these
-   options are not configured correctly on the MySQL server side.
 
 You can register events by subscribing them to the ``EventManager``
 instance passed to the Connection factory:
@@ -36,7 +32,9 @@ instance passed to the Connection factory:
 
     <?php
     $evm = new EventManager();
-    $evm->addEventSubscriber(new MysqlSessionInit('UTF8'));
+    $evm->addEventSubscriber(new OracleSessionInit(array(
+        'NLS_TIME_FORMAT' => 'HH24:MI:SS',
+    ));
     
     $conn = DriverManager::getConnection($connectionParams, null, $evm);
 

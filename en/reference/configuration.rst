@@ -104,6 +104,8 @@ pdo\_mysql
 -  ``dbname`` (string): Name of the database/schema to connect to.
 -  ``unix_socket`` (string): Name of the socket used to connect to
    the database.
+-  ``charset`` (string): The charset used when connecting to the
+   database.
 
 pdo\_pgsql
 ^^^^^^^^^^
