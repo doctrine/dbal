@@ -24,11 +24,17 @@ use Doctrine\DBAL\Query\Expression\CompositeExpression,
 
 /**
  * QueryBuilder class is responsible to dynamically create SQL queries.
+ * 
+ * Important: Verify that every feature you use will work with your database vendor.
+ * SQL Query Builder does not attempt to validate the generated SQL at all.
+ * 
+ * The query builder does no validation whatsoever if certain features even work with the
+ * underlying database vendor. Limit queries and joins are NOT applied to UPDATE and DELETE statements
+ * even if some vendors such as MySQL support it.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
- * @since       1.0
- * @version     $Revision$
+ * @since       2.1
  * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  */
@@ -96,6 +102,13 @@ class QueryBuilder
      * @var integer The maximum number of results to retrieve.
      */
     private $maxResults = null;
+    
+    /**
+     * The counter of bound parameters used with {@see bindValue)
+     * 
+     * @var int
+     */
+    private $boundCounter = 0;
 
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
@@ -156,6 +169,23 @@ class QueryBuilder
     public function getState()
     {
         return $this->state;
+    }
+    
+    /**
+     * Execute this query using the bound parameters and their types.
+     * 
+     * Uses {@see Connection::executeQuery} for select statements and {@see Connection::executeUpdate}
+     * for insert, update and delete statements.
+     * 
+     * @return mixed 
+     */
+    public function execute()
+    {
+        if ($this->type == self::SELECT) {
+            return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
+        } else {
+            return $this->connection->executeUpdate($this->getSQL(), $this->params, $this->paramTypes);
+        }
     }
 
     /**
@@ -280,6 +310,7 @@ class QueryBuilder
      */
     public function setFirstResult($firstResult)
     {
+        $this->state = self::STATE_DIRTY;
         $this->firstResult = $firstResult;
         return $this;
     }
@@ -303,6 +334,7 @@ class QueryBuilder
      */
     public function setMaxResults($maxResults)
     {
+        $this->state = self::STATE_DIRTY;
         $this->maxResults = $maxResults;
         return $this;
     }
@@ -331,20 +363,22 @@ class QueryBuilder
      */
     public function add($sqlPartName, $sqlPart, $append = false)
     {
+        $isArray = is_array($sqlPart);
         $isMultiple = is_array($this->sqlParts[$sqlPartName]);
 
-        if ($isMultiple && ! is_array($sqlPart)) {
+        if ($isMultiple && !$isArray) {
             $sqlPart = array($sqlPart);
         }
 
         $this->state = self::STATE_DIRTY;
 
         if ($append) {
-            $key = key($sqlPart);
-            
-            if ($sqlPartName == 'where' || $sqlPartName == 'having') {
-                $this->sqlParts[$sqlPartName] = $sqlPart;
-            } else if (is_array($sqlPart[$key])) {
+            if ($sqlPartName == "orderBy" || $sqlPartName == "groupBy" || $sqlPartName == "select" || $sqlPartName == "set") {
+                foreach ($sqlPart AS $part) {
+                    $this->sqlParts[$sqlPartName][] = $part;
+                }
+            } else if ($isArray && is_array($sqlPart[key($sqlPart)])) {
+                $key = key($sqlPart);
                 $this->sqlParts[$sqlPartName][$key][] = $sqlPart[$key];
             } else if ($isMultiple) {
                 $this->sqlParts[$sqlPartName][] = $sqlPart;
@@ -615,7 +649,7 @@ class QueryBuilder
      */
     public function set($key, $value)
     {
-        return $this->add('set', $this->expr()->eq($key, '=', $value), true);
+        return $this->add('set', $key .' = ' . $value, true);
     }
 
     /**
@@ -938,7 +972,7 @@ class QueryBuilder
                 . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
                 . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
         
-        return ($this->maxResults === null) 
+        return ($this->maxResults === null && $this->firstResult == null) 
             ? $query
             : $this->connection->getDatabasePlatform()->modifyLimitQuery($query, $this->maxResults, $this->firstResult);
     }
@@ -950,7 +984,10 @@ class QueryBuilder
      */
     private function getSQLForUpdate()
     {
-        $query = 'UPDATE ';
+        $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $query = 'UPDATE ' . $table 
+               . ' SET ' . implode(", ", $this->sqlParts['set'])
+               . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
         
         return $query;
     }
@@ -962,7 +999,8 @@ class QueryBuilder
      */
     private function getSQLForDelete()
     {
-        $query = 'DELETE ';
+        $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $query = 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
         
         return $query;
     }
@@ -976,5 +1014,71 @@ class QueryBuilder
     public function __toString()
     {
         return $this->getSQL();
+    }
+    
+    /**
+     * Create a new named parameter and bind the value $value to it.
+     *
+     * This method provides a shortcut for PDOStatement::bindValue
+     * when using prepared statements.
+     *
+     * The parameter $value specifies the value that you want to bind. If
+     * $placeholder is not provided bindValue() will automatically create a
+     * placeholder for you. An automatic placeholder will be of the name
+     * ':dcValue1', ':dcValue2' etc.
+     *
+     * For more information see {@link http://php.net/pdostatement-bindparam}
+     *
+     * Example:
+     * <code>
+     * $value = 2;
+     * $q->eq( 'id', $q->bindValue( $value ) );
+     * $stmt = $q->executeQuery(); // executed with 'id = 2'
+     * </code>
+     *
+     * @license New BSD License
+     * @link http://www.zetacomponents.org
+     * @param mixed $value
+     * @param mixed $type
+     * @param string $placeHolder the name to bind with. The string must start with a colon ':'.
+     * @return string the placeholder name used.
+     */
+    public function createNamedParameter( $value, $type = \PDO::PARAM_STR, $placeHolder = null )
+    {
+        if ( $placeHolder === null ) {
+            $this->boundCounter++;
+            $placeHolder = ":dcValue" . $this->boundCounter;
+        }
+        $this->setParameter(substr($placeHolder, 1), $value, $type);
+
+        return $placeHolder;
+    }
+    
+    /**
+     * Create a new positional parameter and bind the given value to it.
+     * 
+     * Attention: If you are using positional parameters with the query builder you have
+     * to be very careful to bind all parameters in the order they appear in the SQL
+     * statement , otherwise they get bound in the wrong order which can lead to serious
+     * bugs in your code.
+     * 
+     * Example:
+     * <code>
+     *  $qb = $conn->createQueryBuilder();
+     *  $qb->select('u.*')
+     *     ->from('users', 'u')
+     *     ->where('u.username = ' . $qb->createPositionalParameter('Foo', PDO::PARAM_STR))
+     *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', PDO::PARAM_STR))
+     * </code>
+     * 
+     * @param  mixed $value
+     * @param  mixed $type
+     * @return string
+     */
+    public function createPositionalParameter($value, $type = \PDO::PARAM_STR)
+    {
+        $this->boundCounter++;
+        $this->setParameter($this->boundCounter, $value, $type);
+        return "?";
     }
 }

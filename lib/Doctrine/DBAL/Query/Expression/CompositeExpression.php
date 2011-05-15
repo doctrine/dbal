@@ -24,7 +24,7 @@ namespace Doctrine\DBAL\Query\Expression;
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.org
- * @since       2.0
+ * @since       2.1
  * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  */
@@ -111,7 +111,7 @@ class CompositeExpression implements \Countable
      */
     public function __toString()
     {
-        if ($this->count() === 1) {
+        if (count($this->parts) === 1) {
             return (string) $this->parts[0];
         }
         

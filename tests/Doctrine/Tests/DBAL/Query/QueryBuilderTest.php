@@ -331,4 +331,221 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         
         $this->assertEquals('SELECT u.*, p.* FROM users u ORDER BY u.name ASC, u.username DESC', (string) $qb);
     }
+    
+    public function testEmptySelect()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb2 = $qb->select();
+        
+        $this->assertSame($qb, $qb2);
+        $this->assertEquals(QueryBuilder::SELECT, $qb->getType());
+    }
+    
+    public function testSelectAddSelect()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+        
+        $qb->select('u.*')
+           ->addSelect('p.*')
+           ->from('users', 'u');
+        
+        $this->assertEquals('SELECT u.*, p.* FROM users u', (string) $qb);
+    }
+    
+    public function testEmptyAddSelect()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb2 = $qb->addSelect();
+        
+        $this->assertSame($qb, $qb2);
+        $this->assertEquals(QueryBuilder::SELECT, $qb->getType());
+    }
+    
+    public function testSelectMultipleFrom()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+        
+        $qb->select('u.*')
+           ->addSelect('p.*')
+           ->from('users', 'u')
+           ->from('phonenumbers', 'p');
+        
+        $this->assertEquals('SELECT u.*, p.* FROM users u, phonenumbers p', (string) $qb);
+    }
+    
+    public function testUpdate()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->update('users', 'u')
+           ->set('u.foo', '?')
+           ->set('u.bar', '?');
+        
+        $this->assertEquals(QueryBuilder::UPDATE, $qb->getType());
+        $this->assertEquals('UPDATE users u SET u.foo = ?, u.bar = ?', (string) $qb);
+    }
+    
+    public function testUpdateWithoutAlias()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->update('users')
+           ->set('foo', '?')
+           ->set('bar', '?');
+        
+        $this->assertEquals('UPDATE users SET foo = ?, bar = ?', (string) $qb);
+    }
+    
+    public function testUpdateWhere()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->update('users', 'u')
+           ->set('u.foo', '?')
+           ->where('u.foo = ?');
+        
+        $this->assertEquals('UPDATE users u SET u.foo = ? WHERE u.foo = ?', (string) $qb);
+    }
+    
+    public function testEmptyUpdate()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb2 = $qb->update();
+        
+        $this->assertEquals(QueryBuilder::UPDATE, $qb->getType());
+        $this->assertSame($qb2, $qb);
+    }
+    
+    public function testDelete()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->delete('users', 'u');
+        
+        $this->assertEquals(QueryBuilder::DELETE, $qb->getType());
+        $this->assertEquals('DELETE FROM users u', (string) $qb);
+    }
+    
+    public function testDeleteWithoutAlias()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->delete('users');
+        
+        $this->assertEquals(QueryBuilder::DELETE, $qb->getType());
+        $this->assertEquals('DELETE FROM users', (string) $qb);
+    }
+    
+    public function testDeleteWhere()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->delete('users', 'u')
+           ->where('u.foo = ?');
+        
+        $this->assertEquals('DELETE FROM users u WHERE u.foo = ?', (string) $qb);
+    }
+    
+    public function testEmptyDelete()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb2 = $qb->delete();
+        
+        $this->assertEquals(QueryBuilder::DELETE, $qb->getType());
+        $this->assertSame($qb2, $qb);
+    }
+    
+    public function testGetConnection()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $this->assertSame($this->conn, $qb->getConnection());
+    }
+    
+    public function testGetState()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        
+        $this->assertEquals(QueryBuilder::STATE_CLEAN, $qb->getState());
+        
+        $qb->select('u.*')->from('users', 'u');
+        
+        $this->assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
+        
+        $sql1 = $qb->getSQL();
+        
+        $this->assertEquals(QueryBuilder::STATE_CLEAN, $qb->getState());
+        $this->assertEquals($sql1, $qb->getSQL());
+    }
+    
+    public function testSetMaxResults()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->setMaxResults(10);
+        
+        $this->assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
+        $this->assertEQuals(10, $qb->getMaxResults());
+    }
+    
+    public function testSetFirstResult()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->setFirstResult(10);
+        
+        $this->assertEquals(QueryBuilder::STATE_DIRTY, $qb->getState());
+        $this->assertEQuals(10, $qb->getFirstResult());
+    }
+    
+    public function testResetQueryPart()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        
+        $qb->select('u.*')->from('users', 'u')->where('u.name = ?');
+        
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string)$qb);
+        $qb->resetQueryPart('where');
+        $this->assertEquals('SELECT u.* FROM users u', (string)$qb);
+    }
+    
+    public function testResetQueryParts()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        
+        $qb->select('u.*')->from('users', 'u')->where('u.name = ?')->orderBy('u.name');
+        
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string)$qb);
+        $qb->resetQueryParts(array('where', 'orderBy'));
+        $this->assertEquals('SELECT u.* FROM users u', (string)$qb);
+    }
+    
+    public function testCreateNamedParameter()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        
+        $qb->select('u.*')->from('users', 'u')->where(
+            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, \PDO::PARAM_INT))
+        );
+        
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = :dcValue1', (string)$qb);
+        $this->assertEquals(10, $qb->getParameter('dcValue1'));
+    }
+    
+    public function testCreateNamedParameterCustomPlaceholder()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        
+        $qb->select('u.*')->from('users', 'u')->where(
+            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, \PDO::PARAM_INT, ':test'))
+        );
+        
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = :test', (string)$qb);
+        $this->assertEquals(10, $qb->getParameter('test'));
+    }
+    
+    public function testCreatePositionalParameter()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        
+        $qb->select('u.*')->from('users', 'u')->where(
+            $qb->expr()->eq('u.name', $qb->createPositionalParameter(10, \PDO::PARAM_INT))
+        );
+        
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string)$qb);
+        $this->assertEquals(10, $qb->getParameter(1));
+    }
 }
