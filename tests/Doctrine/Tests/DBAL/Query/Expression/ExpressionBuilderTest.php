@@ -7,6 +7,9 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder,
 
 require_once __DIR__ . '/../../../TestInit.php';
 
+/**
+ * @group DBAL-12
+ */
 class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 {
     protected $expr;

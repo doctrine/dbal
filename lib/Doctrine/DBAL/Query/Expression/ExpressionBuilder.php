@@ -26,8 +26,7 @@ use Doctrine\DBAL\Connection;
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
- * @since       1.0
- * @version     $Revision$
+ * @since       2.1
  * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  */
