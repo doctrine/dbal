@@ -33,6 +33,7 @@ final class Events
 {
     private function __construct() {}
 
+    const preConnect  = 'preConnect';
     const postConnect = 'postConnect';
 }
 

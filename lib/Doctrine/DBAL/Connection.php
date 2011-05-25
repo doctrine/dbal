@@ -339,11 +339,19 @@ class Connection implements DriverConnection
         $password = isset($this->_params['password']) ?
                 $this->_params['password'] : null;
 
+        if ($this->_eventManager->hasListeners(Events::preConnect) ||
+            $this->_eventManager->hasListeners(Events::postConnect)) {
+                $eventArgs = new Event\ConnectionEventArgs($this);
+            }
+
+        if ($this->_eventManager->hasListeners(Events::preConnect)) {
+            $this->_eventManager->dispatchEvent(Events::preConnect, $eventArgs);
+        }
+
         $this->_conn = $this->_driver->connect($this->_params, $user, $password, $driverOptions);
         $this->_isConnected = true;
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
-            $eventArgs = new Event\ConnectionEventArgs($this);
             $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 

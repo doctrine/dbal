@@ -101,10 +101,12 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
     public function testConnectDispatchEvent()
     {
-        $listenerMock = $this->getMock('ConnectDispatchEventListener', array('postConnect'));
+        $listenerMock = $this->getMock('ConnectDispatchEventListener', array('preConnect', 'postConnect'));
+        $listenerMock->expects($this->once())->method('preConnect');
         $listenerMock->expects($this->once())->method('postConnect');
 
         $eventManager = new EventManager();
+        $eventManager->addEventListener(array(Events::preConnect), $listenerMock);
         $eventManager->addEventListener(array(Events::postConnect), $listenerMock);
 
         $driverMock = $this->getMock('Doctrine\DBAL\Driver');
