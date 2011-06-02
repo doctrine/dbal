@@ -628,12 +628,12 @@ class MsSqlPlatform extends AbstractPlatform
         if (is_array($item)) {
             foreach ($item as $key => $value) {
                 if (is_bool($value) || is_numeric($item)) {
-                    $item[$key] = ($value) ? 'TRUE' : 'FALSE';
+                    $item[$key] = ($value) ? 1 : 0;
                 }
             }
         } else {
             if (is_bool($item) || is_numeric($item)) {
-                $item = ($item) ? 'TRUE' : 'FALSE';
+                $item = ($item) ? 1 : 0;
             }
         }
         return $item;
