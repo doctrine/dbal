@@ -26,4 +26,12 @@ necessary for SchemaTool support, namely:
 We would be very happy if any support for new databases would be
 contributed back to Doctrine to make it an even better product.
 
+Implementation Steps in Detail
+------------------------------
 
+1. Add your driver shortcut to class-name `Doctrine\DBAL\DriverManager`.
+2. Make a copy of tests/dbproperties.xml.dev and adjust the values to your driver shortcut and testdatabase.
+3. Create three new classes implementing ``\Doctrine\DBAL\Driver\Driver``, ``\Doctrine\DBAL\Driver\Statement``
+   and ``Doctrine\DBAL\Driver``. You can take a look at the ``Doctrine\DBAL\Driver\OCI8`` driver.
+4. You can run the testsuite of your new database driver by calling "cd tests/ && phpunit -c myconfig.xml Doctrine/Tess/AllTests.php"
+5. Start implementing AbstractPlatform and AbstractSchemaManager. Other implementations should serve as good example.
