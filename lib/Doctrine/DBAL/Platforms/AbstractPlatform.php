@@ -948,6 +948,7 @@ abstract class AbstractPlatform
             if(strtolower($columnData['type']) == "string" && $columnData['length'] === null) {
                 $columnData['length'] = 255;
             }
+            $columnData['unsigned'] = $column->getUnsigned();
             $columnData['precision'] = $column->getPrecision();
             $columnData['scale'] = $column->getScale();
             $columnData['default'] = $column->getDefault();

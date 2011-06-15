@@ -686,7 +686,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        return 'TRUNCATE '.$tableName.' '.($cascade)?'CASCADE':'';
+        return 'TRUNCATE '.$tableName.' '.(($cascade)?'CASCADE':'');
     }
 
     public function getReadLockSQL()
