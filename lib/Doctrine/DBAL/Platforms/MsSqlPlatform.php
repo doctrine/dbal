@@ -22,7 +22,8 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Schema\Index, Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Index,
+    Doctrine\DBAL\Schema\Table;
 
 /**
  * The MsSqlPlatform provides the behavior, features and SQL dialect of the
@@ -99,7 +100,7 @@ class MsSqlPlatform extends AbstractPlatform
     /**
      * @override
      */
-	public function supportsCreateDropDatabase()
+    public function supportsCreateDropDatabase()
     {
         return false;
     }
@@ -151,14 +152,14 @@ class MsSqlPlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
-		// @todo does other code breaks because of this?
-		// foce primary keys to be not null
-		foreach ($columns as &$column) {
-			if (isset($column['primary']) && $column['primary']) {
-				$column['notnull'] = true;
-			}
-		}
-	
+        // @todo does other code breaks because of this?
+        // foce primary keys to be not null
+        foreach ($columns as &$column) {
+            if (isset($column['primary']) && $column['primary']) {
+                $column['notnull'] = true;
+            }
+        }
+
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && !empty($options['uniqueConstraints'])) {
@@ -195,53 +196,53 @@ class MsSqlPlatform extends AbstractPlatform
 
         return $sql;
     }
-	
-	/**
+
+    /**
      * @override
      */
-	public function getUniqueConstraintDeclarationSQL($name, Index $index)
+    public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
         $constraint = parent::getUniqueConstraintDeclarationSQL($name, $index);
-		
-		$constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
-		
-		return $constraint;
+
+        $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
+
+        return $constraint;
     }
-	
-	/**
+
+    /**
      * @override
      */
-	public function getCreateIndexSQL(Index $index, $table)
-    {	
-		$constraint = parent::getCreateIndexSQL($index, $table);
-		
-		if ($index->isUnique()) {
-			$constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
-		}
-		
-		return $constraint;
-	}
-	
-	/**
+    public function getCreateIndexSQL(Index $index, $table)
+    {
+        $constraint = parent::getCreateIndexSQL($index, $table);
+
+        if ($index->isUnique()) {
+            $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
+        }
+
+        return $constraint;
+    }
+
+    /**
      * Extend unique key constraint with required filters
-	 *
-	 * @param string $sql
-	 * @param Index $index
-	 * @return string
+     *
+     * @param string $sql
+     * @param Index $index
+     * @return string
      */
-	private function _appendUniqueConstraintDefinition($sql, Index $index)
-	{
-		$fields = array();
+    private function _appendUniqueConstraintDefinition($sql, Index $index)
+    {
+        $fields = array();
         foreach ($index->getColumns() as $field => $definition) {
             if (!is_array($definition)) {
                 $field = $definition;
             }
-			
-			$fields[] = $field . ' IS NOT NULL';
+
+            $fields[] = $field . ' IS NOT NULL';
         }
-	
-		return $sql . ' WHERE ' . implode(' AND ', $fields);
-	}
+
+        return $sql . ' WHERE ' . implode(' AND ', $fields);
+    }
 
     /**
      * @override
@@ -418,36 +419,36 @@ class MsSqlPlatform extends AbstractPlatform
     {
         $trimFn = '';
 
-		if (!$char) {
-			if ($pos == self::TRIM_LEADING) {
-				$trimFn = 'LTRIM';
-			} else if ($pos == self::TRIM_TRAILING) {
-				$trimFn = 'RTRIM';
-			} else {
-				return 'LTRIM(RTRIM(' . $str . '))';
-			}
+        if (!$char) {
+            if ($pos == self::TRIM_LEADING) {
+                $trimFn = 'LTRIM';
+            } else if ($pos == self::TRIM_TRAILING) {
+                $trimFn = 'RTRIM';
+            } else {
+                return 'LTRIM(RTRIM(' . $str . '))';
+            }
 
-			return $trimFn . '(' . $str . ')';
-		} else {
-			/** Original query used to get those expressions
-				declare @c varchar(100) = 'xxxBarxxx', @trim_char char(1) = 'x';
-				declare @pat varchar(10) = '%[^' + @trim_char + ']%';
-				select @c as string
-					 , @trim_char as trim_char
-					 , stuff(@c, 1, patindex(@pat, @c) - 1, null) as trim_leading
-					 , reverse(stuff(reverse(@c), 1, patindex(@pat, reverse(@c)) - 1, null)) as trim_trailing
-					 , reverse(stuff(reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null)), 1, patindex(@pat, reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null))) - 1, null)) as trim_both;
-			 */
-			$pattern = "'%[^' + $char + ']%'";
-			
-			if ($pos == self::TRIM_LEADING) {
-				return 'stuff(' . $str . ', 1, patindex(' . $pattern .', ' . $str . ') - 1, null)';
-			} else if ($pos == self::TRIM_TRAILING) {
-				return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern .', reverse(' . $str . ')) - 1, null))';
-			} else {
-				return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern .', ' . $str . ') - 1, null)), 1, patindex(' . $pattern .', reverse(stuff(' . $str . ', 1, patindex(' . $pattern .', ' . $str . ') - 1, null))) - 1, null))';
-			}
-		}
+            return $trimFn . '(' . $str . ')';
+        } else {
+            /** Original query used to get those expressions
+              declare @c varchar(100) = 'xxxBarxxx', @trim_char char(1) = 'x';
+              declare @pat varchar(10) = '%[^' + @trim_char + ']%';
+              select @c as string
+              , @trim_char as trim_char
+              , stuff(@c, 1, patindex(@pat, @c) - 1, null) as trim_leading
+              , reverse(stuff(reverse(@c), 1, patindex(@pat, reverse(@c)) - 1, null)) as trim_trailing
+              , reverse(stuff(reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null)), 1, patindex(@pat, reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null))) - 1, null)) as trim_both;
+             */
+            $pattern = "'%[^' + $char + ']%'";
+
+            if ($pos == self::TRIM_LEADING) {
+                return 'stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)';
+            } else if ($pos == self::TRIM_TRAILING) {
+                return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
+            } else {
+                return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)), 1, patindex(' . $pattern . ', reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null))) - 1, null))';
+            }
+        }
     }
 
     /**
@@ -687,34 +688,34 @@ class MsSqlPlatform extends AbstractPlatform
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = array(
-            'bigint'            => 'bigint',
-            'numeric'           => 'decimal',
-            'bit'               => 'boolean',
-            'smallint'          => 'smallint',
-            'decimal'           => 'decimal',
-            'smallmoney'        => 'integer',
-            'int'               => 'integer',
-            'tinyint'           => 'smallint',
-            'money'             => 'integer',
-            'float'             => 'float',
-            'real'              => 'float',
-            'double'            => 'float',
-            'double precision'  => 'float',
-            'date'              => 'date',
-            'datetimeoffset'    => 'datetimetz',
-            'datetime2'         => 'datetime',
-            'smalldatetime'     => 'datetime',
-            'datetime'          => 'datetime',
-            'time'              => 'time',
-            'char'              => 'string',
-            'varchar'           => 'string',
-            'text'              => 'text',
-            'nchar'             => 'string',
-            'nvarchar'          => 'string',
-            'ntext'             => 'text',
-            'binary'            => 'text',
-            'varbinary'         => 'text',
-            'image'             => 'text',
+            'bigint' => 'bigint',
+            'numeric' => 'decimal',
+            'bit' => 'boolean',
+            'smallint' => 'smallint',
+            'decimal' => 'decimal',
+            'smallmoney' => 'integer',
+            'int' => 'integer',
+            'tinyint' => 'smallint',
+            'money' => 'integer',
+            'float' => 'float',
+            'real' => 'float',
+            'double' => 'float',
+            'double precision' => 'float',
+            'date' => 'date',
+            'datetimeoffset' => 'datetimetz',
+            'datetime2' => 'datetime',
+            'smalldatetime' => 'datetime',
+            'datetime' => 'datetime',
+            'time' => 'time',
+            'char' => 'string',
+            'varchar' => 'string',
+            'text' => 'text',
+            'nchar' => 'string',
+            'nvarchar' => 'string',
+            'ntext' => 'text',
+            'binary' => 'text',
+            'varbinary' => 'text',
+            'image' => 'text',
         );
     }
 
@@ -750,21 +751,20 @@ class MsSqlPlatform extends AbstractPlatform
     {
         return 'ROLLBACK TRANSACTION ' . $savepoint;
     }
-	
-	/**
+
+    /**
      * @override
      */
-	public function appendLockHint($fromClause, $lockMode)
+    public function appendLockHint($fromClause, $lockMode)
     {
-		// @todo coorect
-		if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_READ) {
+        // @todo coorect
+        if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_READ) {
             return $fromClause . ' WITH (tablockx)';
         } else if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) {
             return $fromClause . ' WITH (tablockx)';
+        } else {
+            return $fromClause;
         }
-		else {
-			return $fromClause;
-		}
     }
 
     /**
@@ -774,9 +774,25 @@ class MsSqlPlatform extends AbstractPlatform
     {
         return ' ';
     }
-    
+
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\MsSQLKeywords';
+    }
+
+    /**
+     * Quotes a string so that it can be safely used as a table or column name,
+     * even if it is a reserved word of the platform.
+     *
+     * NOTE: Just because you CAN use quoted identifiers doesn't mean
+     * you SHOULD use them.  In general, they end up causing way more
+     * problems than they solve.
+     *
+     * @param string $str           identifier name to be quoted
+     * @return string               quoted identifier string
+     */
+    public function quoteIdentifier($str)
+    {
+        return "[" . $str . "]";
     }
 }
