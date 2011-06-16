@@ -137,6 +137,6 @@ class DropSchemaSqlCollector implements Visitor
      */
     public function getQueries()
     {
-        return array_merge($this->_constraints, $this->_tables, $this->_sequences);
+        return array_merge($this->_constraints, $this->_sequences, $this->_tables);
     }
 }
