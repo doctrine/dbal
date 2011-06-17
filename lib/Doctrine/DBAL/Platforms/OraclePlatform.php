@@ -597,7 +597,7 @@ LEFT JOIN all_cons_columns r_cols
         $limit = (int) $limit;
         $offset = (int) $offset;
         if (preg_match('/^\s*SELECT/i', $query)) {
-            if ( ! preg_match('/\sFROM\s/i', $query)) {
+            if (!preg_match('/\sFROM\s/i', $query)) {
                 $query .= " FROM dual";
             }
             if ($limit > 0) {
@@ -605,13 +605,11 @@ LEFT JOIN all_cons_columns r_cols
                 $column = '*';
                 if ($offset > 0) {
                     $min = $offset + 1;
-                    $query = 'SELECT b.'.$column.' FROM ('.
-                                 'SELECT a.*, ROWNUM AS doctrine_rownum FROM ('
-                                   . $query . ') a '.
-                              ') b '.
-                              'WHERE doctrine_rownum BETWEEN ' . $min .  ' AND ' . $max;
+                    $query = 'SELECT * FROM (SELECT a.' . $column . ', rownum AS doctrine_rownum FROM (' .
+                            $query .
+                            ') a WHERE rownum <= ' . $max . ') WHERE doctrine_rownum >= ' . $min;
                 } else {
-                    $query = 'SELECT a.'.$column.' FROM (' . $query .') a WHERE ROWNUM <= ' . $max;
+                    $query = 'SELECT a.' . $column . ' FROM (' . $query . ') a WHERE ROWNUM <= ' . $max;
                 }
             }
         }
