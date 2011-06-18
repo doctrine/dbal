@@ -8,18 +8,30 @@
         2) Edit the file and fill in your settings (database name, type, username, etc.)
            Just change the "value"s, not the names of the var elements.
         3) To run the tests against the database type the following from within the
-           tests/ folder: phpunit --configuration <filename> ...
-           Example: phpunit --configuration mysqlconf.xml AllTests
+           tests/ folder: phpunit -c <filename> ...
+           Example: phpunit -c mysqlconf.xml
 -->
-<phpunit>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         syntaxCheck="false"
+         bootstrap="./tests/Doctrine/Tests/TestInit.php"
+>
   <php>
     <!-- "Real" test database -->
+    <!-- Uncomment, otherwise SQLite runs
     <var name="db_type" value="pdo_mysql"/>
     <var name="db_host" value="localhost" />
     <var name="db_username" value="root" />
     <var name="db_password" value="" />
     <var name="db_name" value="doctrine_tests" />
     <var name="db_port" value="3306"/>
+    -->
     <!--<var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit">-->
     
     <!-- Database for temporary connections (i.e. to drop/create the main database) -->
@@ -30,4 +42,10 @@
     <var name="tmpdb_name" value="doctrine_tests_tmp" />
     <var name="tmpdb_port" value="3306"/>
   </php>
+
+    <testsuites>
+        <testsuite name="Doctrine DBAL Test Suite">
+            <directory>./tests/Doctrine/Tests/DBAL</directory>
+        </testsuite>
+    </testsuites>
 </phpunit>
