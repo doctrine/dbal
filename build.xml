@@ -179,7 +179,6 @@
     <target name="git-tag">
         <exec command="grep '${version}' ${project.basedir}/lib/Doctrine/DBAL/Version.php" checkreturn="true"/>
         <exec command="git tag -a ${version}" passthru="true" />
-        <exec command="git push origin ${version}" passthru="true" />
     </target>
 
     <target name="pirum-release">
@@ -198,7 +197,6 @@
         <exec command="mv ${project.basedir}/lib/Doctrine/DBAL/Version2.php ${project.basedir}/lib/Doctrine/DBAL/Version.php" passthru="true" />
         <exec command="git add ${project.basedir}/lib/Doctrine/DBAL/Version.php" passthru="true" />
         <exec command="git commit -m 'Bump Dev Version to ${next_version}'" passthru="true" />
-        <exec command="git push origin master" passthru="true" />
     </target>
 
     <target name="release" depends="git-tag,build-packages,distribute-download,pirum-release,update-dev-version" />
