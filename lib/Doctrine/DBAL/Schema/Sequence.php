@@ -66,6 +66,16 @@ class Sequence extends AbstractAsset
     {
         return $this->_initialValue;
     }
+    
+    public function setAllocationSize($allocationSize)
+    {
+        $this->_allocationSize = (is_numeric($allocationSize))?$allocationSize:1;
+    }
+
+    public function setInitialValue($initialValue)
+    {
+        $this->_initialValue = (is_numeric($initialValue))?$initialValue:1;
+    }
 
     /**
      * @param Visitor $visitor

@@ -652,6 +652,25 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('logged_in_at'), array_keys($tableDiff->addedColumns));
         $this->assertEquals(0, count($tableDiff->removedColumns));
     }
+    
+    
+    /**
+     * @group DBAL-112
+     */
+    public function testChangedSequence()
+    {
+        $schema = new Schema();
+        $sequence = $schema->createSequence('baz');
+        
+        $schemaNew = clone $schema;
+        /* @var $schemaNew Schema */
+        $schemaNew->getSequence('baz')->setAllocationSize(20);
+        
+        $c = new \Doctrine\DBAL\Schema\Comparator;
+        $diff = $c->compare($schema, $schemaNew);
+        
+        $this->assertSame($diff->changedSequences[0] , $schemaNew->getSequence('baz'));
+    }
 
     /**
      * @group DBAL-106

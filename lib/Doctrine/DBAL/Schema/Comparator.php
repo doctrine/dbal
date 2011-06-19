@@ -99,7 +99,7 @@ class Comparator
                 $diff->newSequences[] = $sequence;
             } else {
                 if ($this->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
-                    $diff->changedSequences[] = $fromSchema->getSequence($sequenceName);
+                    $diff->changedSequences[] = $toSchema->getSequence($sequenceName);
                 }
             }
         }

@@ -1046,6 +1046,17 @@ abstract class AbstractPlatform
     {
         throw DBALException::notSupported(__METHOD__);
     }
+    
+    /**
+     * Gets the SQL statement to change a sequence on this platform.
+     * 
+     * @param \Doctrine\DBAL\Schema\Sequence $sequence 
+     * @return string
+     */
+    public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
 
     /**
      * Gets the SQL to create a constraint on a table on this platform.

@@ -19,11 +19,11 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
     public function testSchemaDiffToSql()
     {
         $diff = $this->createSchemaDiff();
-        $platform = $this->createPlatform();
+        $platform = $this->createPlatform(true);
 
         $sql = $diff->toSql($platform);
 
-        $expected = array('drop_orphan_fk', 'drop_seq', 'create_seq', 'drop_seq', 'create_seq', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table');
+        $expected = array('drop_orphan_fk', 'alter_seq', 'drop_seq', 'create_seq', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table');
 
         $this->assertEquals($expected, $sql);
     }
@@ -31,28 +31,34 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
     public function testSchemaDiffToSaveSql()
     {
         $diff = $this->createSchemaDiff();
-        $platform = $this->createPlatform(1, 0, 0);
+        $platform = $this->createPlatform(false);
 
         $sql = $diff->toSaveSql($platform);
 
-        $expected = array('drop_seq', 'create_seq', 'create_seq', 'create_table', 'create_foreign_key', 'alter_table');
+        $expected = array('alter_seq', 'create_seq', 'create_table', 'create_foreign_key', 'alter_table');
 
         $this->assertEquals($expected, $sql);
     }
 
-    public function createPlatform($dropSequenceCount=2, $dropTableCount=1, $dropOrphanedFkCount=1)
+    public function createPlatform($unsafe = false)
     {
         $platform = $this->getMock('Doctrine\Tests\DBAL\Mocks\MockPlatform');
-        $platform->expects($this->exactly($dropSequenceCount))
+        if ($unsafe) {
+            $platform->expects($this->exactly(1))
                  ->method('getDropSequenceSql')
                  ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Sequence'))
                  ->will($this->returnValue('drop_seq'));
-        $platform->expects($this->exactly(2))
+        }
+        $platform->expects($this->exactly(1))
+                 ->method('getAlterSequenceSql')
+                 ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Sequence'))
+                 ->will($this->returnValue('alter_seq'));
+        $platform->expects($this->exactly(1))
                  ->method('getCreateSequenceSql')
                  ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Sequence'))
                  ->will($this->returnValue('create_seq'));
-        if ($dropTableCount > 0) {
-            $platform->expects($this->exactly($dropTableCount))
+        if ($unsafe) {
+            $platform->expects($this->exactly(1))
                      ->method('getDropTableSql')
                      ->with($this->isInstanceof('Doctrine\DBAL\Schema\Table'))
                      ->will($this->returnValue('drop_table'));
@@ -69,8 +75,8 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
                  ->method('getAlterTableSql')
                  ->with($this->isInstanceOf('Doctrine\DBAL\Schema\TableDiff'))
                  ->will($this->returnValue(array('alter_table')));
-        if ($dropOrphanedFkCount > 0) {
-            $platform->expects($this->exactly($dropOrphanedFkCount))
+        if ($unsafe) {
+            $platform->expects($this->exactly(1))
                      ->method('getDropForeignKeySql')
                      ->with($this->isInstanceof('Doctrine\DBAL\Schema\ForeignKeyConstraint'), $this->equalTo('local_table'))
                      ->will($this->returnValue('drop_orphan_fk'));

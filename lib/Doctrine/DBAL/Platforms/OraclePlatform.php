@@ -143,6 +143,12 @@ class OraclePlatform extends AbstractPlatform
                ' MINVALUE ' . $sequence->getInitialValue() . 
                ' INCREMENT BY ' . $sequence->getAllocationSize();
     }
+    
+    public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    {
+        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) . 
+               ' INCREMENT BY ' . $sequence->getAllocationSize();
+    }
 
     /**
      * {@inheritdoc}
