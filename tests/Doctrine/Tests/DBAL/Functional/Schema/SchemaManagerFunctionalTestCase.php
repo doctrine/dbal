@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Types\Type,
     Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 require_once __DIR__ . '/../../../TestInit.php';
 
@@ -397,6 +398,44 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $inferredTable = $this->_sm->listTableDetails('test_autoincrement');
         $this->assertTrue($inferredTable->hasColumn('id'));
         $this->assertTrue($inferredTable->getColumn('id')->getAutoincrement());
+    }
+    
+    /**
+     * @group DDC-887
+     */
+    public function testUpdateSchemaWithForeignKeyRenaming()
+    {
+        if (!$this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
+        }
+        
+        $table = new \Doctrine\DBAL\Schema\Table('test_fk_base');
+        $table->addColumn('id', 'integer');
+        $table->setPrimaryKey(array('id'));
+        
+        $tableFK = new \Doctrine\DBAL\Schema\Table('test_fk_rename');
+        $tableFK->setSchemaConfig($this->_sm->createSchemaConfig());
+        $tableFK->addColumn('id', 'integer');
+        $tableFK->addColumn('fk_id', 'integer');
+        $tableFK->setPrimaryKey(array('id'));
+        $tableFK->addIndex(array('fk_id'), 'fk_idx');
+        $tableFK->addForeignKeyConstraint('test_fk_base', array('fk_id'), array('id'));
+        
+        $this->_sm->createTable($table);
+        $this->_sm->createTable($tableFK);
+        
+        $tableFKNew = new \Doctrine\DBAL\Schema\Table('test_fk_rename');
+        $tableFKNew->setSchemaConfig($this->_sm->createSchemaConfig());
+        $tableFKNew->addColumn('id', 'integer');
+        $tableFKNew->addColumn('rename_fk_id', 'integer');
+        $tableFKNew->setPrimaryKey(array('id'));
+        $tableFKNew->addIndex(array('rename_fk_id'), 'fk_idx');
+        $tableFKNew->addForeignKeyConstraint('test_fk_base', array('rename_fk_id'), array('id'));
+        
+        $c = new \Doctrine\DBAL\Schema\Comparator();
+        $tableDiff = $c->diffTable($tableFK, $tableFKNew);
+        
+        $this->_sm->alterTable($tableDiff);
     }
 
     /**
