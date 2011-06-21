@@ -50,7 +50,7 @@ class Driver implements \Doctrine\DBAL\Driver
     private function _constructDsn(array $params)
     {
         $dsn = '';
-        if (isset($params['host'])) {
+        if (isset($params['host']) && $params['host']) {
             $dsn .= '(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' .
                    '(HOST=' . $params['host'] . ')';
 
