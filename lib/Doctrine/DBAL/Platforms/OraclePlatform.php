@@ -555,7 +555,7 @@ LEFT JOIN all_cons_columns r_cols
             $fields[] = $column->getQuotedName($this);
         }
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' DROP COLUMN ' . implode(', ', $fields);
+            $sql[] = 'ALTER TABLE ' . $diff->name . ' DROP (' . implode(', ', $fields).')';
         }
 
         if ($diff->newName !== false) {
