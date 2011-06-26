@@ -57,6 +57,9 @@ class ConversionException extends \Doctrine\DBAL\DBALException
     static public function conversionFailedFormat($value, $toType, $expectedFormat)
     {
         $value = (strlen($value) > 32) ? substr($value, 0, 20) . "..." : $value;
-        return new self('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
+        return new self(
+            'Could not convert database value "' . $value . '" to Doctrine Type ' .
+            $toType . '. Expected format: ' . $expectedFormat
+        );
     }
 }
