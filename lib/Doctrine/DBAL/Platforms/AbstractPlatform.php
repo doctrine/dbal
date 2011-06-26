@@ -1123,17 +1123,32 @@ abstract class AbstractPlatform
         if (count($columns) == 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
+        
+        if ($index->isPrimary()) {
+            return $this->getCreatePrimaryKeySQL($index, $table);
+        } else {
+            $type = '';
+            if ($index->isUnique()) {
+                $type = 'UNIQUE ';
+            }
 
-        $type = '';
-        if ($index->isUnique()) {
-            $type = 'UNIQUE ';
+            $query = 'CREATE ' . $type . 'INDEX ' . $name . ' ON ' . $table;
+            $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
         }
 
-        $query = 'CREATE ' . $type . 'INDEX ' . $name . ' ON ' . $table;
-
-        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
-
         return $query;
+    }
+    
+    /**
+     * Get SQL to create an unnamed primary key constraint.
+     * 
+     * @param Index $index
+     * @param string|Table $table
+     * @return string
+     */
+    public function getCreatePrimaryKeySQL(Index $index, $table)
+    {
+        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index->getColumns()) . ')';
     }
 
     /**

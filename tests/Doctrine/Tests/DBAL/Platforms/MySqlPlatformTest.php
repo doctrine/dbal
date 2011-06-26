@@ -4,6 +4,8 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Schema;
 
 require_once __DIR__ . '/../../TestInit.php';
  
@@ -16,7 +18,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
 
     public function testGenerateMixedCaseTableCreate()
     {
-        $table = new \Doctrine\DBAL\Schema\Table("Foo");
+        $table = new Table("Foo");
         $table->addColumn("Bar", "integer");
 
         $sql = $this->_platform->getCreateTableSQL($table);
@@ -143,6 +145,32 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     public function getGenerateForeignKeySql()
     {
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table(id)';
+    }
+    
+    /**
+     * @group DBAL-126
+     */
+    public function testUniquePrimaryKey()
+    {        
+        $keyTable = new Table("foo");
+        $keyTable->addColumn("bar", "integer");
+        $keyTable->addColumn("baz", "string");
+        $keyTable->setPrimaryKey(array("bar"));
+        $keyTable->addUniqueIndex(array("baz"));
+        
+        $oldTable = new Table("foo");
+        $oldTable->addColumn("bar", "integer");
+        $oldTable->addColumn("baz", "string");
+        
+        $c = new \Doctrine\DBAL\Schema\Comparator;
+        $diff = $c->diffTable($oldTable, $keyTable);
+        
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        
+        $this->assertEquals(array(
+            "ALTER TABLE foo ADD PRIMARY KEY (bar)",
+            "CREATE UNIQUE INDEX UNIQ_8C73652178240498 ON foo (baz)",
+        ), $sql);
     }
 
     public function testModifyLimitQuery()
