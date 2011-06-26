@@ -61,7 +61,7 @@ class TimeType extends Type
 
         $val = \DateTime::createFromFormat($platform->getTimeFormatString(), $value);
         if (!$val) {
-            throw ConversionException::conversionFailed($value, $this->getName());
+            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getTimeFormatString());
         }
         return $val;
     }
