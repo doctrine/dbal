@@ -406,6 +406,21 @@ class TableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($table->getIndexes()));
         $this->assertFalse($table->hasIndex($index->getName()));
     }
+    
+    public function testPrimaryKeyOverrulesUniqueIndex()
+    {
+        $table = new Table("bar");
+        $table->addColumn('baz', 'integer', array());
+        $table->addUniqueIndex(array('baz'));
+        
+        $table->setPrimaryKey(array('baz'));
+        
+        $indexes = $table->getIndexes();        
+        $this->assertEquals(1, count($indexes), "Table should only contain the primary key table index, not the unique one anymore, because it was overruled.");
+        
+        $index = current($indexes);
+        $this->assertTrue($index->isPrimary());
+    }
 
     /**
      * @group DBAL-64

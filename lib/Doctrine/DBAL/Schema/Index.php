@@ -76,6 +76,16 @@ class Index extends AbstractAsset implements Constraint
     {
         return $this->_columns;
     }
+    
+    /**
+     * Is the index neither unique nor primary key?
+     * 
+     * @return bool
+     */
+    public function isSimpleIndex()
+    {
+        return !$this->_isPrimary && !$this->_isUnique;
+    }
 
     /**
      * @return bool
@@ -164,7 +174,9 @@ class Index extends AbstractAsset implements Constraint
      */
     public function overrules(Index $other)
     {
-        if ($other->isPrimary() || $other->isUnique()) {
+        if ($other->isPrimary()) {
+            return false;
+        } else if ($this->isSimpleIndex() && $other->isUnique()) {
             return false;
         }
 
