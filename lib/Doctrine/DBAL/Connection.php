@@ -661,7 +661,20 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
-        return call_user_func_array(array($this->_conn, 'query'), func_get_args());
+        $args = func_get_args();
+
+        $logger = $this->getConfiguration()->getSQLLogger();
+        if ($logger) {
+            $logger->startQuery($args[0]);
+        }
+
+        $statement = call_user_func_array(array($this->_conn, 'query'), $args);
+
+        if ($logger) {
+            $logger->stopQuery();
+        }
+
+        return $statement;
     }
 
     /**
