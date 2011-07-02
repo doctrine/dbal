@@ -80,8 +80,7 @@ EOT
 
         ob_start();
         \Doctrine\Common\Util\Debug::dump($resultSet, (int) $depth);
-        $output = ob_get_contents();
-        ob_end_clean();
+        $output = ob_get_clean();
 
         $output->write();
     }
