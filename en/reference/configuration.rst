@@ -19,7 +19,7 @@ You can get a DBAL Connection through the
         'host' => 'localhost',
         'driver' => 'pdo_mysql',
     );
-    $conn = DriverManager::getConnection($connectionParams);
+    $conn = DriverManager::getConnection($connectionParams, $config);
 
 The ``DriverManager`` returns an instance of
 ``Doctrine\DBAL\Connection`` which is a wrapper around the
