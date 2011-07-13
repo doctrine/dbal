@@ -174,7 +174,7 @@ htmlhelp_basename = 'DoctrineDBALdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index2', 'DoctrineDBAL.tex', u'Doctrine DBAL Documentation',
+  ('index', 'DoctrineDBAL.tex', u'Doctrine DBAL Documentation',
    u'Roman Borschel, Guilherme Blanco, Benjamin Eberlei, Jonathan Wage', 'manual'),
 ]
 

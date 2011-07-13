@@ -16,6 +16,7 @@ Contents:
    reference/architecture
    reference/configuration
    reference/data-retrieval-and-manipulation
+   reference/query-builder
    reference/transactions
    reference/platforms
    reference/types
