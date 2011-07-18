@@ -71,7 +71,7 @@ class Driver implements \Doctrine\DBAL\Driver
         if (isset($params['charset'])) {
             $dsn .= 'charset=' . $params['charset'] . ';';
         }
-        
+
         return $dsn;
     }
 
@@ -93,6 +93,10 @@ class Driver implements \Doctrine\DBAL\Driver
     public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {
         $params = $conn->getParams();
-        return $params['dbname'];
+
+        if (isset($params['dbname'])) {
+            return $params['dbname'];
+        }
+        return $conn->query('SELECT DATABASE()')->fetchColumn();
     }
 }
