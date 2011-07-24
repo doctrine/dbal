@@ -38,10 +38,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $onUpdate = null;
         $onDelete = null;
 
-        if (preg_match('(ON UPDATE ([a-zA-Z0-9]+))', $tableForeignKey['condef'], $match)) {
+        if (preg_match('(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {
             $onUpdate = $match[1];
         }
-        if (preg_match('(ON DELETE ([a-zA-Z0-9]+))', $tableForeignKey['condef'], $match)) {
+        if (preg_match('(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {
             $onDelete = $match[1];
         }
 

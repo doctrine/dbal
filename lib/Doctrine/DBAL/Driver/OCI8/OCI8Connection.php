@@ -26,9 +26,9 @@ namespace Doctrine\DBAL\Driver\OCI8;
  */
 class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
 {
-    private $_dbh;
+    protected $_dbh;
 
-    private $_executeMode = OCI_COMMIT_ON_SUCCESS;
+    protected $_executeMode = OCI_COMMIT_ON_SUCCESS;
 
     /**
      * Create a Connection to an Oracle Database using oci8 extension.
