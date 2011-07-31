@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -206,5 +207,13 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             /* @var $conn Connection */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
+    }
+
+    /**
+     * Tests that the quote function accepts DBAL and PDO types.
+     */
+    public function testQuote()
+    {
+        $this->assertEquals($this->_conn->quote("foo", Type::STRING), $this->_conn->quote("foo", \PDO::PARAM_STR));
     }
 }

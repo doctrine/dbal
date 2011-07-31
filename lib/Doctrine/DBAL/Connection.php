@@ -555,8 +555,9 @@ class Connection implements DriverConnection
     public function quote($input, $type = null)
     {
         $this->connect();
-        
-        return $this->_conn->quote($input, $type);
+
+        list($value, $bindingType) = $this->getBindingInfo($input, $type);
+        return $this->_conn->quote($input, $bindingType);
     }
 
     /**
@@ -1069,15 +1070,7 @@ class Connection implements DriverConnection
                 $typeIndex = $bindIndex + $typeOffset;
                 if (isset($types[$typeIndex])) {
                     $type = $types[$typeIndex];
-                    if (is_string($type)) {
-                        $type = Type::getType($type);
-                    }
-                    if ($type instanceof Type) {
-                        $value = $type->convertToDatabaseValue($value, $this->_platform);
-                        $bindingType = $type->getBindingType();
-                    } else {
-                        $bindingType = $type; // PDO::PARAM_* constants
-                    }
+                    list($value, $bindingType) = $this->getBindingInfo($value, $type);
                     $stmt->bindValue($bindIndex, $value, $bindingType);
                 } else {
                     $stmt->bindValue($bindIndex, $value);
@@ -1089,15 +1082,7 @@ class Connection implements DriverConnection
             foreach ($params as $name => $value) {
                 if (isset($types[$name])) {
                     $type = $types[$name];
-                    if (is_string($type)) {
-                        $type = Type::getType($type);
-                    }
-                    if ($type instanceof Type) {
-                        $value = $type->convertToDatabaseValue($value, $this->_platform);
-                        $bindingType = $type->getBindingType();
-                    } else {
-                        $bindingType = $type; // PDO::PARAM_* constants
-                    }
+                    list($value, $bindingType) = $this->getBindingInfo($value, $type);
                     $stmt->bindValue($name, $value, $bindingType);
                 } else {
                     $stmt->bindValue($name, $value);
@@ -1105,7 +1090,28 @@ class Connection implements DriverConnection
             }
         }
     }
-    
+
+    /**
+     * Gets the binding type of a given type. The given type can be a PDO or DBAL mapping type.
+     *
+     * @param mixed $value The value to bind
+     * @param mixed $type The type to bind (PDO or DBAL)
+     * @return array [0] => the (escaped) value, [1] => the binding type
+     */
+    private function getBindingInfo($value, $type)
+    {
+        if (is_string($type)) {
+            $type = Type::getType($type);
+        }
+        if ($type instanceof Type) {
+            $value = $type->convertToDatabaseValue($value, $this->_platform);
+            $bindingType = $type->getBindingType();
+        } else {
+            $bindingType = $type; // PDO::PARAM_* constants
+        }
+        return array($value, $bindingType);
+    }
+
     /**
      * Create a new instance of a SQL query builder.
      * 
