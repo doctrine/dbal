@@ -108,22 +108,22 @@ class MySqlPlatform extends AbstractPlatform
 
     public function getDateAddDaysExpression($date, $days)
     {
-        return 'DATE_ADD(' . $date . ', INTERVAL ' . (int)$days . ' DAY)';
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
     }
 
     public function getDateSubDaysExpression($date, $days)
     {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . (int)$days . ' DAY)';
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
     }
 
     public function getDateAddMonthExpression($date, $months)
     {
-        return 'DATE_ADD(' . $date . ', INTERVAL ' . (int)$months . ' MONTH)';
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
     }
 
     public function getDateSubMonthExpression($date, $months)
     {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . (int)$months . ' MONTH)';
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';
     }
 
     public function getListDatabasesSQL()
