@@ -47,4 +47,21 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
             ), $sql
         );
     }
+
+    /**
+     * @group DBAL-132
+     */
+    public function testGenerateForeignKeySQL()
+    {
+        $tableOld = new Table("test");
+        $tableOld->addColumn('foo_id', 'integer');
+        $tableOld->addUnnamedForeignKeyConstraint('test_foreign', array('foo_id'), array('foo_id'));
+
+        $sqls = array();
+        foreach ($tableOld->getForeignKeys() AS $fk) {
+            $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld);
+        }
+
+        $this->assertEquals(array("ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F FOREIGN KEY (foo_id) REFERENCES test_foreign(foo_id)"), $sqls);
+    }
 }
