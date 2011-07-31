@@ -325,7 +325,10 @@ class Comparator
         }
 
         if ($column1->getType() instanceof \Doctrine\DBAL\Types\StringType) {
-            if ($column1->getLength() != $column2->getLength()) {
+            // check if value of length is set at all, default value assumed otherwise.
+            $length1 = $column1->getLength() ?: 255;
+            $length2 = $column2->getLength() ?: 255;
+            if ($length1 != $length2) {
                 $changedProperties[] = 'length';
             }
 
