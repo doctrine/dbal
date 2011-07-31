@@ -132,7 +132,7 @@ class SqlitePlatform extends AbstractPlatform
 
     public function getDateAddDaysExpression($date, $days)
     {
-        return "DATE(" . $date . ",'+". days . " day')";
+        return "DATE(" . $date . ",'+". $days . " day')";
     }
 
     public function getDateSubDaysExpression($date, $days)
