@@ -30,15 +30,15 @@ use \PDO;
 class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
 {
     /** Statement handle. */
-    protected $_sth;
-    protected $_executeMode;
-    protected static $_PARAM = ':param';
-    protected static $fetchStyleMap = array(
+    private $_sth;
+    private $_executeMode;
+    private static $_PARAM = ':param';
+    private static $fetchStyleMap = array(
         PDO::FETCH_BOTH => OCI_BOTH,
         PDO::FETCH_ASSOC => OCI_ASSOC,
         PDO::FETCH_NUM => OCI_NUM
     );
-    protected $_paramMap = array();
+    private $_paramMap = array();
 
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.

@@ -94,7 +94,7 @@ class PostgreSqlPlatform extends AbstractPlatform
 
     public function getDateDiffExpression($date1, $date2)
     {
-        return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
+        return '('.$date1 . '-'.$date2.')';
     }
 
     public function getDateAddDaysExpression($date, $days)
