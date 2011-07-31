@@ -118,22 +118,22 @@ class OraclePlatform extends AbstractPlatform
 
     public function getDateAddDaysExpression($date, $days)
     {
-        return '(' . $date . '+' . (int)$days . ')';
+        return '(' . $date . '+' . $days . ')';
     }
 
     public function getDateSubDaysExpression($date, $days)
     {
-        return '(' . $date . '-' . (int)$days . ')';
+        return '(' . $date . '-' . $days . ')';
     }
 
     public function getDateAddMonthExpression($date, $months)
     {
-        return "ADD_MONTHS(" . $date . ", " . (int)$months . ")";
+        return "ADD_MONTHS(" . $date . ", " . $months . ")";
     }
 
     public function getDateSubMonthExpression($date, $months)
     {
-        return "ADD_MONTHS(" . $date . ", -" . (int)$months . ")";
+        return "ADD_MONTHS(" . $date . ", -" . $months . ")";
     }
     
     /**
