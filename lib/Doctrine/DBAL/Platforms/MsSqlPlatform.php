@@ -607,14 +607,12 @@ class MsSqlPlatform extends AbstractPlatform
 
                 // Remove ORDER BY clause from $query
                 $query = preg_replace('/\s+ORDER BY(.*)/', '', $query);
-
-                // Add ORDER BY clause as an argument for ROW_NUMBER()
-                $query = "SELECT ROW_NUMBER() OVER ($over) AS \"doctrine_rownum\", * FROM ($query) AS inner_tbl";
+                $query = preg_replace('/^SELECT\s/', '', $query);
 
                 $start = $offset + 1;
                 $end = $offset + $count;
 
-                $query = "WITH outer_tbl AS ($query) SELECT * FROM outer_tbl WHERE \"doctrine_rownum\" BETWEEN $start AND $end";
+                $query = "SELECT * FROM (SELECT ROW_NUMBER() OVER ($over) AS \"doctrine_rownum\", $query) AS doctrine_tbl WHERE \"doctrine_rownum\" BETWEEN $start AND $end";
             }
         }
 
