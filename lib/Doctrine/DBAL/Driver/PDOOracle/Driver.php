@@ -43,7 +43,7 @@ class Driver implements \Doctrine\DBAL\Driver
     private function _constructPdoDsn(array $params)
     {
         $dsn = 'oci:';
-        if (isset($params['host'])) {
+        if (isset($params['host']) && $params['host'] != '') {
             $dsn .= 'dbname=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' .
                    '(HOST=' . $params['host'] . ')';
 
