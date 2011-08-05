@@ -686,4 +686,14 @@ class MySqlPlatform extends AbstractPlatform
     {
         return 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords';
     }
+
+    /**
+     * @override
+     */
+    public function getTruncateTableSQL($tableName, $cascade = false)
+    {
+        return 'SET foreign_key_checks = 0;'
+              .'TRUNCATE TABLE ' . $tableName . ';'
+              .'SET foreign_key_checks = 1;';
+    }
 }
