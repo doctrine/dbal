@@ -37,7 +37,7 @@ class Driver implements \Doctrine\DBAL\Driver
         if (isset($params['host']) && $params['host'] != '') {
             $dsn .= 'host=' . $params['host'] . ' ';
         }
-        if (isset($params['port'])) {
+        if (isset($params['port']) && $params['port'] != '') {
             $dsn .= 'port=' . $params['port'] . ' ';
         }
         if (isset($params['dbname'])) {
