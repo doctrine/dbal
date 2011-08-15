@@ -155,6 +155,40 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             $this->_conn->getDatabasePlatform()->getCreateTableSQL($table)
         );
     }
+
+    public function testListForeignKeys()
+    {
+        if(!$this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped('Does not support foreign key constraints.');
+        }
+
+        $fkOptions = array('SET NULL', 'SET DEFAULT', 'NO ACTION','CASCADE', 'RESTRICT');
+        $foreignKeys = array();
+        $fkTable = $this->getTestTable('test_create_fk1');
+        for($i = 0; $i < count($fkOptions); $i++) {
+            $fkTable->addColumn("foreign_key_test$i", 'integer');
+            $foreignKeys[] = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
+                                 array("foreign_key_test$i"), 'test_create_fk2', array('id'), "foreign_key_test_$i"."_fk", array('onDelete' => $fkOptions[$i]));
+        }
+        $this->_sm->dropAndCreateTable($fkTable);
+        $this->createTestTable('test_create_fk2');
+
+        foreach($foreignKeys as $foreignKey) {
+            $this->_sm->createForeignKey($foreignKey, 'test_create_fk1');
+        }
+        $fkeys = $this->_sm->listTableForeignKeys('test_create_fk1');
+        $this->assertEquals(count($foreignKeys), count($fkeys), "Table 'test_create_fk1' has to have " . count($foreignKeys) . " foreign keys.");
+        for ($i = 0; $i < count($fkeys); $i++) {
+            $this->assertEquals(array("foreign_key_test$i"), array_map('strtolower', $fkeys[$i]->getLocalColumns()));
+            $this->assertEquals(array('id'), array_map('strtolower', $fkeys[$i]->getForeignColumns()));
+            $this->assertEquals('test_create_fk2', strtolower($fkeys[0]->getForeignTableName()));
+            if ($foreignKeys[$i]->getOption('onDelete') == 'NO ACTION') {
+                $this->assertFalse($fkeys[$i]->hasOption('onDelete'), 'Unexpected option: '. $fkeys[$i]->getOption('onDelete'));
+            } else {
+                $this->assertEquals($foreignKeys[$i]->getOption('onDelete'), $fkeys[$i]->getOption('onDelete'));
+            }
+        }
+    }
 }
 
 class MoneyType extends Type
