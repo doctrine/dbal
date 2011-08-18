@@ -62,6 +62,6 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
             $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld);
         }
 
-        $this->assertEquals(array("ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F FOREIGN KEY (foo_id) REFERENCES test_foreign(foo_id)"), $sqls);
+        $this->assertEquals(array("ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F FOREIGN KEY (foo_id) REFERENCES test_foreign (foo_id)"), $sqls);
     }
 }

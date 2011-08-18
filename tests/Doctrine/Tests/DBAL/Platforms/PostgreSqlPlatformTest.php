@@ -46,7 +46,7 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateForeignKeySql()
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table(id) NOT DEFERRABLE INITIALLY IMMEDIATE';
+        return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE';
     }
 
     public function testGeneratesForeignKeySqlForNonStandardOptions()
@@ -55,7 +55,7 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
                 array('foreign_id'), 'my_table', array('id'), 'my_fk', array('onDelete' => 'CASCADE')
         );
         $this->assertEquals(
-            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table(id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE",
+            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE",
             $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
         );
     }

@@ -160,7 +160,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateForeignKeySql()
     {
-        return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table(id)';
+        return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
     }
 
     public function testModifyLimitQuery()
