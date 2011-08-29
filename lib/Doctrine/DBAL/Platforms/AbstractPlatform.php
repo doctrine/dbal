@@ -1166,7 +1166,7 @@ abstract class AbstractPlatform
     {
         $c = $this->getIdentifierQuoteCharacter();
 
-        return $c . $str . $c;
+        return $c . str_replace($c, $c.$c, $str) . $c;
     }
 
     /**
