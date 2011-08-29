@@ -306,7 +306,8 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT name FROM sysobjects WHERE type = 'U' ORDER BY name";
+        // "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
+        return "SELECT name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' ORDER BY name";
     }
 
     /**
