@@ -786,6 +786,6 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function quoteIdentifier($str)
     {
-        return "[" . $str . "]";
+        return "[" . str_replace("]", "][", $str) . "]";
     }
 }
