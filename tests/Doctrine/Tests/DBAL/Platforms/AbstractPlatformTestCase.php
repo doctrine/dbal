@@ -16,6 +16,16 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->_platform = $this->createPlatform();
     }
 
+    public function testQuoteIdentifier()
+    {
+        if ($this->_platform->getName() == "mssql") {
+            $this->markTestSkipped('Not working this way on mssql.');
+        }
+
+        $c = $this->_platform->getIdentifierQuoteCharacter();
+        $this->assertEquals(str_repeat($c, 4), $this->_platform->quoteIdentifier($c));
+    }
+
     public function testGetInvalidtForeignKeyReferentialActionSQL()
     {
         $this->setExpectedException('InvalidArgumentException');
