@@ -156,7 +156,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
     public function execute($params = null)
     {
         if ($params) {
-            $hasZeroIndex = isset($params[0]);
+            $hasZeroIndex = array_key_exists(0, $params);
             foreach ($params as $key => $val) {
                 if ($hasZeroIndex && is_numeric($key)) {
                     $this->bindValue($key + 1, $val);
