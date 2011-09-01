@@ -41,6 +41,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
         PDO::FETCH_ASSOC => OCI_ASSOC,
         PDO::FETCH_NUM => OCI_NUM,
         PDO::PARAM_LOB => OCI_B_BLOB,
+        PDO::FETCH_COLUMN => OCI_NUM,
     );
     protected $_defaultFetchStyle = PDO::FETCH_BOTH;
     protected $_paramMap = array();
@@ -225,6 +226,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
         if ( ! isset(self::$fetchStyleMap[$fetchStyle])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
         }
+<<<<<<< HEAD
 
         $result = array();
         if (self::$fetchStyleMap[$fetchStyle] === OCI_BOTH) {
@@ -234,6 +236,20 @@ class OCI8Statement implements \IteratorAggregate, Statement
         } else {
             oci_fetch_all($this->_sth, $result, 0, -1,
                 self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | OCI_FETCHSTATEMENT_BY_ROW | OCI_RETURN_LOBS);
+=======
+      
+        $fetchStructure = OCI_FETCHSTATEMENT_BY_ROW;
+        if ($fetchStyle == PDO::FETCH_COLUMN) {
+            $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
+        }
+
+        $result = array();
+        oci_fetch_all($this->_sth, $result, 0, -1,
+            self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
+
+        if ($fetchStyle == PDO::FETCH_COLUMN) {
+            $result = $result[0];
+>>>>>>> Adding PDO::FETCH_COLUMN support to OCI8 fetchAll method using the fetch structure OCI_FETCHSTATEMENT_BY_COLUMN.
         }
 
         return $result;
