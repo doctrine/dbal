@@ -83,7 +83,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
      */
     public function quote($input, $type=\PDO::PARAM_STR)
     {
-        return is_numeric($input) ? $input : "'$input'";
+        return is_numeric($input) ? $input : "'" . str_replace("'", "''", $input) . "'";
     }
 
     /**
