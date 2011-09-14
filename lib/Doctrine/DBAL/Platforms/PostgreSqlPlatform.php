@@ -99,22 +99,22 @@ class PostgreSqlPlatform extends AbstractPlatform
 
     public function getDateAddDaysExpression($date, $days)
     {
-        return "($date + ($days || ' day')::interval)";
+        return "(" . $date ." + (" . $days . " || ' day')::interval)";
     }
 
     public function getDateSubDaysExpression($date, $days)
     {
-        return "($date - ($days || ' day')::interval)";
+        return "(" . $date ." - (" . $days . " || ' day')::interval)";
     }
 
     public function getDateAddMonthExpression($date, $months)
     {
-        return "($date + ($months || ' month')::interval)";
+        return "(" . $date ." + (" . $months . " || ' month')::interval)";
     }
 
     public function getDateSubMonthExpression($date, $months)
     {
-        return "($date - ($months || ' month')::interval)";
+        return "(" . $date ." - (" . $months . " || ' month')::interval)";
     }
     
     /**
