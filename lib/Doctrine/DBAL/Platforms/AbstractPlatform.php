@@ -371,6 +371,16 @@ abstract class AbstractPlatform
     {
         throw DBALException::notSupported(__METHOD__);
     }
+    
+    /**
+     * Returns global unique identifier
+     *
+     * @return string to get global unique identifier
+     */
+    public function getGuidExpression()
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
 
     /**
      * Returns the average value of a column
