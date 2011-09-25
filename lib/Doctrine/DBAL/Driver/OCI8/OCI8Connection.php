@@ -81,9 +81,13 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
      * @param int $type PDO::PARAM* 
      * @return mixed
      */
-    public function quote($input, $type=\PDO::PARAM_STR)
+    public function quote($value, $type=\PDO::PARAM_STR)
     {
-        return is_numeric($input) ? $input : "'$input'";
+        if (is_int($value) || is_float($value)) {
+            return $value;
+        }
+        $value = str_replace("'", "''", $value);
+        return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
     }
 
     /**
