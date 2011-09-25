@@ -96,6 +96,52 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
                 array(1, 2, 3, 4, 5),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
+            
+            //  Named parameters : Very simple with one needle
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo)",
+                array('foo'=>array(1, 2, 3)),
+                array('foo'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (:foo0, :foo1, :foo2)',
+                array(':foo0'=>1, ':foo1'=>2, ':foo2'=>3),
+                array(':foo0'=>\PDO::PARAM_INT, ':foo1'=>\PDO::PARAM_INT, ':foo2'=>\PDO::PARAM_INT)
+            ),
+            // Named parameters: One non-list before d one after list-needle
+            array(
+                "SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar)",
+                array('foo'=>"string", 'bar'=>array(1, 2, 3)),
+                array('foo'=>\PDO::PARAM_STR, 'bar'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar0, :bar1, :bar2)',
+                array(':foo'=>"string", ':bar0'=>1, ':bar1'=>2, ':bar2'=>3),
+                array(':foo'=>\PDO::PARAM_STR, ':bar0'=>\PDO::PARAM_INT,':bar1'=>\PDO::PARAM_INT,':bar2'=>\PDO::PARAM_INT)
+            ),
+            // Named parameters: One non-list after list-needle
+            array(
+                "SELECT * FROM Foo WHERE bar IN (:bar) AND baz = :baz",
+                array('bar'=>array(1, 2, 3), 'baz'=>"foo"),
+                array('bar'=>Connection::PARAM_INT_ARRAY, 'baz'=>\PDO::PARAM_STR),
+                'SELECT * FROM Foo WHERE bar IN (:bar0, :bar1, :bar2) AND baz = :baz',
+                array(':bar0'=>1, ':bar1'=>2, ':bar2'=>3, ':baz'=>"foo"),
+                array(':bar0'=>\PDO::PARAM_INT, ':bar1'=>\PDO::PARAM_INT, ':bar2'=>\PDO::PARAM_INT, ':baz'=>\PDO::PARAM_STR)
+            ),
+            // Named parameters: One non-list before and one after list-needle
+            array(
+                "SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar) AND baz = :baz",
+                array('foo'=>1, 'bar'=>array(1, 2, 3), 'baz'=>4),
+                array('foo'=>\PDO::PARAM_INT, 'bar'=>Connection::PARAM_INT_ARRAY, 'baz'=>\PDO::PARAM_INT),
+                'SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar0, :bar1, :bar2) AND baz = :baz',
+                array(':foo'=>1, ':bar0'=>1, ':bar1'=>2, ':bar2'=>3, ':baz'=>4),
+                array(':foo'=>\PDO::PARAM_INT,':bar0'=>\PDO::PARAM_INT, ':bar1'=>\PDO::PARAM_INT, ':bar2'=>\PDO::PARAM_INT, ':baz'=>\PDO::PARAM_INT)
+            ),
+            // Named parameters: Two lists
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo1, :foo2)",
+                array('foo1'=>array(1, 2, 3), 'foo2'=>array(4, 5)),
+                array('foo1'=>Connection::PARAM_INT_ARRAY, 'foo2'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (:foo10, :foo11, :foo12, :foo20, :foo21)',
+                array(':foo10'=>1, ':foo11'=>2, ':foo12'=>3, ':foo20'=>4, ':foo21'=>5),
+                array(':foo10'=>\PDO::PARAM_INT, ':foo11'=>\PDO::PARAM_INT, ':foo12'=>\PDO::PARAM_INT, ':foo20'=>\PDO::PARAM_INT, ':foo21'=>\PDO::PARAM_INT)
+            ),
         );
     }
     

@@ -103,10 +103,10 @@ class SQLParserUtils
             return array($query, $params, $types);
         }
         
-        $paramPos = self::getPlaceholderPositions($query, $isPositional);
         if ($isPositional) {
             $paramOffset = 0;
             $queryOffset = 0;
+            $paramPos    = self::getPlaceholderPositions($query, $isPositional);
             foreach ($paramPos AS $needle => $needlePos) {
                 if (!isset($arrayPositions[$needle])) {
                     continue;
@@ -134,8 +134,32 @@ class SQLParserUtils
                 $paramOffset += ($len - 1); // Grows larger by number of parameters minus the replaced needle.
                 $queryOffset += (strlen($expandStr) - 1);
             }
+            
         } else {
-            throw new DBALException("Array parameters are not supported for named placeholders.");
+            foreach ($params as $key => $val) {
+                $expandType  = array();
+                $expandParam = array();
+                if (is_array($val)) {
+                    foreach ($val as $k => $v) {
+                        $p = ":{$key}{$k}";
+                        $expandParam[$p] = $v;
+                        $expandType[$p]  = $types[$key] - Connection::ARRAY_PARAM_OFFSET;
+                    }
+
+                    $expandStr  = implode(", ", array_keys($expandParam));
+                    $query      = str_replace(":$key", $expandStr, $query);
+                }  else {
+                    $p = ":{$key}";
+                    $expandParam[$p] = $val;
+                    $expandType[$p]  = $types[$key];
+                }
+                
+                $types  = array_merge($types,$expandType);
+                $params = array_merge($params,$expandParam);
+                    
+                unset ($params[$key]);
+                unset ($types[$key]);
+            }
         }
         
         return array($query, $params, $types);
