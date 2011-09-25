@@ -7,12 +7,12 @@ class DbalFunctionalTestCase extends DbalTestCase
     /**
      * Shared connection when a TestCase is run alone (outside of it's functional suite)
      *
-     * @var Doctrine\DBAL\Connection
+     * @var \Doctrine\DBAL\Connection
      */
     private static $_sharedConn;
 
     /**
-     * @var Doctrine\DBAL\Connection
+     * @var \Doctrine\DBAL\Connection
      */
     protected $_conn;
 
