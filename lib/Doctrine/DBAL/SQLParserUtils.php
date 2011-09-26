@@ -136,29 +136,30 @@ class SQLParserUtils
             }
             
         } else {
-            foreach ($params as $key => $val) {
+            foreach ($params as $needle => $value) {
                 $expandType  = array();
                 $expandParam = array();
-                if (is_array($val)) {
-                    foreach ($val as $k => $v) {
-                        $p = ":{$key}{$k}";
-                        $expandParam[$p] = $v;
-                        $expandType[$p]  = $types[$key] - Connection::ARRAY_PARAM_OFFSET;
+                
+                if (is_array($value)) {
+                    foreach ($value as $key => $value) {
+                        $expandNeedle = ":{$needle}{$key}";
+                        $expandParam[$expandNeedle] = $value;
+                        $expandType[$expandNeedle]  = $types[$needle] - Connection::ARRAY_PARAM_OFFSET;
                     }
 
                     $expandStr  = implode(", ", array_keys($expandParam));
-                    $query      = str_replace(":$key", $expandStr, $query);
+                    $query      = str_replace(":$needle", $expandStr, $query);
                 }  else {
-                    $p = ":{$key}";
-                    $expandParam[$p] = $val;
-                    $expandType[$p]  = $types[$key];
+                    $expandNeedle               = ":{$needle}";
+                    $expandParam[$expandNeedle] = $value;
+                    $expandType[$expandNeedle]  = $types[$needle];
                 }
                 
                 $types  = array_merge($types,$expandType);
                 $params = array_merge($params,$expandParam);
                     
-                unset ($params[$key]);
-                unset ($types[$key]);
+                unset ($params[$needle]);
+                unset ($types[$needle]);
             }
         }
         
