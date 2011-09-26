@@ -63,7 +63,7 @@ class DDC1372Test extends \Doctrine\Tests\DbalFunctionalTestCase
             
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar IN (:bar) AND f.foo IN (:foo)',
-                array('foo'=>array(1),'bar'=> array(1, 2, 3,4)),
+                array('foo'=>array('1'),'bar'=> array(1, 2, 3,4)),
                 array('bar'=> Connection::PARAM_STR_ARRAY,'foo'=>Connection::PARAM_INT_ARRAY),
                 array(
                     array('id'=>1,'foo'=>1,'bar'=>1),
