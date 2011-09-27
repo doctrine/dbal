@@ -106,24 +106,26 @@ class MySqlPlatform extends AbstractPlatform
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
     }
 
-    public function getDateAddDaysExpression($date, $days)
+    public function getDateAddExpression($date, $days)
     {
-        return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
+        if ($unit == "day") {
+			return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
+		} else if ($unit == "month") {
+			return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+        } else {
+            throw QueryException::semanticalError('DATE_ADD() only supports units of type day and month.');
+        }
     }
 
-    public function getDateSubDaysExpression($date, $days)
+    public function getDateSubExpression($date, $days)
     {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
-    }
-
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
-    }
-
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+        if ($unit == "day") {
+			return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
+		} else if ($unit == "month") {
+			return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+        } else {
+            throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
+        }
     }
 
     public function getListDatabasesSQL()

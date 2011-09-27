@@ -116,26 +116,28 @@ class OraclePlatform extends AbstractPlatform
         return "TRUNC(TO_NUMBER(SUBSTR((" . $date1 . "-" . $date2 . "), 1, INSTR(" . $date1 . "-" . $date2 .", ' '))))";
     }
 
-    public function getDateAddDaysExpression($date, $days)
+    public function getDateAddExpression($date, $days)
     {
-        return '(' . $date . '+' . $days . ')';
+        if ($unit == "day") {
+            return '(' . $date . '+' . $days . ')';
+		} else if ($unit == "month") {
+            return "ADD_MONTHS(" . $date . ", " . $months . ")";
+        } else {
+            throw QueryException::semanticalError('DATE_ADD() only supports units of type day and month.');
+        }
     }
 
-    public function getDateSubDaysExpression($date, $days)
+    public function getDateSubExpression($date, $days)
     {
-        return '(' . $date . '-' . $days . ')';
+        if ($unit == "day") {
+            return '(' . $date . '-' . $days . ')';
+		} else if ($unit == "month") {
+            return "ADD_MONTHS(" . $date . ", -" . $months . ")";
+        } else {
+            throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
+        }
     }
 
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return "ADD_MONTHS(" . $date . ", " . $months . ")";
-    }
-
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return "ADD_MONTHS(" . $date . ", -" . $months . ")";
-    }
-    
     /**
      * Gets the SQL used to create a sequence that starts with a given value
      * and increments by the given allocation size.

@@ -130,24 +130,26 @@ class SqlitePlatform extends AbstractPlatform
         return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
     }
 
-    public function getDateAddDaysExpression($date, $days)
+    public function getDateAddExpression($date, $days)
     {
-        return "DATE(" . $date . ",'+". $days . " day')";
+        if ($unit == "day") {
+            return "DATE(" . $date . ",'+". $days . " day')";
+		} else if ($unit == "month") {
+            return "DATE(" . $date . ",'+". $months . " month')";
+        } else {
+            throw QueryException::semanticalError('DATE_ADD() only supports units of type day and month.');
+        }
     }
 
-    public function getDateSubDaysExpression($date, $days)
+    public function getDateSubExpression($date, $days)
     {
-        return "DATE(" . $date . ",'-". $days . " day')";
-    }
-
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return "DATE(" . $date . ",'+". $months . " month')";
-    }
-
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return "DATE(" . $date . ",'-". $months . " month')";
+        if ($unit == "day") {
+            return "DATE(" . $date . ",'-". $days . " day')";
+		} else if ($unit == "month") {
+            return "DATE(" . $date . ",'-". $months . " month')";
+        } else {
+            throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
+        }
     }
 
     protected function _getTransactionIsolationLevelSQL($level)

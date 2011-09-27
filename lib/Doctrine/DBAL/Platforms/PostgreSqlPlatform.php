@@ -94,29 +94,19 @@ class PostgreSqlPlatform extends AbstractPlatform
 
     public function getDateDiffExpression($date1, $date2)
     {
-        return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
+        return '(' . $date1 . '-' . $date2 . ')';
     }
 
-    public function getDateAddDaysExpression($date, $days)
+    public function getDateAddExpression($date, $value, $unit)
     {
-        return "(" . $date . "+ interval '" . $days . " day')";
+        return "(" . $date . "+ interval '" . $value . " " . $unit ."')";
     }
 
-    public function getDateSubDaysExpression($date, $days)
+    public function getDateSubExpression($date, $value, $unit)
     {
-        return "(" . $date . "- interval '" . $days . " day')";
+        return "(" . $date . "- interval '" . $value . " " . $unit . "')";
     }
 
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return "(" . $date . "+ interval '" . $months . " month')";
-    }
-
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return "(" . $date . "- interval '" . $months . " month')";
-    }
-    
     /**
      * parses a literal boolean value and returns
      * proper sql equivalent
@@ -619,6 +609,26 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
         return 'TIME(0) WITHOUT TIME ZONE';
+    }
+
+    /**
+     * Gets the SQL specific for the platform to get the current timestamp
+     *
+     * @return string
+     */
+    public function getCurrentTimestampSQL()
+    {
+        return 'CURRENT_TIMESTAMP(0)';
+    }
+
+    /**
+     * Gets the SQL specific for the platform to get the current time.
+     *
+     * @return string
+     */
+    public function getCurrentTimeSQL()
+    {
+        return 'CURRENT_TIME(0)';
     }
 
     /**

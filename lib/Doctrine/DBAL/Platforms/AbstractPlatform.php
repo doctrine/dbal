@@ -734,6 +734,19 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Add the number of given units to a date.
+     *
+     * @param string $date
+     * @param int $value
+     * @param string $unit
+     * @return string
+     */
+    public function getDateAddExpression($date, $value, $unit)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Add the number of given days to a date.
      *
      * @param string $date
@@ -741,6 +754,19 @@ abstract class AbstractPlatform
      * @return string
      */
     public function getDateAddDaysExpression($date, $days)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Substract the number of given units from a date.
+     *
+     * @param string $date
+     * @param int $value
+     * @param string $unit
+     * @return string
+     */
+    public function getDateSubExpression($date, $value, $unit)
     {
         throw DBALException::notSupported(__METHOD__);
     }
