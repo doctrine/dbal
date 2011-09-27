@@ -134,9 +134,49 @@ class SQLParserUtils
                 $paramOffset += ($len - 1); // Grows larger by number of parameters minus the replaced needle.
                 $queryOffset += (strlen($expandStr) - 1);
             }
+            
         } else {
-            throw new DBALException("Array parameters are not supported for named placeholders.");
+            $queryOffset = 0;
+            foreach ($paramPos as $needle => $needlePos) {
+                if (!isset($arrayPositions[substr($needle,1)])) {
+                    continue;
+                }
+                
+                $paramLen   = strlen($needle);
+                $token      = substr($needle,0,1);
+                $needle     = substr($needle,1);
+                $value      = $params[$needle];
+                $expandType = array();
+                $expandParam= array();
+                $expandSql  = array();
+                $i          =-1;
+                
+                foreach ($value as $val) {
+                    do {
+                        $i++;
+                        $expandNeedle = $needle . $i;
+                    } while (isset($params[$needle . $i]));
+                    
+                    $expandSql[]    = $token  . $needle . $i;
+                    $expandParam[$expandNeedle] = $val;
+                    $expandType[$expandNeedle]  = $types[$needle] - Connection::ARRAY_PARAM_OFFSET;
+                }
+                
+                $expandStr = implode(", ", ($expandSql));
+                foreach ($needlePos as $pos) {
+                    $pos         += $queryOffset;
+                    $queryOffset += (strlen($expandStr) - $paramLen);
+                    $query        = substr($query, 0, $pos) . $expandStr . substr($query, ($pos + $paramLen));
+                }
+
+                $types  = array_merge($types,$expandType);
+                $params = array_merge($params,$expandParam);
+                
+                unset ($params[$needle]);
+                unset ($types[$needle]);
+            }
         }
+        
         
         return array($query, $params, $types);
     }
