@@ -23,21 +23,11 @@ namespace Doctrine\DBAL\Driver\PDOPgSql;
 
 class PgSqlConnection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doctrine\DBAL\Driver\Connection
 {
-	private $search_path;
-	public function __construct($dsn, $user = null, $password = null, array $options = null)
-    	{
-       	parent::__construct($dsn, $user, $password, $options);
-    	}
-
 	public function setSearchPath($searchPath)
 	{
-		$this->search_path = $searchPath;
-		$sql = 	"SET search_path TO ".$searchPath;
+		$sql = "SET search_path TO ".$searchPath;
 		$stmt = $this->prepare($sql);
 		$stmt->execute();
 		return;
-	}
-	public function getSearchPath(){
-		return $this->search_path;
 	}
 }

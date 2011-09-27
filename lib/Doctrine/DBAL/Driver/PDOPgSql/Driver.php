@@ -11,7 +11,13 @@ use Doctrine\DBAL\Platforms;
  */
 class Driver implements \Doctrine\DBAL\Driver
 {
+    /**
+     * Contains the search_path from database driver config
+     *
+     * @var string
+     */
     private $search_path;
+    
     /**
      * Attempts to connect to the database and returns a driver connection on success.
      *
