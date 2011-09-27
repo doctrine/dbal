@@ -103,10 +103,10 @@ class SQLParserUtils
             return array($query, $params, $types);
         }
         
+        $paramPos = self::getPlaceholderPositions($query, $isPositional);
         if ($isPositional) {
             $paramOffset = 0;
             $queryOffset = 0;
-            $paramPos    = self::getPlaceholderPositions($query, $isPositional);
             foreach ($paramPos AS $needle => $needlePos) {
                 if (!isset($arrayPositions[$needle])) {
                     continue;
@@ -136,32 +136,47 @@ class SQLParserUtils
             }
             
         } else {
-            foreach ($params as $needle => $value) {
-                $expandType  = array();
-                $expandParam = array();
-                
-                if (is_array($value)) {
-                    foreach ($value as $key => $value) {
-                        $expandNeedle = ":{$needle}{$key}";
-                        $expandParam[$expandNeedle] = $value;
-                        $expandType[$expandNeedle]  = $types[$needle] - Connection::ARRAY_PARAM_OFFSET;
-                    }
-
-                    $expandStr  = implode(", ", array_keys($expandParam));
-                    $query      = str_replace(":$needle", $expandStr, $query);
-                }  else {
-                    $expandNeedle               = ":{$needle}";
-                    $expandParam[$expandNeedle] = $value;
-                    $expandType[$expandNeedle]  = $types[$needle];
+            $queryOffset = 0;
+            foreach ($paramPos as $needle => $needlePos) {
+                if (!isset($arrayPositions[substr($needle,1)])) {
+                    continue;
                 }
                 
+                $paramLen   = strlen($needle);
+                $token      = substr($needle,0,1);
+                $needle     = substr($needle,1);
+                $value      = $params[$needle];
+                $expandType = array();
+                $expandParam= array();
+                $expandSql  = array();
+                $i          =-1;
+                
+                foreach ($value as $val) {
+                    do {
+                        $i++;
+                        $expandNeedle = $needle . $i;
+                    } while (isset($params[$needle . $i]));
+                    
+                    $expandSql[]    = $token  . $needle . $i;
+                    $expandParam[$expandNeedle] = $val;
+                    $expandType[$expandNeedle]  = $types[$needle] - Connection::ARRAY_PARAM_OFFSET;
+                }
+                
+                $expandStr = implode(", ", ($expandSql));
+                foreach ($needlePos as $pos) {
+                    $pos         += $queryOffset;
+                    $queryOffset += (strlen($expandStr) - $paramLen);
+                    $query        = substr($query, 0, $pos) . $expandStr . substr($query, ($pos + $paramLen));
+                }
+
                 $types  = array_merge($types,$expandType);
                 $params = array_merge($params,$expandParam);
-                    
+                
                 unset ($params[$needle]);
                 unset ($types[$needle]);
             }
         }
+        
         
         return array($query, $params, $types);
     }

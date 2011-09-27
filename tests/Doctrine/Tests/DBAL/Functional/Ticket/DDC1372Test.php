@@ -75,6 +75,7 @@ class DDC1372Test extends \Doctrine\Tests\DbalFunctionalTestCase
             
         );
     }
+    
     public function setUp()
     {
         parent::setUp();
@@ -125,9 +126,8 @@ class DDC1372Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $stmt   = $this->_conn->executeQuery($query, $params, $types);
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
+
         $this->assertEquals($result, $expected);
     }
-
 
 }
