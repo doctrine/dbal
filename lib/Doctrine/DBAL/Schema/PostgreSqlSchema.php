@@ -44,12 +44,15 @@ class PostgreSqlSchema extends Schema
     /**
      * set search_path_array from string
      */
-    protected function setSearchPathArray($search_path)
+	protected function setSearchPathArray($search_path)
     {
+        $this->search_path_array = array();
         if ($search_path) {
-            $this->search_path_array = explode(",",$search_path);
-        } else {
-            $this->search_path_array = array();
+            $tmp = explode(",",$search_path);
+            foreach ($tmp as $dbSchema)
+            {
+                array_push($this->search_path_array, trim($dbSchema));
+            }
         }
         return;
     }
