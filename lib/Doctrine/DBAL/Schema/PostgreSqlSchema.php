@@ -1,7 +1,5 @@
 <?php
 /*
-*  $Id$
-*
 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -32,7 +30,6 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
  *
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
- * @version $Revision$
  * @author  Thomas Warwaris <code@warwaris.at>
  */
 class PostgreSqlSchema extends Schema
@@ -47,10 +44,11 @@ class PostgreSqlSchema extends Schema
     /**
      * set search_path_array from string
      */
-    protected function setSearchPathArray($search_path){
-        if ($search_path){
+    protected function setSearchPathArray($search_path)
+    {
+        if ($search_path) {
             $this->search_path_array = explode(",",$search_path);
-        }else{
+        } else {
             $this->search_path_array = array();
         }
         return;
@@ -61,7 +59,8 @@ class PostgreSqlSchema extends Schema
      *
      * @param string $search_path The psql schema search path.
      */
-    public function setSearchPath($search_path){
+    public function setSearchPath($search_path)
+    {
         $this->setSearchPathArray( $search_path);
         return;
     }
@@ -73,17 +72,18 @@ class PostgreSqlSchema extends Schema
      * @param array $hayStack List of known objects
      * @return object $result Returns the object
      */     
-    protected function searchObject($tableName,$hayStack){
+    protected function searchObject($tableName,$hayStack)
+    {
         $tableName = strtolower($tableName);		
         $tableData = $this->splitNameToParts($tableName);
-        if ( $tableData['schema'] ){
-            if (array_key_exists($tableName,$hayStack)){
+        if ( $tableData['schema'] ) {
+            if (array_key_exists($tableName,$hayStack)) {
                 return $hayStack[$tableName];
             }
-        }else{
-            foreach($this->search_path_array as $dbSchema){
+        } else {
+            foreach($this->search_path_array as $dbSchema) {
                 $fullName = $dbSchema.".".$tableData['name'];
-                if (array_key_exists($fullName,$hayStack)){
+                if (array_key_exists($fullName,$hayStack)) {
                     return $hayStack[$fullName];
                 }	
             }
@@ -97,12 +97,13 @@ class PostgreSqlSchema extends Schema
      * @param string $tableName
      * @return bool
      */ 	 	
-    public function hasTable($tableName){
+    public function hasTable($tableName)
+    {
         $table = $this->searchObject($tableName,$this->_tables);
         if ($table !== false){
-            return 1;
+            return true;
         }
-        return 0;
+        return false;
     }
     
     /**
@@ -111,9 +112,10 @@ class PostgreSqlSchema extends Schema
      * @param string $tableName
      * @return Table
      */ 	 	
-    public function getTable($tableName){
+    public function getTable($tableName)
+    {
         $table = $this->searchObject($tableName,$this->_tables);		
-        if ($table !== false){
+        if ($table !== false) {
             return $table;
         }
         throw SchemaException::tableDoesNotExist($tableName);
@@ -128,10 +130,10 @@ class PostgreSqlSchema extends Schema
     public function hasSequence($sequenceName)
     {
         $sequence = $this->searchObject($sequenceName,$this->_sequences);
-        if ($sequence !== false){
-            return 1;
+        if ($sequence !== false) {
+            return true;
         }
-        return 0;
+        return false;
     }
 	
     /**
@@ -142,7 +144,7 @@ class PostgreSqlSchema extends Schema
     public function getSequence($sequenceName)
     {
         $sequence = $this->searchObject($sequenceName,$this->_sequences);		
-        if ($sequence !== false){
+        if ($sequence !== false) {
             return $sequence;
         }
         throw SchemaException::tableDoesNotExist($sequenceName);
@@ -154,10 +156,11 @@ class PostgreSqlSchema extends Schema
      * @param string $name
      * @return array $return array returning the schema (or false) in ['schema'] and the name in ['name']
      */ 
-    protected function splitNameToParts($name){
+    protected function splitNameToParts($name)
+    {
         $r = array( 'schema' => false, 'name' => $name );
         $dotPos = stripos($name,'.');
-        if ($dotPos){
+        if ($dotPos) {
             $r['schema'] = substr($name,0,$dotPos);
             $r['name'] = substr($name,$dotPos+1);
         }

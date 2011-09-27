@@ -29,7 +29,6 @@ namespace Doctrine\DBAL\Schema;
  * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      Thomas Warwaris <code@warwaris.at>
- * @version     $Revision$
  * @since       2.0
  */
 class PostgreSqlSchemaManager extends AbstractSchemaManager
@@ -40,10 +39,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      * @param string $search_path Search path, given by the database
      * @return string $search_path Search path, to use in schema objects
      */ 
-    private function replaceUserInSearchPath($search_path){
-	   $usr = $this->_conn->getUsername();
-		$r = str_replace('"$user"',$usr,$search_path);
-		return $r;
+    private function replaceUserInSearchPath($search_path)
+    {
+       $usr = $this->_conn->getUsername();
+        $r = str_replace('"$user"',$usr,$search_path);
+        return $r;
     }
     
     /**
@@ -51,17 +51,18 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * @return string $search_path to use in schema objects
      */
-    private function getSearchPathFromDb(){
-		  $sql = 'SHOW search_path';
-		  $stmt = $this->_conn->executeQuery($sql);
+    private function getSearchPathFromDb()
+    {
+        $sql = 'SHOW search_path';
+        $stmt = $this->_conn->executeQuery($sql);
         $res = $stmt->fetchAll();
-        if (array_key_exists(0,$res)){
-      	 $search_path = $this->replaceUserInSearchPath($res[0][0]);
-      	 return $search_path;
-		  }
-		  // todo: this should be an error, because no search path was given by the DB      
-		  return $this->_conn->getUsername().",public";	
-	   }	
+        if (array_key_exists(0,$res)) {
+            $search_path = $this->replaceUserInSearchPath($res[0][0]);
+            return $search_path;
+        }
+        // todo: this should be an error, because no search path was given by the DB      
+        return $this->_conn->getUsername().",public";	
+    }	
 
     /**
      * Return a schema object.
@@ -90,7 +91,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $onDelete = null;
 
         if (preg_match('(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) { 
-        $onUpdate = $match[1];
+            $onUpdate = $match[1];
         }
         if (preg_match('(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {
             $onDelete = $match[1];

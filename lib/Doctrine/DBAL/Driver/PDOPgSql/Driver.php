@@ -32,7 +32,7 @@ class Driver implements \Doctrine\DBAL\Driver
             $password,
             $realDriverOptions
          );
-         if ($this->search_path){
+         if ($this->search_path) {
             $connection->setSearchPath($this->search_path);
          }	
         return $connection;
@@ -42,12 +42,13 @@ class Driver implements \Doctrine\DBAL\Driver
      *
      * @return driver Options to pass to the connection
      */
-    private function filterAndSetLocalOptions($driverOptions){
+    private function filterAndSetLocalOptions($driverOptions)
+    {
         $realDriverOptions = array();		
-        foreach( $driverOptions as $key=>$value){
-            if ($key == 'search_path'){
+        foreach ( $driverOptions as $key=>$value) {
+            if ($key == 'search_path') {
                 $this->search_path = $value;
-            }else{
+            } else {
                 $realDriverOptions[$key]=$value;
             }
         }

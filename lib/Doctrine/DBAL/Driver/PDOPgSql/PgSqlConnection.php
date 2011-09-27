@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -23,11 +21,11 @@ namespace Doctrine\DBAL\Driver\PDOPgSql;
 
 class PgSqlConnection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doctrine\DBAL\Driver\Connection
 {
-	public function setSearchPath($searchPath)
-	{
-		$sql = "SET search_path TO ".$searchPath;
-		$stmt = $this->prepare($sql);
-		$stmt->execute();
-		return;
-	}
+    public function setSearchPath($searchPath)
+    {
+        $sql = "SET search_path TO ".$searchPath;
+        $stmt = $this->prepare($sql);
+        $stmt->execute();
+        return;
+    }
 }
