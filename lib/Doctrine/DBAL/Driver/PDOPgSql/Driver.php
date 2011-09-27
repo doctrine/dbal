@@ -19,29 +19,34 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
- 		$realDriverOptions = $this->filterAndSetLocalOptions($driverOptions);
- 		$connection =  new PgSqlConnection(
+        $realDriverOptions = $this->filterAndSetLocalOptions($driverOptions);
+        $connection =  new PgSqlConnection(
             $this->_constructPdoDsn($params),
             $username,
             $password,
             $realDriverOptions
-        	);
-        	if ($this->search_path){
-				$connection->setSearchPath($this->search_path);
-			}	
-			return $connection;
+         );
+         if ($this->search_path){
+            $connection->setSearchPath($this->search_path);
+         }	
+        return $connection;
     }
-	private function filterAndSetLocalOptions($driverOptions){
-			$realDriverOptions = array();		
-			foreach( $driverOptions as $key=>$value){
-				if ($key == 'search_path'){
-					$this->search_path = $value;
-				}else{
-					$realDriverOptions[$key]=$value;
-				}
-			}
-			return $realDriverOptions;		
-		}
+    /**
+     * Filter and set options meant for this driver
+     *
+     * @return driver Options to pass to the connection
+     */
+    private function filterAndSetLocalOptions($driverOptions){
+        $realDriverOptions = array();		
+        foreach( $driverOptions as $key=>$value){
+            if ($key == 'search_path'){
+                $this->search_path = $value;
+            }else{
+                $realDriverOptions[$key]=$value;
+            }
+        }
+        return $realDriverOptions;		
+    }
     /**
      * Constructs the Postgres PDO DSN.
      *
@@ -50,10 +55,10 @@ class Driver implements \Doctrine\DBAL\Driver
     private function _constructPdoDsn(array $params)
     {
         $dsn = 'pgsql:';
-        if (isset($params['host'])) {
+        if (isset($params['host']) && $params['host'] != '') {
             $dsn .= 'host=' . $params['host'] . ' ';
         }
-        if (isset($params['port'])) {
+        if (isset($params['port']) && $params['port'] != '') {
             $dsn .= 'port=' . $params['port'] . ' ';
         }
         if (isset($params['dbname'])) {
