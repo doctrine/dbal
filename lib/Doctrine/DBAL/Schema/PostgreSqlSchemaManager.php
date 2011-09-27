@@ -21,35 +21,54 @@
 namespace Doctrine\DBAL\Schema;
 
 /**
- * xxx
+ * Schema manager for postgres
+ * supports postgres schema search_path
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ * @author      Thomas Warwaris <code@warwaris.at>
  * @version     $Revision$
  * @since       2.0
  */
 class PostgreSqlSchemaManager extends AbstractSchemaManager
 {
-	private function replaceUserInSearchPath($search_path){
-			$usr = $this->_conn->getUsername();
-			$r = str_replace('"$user"',$usr,$search_path);
-			return $r;
-		}
-	private function getSearchPathFromDb(){
-		$sql = 'SHOW search_path';
-		$stmt = $this->_conn->executeQuery($sql);
-      $res = $stmt->fetchAll();
-      if (array_key_exists(0,$res)){
-      	$search_path = $this->replaceUserInSearchPath($res[0][0]);
-      	return $search_path;
-		}
-		// todo: this should be an error, because no search path was given by the DB      
-		return $this->_conn->getUsername().",public";	
-	}	
+    /**
+     * replace the "$user" tag in the search path by the user name.
+     *
+     * @param string $search_path Search path, given by the database
+     * @return string $search_path Search path, to use in schema objects
+     */ 
+    private function replaceUserInSearchPath($search_path){
+	   $usr = $this->_conn->getUsername();
+		$r = str_replace('"$user"',$usr,$search_path);
+		return $r;
+    }
+    
+    /**
+     * retrieve search path from the database
+     *
+     * @return string $search_path to use in schema objects
+     */
+    private function getSearchPathFromDb(){
+		  $sql = 'SHOW search_path';
+		  $stmt = $this->_conn->executeQuery($sql);
+        $res = $stmt->fetchAll();
+        if (array_key_exists(0,$res)){
+      	 $search_path = $this->replaceUserInSearchPath($res[0][0]);
+      	 return $search_path;
+		  }
+		  // todo: this should be an error, because no search path was given by the DB      
+		  return $this->_conn->getUsername().",public";	
+	   }	
 
-   public function createSchema()
+    /**
+     * Return a schema object.
+     * 
+     * return Schema $schema
+     */
+    public function createSchema()
     {
         $sequences = array();
         if($this->_platform->supportsSequences()) {
@@ -58,10 +77,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $tables = $this->listTables();
            
         $schema = new PostgreSqlSchema($tables, $sequences, $this->createSchemaConfig());
+        
         $searchPath = $this->getSearchPathFromDb();
         $schema->setSearchPath($searchPath);
+        
         return $schema;
     }
+    
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         $onUpdate = null;

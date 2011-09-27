@@ -26,9 +26,15 @@ use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 
 /**
-* Schema class extended for postgresql.
-* Supports search_path
-*/
+ * Schema class extended for postgresql.
+ * Supports search_path
+ * Object representation of a database schema
+ *
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link    www.doctrine-project.org
+ * @version $Revision$
+ * @author  Thomas Warwaris <code@warwaris.at>
+ */
 class PostgreSqlSchema extends Schema
 {	
     /**
@@ -68,72 +74,93 @@ class PostgreSqlSchema extends Schema
      * @return object $result Returns the object
      */     
     protected function searchObject($tableName,$hayStack){
-      $tableName = strtolower($tableName);		
-      $tableData = $this->splitNameToParts($tableName);
-      if ( $tableData['schema'] ){
-         if (array_key_exists($tableName,$hayStack)){
-            return $hayStack[$tableName];
-         }
-      }else{
-         foreach($this->search_path_array as $dbSchema){
-            $fullName = $dbSchema.".".$tableData['name'];
-            if (array_key_exists($fullName,$hayStack)){
-               return $hayStack[$fullName];
-            }	
-         }
-      }
-      return false;
-   }	 	
-   public function hasTable($tableName)
-      {
-         $table = $this->searchObject($tableName,$this->_tables);
-         if ($table !== false){
+        $tableName = strtolower($tableName);		
+        $tableData = $this->splitNameToParts($tableName);
+        if ( $tableData['schema'] ){
+            if (array_key_exists($tableName,$hayStack)){
+                return $hayStack[$tableName];
+            }
+        }else{
+            foreach($this->search_path_array as $dbSchema){
+                $fullName = $dbSchema.".".$tableData['name'];
+                if (array_key_exists($fullName,$hayStack)){
+                    return $hayStack[$fullName];
+                }	
+            }
+        }
+        return false;
+    }
+   
+    /**
+     * check if a table exists by name
+     *
+     * @param string $tableName
+     * @return bool
+     */ 	 	
+    public function hasTable($tableName){
+        $table = $this->searchObject($tableName,$this->_tables);
+        if ($table !== false){
             return 1;
-         }
-      return 0;
-   }
-   public function getTable($tableName)
-   {
-      $table = $this->searchObject($tableName,$this->_tables);		
-      if ($table !== false){
-         return $table;
-      }
-      throw SchemaException::tableDoesNotExist($tableName);
-   }
+        }
+        return 0;
+    }
+    
+    /**
+     * return a table by name
+     *
+     * @param string $tableName
+     * @return Table
+     */ 	 	
+    public function getTable($tableName){
+        $table = $this->searchObject($tableName,$this->_tables);		
+        if ($table !== false){
+            return $table;
+        }
+        throw SchemaException::tableDoesNotExist($tableName);
+    }
 
-	
-   public function getTableBySchemaAndName($tableName){
-      if (!isset($this->_tables[$tableName])) {
-         return false;
-      }
-      return $this->tables[$table];
-   }
-  
-   public function hasSequence($sequenceName)
-   {
-      $sequence = $this->searchObject($sequenceName,$this->_sequences);
-         if ($sequence !== false){
+    /**
+     * check if a sequence exists by name
+     * 
+     * @param string $sequenceName
+     * @return bool
+     */ 	 	
+    public function hasSequence($sequenceName)
+    {
+        $sequence = $this->searchObject($sequenceName,$this->_sequences);
+        if ($sequence !== false){
             return 1;
-         }
-      return 0;
-   }
+        }
+        return 0;
+    }
 	
-   public function getSequence($sequenceName)
-   {
-      $sequence = $this->searchObject($sequenceName,$this->_sequences);		
-      if ($sequence !== false){
-         return $sequence;
-      }
-      throw SchemaException::tableDoesNotExist($sequenceName);
-   }
+    /**
+     * return a sequence by name
+     * @param string $sequenceName
+     * @return Sequence
+     */ 
+    public function getSequence($sequenceName)
+    {
+        $sequence = $this->searchObject($sequenceName,$this->_sequences);		
+        if ($sequence !== false){
+            return $sequence;
+        }
+        throw SchemaException::tableDoesNotExist($sequenceName);
+    }
 
-   private function splitNameToParts($name){
-      $r = array( 'schema' => false, 'name' => $name );
-      $dotPos = stripos($name,'.');
-      if ($dotPos){
-         $r['schema'] = substr($name,0,$dotPos);
-         $r['name'] = substr($name,$dotPos+1);
-      }
-      return $r;	
-   }    
+    /**
+     * split a DB object name into schema and name part on the first dot
+     *
+     * @param string $name
+     * @return array $return array returning the schema (or false) in ['schema'] and the name in ['name']
+     */ 
+    protected function splitNameToParts($name){
+        $r = array( 'schema' => false, 'name' => $name );
+        $dotPos = stripos($name,'.');
+        if ($dotPos){
+            $r['schema'] = substr($name,0,$dotPos);
+            $r['name'] = substr($name,$dotPos+1);
+        }
+        return $r;	
+    }        
 }
