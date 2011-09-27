@@ -11,6 +11,7 @@ use Doctrine\DBAL\Platforms;
  */
 class Driver implements \Doctrine\DBAL\Driver
 {
+    private $search_path;
     /**
      * Attempts to connect to the database and returns a driver connection on success.
      *
@@ -18,14 +19,29 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return new \Doctrine\DBAL\Driver\PDOConnection(
+ 		$realDriverOptions = $this->filterAndSetLocalOptions($driverOptions);
+ 		$connection =  new PgSqlConnection(
             $this->_constructPdoDsn($params),
             $username,
             $password,
-            $driverOptions
-        );
+            $realDriverOptions
+        	);
+        	if ($this->search_path){
+				$connection->setSearchPath($this->search_path);
+			}	
+			return $connection;
     }
-
+	private function filterAndSetLocalOptions($driverOptions){
+			$realDriverOptions = array();		
+			foreach( $driverOptions as $key=>$value){
+				if ($key == 'search_path'){
+					$this->search_path = $value;
+				}else{
+					$realDriverOptions[$key]=$value;
+				}
+			}
+			return $realDriverOptions;		
+		}
     /**
      * Constructs the Postgres PDO DSN.
      *
@@ -34,10 +50,10 @@ class Driver implements \Doctrine\DBAL\Driver
     private function _constructPdoDsn(array $params)
     {
         $dsn = 'pgsql:';
-        if (isset($params['host']) && $params['host'] != '') {
+        if (isset($params['host'])) {
             $dsn .= 'host=' . $params['host'] . ' ';
         }
-        if (isset($params['port']) && $params['port'] != '') {
+        if (isset($params['port'])) {
             $dsn .= 'port=' . $params['port'] . ' ';
         }
         if (isset($params['dbname'])) {

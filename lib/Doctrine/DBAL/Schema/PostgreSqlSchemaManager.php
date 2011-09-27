@@ -32,16 +32,45 @@ namespace Doctrine\DBAL\Schema;
  */
 class PostgreSqlSchemaManager extends AbstractSchemaManager
 {
+	private function replaceUserInSearchPath($search_path){
+			$usr = $this->_conn->getUsername();
+			$r = str_replace('"$user"',$usr,$search_path);
+			return $r;
+		}
+	private function getSearchPathFromDb(){
+		$sql = 'SHOW search_path';
+		$stmt = $this->_conn->executeQuery($sql);
+      $res = $stmt->fetchAll();
+      if (array_key_exists(0,$res)){
+      	$search_path = $this->replaceUserInSearchPath($res[0][0]);
+      	return $search_path;
+		}
+		// todo: this should be an error, because no search path was given by the DB      
+		return $this->_conn->getUsername().",public";	
+	}	
 
+   public function createSchema()
+    {
+        $sequences = array();
+        if($this->_platform->supportsSequences()) {
+            $sequences = $this->listSequences();
+        }
+        $tables = $this->listTables();
+           
+        $schema = new PostgreSqlSchema($tables, $sequences, $this->createSchemaConfig());
+        $searchPath = $this->getSearchPathFromDb();
+        $schema->setSearchPath($searchPath);
+        return $schema;
+    }
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         $onUpdate = null;
         $onDelete = null;
 
-        if (preg_match('(ON UPDATE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {
+        if (preg_match('(ON UPDATE ([a-zA-Z0-9]+))', $tableForeignKey['condef'], $match)) {
             $onUpdate = $match[1];
         }
-        if (preg_match('(ON DELETE ([a-zA-Z0-9]+( (NULL|ACTION|DEFAULT))?))', $tableForeignKey['condef'], $match)) {
+        if (preg_match('(ON DELETE ([a-zA-Z0-9]+))', $tableForeignKey['condef'], $match)) {
             $onDelete = $match[1];
         }
 
