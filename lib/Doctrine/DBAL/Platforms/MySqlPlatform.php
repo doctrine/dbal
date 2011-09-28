@@ -106,23 +106,25 @@ class MySqlPlatform extends AbstractPlatform
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
     }
 
-    public function getDateAddExpression($date, $days)
+    public function getDateAddExpression($date, $value, $unit)
     {
-        if ($unit == "day") {
-			return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
-		} else if ($unit == "month") {
-			return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return 'DATE_ADD(' . $date . ', INTERVAL ' . $value . ' DAY)';
+        } else if ($unitl == "month") {
+            return 'DATE_ADD(' . $date . ', INTERVAL ' . $value . ' MONTH)';
         } else {
             throw QueryException::semanticalError('DATE_ADD() only supports units of type day and month.');
         }
     }
 
-    public function getDateSubExpression($date, $days)
+    public function getDateSubExpression($date, $value, $unit)
     {
-        if ($unit == "day") {
-			return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
-		} else if ($unit == "month") {
-			return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return 'DATE_SUB(' . $date . ', INTERVAL ' . $value . ' DAY)';
+        } else if ($unitl == "month") {
+            return 'DATE_SUB(' . $date . ', INTERVAL ' . $value . ' MONTH)';
         } else {
             throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
         }
@@ -245,7 +247,7 @@ class MySqlPlatform extends AbstractPlatform
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration) 
     {
         return 'TIME';
-    }	
+    }
 
     /**
      * @override

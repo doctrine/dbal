@@ -130,23 +130,25 @@ class SqlitePlatform extends AbstractPlatform
         return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
     }
 
-    public function getDateAddExpression($date, $days)
+    public function getDateAddExpression($date, $value, $unit)
     {
-        if ($unit == "day") {
-            return "DATE(" . $date . ",'+". $days . " day')";
-		} else if ($unit == "month") {
-            return "DATE(" . $date . ",'+". $months . " month')";
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return "DATE(" . $date . ",'+". $value . " day')";
+        } else if ($unitl == "month") {
+            return "DATE(" . $date . ",'+". $value . " month')";
         } else {
             throw QueryException::semanticalError('DATE_ADD() only supports units of type day and month.');
         }
     }
 
-    public function getDateSubExpression($date, $days)
+    public function getDateSubExpression($date, $value, $unit)
     {
-        if ($unit == "day") {
-            return "DATE(" . $date . ",'-". $days . " day')";
-		} else if ($unit == "month") {
-            return "DATE(" . $date . ",'-". $months . " month')";
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return "DATE(" . $date . ",'-". $value . " day')";
+        } else if ($unitl == "month") {
+            return "DATE(" . $date . ",'-". $value . " month')";
         } else {
             throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
         }

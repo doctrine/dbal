@@ -116,23 +116,25 @@ class OraclePlatform extends AbstractPlatform
         return "TRUNC(TO_NUMBER(SUBSTR((" . $date1 . "-" . $date2 . "), 1, INSTR(" . $date1 . "-" . $date2 .", ' '))))";
     }
 
-    public function getDateAddExpression($date, $days)
+    public function getDateAddExpression($date, $value, $unit)
     {
-        if ($unit == "day") {
-            return '(' . $date . '+' . $days . ')';
-		} else if ($unit == "month") {
-            return "ADD_MONTHS(" . $date . ", " . $months . ")";
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return '(' . $date . '+' . $value . ')';
+        } else if ($unitl == "month") {
+            return "ADD_MONTHS(" . $date . ", " . $value . ")";
         } else {
             throw QueryException::semanticalError('DATE_ADD() only supports units of type day and month.');
         }
     }
 
-    public function getDateSubExpression($date, $days)
+    public function getDateSubExpression($date, $value, $unit)
     {
-        if ($unit == "day") {
-            return '(' . $date . '-' . $days . ')';
-		} else if ($unit == "month") {
-            return "ADD_MONTHS(" . $date . ", -" . $months . ")";
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return '(' . $date . '-' . $value . ')';
+        } else if ($unitl == "month") {
+            return "ADD_MONTHS(" . $date . ", -" . $value . ")";
         } else {
             throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
         }
