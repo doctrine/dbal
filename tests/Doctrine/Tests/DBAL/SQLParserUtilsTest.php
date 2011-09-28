@@ -9,6 +9,7 @@ require_once __DIR__ . '/../TestInit.php';
 
 /**
  * @group DBAL-78
+ * @group DDC-1372
  */
 class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -95,6 +96,89 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
                 array(1, 2, 3, 4, 5),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+            //  Named parameters : Very simple with param int
+            array(
+                "SELECT * FROM Foo WHERE foo = :foo",
+                array('foo'=>1),
+                array('foo'=>\PDO::PARAM_INT),
+                'SELECT * FROM Foo WHERE foo = ?',
+                array(1),
+                array(\PDO::PARAM_INT)
+            ),
+            
+             //  Named parameters : Very simple with param int and string
+            array(
+                "SELECT * FROM Foo WHERE foo = :foo AND bar = :bar",
+                array('bar'=>'Some String','foo'=>1),
+                array('foo'=>\PDO::PARAM_INT,'bar'=>\PDO::PARAM_STR),
+                'SELECT * FROM Foo WHERE foo = ? AND bar = ?',
+                array(1,'Some String'),
+                array(\PDO::PARAM_INT, \PDO::PARAM_STR)
+            ),
+              
+            //  Named parameters : Very simple with one needle
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo)",
+                array('foo'=>array(1, 2, 3)),
+                array('foo'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
+                array(1, 2, 3),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+            // Named parameters: One non-list before d one after list-needle
+            array(
+                "SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar)",
+                array('foo'=>"string", 'bar'=>array(1, 2, 3)),
+                array('foo'=>\PDO::PARAM_STR, 'bar'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?)',
+                array("string", 1, 2, 3),
+                array(\PDO::PARAM_STR, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+            // Named parameters: One non-list after list-needle
+            array(
+                "SELECT * FROM Foo WHERE bar IN (:bar) AND baz = :baz",
+                array('bar'=>array(1, 2, 3), 'baz'=>"foo"),
+                array('bar'=>Connection::PARAM_INT_ARRAY, 'baz'=>\PDO::PARAM_STR),
+                'SELECT * FROM Foo WHERE bar IN (?, ?, ?) AND baz = ?',
+                array(1, 2, 3, "foo"),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
+            ),
+            // Named parameters: One non-list before and one after list-needle
+            array(
+                "SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar) AND baz = :baz",
+                array('bar'=>array(1, 2, 3),'foo'=>1, 'baz'=>4),
+                array('bar'=>Connection::PARAM_INT_ARRAY, 'foo'=>\PDO::PARAM_INT, 'baz'=>\PDO::PARAM_INT),
+                'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?) AND baz = ?',
+                array(1, 1, 2, 3, 4),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+            // Named parameters: Two lists
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:a, :b)",
+                array('b'=>array(4, 5),'a'=>array(1, 2, 3)),
+                array('a'=>Connection::PARAM_INT_ARRAY, 'b'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
+                array(1, 2, 3, 4, 5),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+            //  Named parameters : With the same name arg type string
+            array(
+                "SELECT * FROM Foo WHERE foo <> :arg AND bar = :arg",
+                array('arg'=>"Some String"),
+                array('arg'=>\PDO::PARAM_STR),
+                'SELECT * FROM Foo WHERE foo <> ? AND bar = ?',
+                array("Some String","Some String"),
+                array(\PDO::PARAM_STR,\PDO::PARAM_STR,)
+            ),
+             //  Named parameters : With the same name arg
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:arg) AND NOT bar IN (:arg)",
+                array('arg'=>array(1, 2, 3)),
+                array('arg'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND NOT bar IN (?, ?, ?)',
+                array(1, 2, 3, 1, 2, 3),
+                array(\PDO::PARAM_INT,\PDO::PARAM_INT, \PDO::PARAM_INT,\PDO::PARAM_INT,\PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
         );
     }
