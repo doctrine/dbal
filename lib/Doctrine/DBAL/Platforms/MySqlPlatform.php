@@ -101,11 +101,21 @@ class MySqlPlatform extends AbstractPlatform
         return 'CONCAT(' . join(', ', (array) $args) . ')';
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateDiffExpression($date1, $date2)
     {
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateAddExpression($date, $value, $unit)
     {
         $unitl = strtolower($unit);
@@ -118,6 +128,31 @@ class MySqlPlatform extends AbstractPlatform
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateSubExpression($date, $value, $unit)
     {
         $unitl = strtolower($unit);
@@ -128,6 +163,26 @@ class MySqlPlatform extends AbstractPlatform
         } else {
             throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';
     }
 
     public function getListDatabasesSQL()

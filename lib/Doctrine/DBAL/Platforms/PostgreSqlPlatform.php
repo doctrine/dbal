@@ -92,19 +92,74 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateDiffExpression($date1, $date2)
     {
         return '(' . $date1 . '-' . $date2 . ')';
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateAddExpression($date, $value, $unit)
     {
         return "(" . $date . "+ interval '" . $value . " " . $unit ."')";
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return "(" . $date . "+ interval '" . $days . " day')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return "(" . $date . "+ interval '" . $months . " month')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateSubExpression($date, $value, $unit)
     {
         return "(" . $date . "- interval '" . $value . " " . $unit . "')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return "(" . $date . "- interval '" . $days . " day')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return "(" . $date . "- interval '" . $months . " month')";
     }
 
     /**

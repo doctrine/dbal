@@ -125,11 +125,21 @@ class SqlitePlatform extends AbstractPlatform
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateDiffExpression($date1, $date2)
     {
         return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateAddExpression($date, $value, $unit)
     {
         $unitl = strtolower($unit);
@@ -142,6 +152,31 @@ class SqlitePlatform extends AbstractPlatform
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return "DATE(" . $date . ",'+". $days . " day')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return "DATE(" . $date . ",'+". $months . " month')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateSubExpression($date, $value, $unit)
     {
         $unitl = strtolower($unit);
@@ -154,6 +189,26 @@ class SqlitePlatform extends AbstractPlatform
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return "DATE(" . $date . ",'-". $days . " day')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return "DATE(" . $date . ",'-". $months . " month')";
+    }
+    
     protected function _getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {

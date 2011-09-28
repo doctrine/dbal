@@ -116,6 +116,11 @@ class OraclePlatform extends AbstractPlatform
         return "TRUNC(TO_NUMBER(SUBSTR((" . $date1 . "-" . $date2 . "), 1, INSTR(" . $date1 . "-" . $date2 .", ' '))))";
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateAddExpression($date, $value, $unit)
     {
         $unitl = strtolower($unit);
@@ -128,6 +133,31 @@ class OraclePlatform extends AbstractPlatform
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return '(' . $date . '+' . $days . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return "ADD_MONTHS(" . $date . ", " . $months . ")";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateSubExpression($date, $value, $unit)
     {
         $unitl = strtolower($unit);
@@ -138,6 +168,26 @@ class OraclePlatform extends AbstractPlatform
         } else {
             throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return '(' . $date . '-' . $days . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return "ADD_MONTHS(" . $date . ", -" . $months . ")";
     }
 
     /**
