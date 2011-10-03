@@ -734,6 +734,20 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Calculate the difference between the two passed dates as an interval.
+     *
+     * Computes diff = date1 - date2
+     *
+     * @param string $date1
+     * @param string $date2
+     * @return string
+     */
+    public function getDateDiffIntervalExpression($date1, $date2)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Add the number of given units to a date.
      *
      * @param string $date
@@ -741,7 +755,7 @@ abstract class AbstractPlatform
      * @param string $unit
      * @return string
      */
-    public function getDateAddExpression($date, $value, $unit)
+    public function getDateAddIntervalExpression($date, $value, $unit)
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -759,6 +773,18 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Add the number of given months to a date.
+     *
+     * @param string $date
+     * @param int $months
+     * @return string
+     */
+    public function getDateAddMonthExpression($date, $months)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Substract the number of given units from a date.
      *
      * @param string $date
@@ -766,7 +792,7 @@ abstract class AbstractPlatform
      * @param string $unit
      * @return string
      */
-    public function getDateSubExpression($date, $value, $unit)
+    public function getDateSubIntervalExpression($date, $value, $unit)
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -779,18 +805,6 @@ abstract class AbstractPlatform
      * @return string
      */
     public function getDateSubDaysExpression($date, $days)
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
-     * Add the number of given months to a date.
-     *
-     * @param string $date
-     * @param int $months
-     * @return string
-     */
-    public function getDateAddMonthExpression($date, $months)
     {
         throw DBALException::notSupported(__METHOD__);
     }

@@ -121,7 +121,7 @@ class OraclePlatform extends AbstractPlatform
      *
      * @override
      */
-    public function getDateAddExpression($date, $value, $unit)
+    public function getDateAddIntervalExpression($date, $value, $unit)
     {
         $unitl = strtolower($unit);
         if ($unitl == "day") {
@@ -158,7 +158,7 @@ class OraclePlatform extends AbstractPlatform
      *
      * @override
      */
-    public function getDateSubExpression($date, $value, $unit)
+    public function getDateSubIntervalExpression($date, $value, $unit)
     {
         $unitl = strtolower($unit);
         if ($unitl == "day") {

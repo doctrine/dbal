@@ -99,6 +99,16 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDateDiffExpression($date1, $date2)
     {
+        return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateDiffIntervalExpression($date1, $date2)
+    {
         return '(' . $date1 . '-' . $date2 . ')';
     }
 
@@ -107,7 +117,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      *
      * @override
      */
-    public function getDateAddExpression($date, $value, $unit)
+    public function getDateAddIntervalExpression($date, $value, $unit)
     {
         return "(" . $date . "+ interval '" . $value . " " . $unit ."')";
     }
@@ -137,7 +147,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      *
      * @override
      */
-    public function getDateSubExpression($date, $value, $unit)
+    public function getDateSubIntervalExpression($date, $value, $unit)
     {
         return "(" . $date . "- interval '" . $value . " " . $unit . "')";
     }
