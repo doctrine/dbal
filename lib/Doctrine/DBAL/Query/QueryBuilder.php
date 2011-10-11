@@ -950,17 +950,23 @@ class QueryBuilder
         $query = 'SELECT ' . implode(', ', $this->sqlParts['select']) . ' FROM ';
         
         $fromClauses = array();
+        $joinsPending = true;
         
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
             $fromClause = $from['table'] . ' ' . $from['alias'];
-            
-            if (isset($this->sqlParts['join'][$from['alias']])) {
-                foreach ($this->sqlParts['join'][$from['alias']] as $join) {
-                    $fromClause .= ' ' . strtoupper($join['joinType']) 
-                                 . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias'] 
-                                 . ' ON ' . ((string) $join['joinCondition']);
+
+            if ($joinsPending && isset($this->sqlParts['join'][$from['alias']])) {
+                // Loop through all JOIN clauses
+                foreach ($this->sqlParts['join'] as $joins) {
+                    foreach ($joins as $join) {
+                        $fromClause .= ' ' . strtoupper($join['joinType'])
+                                     . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
+                                     . ' ON ' . ((string) $join['joinCondition']);
+                    }
                 }
+                
+                $joinsPending = false;
             }
             
             $fromClauses[] = $fromClause;
