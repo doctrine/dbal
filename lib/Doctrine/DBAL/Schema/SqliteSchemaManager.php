@@ -174,7 +174,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             'default'  => $default,
             'precision' => $precision,
             'scale'     => $scale,
-            'autoincrement' => (bool) $tableColumn['pk'],
+            'autoincrement' => false,
         );
 
         return new Column($tableColumn['name'], \Doctrine\DBAL\Types\Type::getType($type), $options);

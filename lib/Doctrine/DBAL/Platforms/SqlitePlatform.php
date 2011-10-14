@@ -254,10 +254,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
-        $autoinc = ! empty($columnDef['autoincrement']) ? ' AUTOINCREMENT' : '';
-        $pk = ! empty($columnDef['primary']) && ! empty($autoinc) ? ' PRIMARY KEY' : '';
-
-        return 'INTEGER' . $pk . $autoinc;
+        return 'INTEGER';
     }
 
     /**
@@ -294,15 +291,7 @@ class SqlitePlatform extends AbstractPlatform
         $name = str_replace(".", "__", $name);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
-        $autoinc = false;
-        foreach($columns as $field) {
-            if (isset($field['autoincrement']) && $field['autoincrement']) {
-                $autoinc = true;
-                break;
-            }
-        }
-
-        if ( ! $autoinc && isset($options['primary']) && ! empty($options['primary'])) {
+        if (isset($options['primary']) && ! empty($options['primary'])) {
             $keyColumns = array_unique(array_values($options['primary']));
             $keyColumns = array_map(array($this, 'quoteIdentifier'), $keyColumns);
             $queryFields.= ', PRIMARY KEY('.implode(', ', $keyColumns).')';
