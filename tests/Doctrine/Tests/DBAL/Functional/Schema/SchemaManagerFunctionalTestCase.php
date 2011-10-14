@@ -99,7 +99,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table = new \Doctrine\DBAL\Schema\Table('list_table_columns');
         $table->addColumn('id', 'integer', array('notnull' => true));
         $table->addColumn('test', 'string', array('length' => 255, 'notnull' => false));
-        $table->addColumn('foo', 'text', array('notnull' => true));
+        $table->addColumn('foo', 'text', array('notnull' => true, 'default' => 'expected default'));
         $table->addColumn('bar', 'decimal', array('precision' => 10, 'scale' => 4, 'notnull' => false));
         $table->addColumn('baz1', 'datetime');
         $table->addColumn('baz2', 'time');
@@ -138,7 +138,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(false,  $columns['foo']->getunsigned());
         $this->assertEquals(false,  $columns['foo']->getfixed());
         $this->assertEquals(true,   $columns['foo']->getnotnull());
-        $this->assertEquals(null,   $columns['foo']->getdefault());
+        $this->assertEquals('expected default',   $columns['foo']->getdefault());
         $this->assertInternalType('array',  $columns['foo']->getPlatformOptions());
 
         $this->assertEquals('bar',  strtolower($columns['bar']->getname()));
