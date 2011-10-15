@@ -16,7 +16,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, test VARCHAR(255) DEFAULT NULL)';
+        return 'CREATE TABLE test (id INTEGER NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY("id"))';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
@@ -66,11 +66,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getIntegerTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'INTEGER AUTOINCREMENT',
+            'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true))
         );
         $this->assertEquals(
-            'INTEGER PRIMARY KEY AUTOINCREMENT',
+            'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
