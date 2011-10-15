@@ -199,7 +199,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(3, count($tableIndexes));
 
         $this->assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        $this->assertEquals(array('id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+        $this->assertEquals(array('id', 'other_id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
         $this->assertTrue($tableIndexes['primary']->isUnique());
         $this->assertTrue($tableIndexes['primary']->isPrimary());
 
@@ -505,7 +505,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table = new \Doctrine\DBAL\Schema\Table($name, array(), array(), array(), false, $options);
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
         $table->addColumn('id', 'integer', array('notnull' => true));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('other_id', 'integer', array('notnull' => true));
+        $table->setPrimaryKey(array('id', 'other_id'));
         $table->addColumn('test', 'string', array('length' => 255));
         $table->addColumn('foreign_key_test', 'integer');
         return $table;
