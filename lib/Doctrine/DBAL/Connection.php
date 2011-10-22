@@ -23,7 +23,8 @@ use PDO, Closure, Exception,
     Doctrine\DBAL\Types\Type,
     Doctrine\DBAL\Driver\Connection as DriverConnection,
     Doctrine\Common\EventManager,
-    Doctrine\DBAL\DBALException;
+    Doctrine\DBAL\DBALException,
+    Doctrine\DBAL\Cache\RowCacheStatement;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
@@ -593,11 +594,18 @@ class Connection implements DriverConnection
      *
      * @param string $query The SQL query to execute.
      * @param array $params The parameters to bind to the query, if any.
+     * @param array $types The types the previous parameters are in.
+     * @param string|null $cacheResultKey name of the result cache key.
+     * @param int $cacheLifetime lifetime of the cache result.
      * @return Doctrine\DBAL\Driver\Statement The executed statement.
      * @internal PERF: Directly prepares a driver statement, not a wrapper.
      */
-    public function executeQuery($query, array $params = array(), $types = array())
+    public function executeQuery($query, array $params = array(), $types = array(), $cacheResultKey = null, $cacheLifetime = 0)
     {
+        if ($cacheResultKey !== null) {
+            return RowCacheStatement::create($this, $cacheResultKey, $cacheLifetime, $query, $params, $types);
+        }
+
         $this->connect();
 
         $hasLogger = $this->_config->getSQLLogger() !== null;
