@@ -39,11 +39,6 @@ use Doctrine\DBAL\Connection;
 class RowCacheStatement implements ResultStatement
 {
     /**
-     * @var \Doctrine\DBAL\Connection
-     */
-    private $conn;
-
-    /**
      * @var \Doctrine\Common\Cache\Cache
      */
     private $cache;
@@ -111,6 +106,13 @@ class RowCacheStatement implements ResultStatement
         return new self($conn->executeQuery($query, $params, $types), $resultCache, $cacheKey, $lifetime);
     }
 
+    /**
+     *
+     * @param Statement $stmt
+     * @param Cache $resultCache
+     * @param string $cacheKey
+     * @param int $lifetime
+     */
     public function __construct($stmt, $resultCache, $cacheKey, $lifetime = 0)
     {
         $this->statement = $stmt;
