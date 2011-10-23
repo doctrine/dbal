@@ -36,7 +36,9 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $config = $this->_conn->getConfiguration();
         $config->setSQLLogger($this->sqlLogger = new \Doctrine\DBAL\Logging\DebugStack);
-        $config->setResultCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
+
+        $cache = new \Doctrine\Common\Cache\ArrayCache;
+        $config->setResultCacheImpl($cache);
     }
 
     public function testCacheFetchAssoc()
@@ -68,7 +70,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         foreach ($this->expectedResult AS $v) {
             $numExpectedResult[] = array_values($v);
         }
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), "testcachekey", 10);
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -78,7 +80,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals($this->expectedResult, $data);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), "testcachekey", 10);
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
@@ -91,14 +93,14 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testDontCloseNoCache()
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), "testcachekey", 10);
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $data[] = $row;
         }
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), "testcachekey", 10);
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
@@ -110,12 +112,12 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testDontFinishNoCache()
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), "testcachekey", 10);
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $stmt->closeCursor();
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), "testcachekey", 10);
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
@@ -128,7 +130,8 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, $fetchStyle)
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), "testcachekey", 10);
+        $s = microtime(true);
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
 
         $this->assertEquals(2, $stmt->columnCount());
 
@@ -137,10 +140,12 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $data[] = $row;
         }
         $stmt->closeCursor();
+        #echo number_format(microtime(true)-$s, 6)."\n";
 
         $this->assertEquals($expectedResult, $data);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), "testcachekey", 10);
+        $s = microtime(true);
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
 
         $this->assertEquals(2, $stmt->columnCount());
 
@@ -149,6 +154,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $data[] = $row;
         }
         $stmt->closeCursor();
+        #echo number_format(microtime(true)-$s, 6)."\n";
 
         $this->assertEquals($expectedResult, $data);
 
