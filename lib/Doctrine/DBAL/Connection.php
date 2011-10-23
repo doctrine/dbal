@@ -659,6 +659,8 @@ class Connection implements DriverConnection
             // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
             if (isset($data[$realKey])) {
                 return new ArrayStatement($data[$realKey]);
+            } else if (array_key_exists($realKey, $data)) {
+                return new ArrayStatement(array());
             }
         }
         return new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());

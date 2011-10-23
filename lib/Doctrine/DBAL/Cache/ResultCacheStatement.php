@@ -74,6 +74,11 @@ class ResultCacheStatement implements ResultStatement
     private $emptied = false;
 
     /**
+     * @var array
+     */
+    private $data;
+
+    /**
      * @param Statement $stmt
      * @param Cache $resultCache
      * @param string $cacheKey
@@ -97,7 +102,7 @@ class ResultCacheStatement implements ResultStatement
     public function closeCursor()
     {
         $this->statement->closeCursor();
-        if ($this->emptied && $this->data) {
+        if ($this->emptied && $this->data !== null) {
             $data = $this->resultCache->fetch($this->cacheKey);
             if (!$data) {
                 $data = array();
@@ -151,6 +156,10 @@ class ResultCacheStatement implements ResultStatement
      */
     public function fetch($fetchStyle = PDO::FETCH_BOTH)
     {
+        if ($this->data === null) {
+            $this->data = array();
+        }
+
         $row = $this->statement->fetch(PDO::FETCH_ASSOC);
         if ($row) {
             $this->data[] = $row;

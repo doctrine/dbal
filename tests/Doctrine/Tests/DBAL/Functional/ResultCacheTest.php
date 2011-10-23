@@ -73,21 +73,13 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
-        $data = array();
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = $row;
-        }
-        $stmt->closeCursor();
+        $data = $this->hydrateStmt($stmt, \PDO::FETCH_ASSOC);
 
         $this->assertEquals($this->expectedResult, $data);
 
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
-        $data = array();
-        while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
-            $data[] = $row;
-        }
-        $stmt->closeCursor();
+        $data = $this->hydrateStmt($stmt, \PDO::FETCH_NUM);
 
         $this->assertEquals($numExpectedResult, $data);
     }
@@ -120,45 +112,58 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
-        $data = array();
-        while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
-            $data[] = $row;
-        }
-        $stmt->closeCursor();
+        $data = $this->hydrateStmt($stmt, \PDO::FETCH_NUM);
 
         $this->assertEquals(2, count($this->sqlLogger->queries));
     }
 
     public function assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, $fetchStyle)
     {
-        $s = microtime(true);
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $this->assertEquals(2, $stmt->columnCount());
-
-        $data = array();
-        while ($row = $stmt->fetch($fetchStyle)) {
-            $data[] = $row;
-        }
-        $stmt->closeCursor();
-        #echo number_format(microtime(true)-$s, 6)."\n";
-
+        $data = $this->hydrateStmt($stmt, $fetchStyle);
         $this->assertEquals($expectedResult, $data);
 
-        $s = microtime(true);
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $this->assertEquals(2, $stmt->columnCount());
-
-        $data = array();
-        while ($row = $stmt->fetch($fetchStyle)) {
-            $data[] = $row;
-        }
-        $stmt->closeCursor();
-        #echo number_format(microtime(true)-$s, 6)."\n";
-
+        $data = $this->hydrateStmt($stmt, $fetchStyle);
         $this->assertEquals($expectedResult, $data);
+        $this->assertEquals(1, count($this->sqlLogger->queries), "just one dbal hit");
+    }
+
+    public function testEmptyResultCache()
+    {
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey"));
+        $data = $this->hydrateStmt($stmt);
+
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey"));
+        $data = $this->hydrateStmt($stmt);
 
         $this->assertEquals(1, count($this->sqlLogger->queries), "just one dbal hit");
+    }
+
+    public function testChangeCacheImpl()
+    {
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey"));
+        $data = $this->hydrateStmt($stmt);
+
+        $secondCache = new \Doctrine\Common\Cache\ArrayCache;
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey", $secondCache));
+        $data = $this->hydrateStmt($stmt);
+
+        $this->assertEquals(2, count($this->sqlLogger->queries), "two hits");
+        $this->assertEquals(1, count($secondCache->fetch("emptycachekey")));
+    }
+
+    private function hydrateStmt($stmt, $fetchStyle = \PDO::FETCH_ASSOC)
+    {
+        $data = array();
+        while ($row = $stmt->fetch($fetchStyle)) {
+            $data[] = $row;
+        }
+        $stmt->closeCursor();
+        return $data;
     }
 }
