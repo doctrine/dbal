@@ -126,6 +126,7 @@ class ResultCacheStatement implements ResultStatement
      */
     public function closeCursor()
     {
+        $this->statement->closeCursor();
         if ($this->emptied && $this->data) {
             $data = $this->resultCache->fetch($this->cacheKey);
             if (!$data) {
