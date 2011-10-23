@@ -74,33 +74,6 @@ class ResultCacheStatement implements ResultStatement
     private $emptied = false;
 
     /**
-     * @param Connection $conn
-     * @param string $query
-     * @param array $params
-     * @param array $types
-     * @param QueryCacheProfile $qcp
-     * @return RowCacheStatement
-     */
-    static public function create(Connection $conn, $query, $params, $types, QueryCacheProfile $qcp)
-    {
-        $resultCache = $qcp->getResultCacheDriver() ?: $conn->getConfiguration()->getResultCacheImpl();
-        if (!$resultCache) {
-            throw CacheException::noResultDriverConfigured();
-        }
-
-        list($cacheKey, $realKey) = $qcp->generateCacheKeys($query, $params, $types);
-
-        // fetch the row pointers entry
-        if ($data = $resultCache->fetch($cacheKey)) {
-            // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
-            if (isset($data[$realKey])) {
-                return new ArrayStatement($data[$realKey]);
-            }
-        }
-        return new self($conn->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
-    }
-
-    /**
      * @param Statement $stmt
      * @param Cache $resultCache
      * @param string $cacheKey
