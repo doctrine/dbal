@@ -26,7 +26,8 @@ use PDO, Closure, Exception,
     Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Cache\ResultCacheStatement,
     Doctrine\DBAL\Cache\QueryCacheProfile,
-    Doctrine\DBAL\Cache\ArrayStatement;
+    Doctrine\DBAL\Cache\ArrayStatement,
+    Doctrine\DBAL\Cache\CacheException;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
