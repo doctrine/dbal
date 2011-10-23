@@ -86,9 +86,9 @@ class Connection extends \Doctrine\DBAL\Connection
         return $this->case;
     }
     
-    public function executeQuery($query, array $params = array(), $types = array())
+    public function executeQuery($query, array $params = array(), $types = array(), $useCacheLifetime = false, $cacheResultKey = null)
     {
-        return new Statement(parent::executeQuery($query, $params, $types), $this);
+        return new Statement(parent::executeQuery($query, $params, $types, $useCacheLifetime, $cacheResultKey), $this);
     }
     
     /**

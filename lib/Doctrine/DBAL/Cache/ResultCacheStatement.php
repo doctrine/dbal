@@ -36,18 +36,23 @@ use Doctrine\DBAL\Connection;
  * Also you have to realize that the cache will load the whole result into memory at once to ensure 2.
  * This means that the memory usage for cached results might increase by using this feature.
  */
-class RowCacheStatement implements ResultStatement
+class ResultCacheStatement implements ResultStatement
 {
     /**
      * @var \Doctrine\Common\Cache\Cache
      */
-    private $cache;
+    private $resultCache;
 
     /**
      *
      * @var string
      */
     private $cacheKey;
+
+    /**
+     * @var string
+     */
+    private $realKey;
 
     /**
      * @var int
@@ -58,16 +63,6 @@ class RowCacheStatement implements ResultStatement
      * @var Doctrine\DBAL\Driver\Statement
      */
     private $statement;
-
-    /**
-     * @var array
-     */
-    private $rowPointers = array();
-
-    /**
-     * @var int
-     */
-    private $num = 0;
 
     /**
      * Did we reach the end of the statement?
@@ -85,25 +80,27 @@ class RowCacheStatement implements ResultStatement
      * @param array $types
      * @return RowCacheStatement
      */
-    static public function create(Connection $conn, $cacheKey, $lifetime, $query, $params, $types)
+    static public function create(Connection $conn, $query, $params, $types, $lifetime = 0, $cacheKey = null)
     {
         $resultCache = $conn->getConfiguration()->getResultCacheImpl();
         if (!$resultCache) {
             return $conn->executeQuery($query, $params, $types);
         }
 
-        if ($rowPointers = $resultCache->fetch($cacheKey)) {
-            $data = array();
-            foreach ($rowPointers AS $rowPointer) {
-                if ($row = $resultCache->fetch($rowPointer)) {
-                    $data[] = $row;
-                } else {
-                    return new self($conn->executeQuery($query, $params, $types), $resultCache, $cacheKey, $lifetime);
-                }
-            }
-            return new ArrayStatement($data);
+        $realKey = $query . "-" . serialize($params) . "-" . serialize($types);
+        // should the key be automatically generated using the inputs or is the cache key set?
+        if ($cacheKey === null) {
+            $cacheKey = sha1($realKey);
         }
-        return new self($conn->executeQuery($query, $params, $types), $resultCache, $cacheKey, $lifetime);
+
+        // fetch the row pointers entry
+        if ($data = $resultCache->fetch($cacheKey)) {
+            // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
+            if (isset($data[$realKey])) {
+                return new ArrayStatement($data[$realKey]);
+            }
+        }
+        return new self($conn->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $lifetime);
     }
 
     /**
@@ -113,11 +110,12 @@ class RowCacheStatement implements ResultStatement
      * @param string $cacheKey
      * @param int $lifetime
      */
-    public function __construct($stmt, $resultCache, $cacheKey, $lifetime = 0)
+    private function __construct($stmt, $resultCache, $cacheKey, $realKey, $lifetime)
     {
         $this->statement = $stmt;
         $this->resultCache = $resultCache;
         $this->cacheKey = $cacheKey;
+        $this->realKey = $realKey;
         $this->lifetime = $lifetime;
     }
 
@@ -128,11 +126,16 @@ class RowCacheStatement implements ResultStatement
      */
     public function closeCursor()
     {
-        // the "important" key is written as the last one. This way we ensure it has a longer lifetime than the rest
-        // avoiding potential cache "misses" during the reconstruction.
-        if ($this->emptied && $this->rowPointers) {
-            $this->resultCache->save($this->cacheKey, $this->rowPointers, $this->lifetime);
-            unset($this->rowPointers);
+        $this->statement->closeCursor();
+        if ($this->emptied && $this->data) {
+            $data = $this->resultCache->fetch($this->cacheKey);
+            if (!$data) {
+                $data = array();
+            }
+            $data[$this->realKey] = $this->data;
+
+            $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
+            unset($this->data);
         }
     }
 
@@ -180,9 +183,8 @@ class RowCacheStatement implements ResultStatement
     {
         $row = $this->statement->fetch(PDO::FETCH_ASSOC);
         if ($row) {
-            $rowCacheKey = $this->cacheKey . "#row". ($this->num++);
-            $this->rowPointers[] = $rowCacheKey;
-            $this->resultCache->save($rowCacheKey, $row, $this->lifetime);
+            $this->data[] = $row;
+            
             if ($fetchStyle == PDO::FETCH_ASSOC) {
                 return $row;
             } else if ($fetchStyle == PDO::FETCH_NUM) {

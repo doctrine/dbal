@@ -24,7 +24,7 @@ use PDO, Closure, Exception,
     Doctrine\DBAL\Driver\Connection as DriverConnection,
     Doctrine\Common\EventManager,
     Doctrine\DBAL\DBALException,
-    Doctrine\DBAL\Cache\RowCacheStatement;
+    Doctrine\DBAL\Cache\ResultCacheStatement;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
@@ -595,15 +595,16 @@ class Connection implements DriverConnection
      * @param string $query The SQL query to execute.
      * @param array $params The parameters to bind to the query, if any.
      * @param array $types The types the previous parameters are in.
+     * @param int $useCacheLifetime lifetime of the cache result, set to true for infinite lifetime.
      * @param string|null $cacheResultKey name of the result cache key.
-     * @param int $cacheLifetime lifetime of the cache result.
      * @return Doctrine\DBAL\Driver\Statement The executed statement.
      * @internal PERF: Directly prepares a driver statement, not a wrapper.
      */
-    public function executeQuery($query, array $params = array(), $types = array(), $cacheResultKey = null, $cacheLifetime = 0)
+    public function executeQuery($query, array $params = array(), $types = array(), $useCacheLifetime = false, $cacheResultKey = null)
     {
-        if ($cacheResultKey !== null) {
-            return RowCacheStatement::create($this, $cacheResultKey, $cacheLifetime, $query, $params, $types);
+        if ($useCacheLifetime !== false) {
+            $useCacheLifetime = $useCacheLifetime === true ? 0 : $useCacheLifetime;
+            return ResultCacheStatement::create($this, $query, $params, $types, $useCacheLifetime, $cacheResultKey);
         }
 
         $this->connect();
