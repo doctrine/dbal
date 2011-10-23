@@ -19,9 +19,11 @@
 
 namespace Doctrine\DBAL\Cache;
 
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\ResultStatement;
-use PDO;
 use Doctrine\DBAL\Connection;
+use Doctrine\Common\Cache\Cache;
+use PDO;
 
 /**
  * Cache statement for SQL results.
@@ -99,13 +101,13 @@ class ResultCacheStatement implements ResultStatement
     }
 
     /**
-     *
      * @param Statement $stmt
      * @param Cache $resultCache
      * @param string $cacheKey
+     * @param string $realKey
      * @param int $lifetime
      */
-    private function __construct($stmt, $resultCache, $cacheKey, $realKey, $lifetime)
+    public function __construct(Statement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
     {
         $this->statement = $stmt;
         $this->resultCache = $resultCache;
