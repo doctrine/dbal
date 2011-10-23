@@ -22,6 +22,8 @@ namespace Doctrine\DBAL\Cache;
 /**
  * Query Cache Profile handles the data relevant for query caching.
  *
+ * It is a value object, setter methods return NEW instances.
+ *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class QueryCacheProfile
@@ -96,5 +98,32 @@ class QueryCacheProfile
             $cacheKey = $this->cacheKey;
         }
         return array($cacheKey, $realCacheKey);
+    }
+
+    /**
+     * @param Cache $cache
+     * @return QueryCacheProfile
+     */
+    public function setResultCacheDriver(Cache $cache)
+    {
+        return new QueryCacheProfile($this->lifetime, $this->cacheKey, $cache);
+    }
+
+    /**
+     * @param string|null $cacheKey
+     * @return QueryCacheProfile
+     */
+    public function setCacheKey($cacheKey)
+    {
+        return new QueryCacheProfile($this->lifetime, $cacheKey, $this->resultCacheDriver);
+    }
+
+    /**
+     * @param  int $lifetime
+     * @return QueryCacheProfile
+     */
+    public function setLifetime($lifetime)
+    {
+        return new QueryCacheProfile($lifetime, $this->cacheKey, $this->resultCacheDriver);
     }
 }
