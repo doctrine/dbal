@@ -73,25 +73,20 @@ class ResultCacheStatement implements ResultStatement
 
     /**
      * @param Connection $conn
-     * @param string $cacheKey
-     * @param int|null $lifetime
      * @param string $query
      * @param array $params
      * @param array $types
+     * @param QueryCacheProfile $qcp
      * @return RowCacheStatement
      */
-    static public function create(Connection $conn, $query, $params, $types, $lifetime = 0, $cacheKey = null)
+    static public function create(Connection $conn, $query, $params, $types, QueryCacheProfile $qcp)
     {
-        $resultCache = $conn->getConfiguration()->getResultCacheImpl();
+        $resultCache = $qcp->getResultCacheDriver() ?: $conn->getConfiguration()->getResultCacheImpl();
         if (!$resultCache) {
-            return $conn->executeQuery($query, $params, $types);
+            throw CacheException::noResultDriverConfigured();
         }
 
-        $realKey = $query . "-" . serialize($params) . "-" . serialize($types);
-        // should the key be automatically generated using the inputs or is the cache key set?
-        if ($cacheKey === null) {
-            $cacheKey = sha1($realKey);
-        }
+        list($cacheKey, $realKey) = $qcp->generateCacheKeys($query, $params, $types);
 
         // fetch the row pointers entry
         if ($data = $resultCache->fetch($cacheKey)) {
@@ -100,7 +95,7 @@ class ResultCacheStatement implements ResultStatement
                 return new ArrayStatement($data[$realKey]);
             }
         }
-        return new self($conn->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $lifetime);
+        return new self($conn->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
     }
 
     /**
