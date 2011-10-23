@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use PDO;
 
 require_once __DIR__ . '/../../TestInit.php';
@@ -70,7 +71,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         foreach ($this->expectedResult AS $v) {
             $numExpectedResult[] = array_values($v);
         }
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -80,7 +81,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals($this->expectedResult, $data);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
@@ -93,14 +94,14 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testDontCloseNoCache()
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $data[] = $row;
         }
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
@@ -112,12 +113,12 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testDontFinishNoCache()
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $stmt->closeCursor();
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
@@ -131,7 +132,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, $fetchStyle)
     {
         $s = microtime(true);
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $this->assertEquals(2, $stmt->columnCount());
 
@@ -145,7 +146,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals($expectedResult, $data);
 
         $s = microtime(true);
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), 10, "testcachekey");
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $this->assertEquals(2, $stmt->columnCount());
 

@@ -19,9 +19,11 @@
 
 namespace Doctrine\DBAL\Cache;
 
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\ResultStatement;
-use PDO;
 use Doctrine\DBAL\Connection;
+use Doctrine\Common\Cache\Cache;
+use PDO;
 
 /**
  * Cache statement for SQL results.
@@ -72,45 +74,13 @@ class ResultCacheStatement implements ResultStatement
     private $emptied = false;
 
     /**
-     * @param Connection $conn
-     * @param string $cacheKey
-     * @param int|null $lifetime
-     * @param string $query
-     * @param array $params
-     * @param array $types
-     * @return RowCacheStatement
-     */
-    static public function create(Connection $conn, $query, $params, $types, $lifetime = 0, $cacheKey = null)
-    {
-        $resultCache = $conn->getConfiguration()->getResultCacheImpl();
-        if (!$resultCache) {
-            return $conn->executeQuery($query, $params, $types);
-        }
-
-        $realKey = $query . "-" . serialize($params) . "-" . serialize($types);
-        // should the key be automatically generated using the inputs or is the cache key set?
-        if ($cacheKey === null) {
-            $cacheKey = sha1($realKey);
-        }
-
-        // fetch the row pointers entry
-        if ($data = $resultCache->fetch($cacheKey)) {
-            // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
-            if (isset($data[$realKey])) {
-                return new ArrayStatement($data[$realKey]);
-            }
-        }
-        return new self($conn->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $lifetime);
-    }
-
-    /**
-     *
      * @param Statement $stmt
      * @param Cache $resultCache
      * @param string $cacheKey
+     * @param string $realKey
      * @param int $lifetime
      */
-    private function __construct($stmt, $resultCache, $cacheKey, $realKey, $lifetime)
+    public function __construct(Statement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
     {
         $this->statement = $stmt;
         $this->resultCache = $resultCache;

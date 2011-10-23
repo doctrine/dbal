@@ -24,7 +24,9 @@ use PDO, Closure, Exception,
     Doctrine\DBAL\Driver\Connection as DriverConnection,
     Doctrine\Common\EventManager,
     Doctrine\DBAL\DBALException,
-    Doctrine\DBAL\Cache\ResultCacheStatement;
+    Doctrine\DBAL\Cache\ResultCacheStatement,
+    Doctrine\DBAL\Cache\QueryCacheProfile,
+    Doctrine\DBAL\Cache\ArrayStatement;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
@@ -595,16 +597,14 @@ class Connection implements DriverConnection
      * @param string $query The SQL query to execute.
      * @param array $params The parameters to bind to the query, if any.
      * @param array $types The types the previous parameters are in.
-     * @param int $useCacheLifetime lifetime of the cache result, set to true for infinite lifetime.
-     * @param string|null $cacheResultKey name of the result cache key.
+     * @param QueryCacheProfile $qcp 
      * @return Doctrine\DBAL\Driver\Statement The executed statement.
      * @internal PERF: Directly prepares a driver statement, not a wrapper.
      */
-    public function executeQuery($query, array $params = array(), $types = array(), $useCacheLifetime = false, $cacheResultKey = null)
+    public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
     {
-        if ($useCacheLifetime !== false) {
-            $useCacheLifetime = $useCacheLifetime === true ? 0 : $useCacheLifetime;
-            return ResultCacheStatement::create($this, $query, $params, $types, $useCacheLifetime, $cacheResultKey);
+        if ($qcp !== null) {
+            return $this->executeCacheQuery($query, $params, $types, $qcp);
         }
 
         $this->connect();
@@ -633,6 +633,34 @@ class Connection implements DriverConnection
         }
 
         return $stmt;
+    }
+
+    /**
+     * Execute a caching query and
+     *
+     * @param string $query
+     * @param array $params
+     * @param array $types
+     * @param QueryCacheProfile $qcp
+     * @return \Doctrine\DBAL\Driver\ResultStatement
+     */
+    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp)
+    {
+        $resultCache = $qcp->getResultCacheDriver() ?: $this->_config->getResultCacheImpl();
+        if (!$resultCache) {
+            throw CacheException::noResultDriverConfigured();
+        }
+
+        list($cacheKey, $realKey) = $qcp->generateCacheKeys($query, $params, $types);
+
+        // fetch the row pointers entry
+        if ($data = $resultCache->fetch($cacheKey)) {
+            // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
+            if (isset($data[$realKey])) {
+                return new ArrayStatement($data[$realKey]);
+            }
+        }
+        return new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
     }
 
     /**
