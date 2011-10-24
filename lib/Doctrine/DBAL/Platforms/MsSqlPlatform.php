@@ -37,6 +37,33 @@ use Doctrine\DBAL\Schema\Index,
  */
 class MsSqlPlatform extends AbstractPlatform
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function getDateDiffExpression($date1, $date2)    
+    {
+        return 'DATEDIFF(day, ' . $date2 . ',' . $date1 . ')';
+    }
+    
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return 'DATEADD(day, ' . $days . ', ' . $date . ')';
+    }
+    
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return 'DATEADD(day, -1 * ' . $days . ', ' . $date . ')';
+    }
+    
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return 'DATEADD(month, ' . $months . ', ' . $date . ')';
+    }
+    
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return 'DATEADD(month, -1 * ' . $months . ', ' . $date . ')';
+    }
 
     /**
      * Whether the platform prefers identity columns for ID generation.
@@ -793,5 +820,10 @@ class MsSqlPlatform extends AbstractPlatform
     public function quoteIdentifier($str)
     {
         return "[" . str_replace("]", "][", $str) . "]";
+    }
+    
+    public function getTruncateTableSQL($tableName, $cascade = false)
+    {
+        return 'TRUNCATE TABLE '.$tableName;
     }
 }

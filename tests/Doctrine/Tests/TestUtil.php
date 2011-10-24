@@ -70,29 +70,25 @@ class TestUtil
             } else {
                 $sm = $realConn->getSchemaManager();
 
-                $tableNames = $sm->listTableNames();
-                
-                foreach ($tableNames AS $tableName) {
-                    $sm->dropTable($tableName);
+                /* @var $schema Schema */
+                $schema = $sm->createSchema();
+                $stmts = $schema->toDropSql($realConn->getDatabasePlatform());
+
+                foreach ($stmts AS $stmt) {
+                    $realConn->exec($stmt);
                 }
             }
 
-            $eventManager = null;
-            if (isset($GLOBALS['db_event_subscribers'])) {
-                $eventManager = new \Doctrine\Common\EventManager();
-                foreach (explode(",", $GLOBALS['db_event_subscribers']) AS $subscriberClass) {
-                    $subscriberInstance = new $subscriberClass();
-                    $eventManager->addEventSubscriber($subscriberInstance);
-                }
-            }
-
-            $conn = \Doctrine\DBAL\DriverManager::getConnection($realDbParams, null, $eventManager);
-
+            $conn = \Doctrine\DBAL\DriverManager::getConnection($realDbParams, null, null);
         } else {
             $params = array(
                 'driver' => 'pdo_sqlite',
                 'memory' => true
             );
+            if (isset($GLOBALS['db_path'])) {
+                $params['path'] = $GLOBALS['db_path'];
+                unlink($GLOBALS['db_path']);
+            }
             $conn = \Doctrine\DBAL\DriverManager::getConnection($params);
         }
 

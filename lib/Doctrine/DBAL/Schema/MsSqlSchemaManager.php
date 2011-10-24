@@ -169,4 +169,28 @@ class MsSqlSchemaManager extends AbstractSchemaManager
         return new View($view['name'], null);
     }
 
+    /**
+     * List the indexes for a given table returning an array of Index instances.
+     *
+     * Keys of the portable indexes list are all lower-cased.
+     *
+     * @param string $table The name of the table
+     * @return Index[] $tableIndexes
+     */
+    public function listTableIndexes($table)
+    {
+        $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
+
+        try {
+            $tableIndexes = $this->_conn->fetchAll($sql);
+        } catch(\PDOException $e) {
+            if ($e->getCode() == "IMSSP") {
+                return array();
+            } else {
+                throw $e;
+            }
+        }
+
+        return $this->_getPortableTableIndexesList($tableIndexes, $table);
+    }
 }
