@@ -17,41 +17,21 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Types;
+namespace Doctrine\DBAL\Cache;
 
 /**
- * Type that maps a PHP array to a clob SQL type.
- *
- * @since 2.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @since 2.2
  */
-class ArrayType extends Type
+class CacheException extends \Doctrine\DBAL\DBALException
 {
-    public function getSQLDeclaration(array $fieldDeclaration, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    static public function noCacheKey()
     {
-        return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
+        return new self("No cache key was set.");
     }
 
-    public function convertToDatabaseValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    static public function noResultDriverConfigured()
     {
-        return serialize($value);
-    }
-
-    public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        $val = unserialize($value);
-        if ($val === false && $value != 'b:0;') {
-            throw ConversionException::conversionFailed($value, $this->getName());
-        }
-        return $val;
-    }
-
-    public function getName()
-    {
-        return Type::TARRAY;
+        return new self("Trying to cache a query but no result driver is configured.");
     }
 }

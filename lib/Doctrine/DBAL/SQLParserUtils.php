@@ -99,7 +99,7 @@ class SQLParserUtils
             }
         }
         
-        if (!$arrayPositions || count($params) != count($types)) {
+        if ((!$arrayPositions && $isPositional) || (count($params) != count($types))) {
             return array($query, $params, $types);
         }
         
@@ -134,8 +134,44 @@ class SQLParserUtils
                 $paramOffset += ($len - 1); // Grows larger by number of parameters minus the replaced needle.
                 $queryOffset += (strlen($expandStr) - 1);
             }
+            
         } else {
-            throw new DBALException("Array parameters are not supported for named placeholders.");
+            $queryOffset= 0;
+            $typesOrd   = array();
+            $paramsOrd  = array();
+            foreach ($paramPos as $needle => $needlePos) {
+                $paramLen   = strlen($needle);
+                $token      = substr($needle,0,1);
+                $needle     = substr($needle,1);
+                $value      = $params[$needle];
+                
+                if (!isset($arrayPositions[$needle])) {
+                    foreach ($needlePos as $pos) {
+                        $pos         += $queryOffset;
+                        $queryOffset -= ($paramLen - 1);
+                        $paramsOrd[]  = $value;
+                        $typesOrd[]   = $types[$needle];
+                        $query        = substr($query, 0, $pos) . '?' . substr($query, ($pos + $paramLen));
+                    }
+                } else {
+                    $len = count($value);
+                    $expandStr = implode(", ", array_fill(0, $len, "?"));
+                    foreach ($needlePos as $pos) {
+                        
+                        foreach ($value as $val) {
+                            $paramsOrd[] = $val;
+                            $typesOrd[]  = $types[$needle] - Connection::ARRAY_PARAM_OFFSET;
+                        }
+                    
+                        $pos         += $queryOffset;
+                        $queryOffset += (strlen($expandStr) - $paramLen);
+                        $query        = substr($query, 0, $pos) . $expandStr . substr($query, ($pos + $paramLen));
+                    }
+                }
+            }
+            
+            $types  = $typesOrd;
+            $params = $paramsOrd;
         }
         
         return array($query, $params, $types);

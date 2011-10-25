@@ -15,43 +15,49 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
- */
+*/
 
-namespace Doctrine\DBAL\Types;
+namespace Doctrine\DBAL\Event\Listeners;
+
+use Doctrine\DBAL\Event\ConnectionEventArgs;
+use Doctrine\DBAL\Events;
+use Doctrine\Common\EventSubscriber;
 
 /**
- * Type that maps a PHP array to a clob SQL type.
+ * Session init listener for executing a single SQL statement right after a connection is opened.
  *
- * @since 2.0
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link        www.doctrine-project.com
+ * @since       2.2
+ * @author      Benjamin Eberlei <kontakt@beberlei.de>
  */
-class ArrayType extends Type
+class SQLSessionInit implements EventSubscriber
 {
-    public function getSQLDeclaration(array $fieldDeclaration, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    /**
+     * @var string
+     */
+    protected $sql;
+
+    /**
+     * @param string $sql
+     */
+    public function __construct($sql)
     {
-        return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
+        $this->sql = $sql;
     }
 
-    public function convertToDatabaseValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    /**
+     * @param ConnectionEventArgs $args
+     * @return void
+     */
+    public function postConnect(ConnectionEventArgs $args)
     {
-        return serialize($value);
+        $conn = $args->getConnection();
+        $conn->exec($this->sql);
     }
 
-    public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    public function getSubscribedEvents()
     {
-        if ($value === null) {
-            return null;
-        }
-
-        $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        $val = unserialize($value);
-        if ($val === false && $value != 'b:0;') {
-            throw ConversionException::conversionFailed($value, $this->getName());
-        }
-        return $val;
-    }
-
-    public function getName()
-    {
-        return Type::TARRAY;
+        return array(Events::postConnect);
     }
 }

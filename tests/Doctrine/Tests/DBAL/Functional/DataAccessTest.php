@@ -269,4 +269,12 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");
         $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Adding month should end up on 2009-11-01");
     }
+
+    public function testQuoteSQLInjection()
+    {
+        $sql = "SELECT * FROM fetch_table WHERE test_string = " . $this->_conn->quote("bar' OR '1'='1");
+        $rows = $this->_conn->fetchAll($sql);
+
+        $this->assertEquals(0, count($rows), "no result should be returned, otherwise SQL injection is possible");
+    }
 }
