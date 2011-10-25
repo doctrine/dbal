@@ -277,6 +277,8 @@ class MsSqlPlatform extends AbstractPlatform
     public function getAlterTableSQL(TableDiff $diff)
     {
         $queryParts = array();
+        $sql = array();
+        
         if ($diff->newName !== false) {
             $queryParts[] = 'RENAME TO ' . $diff->newName;
         }
@@ -292,16 +294,15 @@ class MsSqlPlatform extends AbstractPlatform
         foreach ($diff->changedColumns AS $columnDiff) {
             /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
-            $queryParts[] = 'CHANGE ' . ($columnDiff->oldColumnName) . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $queryParts[] = 'ALTER COLUMN ' .
+                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
-            $queryParts[] = 'CHANGE ' . $oldColumnName . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "' , '".$column->getQuotedName($this)."', 'COLUMN'";
+            $queryParts[] = 'ALTER COLUMN ' .
+                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
-
-        $sql = array();
 
         foreach ($queryParts as $query) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
@@ -342,7 +343,7 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        return 'exec sp_columns @table_name = ' . $table;
+        return "exec sp_columns @table_name = '" . $table . "'";
     }
 
     /**
