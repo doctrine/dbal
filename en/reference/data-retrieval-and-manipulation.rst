@@ -2,7 +2,7 @@ Data Retrieval And Manipulation
 ===============================
 
 Doctrine DBAL follows the PDO API very closely. If you have worked with PDO
-before you will get to know Doctrine DBAL very quickly. On top of API provided
+before you will get to know Doctrine DBAL very quickly. On top of the API provided
 by PDO there are tons of convenience functions in Doctrine DBAL.
 
 Data Retrieval
