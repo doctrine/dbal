@@ -33,7 +33,7 @@ connection:
     $sql = "SELECT * FROM articles";
     $stmt = $conn->query($sql); // Simple, but has several drawbacks
 
-The query method executes and the sql and returns a database statement object.
+The query method executes the sql and returns a database statement object.
 A database statement object can be iterated to retrieve all the rows that matched
 the query until there are no more rows:
 
