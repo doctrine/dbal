@@ -8,7 +8,7 @@ by PDO there are tons of convenience functions in Doctrine DBAL.
 Data Retrieval
 --------------
 
-Using a database implies retrieval of data. Its the primary use-case of a database.
+Using a database implies retrieval of data. It is the primary use-case of a database.
 For this purpose each database vendor exposes a Client API that can be integrated into
 all the programming languages. PHP has a generic abstraction layer for this
 kind of Client API called PDO (PHP Data Objects). However because of disagreements
