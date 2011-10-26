@@ -60,7 +60,7 @@ features a platform supports. The
 denominator of what a database platform has to publish to the
 userland, to be fully supportable by Doctrine. This includes the
 SchemaTool, Transaction Isolation and many other features. The
-Database platform for MySQL for example can be used by all 3 mysql
+Database platform for MySQL for example can be used by all 3 MySQL
 extensions, PDO, Mysqli and ext/mysql.
 
 Logging
