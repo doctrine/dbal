@@ -60,7 +60,7 @@ Wrapper Class
 
 By default a ``Doctrine\DBAL\Connection`` is wrapped around a
 driver ``Connection``. The ``wrapperClass`` option allows to
-specify a custom wrapper implementation to use, however, custom
+specify a custom wrapper implementation to use, however, a custom
 wrapper class must be a subclass of ``Doctrine\DBAL\Connection``.
 
 Connection Details
