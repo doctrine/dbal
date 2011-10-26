@@ -49,7 +49,7 @@ The query method is the most simple one for fetching data, but it also has
 several drawbacks:
 
 -   There is no way to add dynamic parameters to the SQL query without modifying
-    the SQL query (``$sql``) itself. This can easily lead to a category of security
+    ``$sql`` itself. This can easily lead to a category of security
     holes called **SQL injection**, where a third party can modify the SQL executed 
     and even execute their own queries through clever exploiting of the security hole.
 -   **Quoting** dynamic parameters for an SQL query is tedious work and requires lots
