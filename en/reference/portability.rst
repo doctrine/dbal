@@ -69,7 +69,7 @@ Database Platform
 -----------------
 
 Using the database platform you can generate bits of SQL for you, specifically
-in the area of sql functions to achieve portability. You should have a look
+in the area of SQL functions to achieve portability. You should have a look
 at all the different methods that the platforms allow you to access.
 
 Keyword Lists

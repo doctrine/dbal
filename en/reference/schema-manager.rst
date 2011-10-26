@@ -212,7 +212,7 @@ table:
     $toSchema->dropTable('user');
 
 Now we can compare the two schema instances in order to calculate
-the differences between them and return the sql required to make
+the differences between them and return the SQL required to make
 the changes on the database:
 
 .. code-block:: php
@@ -220,7 +220,7 @@ the changes on the database:
     <?php
     $sql = $fromSchema->getMigrateToSql($toSchema, $conn->getDatabasePlatform());
 
-The ``$sql`` array should give you a sql query to drop the user
+The ``$sql`` array should give you a SQL query to drop the user
 table:
 
 .. code-block:: php

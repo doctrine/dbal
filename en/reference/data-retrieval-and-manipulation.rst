@@ -33,7 +33,7 @@ connection:
     $sql = "SELECT * FROM articles";
     $stmt = $conn->query($sql); // Simple, but has several drawbacks
 
-The query method executes the sql and returns a database statement object.
+The query method executes the SQL and returns a database statement object.
 A database statement object can be iterated to retrieve all the rows that matched
 the query until there are no more rows:
 
@@ -49,7 +49,7 @@ The query method is the most simple one for fetching data, but it also has
 several drawbacks:
 
 -   There is no way to add dynamic parameters to the SQL query without modifying
-    the sql query (``$sql``) itself. This can easily lead to a category of security
+    the SQL query (``$sql``) itself. This can easily lead to a category of security
     holes called **SQL injection**, where a third party can modify the SQL executed 
     and even execute their own queries through clever exploiting of the security hole.
 -   **Quoting** dynamic parameters for an SQL query is tedious work and requires lots
@@ -76,8 +76,8 @@ every value passed into the query using ``mysql_real_escape_string()`` to avoid 
     $rs = mysql_query($sql);
 
 If you start adding more and more parameters to a query (for example in UPDATE or INSERT statements)
-this approach might lead to complex to maintain sql queries. The reason is simple, the actual
-sql query is not separated clearly from the input parameters. Prepared statements separate
+this approach might lead to complex to maintain SQL queries. The reason is simple, the actual
+SQL query is not separated clearly from the input parameters. Prepared statements separate
 these two concepts by requiring the developer to add **placeholders** to the SQL query (prepare) which
 are then replaced by their actual values in a second step (execute).
 
@@ -94,7 +94,7 @@ are then replaced by their actual values in a second step (execute).
 Placeholders in prepared statements are either simple positional question marks (?) or named labels starting with
 a double-colon (:name1). You cannot mix the positional and the named approach. The approach
 using question marks is called positional, because the values are bound in order from left to right
-to any question mark found in the previously prepared sql query. That is why you specify the
+to any question mark found in the previously prepared SQL query. That is why you specify the
 position of the variable to bind into the ``bindValue()`` method:
 
 .. code-block:: php
@@ -137,13 +137,13 @@ use prepared statements:
 
 -   ``prepare($sql)`` - Create a prepared statement of the type ``Doctrine\DBAL\Statement``.
     Using this method is preferred if you want to re-use the statement to execute several
-    queries with the same sql statement only with different parameters.
+    queries with the same SQL statement only with different parameters.
 -   ``executeQuery($sql, $params, $types)`` - Create a prepared statement for the passed
-    sql query, bind the given params with their binding types and execute the query.
+    SQL query, bind the given params with their binding types and execute the query.
     This method returns the executed prepared statement for iteration and is useful
     for SELECT statements.
 -   ``executeUpdate($sql, $params, $types)`` - Create a prepared statement for the passed
-    sql query, bind the given params with their binding types and execute the query.
+    SQL query, bind the given params with their binding types and execute the query.
     This method returns the number of affected rows by the executed query and is useful
     for UPDATE, DELETE and INSERT statements.
 
@@ -261,7 +261,7 @@ the SQL and flattens the specified values into the set of parameters. Consider o
         array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
     );
 
-The sql statement passed to ``Connection#executeQuery`` is not the one actually passed to the
+The SQL statement passed to ``Connection#executeQuery`` is not the one actually passed to the
 database. It is internally rewritten to look like the following explicit code that could
 be specified as well:
 
@@ -293,7 +293,7 @@ them.
 prepare()
 ~~~~~~~~~
 
-Prepare a given sql statement and return the
+Prepare a given SQL statement and return the
 ``\Doctrine\DBAL\Driver\Statement`` instance:
 
 .. code-block:: php
@@ -315,7 +315,7 @@ Prepare a given sql statement and return the
 executeUpdate()
 ~~~~~~~~~~~~~~~
 
-Executes a prepared statement with the given sql and parameters and
+Executes a prepared statement with the given SQL and parameters and
 returns the affected rows count:
 
 .. code-block:: php
@@ -332,7 +332,7 @@ parameters and expected database values. See the
 executeQuery()
 ~~~~~~~~~~~~~~
 
-Creates a prepared statement for the given sql and passes the
+Creates a prepared statement for the given SQL and passes the
 parameters to the execute method, then returning the statement:
 
 .. code-block:: php
