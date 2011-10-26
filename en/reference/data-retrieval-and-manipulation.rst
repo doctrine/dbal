@@ -10,7 +10,7 @@ Data Retrieval
 
 Using a database implies retrieval of data. It is the primary use-case of a database.
 For this purpose each database vendor exposes a Client API that can be integrated into
-all the programming languages. PHP has a generic abstraction layer for this
+programming languages. PHP has a generic abstraction layer for this
 kind of Client API called PDO (PHP Data Objects). However because of disagreements
 between the PHP community there are often native extensions for each database
 vendor that are much more maintained (OCI8 for example).
