@@ -157,7 +157,7 @@ Custom Driver Options
 ~~~~~~~~~~~~~~~~~~~~~
 
 The ``driverOptions`` option allows to pass arbitrary options
-through to the driver. This is equivalent to the 4th argument of
+through to the driver. This is equivalent to the fourth argument of
 the `PDO constructor <http://php.net/manual/en/pdo.construct.php>`_.
 
 
