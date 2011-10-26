@@ -16,7 +16,7 @@ between the PHP community there are often native extensions for each database
 vendor that are much more maintained (OCI8 for example).
 
 Doctrine DBAL API builds on top of PDO and integrates native extensions by
-wrapping them into the PDO API aswell. If you already have an open connection
+wrapping them into the PDO API as well. If you already have an open connection
 through the ``Doctrine\DBAL\DriverManager::getConnection()`` method you
 can start using this API for data retrieval easily.
 
@@ -263,7 +263,7 @@ the SQL and flattens the specified values into the set of parameters. Consider o
 
 The sql statement passed to ``Connection#executeQuery`` is not the one actually passed to the
 database. It is internally rewritten to look like the following explicit code that could
-be specified aswell:
+be specified as well:
 
 .. code-block:: php
 

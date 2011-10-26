@@ -5,7 +5,7 @@ Besides abstraction of SQL one needs a translation between database
 and PHP data-types to implement database independent applications.
 Doctrine 2 has a type translation system baked in that supports the
 conversion from and to PHP values from any database platform,
-aswell as platform independent SQL generation for any Doctrine
+as well as platform independent SQL generation for any Doctrine
 Type.
 
 Using the ORM you generally don't need to know about the Type
