@@ -138,7 +138,7 @@ wider scope and the control is handed to the outer scope.
     Directly invoking ``PDO#beginTransaction()``,
     ``PDO#commit()`` or ``PDO#rollback()`` or the corresponding methods
     on the particular ``Doctrine\DBAL\Driver\Connection`` instance in
-    use bybasses the transparent transaction nesting that is provided
+    use bypasses the transparent transaction nesting that is provided
     by ``Doctrine\DBAL\Connection`` and can therefore corrupt the
     nesting level, causing errors with broken transaction boundaries
     that may be hard to debug.
