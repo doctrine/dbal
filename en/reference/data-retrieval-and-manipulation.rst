@@ -124,7 +124,7 @@ The following section describes the API of Doctrine DBAL with regard to prepared
 
 .. note::
 
-    The support for positional and named prepared statements varies between the different
+    Support for positional and named prepared statements varies between the different
     database extensions. PDO implements its own client side parser so that both approaches
     are feasible for all PDO drivers. OCI8/Oracle only supports named parameters, but
     Doctrine implements a client side parser to allow positional parameters also.
