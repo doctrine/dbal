@@ -9,7 +9,7 @@ as well as platform independent SQL generation for any Doctrine
 Type.
 
 Using the ORM you generally don't need to know about the Type
-system. This is unless you wan't to make use of database vendor
+system. This is unless you want to make use of database vendor
 specific database types not included in Doctrine 2. The following
 PHP Types are abstracted across all the supported database
 vendors:
