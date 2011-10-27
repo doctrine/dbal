@@ -77,7 +77,7 @@ every value passed into the query using ``mysql_real_escape_string()`` to avoid 
 
 If you start adding more and more parameters to a query (for example in UPDATE or INSERT statements)
 this approach might lead to complex to maintain SQL queries. The reason is simple, the actual
-SQL query is not separated clearly from the input parameters. Prepared statements separate
+SQL query is not clearly separated from the input parameters. Prepared statements separate
 these two concepts by requiring the developer to add **placeholders** to the SQL query (prepare) which
 are then replaced by their actual values in a second step (execute).
 
