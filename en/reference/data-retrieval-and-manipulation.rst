@@ -55,7 +55,7 @@ several drawbacks:
 -   **Quoting** dynamic parameters for an SQL query is tedious work and requires lots
     of use of the ``Doctrine\DBAL\Connection#quote()`` method, which makes the
     original SQL query hard to read/understand.
--   Databases optimize the SQL query to be executed, using the query method
+-   Databases optimize SQL queries before they are executed. Using the query method
     you will trigger the optimization process over and over again, although
     it could re-use this information easily using a technique called **prepared statement**.
 
