@@ -36,7 +36,7 @@ is functionally equivalent to the previous one:
 The ``Doctrine\DBAL\Connection`` also has methods to control the
 transaction isolation level as supported by the underlying
 database. ``Connection#setTransactionIsolation($level)`` and
-Connection#getTransactionIsolation() can be used for that purpose.
+``Connection#getTransactionIsolation()`` can be used for that purpose.
 The possible isolation levels are represented by the following
 constants:
 
