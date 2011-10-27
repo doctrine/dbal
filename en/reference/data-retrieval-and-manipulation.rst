@@ -191,7 +191,7 @@ any of the parameter binding methods but a string, Doctrine DBAL will
 ask the type abstraction layer to convert the passed value from
 its PHP to a database representation. This way you can pass ``\DateTime``
 instances to a prepared statement and have Doctrine convert them 
-to the apropriate vendors database format:
+to the appropriate vendors database format:
 
 .. code-block:: php
 
