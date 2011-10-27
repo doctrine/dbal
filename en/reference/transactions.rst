@@ -127,7 +127,7 @@ wider scope and the control is handed to the outer scope.
 .. note::
 
     The transaction nesting described here is a debated
-    feature that has it's critics. Form your own opinion. We recommend
+    feature that has its critics. Form your own opinion. We recommend
     avoiding nesting transaction blocks when possible, and most of the
     time, it is possible. Transaction control should mostly be left to
     a service layer and not be handled in data access objects or
