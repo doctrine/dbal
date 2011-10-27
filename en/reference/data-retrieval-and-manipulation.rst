@@ -57,7 +57,7 @@ several drawbacks:
     original SQL query hard to read/understand.
 -   Databases optimize SQL queries before they are executed. Using the query method
     you will trigger the optimization process over and over again, although
-    it could re-use this information easily using a technique called **prepared statement**.
+    it could re-use this information easily using a technique called **prepared statements**.
 
 This three arguments and some more technical details hopefully convinced you to investigate
 prepared statements for accessing your database. 
