@@ -60,9 +60,9 @@ transactions, or rather propagating transaction control up the call
 stack. For that purpose, the ``Connection`` class keeps an internal
 counter that represents the nesting level and is
 increased/decreased as ``beginTransaction()``, ``commit()`` and
-``rollback()`` are invoked. ``beginTransaction()`` increases the
+ ``rollback()`` are invoked. ``beginTransaction()`` increases the
 nesting level whilst
-``commit()`` and``rollback()``decrease the nesting level. The nesting level starts at 0. Whenever the nesting level transitions from 0 to 1,``beginTransaction()``is invoked on the underlying driver connection and whenever the nesting level transitions from 1 to 0,``commit()``or``rollback()``is invoked on the underlying driver, depending on whether the transition was caused by``Connection#commit()``or``Connection#rollback()\`.
+ ``commit()`` and ``rollback()`` decrease the nesting level. The nesting level starts at 0. Whenever the nesting level transitions from 0 to 1, ``beginTransaction()`` is invoked on the underlying driver connection and whenever the nesting level transitions from 1 to 0, ``commit()`` or ``rollback()`` is invoked on the underlying driver, depending on whether the transition was caused by ``Connection#commit()`` or ``Connection#rollback()``.
 
 What this means is that transaction control is basically passed to
 code higher up in the call stack and the inner transaction block is
