@@ -173,7 +173,7 @@ If you find it tedious to write all the prepared statement code you can alternat
 the ``Doctrine\DBAL\Connection#executeQuery()`` and ``Doctrine\DBAL\Connection#executeUpdate()``
 methods. See the API section below on details how to use them.
 
-Additionally there are lots of convenience methods for data-retrieval and mainpulation
+Additionally there are lots of convenience methods for data-retrieval and manipulation
 on the Connection, which are all described in the API section below.
 
 Binding Types
