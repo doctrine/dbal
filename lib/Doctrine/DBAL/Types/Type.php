@@ -46,6 +46,7 @@ abstract class Type
     const SMALLINT = 'smallint';
     const STRING = 'string';
     const TEXT = 'text';
+    const BLOB = 'blob';
     const FLOAT = 'float';
 
     /** Map of already instantiated type objects. One instance per type (flyweight). */
@@ -67,6 +68,7 @@ abstract class Type
         self::TIME => 'Doctrine\DBAL\Types\TimeType',
         self::DECIMAL => 'Doctrine\DBAL\Types\DecimalType',
         self::FLOAT => 'Doctrine\DBAL\Types\FloatType',
+        self::BLOB => 'Doctrine\DBAL\Types\BlobType',
     );
 
     /* Prevent instantiation and force use of the factory method. */
@@ -194,15 +196,15 @@ abstract class Type
     /**
      * Gets the (preferred) binding type for values of this type that
      * can be used when binding parameters to prepared statements.
-     * 
+     *
      * This method should return one of the PDO::PARAM_* constants, that is, one of:
-     * 
+     *
      * PDO::PARAM_BOOL
      * PDO::PARAM_NULL
      * PDO::PARAM_INT
      * PDO::PARAM_STR
      * PDO::PARAM_LOB
-     * 
+     *
      * @return integer
      */
     public function getBindingType()
@@ -244,7 +246,7 @@ abstract class Type
 
     /**
      * Modifies the SQL expression (identifier, parameter) to convert to a database value.
-     * 
+     *
      * @param string $sqlExpr
      * @param AbstractPlatform $platform
      * @return string

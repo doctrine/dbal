@@ -25,6 +25,14 @@ use Doctrine\DBAL\Schema\TableDiff;
 
 class DB2Platform extends AbstractPlatform
 {
+    /**
+     * Gets the SQL Snippet used to declare a BLOB column type.
+     */
+    public function getBlobTypeDeclarationSQL(array $field)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
     public function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = array(
@@ -347,7 +355,7 @@ class DB2Platform extends AbstractPlatform
             $indexes = $options['indexes'];
         }
         $options['indexes'] = array();
-        
+
         $sqls = parent::_getCreateTableSQL($tableName, $columns, $options);
 
         foreach ($indexes as $index => $definition) {
@@ -550,7 +558,7 @@ class DB2Platform extends AbstractPlatform
     {
         return false;
     }
-    
+
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords';
