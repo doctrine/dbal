@@ -27,7 +27,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                     array('id'=>3,'foo'=>1,'bar'=>3),
                 )
             ),
-                
+
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar IN (:bar)',
                 array('foo'=>1,'bar'=> array(1, 2, 3)),
@@ -38,7 +38,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                     array('id'=>3,'foo'=>1,'bar'=>3),
                 )
             ),
-            
+
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar IN (:bar) AND f.foo = :foo',
                 array('foo'=>1,'bar'=> array(1, 2, 3)),
@@ -49,7 +49,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                     array('id'=>3,'foo'=>1,'bar'=>3),
                 )
             ),
-            
+
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar IN (:bar) AND f.foo = :foo',
                 array('foo'=>1,'bar'=> array('1', '2', '3')),
@@ -60,7 +60,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                     array('id'=>3,'foo'=>1,'bar'=>3),
                 )
             ),
-            
+
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar IN (:bar) AND f.foo IN (:foo)',
                 array('foo'=>array('1'),'bar'=> array(1, 2, 3,4)),
@@ -72,7 +72,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                     array('id'=>4,'foo'=>1,'bar'=>4),
                 )
             ),
-            
+
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar IN (:bar) AND f.foo IN (:foo)',
                 array('foo'=>1,'bar'=> 2),
@@ -81,7 +81,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                     array('id'=>2,'foo'=>1,'bar'=>2),
                 )
             ),
-            
+
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar = :arg AND f.foo <> :arg',
                 array('arg'=>'1'),
@@ -90,7 +90,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                     array('id'=>5,'foo'=>2,'bar'=>1),
                 )
             ),
-            
+
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar NOT IN (:arg) AND f.foo IN (:arg)',
                 array('arg'=>array(1, 2)),
@@ -100,10 +100,10 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                     array('id'=>4,'foo'=>1,'bar'=>4),
                 )
             ),
-            
+
         );
     }
-    
+
     public function setUp()
     {
         parent::setUp();
@@ -114,6 +114,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $table->addColumn('id', 'integer');
                 $table->addColumn('foo','string');
                 $table->addColumn('bar','string');
+                $table->setPrimaryKey(array('id'));
 
 
                 $sm = $this->_conn->getSchemaManager();
@@ -148,7 +149,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
      * @param string $query
      * @param array $params
      * @param array $types
-     * @param array $expected 
+     * @param array $expected
      */
     public function testTicket($query,$params,$types,$expected)
     {

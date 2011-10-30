@@ -24,6 +24,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table = new \Doctrine\DBAL\Schema\Table("caching");
             $table->addColumn('test_int', 'integer');
             $table->addColumn('test_string', 'string', array('notnull' => false));
+            $table->setPrimaryKey(array('test_int'));
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);

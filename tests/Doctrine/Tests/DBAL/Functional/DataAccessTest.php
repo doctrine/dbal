@@ -20,13 +20,14 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('test_int', 'integer');
             $table->addColumn('test_string', 'string');
             $table->addColumn('test_datetime', 'datetime', array('notnull' => false));
+            $table->setPrimaryKey(array('test_int'));
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
 
             $this->_conn->insert('fetch_table', array('test_int' => 1, 'test_string' => 'foo', 'test_datetime' => '2010-01-01 10:10:10'));
         } catch(\Exception $e) {
-            
+
         }
     }
 
@@ -121,6 +122,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute(array($paramInt, $paramStr));
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->assertTrue($row !== false);
         $row = array_change_key_case($row, \CASE_LOWER);
         $this->assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $row);
     }
@@ -145,8 +147,10 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $row = $this->_conn->fetchAssoc($sql, array(1, 'foo'));
 
+        $this->assertTrue($row !== false);
+
         $row = array_change_key_case($row, \CASE_LOWER);
-        
+
         $this->assertEquals(1, $row['test_int']);
         $this->assertEquals('foo', $row['test_string']);
     }
@@ -196,7 +200,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
         $affectedRows = $this->_conn->executeUpdate($sql,
-            array(1 => 1,               2 => 'foo',             3 => $datetime),
+            array(1 => 50,              2 => 'foo',             3 => $datetime),
             array(1 => PDO::PARAM_INT,  2 => PDO::PARAM_STR,    3 => Type::DATETIME)
         );
 
@@ -220,7 +224,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(1, $stmt->fetchColumn());
     }
-    
+
     /**
      * @group DBAL-78
      */
@@ -229,17 +233,17 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         for ($i = 100; $i < 110; $i++) {
             $this->_conn->insert('fetch_table', array('test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10'));
         }
-        
+
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int IN (?)',
             array(array(100, 101, 102, 103, 104)), array(Connection::PARAM_INT_ARRAY));
-        
+
         $data = $stmt->fetchAll(PDO::FETCH_NUM);
         $this->assertEquals(5, count($data));
         $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
-        
+
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_string IN (?)',
             array(array('foo100', 'foo101', 'foo102', 'foo103', 'foo104')), array(Connection::PARAM_STR_ARRAY));
-        
+
         $data = $stmt->fetchAll(PDO::FETCH_NUM);
         $this->assertEquals(5, count($data));
         $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);

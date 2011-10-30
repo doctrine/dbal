@@ -33,6 +33,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $table = new Table("non_temporary");
         $table->addColumn("id", "integer");
+        $table->setPrimaryKey(array('id'));
 
         $this->_conn->getSchemaManager()->createTable($table);
         $this->_conn->beginTransaction();
@@ -64,6 +65,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $table = new Table("non_temporary");
         $table->addColumn("id", "integer");
+        $table->setPrimaryKey(array('id'));
 
         $this->_conn->getSchemaManager()->createTable($table);
         $this->_conn->beginTransaction();
@@ -77,7 +79,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         try {
             $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
         } catch(\Exception $e) {
-            
+
         }
 
         $rows = $this->_conn->fetchAll('SELECT * FROM non_temporary');
