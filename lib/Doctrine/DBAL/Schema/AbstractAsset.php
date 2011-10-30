@@ -71,7 +71,7 @@ abstract class AbstractAsset
 
     /**
      * Trim quotes from the identifier.
-     * 
+     *
      * @param  string $identifier
      * @return string
      */
@@ -82,7 +82,7 @@ abstract class AbstractAsset
 
     /**
      * Return name of this schema asset.
-     * 
+     *
      * @return string
      */
     public function getName()
@@ -99,7 +99,8 @@ abstract class AbstractAsset
      */
     public function getQuotedName(AbstractPlatform $platform)
     {
-        return ($this->_quoted) ? $platform->quoteIdentifier($this->_name) : $this->_name;
+        $keywords = $platform->getReservedKeywordsList();
+        return ($this->_quoted || $keywords->isKeyword($this->_name)) ? $platform->quoteIdentifier($this->_name) : $this->_name;
     }
 
     /**
