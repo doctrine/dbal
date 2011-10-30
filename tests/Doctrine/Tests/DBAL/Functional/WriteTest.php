@@ -17,6 +17,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table = new \Doctrine\DBAL\Schema\Table("write_table");
             $table->addColumn('test_int', 'integer');
             $table->addColumn('test_string', 'string', array('notnull' => false));
+            $table->setPrimaryKey(array('test_int'));
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
@@ -104,8 +105,8 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function insertRows()
     {
-        $this->assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 1)));
-        $this->assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 2)));
+        $this->assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo')));
+        $this->assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 2, 'test_string' => 'bar')));
     }
 
     public function testInsert()
@@ -128,7 +129,8 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->insertRows();
 
-        $this->assertEquals(1, $this->_conn->update('write_table', array('test_int' => 2), array('test_int' => 1)));
-        $this->assertEquals(2, $this->_conn->update('write_table', array('test_int' => 3), array('test_int' => 2)));
+        $this->assertEquals(1, $this->_conn->update('write_table', array('test_string' => 'bar'), array('test_string' => 'foo')));
+        $this->assertEquals(2, $this->_conn->update('write_table', array('test_string' => 'baz'), array('test_string' => 'bar')));
+        $this->assertEquals(0, $this->_conn->update('write_table', array('test_string' => 'baz'), array('test_string' => 'bar')));
     }
 }
