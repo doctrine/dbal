@@ -34,16 +34,6 @@ class BlobType extends Type
         return $platform->getBlobTypeDeclarationSQL($fieldDeclaration);
     }
 
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
-    {
-        $hex='';
-        for ($i=0; $i < strlen($value); $i++) {
-            $hex .= dechex(ord($value[$i]));
-        }
-
-        return $value;
-    }
-
     /**
      * Converts a value from its database representation to its PHP representation
      * of this type.
