@@ -34,6 +34,16 @@ class BlobType extends Type
         return $platform->getBlobTypeDeclarationSQL($fieldDeclaration);
     }
 
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    {
+        $hex='';
+        for ($i=0; $i < strlen($value); $i++) {
+            $hex .= dechex(ord($value[$i]));
+        }
+
+        return $value;
+    }
+
     /**
      * Converts a value from its database representation to its PHP representation
      * of this type.
@@ -44,11 +54,16 @@ class BlobType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return (is_resource($value)) ? stream_get_contents($value) : $value;
+        if (is_string($value)) {
+            $value = fopen('data://text/plain;base64,' . base64_encode($value), 'r');
+        } else if ( ! is_resource($value)) {
+            throw ConversionException::conversionFailed($value, self::BLOB);
+        }
+        return $value;
     }
 
     public function getName()
     {
-        return Type::TEXT;
+        return Type::BLOB;
     }
 }

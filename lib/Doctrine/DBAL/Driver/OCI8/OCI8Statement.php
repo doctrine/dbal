@@ -30,13 +30,15 @@ use \PDO;
 class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
 {
     /** Statement handle. */
+    protected $_dbh;
     protected $_sth;
     protected $_executeMode;
     protected static $_PARAM = ':param';
     protected static $fetchStyleMap = array(
         PDO::FETCH_BOTH => OCI_BOTH,
         PDO::FETCH_ASSOC => OCI_ASSOC,
-        PDO::FETCH_NUM => OCI_NUM
+        PDO::FETCH_NUM => OCI_NUM,
+        PDO::PARAM_LOB => OCI_B_BLOB,
     );
     protected $_paramMap = array();
 
@@ -50,6 +52,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
     {
         list($statement, $paramMap) = self::convertPositionalToNamedPlaceholders($statement);
         $this->_sth = oci_parse($dbh, $statement);
+        $this->_dbh = $dbh;
         $this->_paramMap = $paramMap;
         $this->_executeMode = $executeMode;
     }
@@ -72,7 +75,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
      * @return string
      */
     static public function convertPositionalToNamedPlaceholders($statement)
-    {   
+    {
         $count = 1;
         $inLiteral = false; // a valid query never starts with quotes
         $stmtLen = strlen($statement);
@@ -108,8 +111,15 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
     public function bindParam($column, &$variable, $type = null)
     {
         $column = isset($this->_paramMap[$column]) ? $this->_paramMap[$column] : $column;
-        
-        return oci_bind_by_name($this->_sth, $column, $variable);
+
+        if ($type == \PDO::PARAM_LOB) {
+            $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
+            $lob->writeTemporary($variable, OCI_TEMP_BLOB);
+
+            return oci_bind_by_name($this->_sth, $column, $lob, -1, OCI_B_BLOB);
+        } else {
+            return oci_bind_by_name($this->_sth, $column, $variable);
+        }
     }
 
     /**
@@ -122,7 +132,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
         return oci_free_statement($this->_sth);
     }
 
-    /** 
+    /**
      * {@inheritdoc}
      */
     public function columnCount()
@@ -141,7 +151,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
         }
         return $error;
     }
-    
+
     /**
      * {@inheritdoc}
      */
@@ -181,7 +191,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
         if ( ! isset(self::$fetchStyleMap[$fetchStyle])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
         }
-        
+
         return oci_fetch_array($this->_sth, self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
     }
 
@@ -193,11 +203,11 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
         if ( ! isset(self::$fetchStyleMap[$fetchStyle])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
         }
-        
+
         $result = array();
         oci_fetch_all($this->_sth, $result, 0, -1,
             self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | OCI_FETCHSTATEMENT_BY_ROW | OCI_RETURN_LOBS);
-        
+
         return $result;
     }
 
@@ -216,5 +226,5 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
     public function rowCount()
     {
         return oci_num_rows($this->_sth);
-    }    
+    }
 }

@@ -169,70 +169,70 @@ class SqlitePlatform extends AbstractPlatform
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     public function prefersIdentityColumns()
     {
         return true;
     }
-    
-    /** 
-     * @override 
+
+    /**
+     * @override
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
         return 'BOOLEAN';
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
         return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
         return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     public function getTinyIntTypeDeclarationSql(array $field)
     {
         return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
         return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     public function getMediumIntTypeDeclarationSql(array $field)
     {
         return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
         return 'DATETIME';
     }
-    
+
     /**
      * @override
      */
@@ -249,8 +249,8 @@ class SqlitePlatform extends AbstractPlatform
         return 'TIME';
     }
 
-    /** 
-     * @override 
+    /**
+     * @override
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
@@ -330,7 +330,7 @@ class SqlitePlatform extends AbstractPlatform
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
                 : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
     }
-    
+
     public function getClobTypeDeclarationSQL(array $field)
     {
         return 'CLOB';
@@ -487,9 +487,17 @@ class SqlitePlatform extends AbstractPlatform
             'numeric'          => 'decimal',
         );
     }
-    
+
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords';
+    }
+
+    /**
+     * Gets the SQL Snippet used to declare a BLOB column type.
+     */
+    public function getBlobTypeDeclarationSQL(array $field)
+    {
+        return 'BLOB';
     }
 }

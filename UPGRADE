@@ -1,0 +1,6 @@
+# Upgrade to 2.2
+
+## Doctrine\DBAL\Connection#insert and Doctrine\DBAL\Connnection#update
+
+Both methods now accept an optional last parameter $types with binding types of the values passed.
+This can potentially break child classes that have overwritten one of these methods.

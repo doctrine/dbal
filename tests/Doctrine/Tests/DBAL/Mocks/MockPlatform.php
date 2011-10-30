@@ -6,6 +6,14 @@ use Doctrine\DBAL\Platforms;
 
 class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
 {
+    /**
+     * Gets the SQL Snippet used to declare a BLOB column type.
+     */
+    public function getBlobTypeDeclarationSQL(array $field)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
     public function getBooleanTypeDeclarationSQL(array $columnDef) {}
     public function getIntegerTypeDeclarationSQL(array $columnDef) {}
     public function getBigIntTypeDeclarationSQL(array $columnDef) {}
@@ -16,7 +24,7 @@ class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     {
         return "DUMMYVARCHAR()";
     }
-    
+
     /** @override */
     public function getClobTypeDeclarationSQL(array $field)
     {
