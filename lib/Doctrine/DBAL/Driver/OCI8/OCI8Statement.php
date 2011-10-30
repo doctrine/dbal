@@ -36,7 +36,8 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
     protected static $fetchStyleMap = array(
         PDO::FETCH_BOTH => OCI_BOTH,
         PDO::FETCH_ASSOC => OCI_ASSOC,
-        PDO::FETCH_NUM => OCI_NUM
+        PDO::FETCH_NUM => OCI_NUM,
+        PDO::FETCH_COLUMN => OCI_NUM
     );
     protected $_paramMap = array();
 
@@ -193,11 +194,20 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
         if ( ! isset(self::$fetchStyleMap[$fetchStyle])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
         }
-        
+      
+        $fetchStructure = OCI_FETCHSTATEMENT_BY_ROW;
+        if ($fetchStyle == PDO::FETCH_COLUMN) {
+            $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
+        }
+
         $result = array();
         oci_fetch_all($this->_sth, $result, 0, -1,
-            self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | OCI_FETCHSTATEMENT_BY_ROW | OCI_RETURN_LOBS);
-        
+            self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
+
+        if ($fetchStyle == PDO::FETCH_COLUMN) {
+            $result = $result[0];
+        }
+
         return $result;
     }
 
