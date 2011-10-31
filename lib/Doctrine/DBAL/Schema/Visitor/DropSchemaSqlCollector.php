@@ -36,7 +36,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform,
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
- * @version $Revision$
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 class DropSchemaSqlCollector implements Visitor
@@ -68,9 +67,7 @@ class DropSchemaSqlCollector implements Visitor
     public function __construct(AbstractPlatform $platform)
     {
         $this->platform = $platform;
-        $this->constraints = new \SplObjectStorage();
-        $this->sequences = new \SplObjectStorage();
-        $this->tables = new \SplObjectStorage();
+        $this->clearQueries();
     }
 
     /**
@@ -129,11 +126,13 @@ class DropSchemaSqlCollector implements Visitor
     }
 
     /**
-     * @return array
+     * @return void
      */
     public function clearQueries()
     {
-        $this->constraints = $this->sequences = $this->tables = array();
+        $this->constraints = new \SplObjectStorage();
+        $this->sequences = new \SplObjectStorage();
+        $this->tables = new \SplObjectStorage();
     }
 
     /**
@@ -150,7 +149,7 @@ class DropSchemaSqlCollector implements Visitor
         foreach ($this->sequences AS $sequence) {
             $sql[] = $this->platform->getDropSequenceSQL($sequence->getQuotedName($this->platform));
         }
-        
+
         foreach ($this->tables AS $table) {
             $sql[] = $this->platform->getDropTableSQL($table->getQuotedName($this->platform));
         }
