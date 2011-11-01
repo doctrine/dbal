@@ -16,6 +16,6 @@
         "doctrine/common": "2.*"
     },
     "autoload": {
-        "psr-0": { "Doctrine\\DBAL": "src/" }
+        "psr-0": { "Doctrine\\DBAL": "lib/" }
     }
 }
