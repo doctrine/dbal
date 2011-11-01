@@ -14,5 +14,8 @@
     "require": {
         "php": ">=5.3.2",
         "doctrine/common": "2.*"
+    },
+    "autoload": {
+        "psr-0": { "Symfony": "src/" }
     }
 }
