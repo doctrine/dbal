@@ -50,10 +50,10 @@ abstract class Type
     const FLOAT = 'float';
 
     /** Map of already instantiated type objects. One instance per type (flyweight). */
-    private static $_typeObjects = array();
+    protected static $_typeObjects = array();
 
     /** The map of supported doctrine mapping types. */
-    private static $_typesMap = array(
+    protected static $_typesMap = array(
         self::TARRAY => 'Doctrine\DBAL\Types\ArrayType',
         self::OBJECT => 'Doctrine\DBAL\Types\ObjectType',
         self::BOOLEAN => 'Doctrine\DBAL\Types\BooleanType',
@@ -72,7 +72,7 @@ abstract class Type
     );
 
     /* Prevent instantiation and force use of the factory method. */
-    final private function __construct() {}
+    final protected function __construct() {}
 
     /**
      * Converts a value from its PHP representation to its database representation

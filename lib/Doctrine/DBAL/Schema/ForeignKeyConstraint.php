@@ -151,7 +151,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * @param  string $event
      * @return string|null
      */
-    private function _onEvent($event)
+    protected function _onEvent($event)
     {
         if (isset($this->_options[$event])) {
             $onEvent = strtoupper($this->_options[$event]);

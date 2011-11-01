@@ -68,7 +68,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertBlobContains('test2');
     }
 
-    private function assertBlobContains($text)
+    protected function assertBlobContains($text)
     {
         $rows = $this->_conn->fetchAll('SELECT * FROM blob_table');
 

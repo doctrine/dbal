@@ -35,7 +35,7 @@ class View extends AbstractAsset
     /**
      * @var string
      */
-    private $_sql;
+    protected $_sql;
 
     public function __construct($name, $sql)
     {

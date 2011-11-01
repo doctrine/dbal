@@ -24,9 +24,9 @@ use PDO;
 
 class ArrayStatement implements ResultStatement
 {
-    private $data;
-    private $columnCount = 0;
-    private $num = 0;
+    protected $data;
+    protected $columnCount = 0;
+    protected $num = 0;
 
     public function __construct(array $data)
     {

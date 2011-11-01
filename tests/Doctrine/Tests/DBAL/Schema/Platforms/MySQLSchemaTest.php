@@ -14,12 +14,12 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
     /**
      * @var Comparator
      */
-    private $comparator;
+    protected $comparator;
     /**
      *
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    private $platform;
+    protected $platform;
 
     public function setUp()
     {

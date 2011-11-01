@@ -35,7 +35,7 @@ final class DriverManager
      * @var array
      * @todo REMOVE. Users should directly supply class names instead.
      */
-     private static $_driverMap = array(
+     protected static $_driverMap = array(
             'pdo_mysql'  => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
             'pdo_sqlite' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver',
             'pdo_pgsql'  => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
@@ -47,7 +47,7 @@ final class DriverManager
             );
 
     /** Private constructor. This class cannot be instantiated. */
-    private function __construct() { }
+    protected function __construct() { }
 
     /**
      * Creates a connection object based on the specified parameters.
@@ -138,7 +138,7 @@ final class DriverManager
      *
      * @param array $params
      */
-    private static function _checkParams(array $params)
+    protected static function _checkParams(array $params)
     {        
         // check existance of mandatory parameters
         

@@ -33,15 +33,15 @@ class QueryCacheProfile
     /**
      * @var Cache
      */
-    private $resultCacheDriver;
+    protected $resultCacheDriver;
     /**
      * @var int
      */
-    private $lifetime = 0;
+    protected $lifetime = 0;
     /**
      * @var string
      */
-    private $cacheKey;
+    protected $cacheKey;
 
     /**
      * @param int $lifetime

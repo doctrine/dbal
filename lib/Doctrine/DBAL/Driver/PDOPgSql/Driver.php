@@ -31,7 +31,7 @@ class Driver implements \Doctrine\DBAL\Driver
      *
      * @return string The DSN.
      */
-    private function _constructPdoDsn(array $params)
+    protected function _constructPdoDsn(array $params)
     {
         $dsn = 'pgsql:';
         if (isset($params['host']) && $params['host'] != '') {

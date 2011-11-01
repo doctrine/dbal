@@ -12,7 +12,7 @@ class ReservedKeywordsValidatorTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @var ReservedKeywordsValidator
      */
-    private $validator;
+    protected $validator;
     
     public function setUp()
     {

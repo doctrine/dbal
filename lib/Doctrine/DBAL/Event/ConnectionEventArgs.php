@@ -38,7 +38,7 @@ class ConnectionEventArgs extends EventArgs
     /**
      * @var Connection
      */
-    private $_connection = null;
+    protected $_connection = null;
 
     public function __construct(Connection $connection)
     {

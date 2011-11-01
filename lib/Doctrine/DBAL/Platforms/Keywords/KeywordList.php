@@ -30,7 +30,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 abstract class KeywordList
 {
-    private $keywords = null;
+    protected $keywords = null;
     
     /**
      * Check if the given word is a keyword of this dialect/vendor platform.

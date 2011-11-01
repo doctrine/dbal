@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../TestInit.php';
 
 class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    static private $typeCounter = 0;
+    static protected $typeCounter = 0;
 
     public function setUp()
     {

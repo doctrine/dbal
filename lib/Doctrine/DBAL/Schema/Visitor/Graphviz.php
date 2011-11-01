@@ -31,7 +31,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform,
 
 class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
 {
-    private $output = '';
+    protected $output = '';
 
     public function acceptColumn(Table $table, Column $column)
     {
@@ -82,7 +82,7 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
         );
     }
 
-    private function createTableLabel( Table $table )
+    protected function createTableLabel( Table $table )
     {
         // Start the table
         $label = '<<TABLE CELLSPACING="0" BORDER="1" ALIGN="LEFT">';
@@ -111,7 +111,7 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
         return $label;
     }
 
-    private function createNode( $name, $options )
+    protected function createNode( $name, $options )
     {
         $node = $name . " [";
         foreach( $options as $key => $value )
@@ -122,7 +122,7 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
         return $node;
     }
 
-    private function createNodeRelation( $node1, $node2, $options )
+    protected function createNodeRelation( $node1, $node2, $options )
     {
         $relation = $node1 . ' -> ' . $node2 . ' [';
         foreach( $options as $key => $value )

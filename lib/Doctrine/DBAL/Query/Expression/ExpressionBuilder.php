@@ -42,7 +42,7 @@ class ExpressionBuilder
     /**
      * @var Doctrine\DBAL\Connection DBAL Connection
      */
-    private $connection = null;
+    protected $connection = null;
 
     /**
      * Initializes a new <tt>ExpressionBuilder</tt>.

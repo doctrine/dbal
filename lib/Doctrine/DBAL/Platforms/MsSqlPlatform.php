@@ -257,7 +257,7 @@ class MsSqlPlatform extends AbstractPlatform
      * @param Index $index
      * @return string
      */
-    private function _appendUniqueConstraintDefinition($sql, Index $index)
+    protected function _appendUniqueConstraintDefinition($sql, Index $index)
     {
         $fields = array();
         foreach ($index->getColumns() as $field => $definition) {

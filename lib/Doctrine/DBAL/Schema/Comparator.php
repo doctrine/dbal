@@ -244,7 +244,7 @@ class Comparator
      * 
      * @param TableDiff $tableDifferences
      */
-    private function detectColumnRenamings(TableDiff $tableDifferences)
+    protected function detectColumnRenamings(TableDiff $tableDifferences)
     {
         $renameCandidates = array();
         foreach ($tableDifferences->addedColumns AS $addedColumnName => $addedColumn) {

@@ -35,23 +35,23 @@ class CreateSchemaSqlCollector implements Visitor
     /**
      * @var array
      */
-    private $_createTableQueries = array();
+    protected $_createTableQueries = array();
 
     /**
      * @var array
      */
-    private $_createSequenceQueries = array();
+    protected $_createSequenceQueries = array();
 
     /**
      * @var array
      */
-    private $_createFkConstraintQueries = array();
+    protected $_createFkConstraintQueries = array();
 
     /**
      *
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    private $_platform = null;
+    protected $_platform = null;
 
     /**
      * @param AbstractPlatform $platform

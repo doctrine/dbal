@@ -10,7 +10,7 @@ namespace Doctrine\Tests\Mocks;
  */
 class HydratorMockStatement implements \Doctrine\DBAL\Driver\Statement
 {
-    private $_resultSet;    
+    protected $_resultSet;    
     
     /**
      * Creates a new mock statement that will serve the provided fake result set to clients.

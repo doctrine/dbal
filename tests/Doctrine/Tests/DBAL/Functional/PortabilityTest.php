@@ -14,9 +14,9 @@ require_once __DIR__ . '/../../TestInit.php';
  */
 class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    static private $hasTable = false;
+    static protected $hasTable = false;
 
-    private $portableConnection;
+    protected $portableConnection;
 
     public function tearDown()
     {
@@ -25,7 +25,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
-    private function getPortableConnection($portabilityMode = \Doctrine\DBAL\Portability\Connection::PORTABILITY_ALL, $case = \PDO::CASE_LOWER)
+    protected function getPortableConnection($portabilityMode = \Doctrine\DBAL\Portability\Connection::PORTABILITY_ALL, $case = \PDO::CASE_LOWER)
     {
         if (!$this->portableConnection) {
             $params = $this->_conn->getParams();

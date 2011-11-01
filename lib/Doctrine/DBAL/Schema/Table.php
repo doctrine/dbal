@@ -201,7 +201,7 @@ class Table extends AbstractAsset
      * @param bool $isPrimary
      * @return Table
      */
-    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary)
+    protected function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary)
     {
         if (preg_match('(([^a-zA-Z0-9_]+))', $indexName)) {
             throw SchemaException::indexNameInvalid($indexName);

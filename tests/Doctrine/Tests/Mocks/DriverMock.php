@@ -5,9 +5,9 @@ namespace Doctrine\Tests\Mocks;
 
 class DriverMock implements \Doctrine\DBAL\Driver
 {
-    private $_platformMock;
+    protected $_platformMock;
 
-    private $_schemaManagerMock;
+    protected $_schemaManagerMock;
 
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {

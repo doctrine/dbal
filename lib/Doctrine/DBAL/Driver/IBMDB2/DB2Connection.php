@@ -23,7 +23,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 class DB2Connection implements \Doctrine\DBAL\Driver\Connection
 {
-    private $_conn = null;
+    protected $_conn = null;
 
     public function __construct(array $params, $username, $password, $driverOptions = array())
     {
