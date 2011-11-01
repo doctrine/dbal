@@ -37,23 +37,23 @@ class Statement implements DriverStatement
     /**
      * @var string The SQL statement.
      */
-    private $_sql;
+    protected $_sql;
     /**
      * @var array The bound parameters.
      */
-    private $_params = array();
+    protected $_params = array();
     /**
      * @var Doctrine\DBAL\Driver\Statement The underlying driver statement.
      */
-    private $_stmt;
+    protected $_stmt;
     /**
      * @var Doctrine\DBAL\Platforms\AbstractPlatform The underlying database platform.
      */
-    private $_platform;
+    protected $_platform;
     /**
      * @var Doctrine\DBAL\Connection The connection this statement is bound to and executed on.
      */
-    private $_conn;
+    protected $_conn;
 
     /**
      * Creates a new <tt>Statement</tt> for the given SQL and <tt>Connection</tt>.

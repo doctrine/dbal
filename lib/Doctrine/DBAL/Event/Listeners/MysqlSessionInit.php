@@ -38,12 +38,12 @@ class MysqlSessionInit implements EventSubscriber
     /**
      * @var string
      */
-    private $_charset;
+    protected $_charset;
 
     /**
      * @var string
      */
-    private $_collation;
+    protected $_collation;
 
     /**
      * Configure Charset and Collation options of MySQL Client for each Connection

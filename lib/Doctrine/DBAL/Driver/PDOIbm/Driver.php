@@ -62,7 +62,7 @@ class Driver implements \Doctrine\DBAL\Driver
      *
      * @return string  The DSN.
      */
-    private function _constructPdoDsn(array $params)
+    protected function _constructPdoDsn(array $params)
     {
         $dsn = 'ibm:';
         if (isset($params['host'])) {

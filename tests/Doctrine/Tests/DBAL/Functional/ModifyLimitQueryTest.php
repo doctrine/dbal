@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../TestInit.php';
 
 class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    private static $tableCreated = false;
+    protected static $tableCreated = false;
 
     public function setUp()
     {

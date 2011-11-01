@@ -36,17 +36,17 @@ class Statement implements \Doctrine\DBAL\Driver\Statement
     /**
      * @var int
      */
-    private $portability;
+    protected $portability;
     
     /**
      * @var Doctrine\DBAL\Driver\Statement
      */
-    private $stmt;
+    protected $stmt;
     
     /**
      * @var int
      */
-    private $case;
+    protected $case;
 
     /**
      * Wraps <tt>Statement</tt> and applies portability measures

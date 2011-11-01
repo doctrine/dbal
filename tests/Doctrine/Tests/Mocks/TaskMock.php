@@ -37,7 +37,7 @@ class TaskMock extends \Doctrine\Common\Cli\Tasks\AbstractTask
      */
     static public $instances = array();
 
-    private $runCounter = 0;
+    protected $runCounter = 0;
 
     /**
      * Constructor of Task Mock Object.

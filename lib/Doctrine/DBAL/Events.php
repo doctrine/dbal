@@ -31,7 +31,7 @@ namespace Doctrine\DBAL;
  */
 final class Events
 {
-    private function __construct() {}
+    protected function __construct() {}
 
     const postConnect = 'postConnect';
 }

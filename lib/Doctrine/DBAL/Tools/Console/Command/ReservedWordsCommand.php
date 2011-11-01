@@ -29,7 +29,7 @@ use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 
 class ReservedWordsCommand extends Command
 {
-    private $keywordListClasses = array(
+    protected $keywordListClasses = array(
         'mysql'     => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
         'mssql'     => 'Doctrine\DBAL\Platforms\Keywords\MsSQLKeywords',
         'sqlite'    => 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords',

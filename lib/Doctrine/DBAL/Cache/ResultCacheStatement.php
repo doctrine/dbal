@@ -43,40 +43,40 @@ class ResultCacheStatement implements ResultStatement
     /**
      * @var \Doctrine\Common\Cache\Cache
      */
-    private $resultCache;
+    protected $resultCache;
 
     /**
      *
      * @var string
      */
-    private $cacheKey;
+    protected $cacheKey;
 
     /**
      * @var string
      */
-    private $realKey;
+    protected $realKey;
 
     /**
      * @var int
      */
-    private $lifetime;
+    protected $lifetime;
 
     /**
      * @var Doctrine\DBAL\Driver\Statement
      */
-    private $statement;
+    protected $statement;
 
     /**
      * Did we reach the end of the statement?
      * 
      * @var bool
      */
-    private $emptied = false;
+    protected $emptied = false;
 
     /**
      * @var array
      */
-    private $data;
+    protected $data;
 
     /**
      * @param Statement $stmt

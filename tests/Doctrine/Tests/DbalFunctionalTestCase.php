@@ -9,7 +9,7 @@ class DbalFunctionalTestCase extends DbalTestCase
      *
      * @var \Doctrine\DBAL\Connection
      */
-    private static $_sharedConn;
+    protected static $_sharedConn;
 
     /**
      * @var \Doctrine\DBAL\Connection

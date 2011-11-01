@@ -12,8 +12,8 @@ require_once __DIR__ . '/../../TestInit.php';
  */
 class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    private $expectedResult = array(array('test_int' => 100, 'test_string' => 'foo'), array('test_int' => 200, 'test_string' => 'bar'), array('test_int' => 300, 'test_string' => 'baz'));
-    private $sqlLogger;
+    protected $expectedResult = array(array('test_int' => 100, 'test_string' => 'foo'), array('test_int' => 200, 'test_string' => 'bar'), array('test_int' => 300, 'test_string' => 'baz'));
+    protected $sqlLogger;
 
     public function setUp()
     {
@@ -158,7 +158,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(1, count($secondCache->fetch("emptycachekey")));
     }
 
-    private function hydrateStmt($stmt, $fetchStyle = \PDO::FETCH_ASSOC)
+    protected function hydrateStmt($stmt, $fetchStyle = \PDO::FETCH_ASSOC)
     {
         $data = array();
         while ($row = $stmt->fetch($fetchStyle)) {

@@ -41,12 +41,12 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * @var int
      */
-    private $portability = self::PORTABILITY_NONE;
+    protected $portability = self::PORTABILITY_NONE;
     
     /**
      * @var int
      */
-    private $case = \PDO::CASE_NATURAL;
+    protected $case = \PDO::CASE_NATURAL;
     
     public function connect()
     {

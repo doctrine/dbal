@@ -33,12 +33,12 @@ class ReservedKeywordsValidator implements Visitor
     /**
      * @var KeywordList[]
      */
-    private $keywordLists = array();
+    protected $keywordLists = array();
     
     /**
      * @var array
      */
-    private $violations = array();
+    protected $violations = array();
     
     public function __construct(array $keywordLists)
     {
@@ -54,7 +54,7 @@ class ReservedKeywordsValidator implements Visitor
      * @param string $word
      * @return array
      */
-    private function isReservedWord($word)
+    protected function isReservedWord($word)
     {
         if ($word[0] == "`") {
             $word = str_replace('`', '', $word);
@@ -69,7 +69,7 @@ class ReservedKeywordsValidator implements Visitor
         return $keywordLists;
     }
     
-    private function addViolation($asset, $violatedPlatforms)
+    protected function addViolation($asset, $violatedPlatforms)
     {
         if (!$violatedPlatforms) {
             return;

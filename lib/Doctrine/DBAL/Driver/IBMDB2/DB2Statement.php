@@ -23,15 +23,15 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 class DB2Statement implements \Doctrine\DBAL\Driver\Statement
 {
-    private $_stmt = null;
+    protected $_stmt = null;
 
-    private $_bindParam = array();
+    protected $_bindParam = array();
 
     /**
      * DB2_BINARY, DB2_CHAR, DB2_DOUBLE, or DB2_LONG 
      * @var <type>
      */
-    static private $_typeMap = array(
+    static protected $_typeMap = array(
         \PDO::PARAM_INT => DB2_LONG,
         \PDO::PARAM_STR => DB2_CHAR,
     );

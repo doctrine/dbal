@@ -259,7 +259,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                  ) AND pg_index.indexrelid = oid";
     }
 
-    private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n')
+    protected function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n')
     {
         $whereClause = "";
         if (strpos($table, ".") !== false) {

@@ -43,23 +43,23 @@ class DropSchemaSqlCollector implements Visitor
     /**
      * @var \SplObjectStorage
      */
-    private $constraints;
+    protected $constraints;
 
     /**
      * @var \SplObjectStorage
      */
-    private $sequences;
+    protected $sequences;
 
     /**
      * @var \SplObjectStorage
      */
-    private $tables;
+    protected $tables;
 
     /**
      *
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    private $platform;
+    protected $platform;
 
     /**
      * @param AbstractPlatform $platform

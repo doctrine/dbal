@@ -43,12 +43,12 @@ class CompositeExpression implements \Countable
     /**
      * @var string Holds the instance type of composite expression
      */
-    private $type;
+    protected $type;
     
     /**
      * @var array Each expression part of the composite expression
      */
-    private $parts = array();
+    protected $parts = array();
     
     /**
      * Constructor.

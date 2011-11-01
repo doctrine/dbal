@@ -114,35 +114,35 @@ class Connection implements DriverConnection
      *
      * @var boolean
      */
-    private $_isConnected = false;
+    protected $_isConnected = false;
 
     /**
      * The transaction nesting level.
      *
      * @var integer
      */
-    private $_transactionNestingLevel = 0;
+    protected $_transactionNestingLevel = 0;
 
     /**
      * The currently active transaction isolation level.
      *
      * @var integer
      */
-    private $_transactionIsolationLevel;
+    protected $_transactionIsolationLevel;
 
     /**
      * If nested transations should use savepoints
      *
      * @var integer
      */
-    private $_nestTransactionsWithSavepoints;
+    protected $_nestTransactionsWithSavepoints;
 
     /**
      * The parameters used during creation of the Connection instance.
      *
      * @var array
      */
-    private $_params = array();
+    protected $_params = array();
 
     /**
      * The DatabasePlatform object that provides information about the
@@ -171,7 +171,7 @@ class Connection implements DriverConnection
      *
      * @var boolean
      */
-    private $_isRollbackOnly = false;
+    protected $_isRollbackOnly = false;
 
     /**
      * Initializes a new instance of the Connection class.
@@ -1101,7 +1101,7 @@ class Connection implements DriverConnection
      * @internal Duck-typing used on the $stmt parameter to support driver statements as well as
      *           raw PDOStatement instances.
      */
-    private function _bindTypedValues($stmt, array $params, array $types)
+    protected function _bindTypedValues($stmt, array $params, array $types)
     {
         // Check whether parameters are positional or named. Mixing is not allowed, just like in PDO.
         if (is_int(key($params))) {
@@ -1140,7 +1140,7 @@ class Connection implements DriverConnection
      * @param mixed $type The type to bind (PDO or DBAL)
      * @return array [0] => the (escaped) value, [1] => the binding type
      */
-    private function getBindingInfo($value, $type)
+    protected function getBindingInfo($value, $type)
     {
         if (is_string($type)) {
             $type = Type::getType($type);
