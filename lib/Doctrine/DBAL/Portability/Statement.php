@@ -30,7 +30,7 @@ use PDO;
  * @since       2.0
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  */
-class Statement implements \Doctrine\DBAL\Driver\Statement
+class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 {
 
     /**
@@ -47,6 +47,11 @@ class Statement implements \Doctrine\DBAL\Driver\Statement
      * @var int
      */
     private $case;
+
+    /** 
+     * @var int
+     */
+    private $defaultFetchStyle = PDO::FETCH_BOTH;
 
     /**
      * Wraps <tt>Statement</tt> and applies portability measures
@@ -94,6 +99,17 @@ class Statement implements \Doctrine\DBAL\Driver\Statement
     public function execute($params = null)
     {
         return $this->stmt->execute($params);
+    }
+
+    public function setFetchMode($fetchStyle)
+    {
+        $this->defaultFetchStyle = $fetchStyle;
+    }
+
+    public function getIterator()
+    {
+        $data = $this->fetchAll($this->defaultFetchStyle);
+        return new \ArrayIterator($data);
     }
 
     public function fetch($fetchStyle = PDO::FETCH_BOTH)

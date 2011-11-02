@@ -32,7 +32,7 @@ use PDO,
  * @author Roman Borschel <roman@code-factory.org>
  * @since 2.0
  */
-class Statement implements DriverStatement
+class Statement implements \IteratorAggregate, DriverStatement
 {
     /**
      * @var string The SQL statement.
@@ -175,6 +175,16 @@ class Statement implements DriverStatement
     public function errorInfo()
     {
         return $this->_stmt->errorInfo();
+    }
+
+    public function setFetchMode($fetchStyle)
+    {
+        return $this->_stmt->setFetchMode($fetchStyle);
+    }
+
+    public function getIterator()
+    {
+        return $this->_stmt;
     }
 
     /**

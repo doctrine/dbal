@@ -26,7 +26,7 @@ use PDO;
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-interface ResultStatement
+interface ResultStatement extends \Traversable
 {
     /**
      * Closes the cursor, enabling the statement to be executed again.
@@ -45,6 +45,14 @@ interface ResultStatement
      *                              this method should return 0.
      */
     function columnCount();
+
+    /**
+     * setFetchMode
+     * Set the fetch mode to use while iterating this statement.
+     *
+     * @param integer $fetchStyle
+     */
+    public function setFetchMode($fetchStyle);
 
     /**
      * fetch
