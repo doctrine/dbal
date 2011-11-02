@@ -38,7 +38,7 @@ use PDO;
  * Also you have to realize that the cache will load the whole result into memory at once to ensure 2.
  * This means that the memory usage for cached results might increase by using this feature.
  */
-class ResultCacheStatement implements ResultStatement
+class ResultCacheStatement implements \IteratorAggregate, ResultStatement
 {
     /**
      * @var \Doctrine\Common\Cache\Cache
@@ -77,6 +77,11 @@ class ResultCacheStatement implements ResultStatement
      * @var array
      */
     private $data;
+
+    /**
+     * @var int
+     */
+    private $defaultFetchStyle = PDO::FETCH_BOTH;
 
     /**
      * @param Statement $stmt
@@ -125,6 +130,17 @@ class ResultCacheStatement implements ResultStatement
     public function columnCount()
     {
         return $this->statement->columnCount();
+    }
+
+    public function setFetchMode($fetchStyle)
+    {
+        $this->defaultFetchStyle = $fetchStyle;
+    }
+
+    public function getIterator()
+    {
+        $data = $this->fetchAll($this->defaultFetchStyle);
+        return new \ArrayIterator($data);
     }
 
     /**

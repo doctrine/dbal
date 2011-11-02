@@ -27,7 +27,7 @@ use \PDO;
  * @since 2.0
  * @author Roman Borschel <roman@code-factory.org>
  */
-class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
+class OCI8Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 {
     /** Statement handle. */
     protected $_dbh;
@@ -40,6 +40,7 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
         PDO::FETCH_NUM => OCI_NUM,
         PDO::PARAM_LOB => OCI_B_BLOB,
     );
+    protected $_defaultFetchStyle = PDO::FETCH_BOTH;
     protected $_paramMap = array();
 
     /**
@@ -181,6 +182,23 @@ class OCI8Statement implements \Doctrine\DBAL\Driver\Statement
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
         return $ret;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH)
+    {
+        $this->_defaultFetchStyle = $fetchStyle;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        $data = $this->fetchAll($this->_defaultFetchStyle);
+        return new \ArrayIterator($data);
     }
 
     /**

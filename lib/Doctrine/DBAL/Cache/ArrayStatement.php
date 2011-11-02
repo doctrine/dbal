@@ -22,11 +22,12 @@ namespace Doctrine\DBAL\Cache;
 use Doctrine\DBAL\Driver\ResultStatement;
 use PDO;
 
-class ArrayStatement implements ResultStatement
+class ArrayStatement implements \IteratorAggregate, ResultStatement
 {
     private $data;
     private $columnCount = 0;
     private $num = 0;
+    private $defaultFetchStyle = PDO::FETCH_BOTH;
 
     public function __construct(array $data)
     {
@@ -44,6 +45,17 @@ class ArrayStatement implements ResultStatement
     public function columnCount()
     {
         return $this->columnCount;
+    }
+
+    public function setFetchMode($fetchStyle)
+    {
+        $this->defaultFetchStyle = $fetchStyle;
+    }
+
+    public function getIterator()
+    {
+        $data = $this->fetchAll($this->defaultFetchStyle);
+        return new \ArrayIterator($data);
     }
 
     public function fetch($fetchStyle = PDO::FETCH_BOTH)

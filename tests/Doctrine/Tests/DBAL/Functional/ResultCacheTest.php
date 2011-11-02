@@ -85,6 +85,24 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals($numExpectedResult, $data);
     }
 
+    public function testIteratorFetch()
+    {
+        $this->assertStandardAndIteratorFetchAreEqual(\PDO::FETCH_BOTH);
+        $this->assertStandardAndIteratorFetchAreEqual(\PDO::FETCH_ASSOC);
+        $this->assertStandardAndIteratorFetchAreEqual(\PDO::FETCH_NUM);
+    }
+
+    public function assertStandardAndIteratorFetchAreEqual($fetchStyle)
+    {
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $data = $this->hydrateStmt($stmt, $fetchStyle);
+
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $data_iterator = $this->hydrateStmtIterator($stmt, $fetchStyle);
+
+        $this->assertEquals($data, $data_iterator);
+    }
+
     public function testDontCloseNoCache()
     {
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
@@ -162,6 +180,17 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $data = array();
         while ($row = $stmt->fetch($fetchStyle)) {
+            $data[] = $row;
+        }
+        $stmt->closeCursor();
+        return $data;
+    }
+  
+    private function hydrateStmtIterator($stmt, $fetchStyle = \PDO::FETCH_ASSOC)
+    {
+        $data = array();
+        $stmt->setFetchMode($fetchStyle);
+        foreach ($stmt as $row) {
             $data[] = $row;
         }
         $stmt->closeCursor();
