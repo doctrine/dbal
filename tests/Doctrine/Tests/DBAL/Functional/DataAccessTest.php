@@ -303,4 +303,13 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(0, count($rows), "no result should be returned, otherwise SQL injection is possible");
     }
+
+    public function testSetDefaultFetchMode()
+    {
+        $stmt = $this->_conn->query("SELECT * FROM fetch_table");
+        $stmt->setFetchMode(\PDO::FETCH_NUM);
+
+        $row = array_keys($stmt->fetch());
+        $this->assertEquals(0, count( array_filter($row, function($v) { return ! is_numeric($v); })), "should be no non-numerical elements in the result.");
+    }
 }

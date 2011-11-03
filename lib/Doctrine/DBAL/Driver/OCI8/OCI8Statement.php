@@ -19,7 +19,9 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
-use \PDO;
+use PDO;
+use IteratorAggregate;
+use Doctrine\DBAL\Driver\Statement;
 
 /**
  * The OCI8 implementation of the Statement interface.
@@ -27,7 +29,7 @@ use \PDO;
  * @since 2.0
  * @author Roman Borschel <roman@code-factory.org>
  */
-class OCI8Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
+class OCI8Statement implements \IteratorAggregate, Statement
 {
     /** Statement handle. */
     protected $_dbh;
@@ -204,8 +206,9 @@ class OCI8Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Stateme
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchStyle = PDO::FETCH_BOTH)
+    public function fetch($fetchStyle = null)
     {
+        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
         if ( ! isset(self::$fetchStyleMap[$fetchStyle])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
         }
@@ -216,8 +219,9 @@ class OCI8Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Stateme
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH)
+    public function fetchAll($fetchStyle = null)
     {
+        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
         if ( ! isset(self::$fetchStyleMap[$fetchStyle])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
         }
