@@ -29,11 +29,27 @@ use Doctrine\DBAL\Connection,
 /**
  * Master-Slave Connection
  *
- * Connection can be used with master-slave setups. Instantiation through the DriverManager looks like:
+ * Connection can be used with master-slave setups.
+ *
+ * Important for the understanding of this connection should be how it picks the slave and master.
+ *
+ * 1. Master picked when 'exec', 'executeUpdate', 'insert', 'delete', 'update', 'createSavepoint',
+ *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit' or 'getWrappedConnection' is called.
+ * 2. If master was picked once during the lifetime of the connection it will always get picked afterwards.
+ * 3. Slave if master was never picked before and 'query', 'prepare' or 'executeQuery' is used.
+ *
+ * ATTENTION: You can write to the slave with this connection if you execute a write query without
+ * opening up a transaction. For example:
+ *
+ *      $conn = DriverManager::getConnection(...);
+ *      $conn->query("DELETE FROM table");
+ *
+ * Instantiation through the DriverManager looks like:
  *
  * @example
  *
  * $conn = DriverManager::getConnection(array(
+ *    'wrapperClass' => 'Doctrine\DBAL\Connections\MasterSlaveConnection',
  *    'master' => array('driver' => 'pdo_mysql', 'user' => '', 'password' => '', 'host' => '', 'dbname' => ''),
  *    'slaves' => array(
  *        array('user' => 'slave1', 'password', 'host' => '', 'dbname' => ''),
