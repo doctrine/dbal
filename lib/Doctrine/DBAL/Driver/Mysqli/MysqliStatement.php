@@ -19,12 +19,13 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\Statement;
 use PDO;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
-class MysqliStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
+class MysqliStatement implements \IteratorAggregate, Statement
 {
     private static $_paramTypeMap = array(
         PDO::PARAM_STR => 's',
@@ -220,14 +221,15 @@ class MysqliStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\State
         $values = $this->_fetch();
         if (null === $values) {
             return null;
-        } elseif (false === $values) {
+        }
+
+        if (false === $values) {
             throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
         }
 
         $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
 
-        switch ($fetchStyle)
-        {
+        switch ($fetchStyle) {
             case PDO::FETCH_NUM:
                 return $values;
 
@@ -247,7 +249,7 @@ class MysqliStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\State
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchStyle = \PDO::FETCH_BOTH)
+    public function fetchAll($fetchStyle = null)
     {
         $a = array();
         while (($row = $this->fetch($fetchStyle)) !== null) {
@@ -261,13 +263,11 @@ class MysqliStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\State
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $values = $this->_fetch();
-        if (null === $values) {
+        $row = $this->fetch(PDO::FETCH_NUM);
+        if (null === $row) {
             return null;
-        } elseif (false === $values) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
         }
-        return $values[$columnIndex];
+        return $row[$columnIndex];
     }
 
     /**
@@ -300,7 +300,7 @@ class MysqliStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\State
      */
     public function rowCount()
     {
-        if(false === $this->_columnNames) {
+        if (false === $this->_columnNames) {
             return $this->_stmt->affected_rows;
         }
         return $this->_stmt->num_rows;
