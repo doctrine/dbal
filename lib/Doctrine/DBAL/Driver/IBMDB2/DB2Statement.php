@@ -21,11 +21,15 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
-class DB2Statement implements \Doctrine\DBAL\Driver\Statement
+use \Doctrine\DBAL\Driver\Statement;
+
+class DB2Statement implements \IteratorAggregate, Statement
 {
     private $_stmt = null;
 
     private $_bindParam = array();
+
+    private $_defaultFetchStyle = \PDO::FETCH_BOTH;
 
     /**
      * DB2_BINARY, DB2_CHAR, DB2_DOUBLE, or DB2_LONG 
@@ -197,6 +201,23 @@ class DB2Statement implements \Doctrine\DBAL\Driver\Statement
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function setFetchMode($fetchStyle = \PDO::FETCH_BOTH)
+    {
+        $this->_defaultFetchStyle = $fetchStyle;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        $data = $this->fetchAll($this->_defaultFetchStyle);
+        return new \ArrayIterator($data);
+    }
+
+    /**
      * fetch
      *
      * @see Query::HYDRATE_* constants
@@ -223,8 +244,9 @@ class DB2Statement implements \Doctrine\DBAL\Driver\Statement
      *
      * @return mixed
      */
-    function fetch($fetchStyle = \PDO::FETCH_BOTH)
+    public function fetch($fetchStyle = null)
     {
+        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
         switch ($fetchStyle) {
             case \PDO::FETCH_BOTH:
                 return db2_fetch_both($this->_stmt);
@@ -249,8 +271,9 @@ class DB2Statement implements \Doctrine\DBAL\Driver\Statement
      *
      * @return array
      */
-    function fetchAll($fetchStyle = \PDO::FETCH_BOTH)
+    public function fetchAll($fetchStyle = null)
     {
+        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
         $rows = array();
         while ($row = $this->fetch($fetchStyle)) {
             $rows[] = $row;
