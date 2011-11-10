@@ -24,7 +24,7 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 
 /**
- * @author Kim Hensø Rasmussen <kimhemsoe@gmail.com>
+ * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
 class MysqliConnection implements ConnectionInterface
 {
@@ -40,8 +40,7 @@ class MysqliConnection implements ConnectionInterface
 
         $this->_conn = new \mysqli($params['host'], $username, $password, $params['dbname'], $port, $socket);
 
-        if (isset($params['charset']))
-        {
+        if (isset($params['charset'])) {
             $this->_conn->set_charset($params['charset']);
         }
     }

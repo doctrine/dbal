@@ -22,7 +22,7 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 /**
- * @author Kim Hensø Rasmussen <kimhemsoe@gmail.com>
+ * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
 class MysqliException extends \Exception
 {}

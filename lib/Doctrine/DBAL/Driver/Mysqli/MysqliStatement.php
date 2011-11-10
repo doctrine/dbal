@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -21,13 +19,12 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
-use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use PDO;
 
 /**
- * @author Kim Hensø Rasmussen <kimhemsoe@gmail.com>
+ * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
-class MysqliStatement implements \IteratorAggregate, StatementInterface
+class MysqliStatement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 {
     private static $_paramTypeMap = array(
         PDO::PARAM_STR => 's',
@@ -149,8 +146,7 @@ class MysqliStatement implements \IteratorAggregate, StatementInterface
 
         if (null === $this->_columnNames) {
             $meta = $this->_stmt->result_metadata();
-            if (false !== $meta)
-            {
+            if (false !== $meta) {
                 $columnNames = array();
                 foreach ($meta->fetch_fields() as $col) {
                     $columnNames[] = $col->name;
@@ -161,25 +157,20 @@ class MysqliStatement implements \IteratorAggregate, StatementInterface
                 $this->_rowBindedValues = array_fill(0, count($columnNames), NULL);
 
                 $refs = array();
-                foreach ($this->_rowBindedValues as $key => &$value)
-                {
+                foreach ($this->_rowBindedValues as $key => &$value) {
                     $refs[$key] =& $value;
                 }
 
-                if (!call_user_func_array(array($this->_stmt, 'bind_result'), $refs))
-                {
+                if (!call_user_func_array(array($this->_stmt, 'bind_result'), $refs)) {
                     throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
-            }
-            else
-            {
+            } else {
                 $this->_columnNames = false;
             }
         }
 
         // We have a result.
-        if (false !== $this->_columnNames)
-        {
+        if (false !== $this->_columnNames) {
             $this->_stmt->store_result();
         }
         return true;
@@ -212,15 +203,13 @@ class MysqliStatement implements \IteratorAggregate, StatementInterface
 
         if (true === $ret) {
             $values = array();
-            // Aint there another way to copy values ?
             foreach ($this->_rowBindedValues as $v) {
                 // Mysqli converts them to a scalar type it can fit in. Tests dont expect that.
                 $values[] = null === $v ? null : (string)$v;
             }
             return $values;
-        } else {
-            return $ret;
         }
+        return $ret;
     }
 
     /**
@@ -229,8 +218,10 @@ class MysqliStatement implements \IteratorAggregate, StatementInterface
     public function fetch($fetchStyle = null)
     {
         $values = $this->_fetch();
-        if (!$values) {
-            return $values; // false or null
+        if (null === $values) {
+            return null;
+        } elseif (false === $values) {
+            throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
         }
 
         $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
@@ -249,7 +240,7 @@ class MysqliStatement implements \IteratorAggregate, StatementInterface
                 return $ret;
 
             default:
-                throw new MysqliException(sprintf("Unknown fetch type '%s'", $fetchStyle));
+                throw new MysqliException("Unknown fetch type '{$fetchStyle}'");
         }
     }
 
@@ -259,7 +250,7 @@ class MysqliStatement implements \IteratorAggregate, StatementInterface
     public function fetchAll($fetchStyle = \PDO::FETCH_BOTH)
     {
         $a = array();
-        while (($row = $this->fetch($fetchStyle)) != null) {
+        while (($row = $this->fetch($fetchStyle)) !== null) {
             $a[] = $row;
         }
         return $a;
@@ -271,8 +262,10 @@ class MysqliStatement implements \IteratorAggregate, StatementInterface
     public function fetchColumn($columnIndex = 0)
     {
         $values = $this->_fetch();
-        if (!$values) {
-            return false;
+        if (null === $values) {
+            return null;
+        } elseif (false === $values) {
+            throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
         }
         return $values[$columnIndex];
     }
@@ -309,9 +302,8 @@ class MysqliStatement implements \IteratorAggregate, StatementInterface
     {
         if(false === $this->_columnNames) {
             return $this->_stmt->affected_rows;
-        } else {
-            return $this->_stmt->num_rows;
         }
+        return $this->_stmt->num_rows;
     }
 
     /**

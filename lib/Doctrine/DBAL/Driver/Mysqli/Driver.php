@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -24,7 +22,7 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver as DriverInterface;
 
 /**
- * @author Kim Hensø Rasmussen <kimhemsoe@gmail.com>
+ * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
 class Driver implements DriverInterface
 {
