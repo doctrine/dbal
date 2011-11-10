@@ -36,7 +36,7 @@ is functionally equivalent to the previous one:
 The ``Doctrine\DBAL\Connection`` also has methods to control the
 transaction isolation level as supported by the underlying
 database. ``Connection#setTransactionIsolation($level)`` and
-Connection#getTransactionIsolation() can be used for that purpose.
+``Connection#getTransactionIsolation()`` can be used for that purpose.
 The possible isolation levels are represented by the following
 constants:
 
@@ -60,9 +60,9 @@ transactions, or rather propagating transaction control up the call
 stack. For that purpose, the ``Connection`` class keeps an internal
 counter that represents the nesting level and is
 increased/decreased as ``beginTransaction()``, ``commit()`` and
-``rollback()`` are invoked. ``beginTransaction()`` increases the
+ ``rollback()`` are invoked. ``beginTransaction()`` increases the
 nesting level whilst
-``commit()`` and``rollback()``decrease the nesting level. The nesting level starts at 0. Whenever the nesting level transitions from 0 to 1,``beginTransaction()``is invoked on the underlying driver connection and whenever the nesting level transitions from 1 to 0,``commit()``or``rollback()``is invoked on the underlying driver, depending on whether the transition was caused by``Connection#commit()``or``Connection#rollback()\`.
+ ``commit()`` and ``rollback()`` decrease the nesting level. The nesting level starts at 0. Whenever the nesting level transitions from 0 to 1, ``beginTransaction()`` is invoked on the underlying driver connection and whenever the nesting level transitions from 1 to 0, ``commit()`` or ``rollback()`` is invoked on the underlying driver, depending on whether the transition was caused by ``Connection#commit()`` or ``Connection#rollback()``.
 
 What this means is that transaction control is basically passed to
 code higher up in the call stack and the inner transaction block is
@@ -127,7 +127,7 @@ wider scope and the control is handed to the outer scope.
 .. note::
 
     The transaction nesting described here is a debated
-    feature that has it's critics. Form your own opinion. We recommend
+    feature that has its critics. Form your own opinion. We recommend
     avoiding nesting transaction blocks when possible, and most of the
     time, it is possible. Transaction control should mostly be left to
     a service layer and not be handled in data access objects or
@@ -138,7 +138,7 @@ wider scope and the control is handed to the outer scope.
     Directly invoking ``PDO#beginTransaction()``,
     ``PDO#commit()`` or ``PDO#rollback()`` or the corresponding methods
     on the particular ``Doctrine\DBAL\Driver\Connection`` instance in
-    use bybasses the transparent transaction nesting that is provided
+    use bypasses the transparent transaction nesting that is provided
     by ``Doctrine\DBAL\Connection`` and can therefore corrupt the
     nesting level, causing errors with broken transaction boundaries
     that may be hard to debug.

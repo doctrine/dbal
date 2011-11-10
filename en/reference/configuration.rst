@@ -48,7 +48,7 @@ interfaces to use. It can be configured in one of three ways:
       extension.
       **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
    -  ``pdo_sqlsrv``: An MSSQL driver that uses pdo\_sqlsrv PDO
-   -  ``oci8``:\` An Oracle driver that uses the oci8 PHP extension.
+   -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
 
 -  ``driverClass``: Specifies a custom driver implementation if no
    'driver' is specified. This allows the use of custom drivers that
@@ -60,7 +60,7 @@ Wrapper Class
 
 By default a ``Doctrine\DBAL\Connection`` is wrapped around a
 driver ``Connection``. The ``wrapperClass`` option allows to
-specify a custom wrapper implementation to use, however, custom
+specify a custom wrapper implementation to use, however, a custom
 wrapper class must be a subclass of ``Doctrine\DBAL\Connection``.
 
 Connection Details
@@ -157,7 +157,7 @@ Custom Driver Options
 ~~~~~~~~~~~~~~~~~~~~~
 
 The ``driverOptions`` option allows to pass arbitrary options
-through to the driver. This is equivalent to the 4th argument of
+through to the driver. This is equivalent to the fourth argument of
 the `PDO constructor <http://php.net/manual/en/pdo.construct.php>`_.
 
 

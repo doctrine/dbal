@@ -2,7 +2,7 @@ Introduction
 ============
 
 The Doctrine database abstraction & access layer (DBAL) offers a
-leightweight and thin runtime layer around a PDO-like API and a lot
+lightweight and thin runtime layer around a PDO-like API and a lot
 of additional, horizontal features like database schema
 introspection and manipulation through an OO API.
 

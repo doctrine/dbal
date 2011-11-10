@@ -40,7 +40,7 @@ example shows:
 
 Now if you want to compare this schema with another schema, you can
 use the ``Comparator`` class to get instances of ``SchemaDiff``,
-``TableDiff`` and ``ColumnDiff``, aswell as information about other
+``TableDiff`` and ``ColumnDiff``, as well as information about other
 foreign key, sequence and index changes.
 
 .. code-block:: php
