@@ -19,12 +19,12 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
-use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Connection as Connection;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
-class MysqliConnection implements ConnectionInterface
+class MysqliConnection implements Connection
 {
     /**
      * @var \mysqli
@@ -43,11 +43,29 @@ class MysqliConnection implements ConnectionInterface
         }
     }
 
+    /**
+     * Retrieve mysqli native resource handle.
+     *
+     * Could be used if part of your application is not using DBAL
+     *
+     * @return mysqli
+     */
+    public function getWrappedResourceHandle()
+    {
+        return $this->_conn;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function prepare($prepareString)
     {
         return new MysqliStatement($this->_conn, $prepareString);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function query()
     {
         $args = func_get_args();
@@ -57,43 +75,67 @@ class MysqliConnection implements ConnectionInterface
         return $stmt;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function quote($input, $type=\PDO::PARAM_STR)
     {
         return "'". $this->_conn->escape_string($input) ."'";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function exec($statement)
     {
         $this->_conn->query($statement);
         return $this->_conn->affected_rows;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function lastInsertId($name = null)
     {
         return $this->_conn->insert_id;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function beginTransaction()
     {
         $this->_conn->query('START TRANSACTION');
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function commit()
     {
         return $this->_conn->commit();
     }
 
+    /**
+     * {@inheritdoc}non-PHPdoc)
+     */
     public function rollBack()
     {
         return $this->_conn->rollback();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function errorCode()
     {
         return $this->_conn->errno;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function errorInfo()
     {
         return $this->_conn->error;

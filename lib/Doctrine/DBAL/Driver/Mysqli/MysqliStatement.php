@@ -27,7 +27,7 @@ use PDO;
  */
 class MysqliStatement implements \IteratorAggregate, Statement
 {
-    private static $_paramTypeMap = array(
+    protected static $_paramTypeMap = array(
         PDO::PARAM_STR => 's',
         PDO::PARAM_BOOL => 'i',
         PDO::PARAM_NULL => 's',
@@ -35,32 +35,32 @@ class MysqliStatement implements \IteratorAggregate, Statement
         PDO::PARAM_LOB => 's' // TODO Support LOB bigger then max package size.
     );
 
-    private $_conn;
-    private $_stmt;
+    protected $_conn;
+    protected $_stmt;
 
     /**
      * @var null|false|array
      */
-    private $_columnNames;
+    protected $_columnNames;
 
     /**
      * @var null|array
      */
-    private $_rowBindedValues;
+    protected $_rowBindedValues;
 
     /**
      * @var array
      */
-    private $_bindedValues;
+    protected $_bindedValues;
 
     /**
      * Contains ref values for bindValue()
      *
      * @var array
      */
-    private $_values = array();
+    protected $_values = array();
 
-    private $_defaultFetchStyle = PDO::FETCH_BOTH;
+    protected $_defaultFetchStyle = PDO::FETCH_BOTH;
 
     public function __construct(\mysqli $conn, $prepareString)
     {
@@ -73,7 +73,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         $paramCount = $this->_stmt->param_count;
         if (0 < $paramCount) {
             // Index 0 is types
-            // Need to init the string else php think we are trying to access it as a array. Better solution for this ?
+            // Need to init the string else php think we are trying to access it as a array.
             $bindedValues = array(0 => str_repeat('s', $paramCount));
             $null = null;
             for ($i = 1; $i < $paramCount; $i++) {
@@ -205,7 +205,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         if (true === $ret) {
             $values = array();
             foreach ($this->_rowBindedValues as $v) {
-                // Mysqli converts them to a scalar type it can fit in. Tests dont expect that.
+                // Mysqli converts them to a scalar type it can fit in.
                 $values[] = null === $v ? null : (string)$v;
             }
             return $values;
@@ -251,6 +251,8 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function fetchAll($fetchStyle = null)
     {
+        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
+
         $a = array();
         while (($row = $this->fetch($fetchStyle)) !== null) {
             $a[] = $row;
