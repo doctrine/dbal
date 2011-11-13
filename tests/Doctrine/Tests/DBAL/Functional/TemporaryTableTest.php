@@ -20,11 +20,11 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function tearDown()
     {
-        try {
-            $tempTable = $this->_conn->getDatabasePlatform()->getTemporaryTableName("temporary");
-            $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
-        } catch(\Exception $e) {
-
+        if ($this->_conn) {
+            try {
+                $tempTable = $this->_conn->getDatabasePlatform()->getTemporaryTableName("temporary");
+                $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
+            } catch(\Exception $e) { }
         }
     }
 
@@ -46,15 +46,11 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn("id", "integer");
         $table->setPrimaryKey(array('id'));
 
-        $this->_conn->beginTransaction();
-        $this->_conn->getSchemaManager()->createTable($table);
-        $this->_conn->commit();
+        foreach ($platform->getCreateTableSQL($table) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
 
         $this->_conn->beginTransaction();
-
-        $table = $this->_conn->getSchemaManager()->listTableDetails($table->getName());
-        $this->assertEquals("nontemporary", $table->getName());
-
         $this->_conn->insert("nontemporary", array("id" => 1));
         $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
         $this->_conn->insert("nontemporary", array("id" => 2));
