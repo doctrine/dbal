@@ -19,8 +19,9 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('test_string', 'string', array('notnull' => false));
             $table->setPrimaryKey(array('test_int'));
 
-            $sm = $this->_conn->getSchemaManager();
-            $sm->createTable($table);
+            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+                $this->_conn->executeQuery($sql);
+            }
         } catch(\Exception $e) {
 
         }
