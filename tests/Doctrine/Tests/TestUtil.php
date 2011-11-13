@@ -38,16 +38,16 @@ class TestUtil
                 $GLOBALS['tmpdb_host'], $GLOBALS['tmpdb_name'], $GLOBALS['tmpdb_port'])) {
             $realDbParams = array(
                 'driver' => $GLOBALS['db_type'],
-                'user' => $GLOBALS['db_username'],
-                'password' => $GLOBALS['db_password'],
+                'user' => $GLOBALS['db_username'] ?: null,
+                'password' => $GLOBALS['db_password']?: null,
                 'host' => $GLOBALS['db_host'],
                 'dbname' => $GLOBALS['db_name'],
                 'port' => $GLOBALS['db_port']
             );
             $tmpDbParams = array(
                 'driver' => $GLOBALS['tmpdb_type'],
-                'user' => $GLOBALS['tmpdb_username'],
-                'password' => $GLOBALS['tmpdb_password'],
+                'user' => $GLOBALS['tmpdb_username']?: null,
+                'password' => $GLOBALS['tmpdb_password']?: null,
                 'host' => $GLOBALS['tmpdb_host'],
                 'dbname' => $GLOBALS['tmpdb_name'],
                 'port' => $GLOBALS['tmpdb_port']
