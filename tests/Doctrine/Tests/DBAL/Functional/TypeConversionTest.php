@@ -36,7 +36,9 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('test_decimal', 'decimal', array('notnull' => false, 'scale' => 2, 'precision' => 10));
             $table->setPrimaryKey(array('id'));
 
-            $sm->createTable($table);
+            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+                $this->_conn->executeQuery($sql);
+            }
         }
     }
 
