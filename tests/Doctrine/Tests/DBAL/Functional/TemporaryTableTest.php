@@ -40,7 +40,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
-        $this->_conn->exec($createTempTableSQL);
+        $this->_conn->executeUpdate($createTempTableSQL);
 
         $table = new Table("nontemporary");
         $table->addColumn("id", "integer");
@@ -54,6 +54,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $table = $this->_conn->getSchemaManager()->listTableDetails($table->getName());
         $this->assertEquals("nontemporary", $table->getName());
+
         $this->_conn->insert("nontemporary", array("id" => 1));
         $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
         $this->_conn->insert("nontemporary", array("id" => 2));

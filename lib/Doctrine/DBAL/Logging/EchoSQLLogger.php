@@ -23,7 +23,7 @@ namespace Doctrine\DBAL\Logging;
 
 /**
  * A SQL logger that logs to the standard output using echo/var_dump.
- * 
+ *
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
