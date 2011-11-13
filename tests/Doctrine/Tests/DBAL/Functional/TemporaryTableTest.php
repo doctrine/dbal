@@ -51,11 +51,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->commit();
 
         $this->_conn->beginTransaction();
-        try {
-            $this->_conn->insert("nontemporary", array("id" => 1));
-        } catch(Exception $e) {
-            $this->fail("Error: " . $e->getMessage() . " --- Existing tables: " . implode(", ", $this->_conn->getSchemaManager()->listTableNames()));
-        }
+        $this->_conn->insert("nontemporary", array("id" => 1));
 
         $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
 
