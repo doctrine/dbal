@@ -50,14 +50,12 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->getSchemaManager()->createTable($table);
         $this->_conn->commit();
 
+        $this->_conn->beginTransaction();
+
         $table = $this->_conn->getSchemaManager()->listTableDetails($table->getName());
         $this->assertEquals("nontemporary", $table->getName());
-
-        $this->_conn->beginTransaction();
         $this->_conn->insert("nontemporary", array("id" => 1));
-
         $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
-
         $this->_conn->insert("nontemporary", array("id" => 2));
 
         $this->_conn->rollback();
