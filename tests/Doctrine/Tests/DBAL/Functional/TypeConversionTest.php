@@ -81,7 +81,11 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT " . $columnName . " FROM type_conversion WHERE id = " . self::$typeCounter;
         $actualDbValue = $typeInstance->convertToPHPValue($this->_conn->fetchColumn($sql), $this->_conn->getDatabasePlatform());
 
-        $this->assertType($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+        if ($originalValue instanceof \DateTime) {
+            $this->assertInstanceOf($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+        } else {
+            $this->assertInternalType($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+        }
 
         if ($type !== "datetimetz") {
             $this->assertEquals($originalValue, $actualDbValue, "Conversion between values should produce the same out as in value, but doesnt!");
