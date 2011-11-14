@@ -88,11 +88,11 @@ class Table extends AbstractAsset
 
         $this->_setName($tableName);
         $this->_idGeneratorType = $idGeneratorType;
-        
+
         foreach ($columns AS $column) {
             $this->_addColumn($column);
         }
-        
+
         foreach ($indexes AS $idx) {
             $this->_addIndex($idx);
         }
@@ -252,7 +252,7 @@ class Table extends AbstractAsset
 
     /**
      * Change Column Details
-     * 
+     *
      * @param string $columnName
      * @param array $options
      * @return Table
@@ -266,7 +266,7 @@ class Table extends AbstractAsset
 
     /**
      * Drop Column from Table
-     * 
+     *
      * @param string $columnName
      * @return Table
      */
@@ -344,7 +344,7 @@ class Table extends AbstractAsset
                 throw SchemaException::columnDoesNotExist($columnName, $this->_name);
             }
         }
-        
+
         $constraint = new ForeignKeyConstraint(
             $localColumnNames, $foreignTableName, $foreignColumnNames, $name, $options
         );
@@ -381,7 +381,7 @@ class Table extends AbstractAsset
 
     /**
      * Add index to table
-     * 
+     *
      * @param Index $indexCandidate
      * @return Table
      */
@@ -422,7 +422,7 @@ class Table extends AbstractAsset
     protected function _addForeignKeyConstraint(ForeignKeyConstraint $constraint)
     {
         $constraint->setLocalTable($this);
-        
+
         if(strlen($constraint->getName())) {
             $name = $constraint->getName();
         } else {
@@ -475,7 +475,7 @@ class Table extends AbstractAsset
         $pkCols = array();
         $fkCols = array();
 
-        if ($this->hasIndex($this->_primaryKeyName)) {
+        if ($this->hasPrimaryKey()) {
             $pkCols = $this->getPrimaryKey()->getColumns();
         }
         foreach ($this->getForeignKeys() AS $fk) {
@@ -505,7 +505,7 @@ class Table extends AbstractAsset
 
     /**
      * Get a column instance
-     * 
+     *
      * @param  string $columnName
      * @return Column
      */
@@ -520,10 +520,13 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @return Index
+     * @return Index|null
      */
     public function getPrimaryKey()
     {
+        if (!$this->hasPrimaryKey()) {
+            return null;
+        }
         return $this->getIndex($this->_primaryKeyName);
     }
 
