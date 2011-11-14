@@ -747,8 +747,10 @@ LEFT JOIN all_cons_columns r_cols
             'long'              => 'string',
             'clob'              => 'text',
             'nclob'             => 'text',
+            'raw'               => 'text',
+            'long raw'          => 'text',
             'rowid'             => 'string',
-            'urowid'            => 'string'
+            'urowid'            => 'string',
         );
     }
 
