@@ -132,11 +132,11 @@ class MysqliStatement implements \IteratorAggregate, Statement
         if (null !== $this->_bindedValues) {
             if (null !== $params) {
                 if (!$this->_bindValues($params)) {
-                    return false;
+                    throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             } else {
                 if (!call_user_func_array(array($this->_stmt, 'bind_param'), $this->_bindedValues)) {
-                    return false;
+                    throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             }
         }
