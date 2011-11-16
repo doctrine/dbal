@@ -32,6 +32,70 @@ namespace Doctrine\DBAL\Schema;
  */
 class PostgreSqlSchemaManager extends AbstractSchemaManager
 {
+    /**
+     * @var array
+     */
+    private $existingSchemaPaths;
+
+    /**
+     * Get all the existing schema names.
+     *
+     * @return array
+     */
+    public function getSchemaNames()
+    {
+        $rows = $this->_conn->fetchAll('SELECT schema_name FROM information_schema.schemata');
+        return array_map(function($v) { return $v['schema_name']; }, $rows);
+    }
+
+    /**
+     * Return an array of schema search paths
+     *
+     * This is a PostgreSQL only function.
+     *
+     * @return array
+     */
+    public function getSchemaSearchPaths()
+    {
+        $params = $this->_conn->getParams();
+        $schema = explode(",", $this->_conn->fetchColumn('SHOW search_path'));
+        if (isset($params['user'])) {
+            $schema = str_replace('"$user"', $params['user'], $schema);
+        }
+        return $schema;
+    }
+
+    /**
+     * Get names of all existing schemas in the current users search path.
+     *
+     * This is a PostgreSQL only function.
+     *
+     * @return array
+     */
+    public function getExistingSchemaSearchPaths()
+    {
+        if ($this->existingSchemaPaths === null) {
+            $this->determineExistingSchemaSearchPaths();
+        }
+        return $this->existingSchemaPaths;
+    }
+
+    /**
+     * Use this to set or reset the order of the existing schemas in the current search path of the user
+     *
+     * This is a PostgreSQL only function.
+     *
+     * @return type
+     */
+    public function determineExistingSchemaSearchPaths()
+    {
+        $names = $this->getSchemaNames();
+        $paths = $this->getSchemaSearchPaths();
+
+        $this->existingSchemaPaths = array_filter($paths, function ($v) use ($names) {
+            return in_array($v, $names);
+        });
+    }
 
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
@@ -111,7 +175,11 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
     protected function _getPortableTableDefinition($table)
     {
-        if ($table['schema_name'] == 'public') {
+        $schemas = $this->getExistingSchemaSearchPaths();
+        $firstSchema = array_shift($schemas);
+        var_dump($firstSchema);
+
+        if ($table['schema_name'] == $firstSchema) {
             return $table['table_name'];
         } else {
             return $table['schema_name'] . "." . $table['table_name'];
