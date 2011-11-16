@@ -11,6 +11,17 @@ require_once __DIR__ . '/../../../TestInit.php';
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     /**
+     * @group DBAL-177
+     */
+    public function testGetSearchPath()
+    {
+        $params = $this->_conn->getParams();
+
+        $paths = $this->_sm->getSchemaSearchPaths();
+        $this->assertEquals(array($params['user'], 'public'), $paths);
+    }
+
+    /**
      * @group DBAL-21
      */
     public function testSupportDomainTypeFallback()
