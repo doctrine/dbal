@@ -53,6 +53,14 @@ class TestUtil
                 'port' => $GLOBALS['tmpdb_port']
             );
 
+            if (isset($GLOBALS['db_unix_socket'])) {
+                $realDbParams['unix_socket'] = $GLOBALS['db_unix_socket'];
+            }
+
+            if (isset($GLOBALS['tmpdb_unix_socket'])) {
+                $tmpDbParams['unix_socket'] = $GLOBALS['tmpdb_unix_socket'];
+            }
+
             $realConn = \Doctrine\DBAL\DriverManager::getConnection($realDbParams);
 
             $platform  = $realConn->getDatabasePlatform();
