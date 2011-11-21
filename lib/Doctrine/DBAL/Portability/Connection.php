@@ -46,7 +46,7 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * @var int
      */
-    private $case = \PDO::CASE_NATURAL;
+    private $case;
     
     public function connect()
     {
