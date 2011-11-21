@@ -291,6 +291,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($name, array $columns, array $options = array())
     {
+        $name = str_replace(".", "__", $name);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         $autoinc = false;
@@ -338,16 +339,19 @@ class SqlitePlatform extends AbstractPlatform
 
     public function getListTableConstraintsSQL($table)
     {
+        $table = str_replace(".", "__", $table);
         return "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = '$table' AND sql NOT NULL ORDER BY name";
     }
 
     public function getListTableColumnsSQL($table, $currentDatabase = null)
     {
+        $table = str_replace(".", "__", $table);
         return "PRAGMA table_info($table)";
     }
 
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
+        $table = str_replace(".", "__", $table);
         return "PRAGMA index_list($table)";
     }
 
@@ -411,6 +415,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
+        $tableName = str_replace(".", "__", $tableName);
         return 'DELETE FROM '.$tableName;
     }
 
@@ -499,5 +504,11 @@ class SqlitePlatform extends AbstractPlatform
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'BLOB';
+    }
+
+    public function getTemporaryTableName($tableName)
+    {
+        $tableName = str_replace(".", "__", $tableName);
+        return $tableName;
     }
 }
