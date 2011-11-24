@@ -177,7 +177,6 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $schemas = $this->getExistingSchemaSearchPaths();
         $firstSchema = array_shift($schemas);
-        var_dump($firstSchema);
 
         if ($table['schema_name'] == $firstSchema) {
             return $table['table_name'];
