@@ -341,7 +341,20 @@ class MySqlPlatform extends AbstractPlatform
     {
         return 'DROP DATABASE ' . $name;
     }
-
+    /**
+     * Get declaration if a number of fields in bulk
+     * 
+     * @param string $name   name the field to be declared.
+     * @param array  $field  associative array with the name of the properties
+     *
+     * @see AbstractPlatform::getColumnDeclarationSQL()
+     *
+     * @return string
+     */
+    public function getColumnDeclarationSQL($name, array $field)
+    {
+        return parent::getColumnDeclarationSQL(sprintf('`%s`', trim($name, '`')), $field);
+    }
     /**
      * create a new table
      *
