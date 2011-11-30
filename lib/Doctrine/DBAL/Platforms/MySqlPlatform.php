@@ -341,6 +341,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         return 'DROP DATABASE ' . $name;
     }
+
     /**
      * Get declaration if a number of fields in bulk
      * 
@@ -355,6 +356,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         return parent::getColumnDeclarationSQL(sprintf('`%s`', trim($name, '`')), $field);
     }
+
     /**
      * create a new table
      *
