@@ -28,7 +28,10 @@ use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Schema\TableDiff,
     Doctrine\DBAL\Schema\Column,
     Doctrine\DBAL\Types\Type,
-    Doctrine\Common\EventManager;
+    Doctrine\DBAL\Events,
+    Doctrine\Common\EventManager,
+    Doctrine\DBAL\Event\SchemaCreateTableEventArgs,
+    Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -958,6 +961,15 @@ abstract class AbstractPlatform
             throw new \InvalidArgumentException("Second argument of AbstractPlatform::getCreateTableSQL() has to be integer.");
         }
 
+        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::preSchemaCreateTable)) {
+            $eventArgs = new SchemaCreateTableEventArgs($table, $this);
+            $this->_eventManager->dispatchEvent(Events::preSchemaCreateTable, $eventArgs);
+
+            if ($eventArgs->isDefaultPrevented()) {
+                return $eventArgs->getSql();
+            }
+        }
+
         if (count($table->getColumns()) == 0) {
             throw DBALException::noColumnsSpecifiedForTable($table->getName());
         }
@@ -979,9 +991,22 @@ abstract class AbstractPlatform
             }
         }
 
+        $columnSql = array();
         $columns = array();
         foreach ($table->getColumns() AS $column) {
             /* @var \Doctrine\DBAL\Schema\Column $column */
+
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)) {
+                $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $columnData = array();
             $columnData['name'] = $column->getQuotedName($this);
             $columnData['type'] = $column->getType();
@@ -1023,6 +1048,16 @@ abstract class AbstractPlatform
                 }
             }
         }
+
+        $sql = array_merge($sql, $columnSql);
+
+        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::postSchemaCreateTable)) {
+            $eventArgs = new SchemaCreateTableEventArgs($table, $this);
+            $this->_eventManager->dispatchEvent(Events::postSchemaCreateTable, $eventArgs);
+
+            $sql = array_merge($sql, $eventArgs->getSql());
+        }
+
         return $sql;
     }
 

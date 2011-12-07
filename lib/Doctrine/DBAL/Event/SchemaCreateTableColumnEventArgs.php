@@ -17,26 +17,42 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
- */
+*/
 
-namespace Doctrine\DBAL;
+namespace Doctrine\DBAL\Event;
+
+use Doctrine\Common\EventArgs,
+    Doctrine\DBAL\Platforms\AbstractPlatform,
+    Doctrine\DBAL\Schema\Table,
+    Doctrine\DBAL\Schema\Column;
 
 /**
- * Container for all DBAL events.
+ * Event Arguments used when SQL queries for creating table columns are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
  *
- * This class cannot be instantiated.
- *
- * @author Roman Borschel <roman@code-factory.org>
- * @since 2.0
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link        www.doctrine-project.com
+ * @since       2.2
+ * @version     $Revision$
+ * @author      Jan Sorgalla <jsorgalla@googlemail.com>
  */
-final class Events
+class SchemaCreateTableColumnEventArgs extends SchemaCreateTableEventArgs
 {
-    private function __construct() {}
+    /**
+     * @var Column
+     */
+    private $_column = null;
 
-    const postConnect = 'postConnect';
+    public function __construct(Column $column, Table $table, AbstractPlatform $platform)
+    {
+        parent::__construct($table, $platform);
+        $this->_column = $column;
+    }
 
-    const preSchemaCreateTable      = 'preSchemaCreateTable';
-    const onSchemaCreateTableColumn = 'onSchemaCreateTableColumn';
-    const postSchemaCreateTable     = 'postSchemaCreateTable';
+    /**
+     * @return Doctrine\DBAL\Schema\Column
+     */
+    public function getColumn()
+    {
+        return $this->_column;
+    }
 }
-

@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Events;
+
 abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 {
     /**
@@ -83,6 +86,31 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     }
 
     abstract public function getGenerateTableWithMultiColumnUniqueIndexSql();
+
+    public function testGetTableSqlDispatchEvent()
+    {
+        $listenerMock = $this->getMock('GetTableSqlDispatchEventListener', array('preSchemaCreateTable', 'onSchemaCreateTableColumn', 'postSchemaCreateTable'));
+        $listenerMock
+            ->expects($this->once())
+            ->method('preSchemaCreateTable');
+        $listenerMock
+            ->expects($this->exactly(2))
+            ->method('onSchemaCreateTableColumn');
+        $listenerMock
+            ->expects($this->once())
+            ->method('postSchemaCreateTable');
+
+        $eventManager = new EventManager();
+        $eventManager->addEventListener(array(Events::preSchemaCreateTable, Events::onSchemaCreateTableColumn, Events::postSchemaCreateTable), $listenerMock);
+
+        $this->_platform->setEventManager($eventManager);
+
+        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table->addColumn('foo', 'string', array('notnull' => false, 'length' => 255));
+        $table->addColumn('bar', 'string', array('notnull' => false, 'length' => 255));
+
+        $this->_platform->getCreateTableSQL($table);
+    }
 
     public function testGeneratesIndexCreationSql()
     {
