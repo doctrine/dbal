@@ -787,7 +787,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Gets SQL bit and comparison  expression
+     * Gets SQL bit AND comparison  expression
      *
      * @param   string $value1
      * @param   string $value2
@@ -799,7 +799,7 @@ abstract class AbstractPlatform
     }
     
     /**
-     * Gets SQL bit and comparison expression
+     * Gets SQL bit OR comparison expression
      *
      * @param   string $value1
      * @param   string $value2
