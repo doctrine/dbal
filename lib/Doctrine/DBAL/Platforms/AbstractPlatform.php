@@ -27,7 +27,8 @@ use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Schema\ForeignKeyConstraint,
     Doctrine\DBAL\Schema\TableDiff,
     Doctrine\DBAL\Schema\Column,
-    Doctrine\DBAL\Types\Type;
+    Doctrine\DBAL\Types\Type,
+    Doctrine\Common\EventManager;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -91,9 +92,34 @@ abstract class AbstractPlatform
     protected $doctrineTypeComments = null;
 
     /**
+     * @var Doctrine\Common\EventManager
+     */
+    protected $_eventManager;
+
+    /**
      * Constructor.
      */
     public function __construct() {}
+
+    /**
+     * Sets the EventManager used by the Platform.
+     *
+     * @rparam \Doctrine\Common\EventManager
+     */
+    public function setEventManager(EventManager $eventManager)
+    {
+        $this->_eventManager = $eventManager;
+    }
+
+    /**
+     * Gets the EventManager used by the Platform.
+     *
+     * @return \Doctrine\Common\EventManager
+     */
+    public function getEventManager()
+    {
+        return $this->_eventManager;
+    }
 
     /**
      * Gets the SQL snippet that declares a boolean column.

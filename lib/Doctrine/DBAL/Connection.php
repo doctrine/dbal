@@ -214,6 +214,8 @@ class Connection implements DriverConnection
             throw DBALException::invalidPlatformSpecified();
         }
 
+        $this->_platform->setEventManager($eventManager);
+
         $this->_transactionIsolationLevel = $this->_platform->getDefaultTransactionIsolationLevel();
     }
 
