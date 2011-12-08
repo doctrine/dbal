@@ -797,7 +797,7 @@ abstract class AbstractPlatform
     {
         return '(' . $value1 . ' & ' . $value2 . ')';
     }
-    
+
     /**
      * Gets SQL bit OR comparison expression
      *

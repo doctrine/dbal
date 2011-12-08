@@ -147,7 +147,7 @@ class OraclePlatform extends AbstractPlatform
     {
         return "ADD_MONTHS(" . $date . ", -" . $months . ")";
     }
-    
+
     /**
      * {@inheritdoc}
      */

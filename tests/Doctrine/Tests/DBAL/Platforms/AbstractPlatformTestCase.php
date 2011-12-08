@@ -130,7 +130,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $sql = $this->_platform->getCreateConstraintSQL($fk, 'test');
         $this->assertEquals($this->getGenerateConstraintForeignKeySql(), $sql);
     }
-    
+
     protected function getBitAndComparisonExpressionSql($value1, $value2)
     {
         return '(' . $value1 . ' & ' . $value2 . ')';
