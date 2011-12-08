@@ -45,6 +45,11 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
      * @var AbstractPlatform
      */
     private $_platform = null;
+    
+    /**
+     * @var array
+     */
+    private $_sql = array();
 
     public function __construct(Table $table, AbstractPlatform $platform)
     {
@@ -66,5 +71,28 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     public function getPlatform()
     {
         return $this->_platform;
+    }
+
+    /**
+     * @param string|array $sql
+     * @return SchemaEventArgs
+     */
+    public function addSql($sql)
+    {
+        if (is_array($sql)) {
+            $this->_sql = array_merge($this->_sql, $sql);
+        } else {
+            $this->_sql[] = $sql;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSql()
+    {
+        return $this->_sql;
     }
 }

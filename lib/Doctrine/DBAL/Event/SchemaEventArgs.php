@@ -39,11 +39,6 @@ class SchemaEventArgs extends EventArgs
      */
     private $_preventDefault = false;
 
-    /**
-     * @var array
-     */
-    private $_sql = array();
-
     public function __construct(Table $table)
     {
         $this->_table = $table;
@@ -65,28 +60,5 @@ class SchemaEventArgs extends EventArgs
     public function isDefaultPrevented()
     {
         return $this->_preventDefault;
-    }
-
-    /**
-     * @param string|array $sql
-     * @return SchemaEventArgs
-     */
-    public function addSql($sql)
-    {
-        if (is_array($sql)) {
-            $this->_sql = array_merge($this->_sql, $sql);
-        } else {
-            $this->_sql[] = $sql;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getSql()
-    {
-        return $this->_sql;
     }
 }
