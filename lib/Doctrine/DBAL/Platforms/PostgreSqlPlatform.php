@@ -20,7 +20,12 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Table;
+    Doctrine\DBAL\Schema\Table,
+    Doctrine\DBAL\Events,
+    Doctrine\DBAL\Event\SchemaAlterTableAddedColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRemovedColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableChangedColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRenamedColumnEventArgs;
 
 /**
  * PostgreSqlPlatform.
@@ -380,8 +385,20 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         $sql = array();
         $commentsSQL = array();
+        $columnSql = array();
 
         foreach ($diff->addedColumns as $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddedColumn)) {
+                $eventArgs = new SchemaAlterTableAddedColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddedColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
             if ($comment = $this->getColumnComment($column)) {
@@ -390,11 +407,33 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->removedColumns as $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemovedColumn)) {
+                $eventArgs = new SchemaAlterTableRemovedColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemovedColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $query = 'DROP ' . $column->getQuotedName($this);
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangedColumn)) {
+                $eventArgs = new SchemaAlterTableChangedColumnEventArgs($columnDiff, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangedColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $oldColumnName = $columnDiff->oldColumnName;
             $column = $columnDiff->column;
 
@@ -434,6 +473,17 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenamedColumn)) {
+                $eventArgs = new SchemaAlterTableRenamedColumnEventArgs($oldColumnName, $column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenamedColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
         }
 
@@ -441,7 +491,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
         }
 
-        return array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
+        return array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL, $columnSql);
     }
 
     /**

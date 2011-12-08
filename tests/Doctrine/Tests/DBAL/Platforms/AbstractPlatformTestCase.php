@@ -215,6 +215,54 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $this->_platform->getDropTableSQL('TABLE');
     }
+    
+    public function testGetAlterTableSqlDispatchEvent()
+    {
+        $events = array(
+            'onSchemaAlterTableAddedColumn',
+            'onSchemaAlterTableRemovedColumn',
+            'onSchemaAlterTableChangedColumn',
+            'onSchemaAlterTableRenamedColumn'
+        );
+
+        $listenerMock = $this->getMock('GetAlterTableSqlDispatchEvenListener', $events);
+        $listenerMock
+            ->expects($this->once())
+            ->method('onSchemaAlterTableAddedColumn');
+        $listenerMock
+            ->expects($this->once())
+            ->method('onSchemaAlterTableRemovedColumn');
+        $listenerMock
+            ->expects($this->once())
+            ->method('onSchemaAlterTableChangedColumn');
+        $listenerMock
+            ->expects($this->once())
+            ->method('onSchemaAlterTableRenamedColumn');
+
+        $eventManager = new EventManager();
+        $events = array(
+            Events::onSchemaAlterTableAddedColumn,
+            Events::onSchemaAlterTableRemovedColumn,
+            Events::onSchemaAlterTableChangedColumn,
+            Events::onSchemaAlterTableRenamedColumn
+        );
+        $eventManager->addEventListener($events, $listenerMock);
+
+        $this->_platform->setEventManager($eventManager);
+
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff->addedColumns['added'] = new \Doctrine\DBAL\Schema\Column('added', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $tableDiff->removedColumns['removed'] = new \Doctrine\DBAL\Schema\Column('removed', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $tableDiff->changedColumns['changed'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'changed', new \Doctrine\DBAL\Schema\Column(
+                'changed2', \Doctrine\DBAL\Types\Type::getType('string'), array()
+            ),
+            array()
+        );
+        $tableDiff->renamedColumns['renamed'] = new \Doctrine\DBAL\Schema\Column('renamed2', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+
+        $this->_platform->getAlterTableSQL($tableDiff);
+    }
 
     /**
      * @group DBAL-42
