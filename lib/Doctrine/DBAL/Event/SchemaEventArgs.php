@@ -39,6 +39,9 @@ class SchemaEventArgs extends EventArgs
      */
     private $_preventDefault = false;
 
+    /**
+     * @param Table $table 
+     */
     public function __construct(Table $table)
     {
         $this->_table = $table;

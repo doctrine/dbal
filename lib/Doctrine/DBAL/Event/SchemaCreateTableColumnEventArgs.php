@@ -42,6 +42,11 @@ class SchemaCreateTableColumnEventArgs extends SchemaCreateTableEventArgs
      */
     private $_column = null;
 
+    /**
+     * @param Column $column
+     * @param Table $table
+     * @param AbstractPlatform $platform 
+     */
     public function __construct(Column $column, Table $table, AbstractPlatform $platform)
     {
         parent::__construct($table, $platform);

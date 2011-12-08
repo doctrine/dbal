@@ -51,6 +51,10 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
      */
     private $_sql = array();
 
+    /**
+     * @param Table $table
+     * @param AbstractPlatform $platform 
+     */
     public function __construct(Table $table, AbstractPlatform $platform)
     {
         $this->_table = $table;
