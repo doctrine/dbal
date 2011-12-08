@@ -31,7 +31,8 @@ use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Events,
     Doctrine\Common\EventManager,
     Doctrine\DBAL\Event\SchemaCreateTableEventArgs,
-    Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs;
+    Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaDropTableEventArgs;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -875,6 +876,15 @@ abstract class AbstractPlatform
             $table = $table->getQuotedName($this);
         } else if(!is_string($table)) {
             throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+        }
+
+        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
+            $eventArgs = new SchemaDropTableEventArgs($table, $this);
+            $this->_eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
+
+            if ($eventArgs->isDefaultPrevented()) {
+                return $eventArgs->getSql();
+            }
         }
 
         return 'DROP TABLE ' . $table;

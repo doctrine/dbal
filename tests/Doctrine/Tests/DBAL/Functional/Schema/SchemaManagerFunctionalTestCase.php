@@ -5,6 +5,8 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Types\Type,
     Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Events;
 
 require_once __DIR__ . '/../../../TestInit.php';
 
@@ -169,6 +171,29 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(true,   $columns['baz3']->getnotnull());
         $this->assertEquals(null,   $columns['baz3']->getdefault());
         $this->assertInternalType('array',  $columns['baz3']->getPlatformOptions());
+    }
+
+    public function testListTableColumnsDispatchEvent()
+    {
+        $table = $this->createListTableColumns();
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $listenerMock = $this->getMock('ListTableColumnsDispatchEventListener', array('onSchemaColumnDefinition'));
+        $listenerMock
+            ->expects($this->exactly(7))
+            ->method('onSchemaColumnDefinition');
+
+        $oldEventManager = $this->_sm->getDatabasePlatform()->getEventManager();
+
+        $eventManager = new EventManager();
+        $eventManager->addEventListener(array(Events::onSchemaColumnDefinition), $listenerMock);
+
+        $this->_sm->getDatabasePlatform()->setEventManager($eventManager);
+
+        $this->_sm->listTableColumns('list_table_columns');
+
+        $this->_sm->getDatabasePlatform()->setEventManager($oldEventManager);
     }
 
     public function testDiffListTableColumns()

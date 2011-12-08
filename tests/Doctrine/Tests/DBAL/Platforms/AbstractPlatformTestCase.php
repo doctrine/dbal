@@ -87,31 +87,6 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract public function getGenerateTableWithMultiColumnUniqueIndexSql();
 
-    public function testGetTableSqlDispatchEvent()
-    {
-        $listenerMock = $this->getMock('GetTableSqlDispatchEventListener', array('preSchemaCreateTable', 'onSchemaCreateTableColumn', 'postSchemaCreateTable'));
-        $listenerMock
-            ->expects($this->once())
-            ->method('preSchemaCreateTable');
-        $listenerMock
-            ->expects($this->exactly(2))
-            ->method('onSchemaCreateTableColumn');
-        $listenerMock
-            ->expects($this->once())
-            ->method('postSchemaCreateTable');
-
-        $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preSchemaCreateTable, Events::onSchemaCreateTableColumn, Events::postSchemaCreateTable), $listenerMock);
-
-        $this->_platform->setEventManager($eventManager);
-
-        $table = new \Doctrine\DBAL\Schema\Table('test');
-        $table->addColumn('foo', 'string', array('notnull' => false, 'length' => 255));
-        $table->addColumn('bar', 'string', array('notnull' => false, 'length' => 255));
-
-        $this->_platform->getCreateTableSQL($table);
-    }
-
     public function testGeneratesIndexCreationSql()
     {
         $indexDef = new \Doctrine\DBAL\Schema\Index('my_idx', array('user_name', 'last_login'));
@@ -202,6 +177,46 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $field = array('columnDefinition' => 'MEDIUMINT(6) UNSIGNED');
         $this->assertEquals('foo MEDIUMINT(6) UNSIGNED', $this->_platform->getColumnDeclarationSQL('foo', $field));
+    }
+
+    public function testGetCreateTableSqlDispatchEvent()
+    {
+        $listenerMock = $this->getMock('GetCreateTableSqlDispatchEvenListener', array('preSchemaCreateTable', 'onSchemaCreateTableColumn', 'postSchemaCreateTable'));
+        $listenerMock
+            ->expects($this->once())
+            ->method('preSchemaCreateTable');
+        $listenerMock
+            ->expects($this->exactly(2))
+            ->method('onSchemaCreateTableColumn');
+        $listenerMock
+            ->expects($this->once())
+            ->method('postSchemaCreateTable');
+
+        $eventManager = new EventManager();
+        $eventManager->addEventListener(array(Events::preSchemaCreateTable, Events::onSchemaCreateTableColumn, Events::postSchemaCreateTable), $listenerMock);
+
+        $this->_platform->setEventManager($eventManager);
+
+        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table->addColumn('foo', 'string', array('notnull' => false, 'length' => 255));
+        $table->addColumn('bar', 'string', array('notnull' => false, 'length' => 255));
+
+        $this->_platform->getCreateTableSQL($table);
+    }
+
+    public function testGetDropTableSqlDispatchEvent()
+    {
+        $listenerMock = $this->getMock('GetDropTableSqlDispatchEventListener', array('onSchemaDropTable'));
+        $listenerMock
+            ->expects($this->once())
+            ->method('onSchemaDropTable');
+
+        $eventManager = new EventManager();
+        $eventManager->addEventListener(array(Events::onSchemaDropTable), $listenerMock);
+
+        $this->_platform->setEventManager($eventManager);
+
+        $this->_platform->getDropTableSQL('TABLE');
     }
 
     /**

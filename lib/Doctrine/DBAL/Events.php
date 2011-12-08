@@ -38,5 +38,7 @@ final class Events
     const preSchemaCreateTable      = 'preSchemaCreateTable';
     const onSchemaCreateTableColumn = 'onSchemaCreateTableColumn';
     const postSchemaCreateTable     = 'postSchemaCreateTable';
+    const onSchemaDropTable         = 'onSchemaDropTable';
+    const onSchemaColumnDefinition  = 'onSchemaColumnDefinition';
 }
 
