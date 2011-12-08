@@ -68,12 +68,16 @@ class SchemaEventArgs extends EventArgs
     }
 
     /**
-     * @param string $sql
+     * @param string|array $sql
      * @return SchemaEventArgs
      */
     public function addSql($sql)
     {
-        $this->_sql[] = $sql;
+        if (is_array($sql)) {
+            $this->_sql = array_merge($this->_sql, $sql);
+        } else {
+            $this->_sql[] = $sql;
+        }
 
         return $this;
     }
