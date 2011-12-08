@@ -181,19 +181,16 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGetCreateTableSqlDispatchEvent()
     {
-        $listenerMock = $this->getMock('GetCreateTableSqlDispatchEvenListener', array('preSchemaCreateTable', 'onSchemaCreateTableColumn', 'postSchemaCreateTable'));
+        $listenerMock = $this->getMock('GetCreateTableSqlDispatchEvenListener', array('onSchemaCreateTable', 'onSchemaCreateTableColumn'));
         $listenerMock
             ->expects($this->once())
-            ->method('preSchemaCreateTable');
+            ->method('onSchemaCreateTable');
         $listenerMock
             ->expects($this->exactly(2))
             ->method('onSchemaCreateTableColumn');
-        $listenerMock
-            ->expects($this->once())
-            ->method('postSchemaCreateTable');
 
         $eventManager = new EventManager();
-        $eventManager->addEventListener(array(Events::preSchemaCreateTable, Events::onSchemaCreateTableColumn, Events::postSchemaCreateTable), $listenerMock);
+        $eventManager->addEventListener(array(Events::onSchemaCreateTable, Events::onSchemaCreateTableColumn), $listenerMock);
 
         $this->_platform->setEventManager($eventManager);
 

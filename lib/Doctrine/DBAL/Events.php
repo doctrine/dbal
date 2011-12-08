@@ -35,10 +35,8 @@ final class Events
 
     const postConnect = 'postConnect';
 
-    const preSchemaCreateTable      = 'preSchemaCreateTable';
+    const onSchemaCreateTable       = 'onSchemaCreateTable';
     const onSchemaCreateTableColumn = 'onSchemaCreateTableColumn';
-    const postSchemaCreateTable     = 'postSchemaCreateTable';
     const onSchemaDropTable         = 'onSchemaDropTable';
     const onSchemaColumnDefinition  = 'onSchemaColumnDefinition';
 }
-

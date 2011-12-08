@@ -35,12 +35,27 @@ use Doctrine\Common\EventArgs,
  * @version     $Revision$
  * @author      Jan Sorgalla <jsorgalla@googlemail.com>
  */
-class SchemaCreateTableColumnEventArgs extends SchemaCreateTableEventArgs
+class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 {
     /**
      * @var Column
      */
     private $_column = null;
+
+    /**
+     * @var Table
+     */
+    private $_table = null;
+
+    /**
+     * @var AbstractPlatform
+     */
+    private $_platform = null;
+
+    /**
+     * @var array
+     */
+    private $_sql = array();
 
     /**
      * @param Column $column
@@ -49,8 +64,9 @@ class SchemaCreateTableColumnEventArgs extends SchemaCreateTableEventArgs
      */
     public function __construct(Column $column, Table $table, AbstractPlatform $platform)
     {
-        parent::__construct($table, $platform);
-        $this->_column = $column;
+        $this->_column   = $column;
+        $this->_table    = $table;
+        $this->_platform = $platform;
     }
 
     /**
@@ -59,5 +75,44 @@ class SchemaCreateTableColumnEventArgs extends SchemaCreateTableEventArgs
     public function getColumn()
     {
         return $this->_column;
+    }
+
+    /**
+     * @return Doctrine\DBAL\Schema\Table
+     */
+    public function getTable()
+    {
+        return $this->_table;
+    }
+
+    /**
+     * @return Doctrine\DBAL\Platforms\AbstractPlatform
+     */
+    public function getPlatform()
+    {
+        return $this->_platform;
+    }
+
+    /**
+     * @param string|array $sql
+     * @return SchemaEventArgs
+     */
+    public function addSql($sql)
+    {
+        if (is_array($sql)) {
+            $this->_sql = array_merge($this->_sql, $sql);
+        } else {
+            $this->_sql[] = $sql;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSql()
+    {
+        return $this->_sql;
     }
 }

@@ -971,15 +971,6 @@ abstract class AbstractPlatform
             throw new \InvalidArgumentException("Second argument of AbstractPlatform::getCreateTableSQL() has to be integer.");
         }
 
-        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::preSchemaCreateTable)) {
-            $eventArgs = new SchemaCreateTableEventArgs($table, $this);
-            $this->_eventManager->dispatchEvent(Events::preSchemaCreateTable, $eventArgs);
-
-            if ($eventArgs->isDefaultPrevented()) {
-                return $eventArgs->getSql();
-            }
-        }
-
         if (count($table->getColumns()) == 0) {
             throw DBALException::noColumnsSpecifiedForTable($table->getName());
         }
@@ -1050,25 +1041,29 @@ abstract class AbstractPlatform
             }
         }
 
-        $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
-        if ($this->supportsCommentOnStatement()) {
-            foreach ($table->getColumns() AS $column) {
-                if ($column->getComment()) {
-                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $this->getColumnComment($column));
+        $tableSql = array();
+        $defaultPrevented = false;
+
+        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
+            $eventArgs = new SchemaCreateTableEventArgs($table, $columns, $options, $this);
+            $this->_eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
+
+            $defaultPrevented = $eventArgs->isDefaultPrevented();
+            $tableSql = $eventArgs->getSql();
+        }
+
+        if (!$defaultPrevented) {
+            $tableSql = $this->_getCreateTableSQL($tableName, $columns, $options);
+            if ($this->supportsCommentOnStatement()) {
+                foreach ($table->getColumns() AS $column) {
+                    if ($column->getComment()) {
+                        $tableSql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $this->getColumnComment($column));
+                    }
                 }
             }
         }
 
-        $sql = array_merge($sql, $columnSql);
-
-        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::postSchemaCreateTable)) {
-            $eventArgs = new SchemaCreateTableEventArgs($table, $this);
-            $this->_eventManager->dispatchEvent(Events::postSchemaCreateTable, $eventArgs);
-
-            $sql = array_merge($sql, $eventArgs->getSql());
-        }
-
-        return $sql;
+        return array_merge($tableSql, $columnSql);
     }
 
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)

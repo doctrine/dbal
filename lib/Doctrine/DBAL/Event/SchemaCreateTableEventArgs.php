@@ -40,7 +40,17 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
      * @var Table
      */
     private $_table = null;
-    
+
+    /**
+     * @var array
+     */
+    private $_columns = null;
+
+    /**
+     * @var array
+     */
+    private $_options = null;
+
     /**
      * @var AbstractPlatform
      */
@@ -53,11 +63,15 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
 
     /**
      * @param Table $table
+     * @param array $columns
+     * @param array $options
      * @param AbstractPlatform $platform 
      */
-    public function __construct(Table $table, AbstractPlatform $platform)
+    public function __construct(Table $table, array $columns, array $options, AbstractPlatform $platform)
     {
-        $this->_table = $table;
+        $this->_table    = $table;
+        $this->_columns  = $columns;
+        $this->_options  = $options;
         $this->_platform = $platform;
     }
 
@@ -67,6 +81,22 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     public function getTable()
     {
         return $this->_table;
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return $this->_columns;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->_options;
     }
 
     /**
