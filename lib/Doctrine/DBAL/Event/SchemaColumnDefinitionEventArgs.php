@@ -26,7 +26,7 @@ use Doctrine\Common\EventArgs,
     Doctrine\DBAL\Schema\Column;
 
 /**
- * Event Arguments used when the portable tableColumn definition is generated inside Doctrine\DBAL\Schema\AbstractSchemaManager.
+ * Event Arguments used when the portable column definition is generated inside Doctrine\DBAL\Schema\AbstractSchemaManager.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
