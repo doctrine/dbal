@@ -26,7 +26,7 @@ use Doctrine\Common\EventArgs,
     Doctrine\DBAL\Schema\Column;
 
 /**
- * Event Arguments used when the portable column definition is generated inside Doctrine\DBAL\Schema\AbstractSchemaManager.
+ * Event Arguments used when the portable tableColumn definition is generated inside Doctrine\DBAL\Schema\AbstractSchemaManager.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
@@ -37,9 +37,16 @@ use Doctrine\Common\EventArgs,
 class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
 {
     /**
-     * @var array
+     * @var \Doctrine\DBAL\Schema\Column $column
      */
     private $_column = null;
+
+    /**
+     * Raw column data as fetched from the database
+     *
+     * @var array
+     */
+    private $_tableColumn = null;
 
     /**
      * @var string
@@ -57,30 +64,47 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     private $_connection = null;
 
     /**
-     * @var \Doctrine\DBAL\Schema\Column $columnDefinition
-     */
-    private $_columnDefinition = null;
-
-    /**
-     * @param type $column
-     * @param type $table
-     * @param type $database
+     * @param array  $tableColumn
+     * @param string $table
+     * @param string $database
      * @param \Doctrine\DBAL\Connection $conn
      */
-    public function __construct($column, $table, $database, Connection $connection)
+    public function __construct(array $tableColumn, $table, $database, Connection $connection)
     {
-        $this->_column     = $column;
-        $this->_table      = $table;
-        $this->_database   = $database;
-        $this->_connection = $connection;
+        $this->_tableColumn = $tableColumn;
+        $this->_table       = $table;
+        $this->_database    = $database;
+        $this->_connection  = $connection;
     }
-    
+
     /**
-     * @return array
+     * Allows to clear the column which means the column will be excluded from
+     * tables column list.
+     *
+     * @param null|\Doctrine\DBAL\Schema\Column $column
+     * @return SchemaColumnDefinitionEventArgs
+     */
+    public function setColumn(Column $column = null)
+    {
+        $this->_column = $column;
+
+        return $this;
+    }
+
+    /**
+     * @return array|\Doctrine\DBAL\Schema\Column
      */
     public function getColumn()
     {
         return $this->_column;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTableColumn()
+    {
+        return $this->_tableColumn;
     }
 
     /**
@@ -113,24 +137,5 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     public function getDatabasePlatform()
     {
         return $this->_connection->getDatabasePlatform();
-    }
-
-    /**
-     * @param \Doctrine\DBAL\Schema\Column $columnDefinition
-     * @return SchemaColumnDefinitionEventArgs
-     */
-    public function setColumnDefinition(Column $columnDefinition)
-    {
-        $this->_columnDefinition = $columnDefinition;
-
-        return $this;
-    }
-
-    /**
-     * @return \Doctrine\DBAL\Schema\Column
-     */
-    public function getColumnDefinition()
-    {
-        return $this->_columnDefinition;
     }
 }

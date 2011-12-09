@@ -630,25 +630,25 @@ abstract class AbstractSchemaManager
         $eventManager = $this->_platform->getEventManager();
 
         $list = array();
-        foreach ($tableColumns as $key => $column) {
-            $columnDefinition = null;
+        foreach ($tableColumns as $key => $tableColumn) {
+            $column = null;
             $defaultPrevented = false;
 
             if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaColumnDefinition)) {
-                $eventArgs = new SchemaColumnDefinitionEventArgs($column, $table, $database, $this->_conn);
+                $eventArgs = new SchemaColumnDefinitionEventArgs($tableColumn, $table, $database, $this->_conn);
                 $eventManager->dispatchEvent(Events::onSchemaColumnDefinition, $eventArgs);
 
                 $defaultPrevented = $eventArgs->isDefaultPrevented();
-                $columnDefinition = $eventArgs->getColumnDefinition();
+                $column = $eventArgs->getColumn();
             }
 
             if (!$defaultPrevented) {
-                $columnDefinition = $this->_getPortableTableColumnDefinition($column);
+                $column = $this->_getPortableTableColumnDefinition($tableColumn);
             }
 
-            if ($columnDefinition) {
-                $name = strtolower($columnDefinition->getQuotedName($this->_platform));
-                $list[$name] = $columnDefinition;
+            if ($column) {
+                $name = strtolower($column->getQuotedName($this->_platform));
+                $list[$name] = $column;
             }
         }
         return $list;
