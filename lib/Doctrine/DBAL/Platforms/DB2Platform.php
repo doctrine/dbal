@@ -22,6 +22,11 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
 
 class DB2Platform extends AbstractPlatform
 {
@@ -373,17 +378,51 @@ class DB2Platform extends AbstractPlatform
     public function getAlterTableSQL(TableDiff $diff)
     {
         $sql = array();
+        $columnSql = array();
 
         $queryParts = array();
         foreach ($diff->addedColumns AS $fieldName => $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
+                $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $queryParts[] = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->removedColumns AS $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
+                $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
+                $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $queryParts[] =  'ALTER ' . ($columnDiff->oldColumnName) . ' '
@@ -391,6 +430,17 @@ class DB2Platform extends AbstractPlatform
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
+                $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $queryParts[] =  'RENAME ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
         }
 
@@ -404,7 +454,7 @@ class DB2Platform extends AbstractPlatform
             $sql[] =  'RENAME TABLE TO ' . $diff->newName;
         }
 
-        return $sql;
+        return array_merge($sql, $columnSql);
     }
 
     public function getDefaultValueDeclarationSQL($field)

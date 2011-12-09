@@ -22,7 +22,12 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Schema\TableDiff,
     Doctrine\DBAL\Schema\Index,
-    Doctrine\DBAL\Schema\Table;
+    Doctrine\DBAL\Schema\Table,
+    Doctrine\DBAL\Events,
+    Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
 
 /**
  * The MySqlPlatform provides the behavior, features and SQL dialect of the
@@ -454,22 +459,56 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
+        $columnSql = array();
         $queryParts = array();
         if ($diff->newName !== false) {
             $queryParts[] =  'RENAME TO ' . $diff->newName;
         }
 
         foreach ($diff->addedColumns AS $fieldName => $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
+                $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
         foreach ($diff->removedColumns AS $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
+                $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $queryParts[] =  'DROP ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
+                $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $columnArray = $column->toArray();
@@ -479,6 +518,17 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
+                $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[] =  'CHANGE ' . $oldColumnName . ' '
@@ -492,7 +542,8 @@ class MySqlPlatform extends AbstractPlatform
         $sql = array_merge(
             $this->getPreAlterTableIndexForeignKeySQL($diff),
             $sql,
-            $this->getPostAlterTableIndexForeignKeySQL($diff)
+            $this->getPostAlterTableIndexForeignKeySQL($diff),
+            $columnSql
         );
         return $sql;
     }

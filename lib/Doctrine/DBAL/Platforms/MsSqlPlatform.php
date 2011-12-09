@@ -23,7 +23,12 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Index,
-    Doctrine\DBAL\Schema\Table;
+    Doctrine\DBAL\Schema\Table,
+    Doctrine\DBAL\Events,
+    Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
 
 /**
  * The MsSqlPlatform provides the behavior, features and SQL dialect of the
@@ -278,20 +283,54 @@ class MsSqlPlatform extends AbstractPlatform
     {
         $queryParts = array();
         $sql = array();
+        $columnSql = array();
 
         if ($diff->newName !== false) {
             $queryParts[] = 'RENAME TO ' . $diff->newName;
         }
 
         foreach ($diff->addedColumns AS $fieldName => $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
+                $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->removedColumns AS $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
+                $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
+                $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $queryParts[] = 'ALTER COLUMN ' .
@@ -299,6 +338,17 @@ class MsSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
+                $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "' , '".$column->getQuotedName($this)."', 'COLUMN'";
             $queryParts[] = 'ALTER COLUMN ' .
                     $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
@@ -308,7 +358,7 @@ class MsSqlPlatform extends AbstractPlatform
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
         }
 
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
+        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $columnSql);
 
         return $sql;
     }
