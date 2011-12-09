@@ -219,32 +219,32 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testGetAlterTableSqlDispatchEvent()
     {
         $events = array(
-            'onSchemaAlterTableAddedColumn',
-            'onSchemaAlterTableRemovedColumn',
-            'onSchemaAlterTableChangedColumn',
-            'onSchemaAlterTableRenamedColumn'
+            'onSchemaAlterTableAddColumn',
+            'onSchemaAlterTableRemoveColumn',
+            'onSchemaAlterTableChangeColumn',
+            'onSchemaAlterTableRenameColumn'
         );
 
         $listenerMock = $this->getMock('GetAlterTableSqlDispatchEvenListener', $events);
         $listenerMock
             ->expects($this->once())
-            ->method('onSchemaAlterTableAddedColumn');
+            ->method('onSchemaAlterTableAddColumn');
         $listenerMock
             ->expects($this->once())
-            ->method('onSchemaAlterTableRemovedColumn');
+            ->method('onSchemaAlterTableRemoveColumn');
         $listenerMock
             ->expects($this->once())
-            ->method('onSchemaAlterTableChangedColumn');
+            ->method('onSchemaAlterTableChangeColumn');
         $listenerMock
             ->expects($this->once())
-            ->method('onSchemaAlterTableRenamedColumn');
+            ->method('onSchemaAlterTableRenameColumn');
 
         $eventManager = new EventManager();
         $events = array(
-            Events::onSchemaAlterTableAddedColumn,
-            Events::onSchemaAlterTableRemovedColumn,
-            Events::onSchemaAlterTableChangedColumn,
-            Events::onSchemaAlterTableRenamedColumn
+            Events::onSchemaAlterTableAddColumn,
+            Events::onSchemaAlterTableRemoveColumn,
+            Events::onSchemaAlterTableChangeColumn,
+            Events::onSchemaAlterTableRenameColumn
         );
         $eventManager->addEventListener($events, $listenerMock);
 

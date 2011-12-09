@@ -22,10 +22,10 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Schema\TableDiff,
     Doctrine\DBAL\Schema\Table,
     Doctrine\DBAL\Events,
-    Doctrine\DBAL\Event\SchemaAlterTableAddedColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaAlterTableRemovedColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaAlterTableChangedColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaAlterTableRenamedColumnEventArgs;
+    Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
 
 /**
  * PostgreSqlPlatform.
@@ -388,9 +388,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         $columnSql = array();
 
         foreach ($diff->addedColumns as $column) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddedColumn)) {
-                $eventArgs = new SchemaAlterTableAddedColumnEventArgs($column, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddedColumn, $eventArgs);
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
+                $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
 
                 $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -407,9 +407,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->removedColumns as $column) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemovedColumn)) {
-                $eventArgs = new SchemaAlterTableRemovedColumnEventArgs($column, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemovedColumn, $eventArgs);
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
+                $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
 
                 $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -423,9 +423,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangedColumn)) {
-                $eventArgs = new SchemaAlterTableChangedColumnEventArgs($columnDiff, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangedColumn, $eventArgs);
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
+                $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
 
                 $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -473,9 +473,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenamedColumn)) {
-                $eventArgs = new SchemaAlterTableRenamedColumnEventArgs($oldColumnName, $column, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenamedColumn, $eventArgs);
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
+                $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
 
                 $columnSql = array_merge($columnSql, $eventArgs->getSql());
 

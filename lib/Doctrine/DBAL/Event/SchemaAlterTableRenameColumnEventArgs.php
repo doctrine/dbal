@@ -27,7 +27,7 @@ use Doctrine\Common\EventArgs,
     Doctrine\DBAL\Schema\Column;
 
 /**
- * Event Arguments used when SQL queries for removing table columns are generated inside Doctrine\DBAL\Platform\*Platform.
+ * Event Arguments used when SQL queries for renaming table columns are generated inside Doctrine\DBAL\Platform\*Platform.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
@@ -35,8 +35,13 @@ use Doctrine\Common\EventArgs,
  * @version     $Revision$
  * @author      Jan Sorgalla <jsorgalla@googlemail.com>
  */
-class SchemaAlterTableRemovedColumnEventArgs extends SchemaEventArgs
+class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
 {
+    /**
+     * @var string
+     */
+    private $_oldColumnName = null;
+
     /**
      * @var Column
      */
@@ -58,15 +63,25 @@ class SchemaAlterTableRemovedColumnEventArgs extends SchemaEventArgs
     private $_sql = array();
 
     /**
+     * @param string $oldColumnName
      * @param Column $column
      * @param TableDiff $tableDiff
      * @param AbstractPlatform $platform 
      */
-    public function __construct(Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
+    public function __construct($oldColumnName, Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
     {
-        $this->_column    = $column;
-        $this->_tableDiff = $tableDiff;
-        $this->_platform  = $platform;
+        $this->_oldColumnName = $oldColumnName;
+        $this->_column        = $column;
+        $this->_tableDiff     = $tableDiff;
+        $this->_platform      = $platform;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOldColumnName()
+    {
+        return $this->_oldColumnName;
     }
 
     /**

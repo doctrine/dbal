@@ -24,10 +24,10 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\Common\EventArgs,
     Doctrine\DBAL\Platforms\AbstractPlatform,
     Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Column;
+    Doctrine\DBAL\Schema\ColumnDiff;
 
 /**
- * Event Arguments used when SQL queries for renaming table columns are generated inside Doctrine\DBAL\Platform\*Platform.
+ * Event Arguments used when SQL queries for changing table columns are generated inside Doctrine\DBAL\Platform\*Platform.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
@@ -35,17 +35,12 @@ use Doctrine\Common\EventArgs,
  * @version     $Revision$
  * @author      Jan Sorgalla <jsorgalla@googlemail.com>
  */
-class SchemaAlterTableRenamedColumnEventArgs extends SchemaEventArgs
+class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
 {
     /**
-     * @var string
+     * @var ColumnDiff
      */
-    private $_oldColumnName = null;
-
-    /**
-     * @var Column
-     */
-    private $_column = null;
+    private $_columnDiff = null;
 
     /**
      * @var TableDiff
@@ -63,33 +58,23 @@ class SchemaAlterTableRenamedColumnEventArgs extends SchemaEventArgs
     private $_sql = array();
 
     /**
-     * @param string $oldColumnName
-     * @param Column $column
+     * @param ColumnDiff $columnDiff
      * @param TableDiff $tableDiff
      * @param AbstractPlatform $platform 
      */
-    public function __construct($oldColumnName, Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
+    public function __construct(ColumnDiff $columnDiff, TableDiff $tableDiff, AbstractPlatform $platform)
     {
-        $this->_oldColumnName = $oldColumnName;
-        $this->_column        = $column;
-        $this->_tableDiff     = $tableDiff;
-        $this->_platform      = $platform;
+        $this->_columnDiff = $columnDiff;
+        $this->_tableDiff  = $tableDiff;
+        $this->_platform   = $platform;
     }
 
     /**
-     * @return string
+     * @return Doctrine\DBAL\Schema\ColumnDiff
      */
-    public function getOldColumnName()
+    public function getColumnDiff()
     {
-        return $this->_oldColumnName;
-    }
-
-    /**
-     * @return Doctrine\DBAL\Schema\Column
-     */
-    public function getColumn()
-    {
-        return $this->_column;
+        return $this->_columnDiff;
     }
 
     /**

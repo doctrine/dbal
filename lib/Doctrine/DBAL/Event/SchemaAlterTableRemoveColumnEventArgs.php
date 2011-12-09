@@ -27,7 +27,7 @@ use Doctrine\Common\EventArgs,
     Doctrine\DBAL\Schema\Column;
 
 /**
- * Event Arguments used when SQL queries for adding table columns are generated inside Doctrine\DBAL\Platform\*Platform.
+ * Event Arguments used when SQL queries for removing table columns are generated inside Doctrine\DBAL\Platform\*Platform.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
@@ -35,7 +35,7 @@ use Doctrine\Common\EventArgs,
  * @version     $Revision$
  * @author      Jan Sorgalla <jsorgalla@googlemail.com>
  */
-class SchemaAlterTableAddedColumnEventArgs extends SchemaEventArgs
+class SchemaAlterTableRemoveColumnEventArgs extends SchemaEventArgs
 {
     /**
      * @var Column

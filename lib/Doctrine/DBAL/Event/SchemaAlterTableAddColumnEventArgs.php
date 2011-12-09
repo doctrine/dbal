@@ -24,10 +24,10 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\Common\EventArgs,
     Doctrine\DBAL\Platforms\AbstractPlatform,
     Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\ColumnDiff;
+    Doctrine\DBAL\Schema\Column;
 
 /**
- * Event Arguments used when SQL queries for changing table columns are generated inside Doctrine\DBAL\Platform\*Platform.
+ * Event Arguments used when SQL queries for adding table columns are generated inside Doctrine\DBAL\Platform\*Platform.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
@@ -35,12 +35,12 @@ use Doctrine\Common\EventArgs,
  * @version     $Revision$
  * @author      Jan Sorgalla <jsorgalla@googlemail.com>
  */
-class SchemaAlterTableChangedColumnEventArgs extends SchemaEventArgs
+class SchemaAlterTableAddColumnEventArgs extends SchemaEventArgs
 {
     /**
-     * @var ColumnDiff
+     * @var Column
      */
-    private $_columnDiff = null;
+    private $_column = null;
 
     /**
      * @var TableDiff
@@ -58,23 +58,23 @@ class SchemaAlterTableChangedColumnEventArgs extends SchemaEventArgs
     private $_sql = array();
 
     /**
-     * @param ColumnDiff $columnDiff
+     * @param Column $column
      * @param TableDiff $tableDiff
      * @param AbstractPlatform $platform 
      */
-    public function __construct(ColumnDiff $columnDiff, TableDiff $tableDiff, AbstractPlatform $platform)
+    public function __construct(Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
     {
-        $this->_columnDiff = $columnDiff;
-        $this->_tableDiff  = $tableDiff;
-        $this->_platform   = $platform;
+        $this->_column    = $column;
+        $this->_tableDiff = $tableDiff;
+        $this->_platform  = $platform;
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\ColumnDiff
+     * @return Doctrine\DBAL\Schema\Column
      */
-    public function getColumnDiff()
+    public function getColumn()
     {
-        return $this->_columnDiff;
+        return $this->_column;
     }
 
     /**
