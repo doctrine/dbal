@@ -27,12 +27,17 @@ use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Schema\ForeignKeyConstraint,
     Doctrine\DBAL\Schema\TableDiff,
     Doctrine\DBAL\Schema\Column,
+    Doctrine\DBAL\Schema\ColumnDiff,
     Doctrine\DBAL\Types\Type,
     Doctrine\DBAL\Events,
     Doctrine\Common\EventManager,
     Doctrine\DBAL\Event\SchemaCreateTableEventArgs,
     Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaDropTableEventArgs;
+    Doctrine\DBAL\Event\SchemaDropTableEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -1283,6 +1288,99 @@ abstract class AbstractPlatform
     public function getAlterTableSQL(TableDiff $diff)
     {
         throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * @param Column $column
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTableAddColumn(Column $column, TableDiff $diff, &$columnSql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
+
+        $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
+    }
+
+    /**
+     * @param Column $column
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTableRemoveColumn(Column $column, TableDiff $diff, &$columnSql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
+
+        $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
+    }
+
+    /**
+     * @param ColumnDiff $columnDiff
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTableChangeColumn(ColumnDiff $columnDiff, TableDiff $diff, &$columnSql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
+
+        $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
+    }
+
+    /**
+     * @param string $oldColumnName
+     * @param Column $column
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTableRenameColumn($oldColumnName, Column $column, TableDiff $diff, &$columnSql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
+
+        $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
     }
 
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)

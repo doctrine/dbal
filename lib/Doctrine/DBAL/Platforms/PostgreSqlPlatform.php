@@ -20,12 +20,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Table,
-    Doctrine\DBAL\Events,
-    Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
+    Doctrine\DBAL\Schema\Table;
 
 /**
  * PostgreSqlPlatform.
@@ -388,15 +383,8 @@ class PostgreSqlPlatform extends AbstractPlatform
         $columnSql = array();
 
         foreach ($diff->addedColumns as $column) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
-                $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
-
-                $columnSql = array_merge($columnSql, $eventArgs->getSql());
-
-                if ($eventArgs->isDefaultPrevented()) {
-                    continue;
-                }
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
             }
 
             $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
@@ -407,15 +395,8 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->removedColumns as $column) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
-                $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
-
-                $columnSql = array_merge($columnSql, $eventArgs->getSql());
-
-                if ($eventArgs->isDefaultPrevented()) {
-                    continue;
-                }
+            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+                continue;
             }
 
             $query = 'DROP ' . $column->getQuotedName($this);
@@ -423,15 +404,8 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
-                $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
-
-                $columnSql = array_merge($columnSql, $eventArgs->getSql());
-
-                if ($eventArgs->isDefaultPrevented()) {
-                    continue;
-                }
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
             }
 
             $oldColumnName = $columnDiff->oldColumnName;
@@ -473,15 +447,8 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
-                $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
-
-                $columnSql = array_merge($columnSql, $eventArgs->getSql());
-
-                if ($eventArgs->isDefaultPrevented()) {
-                    continue;
-                }
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
             }
 
             $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);

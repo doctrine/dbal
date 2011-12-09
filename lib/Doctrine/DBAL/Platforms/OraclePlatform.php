@@ -19,12 +19,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Events,
-    Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs,
-    Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
+use Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * OraclePlatform.
@@ -549,15 +544,8 @@ LEFT JOIN all_cons_columns r_cols
 
         $fields = array();
         foreach ($diff->addedColumns AS $column) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
-                $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
-
-                $columnSql = array_merge($columnSql, $eventArgs->getSql());
-
-                if ($eventArgs->isDefaultPrevented()) {
-                    continue;
-                }
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
             }
 
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
@@ -571,15 +559,8 @@ LEFT JOIN all_cons_columns r_cols
 
         $fields = array();
         foreach ($diff->changedColumns AS $columnDiff) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
-                $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
-
-                $columnSql = array_merge($columnSql, $eventArgs->getSql());
-
-                if ($eventArgs->isDefaultPrevented()) {
-                    continue;
-                }
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
             }
 
             $column = $columnDiff->column;
@@ -593,15 +574,8 @@ LEFT JOIN all_cons_columns r_cols
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
-                $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
-
-                $columnSql = array_merge($columnSql, $eventArgs->getSql());
-
-                if ($eventArgs->isDefaultPrevented()) {
-                    continue;
-                }
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
             }
 
             $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
@@ -609,15 +583,8 @@ LEFT JOIN all_cons_columns r_cols
 
         $fields = array();
         foreach ($diff->removedColumns AS $column) {
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
-                $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
-
-                $columnSql = array_merge($columnSql, $eventArgs->getSql());
-
-                if ($eventArgs->isDefaultPrevented()) {
-                    continue;
-                }
+            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+                continue;
             }
 
             $fields[] = $column->getQuotedName($this);
