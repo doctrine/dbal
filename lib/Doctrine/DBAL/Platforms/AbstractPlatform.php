@@ -108,7 +108,7 @@ abstract class AbstractPlatform
     /**
      * Sets the EventManager used by the Platform.
      *
-     * @rparam \Doctrine\Common\EventManager
+     * @param \Doctrine\Common\EventManager
      */
     public function setEventManager(EventManager $eventManager)
     {
