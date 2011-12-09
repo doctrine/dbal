@@ -45,7 +45,7 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     private function _constructPdoDsn(array $params)
     {
-        $dsn = 'sqlsrv:server=';
+        $dsn = 'mssql:server=';
 		
         if (isset($params['host'])) {
             $dsn .= $params['host'];
