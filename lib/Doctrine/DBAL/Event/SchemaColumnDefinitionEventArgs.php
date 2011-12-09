@@ -117,7 +117,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      */
     public function getDatabase()
     {
-        return $this->_platform;
+        return $this->_database;
     }
 
     /**
