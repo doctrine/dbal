@@ -325,7 +325,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testBitComparisonExpressionSupport()
     {
         $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
-        $platform = $this->_conn->getDatabasePlatform();;
+        $platform = $this->_conn->getDatabasePlatform();
         $bitmap   = array();
         
         for ($i = 2; $i < 9; $i = $i + 2) {
