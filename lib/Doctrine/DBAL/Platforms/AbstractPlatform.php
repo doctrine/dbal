@@ -34,6 +34,7 @@ use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Event\SchemaCreateTableEventArgs,
     Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs,
     Doctrine\DBAL\Event\SchemaDropTableEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableEventArgs,
     Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs,
     Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs,
     Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs,
@@ -1375,6 +1376,27 @@ abstract class AbstractPlatform
         $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
 
         $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
+    }
+    /**
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTable(TableDiff $diff, &$sql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTable)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableEventArgs($diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTable, $eventArgs);
+
+        $sql = array_merge($sql, $eventArgs->getSql());
 
         return $eventArgs->isDefaultPrevented();
     }

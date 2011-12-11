@@ -219,6 +219,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testGetAlterTableSqlDispatchEvent()
     {
         $events = array(
+            'onSchemaAlterTable',
             'onSchemaAlterTableAddColumn',
             'onSchemaAlterTableRemoveColumn',
             'onSchemaAlterTableChangeColumn',
@@ -226,6 +227,9 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         );
 
         $listenerMock = $this->getMock('GetAlterTableSqlDispatchEvenListener', $events);
+        $listenerMock
+            ->expects($this->once())
+            ->method('onSchemaAlterTable');
         $listenerMock
             ->expects($this->once())
             ->method('onSchemaAlterTableAddColumn');
@@ -241,6 +245,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $eventManager = new EventManager();
         $events = array(
+            Events::onSchemaAlterTable,
             Events::onSchemaAlterTableAddColumn,
             Events::onSchemaAlterTableRemoveColumn,
             Events::onSchemaAlterTableChangeColumn,

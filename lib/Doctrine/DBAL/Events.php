@@ -38,9 +38,10 @@ final class Events
     const onSchemaCreateTable             = 'onSchemaCreateTable';
     const onSchemaCreateTableColumn       = 'onSchemaCreateTableColumn';
     const onSchemaDropTable               = 'onSchemaDropTable';
-    const onSchemaAlterTableAddColumn   = 'onSchemaAlterTableAddColumn';
-    const onSchemaAlterTableRemoveColumn = 'onSchemaAlterTableRemoveColumn';
-    const onSchemaAlterTableChangeColumn = 'onSchemaAlterTableChangeColumn';
-    const onSchemaAlterTableRenameColumn = 'onSchemaAlterTableRenameColumn';
+    const onSchemaAlterTable              = 'onSchemaAlterTable';
+    const onSchemaAlterTableAddColumn     = 'onSchemaAlterTableAddColumn';
+    const onSchemaAlterTableRemoveColumn  = 'onSchemaAlterTableRemoveColumn';
+    const onSchemaAlterTableChangeColumn  = 'onSchemaAlterTableChangeColumn';
+    const onSchemaAlterTableRenameColumn  = 'onSchemaAlterTableRenameColumn';
     const onSchemaColumnDefinition        = 'onSchemaColumnDefinition';
 }

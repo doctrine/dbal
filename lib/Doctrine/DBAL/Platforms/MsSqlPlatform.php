@@ -320,14 +320,20 @@ class MsSqlPlatform extends AbstractPlatform
             $queryParts[] = 'ALTER COLUMN ' .
                     $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
+        
+        $tableSql = array();
+
+        if ($this->onSchemaAlterTable($diff, $tableSql)) {
+            return array_merge($tableSql, $columnSql); 
+        }
 
         foreach ($queryParts as $query) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
         }
 
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $columnSql);
+        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
 
-        return $sql;
+        return array_merge($sql, $tableSql, $columnSql);
     }
 
     /**

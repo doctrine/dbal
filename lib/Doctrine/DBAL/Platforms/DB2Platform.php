@@ -411,17 +411,21 @@ class DB2Platform extends AbstractPlatform
             $queryParts[] =  'RENAME ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
         }
 
-        if (count($queryParts) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(" ", $queryParts);
+        $tableSql = array();
+
+        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
+            if (count($queryParts) > 0) {
+                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(" ", $queryParts);
+            }
+
+            $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
+
+            if ($diff->newName !== false) {
+                $sql[] =  'RENAME TABLE TO ' . $diff->newName;
+            }
         }
 
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
-
-        if ($diff->newName !== false) {
-            $sql[] =  'RENAME TABLE TO ' . $diff->newName;
-        }
-
-        return array_merge($sql, $columnSql);
+        return array_merge($sql, $tableSql, $columnSql);
     }
 
     public function getDefaultValueDeclarationSQL($field)

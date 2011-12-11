@@ -503,16 +503,20 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         $sql = array();
-        if (count($queryParts) > 0) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
+        $tableSql = array();
+        
+        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
+            if (count($queryParts) > 0) {
+                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
+            }
+            $sql = array_merge(
+                $this->getPreAlterTableIndexForeignKeySQL($diff),
+                $sql,
+                $this->getPostAlterTableIndexForeignKeySQL($diff)
+            );
         }
-        $sql = array_merge(
-            $this->getPreAlterTableIndexForeignKeySQL($diff),
-            $sql,
-            $this->getPostAlterTableIndexForeignKeySQL($diff),
-            $columnSql
-        );
-        return $sql;
+
+        return array_merge($sql, $tableSql, $columnSql);
     }
 
     /**
