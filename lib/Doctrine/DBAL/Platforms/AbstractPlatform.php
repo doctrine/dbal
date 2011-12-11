@@ -1046,29 +1046,25 @@ abstract class AbstractPlatform
             }
         }
 
-        $tableSql = array();
-        $defaultPrevented = false;
-
         if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
             $eventArgs = new SchemaCreateTableEventArgs($table, $columns, $options, $this);
             $this->_eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
 
-            $defaultPrevented = $eventArgs->isDefaultPrevented();
-            $tableSql = $eventArgs->getSql();
+            if ($eventArgs->isDefaultPrevented()) {
+                return array_merge($eventArgs->getSql(), $columnSql);
+            }
         }
 
-        if (!$defaultPrevented) {
-            $tableSql = $this->_getCreateTableSQL($tableName, $columns, $options);
-            if ($this->supportsCommentOnStatement()) {
-                foreach ($table->getColumns() AS $column) {
-                    if ($column->getComment()) {
-                        $tableSql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $this->getColumnComment($column));
-                    }
+        $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
+        if ($this->supportsCommentOnStatement()) {
+            foreach ($table->getColumns() AS $column) {
+                if ($column->getComment()) {
+                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $this->getColumnComment($column));
                 }
             }
         }
 
-        return array_merge($tableSql, $columnSql);
+        return array_merge($sql, $columnSql);
     }
 
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
