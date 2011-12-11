@@ -43,6 +43,6 @@ class BigIntType extends Type
 
     public function getBindingType()
     {
-        return \PDO::PARAM_INT;
+        return \PDO::PARAM_STR;
     }
 }
