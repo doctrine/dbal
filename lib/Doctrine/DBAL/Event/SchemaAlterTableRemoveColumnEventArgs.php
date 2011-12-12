@@ -19,10 +19,9 @@
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\Common\EventArgs,
-    Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Platforms\AbstractPlatform,
+    Doctrine\DBAL\Schema\Column,
+    Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * Event Arguments used when SQL queries for removing table columns are generated inside Doctrine\DBAL\Platform\*Platform.
@@ -35,17 +34,17 @@ use Doctrine\Common\EventArgs,
 class SchemaAlterTableRemoveColumnEventArgs extends SchemaEventArgs
 {
     /**
-     * @var Column
+     * @var \Doctrine\DBAL\Schema\Column
      */
     private $_column = null;
 
     /**
-     * @var TableDiff
+     * @var \Doctrine\DBAL\Schema\TableDiff
      */
     private $_tableDiff = null;
 
     /**
-     * @var AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $_platform = null;
 
@@ -55,9 +54,9 @@ class SchemaAlterTableRemoveColumnEventArgs extends SchemaEventArgs
     private $_sql = array();
 
     /**
-     * @param Column $column
-     * @param TableDiff $tableDiff
-     * @param AbstractPlatform $platform 
+     * @param \Doctrine\DBAL\Schema\Column $column
+     * @param \Doctrine\DBAL\Schema\TableDiff $tableDiff
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct(Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
     {
@@ -67,7 +66,7 @@ class SchemaAlterTableRemoveColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\Column
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function getColumn()
     {
@@ -75,7 +74,7 @@ class SchemaAlterTableRemoveColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\TableDiff
+     * @return \Doctrine\DBAL\Schema\TableDiff
      */
     public function getTableDiff()
     {
@@ -83,7 +82,7 @@ class SchemaAlterTableRemoveColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getPlatform()
     {
@@ -92,7 +91,7 @@ class SchemaAlterTableRemoveColumnEventArgs extends SchemaEventArgs
 
     /**
      * @param string|array $sql
-     * @return SchemaEventArgs
+     * @return \Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs
      */
     public function addSql($sql)
     {

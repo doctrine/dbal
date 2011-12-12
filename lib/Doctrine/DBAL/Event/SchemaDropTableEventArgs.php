@@ -19,8 +19,7 @@
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\Common\EventArgs,
-    Doctrine\DBAL\Platforms\AbstractPlatform,
+use Doctrine\DBAL\Platforms\AbstractPlatform,
     Doctrine\DBAL\Schema\Table;
 
 /**
@@ -34,12 +33,12 @@ use Doctrine\Common\EventArgs,
 class SchemaDropTableEventArgs extends SchemaEventArgs
 {
     /**
-     * @var string|Table
+     * @var string|\Doctrine\DBAL\Schema\Table
      */
     private $_table = null;
 
     /**
-     * @var AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $_platform = null;
 
@@ -49,8 +48,8 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     private $_sql = null;
 
     /**
-     * @param string|Table $table
-     * @param AbstractPlatform $platform 
+     * @param string|\Doctrine\DBAL\Schema\Table $table
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct($table, AbstractPlatform $platform)
     {
@@ -63,7 +62,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return string|Doctrine\DBAL\Schema\Table
+     * @return string|\Doctrine\DBAL\Schema\Table
      */
     public function getTable()
     {
@@ -71,7 +70,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getPlatform()
     {
@@ -80,7 +79,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
 
     /**
      * @param string $sql
-     * @return SchemaDropTableEventArgs
+     * @return \Doctrine\DBAL\Event\SchemaDropTableEventArgs
      */
     public function setSql($sql)
     {

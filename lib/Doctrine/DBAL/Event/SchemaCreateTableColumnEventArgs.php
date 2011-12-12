@@ -19,10 +19,9 @@
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\Common\EventArgs,
-    Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\Table,
-    Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Platforms\AbstractPlatform,
+    Doctrine\DBAL\Schema\Column,
+    Doctrine\DBAL\Schema\Table;
 
 /**
  * Event Arguments used when SQL queries for creating table columns are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
@@ -35,17 +34,17 @@ use Doctrine\Common\EventArgs,
 class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 {
     /**
-     * @var Column
+     * @var \Doctrine\DBAL\Schema\Column
      */
     private $_column = null;
 
     /**
-     * @var Table
+     * @var \Doctrine\DBAL\Schema\Table
      */
     private $_table = null;
 
     /**
-     * @var AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $_platform = null;
 
@@ -55,9 +54,9 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     private $_sql = array();
 
     /**
-     * @param Column $column
-     * @param Table $table
-     * @param AbstractPlatform $platform 
+     * @param \Doctrine\DBAL\Schema\Column $column
+     * @param \Doctrine\DBAL\Schema\Table $table
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct(Column $column, Table $table, AbstractPlatform $platform)
     {
@@ -67,7 +66,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\Column
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function getColumn()
     {
@@ -75,7 +74,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\Table
+     * @return \Doctrine\DBAL\Schema\Table
      */
     public function getTable()
     {
@@ -83,7 +82,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getPlatform()
     {
@@ -92,7 +91,7 @@ class SchemaCreateTableColumnEventArgs extends SchemaEventArgs
 
     /**
      * @param string|array $sql
-     * @return SchemaEventArgs
+     * @return \Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs
      */
     public function addSql($sql)
     {

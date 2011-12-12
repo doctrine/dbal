@@ -19,10 +19,9 @@
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\Common\EventArgs,
-    Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Platforms\AbstractPlatform,
+    Doctrine\DBAL\Schema\Column,
+    Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * Event Arguments used when SQL queries for renaming table columns are generated inside Doctrine\DBAL\Platform\*Platform.
@@ -40,17 +39,17 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     private $_oldColumnName = null;
 
     /**
-     * @var Column
+     * @var \Doctrine\DBAL\Schema\Column
      */
     private $_column = null;
 
     /**
-     * @var TableDiff
+     * @var \Doctrine\DBAL\Schema\TableDiff
      */
     private $_tableDiff = null;
 
     /**
-     * @var AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $_platform = null;
 
@@ -61,9 +60,9 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
 
     /**
      * @param string $oldColumnName
-     * @param Column $column
-     * @param TableDiff $tableDiff
-     * @param AbstractPlatform $platform 
+     * @param \Doctrine\DBAL\Schema\Column $column
+     * @param \Doctrine\DBAL\Schema\TableDiff $tableDiff
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct($oldColumnName, Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
     {
@@ -82,7 +81,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\Column
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function getColumn()
     {
@@ -90,7 +89,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\TableDiff
+     * @return \Doctrine\DBAL\Schema\TableDiff
      */
     public function getTableDiff()
     {
@@ -98,7 +97,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getPlatform()
     {
@@ -107,7 +106,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
 
     /**
      * @param string|array $sql
-     * @return SchemaEventArgs
+     * @return \Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs
      */
     public function addSql($sql)
     {

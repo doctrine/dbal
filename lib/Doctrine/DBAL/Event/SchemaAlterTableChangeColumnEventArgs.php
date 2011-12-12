@@ -19,10 +19,9 @@
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\Common\EventArgs,
-    Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Platforms\AbstractPlatform,
+    Doctrine\DBAL\Schema\ColumnDiff,
+    Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * Event Arguments used when SQL queries for changing table columns are generated inside Doctrine\DBAL\Platform\*Platform.
@@ -35,17 +34,17 @@ use Doctrine\Common\EventArgs,
 class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
 {
     /**
-     * @var ColumnDiff
+     * @var \Doctrine\DBAL\Schema\ColumnDiff
      */
     private $_columnDiff = null;
 
     /**
-     * @var TableDiff
+     * @var \Doctrine\DBAL\Schema\TableDiff
      */
     private $_tableDiff = null;
 
     /**
-     * @var AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $_platform = null;
 
@@ -55,9 +54,9 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     private $_sql = array();
 
     /**
-     * @param ColumnDiff $columnDiff
-     * @param TableDiff $tableDiff
-     * @param AbstractPlatform $platform 
+     * @param \Doctrine\DBAL\Schema\ColumnDiff $columnDiff
+     * @param \Doctrine\DBAL\Schema\TableDiff $tableDiff
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform 
      */
     public function __construct(ColumnDiff $columnDiff, TableDiff $tableDiff, AbstractPlatform $platform)
     {
@@ -67,7 +66,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\ColumnDiff
+     * @return \Doctrine\DBAL\Schema\ColumnDiff
      */
     public function getColumnDiff()
     {
@@ -75,7 +74,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\TableDiff
+     * @return \Doctrine\DBAL\Schema\TableDiff
      */
     public function getTableDiff()
     {
@@ -83,7 +82,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getPlatform()
     {
@@ -92,7 +91,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
 
     /**
      * @param string|array $sql
-     * @return SchemaEventArgs
+     * @return \Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs
      */
     public function addSql($sql)
     {

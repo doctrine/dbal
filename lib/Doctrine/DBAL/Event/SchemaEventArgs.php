@@ -22,7 +22,7 @@ namespace Doctrine\DBAL\Event;
 use Doctrine\Common\EventArgs;
 
 /**
- * Event Arguments used when SQL queries for creating tables are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
+ * Base class for schema related events.
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
@@ -37,7 +37,7 @@ class SchemaEventArgs extends EventArgs
     private $_preventDefault = false;
 
     /**
-     * @return SchemaEventArgs
+     * @return \Doctrine\DBAL\Event\SchemaEventArgs
      */
     public function preventDefault()
     {

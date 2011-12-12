@@ -19,8 +19,7 @@
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\Common\EventArgs,
-    Doctrine\DBAL\Connection,
+use Doctrine\DBAL\Connection,
     Doctrine\DBAL\Schema\Column;
 
 /**
@@ -34,7 +33,7 @@ use Doctrine\Common\EventArgs,
 class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
 {
     /**
-     * @var \Doctrine\DBAL\Schema\Column $column
+     * @var \Doctrine\DBAL\Schema\Column
      */
     private $_column = null;
 
@@ -89,7 +88,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return array|\Doctrine\DBAL\Schema\Column
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function getColumn()
     {
@@ -129,7 +128,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getDatabasePlatform()
     {

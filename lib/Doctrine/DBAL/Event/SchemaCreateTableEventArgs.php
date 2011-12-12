@@ -19,8 +19,7 @@
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\Common\EventArgs,
-    Doctrine\DBAL\Platforms\AbstractPlatform,
+use Doctrine\DBAL\Platforms\AbstractPlatform,
     Doctrine\DBAL\Schema\Table;
 
 /**
@@ -34,7 +33,7 @@ use Doctrine\Common\EventArgs,
 class SchemaCreateTableEventArgs extends SchemaEventArgs
 {
     /**
-     * @var Table
+     * @var \Doctrine\DBAL\Schema\Table
      */
     private $_table = null;
 
@@ -49,7 +48,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     private $_options = null;
 
     /**
-     * @var AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $_platform = null;
     
@@ -59,10 +58,10 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     private $_sql = array();
 
     /**
-     * @param Table $table
+     * @param \Doctrine\DBAL\Schema\Table $table
      * @param array $columns
      * @param array $options
-     * @param AbstractPlatform $platform 
+     * @param Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct(Table $table, array $columns, array $options, AbstractPlatform $platform)
     {
@@ -73,7 +72,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\Table
+     * @return \Doctrine\DBAL\Schema\Table
      */
     public function getTable()
     {
@@ -97,7 +96,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getPlatform()
     {
@@ -106,7 +105,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
 
     /**
      * @param string|array $sql
-     * @return SchemaEventArgs
+     * @return \Doctrine\DBAL\Event\SchemaCreateTableEventArgs
      */
     public function addSql($sql)
     {
