@@ -21,6 +21,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
+
 /**
  * IBM Db2 Schema Manager
  *
@@ -120,6 +122,8 @@ class DB2SchemaManager extends AbstractSchemaManager
 
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
+        $eventManager = $this->_platform->getEventManager();
+
         $tableIndexRows = array();
         $indexes = array();
         foreach($tableIndexes AS $indexKey => $data) {
@@ -134,7 +138,31 @@ class DB2SchemaManager extends AbstractSchemaManager
                 $keyName = $indexName;
             }
 
-            $indexes[$keyName] = new Index($indexName, explode("+", ltrim($data['colnames'], '+')), $unique, $primary);
+            $data = array(
+                'name' => $indexName,
+                'columns' => explode("+", ltrim($data['colnames'], '+')),
+                'unique' => $unique,
+                'primary' => $primary
+            );
+
+            $index = null;
+            $defaultPrevented = false;
+
+            if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
+                $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->_conn);
+                $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
+
+                $defaultPrevented = $eventArgs->isDefaultPrevented();
+                $index = $eventArgs->getIndex();
+            }
+
+            if (!$defaultPrevented) {
+                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary']);
+            }
+
+            if ($index) {
+                $indexes[$indexKey] = $index;
+            }
         }
 
         return $indexes;

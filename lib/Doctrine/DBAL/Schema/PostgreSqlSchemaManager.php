@@ -218,7 +218,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 }
             }
         }
-        return parent::_getPortableTableIndexesList($buffer);
+        return parent::_getPortableTableIndexesList($buffer, $tableName);
     }
 
     protected function _getPortableDatabaseDefinition($database)

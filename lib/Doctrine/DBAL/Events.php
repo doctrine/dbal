@@ -44,4 +44,5 @@ final class Events
     const onSchemaAlterTableChangeColumn  = 'onSchemaAlterTableChangeColumn';
     const onSchemaAlterTableRenameColumn  = 'onSchemaAlterTableRenameColumn';
     const onSchemaColumnDefinition        = 'onSchemaColumnDefinition';
+    const onSchemaIndexDefinition         = 'onSchemaIndexDefinition';
 }
