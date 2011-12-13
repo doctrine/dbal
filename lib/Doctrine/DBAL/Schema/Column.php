@@ -94,6 +94,11 @@ class Column extends AbstractAsset
     protected $_comment = null;
 
     /**
+     * @var array
+     */
+    protected $_customSchemaOptions = array();
+
+    /**
      * Create a new Column
      * 
      * @param string $columnName
@@ -341,6 +346,53 @@ class Column extends AbstractAsset
     }
 
     /**
+     * @param  string $name
+     * @param  mixed $value
+     * @return Column
+     */
+    public function setCustomSchemaOption($name, $value)
+    {
+        $this->_customSchemaOptions[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * @param  string $name
+     * @return boolean
+     */
+    public function hasCustomSchemaOption($name)
+    {
+        return isset($this->_customSchemaOptions[$name]);
+    }
+
+    /**
+     * @param  string $name
+     * @return mixed
+     */
+    public function getCustomSchemaOption($name)
+    {
+        return $this->_customSchemaOptions[$name];
+    }
+
+    /**
+     * @param array $customSchemaOptions
+     * @return Column
+     */
+    public function setCustomSchemaOptions(array $customSchemaOptions)
+    {
+        $this->_customSchemaOptions = $customSchemaOptions;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomSchemaOptions()
+    {
+        return $this->_customSchemaOptions;
+    }
+
+    /**
      * @param Visitor $visitor
      */
     public function visit(\Doctrine\DBAL\Schema\Visitor $visitor)
@@ -366,6 +418,6 @@ class Column extends AbstractAsset
             'autoincrement' => $this->_autoincrement,
             'columnDefinition' => $this->_columnDefinition,
             'comment' => $this->_comment,
-        ), $this->_platformOptions);
+        ), $this->_platformOptions, $this->_customSchemaOptions);
     }
 }

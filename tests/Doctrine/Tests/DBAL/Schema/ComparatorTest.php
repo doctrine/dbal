@@ -193,6 +193,22 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $c->diffColumn($column1, $column1));
     }
 
+    public function testCompareChangedColumns_ChangeCustomSchemaOption()
+    {
+        $column1 = new Column('charfield1', Type::getType('string'));
+        $column2 = new Column('charfield1', Type::getType('string'));
+
+        $column1->setCustomSchemaOption('foo', 'bar');
+        $column2->setCustomSchemaOption('foo', 'bar');
+        
+        $column1->setCustomSchemaOption('foo1', 'bar1');
+        $column2->setCustomSchemaOption('foo2', 'bar2');
+
+        $c = new Comparator();
+        $this->assertEquals(array('foo1', 'foo2'), $c->diffColumn($column1, $column2));
+        $this->assertEquals(array(), $c->diffColumn($column1, $column1));
+    }
+
     public function testCompareRemovedIndex()
     {
         $schema1 = new Schema( array(
