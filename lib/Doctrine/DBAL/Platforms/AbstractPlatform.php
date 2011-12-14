@@ -878,6 +878,8 @@ abstract class AbstractPlatform
      */
     public function getDropTableSQL($table)
     {
+        $tableArg = $table;
+
         if ($table instanceof \Doctrine\DBAL\Schema\Table) {
             $table = $table->getQuotedName($this);
         } else if(!is_string($table)) {
@@ -885,7 +887,7 @@ abstract class AbstractPlatform
         }
 
         if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
-            $eventArgs = new SchemaDropTableEventArgs($table, $this);
+            $eventArgs = new SchemaDropTableEventArgs($tableArg, $this);
             $this->_eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
 
             if ($eventArgs->isDefaultPrevented()) {
