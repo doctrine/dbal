@@ -194,7 +194,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getListTablesSQL()
     {
         return "SELECT tablename AS table_name, schemaname AS schema_name
-                FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname != 'information_schema'";
+                FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname != 'information_schema' AND tablename != 'geometry_columns' AND tablename != 'spatial_ref_sys'";
     }
 
     public function getListViewsSQL($database)
