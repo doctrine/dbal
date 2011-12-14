@@ -363,7 +363,6 @@ class Comparator
         foreach ($commonKeys as $key) {
             if ($options1[$key] !== $options2[$key]) {
                 $changedProperties[] = $key;
-                break;
             }
         }
 
