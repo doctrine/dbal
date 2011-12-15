@@ -318,6 +318,57 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(0, count($rows), "no result should be returned, otherwise SQL injection is possible");
     }
+    
+    /**
+     * @group DDC-1213
+     */
+    public function testBitComparisonExpressionSupport()
+    {
+        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $platform = $this->_conn->getDatabasePlatform();
+        $bitmap   = array();
+        
+        for ($i = 2; $i < 9; $i = $i + 2) {
+            $bitmap[$i] = array(
+                'bit_or'    => ($i | 2),
+                'bit_and'   => ($i & 2)
+            );
+            $this->_conn->insert('fetch_table', array(
+                'test_int'      => $i, 
+                'test_string'   => json_encode($bitmap[$i]),
+                'test_datetime' => '2010-01-01 10:10:10'
+            ));
+        }
+        
+        $sql[]  = 'SELECT ';
+        $sql[]  = 'test_int, ';
+        $sql[]  = 'test_string, ';
+        $sql[]  = $platform->getBitOrComparisonExpression('test_int', 2) . ' AS bit_or, ';
+        $sql[]  = $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and ';
+        $sql[]  = 'FROM fetch_table';
+
+        $stmt   = $this->_conn->executeQuery(implode(PHP_EOL, $sql));
+        $data   = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        
+        $this->assertEquals(4, count($data));
+        $this->assertEquals(count($bitmap), count($data));
+        foreach ($data as $row) {
+            
+            $this->assertArrayHasKey('test_int', $row);
+            
+            $id = $row['test_int'];
+            
+            $this->assertArrayHasKey($id, $bitmap);
+            $this->assertArrayHasKey($id, $bitmap);
+            
+            $this->assertArrayHasKey('bit_or', $row);
+            $this->assertArrayHasKey('bit_and', $row);
+            
+            $this->assertEquals($row['bit_or'], $bitmap[$id]['bit_or']);
+            $this->assertEquals($row['bit_and'], $bitmap[$id]['bit_and']);
+        }
+    }
 
     public function testSetDefaultFetchMode()
     {
