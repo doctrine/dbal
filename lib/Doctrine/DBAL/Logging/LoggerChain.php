@@ -27,7 +27,7 @@ namespace Doctrine\DBAL\Logging;
  * @since   2.2
  * @author  Christophe Coevoet <stof@notk.org>
  */
-class ChainLogger implements SQLLogger
+class LoggerChain implements SQLLogger
 {
     private $loggers = array();
 
