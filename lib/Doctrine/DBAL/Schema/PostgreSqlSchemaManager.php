@@ -21,13 +21,12 @@
 namespace Doctrine\DBAL\Schema;
 
 /**
- * xxx
+ * PostgreSQL Schema Manager
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
- * @version     $Revision$
  * @since       2.0
  */
 class PostgreSqlSchemaManager extends AbstractSchemaManager
@@ -336,6 +335,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'year':
                 $length = null;
                 break;
+        }
+
+        if ($tableColumn['default'] && preg_match("('([^']+)'::)", $tableColumn['default'], $match)) {
+            $tableColumn['default'] = $match[1];
         }
 
         $options = array(

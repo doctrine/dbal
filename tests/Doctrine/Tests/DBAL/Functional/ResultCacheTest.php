@@ -72,13 +72,13 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         foreach ($this->expectedResult AS $v) {
             $numExpectedResult[] = array_values($v);
         }
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = $this->hydrateStmt($stmt, \PDO::FETCH_ASSOC);
 
         $this->assertEquals($this->expectedResult, $data);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = $this->hydrateStmt($stmt, \PDO::FETCH_NUM);
 
@@ -94,10 +94,10 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertStandardAndIteratorFetchAreEqual($fetchStyle)
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
         $data = $this->hydrateStmt($stmt, $fetchStyle);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
         $data_iterator = $this->hydrateStmtIterator($stmt, $fetchStyle);
 
         $this->assertEquals($data, $data_iterator);
@@ -105,14 +105,14 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testDontCloseNoCache()
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $data[] = $row;
         }
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = array();
         while ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
@@ -124,12 +124,12 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testDontFinishNoCache()
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $stmt->closeCursor();
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $data = $this->hydrateStmt($stmt, \PDO::FETCH_NUM);
 
@@ -138,13 +138,13 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, $fetchStyle)
     {
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $this->assertEquals(2, $stmt->columnCount());
         $data = $this->hydrateStmt($stmt, $fetchStyle);
         $this->assertEquals($expectedResult, $data);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
 
         $this->assertEquals(2, $stmt->columnCount());
         $data = $this->hydrateStmt($stmt, $fetchStyle);
@@ -180,7 +180,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $data = array();
         while ($row = $stmt->fetch($fetchStyle)) {
-            $data[] = $row;
+            $data[] = array_change_key_case($row, CASE_LOWER);
         }
         $stmt->closeCursor();
         return $data;
@@ -191,7 +191,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $data = array();
         $stmt->setFetchMode($fetchStyle);
         foreach ($stmt as $row) {
-            $data[] = $row;
+            $data[] = array_change_key_case($row, CASE_LOWER);
         }
         $stmt->closeCursor();
         return $data;

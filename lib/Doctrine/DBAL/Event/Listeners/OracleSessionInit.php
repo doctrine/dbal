@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -37,8 +35,7 @@ use Doctrine\Common\EventSubscriber;
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
- * @since       1.0
- * @version     $Revision$
+ * @since       2.0
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  */
 class OracleSessionInit implements EventSubscriber

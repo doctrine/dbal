@@ -156,6 +156,10 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt   = $this->_conn->executeQuery($query, $params, $types);
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
+        foreach ($result as $k => $v) {
+            $result[$k] = array_change_key_case($v, CASE_LOWER);
+        }
+
         $this->assertEquals($result, $expected);
     }
 

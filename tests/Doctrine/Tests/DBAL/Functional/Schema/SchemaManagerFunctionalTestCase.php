@@ -98,8 +98,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     {
         $table = new \Doctrine\DBAL\Schema\Table('list_table_columns');
         $table->addColumn('id', 'integer', array('notnull' => true));
-        $table->addColumn('test', 'string', array('length' => 255, 'notnull' => false));
-        $table->addColumn('foo', 'text', array('notnull' => true, 'default' => 'expected default'));
+        $table->addColumn('test', 'string', array('length' => 255, 'notnull' => false, 'default' => 'expected default'));
+        $table->addColumn('foo', 'text', array('notnull' => true));
         $table->addColumn('bar', 'decimal', array('precision' => 10, 'scale' => 4, 'notnull' => false));
         $table->addColumn('baz1', 'datetime');
         $table->addColumn('baz2', 'time');
@@ -130,7 +130,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(255,    $columns['test']->getlength());
         $this->assertEquals(false,  $columns['test']->getfixed());
         $this->assertEquals(false,  $columns['test']->getnotnull());
-        $this->assertEquals(null,   $columns['test']->getdefault());
+        $this->assertEquals('expected default',   $columns['test']->getdefault());
         $this->assertInternalType('array',  $columns['test']->getPlatformOptions());
 
         $this->assertEquals('foo',  strtolower($columns['foo']->getname()));
@@ -138,7 +138,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(false,  $columns['foo']->getunsigned());
         $this->assertEquals(false,  $columns['foo']->getfixed());
         $this->assertEquals(true,   $columns['foo']->getnotnull());
-        $this->assertEquals('expected default',   $columns['foo']->getdefault());
+        $this->assertEquals(null,   $columns['foo']->getdefault());
         $this->assertInternalType('array',  $columns['foo']->getPlatformOptions());
 
         $this->assertEquals('bar',  strtolower($columns['bar']->getname()));
@@ -188,7 +188,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     public function testListTableIndexes()
     {
-        $table = $this->getTestTable('list_table_indexes_test');
+        $table = $this->getTestCompositeTable('list_table_indexes_test');
         $table->addUniqueIndex(array('test'), 'test_index_name');
         $table->addIndex(array('id', 'test'), 'test_composite_idx');
 
@@ -505,10 +505,20 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table = new \Doctrine\DBAL\Schema\Table($name, array(), array(), array(), false, $options);
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
         $table->addColumn('id', 'integer', array('notnull' => true));
+        $table->setPrimaryKey(array('id'));
+        $table->addColumn('test', 'string', array('length' => 255));
+        $table->addColumn('foreign_key_test', 'integer');
+        return $table;
+    }
+
+    protected function getTestCompositeTable($name)
+    {
+        $table = new \Doctrine\DBAL\Schema\Table($name, array(), array(), array(), false, array());
+        $table->setSchemaConfig($this->_sm->createSchemaConfig());
+        $table->addColumn('id', 'integer', array('notnull' => true));
         $table->addColumn('other_id', 'integer', array('notnull' => true));
         $table->setPrimaryKey(array('id', 'other_id'));
         $table->addColumn('test', 'string', array('length' => 255));
-        $table->addColumn('foreign_key_test', 'integer');
         return $table;
     }
 

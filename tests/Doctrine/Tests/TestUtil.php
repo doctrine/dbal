@@ -100,6 +100,14 @@ class TestUtil
             $conn = \Doctrine\DBAL\DriverManager::getConnection($params);
         }
 
+        if (isset($GLOBALS['db_event_subscribers'])) {
+            $evm = $conn->getEventManager();
+            foreach (explode(",", $GLOBALS['db_event_subscribers']) AS $subscriberClass) {
+                $subscriberInstance = new $subscriberClass();
+                $evm->addEventSubscriber($subscriberInstance);
+            }
+        }
+
         return $conn;
     }
 

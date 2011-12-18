@@ -61,6 +61,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertFetchResultRows($rows);
 
         $stmt = $this->getPortableConnection()->query('SELECT * FROM portability_table');
+        $stmt->setFetchMode(\PDO::FETCH_ASSOC);
         foreach ($stmt as $row) {
             $this->assertFetchResultRow($row);
         }
