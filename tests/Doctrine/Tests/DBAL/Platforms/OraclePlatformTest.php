@@ -204,4 +204,16 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }
+
+    public function getBitAndComparisonExpressionSql($value1, $value2)
+    {
+        return 'BITAND('.$value1 . ', ' . $value2 . ')';
+    }
+
+    public function getBitOrComparisonExpressionSql($value1, $value2)
+    {
+        return '(' . $value1 . '-' . 
+                $this->getBitAndComparisonExpressionSql($value1, $value2) 
+                . '+' . $value2 . ')';
+    }
 }

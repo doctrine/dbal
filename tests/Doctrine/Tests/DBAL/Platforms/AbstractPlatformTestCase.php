@@ -131,6 +131,34 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals($this->getGenerateConstraintForeignKeySql(), $sql);
     }
 
+    protected function getBitAndComparisonExpressionSql($value1, $value2)
+    {
+        return '(' . $value1 . ' & ' . $value2 . ')';
+    }
+
+    /**
+     * @group DDC-1213
+     */
+    public function testGeneratesBitAndComparisonExpressionSql()
+    {
+        $sql = $this->_platform->getBitAndComparisonExpression(2, 4);
+        $this->assertEquals($this->getBitAndComparisonExpressionSql(2, 4), $sql);
+    }
+
+    protected  function getBitOrComparisonExpressionSql($value1, $value2)
+    {
+        return '(' . $value1 . ' | ' . $value2 . ')';
+    }
+
+    /**
+     * @group DDC-1213
+     */
+    public function testGeneratesBitOrComparisonExpressionSql()
+    {
+        $sql = $this->_platform->getBitOrComparisonExpression(2, 4);
+        $this->assertEquals($this->getBitOrComparisonExpressionSql(2, 4), $sql);
+    }
+
     public function getGenerateConstraintUniqueIndexSql()
     {
         return 'ALTER TABLE test ADD CONSTRAINT constraint_name UNIQUE (test)';

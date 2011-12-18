@@ -116,24 +116,54 @@ class OraclePlatform extends AbstractPlatform
         return "TRUNC(TO_NUMBER(SUBSTR((" . $date1 . "-" . $date2 . "), 1, INSTR(" . $date1 . "-" . $date2 .", ' '))))";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return '(' . $date . '+' . $days . ')';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDateSubDaysExpression($date, $days)
     {
         return '(' . $date . '-' . $days . ')';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDateAddMonthExpression($date, $months)
     {
         return "ADD_MONTHS(" . $date . ", " . $months . ")";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDateSubMonthExpression($date, $months)
     {
         return "ADD_MONTHS(" . $date . ", -" . $months . ")";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBitAndComparisonExpression($value1, $value2)
+    {
+        return 'BITAND('.$value1 . ', ' . $value2 . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBitOrComparisonExpression($value1, $value2)
+    {
+        return '(' . $value1 . '-' . 
+                $this->getBitAndComparisonExpression($value1, $value2) 
+                . '+' . $value2 . ')';
     }
 
     /**
