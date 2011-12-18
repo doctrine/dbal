@@ -36,7 +36,7 @@
     <!--
       Fileset for source of the Symfony YAML and Console components.
     -->
-    <fileset id="symfony-sources" dir="./lib/vendor">
+    <fileset id="external-sources" dir="./lib/vendor">
         <include name="Symfony/Component**"/>
     </fileset>
 
@@ -84,7 +84,7 @@
             <fileset refid="dbal-sources"/>
         </copy>
         <copy todir="${build.dir}/${project.name}-${version}/Doctrine">
-            <fileset refid="symfony-sources"/>
+            <fileset refid="external-sources"/>
         </copy>
         <copy todir="${build.dir}/${project.name}-${version}/bin">
             <fileset refid="bin-scripts"/>
