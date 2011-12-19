@@ -27,7 +27,18 @@ use Doctrine\DBAL\DBALException,
     Doctrine\DBAL\Schema\ForeignKeyConstraint,
     Doctrine\DBAL\Schema\TableDiff,
     Doctrine\DBAL\Schema\Column,
-    Doctrine\DBAL\Types\Type;
+    Doctrine\DBAL\Schema\ColumnDiff,
+    Doctrine\DBAL\Types\Type,
+    Doctrine\DBAL\Events,
+    Doctrine\Common\EventManager,
+    Doctrine\DBAL\Event\SchemaCreateTableEventArgs,
+    Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaDropTableEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs,
+    Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -91,9 +102,34 @@ abstract class AbstractPlatform
     protected $doctrineTypeComments = null;
 
     /**
+     * @var Doctrine\Common\EventManager
+     */
+    protected $_eventManager;
+
+    /**
      * Constructor.
      */
     public function __construct() {}
+
+    /**
+     * Sets the EventManager used by the Platform.
+     *
+     * @param \Doctrine\Common\EventManager
+     */
+    public function setEventManager(EventManager $eventManager)
+    {
+        $this->_eventManager = $eventManager;
+    }
+
+    /**
+     * Gets the EventManager used by the Platform.
+     *
+     * @return \Doctrine\Common\EventManager
+     */
+    public function getEventManager()
+    {
+        return $this->_eventManager;
+    }
 
     /**
      * Gets the SQL snippet that declares a boolean column.
@@ -876,10 +912,21 @@ abstract class AbstractPlatform
      */
     public function getDropTableSQL($table)
     {
+        $tableArg = $table;
+
         if ($table instanceof \Doctrine\DBAL\Schema\Table) {
             $table = $table->getQuotedName($this);
         } else if(!is_string($table)) {
             throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+        }
+
+        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
+            $eventArgs = new SchemaDropTableEventArgs($tableArg, $this);
+            $this->_eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
+
+            if ($eventArgs->isDefaultPrevented()) {
+                return $eventArgs->getSql();
+            }
         }
 
         return 'DROP TABLE ' . $table;
@@ -987,9 +1034,22 @@ abstract class AbstractPlatform
             }
         }
 
+        $columnSql = array();
         $columns = array();
         foreach ($table->getColumns() AS $column) {
             /* @var \Doctrine\DBAL\Schema\Column $column */
+
+            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)) {
+                $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
+                $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
+
+                $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+                if ($eventArgs->isDefaultPrevented()) {
+                    continue;
+                }
+            }
+
             $columnData = array();
             $columnData['name'] = $column->getQuotedName($this);
             $columnData['type'] = $column->getType();
@@ -1023,6 +1083,15 @@ abstract class AbstractPlatform
             }
         }
 
+        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
+            $eventArgs = new SchemaCreateTableEventArgs($table, $columns, $options, $this);
+            $this->_eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
+
+            if ($eventArgs->isDefaultPrevented()) {
+                return array_merge($eventArgs->getSql(), $columnSql);
+            }
+        }
+
         $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
         if ($this->supportsCommentOnStatement()) {
             foreach ($table->getColumns() AS $column) {
@@ -1031,7 +1100,8 @@ abstract class AbstractPlatform
                 }
             }
         }
-        return $sql;
+
+        return array_merge($sql, $columnSql);
     }
 
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
@@ -1251,6 +1321,120 @@ abstract class AbstractPlatform
     public function getAlterTableSQL(TableDiff $diff)
     {
         throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * @param Column $column
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTableAddColumn(Column $column, TableDiff $diff, &$columnSql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
+
+        $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
+    }
+
+    /**
+     * @param Column $column
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTableRemoveColumn(Column $column, TableDiff $diff, &$columnSql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
+
+        $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
+    }
+
+    /**
+     * @param ColumnDiff $columnDiff
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTableChangeColumn(ColumnDiff $columnDiff, TableDiff $diff, &$columnSql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
+
+        $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
+    }
+
+    /**
+     * @param string $oldColumnName
+     * @param Column $column
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTableRenameColumn($oldColumnName, Column $column, TableDiff $diff, &$columnSql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
+
+        $columnSql = array_merge($columnSql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
+    }
+    /**
+     * @param TableDiff $diff
+     * @param array $columnSql
+     */
+    protected function onSchemaAlterTable(TableDiff $diff, &$sql)
+    {
+        if (null === $this->_eventManager) {
+            return false;
+        }
+
+        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTable)) {
+            return false;
+        }
+
+        $eventArgs = new SchemaAlterTableEventArgs($diff, $this);
+        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTable, $eventArgs);
+
+        $sql = array_merge($sql, $eventArgs->getSql());
+
+        return $eventArgs->isDefaultPrevented();
     }
 
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)

@@ -570,9 +570,14 @@ LEFT JOIN all_cons_columns r_cols
     {
         $sql = array();
         $commentsSQL = array();
+        $columnSql = array();
 
         $fields = array();
         foreach ($diff->addedColumns AS $column) {
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             if ($comment = $this->getColumnComment($column)) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
@@ -584,6 +589,10 @@ LEFT JOIN all_cons_columns r_cols
 
         $fields = array();
         foreach ($diff->changedColumns AS $columnDiff) {
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
             $column = $columnDiff->column;
             $fields[] = $column->getQuotedName($this). ' ' . $this->getColumnDeclarationSQL('', $column->toArray());
             if ($columnDiff->hasChanged('comment') && $comment = $this->getColumnComment($column)) {
@@ -595,22 +604,36 @@ LEFT JOIN all_cons_columns r_cols
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
+            }
+
             $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
         }
 
         $fields = array();
         foreach ($diff->removedColumns AS $column) {
+            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
             $fields[] = $column->getQuotedName($this);
         }
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' DROP (' . implode(', ', $fields).')';
         }
 
-        if ($diff->newName !== false) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
+        $tableSql = array();
+
+        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
+            if ($diff->newName !== false) {
+                $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
+            }
+
+            $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
         }
 
-        return array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
+        return array_merge($sql, $tableSql, $columnSql);
     }
 
     /**
