@@ -355,6 +355,21 @@ class Comparator
             $changedProperties[] = 'comment';
         }
 
+        $options1 = $column1->getCustomSchemaOptions();
+        $options2 = $column2->getCustomSchemaOptions();
+
+        $commonKeys = array_keys(array_intersect_key($options1, $options2));
+
+        foreach ($commonKeys as $key) {
+            if ($options1[$key] !== $options2[$key]) {
+                $changedProperties[] = $key;
+            }
+        }
+
+        $diffKeys = array_keys(array_diff_key($options1, $options2) + array_diff_key($options2, $options1));
+
+        $changedProperties = array_merge($changedProperties, $diffKeys);
+
         return $changedProperties;
     }
 

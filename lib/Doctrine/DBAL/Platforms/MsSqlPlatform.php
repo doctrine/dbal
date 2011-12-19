@@ -278,20 +278,33 @@ class MsSqlPlatform extends AbstractPlatform
     {
         $queryParts = array();
         $sql = array();
+        $columnSql = array();
 
         if ($diff->newName !== false) {
             $queryParts[] = 'RENAME TO ' . $diff->newName;
         }
 
         foreach ($diff->addedColumns AS $fieldName => $column) {
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
         foreach ($diff->removedColumns AS $column) {
+            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
             $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
         foreach ($diff->changedColumns AS $columnDiff) {
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
             /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $queryParts[] = 'ALTER COLUMN ' .
@@ -299,9 +312,19 @@ class MsSqlPlatform extends AbstractPlatform
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
+            }
+
             $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "' , '".$column->getQuotedName($this)."', 'COLUMN'";
             $queryParts[] = 'ALTER COLUMN ' .
                     $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+        }
+        
+        $tableSql = array();
+
+        if ($this->onSchemaAlterTable($diff, $tableSql)) {
+            return array_merge($tableSql, $columnSql); 
         }
 
         foreach ($queryParts as $query) {
@@ -310,7 +333,7 @@ class MsSqlPlatform extends AbstractPlatform
 
         $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
 
-        return $sql;
+        return array_merge($sql, $tableSql, $columnSql);
     }
 
     /**

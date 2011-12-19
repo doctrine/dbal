@@ -5,6 +5,8 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Types\Type,
     Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Events;
 
 require_once __DIR__ . '/../../../TestInit.php';
 
@@ -171,6 +173,54 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInternalType('array',  $columns['baz3']->getPlatformOptions());
     }
 
+    public function testListTableColumnsDispatchEvent()
+    {
+        $table = $this->createListTableColumns();
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $listenerMock = $this->getMock('ListTableColumnsDispatchEventListener', array('onSchemaColumnDefinition'));
+        $listenerMock
+            ->expects($this->exactly(7))
+            ->method('onSchemaColumnDefinition');
+
+        $oldEventManager = $this->_sm->getDatabasePlatform()->getEventManager();
+
+        $eventManager = new EventManager();
+        $eventManager->addEventListener(array(Events::onSchemaColumnDefinition), $listenerMock);
+
+        $this->_sm->getDatabasePlatform()->setEventManager($eventManager);
+
+        $this->_sm->listTableColumns('list_table_columns');
+
+        $this->_sm->getDatabasePlatform()->setEventManager($oldEventManager);
+    }
+
+    public function testListTableIndexesDispatchEvent()
+    {
+        $table = $this->getTestTable('list_table_indexes_test');
+        $table->addUniqueIndex(array('test'), 'test_index_name');
+        $table->addIndex(array('id', 'test'), 'test_composite_idx');
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $listenerMock = $this->getMock('ListTableIndexesDispatchEventListener', array('onSchemaIndexDefinition'));
+        $listenerMock
+            ->expects($this->exactly(3))
+            ->method('onSchemaIndexDefinition');
+
+        $oldEventManager = $this->_sm->getDatabasePlatform()->getEventManager();
+
+        $eventManager = new EventManager();
+        $eventManager->addEventListener(array(Events::onSchemaIndexDefinition), $listenerMock);
+
+        $this->_sm->getDatabasePlatform()->setEventManager($eventManager);
+
+        $this->_sm->listTableIndexes('list_table_indexes_test');
+
+        $this->_sm->getDatabasePlatform()->setEventManager($oldEventManager);
+    }
+
     public function testDiffListTableColumns()
     {
         if ($this->_sm->getDatabasePlatform()->getName() == 'oracle') {
@@ -192,7 +242,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table->addUniqueIndex(array('test'), 'test_index_name');
         $table->addIndex(array('id', 'test'), 'test_composite_idx');
 
-        $this->_sm->createTable($table);
+        $this->_sm->dropAndCreateTable($table);
 
         $tableIndexes = $this->_sm->listTableIndexes('list_table_indexes_test');
 

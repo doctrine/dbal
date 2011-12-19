@@ -126,4 +126,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         $this->markTestSkipped('SQlite does not support ALTER Table.');
     }
+
+    public function testGetAlterTableSqlDispatchEvent()
+    {
+        $this->markTestSkipped('SQlite does not support ALTER Table.');
+    }
 }

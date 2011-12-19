@@ -116,6 +116,12 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $conn->connect();
     }
 
+    public function testEventManagerPassedToPlatform()
+    {
+        $this->assertInstanceOf('Doctrine\Common\EventManager', $this->_conn->getDatabasePlatform()->getEventManager());
+        $this->assertSame($this->_conn->getEventManager(), $this->_conn->getDatabasePlatform()->getEventManager());
+    }
+
     /**
      * Pretty dumb test, however we want to check that the EchoSQLLogger correctly implements the interface.
      *

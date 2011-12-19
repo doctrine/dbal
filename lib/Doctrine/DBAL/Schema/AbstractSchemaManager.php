@@ -19,6 +19,9 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
+use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -153,7 +156,7 @@ abstract class AbstractSchemaManager
 
         $tableColumns = $this->_conn->fetchAll($sql);
 
-        return $this->_getPortableTableColumnList($tableColumns);
+        return $this->_getPortableTableColumnList($table, $database, $tableColumns);
     }
 
     /**
@@ -618,14 +621,33 @@ abstract class AbstractSchemaManager
      *
      * The name of the created column instance however is kept in its case.
      *
-     * @param  array $tableColumns
+     * @param  string $table The name of the table.
+     * @param  string $database
+     * @param  array  $tableColumns
      * @return array
      */
-    protected function _getPortableTableColumnList($tableColumns)
+    protected function _getPortableTableColumnList($table, $database, $tableColumns)
     {
+        $eventManager = $this->_platform->getEventManager();
+
         $list = array();
-        foreach ($tableColumns as $key => $column) {
-            if ($column = $this->_getPortableTableColumnDefinition($column)) {
+        foreach ($tableColumns as $key => $tableColumn) {
+            $column = null;
+            $defaultPrevented = false;
+
+            if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaColumnDefinition)) {
+                $eventArgs = new SchemaColumnDefinitionEventArgs($tableColumn, $table, $database, $this->_conn);
+                $eventManager->dispatchEvent(Events::onSchemaColumnDefinition, $eventArgs);
+
+                $defaultPrevented = $eventArgs->isDefaultPrevented();
+                $column = $eventArgs->getColumn();
+            }
+
+            if (!$defaultPrevented) {
+                $column = $this->_getPortableTableColumnDefinition($tableColumn);
+            }
+
+            if ($column) {
                 $name = strtolower($column->getQuotedName($this->_platform));
                 $list[$name] = $column;
             }
@@ -670,9 +692,28 @@ abstract class AbstractSchemaManager
             }
         }
 
+        $eventManager = $this->_platform->getEventManager();
+
         $indexes = array();
         foreach($result AS $indexKey => $data) {
-            $indexes[$indexKey] = new Index($data['name'], $data['columns'], $data['unique'], $data['primary']);
+            $index = null;
+            $defaultPrevented = false;
+
+            if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
+                $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->_conn);
+                $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
+
+                $defaultPrevented = $eventArgs->isDefaultPrevented();
+                $index = $eventArgs->getIndex();
+            }
+
+            if (!$defaultPrevented) {
+                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary']);
+            }
+
+            if ($index) {
+                $indexes[$indexKey] = $index;
+            }
         }
 
         return $indexes;
