@@ -39,7 +39,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $this->_conn->executeQuery($sql);
             }
         } catch(\Exception $e) {
-            
+
         }
     }
 

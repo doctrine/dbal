@@ -185,7 +185,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->closeCursor();
         return $data;
     }
-  
+
     private function hydrateStmtIterator($stmt, $fetchStyle = \PDO::FETCH_ASSOC)
     {
         $data = array();

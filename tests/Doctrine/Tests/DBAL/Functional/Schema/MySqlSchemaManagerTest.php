@@ -6,7 +6,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Schema;
 
 require_once __DIR__ . '/../../../TestInit.php';
- 
+
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     public function testSwitchPrimaryKeyColumns()
@@ -41,7 +41,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_sm->createTable($table);
         $tableFetched = $this->_sm->listTableDetails("diffbug_routing_translations");
-        
+
         $comparator = new \Doctrine\DBAL\Schema\Comparator;
         $diff = $comparator->diffTable($tableFetched, $table);
 

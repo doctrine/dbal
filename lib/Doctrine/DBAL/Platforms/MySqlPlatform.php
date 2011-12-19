@@ -504,7 +504,7 @@ class MySqlPlatform extends AbstractPlatform
 
         $sql = array();
         $tableSql = array();
-        
+
         if (!$this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);

@@ -80,7 +80,7 @@ class Driver implements \Doctrine\DBAL\Driver
         } else if (isset($params['memory'])) {
             $dsn .= ':memory:';
         }
-        
+
         return $dsn;
     }
 

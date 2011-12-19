@@ -6,7 +6,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
- 
+
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()
@@ -94,7 +94,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testDropTable()
     {
-        $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));        
+        $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
     }
 
     public function testGeneratesTypeDeclarationForIntegers()
@@ -145,9 +145,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testSupportsSavePoints()
     {
-        $this->assertTrue($this->_platform->supportsSavepoints());   
+        $this->assertTrue($this->_platform->supportsSavepoints());
     }
-    
+
     public function getGenerateIndexSql()
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
@@ -212,8 +212,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function getBitOrComparisonExpressionSql($value1, $value2)
     {
-        return '(' . $value1 . '-' . 
-                $this->getBitAndComparisonExpressionSql($value1, $value2) 
+        return '(' . $value1 . '-' .
+                $this->getBitAndComparisonExpressionSql($value1, $value2)
                 . '+' . $value2 . ')';
     }
 }

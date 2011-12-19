@@ -35,7 +35,7 @@ class MsSQLKeywords extends KeywordList
     {
         return 'MsSQL';
     }
-    
+
     protected function getKeywords()
     {
         return array(

@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL;
 
 require_once __DIR__ . '/../../../TestInit.php';
- 
+
 class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
 {
     public function setUp()
@@ -11,7 +11,7 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
         if (!extension_loaded('oci8')) {
             $this->markTestSkipped('oci8 is not installed.');
         }
-        
+
         parent::setUp();
     }
 
@@ -21,7 +21,7 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
         $statement = "update table set field1 = ?, field2 = ? where field3 = ?";
         $executeMode = OCI_COMMIT_ON_SUCCESS;
 
-        return $this->getMock('\Doctrine\DBAL\Driver\OCI8\OCI8Statement', 
+        return $this->getMock('\Doctrine\DBAL\Driver\OCI8\OCI8Statement',
 		    array('bindValue', 'errorInfo'),
             array(null, $statement, $executeMode), '', false);
     }
@@ -29,7 +29,7 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
     /**
      * This scenario shows that when the first parameter is not null
      * it properly sets $hasZeroIndex to 1 and calls bindValue starting at 1.
-     * 
+     *
      * The expected exception is due to oci_execute failing due to no valid connection.
      *
      * @dataProvider executeDataProvider

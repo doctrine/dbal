@@ -34,22 +34,22 @@ class ReservedKeywordsValidator implements Visitor
      * @var KeywordList[]
      */
     private $keywordLists = array();
-    
+
     /**
      * @var array
      */
     private $violations = array();
-    
+
     public function __construct(array $keywordLists)
     {
         $this->keywordLists = $keywordLists;
     }
-    
+
     public function getViolations()
     {
         return $this->violations;
     }
-    
+
     /**
      * @param string $word
      * @return array
@@ -59,7 +59,7 @@ class ReservedKeywordsValidator implements Visitor
         if ($word[0] == "`") {
             $word = str_replace('`', '', $word);
         }
-        
+
         $keywordLists = array();
         foreach ($this->keywordLists AS $keywordList) {
             if ($keywordList->isKeyword($word)) {
@@ -68,16 +68,16 @@ class ReservedKeywordsValidator implements Visitor
         }
         return $keywordLists;
     }
-    
+
     private function addViolation($asset, $violatedPlatforms)
     {
         if (!$violatedPlatforms) {
             return;
         }
-        
+
         $this->violations[] = $asset . ' keyword violations: ' . implode(', ', $violatedPlatforms);
     }
-    
+
     public function acceptColumn(Table $table, Column $column)
     {
         $this->addViolation(
@@ -88,7 +88,7 @@ class ReservedKeywordsValidator implements Visitor
 
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
-        
+
     }
 
     public function acceptIndex(Table $table, Index $index)
@@ -98,12 +98,12 @@ class ReservedKeywordsValidator implements Visitor
 
     public function acceptSchema(Schema $schema)
     {
-        
+
     }
 
     public function acceptSequence(Sequence $sequence)
     {
-        
+
     }
 
     public function acceptTable(Table $table)

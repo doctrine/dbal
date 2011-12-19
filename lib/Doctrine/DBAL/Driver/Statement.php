@@ -24,9 +24,9 @@ use \PDO;
 /**
  * Statement interface.
  * Drivers must implement this interface.
- * 
+ *
  * This resembles (a subset of) the PDOStatement interface.
- * 
+ *
  * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author      Roman Borschel <roman@code-factory.org>
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
@@ -51,13 +51,13 @@ interface Statement extends ResultStatement
     function bindValue($param, $value, $type = null);
 
     /**
-     * Binds a PHP variable to a corresponding named or question mark placeholder in the 
+     * Binds a PHP variable to a corresponding named or question mark placeholder in the
      * SQL statement that was use to prepare the statement. Unlike PDOStatement->bindValue(),
-     * the variable is bound as a reference and will only be evaluated at the time 
+     * the variable is bound as a reference and will only be evaluated at the time
      * that PDOStatement->execute() is called.
      *
-     * Most parameters are input parameters, that is, parameters that are 
-     * used in a read-only fashion to build up the query. Some drivers support the invocation 
+     * Most parameters are input parameters, that is, parameters that are
+     * used in a read-only fashion to build up the query. Some drivers support the invocation
      * of stored procedures that return data as output parameters, and some also as input/output
      * parameters that both send in data and are updated to receive it.
      *
@@ -76,7 +76,7 @@ interface Statement extends ResultStatement
 
     /**
      * errorCode
-     * Fetch the SQLSTATE associated with the last operation on the statement handle 
+     * Fetch the SQLSTATE associated with the last operation on the statement handle
      *
      * @see Doctrine_Adapter_Interface::errorCode()
      * @return string       error code string

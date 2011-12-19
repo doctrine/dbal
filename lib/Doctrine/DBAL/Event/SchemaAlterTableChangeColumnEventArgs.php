@@ -56,7 +56,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     /**
      * @param \Doctrine\DBAL\Schema\ColumnDiff $columnDiff
      * @param \Doctrine\DBAL\Schema\TableDiff $tableDiff
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform 
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct(ColumnDiff $columnDiff, TableDiff $tableDiff, AbstractPlatform $platform)
     {

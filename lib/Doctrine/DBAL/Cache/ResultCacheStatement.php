@@ -68,7 +68,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
 
     /**
      * Did we reach the end of the statement?
-     * 
+     *
      * @var bool
      */
     private $emptied = false;
@@ -179,7 +179,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
         $row = $this->statement->fetch(PDO::FETCH_ASSOC);
         if ($row) {
             $this->data[] = $row;
-            
+
             if ($fetchStyle == PDO::FETCH_ASSOC) {
                 return $row;
             } else if ($fetchStyle == PDO::FETCH_NUM) {

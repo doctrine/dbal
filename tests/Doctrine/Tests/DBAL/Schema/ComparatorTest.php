@@ -89,12 +89,12 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $schemaConfig = new \Doctrine\DBAL\Schema\SchemaConfig;
         $table = new Table('bugdb', array ('integerfield1' => new Column('integerfield1', Type::getType('integer'))));
         $table->setSchemaConfig($schemaConfig);
-        
+
         $schema1 = new Schema( array($table), array(), $schemaConfig );
         $schema2 = new Schema( array(),       array(), $schemaConfig );
 
         $expected = new SchemaDiff( array(), array(), array('bugdb' => $table) );
-        
+
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ) );
     }
 
@@ -200,7 +200,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $column1->setCustomSchemaOption('foo', 'bar');
         $column2->setCustomSchemaOption('foo', 'bar');
-        
+
         $column1->setCustomSchemaOption('foo1', 'bar1');
         $column2->setCustomSchemaOption('foo2', 'bar2');
 
@@ -518,7 +518,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $schemaB->createSequence('Bar');
         $schemaB->createSequence('baz');
         $schemaB->createSequence('old');
-        
+
         $c = new Comparator();
         $diff = $c->compare($schemaA, $schemaB);
 
@@ -612,7 +612,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $tableB = new Table("foo");
         $tableB->addColumn('baz', 'integer');
-        
+
         $c = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
@@ -668,8 +668,8 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('logged_in_at'), array_keys($tableDiff->addedColumns));
         $this->assertEquals(0, count($tableDiff->removedColumns));
     }
-    
-    
+
+
     /**
      * @group DBAL-112
      */
@@ -677,14 +677,14 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     {
         $schema = new Schema();
         $sequence = $schema->createSequence('baz');
-        
+
         $schemaNew = clone $schema;
         /* @var $schemaNew Schema */
         $schemaNew->getSequence('baz')->setAllocationSize(20);
-        
+
         $c = new \Doctrine\DBAL\Schema\Comparator;
         $diff = $c->compare($schema, $schemaNew);
-        
+
         $this->assertSame($diff->changedSequences[0] , $schemaNew->getSequence('baz'));
     }
 

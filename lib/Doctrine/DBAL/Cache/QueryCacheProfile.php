@@ -84,7 +84,7 @@ class QueryCacheProfile
 
     /**
      * Generate the real cache key from query, params and types.
-     * 
+     *
      * @param string $query
      * @param array $params
      * @param array $types

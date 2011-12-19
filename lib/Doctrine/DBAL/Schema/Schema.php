@@ -40,7 +40,7 @@ class Schema extends AbstractAsset
      * @var array
      */
     protected $_tables = array();
-    
+
     /**
      * @var array
      */
@@ -109,7 +109,7 @@ class Schema extends AbstractAsset
 
     /**
      * Get all tables of this schema.
-     * 
+     *
      * @return array
      */
     public function getTables()
@@ -133,7 +133,7 @@ class Schema extends AbstractAsset
 
     /**
      * Does this schema have a table with the given name?
-     * 
+     *
      * @param  string $tableName
      * @return Schema
      */
@@ -177,7 +177,7 @@ class Schema extends AbstractAsset
 
     /**
      * Create a new table
-     * 
+     *
      * @param  string $tableName
      * @return Table
      */
@@ -221,7 +221,7 @@ class Schema extends AbstractAsset
 
     /**
      * Create a new sequence
-     * 
+     *
      * @param  string $sequenceName
      * @param  int $allocationSize
      * @param  int $initialValue
@@ -301,7 +301,7 @@ class Schema extends AbstractAsset
     public function visit(Visitor $visitor)
     {
         $visitor->acceptSchema($this);
-        
+
         foreach ($this->_tables AS $table) {
             $table->visit($visitor);
         }

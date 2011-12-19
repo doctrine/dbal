@@ -35,7 +35,7 @@ class OracleKeywords extends KeywordList
     {
         return 'Oracle';
     }
-    
+
     protected function getKeywords()
     {
         return array(

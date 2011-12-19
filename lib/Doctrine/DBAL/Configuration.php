@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -54,7 +54,7 @@ class Configuration
 
     /**
      * Gets the SQL logger that is used.
-     * 
+     *
      * @return SQLLogger
      */
     public function getSQLLogger()

@@ -36,7 +36,7 @@ class ConnectionException extends DBALException
     {
         return new self("Transaction commit failed because the transaction has been marked for rollback only.");
     }
-    
+
     public static function noActiveTransaction()
     {
         return new self("There is no active transaction.");

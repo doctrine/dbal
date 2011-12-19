@@ -81,7 +81,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         foreach ($platform->getCreateTableSQL($table) AS $sql) {
             $this->_conn->executeQuery($sql);
         }
-        
+
         $this->_conn->beginTransaction();
         $this->_conn->insert("nontemporary", array("id" => 1));
 

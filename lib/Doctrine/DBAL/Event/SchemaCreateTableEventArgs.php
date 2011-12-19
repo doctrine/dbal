@@ -51,7 +51,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $_platform = null;
-    
+
     /**
      * @var array
      */

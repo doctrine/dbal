@@ -320,11 +320,11 @@ class MsSqlPlatform extends AbstractPlatform
             $queryParts[] = 'ALTER COLUMN ' .
                     $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
-        
+
         $tableSql = array();
 
         if ($this->onSchemaAlterTable($diff, $tableSql)) {
-            return array_merge($tableSql, $columnSql); 
+            return array_merge($tableSql, $columnSql);
         }
 
         foreach ($queryParts as $query) {

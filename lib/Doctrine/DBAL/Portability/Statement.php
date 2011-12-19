@@ -48,7 +48,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      */
     private $case;
 
-    /** 
+    /**
      * @var int
      */
     private $defaultFetchStyle = PDO::FETCH_BOTH;

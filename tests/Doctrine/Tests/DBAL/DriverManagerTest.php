@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL;
 
 require_once __DIR__ . '/../TestInit.php';
- 
+
 class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 {
     /**

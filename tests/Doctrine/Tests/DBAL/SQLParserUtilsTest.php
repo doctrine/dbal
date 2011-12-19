@@ -19,7 +19,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             // none
             array('SELECT * FROM Foo', true, array()),
             array('SELECT * FROM Foo', false, array()),
-            
+
             // Positionals
             array('SELECT ?', true, array(7)),
             array('SELECT * FROM Foo WHERE bar IN (?, ?, ?)', true, array(32, 35, 38)),
@@ -28,7 +28,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array("SELECT '?' FROM foo", true, array()),
             array('SELECT "?" FROM foo WHERE bar = ?', true, array(32)),
             array("SELECT '?' FROM foo WHERE bar = ?", true, array(32)),
-            
+
             // named
             array('SELECT :foo FROM :bar', false, array(':foo' => array(7), ':bar' => array(17))),
             array('SELECT * FROM Foo WHERE bar IN (:name1, :name2)', false, array(':name1' => array(32), ':name2' => array(40))),
@@ -36,7 +36,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array("SELECT ':foo' FROM Foo WHERE bar IN (:name1, :name2)", false, array(':name1' => array(37), ':name2' => array(45))),
         );
     }
-    
+
     /**
      * @dataProvider dataGetPlaceholderPositions
      * @param type $query
@@ -48,7 +48,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
         $actualParamPos = SQLParserUtils::getPlaceholderPositions($query, $isPositional);
         $this->assertEquals($expectedParamPos, $actualParamPos);
     }
-    
+
     static public function dataExpandListParameters()
     {
         return array(
@@ -106,7 +106,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
                 array(1),
                 array(\PDO::PARAM_INT)
             ),
-            
+
              //  Named parameters : Very simple with param int and string
             array(
                 "SELECT * FROM Foo WHERE foo = :foo AND bar = :bar",
@@ -116,7 +116,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
                 array(1,'Some String'),
                 array(\PDO::PARAM_INT, \PDO::PARAM_STR)
             ),
-              
+
             //  Named parameters : Very simple with one needle
             array(
                 "SELECT * FROM Foo WHERE foo IN (:foo)",
@@ -182,7 +182,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             ),
         );
     }
-    
+
     /**
      * @dataProvider dataExpandListParameters
      * @param type $q
@@ -195,7 +195,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
     public function testExpandListParameters($q, $p, $t, $expectedQuery, $expectedParams, $expectedTypes)
     {
         list($query, $params, $types) = SQLParserUtils::expandListParameters($q, $p, $t);
-        
+
         $this->assertEquals($expectedQuery, $query, "Query was not rewritten correctly.");
         $this->assertEquals($expectedParams, $params, "Params dont match");
         $this->assertEquals($expectedTypes, $types, "Types dont match");

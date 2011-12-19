@@ -161,8 +161,8 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getBitOrComparisonExpression($value1, $value2)
     {
-        return '(' . $value1 . '-' . 
-                $this->getBitAndComparisonExpression($value1, $value2) 
+        return '(' . $value1 . '-' .
+                $this->getBitAndComparisonExpression($value1, $value2)
                 . '+' . $value2 . ')';
     }
 

@@ -24,7 +24,7 @@ namespace Doctrine\DBAL\Driver;
  * Driver connections must implement this interface.
  *
  * This resembles (a subset of) the PDO interface.
- * 
+ *
  * @since 2.0
  */
 interface Connection

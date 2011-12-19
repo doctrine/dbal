@@ -29,7 +29,7 @@ namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 class Driver implements \Doctrine\DBAL\Driver
 {
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
-    {        
+    {
         return new Connection(
             $this->_constructPdoDsn($params),
             $username,
@@ -46,19 +46,19 @@ class Driver implements \Doctrine\DBAL\Driver
     private function _constructPdoDsn(array $params)
     {
         $dsn = 'sqlsrv:server=';
-		
+
         if (isset($params['host'])) {
             $dsn .= $params['host'];
         }
-                
+
         if (isset($params['port']) && !empty($params['port'])) {
             $dsn .= ',' . $params['port'];
         }
-		
+
 		if (isset($params['dbname'])) {
 			$dsn .= ';Database=' .  $params['dbname'];
 		}
-		
+
         return $dsn;
     }
 

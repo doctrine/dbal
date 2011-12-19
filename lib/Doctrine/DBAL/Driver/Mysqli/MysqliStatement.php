@@ -179,7 +179,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
 
     /**
      * Bind a array of values to bound parameters
-     * 
+     *
      * @param array $values
      * @return boolean
      */

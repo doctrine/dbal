@@ -37,18 +37,18 @@ class ReservedWordsCommand extends Command
         'oracle'    => 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords',
         'db2'       => 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords',
     );
-    
+
     /**
      * If you want to add or replace a keywords list use this command
-     * 
+     *
      * @param string $name
-     * @param string $class 
+     * @param string $class
      */
     public function setKeywordListClass($name, $class)
     {
         $this->keywordListClasses[$name] = $class;
     }
-    
+
     /**
      * @see Console\Command\Command
      */
@@ -70,12 +70,12 @@ By default SQLite, MySQL, PostgreSQL, MsSQL and Oracle
 keywords are checked:
 
     <info>doctrine dbal:reserved-words</info>
-    
+
 If you want to check against specific dialects you can
 pass them to the command:
 
     <info>doctrine dbal:reserved-words mysql pgsql</info>
-    
+
 The following keyword lists are currently shipped with Doctrine:
 
     * mysql
@@ -87,7 +87,7 @@ The following keyword lists are currently shipped with Doctrine:
 EOT
         );
     }
-    
+
     /**
      * @see Console\Command\Command
      */
@@ -95,12 +95,12 @@ EOT
     {
         /* @var $conn Doctrine\DBAL\Connection */
         $conn = $this->getHelper('db')->getConnection();
-        
+
         $keywordLists = (array)$input->getOption('list');
         if (!$keywordLists) {
             $keywordLists = array('mysql', 'pgsql', 'sqlite', 'oracle', 'mssql');
         }
-        
+
         $keywords = array();
         foreach ($keywordLists AS $keywordList) {
             if (!isset($this->keywordListClasses[$keywordList])) {
@@ -112,14 +112,14 @@ EOT
             $class = $this->keywordListClasses[$keywordList];
             $keywords[] = new $class;
         }
-        
+
         $output->write('Checking keyword violations for <comment>' . implode(", ", $keywordLists) . "</comment>...", true);
-        
+
         /* @var $schema \Doctrine\DBAL\Schema\Schema */
         $schema = $conn->getSchemaManager()->createSchema();
         $visitor = new ReservedKeywordsValidator($keywords);
         $schema->visit($visitor);
-        
+
         $violations = $visitor->getViolations();
         if (count($violations) == 0) {
             $output->write("No reserved keywords violations have been found!", true);

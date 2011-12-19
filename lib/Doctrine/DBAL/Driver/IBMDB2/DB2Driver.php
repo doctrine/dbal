@@ -42,7 +42,7 @@ class DB2Driver implements Driver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         if ( !isset($params['schema']) ) {
-            
+
         }
 
         if ($params['host'] !== 'localhost' && $params['host'] != '127.0.0.1') {

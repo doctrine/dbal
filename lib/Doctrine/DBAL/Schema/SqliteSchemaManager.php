@@ -33,7 +33,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 {
     /**
      * {@inheritdoc}
-     * 
+     *
      * @override
      */
     public function dropDatabase($database)
@@ -45,7 +45,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     * 
+     *
      * @override
      */
     public function createDatabase($database)

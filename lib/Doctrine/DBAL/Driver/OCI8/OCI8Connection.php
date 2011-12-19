@@ -32,7 +32,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
 
     /**
      * Create a Connection to an Oracle Database using oci8 extension.
-     * 
+     *
      * @param string $username
      * @param string $password
      * @param string $db
@@ -51,7 +51,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
 
     /**
      * Create a non-executed prepared statement.
-     * 
+     *
      * @param  string $prepareString
      * @return OCI8Statement
      */
@@ -78,7 +78,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
      * Quote input value.
      *
      * @param mixed $input
-     * @param int $type PDO::PARAM* 
+     * @param int $type PDO::PARAM*
      * @return mixed
      */
     public function quote($value, $type=\PDO::PARAM_STR)
@@ -101,7 +101,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         $stmt->execute();
         return $stmt->rowCount();
     }
-    
+
     public function lastInsertId($name = null)
     {
         //TODO: throw exception or support sequences?
@@ -147,7 +147,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         $this->_executeMode = OCI_COMMIT_ON_SUCCESS;
         return true;
     }
-    
+
     public function errorCode()
     {
         $error = oci_error($this->_dbh);
@@ -156,7 +156,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         }
         return $error;
     }
-    
+
     public function errorInfo()
     {
         return oci_error($this->_dbh);

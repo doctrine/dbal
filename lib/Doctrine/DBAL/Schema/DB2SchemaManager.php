@@ -48,7 +48,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         $sql .= " AND CREATOR = UPPER('".$this->_conn->getUsername()."')";
 
         $tables = $this->_conn->fetchAll($sql);
-        
+
         return $this->_getPortableTablesList($tables);
     }
 
@@ -70,7 +70,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         $precision = false;
 
         $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
-        
+
         switch (strtolower($tableColumn['typename'])) {
             case 'varchar':
                 $length = $tableColumn['length'];

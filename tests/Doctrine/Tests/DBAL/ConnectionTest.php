@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Events;
- 
+
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
     /**

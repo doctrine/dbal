@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks;
 
 require_once __DIR__ . '/../../TestInit.php';
- 
+
 class TimeTest extends \Doctrine\Tests\DbalTestCase
 {
     protected

@@ -38,7 +38,7 @@ class ExpressionBuilder
     const LTE = '<=';
     const GT  = '>';
     const GTE = '>=';
-    
+
     /**
      * @var Doctrine\DBAL\Connection DBAL Connection
      */
@@ -53,7 +53,7 @@ class ExpressionBuilder
     {
         $this->connection = $connection;
     }
-    
+
     /**
      * Creates a conjunction of the given boolean expressions.
      *
@@ -92,7 +92,7 @@ class ExpressionBuilder
 
     /**
      * Creates a comparison expression.
-     * 
+     *
      * @param mixed $x Left expression
      * @param string $operator One of the ExpressionBuikder::* constants.
      * @param mixed $y Right expression
@@ -102,7 +102,7 @@ class ExpressionBuilder
     {
         return $x . ' ' . $operator . ' ' . $y;
     }
-    
+
     /**
      * Creates an equality comparison expression with the given arguments.
      *
@@ -216,7 +216,7 @@ class ExpressionBuilder
      * Creates an IS NULL expression with the given arguments.
      *
      * @param string $x Field in string format to be restricted by IS NULL
-     * 
+     *
      * @return string
      */
     public function isNull($x)
@@ -228,7 +228,7 @@ class ExpressionBuilder
      * Creates an IS NOT NULL expression with the given arguments.
      *
      * @param string $x Field in string format to be restricted by IS NOT NULL
-     * 
+     *
      * @return string
      */
     public function isNotNull($x)
@@ -241,20 +241,20 @@ class ExpressionBuilder
      *
      * @param string $x Field in string format to be inspected by LIKE() comparison.
      * @param mixed $y Argument to be used in LIKE() comparison.
-     * 
+     *
      * @return string
      */
     public function like($x, $y)
     {
         return $this->comparison($x, 'LIKE', $y);
     }
-    
+
     /**
      * Quotes a given input parameter.
-     * 
+     *
      * @param mixed $input Parameter to be quoted.
      * @param string $type Type of the parameter.
-     * 
+     *
      * @return string
      */
     public function literal($input, $type = null)

@@ -35,7 +35,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $this->_sm->renameTable('oldname', 'newname');
     }
-    
+
     public function testAutoincrementDetection()
     {
       $this->markTestSkipped(

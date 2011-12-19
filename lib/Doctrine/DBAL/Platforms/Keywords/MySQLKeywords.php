@@ -35,7 +35,7 @@ class MySQLKeywords extends KeywordList
     {
         return 'MySQL';
     }
-    
+
     protected function getKeywords()
     {
         return array(

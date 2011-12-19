@@ -35,7 +35,7 @@ class PostgreSQLKeywords extends KeywordList
     {
         return 'PostgreSQL';
     }
-    
+
     protected function getKeywords()
     {
         return array(

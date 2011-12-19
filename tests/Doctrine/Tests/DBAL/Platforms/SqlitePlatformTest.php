@@ -6,7 +6,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
- 
+
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()
@@ -37,19 +37,19 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesTransactionCommands()
     {
         $this->assertEquals(
-            'PRAGMA read_uncommitted = 0', 
+            'PRAGMA read_uncommitted = 0',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
         );
         $this->assertEquals(
-            'PRAGMA read_uncommitted = 1', 
+            'PRAGMA read_uncommitted = 1',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
         );
         $this->assertEquals(
-            'PRAGMA read_uncommitted = 1', 
+            'PRAGMA read_uncommitted = 1',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
         );
         $this->assertEquals(
-            'PRAGMA read_uncommitted = 1', 
+            'PRAGMA read_uncommitted = 1',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
         );
     }
