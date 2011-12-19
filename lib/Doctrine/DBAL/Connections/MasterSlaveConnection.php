@@ -22,7 +22,7 @@ namespace Doctrine\DBAL\Connections;
 
 use Doctrine\DBAL\Connection,
     Doctrine\DBAL\Driver,
-    Doctrine\ORM\Configuration,
+    Doctrine\DBAL\Configuration,
     Doctrine\Common\EventManager,
     Doctrine\DBAL\Events;
 
@@ -31,18 +31,35 @@ use Doctrine\DBAL\Connection,
  *
  * Connection can be used with master-slave setups.
  *
- * Important for the understanding of this connection should be how it picks the slave and master.
+ * Important for the understanding of this connection should be how and when
+ * it picks the slave or master.
  *
- * 1. Master picked when 'exec', 'executeUpdate', 'insert', 'delete', 'update', 'createSavepoint',
- *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit' or 'getWrappedConnection' is called.
- * 2. If master was picked once during the lifetime of the connection it will always get picked afterwards.
- * 3. Slave if master was never picked before and 'query', 'prepare' or 'executeQuery' is used.
+ * 1. Slave if master was never picked before and ONLY if 'getWrappedConnection'
+ *    or 'executeQuery' is used.
+ * 2. Master picked when 'exec', 'executeUpdate', 'insert', 'delete', 'update', 'createSavepoint',
+ *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit', 'query' or
+ *    'prepare' is called.
+ * 3. If master was picked once during the lifetime of the connection it will always get picked afterwards.
+ * 4. One slave connection is randomly picked ONCE during a request.
  *
  * ATTENTION: You can write to the slave with this connection if you execute a write query without
  * opening up a transaction. For example:
  *
  *      $conn = DriverManager::getConnection(...);
- *      $conn->query("DELETE FROM table");
+ *      $conn->executeQuery("DELETE FROM table");
+ *
+ * Be aware that Connection#executeQuery is a method specifically for READ
+ * operations only.
+ *
+ * This connection is limited to slave operations using the
+ * Connection#executeQuery operation only, because it wouldn't be compatible
+ * with the ORM or SchemaManager code otherwise. Both use all the other
+ * operations in a context where writes could happen to a slave, which makes
+ * this restricted approach necessary.
+ *
+ * You can manually connect to the master at any time by calling:
+ *
+ *      $conn->connect('master');
  *
  * Instantiation through the DriverManager looks like:
  *
@@ -50,7 +67,8 @@ use Doctrine\DBAL\Connection,
  *
  * $conn = DriverManager::getConnection(array(
  *    'wrapperClass' => 'Doctrine\DBAL\Connections\MasterSlaveConnection',
- *    'master' => array('driver' => 'pdo_mysql', 'user' => '', 'password' => '', 'host' => '', 'dbname' => ''),
+ *    'driver' => 'pdo_mysql',
+ *    'master' => array('user' => '', 'password' => '', 'host' => '', 'dbname' => ''),
  *    'slaves' => array(
  *        array('user' => 'slave1', 'password', 'host' => '', 'dbname' => ''),
  *        array('user' => 'slave2', 'password', 'host' => '', 'dbname' => ''),
@@ -84,8 +102,8 @@ class MasterSlaveConnection extends Connection
         if ( !isset($params['slaves']) || !isset($params['master']) ) {
             throw new \InvalidArgumentException('master or slaves configuration missing');
         }
-        if ( count( array_filter($params['slaves'], function($v) { return !is_numeric($v); })) > 0 ) {
-            throw new \InvalidArgumentException('You have to configure multiple slaves.');
+        if ( count($params['slaves']) == 0 ) {
+            throw new \InvalidArgumentException('You have to configure at least one slaves.');
         }
 
         $params['master']['driver'] = $params['driver'];
@@ -94,6 +112,16 @@ class MasterSlaveConnection extends Connection
         }
 
         parent::__construct($params, $driver, $config, $eventManager);
+    }
+
+    /**
+     * Check if the connection is currently towards the master or not.
+     *
+     * @return bool
+     */
+    public function isConnectedToMaster()
+    {
+        return $this->_conn !== null && $this->_conn === $this->connections['master'];
     }
 
     /**
@@ -124,7 +152,7 @@ class MasterSlaveConnection extends Connection
         if ($connectionName === 'master') {
             /** Set slave connection to master to avoid invalid reads */
             if ($this->connections['slave']) {
-                $this->connections['slave']->close();
+                unset($this->connections['slave']);
             }
 
             $this->connections['master'] = $this->connections['slave'] = $this->_conn = $this->connectTo($connectionName);
@@ -217,19 +245,19 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function update($tableName, array $data, array $identifier)
+    public function update($tableName, array $data, array $identifier, array $types = array())
     {
         $this->connect('master');
-        return parent::update($tableName, $data, $identifier);
+        return parent::update($tableName, $data, $identifier, $types);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function insert($tableName, array $data)
+    public function insert($tableName, array $data, array $types = array())
     {
         $this->connect('master');
-        return parent::insert($tableName, $data);
+        return parent::insert($tableName, $data, $types);
     }
 
     /**
@@ -239,16 +267,6 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
         return parent::exec($statement);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getWrappedConnection()
-    {
-        $this->connect('master');
-
-        return $this->_conn;
     }
 
     /**
@@ -279,5 +297,32 @@ class MasterSlaveConnection extends Connection
         $this->connect('master');
 
         return parent::rollbackSavepoint($savepoint);
+    }
+
+    public function query()
+    {
+        $this->connect('master');
+
+        $args = func_get_args();
+
+        $logger = $this->getConfiguration()->getSQLLogger();
+        if ($logger) {
+            $logger->startQuery($args[0]);
+        }
+
+        $statement = call_user_func_array(array($this->_conn, 'query'), $args);
+
+        if ($logger) {
+            $logger->stopQuery();
+        }
+
+        return $statement;
+    }
+
+    public function prepare($statement)
+    {
+        $this->connect('master');
+
+        return parent::prepare($statement);
     }
 }

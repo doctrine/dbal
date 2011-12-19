@@ -86,6 +86,9 @@ final class DriverManager
      * You may specify a custom wrapper class through the 'wrapperClass'
      * parameter but this class MUST inherit from Doctrine\DBAL\Connection.
      *
+     * <b>driverClass</b>:
+     * The driver class to use.
+     *
      * @param array $params The parameters.
      * @param Doctrine\DBAL\Configuration The configuration to use.
      * @param Doctrine\Common\EventManager The event manager to use.
