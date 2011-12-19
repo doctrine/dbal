@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <project name="DoctrineDBAL" default="build" basedir=".">
     <taskdef classname="phing.tasks.ext.d51PearPkg2Task" name="d51pearpkg2" />
+    <import file="${project.basedir}/lib/vendor/doctrine-build-common/packaging.xml" />
 
     <property file="build.properties" />
 
@@ -40,39 +41,6 @@
         <include name="Symfony/Component**"/>
     </fileset>
 
-    <!--
-        Clean the directory for the next build.
-    -->
-    <target name="clean">
-        <available file="./build.properties" property="build_properties_exist" value="true"/>
-        <fail unless="build_properties_exist" message="The build.properties file is missing." />
-
-        <delete dir="${build.dir}" includeemptydirs="true" />
-        <delete dir="${dist.dir}" includeemptydirs="true" />
-    </target>
-
-    <!--
-        Prepare the new build directories after cleaning
-    -->
-    <target name="prepare" depends="clean">
-        <echo msg="Creating build directory: ${build.dir}" />
-        <mkdir dir="${build.dir}" />
-        <mkdir dir="${build.dir}/logs"/>
-        <echo msg="Creating distribution directory: ${dist.dir}" />
-        <mkdir dir="${dist.dir}" />
-
-        <exec command="php -r &quot;include '${project.basedir}/${project.version_file}';echo ${project.version_class}::VERSION;&quot;" outputProperty="version" />
-        <exec command="php -r &quot;echo stripos('${version}', 'beta') ? 'beta' : stripos('${version}', 'alpha') ? 'alpha' : stripos('${version}', 'dev') ? 'devel' : 'stable';&quot;" outputProperty="pear.stability" />
-        <!-- Guessing the Stability for PEAR from the version -->
-        <exec command="php -r &quot;\$data = json_decode(file_get_contents('composer.json'), true); \$ret = (isset(\$data['version']) &amp;&amp; \$data['version'] != '${version}') ? 1 : 0;exit(\$ret);&quot;" checkreturn="true" passthru="true" />
-        <!-- We need an extra PEAR version, as pear versions dont allow dashes and need to be DEVEL not DEV" -->
-        <exec command="php -r &quot;echo strtolower(str_replace(array('-DEV', '-'), array('DEVEL', ''), '${version}'));&quot;" outputProperty="pear.version" />
-        <echo msg="Preparing release of version ${version} (${pear.version}+${pear.stability})" />
-    </target>
-
-    <!--
-        Builds DBAL package, preparing it for distribution.
-    -->
     <target name="copy-files" depends="prepare">
         <echo msg="Checking for ${version} in ${project.version_file}" />
         <exec command="grep '${version}' ${project.basedir}/${project.version_file}" checkreturn="true"/>
@@ -119,63 +87,5 @@
                 <install as="doctrine-dbal.php" name="bin/doctrine-dbal.php" />
             </release>
         </d51pearpkg2>
-    </target>
-
-    <target name="generate-package">
-        <exec command="pear package" dir="${build.dir}/${project.name}-${version}" passthru="true" />
-        <echo msg="Moving ${project.name}-${pear.version}.tgz" />
-        <exec command="mv ${project.name}-${pear.version}.tgz ${project.basedir}/${dist.dir}/" dir="${build.dir}/${project.name}-${version}" passthru="true" checkreturn="true" />
-        <tar destfile="dist/${project.name}-${version}-full.tar.gz" compression="gzip" basedir="${build.dir}">
-            <fileset dir="${build.dir}">
-                <include name="**/**" />
-                <exclude name="logs/" />
-            </fileset>
-        </tar>
-    </target>
-
-    <target name="pirum-release">
-        <exec command="sudo pirum add ${project.pirum_dir} ${dist.dir}/${project.name}-${version}.tgz" dir="."  passthru="true" />
-    </target>
-
-    <target name="distribute-download">
-        <copy file="dist/${project.name}-${version}-full.tar.gz" todir="${project.download_dir}" />
-    </target>
-
-    <target name="is-release-commit">
-        <echo msg="Checking for release commit.." />
-        <exec command="php -r &quot;exit((stripos('${version}', '-DEV') !== false) ? 1 : 0);&quot;" checkreturn="true" />
-    </target>
-
-    <target name="build" depends="define-pear-package,generate-package" />
-
-    <!-- Generate a release out of the current commit -->
-    <target name="release" depends="build,is-release-commit,distribute-download,pirum-release" />
-
-    <!-- Use this task to create a new release commit. -->
-    <target name="make-release-commit" depends="prepare">
-        <echo msg="Making a release commit of ${version}" />
-        <exec command="php -r &quot;exit((stripos('${version}', '-DEV') === false) ? 1 : 0);&quot;" checkreturn="true" />
-        <!-- verify version is correct -->
-        <exec command="grep '${version}' ${project.basedir}/${project.version_file}" checkreturn="true"/>
-        <!-- get default version just without -dev -->
-        <exec command="php -r &quot;echo str_replace('-DEV', '', '${version}');&quot;" outputProperty="next_version" />
-        <!-- prompt release master for new version number anyways -->
-        <propertyprompt propertyName="next_version" defaultValue="${next_version}" promptText="Enter next version string (without -DEV)" />
-        <!-- put new version into the code -->
-        <exec executable="perl">
-            <arg value="-pi" />
-            <arg value="-e" />
-            <arg value="s/${version}/${next_version}/g" />
-            <arg value="${project.basedir}/${project.version_file}" />
-        </exec>
-        <exec executable="perl">
-            <arg value="-pi" />
-            <arg value="-e" />
-            <arg value="s/&quot;library&quot;/&quot;library;&quot;&quot;version&quot;:&quot;${version}&quot;,/g" />
-            <arg value="composer.json" />
-        </exec>
-        <exec command="git add ${project.basedir}/${project.version_file} ${project.basedir}/composer.json" passthru="true" />
-        <exec command="git commit -m 'Release ${next_version}'" passthru="true" />
-        <exec command="git tag -m 'Tag ${next_version}'" passthru="true" />
     </target>
 </project>
