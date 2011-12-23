@@ -195,6 +195,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function getCreateTableColumnTypeCommentsSQL()
+    {
+        return array(
+            "CREATE TABLE test (id NUMBER(10) NOT NULL, data CLOB NOT NULL, PRIMARY KEY(id))",
+            "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
+        );
+    }
+
     public function getAlterTableColumnCommentsSQL()
     {
         return array(

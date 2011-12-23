@@ -205,6 +205,16 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals($this->getAlterTableColumnCommentsSQL(), $this->_platform->getAlterTableSQL($tableDiff));
     }
 
+    public function testCreateTableColumnTypeComments()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('data', 'array');
+        $table->setPrimaryKey(array('id'));
+
+        $this->assertEquals($this->getCreateTableColumnTypeCommentsSQL(), $this->_platform->getCreateTableSQL($table));
+    }
+
     public function getCreateTableColumnCommentsSQL()
     {
         $this->markTestSkipped('Platform does not support Column comments.');
@@ -214,7 +224,12 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $this->markTestSkipped('Platform does not support Column comments.');
     }
-    
+
+    public function getCreateTableColumnTypeCommentsSQL()
+    {
+        $this->markTestSkipped('Platform does not support Column comments.');
+    }
+
     /**
      * @group DBAL-45
      */
