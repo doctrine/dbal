@@ -204,4 +204,9 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     {
         return array("ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'");
     }
+
+    public function getCreateTableColumnTypeCommentsSQL()
+    {
+        return array("CREATE TABLE test (id INT NOT NULL, data LONGTEXT NOT NULL COMMENT '(DC2Type:array)', PRIMARY KEY(id)) ENGINE = InnoDB");
+    }
 }
