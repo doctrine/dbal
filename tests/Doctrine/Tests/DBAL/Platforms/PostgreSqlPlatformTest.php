@@ -216,4 +216,12 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }
+
+    public function getCreateTableColumnTypeCommentsSQL()
+    {
+        return array(
+            "CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))",
+            "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
+        );
+    }
 }
