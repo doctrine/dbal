@@ -147,7 +147,7 @@ class DrizzlePlatform extends AbstractPlatform
             $database = 'DATABASE()';
         }
 
-        return "SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT, IS_NULLABLE" .
+        return "SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT" .
                " FROM DATA_DICTIONARY.COLUMNS" .
                " WHERE TABLE_SCHEMA=" . $database . " AND TABLE_NAME = '" . $table . "'";
     }
@@ -162,4 +162,13 @@ class DrizzlePlatform extends AbstractPlatform
         return "SELECT * FROM DATA_DICTIONARY.INDEXES WHERE FALSE";
     }
 
+    public function prefersIdentityColumns()
+    {
+        return true;
+    }
+
+    public function supportsIdentityColumns()
+    {
+        return true;
+    }
 }

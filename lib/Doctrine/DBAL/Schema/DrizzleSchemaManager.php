@@ -33,7 +33,9 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
         $type = $this->extractDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
 
-        $options = array();
+        $options = array(
+            'autoincrement' => (boolean)$tableColumn['IS_AUTO_INCREMENT'],
+        );
 
         return new Column($tableName, \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
