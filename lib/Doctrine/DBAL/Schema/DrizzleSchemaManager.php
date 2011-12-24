@@ -50,5 +50,32 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     {
         return $table['TABLE_NAME'];
     }
+
+    public function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    {
+        $columns = array();
+        foreach (explode(',', $tableForeignKey['CONSTRAINT_COLUMNS']) as $value)
+        {
+            $columns[] = trim($value, '`');
+        }
+
+        $ref_columns = array();
+        foreach (explode(',', $tableForeignKey['REFERENCED_TABLE_COLUMNS']) as $value)
+        {
+            $ref_columns[] = trim($value, '`');
+        }
+
+        return new ForeignKeyConstraint(
+            $columns,
+            $tableForeignKey['REFERENCED_TABLE_NAME'],
+            $ref_columns,
+            $tableForeignKey['CONSTRAINT_NAME'].
+            array(
+                'onUpdate' => $tableForeignKey['UPDATE_RULE'],
+                'onDelete' => $tableForeignKey['DELETE_RULE'],
+            )
+        );
+
+    }
 }
 

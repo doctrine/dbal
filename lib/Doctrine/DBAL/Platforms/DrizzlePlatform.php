@@ -154,7 +154,15 @@ class DrizzlePlatform extends AbstractPlatform
 
     public function getListTableForeignKeysSQL($table, $database = null)
     {
-        return "SELECT * FROM DATA_DICTIONARY.FOREIGN_KEYS";
+        if ($database) {
+            $database = "'" . $database . "'";
+        } else {
+            $database = 'DATABASE()';
+        }
+
+        return "SELECT CONSTRAINT_NAME, CONSTRAINT_COLUMNS, REFERENCED_TABLE_NAME, REFERENCED_TABLE_COLUMNS, UPDATE_RULE, DELETE_RULE" .
+               " FROM DATA_DICTIONARY.FOREIGN_KEYS" .
+               " WHERE CONSTRAINT_SCHEMA=" . $database . " AND CONSTRAINT_TABLE='" . $table . "'";
     }
 
     public function getListTableIndexesSQL($table, $database = null)
