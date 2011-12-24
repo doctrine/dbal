@@ -171,4 +171,9 @@ class DrizzlePlatform extends AbstractPlatform
     {
         return true;
     }
+
+    public function supportsInlineColumnComments()
+    {
+        return true;
+    }
 }

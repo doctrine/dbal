@@ -35,6 +35,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
 
         $options = array(
             'autoincrement' => (boolean)$tableColumn['IS_AUTO_INCREMENT'],
+            'comment' => (isset($tableColumn['COLUMN_COMMENT']) ? $tableColumn['COLUMN_COMMENT'] : null),
         );
 
         return new Column($tableName, \Doctrine\DBAL\Types\Type::getType($type), $options);
