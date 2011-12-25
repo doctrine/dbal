@@ -324,4 +324,15 @@ class DrizzlePlatform extends AbstractPlatform
 
         return array_merge($sql, $tableSql, $columnSql);
     }
+
+    public function getDropTemporaryTableSQL($table)
+    {
+        if ($table instanceof \Doctrine\DBAL\Schema\Table) {
+            $table = $table->getQuotedName($this);
+        } else if(!is_string($table)) {
+            throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+        }
+
+        return 'DROP TEMPORARY TABLE ' . $table;
+    }
 }
