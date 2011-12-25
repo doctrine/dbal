@@ -383,4 +383,23 @@ class DrizzlePlatform extends AbstractPlatform
         return $item;
         return $item;
     }
+
+    public function getLocateExpression($str, $substr, $startPos = false)
+    {
+        if ($startPos == false) {
+            return 'LOCATE(' . $substr . ', ' . $str . ')';
+        } else {
+            return 'LOCATE(' . $substr . ', ' . $str . ', '.$startPos.')';
+        }
+    }
+
+    public function getGuidExpression()
+    {
+        return 'UUID()';
+    }
+
+    public function getRegexpExpression()
+    {
+        return 'RLIKE';
+    }
 }
