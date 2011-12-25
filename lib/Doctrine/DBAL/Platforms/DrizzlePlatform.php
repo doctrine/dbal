@@ -199,6 +199,11 @@ class DrizzlePlatform extends AbstractPlatform
         return true;
     }
 
+    public function supportsViews()
+    {
+        return false;
+    }
+
     public function getDropIndexSQL($index, $table=null)
     {
         if($index instanceof Index) {
