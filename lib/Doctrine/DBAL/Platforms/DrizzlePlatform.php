@@ -98,6 +98,11 @@ class DrizzlePlatform extends AbstractPlatform
             'boolean'       => 'boolean',
             'varchar'       => 'string',
             'integer'       => 'integer',
+            'blob'          => 'text',
+            'decimal'       => 'decimal',
+            'datetime'      => 'datetime',
+            'date'          => 'date',
+            'time'          => 'time',
         );
     }
 
@@ -147,7 +152,8 @@ class DrizzlePlatform extends AbstractPlatform
             $database = 'DATABASE()';
         }
 
-        return "SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT" .
+        return "SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT, CHARACTER_MAXIMUM_LENGTH, COLUMN_DEFAULT," .
+               " NUMERIC_PRECISION, NUMERIC_SCALE" .
                " FROM DATA_DICTIONARY.COLUMNS" .
                " WHERE TABLE_SCHEMA=" . $database . " AND TABLE_NAME = '" . $table . "'";
     }
@@ -173,7 +179,6 @@ class DrizzlePlatform extends AbstractPlatform
             $database = 'DATABASE()';
         }
 
-        // INDEX_NAME AS 'key_name', COLUMN_NAME AS 'column_name', IS_USED_IN_PRIMARY AS 'primary', IS_UNIQUE=0 AS 'non_unique'
         return "SELECT INDEX_NAME AS 'key_name', COLUMN_NAME AS 'column_name', IS_USED_IN_PRIMARY AS 'primary', IS_UNIQUE=0 AS 'non_unique'" .
                " FROM DATA_DICTIONARY.INDEX_PARTS" .
                " WHERE TABLE_SCHEMA=" . $database . " AND TABLE_NAME='" . $table . "'";
@@ -228,4 +233,22 @@ class DrizzlePlatform extends AbstractPlatform
         return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
     }
 
+    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] == true) {
+            return 'TIMESTAMP';
+        } else {
+            return 'DATETIME';
+        }
+    }
+
+    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        return 'TIME';
+    }
+
+    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        return 'DATE';
+    }
 }

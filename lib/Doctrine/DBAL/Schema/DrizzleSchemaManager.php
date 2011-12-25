@@ -33,9 +33,15 @@ class DrizzleSchemaManager extends AbstractSchemaManager
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
         $type = $this->extractDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
+        $tableColumn['COLUMN_COMMENT'] = $this->removeDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
 
         $options = array(
-            'autoincrement' => (boolean)$tableColumn['IS_AUTO_INCREMENT'],
+            'notnull' => !(bool)$tableColumn['IS_NULLABLE'],
+            'length' => (int)$tableColumn['CHARACTER_MAXIMUM_LENGTH'],
+            'default' => empty($tableColumn['COLUMN_DEFAULT']) ? null : $tableColumn['COLUMN_DEFAULT'],
+            'autoincrement' => (bool)$tableColumn['IS_AUTO_INCREMENT'],
+            'scale' => (int)$tableColumn['NUMERIC_SCALE'],
+            'precision' => (int)$tableColumn['NUMERIC_PRECISION'],
             'comment' => (isset($tableColumn['COLUMN_COMMENT']) ? $tableColumn['COLUMN_COMMENT'] : null),
         );
 
