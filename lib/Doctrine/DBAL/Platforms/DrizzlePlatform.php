@@ -167,7 +167,16 @@ class DrizzlePlatform extends AbstractPlatform
 
     public function getListTableIndexesSQL($table, $database = null)
     {
-        return "SELECT * FROM DATA_DICTIONARY.INDEXES WHERE FALSE";
+        if ($database) {
+            $database = "'" . $database . "'";
+        } else {
+            $database = 'DATABASE()';
+        }
+
+        // INDEX_NAME AS 'key_name', COLUMN_NAME AS 'column_name', IS_USED_IN_PRIMARY AS 'primary', IS_UNIQUE=0 AS 'non_unique'
+        return "SELECT INDEX_NAME AS 'key_name', COLUMN_NAME AS 'column_name', IS_USED_IN_PRIMARY AS 'primary', IS_UNIQUE=0 AS 'non_unique'" .
+               " FROM DATA_DICTIONARY.INDEX_PARTS" .
+               " WHERE TABLE_SCHEMA=" . $database . " AND TABLE_NAME='" . $table . "'";
     }
 
     public function prefersIdentityColumns()
@@ -184,4 +193,39 @@ class DrizzlePlatform extends AbstractPlatform
     {
         return true;
     }
+
+    public function getDropIndexSQL($index, $table=null)
+    {
+        if($index instanceof Index) {
+            $indexName = $index->getQuotedName($this);
+        } else if(is_string($index)) {
+            $indexName = $index;
+        } else {
+            throw new \InvalidArgumentException('DrizzlePlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+        }
+
+        if($table instanceof Table) {
+            $table = $table->getQuotedName($this);
+        } else if(!is_string($table)) {
+            throw new \InvalidArgumentException('DrizzlePlatform::getDropIndexSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+        }
+
+        if ($index instanceof Index && $index->isPrimary()) {
+            // drizzle primary keys are always named "PRIMARY",
+            // so we cannot use them in statements because of them being keyword.
+            return $this->getDropPrimaryKeySQL($table);
+        }
+
+        return 'DROP INDEX ' . $indexName . ' ON ' . $table;
+    }
+
+    /**
+     * @param Index $index
+     * @param Table $table
+     */
+    protected function getDropPrimaryKeySQL($table)
+    {
+        return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
+    }
+
 }

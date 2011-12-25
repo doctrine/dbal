@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Schema;
 /**
  * Schema manager for the Drizzle RDBMS.
  *
+ * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
 class DrizzleSchemaManager extends AbstractSchemaManager
 {
@@ -54,14 +55,12 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     public function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         $columns = array();
-        foreach (explode(',', $tableForeignKey['CONSTRAINT_COLUMNS']) as $value)
-        {
+        foreach (explode(',', $tableForeignKey['CONSTRAINT_COLUMNS']) as $value) {
             $columns[] = trim($value, '`');
         }
 
         $ref_columns = array();
-        foreach (explode(',', $tableForeignKey['REFERENCED_TABLE_COLUMNS']) as $value)
-        {
+        foreach (explode(',', $tableForeignKey['REFERENCED_TABLE_COLUMNS']) as $value) {
             $ref_columns[] = trim($value, '`');
         }
 
@@ -75,7 +74,17 @@ class DrizzleSchemaManager extends AbstractSchemaManager
                 'onDelete' => $tableForeignKey['DELETE_RULE'],
             )
         );
+    }
 
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    {
+        $indexes = array();
+        foreach ($tableIndexes as $k) {
+            $k['primary'] = (boolean)$k['primary'];
+            $indexes[] = $k;
+        }
+
+        return parent::_getPortableTableIndexesList($indexes, $tableName);
     }
 }
 
