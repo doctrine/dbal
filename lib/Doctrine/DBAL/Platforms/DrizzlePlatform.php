@@ -256,4 +256,72 @@ class DrizzlePlatform extends AbstractPlatform
     {
         return 'DATE';
     }
+
+    public function getAlterTableSQL(TableDiff $diff)
+    {
+        $columnSql = array();
+        $queryParts = array();
+
+        if ($diff->newName !== false) {
+            $queryParts[] =  'RENAME TO ' . $diff->newName;
+        }
+
+        foreach ($diff->addedColumns AS $fieldName => $column) {
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $columnArray = $column->toArray();
+            $columnArray['comment'] = $this->getColumnComment($column);
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+        }
+
+        foreach ($diff->removedColumns AS $column) {
+            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $queryParts[] =  'DROP ' . $column->getQuotedName($this);
+        }
+
+        foreach ($diff->changedColumns AS $columnDiff) {
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
+            /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
+            $column = $columnDiff->column;
+            $columnArray = $column->toArray();
+            $columnArray['comment'] = $this->getColumnComment($column);
+            $queryParts[] =  'CHANGE ' . ($columnDiff->oldColumnName) . ' '
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+        }
+
+        foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $columnArray = $column->toArray();
+            $columnArray['comment'] = $this->getColumnComment($column);
+            $queryParts[] =  'CHANGE ' . $oldColumnName . ' '
+                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+        }
+
+        $sql = array();
+        $tableSql = array();
+
+        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
+            if (count($queryParts) > 0) {
+                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
+            }
+            $sql = array_merge(
+                $this->getPreAlterTableIndexForeignKeySQL($diff),
+                $sql,
+                $this->getPostAlterTableIndexForeignKeySQL($diff)
+            );
+        }
+
+        return array_merge($sql, $tableSql, $columnSql);
+    }
 }
