@@ -52,6 +52,37 @@ class DrizzlePlatform extends AbstractPlatform
         return '`';
     }
 
+    public function getConcatExpression()
+    {
+        $args = func_get_args();
+        return 'CONCAT(' . join(', ', (array) $args) . ')';
+    }
+
+    public function getDateDiffExpression($date1, $date2)
+    {
+        return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
+    }
+
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
+    }
+
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
+    }
+
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+    }
+
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+    }
+
     /**
      * @override
      */
@@ -334,5 +365,22 @@ class DrizzlePlatform extends AbstractPlatform
         }
 
         return 'DROP TEMPORARY TABLE ' . $table;
+    }
+
+    public function convertBooleans($item)
+    {
+        if (is_array($item)) {
+            foreach ($item as $key => $value) {
+                if (is_bool($value) || is_numeric($item)) {
+                    $item[$key] = ($value) ? 'true' : 'false';
+                }
+            }
+        } else {
+           if (is_bool($item) || is_numeric($item)) {
+               $item = ($item) ? 'true' : 'false';
+           }
+        }
+        return $item;
+        return $item;
     }
 }
