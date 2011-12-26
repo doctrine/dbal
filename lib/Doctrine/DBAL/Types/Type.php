@@ -189,6 +189,10 @@ abstract class Type
         if ( ! isset(self::$_typesMap[$name])) {
             throw DBALException::typeNotFound($name);
         }
+        
+        if (isset(self::$_typeObjects[$name])) {
+            unset(self::$_typeObjects[$name]);
+        }
 
         self::$_typesMap[$name] = $className;
     }
