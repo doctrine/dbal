@@ -19,8 +19,6 @@
 
 namespace Doctrine\DBAL\Driver\DrizzlePDOMySql;
 
-use Doctrine\DBAL\Connection;
-
 /**
  * Drizzle driver using PDO MySql.
  *
@@ -39,7 +37,7 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        $conn = new \Doctrine\DBAL\Driver\PDOConnection(
+        $conn = new Connection(
             $this->_constructPdoDsn($params),
             $username,
             $password,
