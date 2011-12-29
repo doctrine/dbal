@@ -61,7 +61,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
      * @param \Doctrine\DBAL\Schema\Table $table
      * @param array $columns
      * @param array $options
-     * @param Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct(Table $table, array $columns, array $options, AbstractPlatform $platform)
     {

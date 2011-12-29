@@ -91,9 +91,9 @@ final class DriverManager
      * The driver class to use.
      *
      * @param array $params The parameters.
-     * @param Doctrine\DBAL\Configuration The configuration to use.
-     * @param Doctrine\Common\EventManager The event manager to use.
-     * @return Doctrine\DBAL\Connection
+     * @param \Doctrine\DBAL\Configuration The configuration to use.
+     * @param \Doctrine\Common\EventManager The event manager to use.
+     * @return \Doctrine\DBAL\Connection
      */
     public static function getConnection(
             array $params,

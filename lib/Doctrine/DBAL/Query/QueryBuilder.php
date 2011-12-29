@@ -113,7 +113,7 @@ class QueryBuilder
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
      *
-     * @param Doctrine\DBAL\Connection $connection DBAL Connection
+     * @param \Doctrine\DBAL\Connection $connection DBAL Connection
      */
     public function __construct(Connection $connection)
     {
@@ -134,7 +134,7 @@ class QueryBuilder
      * For more complex expression construction, consider storing the expression
      * builder object in a local variable.
      *
-     * @return Doctrine\DBAL\Query\ExpressionBuilder
+     * @return \Doctrine\DBAL\Query\ExpressionBuilder
      */
     public function expr()
     {
@@ -154,7 +154,7 @@ class QueryBuilder
     /**
      * Get the associated DBAL Connection for this query builder.
      *
-     * @return Doctrine\DBAL\Connection
+     * @return \Doctrine\DBAL\Connection
      */
     public function getConnection()
     {
@@ -306,7 +306,7 @@ class QueryBuilder
      * Sets the position of the first result to retrieve (the "offset").
      *
      * @param integer $firstResult The first result to return.
-     * @return Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
      */
     public function setFirstResult($firstResult)
     {
@@ -330,7 +330,7 @@ class QueryBuilder
      * Sets the maximum number of results to retrieve (the "limit").
      *
      * @param integer $maxResults The maximum number of results to retrieve.
-     * @return Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
      */
     public function setMaxResults($maxResults)
     {
@@ -359,7 +359,7 @@ class QueryBuilder
      * @param string $sqlPartName
      * @param string $sqlPart
      * @param string $append
-     * @return Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
      */
     public function add($sqlPartName, $sqlPart, $append = false)
     {

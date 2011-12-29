@@ -584,7 +584,7 @@ class Connection implements DriverConnection
      * Prepares an SQL statement.
      *
      * @param string $statement The SQL statement to prepare.
-     * @return Doctrine\DBAL\Driver\Statement The prepared statement.
+     * @return \Doctrine\DBAL\Driver\Statement The prepared statement.
      */
     public function prepare($statement)
     {
@@ -603,7 +603,7 @@ class Connection implements DriverConnection
      * @param array $params The parameters to bind to the query, if any.
      * @param array $types The types the previous parameters are in.
      * @param QueryCacheProfile $qcp
-     * @return Doctrine\DBAL\Driver\Statement The executed statement.
+     * @return \Doctrine\DBAL\Driver\Statement The executed statement.
      * @internal PERF: Directly prepares a driver statement, not a wrapper.
      */
     public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
@@ -700,7 +700,7 @@ class Connection implements DriverConnection
      *
      * @param string $statement
      * @param integer $fetchType
-     * @return Doctrine\DBAL\Driver\Statement
+     * @return \Doctrine\DBAL\Driver\Statement
      */
     public function query()
     {
@@ -1015,7 +1015,7 @@ class Connection implements DriverConnection
     /**
      * Gets the wrapped driver connection.
      *
-     * @return Doctrine\DBAL\Driver\Connection
+     * @return \Doctrine\DBAL\Driver\Connection
      */
     public function getWrappedConnection()
     {
@@ -1028,7 +1028,7 @@ class Connection implements DriverConnection
      * Gets the SchemaManager that can be used to inspect or change the
      * database schema through the connection.
      *
-     * @return Doctrine\DBAL\Schema\AbstractSchemaManager
+     * @return \Doctrine\DBAL\Schema\AbstractSchemaManager
      */
     public function getSchemaManager()
     {

@@ -102,7 +102,7 @@ class Column extends AbstractAsset
      * Create a new Column
      *
      * @param string $columnName
-     * @param Doctrine\DBAL\Types\Type $type
+     * @param \Doctrine\DBAL\Types\Type $type
      * @param int $length
      * @param bool $notNull
      * @param mixed $default
