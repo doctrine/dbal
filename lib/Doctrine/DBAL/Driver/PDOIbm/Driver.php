@@ -44,7 +44,7 @@ class Driver implements \Doctrine\DBAL\Driver
      * @param string $username
      * @param string $password
      * @param array $driverOptions
-     * @return Doctrine\DBAL\Driver\Connection
+     * @return \Doctrine\DBAL\Driver\Connection
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
@@ -83,7 +83,7 @@ class Driver implements \Doctrine\DBAL\Driver
      * Gets the DatabasePlatform instance that provides all the metadata about
      * the platform this driver connects to.
      *
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform The database platform.
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform The database platform.
      */
     public function getDatabasePlatform()
     {
@@ -94,8 +94,8 @@ class Driver implements \Doctrine\DBAL\Driver
      * Gets the SchemaManager that can be used to inspect and change the underlying
      * database schema of the platform this driver connects to.
      *
-     * @param  Doctrine\DBAL\Connection $conn
-     * @return Doctrine\DBAL\SchemaManager
+     * @param  \Doctrine\DBAL\Connection $conn
+     * @return \Doctrine\DBAL\SchemaManager
      */
     public function getSchemaManager(Connection $conn)
     {
@@ -115,7 +115,7 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * Get the name of the database connected to for this driver.
      *
-     * @param  Doctrine\DBAL\Connection $conn
+     * @param  \Doctrine\DBAL\Connection $conn
      * @return string $database
      */
     public function getDatabase(\Doctrine\DBAL\Connection $conn)

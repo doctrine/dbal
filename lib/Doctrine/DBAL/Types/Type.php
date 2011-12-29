@@ -133,7 +133,7 @@ abstract class Type
      * @static
      * @throws DBALException
      * @param string $name The name of the type (as returned by getName()).
-     * @return Doctrine\DBAL\Types\Type
+     * @return \Doctrine\DBAL\Types\Type
      */
     public static function getType($name)
     {

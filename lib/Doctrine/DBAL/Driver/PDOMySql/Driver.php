@@ -35,7 +35,7 @@ class Driver implements \Doctrine\DBAL\Driver
      * @param string $username
      * @param string $password
      * @param array $driverOptions
-     * @return Doctrine\DBAL\Driver\Connection
+     * @return \Doctrine\DBAL\Driver\Connection
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
