@@ -74,7 +74,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
             $columns,
             $tableForeignKey['REFERENCED_TABLE_NAME'],
             $ref_columns,
-            $tableForeignKey['CONSTRAINT_NAME'].
+            $tableForeignKey['CONSTRAINT_NAME'],
             array(
                 'onUpdate' => $tableForeignKey['UPDATE_RULE'],
                 'onDelete' => $tableForeignKey['DELETE_RULE'],
