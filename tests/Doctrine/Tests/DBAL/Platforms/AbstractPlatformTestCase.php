@@ -19,6 +19,9 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->_platform = $this->createPlatform();
     }
 
+    /**
+     * @group DDC-1360
+     */
     public function testQuoteIdentifier()
     {
         if ($this->_platform->getName() == "mssql") {
@@ -26,7 +29,24 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         }
 
         $c = $this->_platform->getIdentifierQuoteCharacter();
+        $this->assertEquals($c."test".$c, $this->_platform->quoteIdentifier("test"));
+        $this->assertEquals($c."test".$c.".".$c."test".$c, $this->_platform->quoteIdentifier("test.test"));
         $this->assertEquals(str_repeat($c, 4), $this->_platform->quoteIdentifier($c));
+    }
+
+    /**
+     * @group DDC-1360
+     */
+    public function testQuoteSingleIdentifier()
+    {
+        if ($this->_platform->getName() == "mssql") {
+            $this->markTestSkipped('Not working this way on mssql.');
+        }
+
+        $c = $this->_platform->getIdentifierQuoteCharacter();
+        $this->assertEquals($c."test".$c, $this->_platform->quoteSingleIdentifier("test"));
+        $this->assertEquals($c."test.test".$c, $this->_platform->quoteSingleIdentifier("test.test"));
+        $this->assertEquals(str_repeat($c, 4), $this->_platform->quoteSingleIdentifier($c));
     }
 
     public function testGetInvalidtForeignKeyReferentialActionSQL()

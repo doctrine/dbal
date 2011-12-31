@@ -1276,7 +1276,8 @@ abstract class AbstractPlatform
 
     /**
      * Quotes a string so that it can be safely used as a table or column name,
-     * even if it is a reserved word of the platform.
+     * even if it is a reserved word of the platform. This also detects identifier
+     * chains seperated by dot and quotes them independently.
      *
      * NOTE: Just because you CAN use quoted identifiers doesn't mean
      * you SHOULD use them.  In general, they end up causing way more
@@ -1286,6 +1287,22 @@ abstract class AbstractPlatform
      * @return string               quoted identifier string
      */
     public function quoteIdentifier($str)
+    {
+        if (strpos($str, ".") !== false) {
+            $parts = array_map(array($this, "quoteIdentifier"), explode(".", $str));
+            return implode(".", $parts);
+        }
+
+        return $this->quoteSingleIdentifier($str);
+    }
+
+    /**
+     * Quote a single identifier (no dot chain seperation)
+     *
+     * @param string $str
+     * @return string
+     */
+    public function quoteSingleIdentifier($str)
     {
         $c = $this->getIdentifierQuoteCharacter();
 

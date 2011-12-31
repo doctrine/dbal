@@ -171,8 +171,23 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('SELECT TOP 10 * FROM user ORDER BY username DESC', $sql);
     }
 
+    /**
+     * @group DDC-1360
+     */
     public function testQuoteIdentifier()
     {
         $this->assertEquals('[fo][o]', $this->_platform->quoteIdentifier('fo]o'));
+        $this->assertEquals('[test]', $this->_platform->quoteIdentifier('test'));
+        $this->assertEquals('[test].[test]', $this->_platform->quoteIdentifier('test.test'));
+    }
+
+    /**
+     * @group DDC-1360
+     */
+    public function testQuoteSingleIdentifier()
+    {
+        $this->assertEquals('[fo][o]', $this->_platform->quoteSingleIdentifier('fo]o'));
+        $this->assertEquals('[test]', $this->_platform->quoteSingleIdentifier('test'));
+        $this->assertEquals('[test.test]', $this->_platform->quoteSingleIdentifier('test.test'));
     }
 }
