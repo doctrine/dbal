@@ -831,17 +831,9 @@ class MsSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Quotes a string so that it can be safely used as a table or column name,
-     * even if it is a reserved word of the platform.
-     *
-     * NOTE: Just because you CAN use quoted identifiers doesn't mean
-     * you SHOULD use them.  In general, they end up causing way more
-     * problems than they solve.
-     *
-     * @param string $str           identifier name to be quoted
-     * @return string               quoted identifier string
+     * {@inheritDoc}
      */
-    public function quoteIdentifier($str)
+    public function quoteSingleIdentifier($str)
     {
         return "[" . str_replace("]", "][", $str) . "]";
     }
