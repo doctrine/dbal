@@ -134,6 +134,8 @@ class DrizzlePlatform extends AbstractPlatform
             'datetime'      => 'datetime',
             'date'          => 'date',
             'time'          => 'time',
+            'text'          => 'text',
+            'timestamp'     => 'datetime',
         );
     }
 
@@ -183,7 +185,7 @@ class DrizzlePlatform extends AbstractPlatform
             $database = 'DATABASE()';
         }
 
-        return "SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT, CHARACTER_MAXIMUM_LENGTH, COLUMN_DEFAULT," .
+        return "SELECT COLUMN_NAME, DATA_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT, CHARACTER_MAXIMUM_LENGTH, COLUMN_DEFAULT," .
                " NUMERIC_PRECISION, NUMERIC_SCALE" .
                " FROM DATA_DICTIONARY.COLUMNS" .
                " WHERE TABLE_SCHEMA=" . $database . " AND TABLE_NAME = '" . $table . "'";

@@ -29,7 +29,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
         $tableName = $tableColumn['COLUMN_NAME'];
-        $dbType = strtolower($tableColumn['COLUMN_TYPE']);
+        $dbType = strtolower($tableColumn['DATA_TYPE']);
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
         $type = $this->extractDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
@@ -62,12 +62,12 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     {
         $columns = array();
         foreach (explode(',', $tableForeignKey['CONSTRAINT_COLUMNS']) as $value) {
-            $columns[] = trim($value, '`');
+            $columns[] = trim($value, ' `');
         }
 
         $ref_columns = array();
         foreach (explode(',', $tableForeignKey['REFERENCED_TABLE_COLUMNS']) as $value) {
-            $ref_columns[] = trim($value, '`');
+            $ref_columns[] = trim($value, ' `');
         }
 
         return new ForeignKeyConstraint(
