@@ -14,7 +14,7 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * Attempts to connect to the database and returns a driver connection on success.
      *
-     * @return Doctrine\DBAL\Driver\Connection
+     * @return \Doctrine\DBAL\Driver\Connection
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {

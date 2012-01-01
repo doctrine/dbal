@@ -156,7 +156,7 @@ class Schema extends AbstractAsset
     /**
      * @throws SchemaException
      * @param  string $sequenceName
-     * @return Doctrine\DBAL\Schema\Sequence
+     * @return \Doctrine\DBAL\Schema\Sequence
      */
     public function getSequence($sequenceName)
     {
@@ -168,7 +168,7 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\Sequence[]
+     * @return \Doctrine\DBAL\Schema\Sequence[]
      */
     public function getSequences()
     {

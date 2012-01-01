@@ -47,7 +47,7 @@ class ExpressionBuilder
     /**
      * Initializes a new <tt>ExpressionBuilder</tt>.
      *
-     * @param Doctrine\DBAL\Connection $connection DBAL Connection
+     * @param \Doctrine\DBAL\Connection $connection DBAL Connection
      */
     public function __construct(Connection $connection)
     {

@@ -46,7 +46,7 @@ class ConnectionEventArgs extends EventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Connection
+     * @return \Doctrine\DBAL\Connection
      */
     public function getConnection()
     {
@@ -54,7 +54,7 @@ class ConnectionEventArgs extends EventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Driver
+     * @return \Doctrine\DBAL\Driver
      */
     public function getDriver()
     {
@@ -62,7 +62,7 @@ class ConnectionEventArgs extends EventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getDatabasePlatform()
     {
@@ -70,7 +70,7 @@ class ConnectionEventArgs extends EventArgs
     }
 
     /**
-     * @return Doctrine\DBAL\Schema\AbstractSchemaManager
+     * @return \Doctrine\DBAL\Schema\AbstractSchemaManager
      */
     public function getSchemaManager()
     {
