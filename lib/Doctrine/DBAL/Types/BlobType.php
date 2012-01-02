@@ -56,4 +56,9 @@ class BlobType extends Type
     {
         return Type::BLOB;
     }
+
+    public function getBindingType()
+    {
+        return \PDO::PARAM_LOB;
+    }
 }
