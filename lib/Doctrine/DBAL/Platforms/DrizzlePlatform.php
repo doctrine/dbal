@@ -136,6 +136,8 @@ class DrizzlePlatform extends AbstractPlatform
             'time'          => 'time',
             'text'          => 'text',
             'timestamp'     => 'datetime',
+            'double'        => 'float',
+            'bigint'        => 'bigint',
         );
     }
 
