@@ -102,14 +102,14 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * Get the number of days difference between two dates.
-     * 
+     *
      * Note: Since Oracle timestamp differences are calculated down to the microsecond we have to truncate
      * them to the difference in days. This is obviously a restriction of the original functionality, but we
      * need to make this a portable function.
-     * 
+     *
      * @param type $date1
      * @param type $date2
-     * @return type 
+     * @return type
      */
     public function getDateDiffExpression($date1, $date2)
     {
@@ -118,10 +118,8 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
-     *
-     * @override
      */
-    public function getDateAddIntervalExpression($date, $value, $unit)
+    public function getDateAddDaysExpression($date, $days)
     {
         $unitl = strtolower($unit);
         if ($unitl == "day") {
@@ -135,18 +133,14 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
-     *
-     * @override
      */
-    public function getDateAddDaysExpression($date, $days)
+    public function getDateSubDaysExpression($date, $days)
     {
         return '(' . $date . '+' . $days . ')';
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @override
      */
     public function getDateAddMonthExpression($date, $months)
     {
@@ -155,39 +149,28 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
-     *
-     * @override
-     */
-    public function getDateSubIntervalExpression($date, $value, $unit)
-    {
-        $unitl = strtolower($unit);
-        if ($unitl == "day") {
-            return '(' . $date . '-' . $value . ')';
-        } else if ($unitl == "month") {
-            return "ADD_MONTHS(" . $date . ", -" . $value . ")";
-        } else {
-            throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @override
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return '(' . $date . '-' . $days . ')';
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @override
      */
     public function getDateSubMonthExpression($date, $months)
     {
         return "ADD_MONTHS(" . $date . ", -" . $months . ")";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBitAndComparisonExpression($value1, $value2)
+    {
+        return 'BITAND('.$value1 . ', ' . $value2 . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBitOrComparisonExpression($value1, $value2)
+    {
+        return '(' . $value1 . '-' .
+                $this->getBitAndComparisonExpression($value1, $value2)
+                . '+' . $value2 . ')';
     }
 
     /**
@@ -205,13 +188,13 @@ class OraclePlatform extends AbstractPlatform
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' START WITH ' . $sequence->getInitialValue() .
-               ' MINVALUE ' . $sequence->getInitialValue() . 
+               ' MINVALUE ' . $sequence->getInitialValue() .
                ' INCREMENT BY ' . $sequence->getAllocationSize();
     }
-    
+
     public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
-        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) . 
+        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize();
     }
 
@@ -225,7 +208,7 @@ class OraclePlatform extends AbstractPlatform
     {
         return 'SELECT ' . $sequenceName . '.nextval FROM DUAL';
     }
-    
+
     /**
      * {@inheritdoc}
      *
@@ -251,7 +234,7 @@ class OraclePlatform extends AbstractPlatform
                 return parent::_getTransactionIsolationLevelSQL($level);
         }
     }
-    
+
     /**
      * @override
      */
@@ -335,7 +318,7 @@ class OraclePlatform extends AbstractPlatform
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(2000)')
                 : ($length ? 'VARCHAR2(' . $length . ')' : 'VARCHAR2(4000)');
     }
-    
+
     /** @override */
     public function getClobTypeDeclarationSQL(array $field)
     {
@@ -372,11 +355,11 @@ class OraclePlatform extends AbstractPlatform
             }
 
             if (isset($column['autoincrement']) && $column['autoincrement'] ||
-               (isset($column['autoinc']) && $column['autoinc'])) {           
+               (isset($column['autoinc']) && $column['autoinc'])) {
                 $sql = array_merge($sql, $this->getCreateAutoincrementSql($name, $table));
             }
         }
-        
+
         if (isset($indexes) && ! empty($indexes)) {
             foreach ($indexes as $indexName => $index) {
                 $sql[] = $this->getCreateIndexSQL($index, $table);
@@ -395,7 +378,7 @@ class OraclePlatform extends AbstractPlatform
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         $table = strtoupper($table);
-        
+
         return "SELECT uind.index_name AS name, " .
              "       uind.index_type AS type, " .
              "       decode( uind.uniqueness, 'NONUNIQUE', 0, 'UNIQUE', 1 ) AS is_unique, " .
@@ -446,7 +429,7 @@ BEGIN
   IF constraints_Count = 0 OR constraints_Count = \'\' THEN
     EXECUTE IMMEDIATE \''.$this->getCreateConstraintSQL($idx, $table).'\';
   END IF;
-END;';   
+END;';
 
         $sequenceName = $table . '_SEQ';
         $sequence = new \Doctrine\DBAL\Schema\Sequence($sequenceName, $start);
@@ -530,12 +513,12 @@ LEFT JOIN all_cons_columns r_cols
     {
         $table = strtoupper($table);
         $ownerCondition = '';
-        
+
         if(null !== $database){
             $database = strtoupper($database);
             $ownerCondition = "AND c.owner = '".$database."'";
         }
-        
+
         return "SELECT c.*, d.comments FROM all_tab_columns c ".
                "INNER JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME ".
                "WHERE c.table_name = '" . $table . "' ".$ownerCondition." ORDER BY c.column_name";
@@ -594,9 +577,14 @@ LEFT JOIN all_cons_columns r_cols
     {
         $sql = array();
         $commentsSQL = array();
+        $columnSql = array();
 
         $fields = array();
         foreach ($diff->addedColumns AS $column) {
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             if ($comment = $this->getColumnComment($column)) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
@@ -608,6 +596,10 @@ LEFT JOIN all_cons_columns r_cols
 
         $fields = array();
         foreach ($diff->changedColumns AS $columnDiff) {
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
             $column = $columnDiff->column;
             $fields[] = $column->getQuotedName($this). ' ' . $this->getColumnDeclarationSQL('', $column->toArray());
             if ($columnDiff->hasChanged('comment') && $comment = $this->getColumnComment($column)) {
@@ -619,22 +611,36 @@ LEFT JOIN all_cons_columns r_cols
         }
 
         foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
+            }
+
             $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
         }
 
         $fields = array();
         foreach ($diff->removedColumns AS $column) {
+            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
             $fields[] = $column->getQuotedName($this);
         }
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' DROP (' . implode(', ', $fields).')';
         }
 
-        if ($diff->newName !== false) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
+        $tableSql = array();
+
+        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
+            if ($diff->newName !== false) {
+                $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
+            }
+
+            $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
         }
 
-        return array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
+        return array_merge($sql, $tableSql, $columnSql);
     }
 
     /**
@@ -693,12 +699,12 @@ LEFT JOIN all_cons_columns r_cols
         }
         return $query;
     }
-    
+
     /**
      * Gets the character casing of a column in an SQL result set of this platform.
-     * 
+     *
      * Oracle returns all column names in SQL result sets in uppercase.
-     * 
+     *
      * @param string $column The column name for which to get the correct character casing.
      * @return string The column name in the character casing used in SQL result sets.
      */
@@ -706,12 +712,12 @@ LEFT JOIN all_cons_columns r_cols
     {
         return strtoupper($column);
     }
-    
+
     public function getCreateTemporaryTableSnippetSQL()
     {
         return "CREATE GLOBAL TEMPORARY TABLE";
     }
-    
+
     public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:sP';
@@ -726,7 +732,7 @@ LEFT JOIN all_cons_columns r_cols
     {
         return '1900-01-01 H:i:s';
     }
-    
+
     public function fixSchemaElementName($schemaElementName)
     {
         if (strlen($schemaElementName) > 30) {
@@ -808,8 +814,10 @@ LEFT JOIN all_cons_columns r_cols
             'long'              => 'string',
             'clob'              => 'text',
             'nclob'             => 'text',
+            'raw'               => 'text',
+            'long raw'          => 'text',
             'rowid'             => 'string',
-            'urowid'            => 'string'
+            'urowid'            => 'string',
         );
     }
 
@@ -823,9 +831,17 @@ LEFT JOIN all_cons_columns r_cols
     {
         return '';
     }
-    
+
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords';
+    }
+
+    /**
+     * Gets the SQL Snippet used to declare a BLOB column type.
+     */
+    public function getBlobTypeDeclarationSQL(array $field)
+    {
+        return 'BLOB';
     }
 }

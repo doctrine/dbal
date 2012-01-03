@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks;
 
 require_once __DIR__ . '/../../TestInit.php';
- 
+
 class DateTest extends \Doctrine\Tests\DbalTestCase
 {
     protected
@@ -61,7 +61,7 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('00:00:00', $date->format('H:i:s'));
         $this->assertEquals('2009-11-01', $date->format('Y-m-d'));
     }
-    
+
     public function testInvalidDateFormatConversion()
     {
         $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');

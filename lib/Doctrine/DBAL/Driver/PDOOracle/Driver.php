@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -23,6 +21,14 @@ namespace Doctrine\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\Platforms;
 
+/**
+ * PDO Oracle driver
+ *
+ * WARNING: This driver gives us segfauls in our testsuites on CLOB and other
+ * stuff. PDO Oracle is not maintained by Oracle or anyone in the PHP community,
+ * which leads us to the recommendation to use the "oci8" driver to connect
+ * to Oracle instead.
+ */
 class Driver implements \Doctrine\DBAL\Driver
 {
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
@@ -53,7 +59,11 @@ class Driver implements \Doctrine\DBAL\Driver
                 $dsn .= '(PORT=1521)';
             }
 
-            $dsn .= '))(CONNECT_DATA=(SID=' . $params['dbname'] . ')))';
+            if (isset($params['service']) && $params['service'] == true) {
+                $dsn .= '))(CONNECT_DATA=(SERVICE_NAME=' . $params['dbname'] . ')))';
+            } else {
+                $dsn .= '))(CONNECT_DATA=(SID=' . $params['dbname'] . ')))';
+            }
         } else {
             $dsn .= 'dbname=' . $params['dbname'];
         }

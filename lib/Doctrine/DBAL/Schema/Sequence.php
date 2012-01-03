@@ -66,7 +66,7 @@ class Sequence extends AbstractAsset
     {
         return $this->_initialValue;
     }
-    
+
     public function setAllocationSize($allocationSize)
     {
         $this->_allocationSize = (is_numeric($allocationSize))?$allocationSize:1;

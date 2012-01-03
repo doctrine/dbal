@@ -34,7 +34,7 @@ class SQLiteKeywords extends KeywordList
     {
         return 'SQLite';
     }
-    
+
     protected function getKeywords()
     {
         return array(

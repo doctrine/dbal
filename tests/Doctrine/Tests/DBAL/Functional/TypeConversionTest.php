@@ -17,26 +17,29 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
         $sm = $this->_conn->getSchemaManager();
 
-        if (!$sm->tablesExist(array('type_conversion'))) {
+        $table = new \Doctrine\DBAL\Schema\Table("type_conversion");
+        $table->addColumn('id', 'integer', array('notnull' => false));
+        $table->addColumn('test_string', 'string', array('notnull' => false));
+        $table->addColumn('test_boolean', 'boolean', array('notnull' => false));
+        $table->addColumn('test_bigint', 'bigint', array('notnull' => false));
+        $table->addColumn('test_smallint', 'bigint', array('notnull' => false));
+        $table->addColumn('test_datetime', 'datetime', array('notnull' => false));
+        $table->addColumn('test_datetimetz', 'datetimetz', array('notnull' => false));
+        $table->addColumn('test_date', 'date', array('notnull' => false));
+        $table->addColumn('test_time', 'time', array('notnull' => false));
+        $table->addColumn('test_text', 'text', array('notnull' => false));
+        $table->addColumn('test_array', 'array', array('notnull' => false));
+        $table->addColumn('test_object', 'object', array('notnull' => false));
+        $table->addColumn('test_float', 'float', array('notnull' => false));
+        $table->addColumn('test_decimal', 'decimal', array('notnull' => false, 'scale' => 2, 'precision' => 10));
+        $table->setPrimaryKey(array('id'));
 
-            $table = new \Doctrine\DBAL\Schema\Table("type_conversion");
-            $table->addColumn('id', 'integer', array('notnull' => false));
-            $table->addColumn('test_string', 'string', array('notnull' => false));
-            $table->addColumn('test_boolean', 'boolean', array('notnull' => false));
-            $table->addColumn('test_bigint', 'bigint', array('notnull' => false));
-            $table->addColumn('test_smallint', 'bigint', array('notnull' => false));
-            $table->addColumn('test_datetime', 'datetime', array('notnull' => false));
-            $table->addColumn('test_datetimetz', 'datetimetz', array('notnull' => false));
-            $table->addColumn('test_date', 'date', array('notnull' => false));
-            $table->addColumn('test_time', 'time', array('notnull' => false));
-            $table->addColumn('test_text', 'text', array('notnull' => false));
-            $table->addColumn('test_array', 'array', array('notnull' => false));
-            $table->addColumn('test_object', 'object', array('notnull' => false));
-            $table->addColumn('test_float', 'float', array('notnull' => false));
-            $table->addColumn('test_decimal', 'decimal', array('notnull' => false, 'scale' => 2, 'precision' => 10));
-            $table->setPrimaryKey(array('id'));
+        try {
+            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+                $this->_conn->executeQuery($sql);
+            }
+        } catch(\Exception $e) {
 
-            $sm->createTable($table);
         }
     }
 
@@ -81,7 +84,11 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT " . $columnName . " FROM type_conversion WHERE id = " . self::$typeCounter;
         $actualDbValue = $typeInstance->convertToPHPValue($this->_conn->fetchColumn($sql), $this->_conn->getDatabasePlatform());
 
-        $this->assertType($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+        if ($originalValue instanceof \DateTime) {
+            $this->assertInstanceOf($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+        } else {
+            $this->assertInternalType($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+        }
 
         if ($type !== "datetimetz") {
             $this->assertEquals($originalValue, $actualDbValue, "Conversion between values should produce the same out as in value, but doesnt!");

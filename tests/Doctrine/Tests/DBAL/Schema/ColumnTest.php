@@ -30,6 +30,11 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($column->hasPlatformOption('foo'));
         $this->assertEquals('bar', $column->getPlatformOption('foo'));
         $this->assertFalse($column->hasPlatformOption('bar'));
+
+        $this->assertEquals(array('bar' => 'baz'), $column->getCustomSchemaOptions());
+        $this->assertTrue($column->hasCustomSchemaOption('bar'));
+        $this->assertEquals('baz', $column->getCustomSchemaOption('bar'));
+        $this->assertFalse($column->hasCustomSchemaOption('foo'));
     }
 
     public function testToArray()
@@ -48,6 +53,7 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
             'columnDefinition' => null,
             'comment' => null,
             'foo' => 'bar',
+            'bar' => 'baz'
         );
 
         $this->assertEquals($expected, $this->createColumn()->toArray());
@@ -67,6 +73,7 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
             'fixed' => true,
             'default' => 'baz',
             'platformOptions' => array('foo' => 'bar'),
+            'customSchemaOptions' => array('bar' => 'baz'),
         );
 
         $string = Type::getType('string');

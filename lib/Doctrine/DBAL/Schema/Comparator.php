@@ -163,7 +163,7 @@ class Comparator
                 $changes++;
             }
         }
-        
+
         foreach ( $table1Columns as $columnName => $column ) {
             if ( $table2->hasColumn($columnName) ) {
                 $changedProperties = $this->diffColumn( $column, $table2->getColumn($columnName) );
@@ -241,7 +241,7 @@ class Comparator
     /**
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
      * however ambiguouties between different possibilites should not lead to renaming at all.
-     * 
+     *
      * @param TableDiff $tableDifferences
      */
     private function detectColumnRenamings(TableDiff $tableDifferences)
@@ -278,7 +278,7 @@ class Comparator
         if (array_map('strtolower', $key1->getLocalColumns()) != array_map('strtolower', $key2->getLocalColumns())) {
             return true;
         }
-        
+
         if (array_map('strtolower', $key1->getForeignColumns()) != array_map('strtolower', $key2->getForeignColumns())) {
             return true;
         }
@@ -354,6 +354,21 @@ class Comparator
         if ($column1->getComment() !== null && $column1->getComment() != $column2->getComment()) {
             $changedProperties[] = 'comment';
         }
+
+        $options1 = $column1->getCustomSchemaOptions();
+        $options2 = $column2->getCustomSchemaOptions();
+
+        $commonKeys = array_keys(array_intersect_key($options1, $options2));
+
+        foreach ($commonKeys as $key) {
+            if ($options1[$key] !== $options2[$key]) {
+                $changedProperties[] = $key;
+            }
+        }
+
+        $diffKeys = array_keys(array_diff_key($options1, $options2) + array_diff_key($options2, $options1));
+
+        $changedProperties = array_merge($changedProperties, $diffKeys);
 
         return $changedProperties;
     }

@@ -7,9 +7,20 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 require_once __DIR__ . '/../../../TestInit.php';
- 
+
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    /**
+     * @group DBAL-177
+     */
+    public function testGetSearchPath()
+    {
+        $params = $this->_conn->getParams();
+
+        $paths = $this->_sm->getSchemaSearchPaths();
+        $this->assertEquals(array($params['user'], 'public'), $paths);
+    }
+
     /**
      * @group DBAL-21
      */
@@ -116,7 +127,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column->setAutoincrement(true);
         $nestedSchemaTable->setPrimaryKey(array('id'));
         $nestedSchemaTable->addUnnamedForeignKeyConstraint($nestedRelatedTable, array('id'), array('id'));
-        
+
         $this->_sm->createTable($nestedRelatedTable);
         $this->_sm->createTable($nestedSchemaTable);
 
@@ -149,7 +160,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertEquals(
             array(
-                "CREATE TABLE dbal91_something (id INT NOT NULL, table INT DEFAULT NULL, PRIMARY KEY(id))",
+                "CREATE TABLE dbal91_something (id INT NOT NULL, \"table\" INT DEFAULT NULL, PRIMARY KEY(id))",
                 "CREATE INDEX IDX_A9401304ECA7352B ON dbal91_something (\"table\")",
             ),
             $this->_conn->getDatabasePlatform()->getCreateTableSQL($table)

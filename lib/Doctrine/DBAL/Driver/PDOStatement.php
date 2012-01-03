@@ -30,4 +30,13 @@ namespace Doctrine\DBAL\Driver;
 class PDOStatement extends \PDOStatement implements Statement
 {
     private function __construct() {}
+
+    public function setFetchMode($fetchStyle, $params = NULL)
+    {
+        // This thin wrapper is necessary to shield against the weird signature
+        // of PDOStatement::setFetchMode(): even if the second and third
+        // parameters are optional, PHP will not let us remove it from this
+        // declaration.
+        return parent::setFetchMode($fetchStyle);
+    }
 }

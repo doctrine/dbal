@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Logging\SQLLogger;
+use Doctrine\Common\Cache\Cache;
 
 /**
  * Configuration container for the Doctrine DBAL.
@@ -53,12 +54,33 @@ class Configuration
 
     /**
      * Gets the SQL logger that is used.
-     * 
+     *
      * @return SQLLogger
      */
     public function getSQLLogger()
     {
         return isset($this->_attributes['sqlLogger']) ?
                 $this->_attributes['sqlLogger'] : null;
+    }
+
+    /**
+     * Gets the cache driver implementation that is used for query result caching.
+     *
+     * @return \Doctrine\Common\Cache\Cache
+     */
+    public function getResultCacheImpl()
+    {
+        return isset($this->_attributes['resultCacheImpl']) ?
+                $this->_attributes['resultCacheImpl'] : null;
+    }
+
+    /**
+     * Sets the cache driver implementation that is used for query result caching.
+     *
+     * @param \Doctrine\Common\Cache\Cache $cacheImpl
+     */
+    public function setResultCacheImpl(Cache $cacheImpl)
+    {
+        $this->_attributes['resultCacheImpl'] = $cacheImpl;
     }
 }

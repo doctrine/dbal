@@ -19,6 +19,9 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
+use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -73,7 +76,7 @@ abstract class AbstractSchemaManager
     }
 
     /**
-     * Try any method on the schema manager. Normally a method throws an 
+     * Try any method on the schema manager. Normally a method throws an
      * exception when your DBMS doesn't support it or if an error occurs.
      * This method allows you to try and method on your SchemaManager
      * instance and will return false if it does not work or is not supported.
@@ -153,7 +156,7 @@ abstract class AbstractSchemaManager
 
         $tableColumns = $this->_conn->fetchAll($sql);
 
-        return $this->_getPortableTableColumnList($tableColumns);
+        return $this->_getPortableTableColumnList($table, $database, $tableColumns);
     }
 
     /**
@@ -175,7 +178,7 @@ abstract class AbstractSchemaManager
 
     /**
      * Return true if all the given tables exist.
-     * 
+     *
      * @param array $tableNames
      * @return bool
      */
@@ -268,7 +271,7 @@ abstract class AbstractSchemaManager
 
     /**
      * Drops a database.
-     * 
+     *
      * NOTE: You can not drop the database this SchemaManager is currently connected to.
      *
      * @param string $database The name of the database to drop
@@ -618,14 +621,33 @@ abstract class AbstractSchemaManager
      *
      * The name of the created column instance however is kept in its case.
      *
-     * @param  array $tableColumns
+     * @param  string $table The name of the table.
+     * @param  string $database
+     * @param  array  $tableColumns
      * @return array
      */
-    protected function _getPortableTableColumnList($tableColumns)
+    protected function _getPortableTableColumnList($table, $database, $tableColumns)
     {
+        $eventManager = $this->_platform->getEventManager();
+
         $list = array();
-        foreach ($tableColumns as $key => $column) {
-            if ($column = $this->_getPortableTableColumnDefinition($column)) {
+        foreach ($tableColumns as $key => $tableColumn) {
+            $column = null;
+            $defaultPrevented = false;
+
+            if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaColumnDefinition)) {
+                $eventArgs = new SchemaColumnDefinitionEventArgs($tableColumn, $table, $database, $this->_conn);
+                $eventManager->dispatchEvent(Events::onSchemaColumnDefinition, $eventArgs);
+
+                $defaultPrevented = $eventArgs->isDefaultPrevented();
+                $column = $eventArgs->getColumn();
+            }
+
+            if (!$defaultPrevented) {
+                $column = $this->_getPortableTableColumnDefinition($tableColumn);
+            }
+
+            if ($column) {
                 $name = strtolower($column->getQuotedName($this->_platform));
                 $list[$name] = $column;
             }
@@ -670,9 +692,28 @@ abstract class AbstractSchemaManager
             }
         }
 
+        $eventManager = $this->_platform->getEventManager();
+
         $indexes = array();
         foreach($result AS $indexKey => $data) {
-            $indexes[$indexKey] = new Index($data['name'], $data['columns'], $data['unique'], $data['primary']);
+            $index = null;
+            $defaultPrevented = false;
+
+            if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
+                $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->_conn);
+                $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
+
+                $defaultPrevented = $eventArgs->isDefaultPrevented();
+                $index = $eventArgs->getIndex();
+            }
+
+            if (!$defaultPrevented) {
+                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary']);
+            }
+
+            if ($index) {
+                $indexes[$indexKey] = $index;
+            }
         }
 
         return $indexes;
@@ -752,7 +793,7 @@ abstract class AbstractSchemaManager
 
     /**
      * Create a schema instance for the current database.
-     * 
+     *
      * @return Schema
      */
     public function createSchema()
@@ -782,14 +823,14 @@ abstract class AbstractSchemaManager
     /**
      * Given a table comment this method tries to extract a typehint for Doctrine Type, or returns
      * the type given as default.
-     * 
+     *
      * @param  string $comment
      * @param  string $currentType
      * @return string
      */
     public function extractDoctrineTypeFromComment($comment, $currentType)
     {
-        if (preg_match("(\(DC2Type:([a-zA-Z0-9]+)\))", $comment, $match)) {
+        if (preg_match("(\(DC2Type:([a-zA-Z0-9_]+)\))", $comment, $match)) {
             $currentType = $match[1];
         }
         return $currentType;

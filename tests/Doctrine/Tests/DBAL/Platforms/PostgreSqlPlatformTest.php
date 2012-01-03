@@ -6,7 +6,7 @@ use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
- 
+
 class PostgreSqlPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()
@@ -214,6 +214,14 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             "ALTER TABLE mytable ADD quota INT NOT NULL",
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
+        );
+    }
+
+    public function getCreateTableColumnTypeCommentsSQL()
+    {
+        return array(
+            "CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))",
+            "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
         );
     }
 }

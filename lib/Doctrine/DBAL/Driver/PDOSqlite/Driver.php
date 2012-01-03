@@ -80,7 +80,7 @@ class Driver implements \Doctrine\DBAL\Driver
         } else if (isset($params['memory'])) {
             $dsn .= ':memory:';
         }
-        
+
         return $dsn;
     }
 
@@ -95,8 +95,8 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * Gets the schema manager that is relevant for this driver.
      *
-     * @param Doctrine\DBAL\Connection $conn
-     * @return Doctrine\DBAL\Schema\SqliteSchemaManager
+     * @param \Doctrine\DBAL\Connection $conn
+     * @return \Doctrine\DBAL\Schema\SqliteSchemaManager
      */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {

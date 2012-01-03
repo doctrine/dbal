@@ -28,7 +28,7 @@ class TestUtil
      * 1) Each invocation of this method returns a NEW database connection.
      * 2) The database is dropped and recreated to ensure it's clean.
      *
-     * @return Doctrine\DBAL\Connection The database connection instance.
+     * @return \Doctrine\DBAL\Connection The database connection instance.
      */
     public static function getConnection()
     {
@@ -53,6 +53,14 @@ class TestUtil
                 'port' => $GLOBALS['tmpdb_port']
             );
 
+            if (isset($GLOBALS['db_unix_socket'])) {
+                $realDbParams['unix_socket'] = $GLOBALS['db_unix_socket'];
+            }
+
+            if (isset($GLOBALS['tmpdb_unix_socket'])) {
+                $tmpDbParams['unix_socket'] = $GLOBALS['tmpdb_unix_socket'];
+            }
+
             $realConn = \Doctrine\DBAL\DriverManager::getConnection($realDbParams);
 
             $platform  = $realConn->getDatabasePlatform();
@@ -70,30 +78,34 @@ class TestUtil
             } else {
                 $sm = $realConn->getSchemaManager();
 
-                $tableNames = $sm->listTableNames();
-                
-                foreach ($tableNames AS $tableName) {
-                    $sm->dropTable($tableName);
+                /* @var $schema Schema */
+                $schema = $sm->createSchema();
+                $stmts = $schema->toDropSql($realConn->getDatabasePlatform());
+
+                foreach ($stmts AS $stmt) {
+                    $realConn->exec($stmt);
                 }
             }
 
-            $eventManager = null;
-            if (isset($GLOBALS['db_event_subscribers'])) {
-                $eventManager = new \Doctrine\Common\EventManager();
-                foreach (explode(",", $GLOBALS['db_event_subscribers']) AS $subscriberClass) {
-                    $subscriberInstance = new $subscriberClass();
-                    $eventManager->addEventSubscriber($subscriberInstance);
-                }
-            }
-
-            $conn = \Doctrine\DBAL\DriverManager::getConnection($realDbParams, null, $eventManager);
-
+            $conn = \Doctrine\DBAL\DriverManager::getConnection($realDbParams, null, null);
         } else {
             $params = array(
                 'driver' => 'pdo_sqlite',
                 'memory' => true
             );
+            if (isset($GLOBALS['db_path'])) {
+                $params['path'] = $GLOBALS['db_path'];
+                unlink($GLOBALS['db_path']);
+            }
             $conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+        }
+
+        if (isset($GLOBALS['db_event_subscribers'])) {
+            $evm = $conn->getEventManager();
+            foreach (explode(",", $GLOBALS['db_event_subscribers']) AS $subscriberClass) {
+                $subscriberInstance = new $subscriberClass();
+                $evm->addEventSubscriber($subscriberInstance);
+            }
         }
 
         return $conn;

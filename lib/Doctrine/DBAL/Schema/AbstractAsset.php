@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -32,7 +30,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
- * @version $Revision$
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 abstract class AbstractAsset
@@ -71,18 +68,18 @@ abstract class AbstractAsset
 
     /**
      * Trim quotes from the identifier.
-     * 
+     *
      * @param  string $identifier
      * @return string
      */
     protected function trimQuotes($identifier)
     {
-        return trim($identifier, '`"');
+        return str_replace(array('`', '"'), '', $identifier);
     }
 
     /**
      * Return name of this schema asset.
-     * 
+     *
      * @return string
      */
     public function getName()
@@ -99,7 +96,13 @@ abstract class AbstractAsset
      */
     public function getQuotedName(AbstractPlatform $platform)
     {
-        return ($this->_quoted) ? $platform->quoteIdentifier($this->_name) : $this->_name;
+        $keywords = $platform->getReservedKeywordsList();
+        $parts = explode(".", $this->_name);
+        foreach ($parts AS $k => $v) {
+            $parts[$k] = ($this->_quoted || $keywords->isKeyword($v)) ? $platform->quoteIdentifier($v) : $v;
+        }
+
+        return implode(".", $parts);
     }
 
     /**
@@ -116,25 +119,6 @@ abstract class AbstractAsset
      */
     protected function _generateIdentifierName($columnNames, $prefix='', $maxSize=30)
     {
-        /*$columnCount = count($columnNames);
-        $postfixLen = strlen($postfix);
-        $parts = array_map(function($columnName) use($columnCount, $postfixLen, $maxSize) {
-            return substr($columnName, -floor(($maxSize-$postfixLen)/$columnCount - 1));
-        }, $columnNames);
-        $parts[] = $postfix;
-
-        $identifier = trim(implode("_", $parts), '_');
-        // using implicit schema support of DB2 and Postgres there might be dots in the auto-generated
-        // identifier names which can easily be replaced by underscores.
-        $identifier = str_replace(".", "_", $identifier);
-
-        if (is_numeric(substr($identifier, 0, 1))) {
-            $identifier = "i" . substr($identifier, 0, strlen($identifier)-1);
-        }
-
-        return $identifier;*/
-
-
         $hash = implode("", array_map(function($column) {
             return dechex(crc32($column));
         }, $columnNames));

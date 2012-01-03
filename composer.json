@@ -1,0 +1,21 @@
+{
+    "name": "doctrine/dbal",
+    "type": "library",
+    "description": "Database Abstraction Layer",
+    "keywords": ["dbal", "database", "persistence", "queryobject"],
+    "homepage": "http://www.doctrine-project.org",
+    "license": "LGPL",
+    "authors": [
+        {"name": "Guilherme Blanco", "email": "guilhermeblanco@gmail.com"},
+        {"name": "Roman Borschel", "email": "roman@code-factory.org"},
+        {"name": "Benjamin Eberlei", "email": "kontakt@beberlei.de"},
+        {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "doctrine/common": "2.*"
+    },
+    "autoload": {
+        "psr-0": { "Doctrine\\DBAL": "lib/" }
+    }
+}

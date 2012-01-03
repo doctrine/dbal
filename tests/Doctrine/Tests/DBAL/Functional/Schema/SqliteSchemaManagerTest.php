@@ -5,13 +5,13 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Schema;
 
 require_once __DIR__ . '/../../../TestInit.php';
- 
+
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     /**
      * SQLITE does not support databases.
-     * 
-     * @expectedException \Exception
+     *
+     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testListDatabases()
     {
@@ -29,32 +29,18 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
-     * @expectedException \Exception
-     */
-    // This test is not correct. createSequence expects an object.
-    // PHPUnit wrapping the PHP error in an exception hides this but it shows up
-    // when the tests are run in the build (phing).
-    /*public function testCreateSequence()
-    {
-        $this->_sm->createSequence('seqname', 1, 1);
-    }*/
-
-    /**
-     * @expectedException \Exception
-     */
-    // This test is not correct. createForeignKey expects an object.
-    // PHPUnit wrapping the PHP error in an exception hides this but it shows up
-    // when the tests are run in the build (phing).
-    /*public function testCreateForeignKey()
-    {
-        $this->_sm->createForeignKey('table', array());
-    }*/
-
-    /**
-     * @expectedException \Exception
+     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testRenameTable()
     {
         $this->_sm->renameTable('oldname', 'newname');
+    }
+
+    public function testAutoincrementDetection()
+    {
+      $this->markTestSkipped(
+          'There is currently no reliable way to determine whether an SQLite column is marked as '
+          . 'auto-increment. So, while it does support a single identity column, we cannot with '
+          . 'certainty determine which it is.');
     }
 }

@@ -34,7 +34,7 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable RENAME TO userlist',
             'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
             'ALTER TABLE mytable DROP COLUMN foo',
-            'ALTER TABLE mytable CHANGE bar baz NVARCHAR(255) DEFAULT \'def\' NOT NULL',
+            'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) DEFAULT \'def\' NOT NULL',
         );
     }
 
@@ -156,7 +156,7 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
     public function testModifyLimitQueryWithOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10, 5);
-        $this->assertEquals('WITH outer_tbl AS (SELECT ROW_NUMBER() OVER (ORDER BY username DESC) AS "doctrine_rownum", * FROM (SELECT * FROM user) AS inner_tbl) SELECT * FROM outer_tbl WHERE "doctrine_rownum" BETWEEN 6 AND 15', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY username DESC) AS "doctrine_rownum", * FROM user) AS doctrine_tbl WHERE "doctrine_rownum" BETWEEN 6 AND 15', $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy()
@@ -171,8 +171,23 @@ class MsSqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('SELECT TOP 10 * FROM user ORDER BY username DESC', $sql);
     }
 
+    /**
+     * @group DDC-1360
+     */
     public function testQuoteIdentifier()
     {
         $this->assertEquals('[fo][o]', $this->_platform->quoteIdentifier('fo]o'));
+        $this->assertEquals('[test]', $this->_platform->quoteIdentifier('test'));
+        $this->assertEquals('[test].[test]', $this->_platform->quoteIdentifier('test.test'));
+    }
+
+    /**
+     * @group DDC-1360
+     */
+    public function testQuoteSingleIdentifier()
+    {
+        $this->assertEquals('[fo][o]', $this->_platform->quoteSingleIdentifier('fo]o'));
+        $this->assertEquals('[test]', $this->_platform->quoteSingleIdentifier('test'));
+        $this->assertEquals('[test.test]', $this->_platform->quoteSingleIdentifier('test.test'));
     }
 }

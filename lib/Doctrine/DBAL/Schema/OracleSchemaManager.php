@@ -89,7 +89,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
         $tableColumn = \array_change_key_case($tableColumn, CASE_LOWER);
-        
+
         $dbType = strtolower($tableColumn['data_type']);
         if(strpos($dbType, "timestamp(") === 0) {
             if (strpos($dbType, "WITH TIME ZONE")) {

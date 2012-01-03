@@ -39,7 +39,7 @@ class BooleanType extends Type
     {
         return $platform->convertBooleans($value);
     }
-    
+
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         return (null === $value) ? null : (bool) $value;

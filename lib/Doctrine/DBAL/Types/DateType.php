@@ -40,10 +40,10 @@ class DateType extends Type
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return ($value !== null) 
+        return ($value !== null)
             ? $value->format($platform->getDateFormatString()) : null;
     }
-    
+
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === null) {

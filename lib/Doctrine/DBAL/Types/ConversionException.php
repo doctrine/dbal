@@ -35,7 +35,7 @@ class ConversionException extends \Doctrine\DBAL\DBALException
 {
     /**
      * Thrown when a Database to Doctrine Type Conversion fails.
-     * 
+     *
      * @param  string $value
      * @param  string $toType
      * @return ConversionException
@@ -45,11 +45,11 @@ class ConversionException extends \Doctrine\DBAL\DBALException
         $value = (strlen($value) > 32) ? substr($value, 0, 20) . "..." : $value;
         return new self('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
     }
-    
+
     /**
      * Thrown when a Database to Doctrine Type Conversion fails and we can make a statement
      * about the expected format.
-     * 
+     *
      * @param  string $value
      * @param  string $toType
      * @return ConversionException

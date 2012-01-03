@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Events;
- 
+
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
@@ -114,6 +114,12 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $conn = new Connection(array('platform' => $platform), $driverMock, new Configuration(), $eventManager);
         $conn->connect();
+    }
+
+    public function testEventManagerPassedToPlatform()
+    {
+        $this->assertInstanceOf('Doctrine\Common\EventManager', $this->_conn->getDatabasePlatform()->getEventManager());
+        $this->assertSame($this->_conn->getEventManager(), $this->_conn->getDatabasePlatform()->getEventManager());
     }
 
     /**

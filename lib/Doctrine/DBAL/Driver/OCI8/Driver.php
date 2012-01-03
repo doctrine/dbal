@@ -25,7 +25,7 @@ use Doctrine\DBAL\Platforms;
 
 /**
  * A Doctrine DBAL driver for the Oracle OCI8 PHP extensions.
- * 
+ *
  * @author Roman Borschel <roman@code-factory.org>
  * @since 2.0
  */
@@ -50,7 +50,7 @@ class Driver implements \Doctrine\DBAL\Driver
     protected function _constructDsn(array $params)
     {
         $dsn = '';
-        if (isset($params['host'])) {
+        if (isset($params['host']) && $params['host'] != '') {
             $dsn .= '(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' .
                    '(HOST=' . $params['host'] . ')';
 
@@ -60,11 +60,11 @@ class Driver implements \Doctrine\DBAL\Driver
                 $dsn .= '(PORT=1521)';
             }
 
-            $dsn .= '))';
-            if (isset($params['dbname'])) {
-                $dsn .= '(CONNECT_DATA=(SID=' . $params['dbname'] . ')';
+            if (isset($params['service']) && $params['service'] == true) {
+                $dsn .= '))(CONNECT_DATA=(SERVICE_NAME=' . $params['dbname'] . ')))';
+            } else {
+                $dsn .= '))(CONNECT_DATA=(SID=' . $params['dbname'] . ')))';
             }
-            $dsn .= '))';
         } else {
             $dsn .= $params['dbname'];
         }

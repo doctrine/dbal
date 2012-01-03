@@ -83,7 +83,7 @@ class CreateSchemaSqlCollector implements Visitor
 
     public function acceptColumn(Table $table, Column $column)
     {
-        
+
     }
 
     /**
@@ -96,7 +96,7 @@ class CreateSchemaSqlCollector implements Visitor
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $this->_createFkConstraintQueries = array_merge($this->_createFkConstraintQueries,
                 (array) $this->_platform->getCreateForeignKeySQL(
-                    $fkConstraint, $localTable->getQuotedName($this->_platform)
+                    $fkConstraint, $localTable
                 )
             );
         }
@@ -108,7 +108,7 @@ class CreateSchemaSqlCollector implements Visitor
      */
     public function acceptIndex(Table $table, Index $index)
     {
-        
+
     }
 
     /**

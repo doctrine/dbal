@@ -37,12 +37,12 @@ class DB2Driver implements Driver
      * @param string $username The username to use when connecting.
      * @param string $password The password to use when connecting.
      * @param array $driverOptions The driver options to use when connecting.
-     * @return Doctrine\DBAL\Driver\Connection The database connection.
+     * @return \Doctrine\DBAL\Driver\Connection The database connection.
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         if ( !isset($params['schema']) ) {
-            
+
         }
 
         if ($params['host'] !== 'localhost' && $params['host'] != '127.0.0.1') {
@@ -65,7 +65,7 @@ class DB2Driver implements Driver
      * Gets the DatabasePlatform instance that provides all the metadata about
      * the platform this driver connects to.
      *
-     * @return Doctrine\DBAL\Platforms\AbstractPlatform The database platform.
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform The database platform.
      */
     public function getDatabasePlatform()
     {
@@ -76,8 +76,8 @@ class DB2Driver implements Driver
      * Gets the SchemaManager that can be used to inspect and change the underlying
      * database schema of the platform this driver connects to.
      *
-     * @param  Doctrine\DBAL\Connection $conn
-     * @return Doctrine\DBAL\SchemaManager
+     * @param  \Doctrine\DBAL\Connection $conn
+     * @return \Doctrine\DBAL\SchemaManager
      */
     public function getSchemaManager(Connection $conn)
     {
@@ -97,7 +97,7 @@ class DB2Driver implements Driver
     /**
      * Get the name of the database connected to for this driver.
      *
-     * @param  Doctrine\DBAL\Connection $conn
+     * @param  \Doctrine\DBAL\Connection $conn
      * @return string $database
      */
     public function getDatabase(\Doctrine\DBAL\Connection $conn)

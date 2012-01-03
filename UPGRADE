@@ -1,0 +1,15 @@
+# Upgrade to 2.2
+
+## Doctrine\DBAL\Connection#insert and Doctrine\DBAL\Connnection#update
+
+Both methods now accept an optional last parameter $types with binding types of the values passed.
+This can potentially break child classes that have overwritten one of these methods.
+
+## Doctrine\DBAL\Connection#executeQuery
+
+Doctrine\DBAL\Connection#executeQuery() got a new last parameter "QueryCacheProfile $qcp"
+
+## Doctrine\DBAL\Driver\Statement split
+
+The Driver statement was split into a ResultStatement and the normal statement extending from it.
+This seperates the configuration and the retrieval API from a statement.

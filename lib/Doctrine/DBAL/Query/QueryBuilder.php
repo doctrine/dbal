@@ -24,10 +24,10 @@ use Doctrine\DBAL\Query\Expression\CompositeExpression,
 
 /**
  * QueryBuilder class is responsible to dynamically create SQL queries.
- * 
+ *
  * Important: Verify that every feature you use will work with your database vendor.
  * SQL Query Builder does not attempt to validate the generated SQL at all.
- * 
+ *
  * The query builder does no validation whatsoever if certain features even work with the
  * underlying database vendor. Limit queries and joins are NOT applied to UPDATE and DELETE statements
  * even if some vendors such as MySQL support it.
@@ -102,10 +102,10 @@ class QueryBuilder
      * @var integer The maximum number of results to retrieve.
      */
     private $maxResults = null;
-    
+
     /**
      * The counter of bound parameters used with {@see bindValue)
-     * 
+     *
      * @var int
      */
     private $boundCounter = 0;
@@ -113,7 +113,7 @@ class QueryBuilder
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
      *
-     * @param Doctrine\DBAL\Connection $connection DBAL Connection
+     * @param \Doctrine\DBAL\Connection $connection DBAL Connection
      */
     public function __construct(Connection $connection)
     {
@@ -134,7 +134,7 @@ class QueryBuilder
      * For more complex expression construction, consider storing the expression
      * builder object in a local variable.
      *
-     * @return Doctrine\DBAL\Query\ExpressionBuilder
+     * @return \Doctrine\DBAL\Query\ExpressionBuilder
      */
     public function expr()
     {
@@ -154,7 +154,7 @@ class QueryBuilder
     /**
      * Get the associated DBAL Connection for this query builder.
      *
-     * @return Doctrine\DBAL\Connection
+     * @return \Doctrine\DBAL\Connection
      */
     public function getConnection()
     {
@@ -170,14 +170,14 @@ class QueryBuilder
     {
         return $this->state;
     }
-    
+
     /**
      * Execute this query using the bound parameters and their types.
-     * 
+     *
      * Uses {@see Connection::executeQuery} for select statements and {@see Connection::executeUpdate}
      * for insert, update and delete statements.
-     * 
-     * @return mixed 
+     *
+     * @return mixed
      */
     public function execute()
     {
@@ -306,7 +306,7 @@ class QueryBuilder
      * Sets the position of the first result to retrieve (the "offset").
      *
      * @param integer $firstResult The first result to return.
-     * @return Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
      */
     public function setFirstResult($firstResult)
     {
@@ -330,7 +330,7 @@ class QueryBuilder
      * Sets the maximum number of results to retrieve (the "limit").
      *
      * @param integer $maxResults The maximum number of results to retrieve.
-     * @return Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
      */
     public function setMaxResults($maxResults)
     {
@@ -359,7 +359,7 @@ class QueryBuilder
      * @param string $sqlPartName
      * @param string $sqlPart
      * @param string $append
-     * @return Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
      */
     public function add($sqlPartName, $sqlPart, $append = false)
     {
@@ -390,7 +390,7 @@ class QueryBuilder
         }
 
         $this->sqlParts[$sqlPartName] = $sqlPart;
-        
+
         return $this;
     }
 
@@ -604,7 +604,7 @@ class QueryBuilder
             )
         ), true);
     }
-    
+
     /**
      * Creates and adds a right join to the query.
      *
@@ -939,69 +939,76 @@ class QueryBuilder
 
         return $this;
     }
-    
+
     /**
      * Converts this instance into a SELECT string in SQL.
-     * 
+     *
      * @return string
      */
     private function getSQLForSelect()
     {
         $query = 'SELECT ' . implode(', ', $this->sqlParts['select']) . ' FROM ';
-        
+
         $fromClauses = array();
-        
+
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
             $fromClause = $from['table'] . ' ' . $from['alias'];
-            
+
             if (isset($this->sqlParts['join'][$from['alias']])) {
                 foreach ($this->sqlParts['join'][$from['alias']] as $join) {
-                    $fromClause .= ' ' . strtoupper($join['joinType']) 
-                                 . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias'] 
+                    $fromClause .= ' ' . strtoupper($join['joinType'])
+                                 . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
                                  . ' ON ' . ((string) $join['joinCondition']);
                 }
             }
-            
-            $fromClauses[] = $fromClause;
+
+            $fromClauses[$from['alias']] = $fromClause;
         }
-        
-        $query .= implode(', ', $fromClauses) 
+
+        // loop through all JOIN clasues for validation purpose
+        foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
+            if ( ! isset($fromClauses[$fromAlias]) ) {
+                throw QueryException::unknownFromAlias($fromAlias, array_keys($fromClauses));
+            }
+        }
+
+        $query .= implode(', ', $fromClauses)
                 . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
                 . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
                 . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
                 . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
-        
-        return ($this->maxResults === null && $this->firstResult == null) 
+
+        return ($this->maxResults === null && $this->firstResult == null)
             ? $query
             : $this->connection->getDatabasePlatform()->modifyLimitQuery($query, $this->maxResults, $this->firstResult);
     }
-    
+
     /**
      * Converts this instance into an UPDATE string in SQL.
-     * 
+     *
      * @return string
      */
     private function getSQLForUpdate()
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
-        $query = 'UPDATE ' . $table 
+        $query = 'UPDATE ' . $table
                . ' SET ' . implode(", ", $this->sqlParts['set'])
                . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
-        
+
         return $query;
     }
-    
+
     /**
      * Converts this instance into a DELETE string in SQL.
-     * 
+     *
      * @return string
      */
     private function getSQLForDelete()
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
         $query = 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
-        
+
         return $query;
     }
 
@@ -1015,7 +1022,7 @@ class QueryBuilder
     {
         return $this->getSQL();
     }
-    
+
     /**
      * Create a new named parameter and bind the value $value to it.
      *
@@ -1053,15 +1060,15 @@ class QueryBuilder
 
         return $placeHolder;
     }
-    
+
     /**
      * Create a new positional parameter and bind the given value to it.
-     * 
+     *
      * Attention: If you are using positional parameters with the query builder you have
      * to be very careful to bind all parameters in the order they appear in the SQL
      * statement , otherwise they get bound in the wrong order which can lead to serious
      * bugs in your code.
-     * 
+     *
      * Example:
      * <code>
      *  $qb = $conn->createQueryBuilder();
@@ -1070,7 +1077,7 @@ class QueryBuilder
      *     ->where('u.username = ' . $qb->createPositionalParameter('Foo', PDO::PARAM_STR))
      *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', PDO::PARAM_STR))
      * </code>
-     * 
+     *
      * @param  mixed $value
      * @param  mixed $type
      * @return string

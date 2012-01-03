@@ -76,10 +76,10 @@ class Index extends AbstractAsset implements Constraint
     {
         return $this->_columns;
     }
-    
+
     /**
      * Is the index neither unique nor primary key?
-     * 
+     *
      * @return bool
      */
     public function isSimpleIndex()

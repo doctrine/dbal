@@ -6,7 +6,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
- 
+
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()
@@ -94,7 +94,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testDropTable()
     {
-        $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));        
+        $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
     }
 
     public function testGeneratesTypeDeclarationForIntegers()
@@ -145,9 +145,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testSupportsSavePoints()
     {
-        $this->assertTrue($this->_platform->supportsSavepoints());   
+        $this->assertTrue($this->_platform->supportsSavepoints());
     }
-    
+
     public function getGenerateIndexSql()
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
@@ -195,6 +195,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function getCreateTableColumnTypeCommentsSQL()
+    {
+        return array(
+            "CREATE TABLE test (id NUMBER(10) NOT NULL, data CLOB NOT NULL, PRIMARY KEY(id))",
+            "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
+        );
+    }
+
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
@@ -203,5 +211,17 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
+    }
+
+    public function getBitAndComparisonExpressionSql($value1, $value2)
+    {
+        return 'BITAND('.$value1 . ', ' . $value2 . ')';
+    }
+
+    public function getBitOrComparisonExpressionSql($value1, $value2)
+    {
+        return '(' . $value1 . '-' .
+                $this->getBitAndComparisonExpressionSql($value1, $value2)
+                . '+' . $value2 . ')';
     }
 }

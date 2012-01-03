@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks;
 
 require_once __DIR__ . '/../../TestInit.php';
- 
+
 class DateTimeTest extends \Doctrine\Tests\DbalTestCase
 {
     protected
@@ -24,7 +24,7 @@ class DateTimeTest extends \Doctrine\Tests\DbalTestCase
         $date = new \DateTime('1985-09-01 10:10:10');
 
         $expected = $date->format($this->_platform->getDateTimeTzFormatString());
-        $actual = is_string($this->_type->convertToDatabaseValue($date, $this->_platform));
+        $actual = $this->_type->convertToDatabaseValue($date, $this->_platform);
 
         $this->assertEquals($expected, $actual);
     }
