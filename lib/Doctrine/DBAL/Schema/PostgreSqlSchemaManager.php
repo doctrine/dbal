@@ -277,7 +277,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $scale = null;
 
         $dbType = strtolower($tableColumn['type']);
-        if (strlen($tableColumn['domain_type'])) {
+        if (strlen($tableColumn['domain_type']) && !$this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])) {
             $dbType = strtolower($tableColumn['domain_type']);
             $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
         }
