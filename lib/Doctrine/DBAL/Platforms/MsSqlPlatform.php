@@ -647,7 +647,7 @@ class MsSqlPlatform extends AbstractPlatform
             }
 
             if ($offset == 0) {
-                $query = preg_replace('/^SELECT\s/i', 'SELECT TOP ' . $count . ' ', $query);
+                $query = preg_replace('/^(SELECT\s(DISTINCT)?)/i', '\1 TOP ' . $count . ' ', $query);
             } else {
                 $orderby = stristr($query, 'ORDER BY');
 
