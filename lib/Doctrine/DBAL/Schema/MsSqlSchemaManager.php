@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 
 /**
