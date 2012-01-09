@@ -38,7 +38,7 @@ class ArrayType extends Type
 
     public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
-        if ($value === null) {
+        if ($value === null || $value == '') {
             return null;
         }
 
