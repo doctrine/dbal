@@ -811,6 +811,7 @@ LEFT JOIN all_cons_columns r_cols
             'long raw'          => 'text',
             'rowid'             => 'string',
             'urowid'            => 'string',
+            'blob'              => 'blob',
         );
     }
 
