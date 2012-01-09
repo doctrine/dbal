@@ -473,8 +473,8 @@ abstract class AbstractSchemaManager
      */
     public function dropAndCreateSequence(Sequence $sequence)
     {
-        $this->tryMethod('createSequence', $seqName, $start, $allocationSize);
-        $this->createSequence($seqName, $start, $allocationSize);
+        $this->tryMethod('dropSequence', $sequence->getQuotedName($this->_platform));
+        $this->createSequence($sequence);
     }
 
     /**
