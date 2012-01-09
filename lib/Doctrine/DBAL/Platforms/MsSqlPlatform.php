@@ -764,7 +764,7 @@ class MsSqlPlatform extends AbstractPlatform
             'nvarchar' => 'string',
             'ntext' => 'text',
             'binary' => 'text',
-            'varbinary' => 'text',
+            'varbinary' => 'blob',
             'image' => 'text',
         );
     }

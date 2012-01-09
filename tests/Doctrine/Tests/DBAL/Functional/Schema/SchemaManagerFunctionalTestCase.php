@@ -548,6 +548,20 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
+     * @group DBAL-197
+     */
+    public function testListTableWithBlob()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table('test_blob_table');
+        $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
+        $table->addColumn('binarydata', 'blob', array());
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+        $blobTable = $this->_sm->listTableDetails('test_blob_table');
+    }
+
+    /**
      * @param string $name
      * @param array $data
      */
