@@ -703,7 +703,7 @@ abstract class AbstractPlatform
         $values = $this->getIdentifiers($values);
 
         if (count($values) == 0) {
-            throw \InvalidArgumentException('Values must not be empty.');
+            throw new \InvalidArgumentException('Values must not be empty.');
         }
         return $column . ' IN (' . implode(', ', $values) . ')';
     }
@@ -1700,7 +1700,7 @@ abstract class AbstractPlatform
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
         if (count($index->getColumns()) == 0) {
-            throw \InvalidArgumentException("Incomplete definition. 'columns' required.");
+            throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
         return 'CONSTRAINT ' . $name . ' UNIQUE ('
@@ -1725,7 +1725,7 @@ abstract class AbstractPlatform
         }
 
         if (count($index->getColumns()) == 0) {
-            throw \InvalidArgumentException("Incomplete definition. 'columns' required.");
+            throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
         return $type . 'INDEX ' . $name . ' ('
