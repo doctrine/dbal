@@ -141,7 +141,6 @@ class SQLParserUtils
             $paramsOrd  = array();
             foreach ($paramPos as $needle => $needlePos) {
                 $paramLen   = strlen($needle);
-                $token      = substr($needle,0,1);
                 $needle     = substr($needle,1);
                 $value      = $params[$needle];
 
