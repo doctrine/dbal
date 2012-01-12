@@ -154,7 +154,6 @@ class MsSqlPlatform extends AbstractPlatform
     public function getDropIndexSQL($index, $table=null)
     {
         if ($index instanceof \Doctrine\DBAL\Schema\Index) {
-            $index_ = $index;
             $index = $index->getQuotedName($this);
         } else if (!is_string($index)) {
             throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
@@ -284,7 +283,7 @@ class MsSqlPlatform extends AbstractPlatform
             $queryParts[] = 'RENAME TO ' . $diff->newName;
         }
 
-        foreach ($diff->addedColumns AS $fieldName => $column) {
+        foreach ($diff->addedColumns AS $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
