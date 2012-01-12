@@ -358,7 +358,7 @@ class DB2Platform extends AbstractPlatform
 
         $sqls = parent::_getCreateTableSQL($tableName, $columns, $options);
 
-        foreach ($indexes as $index => $definition) {
+        foreach ($indexes AS $definition) {
             $sqls[] = $this->getCreateIndexSQL($definition, $tableName);
         }
         return $sqls;
@@ -376,7 +376,7 @@ class DB2Platform extends AbstractPlatform
         $columnSql = array();
 
         $queryParts = array();
-        foreach ($diff->addedColumns AS $fieldName => $column) {
+        foreach ($diff->addedColumns AS $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
