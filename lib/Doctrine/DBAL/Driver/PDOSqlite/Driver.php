@@ -59,7 +59,7 @@ class Driver implements \Doctrine\DBAL\Driver
             $driverOptions
         );
 
-        foreach ($this->_userDefinedFunctions AS $fn => $data) {
+        foreach ($this->_userDefinedFunctions as $fn => $data) {
             $pdo->sqliteCreateFunction($fn, $data['callback'], $data['numArgs']);
         }
 

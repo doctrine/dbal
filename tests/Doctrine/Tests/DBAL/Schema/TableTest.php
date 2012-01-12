@@ -87,6 +87,14 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $this->assertFalse($table->hasColumn("bar"));
     }
 
+    public function testDropInvalidColumn()
+    {
+        $this->setExpectedException('Doctrine\DBAL\Schema\SchemaException');
+
+        $table = new Table('foo');
+        $table->dropColumn('bar');
+    }
+
     public function testGetUnknownColumnThrowsException()
     {
         $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");

@@ -21,7 +21,7 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      */
     static public function tableDoesNotExist($tableName)
     {
-        return new self("There is no table with name '".$tableName."' in the schema.", self::TABLE_DOESNT_EXIST);
+        return new self("There is no table with name '$tableName' in the schema.", self::TABLE_DOESNT_EXIST);
     }
 
     /**

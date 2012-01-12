@@ -199,7 +199,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = array();
-        foreach ($tableForeignKeys as $key => $value) {
+        foreach ($tableForeignKeys as $value) {
             $value = \array_change_key_case($value, CASE_LOWER);
             if (!isset($list[$value['constraint_name']])) {
                 if ($value['delete_rule'] == "NO ACTION") {
@@ -219,7 +219,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         $result = array();
-        foreach($list AS $constraint) {
+        foreach($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
                 array_values($constraint['local']), $constraint['foreignTable'],
                 array_values($constraint['foreign']),  $constraint['name'],

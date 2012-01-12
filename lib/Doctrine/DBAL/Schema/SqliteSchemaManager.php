@@ -80,7 +80,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         // fetch primary
         $stmt = $this->_conn->executeQuery( "PRAGMA TABLE_INFO ('$tableName')" );
         $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        foreach($indexArray AS $indexColumnRow) {
+        foreach($indexArray as $indexColumnRow) {
             if($indexColumnRow['pk'] == "1") {
                 $indexBuffer[] = array(
                     'key_name' => 'primary',
@@ -92,7 +92,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         // fetch regular indexes
-        foreach($tableIndexes AS $tableIndex) {
+        foreach($tableIndexes as $tableIndex) {
             // Ignore indexes with reserved names, e.g. autoindexes
             if (strpos($tableIndex['name'], 'sqlite_') !== 0) {
                 $keyName = $tableIndex['name'];

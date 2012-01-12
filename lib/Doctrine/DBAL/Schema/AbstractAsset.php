@@ -98,7 +98,7 @@ abstract class AbstractAsset
     {
         $keywords = $platform->getReservedKeywordsList();
         $parts = explode(".", $this->_name);
-        foreach ($parts AS $k => $v) {
+        foreach ($parts as $k => $v) {
             $parts[$k] = ($this->_quoted || $keywords->isKeyword($v)) ? $platform->quoteIdentifier($v) : $v;
         }
 

@@ -1024,7 +1024,7 @@ abstract class AbstractPlatform
         $options['primary'] = array();
 
         if (($createFlags&self::CREATE_INDEXES) > 0) {
-            foreach ($table->getIndexes() AS $index) {
+            foreach ($table->getIndexes() as $index) {
                 /* @var $index Index */
                 if ($index->isPrimary()) {
                     $options['primary'] = $index->getColumns();
@@ -1036,7 +1036,7 @@ abstract class AbstractPlatform
 
         $columnSql = array();
         $columns = array();
-        foreach ($table->getColumns() AS $column) {
+        foreach ($table->getColumns() as $column) {
             /* @var \Doctrine\DBAL\Schema\Column $column */
 
             if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)) {
@@ -1078,7 +1078,7 @@ abstract class AbstractPlatform
 
         if (($createFlags&self::CREATE_FOREIGNKEYS) > 0) {
             $options['foreignKeys'] = array();
-            foreach ($table->getForeignKeys() AS $fkConstraint) {
+            foreach ($table->getForeignKeys() as $fkConstraint) {
                 $options['foreignKeys'][] = $fkConstraint;
             }
         }
@@ -1094,7 +1094,7 @@ abstract class AbstractPlatform
 
         $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
         if ($this->supportsCommentOnStatement()) {
-            foreach ($table->getColumns() AS $column) {
+            foreach ($table->getColumns() as $column) {
                 if ($this->getColumnComment($column)) {
                     $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $this->getColumnComment($column));
                 }
@@ -1146,7 +1146,7 @@ abstract class AbstractPlatform
         $sql[] = $query;
 
         if (isset($options['foreignKeys'])) {
-            foreach ((array) $options['foreignKeys'] AS $definition) {
+            foreach ((array) $options['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
             }
         }
@@ -1217,7 +1217,7 @@ abstract class AbstractPlatform
             $query .= ' FOREIGN KEY';
 
             $foreignColumns = array();
-            foreach ($constraint->getForeignColumns() AS $column) {
+            foreach ($constraint->getForeignColumns() as $column) {
                 $foreignColumns[] = $column;
             }
 
@@ -1460,18 +1460,18 @@ abstract class AbstractPlatform
 
         $sql = array();
         if ($this->supportsForeignKeyConstraints()) {
-            foreach ($diff->removedForeignKeys AS $foreignKey) {
+            foreach ($diff->removedForeignKeys as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
             }
-            foreach ($diff->changedForeignKeys AS $foreignKey) {
+            foreach ($diff->changedForeignKeys as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
             }
         }
 
-        foreach ($diff->removedIndexes AS $index) {
+        foreach ($diff->removedIndexes as $index) {
             $sql[] = $this->getDropIndexSQL($index, $tableName);
         }
-        foreach ($diff->changedIndexes AS $index) {
+        foreach ($diff->changedIndexes as $index) {
             $sql[] = $this->getDropIndexSQL($index, $tableName);
         }
 
@@ -1488,18 +1488,18 @@ abstract class AbstractPlatform
 
         $sql = array();
         if ($this->supportsForeignKeyConstraints()) {
-            foreach ($diff->addedForeignKeys AS $foreignKey) {
+            foreach ($diff->addedForeignKeys as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
-            foreach ($diff->changedForeignKeys AS $foreignKey) {
+            foreach ($diff->changedForeignKeys as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
         }
 
-        foreach ($diff->addedIndexes AS $index) {
+        foreach ($diff->addedIndexes as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
-        foreach ($diff->changedIndexes AS $index) {
+        foreach ($diff->changedIndexes as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
 
