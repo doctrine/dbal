@@ -107,7 +107,7 @@ class MsSqlSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
     {
         $result = array();
-        foreach ($tableIndexRows AS $tableIndex) {
+        foreach ($tableIndexRows as $tableIndex) {
             $indexName = $keyName = $tableIndex['index_name'];
             if (strpos($tableIndex['index_description'], 'primary key') !== false) {
                 $keyName = 'primary';
@@ -125,7 +125,7 @@ class MsSqlSchemaManager extends AbstractSchemaManager
         $eventManager = $this->_platform->getEventManager();
 
         $indexes = array();
-        foreach ($result AS $indexKey => $data) {
+        foreach ($result as $indexKey => $data) {
             $index = null;
             $defaultPrevented = false;
 

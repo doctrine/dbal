@@ -209,13 +209,13 @@ class MsSqlPlatform extends AbstractPlatform
         $sql[] = $query;
 
         if (isset($options['indexes']) && !empty($options['indexes'])) {
-            foreach ($options['indexes'] AS $index) {
+            foreach ($options['indexes'] as $index) {
                 $sql[] = $this->getCreateIndexSQL($index, $tableName);
             }
         }
 
         if (isset($options['foreignKeys'])) {
-            foreach ((array) $options['foreignKeys'] AS $definition) {
+            foreach ((array) $options['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
             }
         }
@@ -283,7 +283,7 @@ class MsSqlPlatform extends AbstractPlatform
             $queryParts[] = 'RENAME TO ' . $diff->newName;
         }
 
-        foreach ($diff->addedColumns AS $column) {
+        foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -291,7 +291,7 @@ class MsSqlPlatform extends AbstractPlatform
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
-        foreach ($diff->removedColumns AS $column) {
+        foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -299,7 +299,7 @@ class MsSqlPlatform extends AbstractPlatform
             $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->changedColumns AS $columnDiff) {
+        foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -310,7 +310,7 @@ class MsSqlPlatform extends AbstractPlatform
                     $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
-        foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+        foreach ($diff->renamedColumns as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }

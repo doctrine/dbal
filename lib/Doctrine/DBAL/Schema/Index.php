@@ -52,7 +52,7 @@ class Index extends AbstractAsset implements Constraint
         $this->_isUnique = $isUnique;
         $this->_isPrimary = $isPrimary;
 
-        foreach($columns AS $column) {
+        foreach ($columns as $column) {
             $this->_addColumn($column);
         }
     }

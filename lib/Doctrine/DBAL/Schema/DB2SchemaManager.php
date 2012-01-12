@@ -113,7 +113,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     protected function _getPortableTablesList($tables)
     {
         $tableNames = array();
-        foreach ($tables AS $tableRow) {
+        foreach ($tables as $tableRow) {
             $tableRow = array_change_key_case($tableRow, \CASE_LOWER);
             $tableNames[] = $tableRow['name'];
         }
@@ -125,7 +125,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         $eventManager = $this->_platform->getEventManager();
 
         $indexes = array();
-        foreach($tableIndexes AS $indexKey => $data) {
+        foreach($tableIndexes as $indexKey => $data) {
             $data = array_change_key_case($data, \CASE_LOWER);
             $unique = ($data['uniquerule'] == 'D') ? false : true;
             $primary = ($data['uniquerule'] == 'P');

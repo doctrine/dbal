@@ -213,7 +213,7 @@ abstract class AbstractSchemaManager
         $tableNames = $this->listTableNames();
 
         $tables = array();
-        foreach ($tableNames AS $tableName) {
+        foreach ($tableNames as $tableName) {
             $tables[] = $this->listTableDetails($tableName);
         }
 
@@ -299,7 +299,7 @@ abstract class AbstractSchemaManager
      */
     public function dropIndex($index, $table)
     {
-        if($index instanceof Index) {
+        if ($index instanceof Index) {
             $index = $index->getQuotedName($this->_platform);
         }
 
@@ -524,7 +524,7 @@ abstract class AbstractSchemaManager
     {
         $queries = $this->_platform->getAlterTableSQL($tableDiff);
         if (is_array($queries) && count($queries)) {
-            foreach ($queries AS $ddlQuery) {
+            foreach ($queries as $ddlQuery) {
                 $this->_execSql($ddlQuery);
             }
         }
@@ -673,14 +673,14 @@ abstract class AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
     {
         $result = array();
-        foreach($tableIndexRows AS $tableIndex) {
+        foreach ($tableIndexRows as $tableIndex) {
             $indexName = $keyName = $tableIndex['key_name'];
-            if($tableIndex['primary']) {
+            if ($tableIndex['primary']) {
                 $keyName = 'primary';
             }
             $keyName = strtolower($keyName);
 
-            if(!isset($result[$keyName])) {
+            if ( ! isset($result[$keyName])) {
                 $result[$keyName] = array(
                     'name' => $indexName,
                     'columns' => array($tableIndex['column_name']),
@@ -695,7 +695,7 @@ abstract class AbstractSchemaManager
         $eventManager = $this->_platform->getEventManager();
 
         $indexes = array();
-        foreach($result AS $indexKey => $data) {
+        foreach ($result as $indexKey => $data) {
             $index = null;
             $defaultPrevented = false;
 
@@ -707,7 +707,7 @@ abstract class AbstractSchemaManager
                 $index = $eventArgs->getIndex();
             }
 
-            if (!$defaultPrevented) {
+            if ( ! $defaultPrevented) {
                 $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary']);
             }
 
@@ -799,7 +799,7 @@ abstract class AbstractSchemaManager
     public function createSchema()
     {
         $sequences = array();
-        if($this->_platform->supportsSequences()) {
+        if ($this->_platform->supportsSequences()) {
             $sequences = $this->listSequences();
         }
         $tables = $this->listTables();

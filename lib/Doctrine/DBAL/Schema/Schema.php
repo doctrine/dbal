@@ -65,10 +65,10 @@ class Schema extends AbstractAsset
         }
         $this->_schemaConfig = $schemaConfig;
 
-        foreach ($tables AS $table) {
+        foreach ($tables as $table) {
             $this->_addTable($table);
         }
-        foreach ($sequences AS $sequence) {
+        foreach ($sequences as $sequence) {
             $this->_addSequence($sequence);
         }
     }
@@ -160,7 +160,7 @@ class Schema extends AbstractAsset
     public function getSequence($sequenceName)
     {
         $sequenceName = strtolower($sequenceName);
-        if(!$this->hasSequence($sequenceName)) {
+        if ( ! $this->hasSequence($sequenceName)) {
             throw SchemaException::sequenceDoesNotExist($sequenceName);
         }
         return $this->_sequences[$sequenceName];
@@ -213,10 +213,9 @@ class Schema extends AbstractAsset
     public function dropTable($tableName)
     {
         $tableName = strtolower($tableName);
-        if (false === $this->hasTable($tableName)) {
+        if ( ! $this->hasTable($tableName)) {
             throw SchemaException::tableDoesNotExist($tableName);
         }
-
         unset($this->_tables[$tableName]);
         return $this;
     }
@@ -304,10 +303,10 @@ class Schema extends AbstractAsset
     {
         $visitor->acceptSchema($this);
 
-        foreach ($this->_tables AS $table) {
+        foreach ($this->_tables as $table) {
             $table->visit($visitor);
         }
-        foreach ($this->_sequences AS $sequence) {
+        foreach ($this->_sequences as $sequence) {
             $sequence->visit($visitor);
         }
     }
@@ -319,10 +318,10 @@ class Schema extends AbstractAsset
      */
     public function __clone()
     {
-        foreach ($this->_tables AS $k => $table) {
+        foreach ($this->_tables as $k => $table) {
             $this->_tables[$k] = clone $table;
         }
-        foreach ($this->_sequences AS $k => $sequence) {
+        foreach ($this->_sequences as $k => $sequence) {
             $this->_sequences[$k] = clone $sequence;
         }
     }
