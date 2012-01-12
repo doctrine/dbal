@@ -273,7 +273,7 @@ class Table extends AbstractAsset
     public function dropColumn($columnName)
     {
         $columnName = strtolower($columnName);
-        if (!$this->hasColumn($columnName)) {
+        if (false === $this->hasColumn($columnName)) {
             throw SchemaException::columnDoesNotExist($columnName, $this->_name);
         }
 

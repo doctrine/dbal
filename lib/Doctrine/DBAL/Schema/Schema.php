@@ -213,7 +213,7 @@ class Schema extends AbstractAsset
     public function dropTable($tableName)
     {
         $tableName = strtolower($tableName);
-        if (!$this->hasTable($tableName)) {
+        if (false === $this->hasTable($tableName)) {
             throw SchemaException::tableDoesNotExist($tableName);
         }
 
