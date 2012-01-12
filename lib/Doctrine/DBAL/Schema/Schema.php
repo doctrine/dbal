@@ -123,8 +123,7 @@ class Schema extends AbstractAsset
      */
     public function getTable($tableName)
     {
-        $tableName = strtolower($tableName);
-        if (!isset($this->_tables[$tableName])) {
+        if (false === $this->hasTable($tableName)) {
             throw SchemaException::tableDoesNotExist($tableName);
         }
 
@@ -214,7 +213,10 @@ class Schema extends AbstractAsset
     public function dropTable($tableName)
     {
         $tableName = strtolower($tableName);
-        $table = $this->getTable($tableName);
+        if (!$this->hasTable($tableName)) {
+            throw SchemaException::tableDoesNotExist($tableName);
+        }
+
         unset($this->_tables[$tableName]);
         return $this;
     }

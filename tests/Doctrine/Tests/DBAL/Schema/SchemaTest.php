@@ -77,11 +77,19 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $table = new Table($tableName);
         $schema = new Schema(array($table));
 
-        $this->assertTrue($schema->hasTable("foo"));
+        $this->assertTrue($schema->hasTable($tableName));
 
-        $schema->dropTable("foo");
+        $schema->dropTable($tableName);
 
-        $this->assertFalse($schema->hasTable("foo"));
+        $this->assertFalse($schema->hasTable($tableName));
+    }
+
+    public function testDropInvalidTable()
+    {
+        $this->setExpectedException('Doctrine\DBAL\Schema\SchemaException');
+
+        $schema = new Schema();
+        $schema->dropTable('foo');
     }
 
     public function testCreateTable()
