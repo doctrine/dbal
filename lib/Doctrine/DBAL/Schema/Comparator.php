@@ -255,7 +255,7 @@ class Comparator
             }
         }
 
-        foreach ($renameCandidates AS $candidate => $candidateColumns) {
+        foreach ($renameCandidates AS $candidateColumns) {
             if (count($candidateColumns) == 1) {
                 list($removedColumn, $addedColumn) = $candidateColumns[0];
                 $removedColumnName = strtolower($removedColumn->getName());
