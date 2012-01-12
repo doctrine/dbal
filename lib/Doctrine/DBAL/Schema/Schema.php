@@ -123,7 +123,7 @@ class Schema extends AbstractAsset
      */
     public function getTable($tableName)
     {
-        if (false === $this->hasTable($tableName)) {
+        if ( ! $this->hasTable($tableName)) {
             throw SchemaException::tableDoesNotExist($tableName);
         }
 
