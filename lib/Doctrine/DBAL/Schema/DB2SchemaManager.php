@@ -124,12 +124,11 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         $eventManager = $this->_platform->getEventManager();
 
-        $tableIndexRows = array();
         $indexes = array();
         foreach($tableIndexes AS $indexKey => $data) {
             $data = array_change_key_case($data, \CASE_LOWER);
-            $unique = ($data['uniquerule'] == "D") ? false : true;
-            $primary = ($data['uniquerule'] == "P");
+            $unique = ($data['uniquerule'] == 'D') ? false : true;
+            $primary = ($data['uniquerule'] == 'P');
 
             $indexName = strtolower($data['name']);
             if ($primary) {
@@ -140,7 +139,7 @@ class DB2SchemaManager extends AbstractSchemaManager
 
             $data = array(
                 'name' => $indexName,
-                'columns' => explode("+", ltrim($data['colnames'], '+')),
+                'columns' => explode('+', ltrim($data['colnames'], '+')),
                 'unique' => $unique,
                 'primary' => $primary
             );
