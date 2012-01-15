@@ -2,17 +2,14 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\Platforms\MsSqlPlatform;
+use Doctrine\DBAL\Platforms\SQLServer2008Platform;
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
-class MsSqlPlatformTest extends AbstractPlatformTestCase
+class SQLServerPlatformTest extends AbstractPlatformTestCase
 {
-
     public function createPlatform()
     {
-        return new MsSqlPlatform;
+        return new SQLServer2008Platform;
     }
 
     public function getGenerateTableSql()

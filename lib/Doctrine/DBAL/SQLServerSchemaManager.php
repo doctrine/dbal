@@ -22,18 +22,16 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 
 /**
- * xxx
+ * SQL Server Schema Manager
  *
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author      Juozas Kaziukenas <juozas@juokaz.com>
- * @version     $Revision$
  * @since       2.0
  */
-class MsSqlSchemaManager extends AbstractSchemaManager
+class SQLServerSchemaManager extends AbstractSchemaManager
 {
-
     /**
      * @override
      */
