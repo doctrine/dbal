@@ -13,3 +13,60 @@ Doctrine\DBAL\Connection#executeQuery() got a new last parameter "QueryCacheProf
 
 The Driver statement was split into a ResultStatement and the normal statement extending from it.
 This seperates the configuration and the retrieval API from a statement.
+
+## MsSql Platform/SchemaManager renamed
+
+The MsSqlPlatform was renamed to SQLServerPlatform, the MsSqlSchemaManager was renamed
+to SQLServerSchemaManager.
+
+## Cleanup SQLServer Platform version mess
+
+DBAL 2.1 and before were actually only compatible to SQL Server 2008, not earlier versions.
+Still other parts of the platform did use old features instead of newly introced datatypes
+in SQL Server 2005. Starting with DBAL 2.2 you can pick the Doctrine abstraction exactly
+matching your SQL Server version.
+
+The PDO SqlSrv driver now uses the new `SQLServer2008Platform` as default platform.
+This platform uses new features of SQL Server as of version 2008. This also includes a switch
+in the used fields for "text" and "blob" field types to:
+
+    "text" => "VARCHAR(MAX)"
+    "blob" => "VARBINARY(MAX)"
+
+Additionally `SQLServerPlatform` in DBAL 2.1 and before used "DATE", "TIME" and "DATETIME2" for dates.
+This types are only available since version 2008 and the introduction of an explicit
+SQLServer 2008 platform makes this dependency explicit.
+
+An `SQLServer2005Platform` was also introduced to differentiate the features between
+versions 2003, earlier and 2005.
+
+With this change the `SQLServerPlatform` now throws an exception for using limit queries
+with an offset, since SQLServer 2003 and lower do not support this feature.
+
+To use the old SQL Server Platform, because you are using SQL Server 2003 and below use
+the following configuration code:
+
+    use Doctrine\DBAL\DriverManager;
+    use Doctrine\DBAL\Platforms\SQLServerPlatform;
+    use Doctrine\DBAL\Platforms\SQLServer2005Platform;
+
+    // You are using SQL Server 2003 or earlier
+    $conn = DriverManager::getConnection(array(
+        'driver' => 'pdo_sqlsrv',
+        'platform' => new SQLServerPlatform()
+        // .. additional parameters
+    ));
+
+    // You are using SQL Server 2005
+    $conn = DriverManager::getConnection(array(
+        'driver' => 'pdo_sqlsrv',
+        'platform' => new SQLServer2005Platform()
+        // .. additional parameters
+    ));
+
+    // You are using SQL Server 2008
+    $conn = DriverManager::getConnection(array(
+        'driver' => 'pdo_sqlsrv',
+        // 2008 is default platform
+        // .. additional parameters
+    ));

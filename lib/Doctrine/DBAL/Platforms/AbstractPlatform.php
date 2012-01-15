@@ -2454,6 +2454,13 @@ abstract class AbstractPlatform
 
         if ( $offset !== null) {
             $offset = (int)$offset;
+
+            if ($offset < 0) {
+                throw new DBALException("LIMIT argument offset=$offset is not valid");
+            }
+            if ( $offset > 0 && ! $this->supportsLimitOffset()) {
+                throw new DBALException(sprintf("Platform %s does not support offset values in limit queries.", $this->getName()));
+            }
         }
 
         return $this->doModifyLimitQuery($query, $limit, $offset);
@@ -2476,6 +2483,16 @@ abstract class AbstractPlatform
         }
 
         return $query;
+    }
+
+    /**
+     * Does the database platform support offsets in modify limit clauses?
+     *
+     * @return bool
+     */
+    public function supportsLimitOffset()
+    {
+        return true;
     }
 
     /**

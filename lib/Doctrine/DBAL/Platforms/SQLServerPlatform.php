@@ -26,16 +26,15 @@ use Doctrine\DBAL\Schema\Index,
     Doctrine\DBAL\Schema\Table;
 
 /**
- * The MsSqlPlatform provides the behavior, features and SQL dialect of the
- * MySQL database platform.
+ * The SQLServerPlatform provides the behavior, features and SQL dialect of the
+ * Microsoft SQL Server database platform.
  *
  * @since 2.0
  * @author Roman Borschel <roman@code-factory.org>
  * @author Jonathan H. Wage <jonwage@gmail.com>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @todo Rename: MsSQLPlatform
  */
-class MsSqlPlatform extends AbstractPlatform
+class SQLServerPlatform extends AbstractPlatform
 {
     /**
      * {@inheritDoc}
@@ -599,8 +598,7 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        // 6 - microseconds precision length
-        return 'DATETIME2(6)';
+        return 'DATETIME';
     }
 
     /**
@@ -608,7 +606,7 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'DATE';
+        return 'DATETIME';
     }
 
     /**
@@ -616,7 +614,7 @@ class MsSqlPlatform extends AbstractPlatform
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'TIME(0)';
+        return 'DATETIME';
     }
 
     /**
@@ -631,23 +629,16 @@ class MsSqlPlatform extends AbstractPlatform
      * Adds an adapter-specific LIMIT clause to the SELECT statement.
      *
      * @param string $query
-     * @param mixed $limit
-     * @param mixed $offset
+     * @param integer $limit
+     * @param integer $offset
      * @link http://lists.bestpractical.com/pipermail/rt-devel/2005-June/007339.html
      * @return string
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
         if ($limit > 0) {
-            $count = intval($limit);
-            $offset = intval($offset);
-
-            if ($offset < 0) {
-                throw new DBALException("LIMIT argument offset=$offset is not valid");
-            }
-
             if ($offset == 0) {
-                $query = preg_replace('/^(SELECT\s(DISTINCT\s)?)/i', '\1TOP ' . $count . ' ', $query);
+                $query = preg_replace('/^(SELECT\s(DISTINCT\s)?)/i', '\1TOP ' . $limit . ' ', $query);
             } else {
                 $orderby = stristr($query, 'ORDER BY');
 
@@ -662,13 +653,21 @@ class MsSqlPlatform extends AbstractPlatform
                 $query = preg_replace('/^SELECT\s/', '', $query);
 
                 $start = $offset + 1;
-                $end = $offset + $count;
+                $end = $offset + $limit;
 
                 $query = "SELECT * FROM (SELECT ROW_NUMBER() OVER ($over) AS \"doctrine_rownum\", $query) AS doctrine_tbl WHERE \"doctrine_rownum\" BETWEEN $start AND $end";
             }
         }
 
         return $query;
+    }
+
+    /**
+     * @override
+     */
+    public function supportsLimitOffset()
+    {
+        return false;
     }
 
     /**
@@ -753,7 +752,6 @@ class MsSqlPlatform extends AbstractPlatform
             'double precision' => 'float',
             'date' => 'date',
             'datetimeoffset' => 'datetimetz',
-            'datetime2' => 'datetime',
             'smalldatetime' => 'datetime',
             'datetime' => 'datetime',
             'time' => 'time',
