@@ -167,7 +167,7 @@ class Table extends AbstractAsset
      */
     public function addUniqueIndex(array $columnNames, $indexName = null)
     {
-        if ($indexName == null) {
+        if ($indexName === null) {
             $indexName = $this->_generateIdentifierName(
                 array_merge(array($this->getName()), $columnNames), "uniq", $this->_getMaxIdentifierLength()
             );
