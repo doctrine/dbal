@@ -22,7 +22,7 @@ to SQLServerSchemaManager.
 ## Cleanup SQLServer Platform version mess
 
 DBAL 2.1 and before were actually only compatible to SQL Server 2008, not earlier versions.
-Still other parts of the platform did use old features instead of newly introced datatypes
+Still other parts of the platform did use old features instead of newly introduced datatypes
 in SQL Server 2005. Starting with DBAL 2.2 you can pick the Doctrine abstraction exactly
 matching your SQL Server version.
 

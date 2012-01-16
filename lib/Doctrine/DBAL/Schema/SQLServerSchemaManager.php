@@ -56,7 +56,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $default = $tableColumn['COLUMN_DEF'];
 
         while ($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
-            $default = $default2;
+            $default = trim($default2, "'");
         }
 
         $length = (int) $tableColumn['LENGTH'];

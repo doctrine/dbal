@@ -6,5 +6,8 @@ use Doctrine\DBAL\Schema;
 
 class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-
+	protected function getPlatformName()
+	{
+		return "mssql";
+	}
 }

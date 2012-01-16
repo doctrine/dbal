@@ -35,37 +35,18 @@ namespace Doctrine\DBAL\Platforms;
  */
 class SQLServer2005Platform extends SQLServerPlatform
 {
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
-    {
-        // 3 - microseconds precision length
-        // http://msdn.microsoft.com/en-us/library/ms187819.aspx
-        return 'DATETIME';
-    }
-
-    /**
-     * @override
-     */
-    public function getDateTimeFormatString()
-    {
-        return 'Y-m-d H:i:s.000';
-    }
-
-    /**
-     */
-    protected function initializeDoctrineTypeMappings()
-    {
-        parent::initializeDoctrineTypeMappings();
-        $this->doctrineTypeMapping = array(
-
-        );
-    }
-
     /**
      * @override
      */
     public function supportsLimitOffset()
     {
         return true;
+    }
+	
+    /** @override */
+    public function getClobTypeDeclarationSQL(array $field)
+    {
+        return 'VARCHAR(MAX)';
     }
 }
 
