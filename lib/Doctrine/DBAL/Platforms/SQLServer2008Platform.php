@@ -54,13 +54,37 @@ class SQLServer2008Platform extends SQLServer2005Platform
     }
 
     /**
+     * @override
+     */
+    public function getDateTimeFormatString()
+    {
+        return 'Y-m-d H:i:s.u';
+    }
+
+    /**
+     * @override
+	 */
+    public function getDateFormatString()
+    {
+        return 'Y-m-d';
+    }
+
+    /**
+     * @override
+	 */
+    public function getTimeFormatString()
+    {
+        return 'H:i:s';
+    }
+
+    /**
      * Adding Datetime2 Type
      */
     protected function initializeDoctrineTypeMappings()
     {
         parent::initializeDoctrineTypeMappings();
-        $this->doctrineTypeMapping = array(
-            'datetime2' => 'datetime',
-        );
+        $this->doctrineTypeMapping['datetime2'] = 'datetime';
+        $this->doctrineTypeMapping['date'] = 'date';
+        $this->doctrineTypeMapping['time'] = 'time';
     }
 }

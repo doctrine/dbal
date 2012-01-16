@@ -17,17 +17,23 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     protected $_sm;
 
+	protected function getPlatformName()
+	{
+	    $class = get_class($this);
+        $e = explode('\\', $class);
+        $testClass = end($e);
+        $dbms = strtolower(str_replace('SchemaManagerTest', null, $testClass));
+        return $dbms;
+	}
+
     protected function setUp()
     {
         parent::setUp();
 
-        $class = get_class($this);
-        $e = explode('\\', $class);
-        $testClass = end($e);
-        $dbms = strtolower(str_replace('SchemaManagerTest', null, $testClass));
+        $dbms = $this->getPlatformName();
 
         if ($this->_conn->getDatabasePlatform()->getName() !== $dbms) {
-            $this->markTestSkipped('The ' . $testClass .' requires the use of ' . $dbms);
+            $this->markTestSkipped(get_class($this) . ' requires the use of ' . $dbms);
         }
 
         $this->_sm = $this->_conn->getSchemaManager();

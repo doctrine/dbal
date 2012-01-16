@@ -710,7 +710,23 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getDateTimeFormatString()
     {
-        return 'Y-m-d H:i:s.u';
+        return 'Y-m-d H:i:s.000';
+    }
+
+    /**
+     * @override
+     */
+    public function getDateFormatString()
+    {
+        return 'Y-m-d H:i:s.000';
+    }
+
+    /**
+     * @override
+     */
+    public function getTimeFormatString()
+    {
+        return 'Y-m-d H:i:s.000';
     }
 
     /**
@@ -750,11 +766,9 @@ class SQLServerPlatform extends AbstractPlatform
             'real' => 'float',
             'double' => 'float',
             'double precision' => 'float',
-            'date' => 'date',
             'datetimeoffset' => 'datetimetz',
             'smalldatetime' => 'datetime',
             'datetime' => 'datetime',
-            'time' => 'time',
             'char' => 'string',
             'varchar' => 'string',
             'text' => 'text',
