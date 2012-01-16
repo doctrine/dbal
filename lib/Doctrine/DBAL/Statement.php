@@ -206,9 +206,9 @@ class Statement implements \IteratorAggregate, DriverStatement
      * @param mixed $fetchArgument
      * @return array An array containing all of the remaining rows in the result set.
      */
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $fetchArgument = null)
+    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $fetchArgument = 0)
     {
-        if ($fetchArgument !== null) {
+        if ($fetchArgument !== 0) {
             return $this->stmt->fetchAll($fetchStyle, $fetchArgument);
         }
         return $this->stmt->fetchAll($fetchStyle);
