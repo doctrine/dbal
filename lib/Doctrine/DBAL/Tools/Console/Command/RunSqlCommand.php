@@ -72,8 +72,8 @@ EOT
             throw new \LogicException("Option 'depth' must contains an integer value");
         }
 
-        if (preg_match('/^select/i', $sql)) {
-           $resultSet = $conn->fetchAll($sql);
+        if (stripos($sql, 'select') === 0) {
+            $resultSet = $conn->fetchAll($sql);
         } else {
             $resultSet = $conn->executeUpdate($sql);
         }
