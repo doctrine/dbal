@@ -52,7 +52,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     {
         return 'TIME(0)';
     }
-	
+
     /**
      * @override
      */
@@ -60,7 +60,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     {
         return 'Y-m-d H:i:s.u';
     }
-	
+
     /**
      * @override
 	 */
@@ -84,7 +84,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     {
         parent::initializeDoctrineTypeMappings();
         $this->doctrineTypeMapping['datetime2'] = 'datetime';
-		$this->doctrineTypeMapping['date'] = 'date';
-		$this->doctrineTypeMapping['time'] = 'time';
+        $this->doctrineTypeMapping['date'] = 'date';
+        $this->doctrineTypeMapping['time'] = 'time';
     }
 }
