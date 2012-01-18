@@ -597,6 +597,27 @@ class Table extends AbstractAsset
     }
 
     /**
+     * Get the Fully-Qualified Table Name.
+     *
+     * The full-qualified table name is "schema.name". If the table name
+     * already has a schema, then the schema passed to the method is ignored.
+     * If no schema is set, then the passed schema is prepended as the table is
+     * in the current default schema.
+     *
+     * @param string $schemaName - Current schema this table is in.
+     * @return string
+     */
+    public function getFullQualifiedTableName($schemaName)
+    {
+        if (strpos($this->_name, ".") !== false) {
+            return $this->_name;
+        } else if ($schemaName) {
+            return $schemaName . "." . $this->_name;
+        }
+        return $this->_name;
+    }
+
+    /**
      * @param Visitor $visitor
      */
     public function visit(Visitor $visitor)

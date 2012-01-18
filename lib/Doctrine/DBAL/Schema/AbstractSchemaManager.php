@@ -816,8 +816,14 @@ abstract class AbstractSchemaManager
     {
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setMaxIdentifierLength($this->_platform->getMaxIdentifierLength());
+        $schemaConfig->setSearchPaths($this->getSchemaSearchPaths());
 
         return $schemaConfig;
+    }
+
+    public function getSchemaSearchPaths()
+    {
+        return array($this->_conn->getDatabase());
     }
 
     /**
