@@ -22,6 +22,7 @@ namespace Doctrine\Tests\DBAL\Schema;
 require_once __DIR__ . '/../../TestInit.php';
 
 use Doctrine\DBAL\Schema\Schema,
+    Doctrine\DBAL\Schema\SchemaConfig,
     Doctrine\DBAL\Schema\Table,
     Doctrine\DBAL\Schema\Column,
     Doctrine\DBAL\Schema\Index,
@@ -700,6 +701,62 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $c = new Comparator();
         $this->assertEquals(array(), $c->diffColumn($column, $column2));
+    }
+
+    /**
+     * @group DBAL-204
+     */
+    public function testFqnSchemaComparision()
+    {
+        $config = new SchemaConfig();
+        $config->setSearchPaths(array("foo"));
+        $oldSchema = new Schema(array(), array(), $config);
+        $oldSchema->createTable('bar');
+
+        $newSchema = new Schema();
+        $newSchema->createTable('foo.bar');
+
+        $c = new Comparator();
+        $this->assertEquals(new SchemaDiff(), $c->compare($oldSchema, $newSchema));
+    }
+
+    /**
+     * @group DBAL-204
+     */
+    public function testFqnSchemaComparisionDifferent()
+    {
+        $config = new SchemaConfig();
+        $config->setSearchPaths(array("foo"));
+        $oldSchema = new Schema(array(), array(), $config);
+        $oldSchema->createTable('bar');
+
+        $newSchema = new Schema();
+        $newSchema->createTable('bar.bar');
+
+        $c = new Comparator();
+        $diff = $c->compare($oldSchema, $newSchema);
+
+        $this->assertTrue(isset($diff->newTables["bar.bar"]));
+        $this->assertTrue(isset($diff->removedTables["foo.bar"]));
+    }
+
+    /**
+     * @group DBAL-204
+     */
+    public function testFqnSchemaComparisionNoSchemaSame()
+    {
+        $config = new SchemaConfig();
+        $config->setSearchPaths(array("foo"));
+        $oldSchema = new Schema(array(), array(), $config);
+        $oldSchema->createTable('bar');
+
+        $newSchema = new Schema();
+        $newSchema->createTable('bar');
+
+        $c = new Comparator();
+        $diff = $c->compare($oldSchema, $newSchema);
+
+        $this->assertEquals(new SchemaDiff(), $c->compare($oldSchema, $newSchema));
     }
 
     /**

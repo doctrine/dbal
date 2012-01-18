@@ -61,11 +61,11 @@ class Comparator
 
         $foreignKeysToTable = array();
 
-        foreach ( $toSchema->getTables() AS $tableName => $table ) {
-            if ( !$fromSchema->hasTable($tableName) ) {
-                $diff->newTables[$tableName] = $table;
+        foreach ( $toSchema->getFullQualifiedTableNames() AS $tableName ) {
+            if ( !$fromSchema->hasFullQualifiedTable($tableName)) {
+                $diff->newTables[$tableName] = $toSchema->getFullQualifiedTable($tableName);
             } else {
-                $tableDifferences = $this->diffTable( $fromSchema->getTable($tableName), $table );
+                $tableDifferences = $this->diffTable( $fromSchema->getFullQualifiedTable($tableName), $toSchema->getFullQualifiedTable($tableName) );
                 if ( $tableDifferences !== false ) {
                     $diff->changedTables[$tableName] = $tableDifferences;
                 }
@@ -73,8 +73,9 @@ class Comparator
         }
 
         /* Check if there are tables removed */
-        foreach ( $fromSchema->getTables() AS $tableName => $table ) {
-            if ( !$toSchema->hasTable($tableName) ) {
+        foreach ( $fromSchema->getFullQualifiedTableNames() AS $tableName ) {
+            $table = $fromSchema->getFullQualifiedTable($tableName);
+            if ( !$toSchema->hasFullQualifiedTable($tableName) ) {
                 $diff->removedTables[$tableName] = $table;
             }
 

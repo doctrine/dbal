@@ -81,6 +81,11 @@ class Schema extends AbstractAsset
         return $this->_schemaConfig->hasExplicitForeignKeyIndexes();
     }
 
+    public function getName()
+    {
+        return $this->_schemaConfig->getName();
+    }
+
     /**
      * @param Table $table
      */
@@ -141,6 +146,73 @@ class Schema extends AbstractAsset
     {
         $tableName = strtolower($tableName);
         return isset($this->_tables[$tableName]);
+    }
+
+    /**
+     * Get all table names, prefixed with a schema name, even the default one
+     * if present.
+     *
+     * @return array
+     */
+    public function getFullQualifiedTableNames()
+    {
+        $names = array();
+        foreach ($this->_tables as $table) {
+            $names[] = $table->getFullQualifiedTableName($this->_schemaConfig->getName());
+        }
+        return $names;
+    }
+
+    /**
+     * Does this schema have a table with the given FQN?
+     *
+     * @return bool
+     */
+    public function hasFullQualifiedTable($fqTableName)
+    {
+        $fqTableName = strtolower($fqTableName);
+        if (strpos($fqTableName, ".") === false) {
+            $shortTableName = $fqTableName;
+        } else {
+            $parts = explode(".", $fqTableName);
+            $shortTableName = $fqTableName[1];
+        }
+
+        foreach ($this->_tables as $table) {
+            foreach ($this->_schemaConfig->getSearchPaths() as $searchPathSchema) {
+                if (strtolower($table->getFullQualifiedTableName($searchPathSchema)) == $fqTableName) {
+                    return true;
+                }
+            }
+            if (strtolower($table->getName()) == $shortTableName || strtolower($table->getName()) == $fqTableName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getFullQualifiedTable($fqTableName)
+    {
+        $fqTableName = strtolower($fqTableName);
+        if (strpos($fqTableName, ".") === false) {
+            $shortTableName = $fqTableName;
+        } else {
+            $parts = explode(".", $fqTableName);
+            $shortTableName = $fqTableName[1];
+        }
+
+        foreach ($this->_tables as $table) {
+            foreach ($this->_schemaConfig->getSearchPaths() as $searchPathSchema) {
+                if (strtolower($table->getFullQualifiedTableName($searchPathSchema)) == $fqTableName) {
+                    return $table;
+                }
+            }
+            if (strtolower($table->getName()) == $shortTableName) {
+                return $table;
+            }
+        }
+
+        throw SchemaException::tableDoesNotExist($fqTableName);
     }
 
     /**
