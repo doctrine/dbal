@@ -804,7 +804,8 @@ abstract class AbstractSchemaManager
         }
         $tables = $this->listTables();
 
-        return new Schema($tables, $sequences, $this->createSchemaConfig());
+        $schema = new Schema($tables, $sequences, $this->createSchemaConfig());
+        return $schema;
     }
 
     /**
@@ -816,7 +817,11 @@ abstract class AbstractSchemaManager
     {
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setMaxIdentifierLength($this->_platform->getMaxIdentifierLength());
-        $schemaConfig->setSearchPaths($this->getSchemaSearchPaths());
+
+        $searchPaths = $this->getSchemaSearchPaths();
+        if (isset($searchPaths[0])) {
+            $schemaConfig->setName($searchPaths[0]);
+        }
 
         return $schemaConfig;
     }

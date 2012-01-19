@@ -366,7 +366,6 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->createTestTable('test_table');
 
         $schema = $this->_sm->createSchema();
-
         $this->assertTrue($schema->hasTable('test_table'));
     }
 

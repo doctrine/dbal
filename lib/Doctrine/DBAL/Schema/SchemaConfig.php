@@ -40,9 +40,9 @@ class SchemaConfig
     protected $_maxIdentifierLength = 63;
 
     /**
-     * @var array
+     * @var string
      */
-    protected $_searchPaths = array();
+    protected $_name;
 
     /**
      * @return bool
@@ -76,21 +76,23 @@ class SchemaConfig
         return $this->_maxIdentifierLength;
     }
 
-    public function setSearchPaths($paths)
-    {
-        $this->_searchPaths = $paths;
-    }
-
-    public function getSearchPaths()
-    {
-        return $this->_searchPaths;
-    }
-
+    /**
+     * Get default namespace of schema objects.
+     *
+     * @return string
+     */
     public function getName()
     {
-        if ($this->_searchPaths) {
-            return $this->_searchPaths[0];
-        }
-        return "";
+        return $this->_name;
+    }
+
+    /**
+     * set default namespace name of schema objects.
+     *
+     * @param _name the value to set.
+     */
+    public function setName($name)
+    {
+        $this->_name = $name;
     }
 }
