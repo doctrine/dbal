@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,10 +26,30 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 /**
  * Object representation of a database schema
  *
+ * Different vendors have very inconsistent naming with regard to the concept
+ * of a "schema". Doctrine understands a schema as the entity that conceptually
+ * wraps a set of database objects such as tables, sequences, indexes and
+ * foreign keys that belong to each other into a namespace. A Doctrine Schema
+ * has nothing to do with the "SCHEMA" defined as in PostgreSQL, it is more
+ * related to the concept of "DATABASE" that exists in MySQL and PostgreSQL.
+ *
+ * Every asset in the doctrine schema has a name. A name consists of either a
+ * namespace.local name pair or just a local unqualified name.
+ *
+ * The abstraction layer that covers a PostgreSQL schema is the namespace of an
+ * database object (asset). A schema can have a name, which will be used as
+ * default namespace for the unqualified database objects that are created in
+ * the schema.
+ *
+ * In the case of MySQL where cross-database queries are allowed this leads to
+ * databases being "misinterpreted" as namespaces. This is intentional, however
+ * the CREATE/DROP SQL visitors will just filter this queries and do not
+ * execute them. Only the queries for the currently connected database are
+ * executed.
+ *
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
- * @version $Revision$
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 class Schema extends AbstractAsset
@@ -64,6 +82,7 @@ class Schema extends AbstractAsset
             $schemaConfig = new SchemaConfig();
         }
         $this->_schemaConfig = $schemaConfig;
+        $this->_setName($schemaConfig->getName() ?: 'public');
 
         foreach ($tables AS $table) {
             $this->_addTable($table);
@@ -81,17 +100,12 @@ class Schema extends AbstractAsset
         return $this->_schemaConfig->hasExplicitForeignKeyIndexes();
     }
 
-    public function getName()
-    {
-        return $this->_schemaConfig->getName();
-    }
-
     /**
      * @param Table $table
      */
     protected function _addTable(Table $table)
     {
-        $tableName = strtolower($table->getName());
+        $tableName = $table->getFullQualifiedName($this->getName());
         if(isset($this->_tables[$tableName])) {
             throw SchemaException::tableAlreadyExists($tableName);
         }
@@ -105,7 +119,7 @@ class Schema extends AbstractAsset
      */
     protected function _addSequence(Sequence $sequence)
     {
-        $seqName = strtolower($sequence->getName());
+        $seqName = $sequence->getFullQualifiedName($this->getName());
         if (isset($this->_sequences[$seqName])) {
             throw SchemaException::sequenceAlreadyExists($seqName);
         }
@@ -128,12 +142,23 @@ class Schema extends AbstractAsset
      */
     public function getTable($tableName)
     {
-        $tableName = strtolower($tableName);
+        $tableName = $this->getFullQualifiedAssetName($tableName);
         if (!isset($this->_tables[$tableName])) {
             throw SchemaException::tableDoesNotExist($tableName);
         }
 
         return $this->_tables[$tableName];
+    }
+
+    /**
+     * @return string
+     */
+    private function getFullQualifiedAssetName($name)
+    {
+        if (strpos($name, ".") === false) {
+            $name = $this->getName() . "." . $name;
+        }
+        return strtolower($name);
     }
 
     /**
@@ -144,7 +169,7 @@ class Schema extends AbstractAsset
      */
     public function hasTable($tableName)
     {
-        $tableName = strtolower($tableName);
+        $tableName = $this->getFullQualifiedAssetName($tableName);
         return isset($this->_tables[$tableName]);
     }
 
@@ -154,74 +179,14 @@ class Schema extends AbstractAsset
      *
      * @return array
      */
-    public function getFullQualifiedTableNames()
+    public function getTableNames()
     {
-        $names = array();
-        foreach ($this->_tables as $table) {
-            $names[] = $table->getFullQualifiedTableName($this->_schemaConfig->getName());
-        }
-        return $names;
+        return array_keys($this->_tables);
     }
 
-    /**
-     * Does this schema have a table with the given FQN?
-     *
-     * @return bool
-     */
-    public function hasFullQualifiedTable($fqTableName)
-    {
-        $fqTableName = strtolower($fqTableName);
-        if (strpos($fqTableName, ".") === false) {
-            $shortTableName = $fqTableName;
-        } else {
-            $parts = explode(".", $fqTableName);
-            $shortTableName = $fqTableName[1];
-        }
-
-        foreach ($this->_tables as $table) {
-            foreach ($this->_schemaConfig->getSearchPaths() as $searchPathSchema) {
-                if (strtolower($table->getFullQualifiedTableName($searchPathSchema)) == $fqTableName) {
-                    return true;
-                }
-            }
-            if (strtolower($table->getName()) == $shortTableName || strtolower($table->getName()) == $fqTableName) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function getFullQualifiedTable($fqTableName)
-    {
-        $fqTableName = strtolower($fqTableName);
-        if (strpos($fqTableName, ".") === false) {
-            $shortTableName = $fqTableName;
-        } else {
-            $parts = explode(".", $fqTableName);
-            $shortTableName = $fqTableName[1];
-        }
-
-        foreach ($this->_tables as $table) {
-            foreach ($this->_schemaConfig->getSearchPaths() as $searchPathSchema) {
-                if (strtolower($table->getFullQualifiedTableName($searchPathSchema)) == $fqTableName) {
-                    return $table;
-                }
-            }
-            if (strtolower($table->getName()) == $shortTableName) {
-                return $table;
-            }
-        }
-
-        throw SchemaException::tableDoesNotExist($fqTableName);
-    }
-
-    /**
-     * @param  string $sequenceName
-     * @return bool
-     */
     public function hasSequence($sequenceName)
     {
-        $sequenceName = strtolower($sequenceName);
+        $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
         return isset($this->_sequences[$sequenceName]);
     }
 
@@ -232,7 +197,7 @@ class Schema extends AbstractAsset
      */
     public function getSequence($sequenceName)
     {
-        $sequenceName = strtolower($sequenceName);
+        $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
         if(!$this->hasSequence($sequenceName)) {
             throw SchemaException::sequenceDoesNotExist($sequenceName);
         }
@@ -285,7 +250,7 @@ class Schema extends AbstractAsset
      */
     public function dropTable($tableName)
     {
-        $tableName = strtolower($tableName);
+        $tableName = $this->getFullQualifiedAssetName($tableName);
         $table = $this->getTable($tableName);
         unset($this->_tables[$tableName]);
         return $this;
@@ -312,7 +277,7 @@ class Schema extends AbstractAsset
      */
     public function dropSequence($sequenceName)
     {
-        $sequenceName = strtolower($sequenceName);
+        $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
         unset($this->_sequences[$sequenceName]);
         return $this;
     }

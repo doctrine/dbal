@@ -709,11 +709,12 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     public function testFqnSchemaComparision()
     {
         $config = new SchemaConfig();
-        $config->setSearchPaths(array("foo"));
+        $config->setName("foo");
+
         $oldSchema = new Schema(array(), array(), $config);
         $oldSchema->createTable('bar');
 
-        $newSchema = new Schema();
+        $newSchema= new Schema(array(), array(), $config);
         $newSchema->createTable('foo.bar');
 
         $c = new Comparator();
@@ -723,21 +724,20 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @group DBAL-204
      */
-    public function testFqnSchemaComparisionDifferent()
+    public function testFqnSchemaComparisionDifferentSchemaNameButSameTableNoDiff()
     {
         $config = new SchemaConfig();
-        $config->setSearchPaths(array("foo"));
+        $config->setName("foo");
+
         $oldSchema = new Schema(array(), array(), $config);
-        $oldSchema->createTable('bar');
+        $oldSchema->createTable('foo.bar');
 
         $newSchema = new Schema();
-        $newSchema->createTable('bar.bar');
+        $newSchema->createTable('bar');
 
         $c = new Comparator();
         $diff = $c->compare($oldSchema, $newSchema);
-
-        $this->assertTrue(isset($diff->newTables["bar.bar"]));
-        $this->assertTrue(isset($diff->removedTables["foo.bar"]));
+        $this->assertEquals(new SchemaDiff(), $c->compare($oldSchema, $newSchema));
     }
 
     /**
@@ -746,7 +746,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     public function testFqnSchemaComparisionNoSchemaSame()
     {
         $config = new SchemaConfig();
-        $config->setSearchPaths(array("foo"));
+        $config->setName("foo");
         $oldSchema = new Schema(array(), array(), $config);
         $oldSchema->createTable('bar');
 

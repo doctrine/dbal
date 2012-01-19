@@ -490,11 +490,11 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
     public function testFullQualifiedTableName()
     {
         $table = new Table("`test`.`test`");
-        $this->assertEquals('test.test', $table->getFullQualifiedTableName("test"));
-        $this->assertEquals('test.test', $table->getFullQualifiedTableName("other"));
+        $this->assertEquals('test.test', $table->getFullQualifiedName("test"));
+        $this->assertEquals('test.test', $table->getFullQualifiedName("other"));
 
         $table = new Table("test");
-        $this->assertEquals('test.test', $table->getFullQualifiedTableName("test"));
-        $this->assertEquals('other.test', $table->getFullQualifiedTableName("other"));
+        $this->assertEquals('test.test', $table->getFullQualifiedName("test"));
+        $this->assertEquals('other.test', $table->getFullQualifiedName("other"));
     }
 }
