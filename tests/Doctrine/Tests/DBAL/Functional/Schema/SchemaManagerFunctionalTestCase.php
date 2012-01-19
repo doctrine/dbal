@@ -615,4 +615,28 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         }
         $this->assertTrue($foundTable, "Could not find new table");
     }
+
+    public function testListForeignKeysComposite()
+    {
+        if(!$this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped('Does not support foreign key constraints.');
+        }
+
+        $this->_sm->createTable($this->getTestTable('test_create_fk3'));
+        $this->_sm->createTable($this->getTestCompositeTable('test_create_fk4'));
+
+        $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
+            array('id', 'foreign_key_test'), 'test_create_fk4', array('id', 'other_id'), 'foreign_key_test_fk'
+        );
+
+        $this->_sm->createForeignKey($foreignKey, 'test_create_fk3');
+
+        $fkeys = $this->_sm->listTableForeignKeys('test_create_fk3');
+
+        $this->assertEquals(1, count($fkeys), "Table 'test_create_fk3' has to have one foreign key.");
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $fkeys[0]);
+        $this->assertEquals(array('id', 'foreign_key_test'), array_map('strtolower', $fkeys[0]->getLocalColumns()));
+        $this->assertEquals(array('id', 'other_id'),         array_map('strtolower', $fkeys[0]->getForeignColumns()));
+    }
 }
