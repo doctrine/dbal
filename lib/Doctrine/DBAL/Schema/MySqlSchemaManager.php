@@ -170,26 +170,44 @@ class MySqlSchemaManager extends AbstractSchemaManager
         return new Column($tableColumn['field'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
 
-    public function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
-        $tableForeignKey = array_change_key_case($tableForeignKey, CASE_LOWER);
+        $list = array();
+        foreach ($tableForeignKeys as $key => $value) {
+            $value = array_change_key_case($value, CASE_LOWER);
+            if (!isset($list[$value['constraint_name']])) {
+                if (!isset($value['delete_rule']) || $value['delete_rule'] == "RESTRICT") {
+                    $value['delete_rule'] = null;
+                }
+                if (!isset($value['update_rule']) || $value['update_rule'] == "RESTRICT") {
+                    $value['update_rule'] = null;
+                }
 
-        if (!isset($tableForeignKey['delete_rule']) || $tableForeignKey['delete_rule'] == "RESTRICT") {
-            $tableForeignKey['delete_rule'] = null;
-        }
-        if (!isset($tableForeignKey['update_rule']) || $tableForeignKey['update_rule'] == "RESTRICT") {
-            $tableForeignKey['update_rule'] = null;
+                $list[$value['constraint_name']] = array(
+                    'name' => $value['constraint_name'],
+                    'local' => array(),
+                    'foreign' => array(),
+                    'foreignTable' => $value['referenced_table_name'],
+                    'onDelete' => $value['delete_rule'],
+                    'onUpdate' => $value['update_rule'],
+                );
+            }
+            $list[$value['constraint_name']]['local'][] = $value['column_name'];
+            $list[$value['constraint_name']]['foreign'][] = $value['referenced_column_name'];
         }
 
-        return new ForeignKeyConstraint(
-            (array)$tableForeignKey['column_name'],
-            $tableForeignKey['referenced_table_name'],
-            (array)$tableForeignKey['referenced_column_name'],
-            $tableForeignKey['constraint_name'],
-            array(
-                'onUpdate' => $tableForeignKey['update_rule'],
-                'onDelete' => $tableForeignKey['delete_rule'],
-            )
-        );
+        $result = array();
+        foreach($list AS $constraint) {
+            $result[] = new ForeignKeyConstraint(
+                array_values($constraint['local']), $constraint['foreignTable'],
+                array_values($constraint['foreign']), $constraint['name'],
+                array(
+                    'onDelete' => $constraint['onDelete'],
+                    'onUpdate' => $constraint['onUpdate'],
+                )
+            );
+        }
+
+        return $result;
     }
 }
