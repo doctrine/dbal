@@ -24,6 +24,7 @@ use Doctrine\DBAL\Connection,
     Doctrine\DBAL\Driver,
     Doctrine\DBAL\Configuration,
     Doctrine\Common\EventManager,
+    Doctrine\DBAL\Event\ConnectionEventArgs,
     Doctrine\DBAL\Events;
 
 /**
@@ -161,7 +162,7 @@ class MasterSlaveConnection extends Connection
         }
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
-            $eventArgs = new Event\ConnectionEventArgs($this);
+            $eventArgs = new ConnectionEventArgs($this);
             $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 
