@@ -2239,7 +2239,7 @@ abstract class AbstractPlatform
         return Connection::TRANSACTION_READ_COMMITTED;
     }
 
-    /* supports*() metods */
+    /* supports*() methods */
 
     /**
      * Whether the platform supports sequences.
@@ -2344,6 +2344,20 @@ abstract class AbstractPlatform
      * @return boolean
      */
     public function supportsSchemas()
+    {
+        return false;
+    }
+
+    /**
+     * Can this platform emulate schemas?
+     *
+     * Platforms that either support or emulate schemas don't automatically
+     * filter a schema for the namespaced elements in {@link
+     * AbstractManager#createSchema}.
+     *
+     * @return bool
+     */
+    public function canEmulateSchemas()
     {
         return false;
     }

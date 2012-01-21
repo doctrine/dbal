@@ -129,7 +129,7 @@ abstract class AbstractSchemaManager
 
         $sequences = $this->_conn->fetchAll($sql);
 
-        return $this->_getPortableSequencesList($sequences);
+        return $this->filterAssetNames($this->_getPortableSequencesList($sequences));
     }
 
     /**
@@ -188,7 +188,6 @@ abstract class AbstractSchemaManager
         return count($tableNames) == count(\array_intersect($tableNames, array_map('strtolower', $this->listTableNames())));
     }
 
-
     /**
      * Return a list of all tables in the current database
      *
@@ -199,8 +198,34 @@ abstract class AbstractSchemaManager
         $sql = $this->_platform->getListTablesSQL();
 
         $tables = $this->_conn->fetchAll($sql);
+        $tableNames = $this->_getPortableTablesList($tables);
+        return $this->filterAssetNames($tableNames);
+    }
 
-        return $this->_getPortableTablesList($tables);
+    /**
+     * Filter asset names if they are configured to return only a subset of all
+     * the found elements.
+     *
+     * @param array $assetNames
+     * @return array
+     */
+    protected function filterAssetNames($assetNames)
+    {
+        $filterExpr = $this->getFilterSchemaAssetsExpression();
+        if (!$filterExpr) {
+            return $assetNames;
+        }
+        return array_values (
+            array_filter($assetNames, function ($assetName) use ($filterExpr) {
+                $assetName = ($assetName instanceof AbstractAsset) ? $assetName->getName() : $assetName;
+                return preg_match('(' . $filterExpr . ')', $assetName);
+            })
+        );
+    }
+
+    protected function getFilterSchemaAssetsExpression()
+    {
+        return $this->_conn->getConfiguration()->getFilterSchemaAssetsExpression();
     }
 
     /**
@@ -817,7 +842,29 @@ abstract class AbstractSchemaManager
         $schemaConfig = new SchemaConfig();
         $schemaConfig->setMaxIdentifierLength($this->_platform->getMaxIdentifierLength());
 
+        $searchPaths = $this->getSchemaSearchPaths();
+        if (isset($searchPaths[0])) {
+            $schemaConfig->setName($searchPaths[0]);
+        }
+
         return $schemaConfig;
+    }
+
+    /**
+     * The search path for namespaces in the currently connected database.
+     *
+     * The first entry is usually the default namespace in the Schema. All
+     * further namespaces contain tables/sequences which can also be addressed
+     * with a short, not full-qualified name.
+     *
+     * For databases that don't support subschema/namespaces this method
+     * returns the name of the currently connected database.
+     *
+     * @return array
+     */
+    public function getSchemaSearchPaths()
+    {
+        return array($this->_conn->getDatabase());
     }
 
     /**
