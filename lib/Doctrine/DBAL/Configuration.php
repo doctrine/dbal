@@ -83,4 +83,31 @@ class Configuration
     {
         $this->_attributes['resultCacheImpl'] = $cacheImpl;
     }
+
+    /**
+     * Filter schema assets expression.
+     *
+     * Only include tables/sequences matching the filter expression regexp in
+     * schema instances generated for the active connection when calling
+     * {AbstractSchemaManager#createSchema()}.
+     *
+     * @param string $filterExpression
+     */
+    public function setFilterSchemaAssetsExpression($filterExpression)
+    {
+        $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
+    }
+
+    /**
+     * Return filter schema assets expression.
+     *
+     * @return string|null
+     */
+    public function getFilterSchemaAssetsExpression()
+    {
+        if (isset($this->_attributes['filterSchemaAssetsExpression'])) {
+            return $this->_attributes['filterSchemaAssetsExpression'];
+        }
+        return null;
+    }
 }

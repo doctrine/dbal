@@ -10,6 +10,11 @@ require_once __DIR__ . '/../../../TestInit.php';
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    public function tearDown()
+    {
+        parent::tearDown();
+        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression(null);
+    }
     /**
      * @group DBAL-177
      */
@@ -165,6 +170,27 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             ),
             $this->_conn->getDatabasePlatform()->getCreateTableSQL($table)
         );
+    }
+
+    /**
+     * @group DBAL-204
+     */
+    public function testFilterSchemaExpression()
+    {
+        $testTable = new \Doctrine\DBAL\Schema\Table('dbal204_test_prefix');
+        $column = $testTable->addColumn('id', 'integer');
+        $this->_sm->createTable($testTable);
+        $testTable = new \Doctrine\DBAL\Schema\Table('dbal204_without_prefix');
+        $column = $testTable->addColumn('id', 'integer');
+        $this->_sm->createTable($testTable);
+
+        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('^dbal204_');
+        $names = $this->_sm->listTableNames();
+        $this->assertEquals(2, count($names));
+
+        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('^dbal204_test');
+        $names = $this->_sm->listTableNames();
+        $this->assertEquals(1, count($names));
     }
 }
 
