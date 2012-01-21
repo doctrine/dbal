@@ -89,6 +89,10 @@ class RemoveNamespacedAssets implements Visitor
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
+        $foreignTable = $this->schema->getTable($fkConstraint->getForeignTableName());
+        if ( ! $foreignTable->isInDefaultNamespace($this->schema->getName()) ) {
+            $localTable->removeForeignKey($fkConstraint->getName());
+        }
     }
 
     /**
