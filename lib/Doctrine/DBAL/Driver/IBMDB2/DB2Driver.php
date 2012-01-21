@@ -41,8 +41,8 @@ class DB2Driver implements Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        if ( !isset($params['schema']) ) {
-            
+        if ( ! isset($params['protocol'])) {
+            $params['protocol'] = 'TCPIP';
         }
 
         if ($params['host'] !== 'localhost' && $params['host'] != '127.0.0.1') {
@@ -50,10 +50,13 @@ class DB2Driver implements Driver
             $params['dbname'] = 'DRIVER={IBM DB2 ODBC DRIVER}' .
                      ';DATABASE=' . $params['dbname'] .
                      ';HOSTNAME=' . $params['host'] .
-                     ';PORT='     . $params['port'] .
                      ';PROTOCOL=' . $params['protocol'] .
                      ';UID='      . $username .
                      ';PWD='      . $password .';';
+            if (isset($params['port'])) {
+                $params['dbname'] .= 'PORT=' . $params['port'];
+            }
+
             $username = null;
             $password = null;
         }
