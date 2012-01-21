@@ -380,4 +380,38 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $row = array_keys($stmt->fetch());
         $this->assertEquals(0, count( array_filter($row, function($v) { return ! is_numeric($v); })), "should be no non-numerical elements in the result.");
     }
+
+    /**
+     * @group DBAL-196
+     */
+    public function testFetchAllSupportFetchClass()
+    {
+        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->insert('fetch_table', array(
+            'test_int'      => 1,
+            'test_string'   => 'foo',
+            'test_datetime' => '2010-01-01 10:10:10'
+        ));
+
+        $sql    = "SELECT test_int, test_string, test_datetime FROM fetch_table";
+        $stmt   = $this->_conn->prepare($sql);
+        $stmt->execute();
+
+        $results = $stmt->fetchAll(
+            \PDO::FETCH_CLASS,
+            __NAMESPACE__.'\\MyFetchClass'
+        );
+
+        $this->assertEquals(1, count($results));
+        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
+        
+        $this->assertEquals(1, $results[0]->test_int);
+        $this->assertEquals('foo', $results[0]->test_string);
+        $this->assertEquals('2010-01-01 10:10:10', $results[0]->test_datetime);
+    }
+}
+
+class MyFetchClass
+{
+    public $test_int, $test_string, $test_datetime;
 }
