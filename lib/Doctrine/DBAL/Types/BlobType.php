@@ -44,6 +44,9 @@ class BlobType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
+        if (null === $value) {
+            return null;
+        }
         if (is_string($value)) {
             $value = fopen('data://text/plain;base64,' . base64_encode($value), 'r');
         } else if ( ! is_resource($value)) {
