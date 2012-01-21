@@ -450,16 +450,13 @@ END;';
           cols.position,
           r_alc.table_name \"references_table\",
           r_cols.column_name \"foreign_column\"
-     FROM all_cons_columns cols
-LEFT JOIN all_constraints alc
+     FROM user_cons_columns cols
+LEFT JOIN user_constraints alc
        ON alc.constraint_name = cols.constraint_name
-      AND alc.owner = cols.owner
-LEFT JOIN all_constraints r_alc
+LEFT JOIN user_constraints r_alc
        ON alc.r_constraint_name = r_alc.constraint_name
-      AND alc.r_owner = r_alc.owner
-LEFT JOIN all_cons_columns r_cols
+LEFT JOIN user_cons_columns r_cols
        ON r_alc.constraint_name = r_cols.constraint_name
-      AND r_alc.owner = r_cols.owner
       AND cols.position = r_cols.position
     WHERE alc.constraint_name = cols.constraint_name
       AND alc.constraint_type = 'R'
@@ -475,9 +472,18 @@ LEFT JOIN all_cons_columns r_cols
     public function getListTableColumnsSQL($table, $database = null)
     {
         $table = strtoupper($table);
-        return "SELECT c.*, d.comments FROM all_tab_columns c ".
-               "INNER JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME ".
-               "WHERE c.table_name = '" . $table . "' ORDER BY c.column_name";
+
+        $tabColumnsTableName = "user_tab_columns";
+        $ownerCondition = '';
+        if(null !== $database){
+            $database = strtoupper($database);
+            $tabColumnsTableName = "all_tab_columns";
+            $ownerCondition = "AND c.owner = '".$database."'";
+        }
+
+        return "SELECT c.*, d.comments FROM $tabColumnsTableName c ".
+               "INNER JOIN user_col_comments d ON d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME ".
+               "WHERE c.table_name = '" . $table . "' ".$ownerCondition." ORDER BY c.column_name";
     }
 
     /**
