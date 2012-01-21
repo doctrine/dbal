@@ -63,22 +63,22 @@ class Comparator
 
         foreach ( $toSchema->getTables() AS $table ) {
             $tableName = $table->getShortestName($toSchema->getName());
-            if ( !$fromSchema->hasTable($tableName)) {
+            if ( ! $fromSchema->hasTable($tableName)) {
                 $diff->newTables[$tableName] = $toSchema->getTable($tableName);
             } else {
-                $tableDifferences = $this->diffTable( $fromSchema->getTable($tableName), $toSchema->getTable($tableName) );
-                if ( $tableDifferences !== false ) {
+                $tableDifferences = $this->diffTable($fromSchema->getTable($tableName), $toSchema->getTable($tableName));
+                if ($tableDifferences !== false) {
                     $diff->changedTables[$tableName] = $tableDifferences;
                 }
             }
         }
 
         /* Check if there are tables removed */
-        foreach ( $fromSchema->getTables() AS $table ) {
+        foreach ($fromSchema->getTables() AS $table) {
             $tableName = $table->getShortestName($fromSchema->getName());
 
             $table = $fromSchema->getTable($tableName);
-            if ( !$toSchema->hasTable($tableName) ) {
+            if ( ! $toSchema->hasTable($tableName) ) {
                 $diff->removedTables[$tableName] = $table;
             }
 
@@ -98,7 +98,7 @@ class Comparator
             }
         }
 
-        foreach ( $toSchema->getSequences() AS $sequence) {
+        foreach ($toSchema->getSequences() AS $sequence) {
             $sequenceName = $sequence->getShortestName($toSchema->getName());
             if (!$fromSchema->hasSequence($sequenceName)) {
                 $diff->newSequences[] = $sequence;
