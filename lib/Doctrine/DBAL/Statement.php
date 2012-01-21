@@ -203,13 +203,13 @@ class Statement implements \IteratorAggregate, DriverStatement
      * Returns an array containing all of the result set rows.
      *
      * @param integer $fetchStyle
-     * @param integer $columnIndex
+     * @param mixed $fetchArgument
      * @return array An array containing all of the remaining rows in the result set.
      */
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $columnIndex = 0)
+    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $fetchArgument = 0)
     {
-        if ($columnIndex != 0) {
-            return $this->stmt->fetchAll($fetchStyle, $columnIndex);
+        if ($fetchArgument !== 0) {
+            return $this->stmt->fetchAll($fetchStyle, $fetchArgument);
         }
         return $this->stmt->fetchAll($fetchStyle);
     }
