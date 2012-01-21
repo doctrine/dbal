@@ -2349,6 +2349,20 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Can this platform emulate schemas?
+     *
+     * Platforms that either support or emulate schemas don't automatically
+     * filter a schema for the namespaced elements in {@link
+     * AbstractManager#createSchema}.
+     *
+     * @return bool
+     */
+    public function canEmulateSchemas()
+    {
+        return false;
+    }
+
+    /**
      * Some databases don't allow to create and drop databases at all or only with certain tools.
      *
      * @return bool
