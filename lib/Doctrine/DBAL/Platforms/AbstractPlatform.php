@@ -2409,6 +2409,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Does this platform views ?
+     * 
+     * @return boolean 
+     */
+    public function supportsViews()
+    {
+        return true;
+    }
+
+    /**
      * Gets the format string, as accepted by the date() function, that describes
      * the format of a stored datetime value of this platform.
      *
