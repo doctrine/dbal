@@ -778,6 +778,7 @@ class SQLServerPlatform extends AbstractPlatform
             'binary' => 'text',
             'varbinary' => 'blob',
             'image' => 'text',
+            'uniqueidentifier' => 'string'
         );
     }
 
