@@ -387,7 +387,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchAllSupportFetchClass()
     {
         if ('mysqli' == $this->_conn->getDriver()->getName()) {
-            $this->markTestSkipped('Mysqli driver dont support this feature.');
+            $this->markTestSkipped("Mysqli driver doesn't support this feature.");
         }
 
         $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
