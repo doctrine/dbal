@@ -771,6 +771,19 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Format date
+     *
+     *
+     * @param string $date
+     * @param string $format
+     * @return string
+     */
+    public function getDateFormatExpression($date, $format)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Calculate the difference in days between the two passed dates.
      *
      * Computes diff = date1 - date2
