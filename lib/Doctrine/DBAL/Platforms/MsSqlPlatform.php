@@ -715,6 +715,7 @@ class MsSqlPlatform extends AbstractPlatform
             'binary' => 'text',
             'varbinary' => 'text',
             'image' => 'text',
+            'uniqueidentifier' => 'string'
         );
     }
 
