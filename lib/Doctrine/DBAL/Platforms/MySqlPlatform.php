@@ -100,6 +100,11 @@ class MySqlPlatform extends AbstractPlatform
         $args = func_get_args();
         return 'CONCAT(' . join(', ', (array) $args) . ')';
     }
+    
+    public function getDateFormatExpression($date, $format)
+    {
+        return 'DATE_FORMAT(' . $date . ', ' . $format . ')';
+    }
 
     public function getDateDiffExpression($date1, $date2)
     {
