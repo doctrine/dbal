@@ -32,6 +32,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
             'ALTER TABLE mytable DROP COLUMN foo',
             'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) DEFAULT \'def\' NOT NULL',
+            'ALTER TABLE mytable ALTER COLUMN bloo BIT DEFAULT \'0\' NOT NULL',
         );
     }
 
