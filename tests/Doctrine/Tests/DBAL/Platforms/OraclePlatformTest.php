@@ -31,7 +31,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'ALTER TABLE mytable ADD (quota NUMBER(10) DEFAULT NULL)',
-            "ALTER TABLE mytable MODIFY (baz  VARCHAR2(255) DEFAULT 'def' NOT NULL)",
+            "ALTER TABLE mytable MODIFY (baz  VARCHAR2(255) DEFAULT 'def' NOT NULL, bloo  NUMBER(1) DEFAULT '0' NOT NULL)",
             "ALTER TABLE mytable DROP (foo)",
             "ALTER TABLE mytable RENAME TO userlist",
         );
