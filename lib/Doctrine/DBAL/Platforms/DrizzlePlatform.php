@@ -32,9 +32,7 @@ use Doctrine\DBAL\DBALException,
 class DrizzlePlatform extends AbstractPlatform
 {
     /**
-     * Get the platform name for this instance.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -42,10 +40,7 @@ class DrizzlePlatform extends AbstractPlatform
     }
 
     /**
-     * Gets the character used for identifier quoting.
-     *
-     * @return string
-     * @override
+     * {@inheritdoc}
      */
     public function getIdentifierQuoteCharacter()
     {
@@ -292,6 +287,12 @@ class DrizzlePlatform extends AbstractPlatform
         return 'DATE';
     }
 
+    /**
+     * C/P from mysql platform
+     *
+     * @param TableDiff $diff
+     * @return type
+     */
     public function getAlterTableSQL(TableDiff $diff)
     {
         $columnSql = array();
