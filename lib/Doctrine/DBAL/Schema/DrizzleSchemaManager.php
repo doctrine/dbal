@@ -82,7 +82,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         );
     }
 
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
         $indexes = array();
         foreach ($tableIndexes as $k) {
