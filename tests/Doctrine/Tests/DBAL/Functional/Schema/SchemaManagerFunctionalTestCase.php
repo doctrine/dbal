@@ -31,6 +31,19 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm = $this->_conn->getSchemaManager();
     }
 
+    /**
+     * @group DBAL-195
+     */
+    public function testDropAndCreateSequence()
+    {
+        if(!$this->_conn->getDatabasePlatform()->supportsSequences()) {
+            $this->markTestSkipped($this->_conn->getDriver()->getName().' does not support sequences.');
+        }
+
+        $sequence = new \Doctrine\DBAL\Schema\Sequence('dropcreate_sequences_test_seq', 20, 10);
+        $this->_sm->dropAndCreateSequence($sequence);
+    }
+
     public function testListSequences()
     {
         if(!$this->_conn->getDatabasePlatform()->supportsSequences()) {
@@ -523,3 +536,4 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertTrue($foundTable, "Could not find new table");
     }
 }
+
