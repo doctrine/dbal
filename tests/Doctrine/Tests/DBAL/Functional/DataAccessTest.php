@@ -386,7 +386,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testFetchAllSupportFetchClass()
     {
-        if ($GLOBALS['db_type'] == "oci8")  {
+        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] == "oci8")  {
             $this->markTestSkipped("Not supported by OCI8");
         }
 
