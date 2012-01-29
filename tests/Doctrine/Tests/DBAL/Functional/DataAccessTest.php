@@ -386,6 +386,10 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testFetchAllSupportFetchClass()
     {
+        if ($GLOBALS['db_type'] == "oci8")  {
+            $this->markTestSkipped("Not supported by OCI8");
+        }
+
         $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
         $this->_conn->insert('fetch_table', array(
             'test_int'      => 1,
@@ -404,7 +408,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(1, count($results));
         $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
-        
+
         $this->assertEquals(1, $results[0]->test_int);
         $this->assertEquals('foo', $results[0]->test_string);
         $this->assertEquals('2010-01-01 10:10:10', $results[0]->test_datetime);
