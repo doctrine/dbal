@@ -47,8 +47,8 @@ class VarDateTimeType extends DateTimeType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null) {
-            return null;
+        if ($value === null || $value instanceof \DateTime) {
+            return $value;
         }
 
         $val = date_create($value);
