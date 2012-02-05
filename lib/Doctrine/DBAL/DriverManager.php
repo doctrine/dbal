@@ -32,8 +32,10 @@ final class DriverManager
     /**
      * List of supported drivers and their mappings to the driver classes.
      *
+     * To add your own driver use the 'driverClass' parameter to
+     * {@link DriverManager::getConnection()}.
+     *
      * @var array
-     * @todo REMOVE. Users should directly supply class names instead.
      */
      private static $_driverMap = array(
             'pdo_mysql'  => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
@@ -46,6 +48,7 @@ final class DriverManager
             'pdo_sqlsrv' => 'Doctrine\DBAL\Driver\PDOSqlsrv\Driver',
             'mysqli' => 'Doctrine\DBAL\Driver\Mysqli\Driver',
             'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
+            'sqlsrv' => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
             );
 
     /** Private constructor. This class cannot be instantiated. */
@@ -59,11 +62,18 @@ final class DriverManager
      * $params must contain at least one of the following.
      *
      * Either 'driver' with one of the following values:
+     *
      *     pdo_mysql
      *     pdo_sqlite
      *     pdo_pgsql
-     *     pdo_oracle
+     *     pdo_oci (unstable)
      *     pdo_sqlsrv
+     *     pdo_ibm (unstable)
+     *     pdo_sqlsrv
+     *     mysqli
+     *     sqlsrv
+     *     ibm_db2 (unstable)
+     *     drizzle_pdo_mysql
      *
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
