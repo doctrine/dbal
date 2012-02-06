@@ -17,47 +17,33 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\PDOSqlsrv;
+namespace Doctrine\DBAL\Driver\SQLSrv;
 
 /**
- * The PDO-based Sqlsrv driver.
- *
- * @since 2.0
+ * Driver for ext/sqlsrv
  */
 class Driver implements \Doctrine\DBAL\Driver
 {
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return new Connection(
-            $this->_constructPdoDsn($params),
-            $username,
-            $password,
-            $driverOptions
-        );
-    }
-
-    /**
-     * Constructs the Sqlsrv PDO DSN.
-     *
-     * @return string  The DSN.
-     */
-    private function _constructPdoDsn(array $params)
-    {
-        $dsn = 'sqlsrv:server=';
-
-        if (isset($params['host'])) {
-            $dsn .= $params['host'];
+        if (!isset($params['host'])) {
+            throw new SQLSrvException("Missing 'host' in configuration for sqlsrv driver.");
+        }
+        $serverName = $params['host'];
+        if (isset($params['port'])) {
+            $serverName .= ', ' . $params['port'];
+        }
+        if (!isset($params['dbname'])) {
+            throw new SQLSrvException("Missing 'dbname' in configuration for sqlsrv driver.");
+        }
+        $driverOptions['Database'] = $params['dbname'];
+        $driverOptions['UID'] = $username;
+        $driverOptions['PWD'] = $password;
+        if (!isset($driverOptions['ReturnDatesAsStrings'])) {
+            $driverOptions['ReturnDatesAsStrings'] = 1;
         }
 
-        if (isset($params['port']) && !empty($params['port'])) {
-            $dsn .= ',' . $params['port'];
-        }
-
-		if (isset($params['dbname'])) {
-			$dsn .= ';Database=' .  $params['dbname'];
-		}
-
-        return $dsn;
+        return new SQLSrvConnection($serverName, $driverOptions);
     }
 
     public function getDatabasePlatform()
@@ -72,7 +58,7 @@ class Driver implements \Doctrine\DBAL\Driver
 
     public function getName()
     {
-        return 'pdo_sqlsrv';
+        return 'sqlsrv';
     }
 
     public function getDatabase(\Doctrine\DBAL\Connection $conn)
@@ -81,3 +67,4 @@ class Driver implements \Doctrine\DBAL\Driver
         return $params['dbname'];
     }
 }
+
