@@ -52,7 +52,7 @@ class SQLSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function prepare($sql)
     {
-        return new SQLSrvStatement($this->conn, $sql, $lastInsertId);
+        return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }
 
     /**
