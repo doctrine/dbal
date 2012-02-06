@@ -4,8 +4,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Types\Type;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function setUp()
@@ -15,9 +13,10 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         try {
             /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
             $table = new \Doctrine\DBAL\Schema\Table("write_table");
-            $table->addColumn('test_int', 'integer', array('autoincrement' => true));
+            $table->addColumn('id', 'integer', array('autoincrement' => true));
+            $table->addColumn('test_int', 'integer');
             $table->addColumn('test_string', 'string', array('notnull' => false));
-            $table->setPrimaryKey(array('test_int'));
+            $table->setPrimaryKey(array('id'));
 
             foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
                 $this->_conn->executeQuery($sql);
