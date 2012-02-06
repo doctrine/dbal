@@ -23,6 +23,12 @@ use PDO;
 use IteratorAggregate;
 use Doctrine\DBAL\Driver\Statement;
 
+/**
+ * SQL Server Statement
+ *
+ * @since 2.3
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ */
 class SQLSrvStatement implements IteratorAggregate, Statement
 {
     /**
@@ -71,10 +77,27 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     private $defaultFetchStyle = PDO::FETCH_BOTH;
 
-    public function __construct($conn, $sql)
+    /**
+     * @var int|null
+     */
+    private $lastInsertId;
+
+    /**
+     * Append to any INSERT query to retrieve the last insert id.
+     *
+     * @var string
+     */
+    const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
+
+    public function __construct($conn, $sql, $lastInsertId = null)
     {
         $this->conn = $conn;
         $this->sql = $sql;
+
+        if (stripos($sql, 'INSERT INTO ') === 0) {
+            $this->sql .= self::LAST_INSERT_ID_SQL;
+            $this->lastInsertId = $lastInsertId;
+        }
     }
 
     public function bindValue($param, $value, $type = null)
@@ -135,17 +158,20 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         if ($params) {
             $hasZeroIndex = array_key_exists(0, $params);
             foreach ($params as $key => $val) {
-                if ($hasZeroIndex && is_numeric($key)) {
-                    $this->bindValue($key + 1, $val);
-                } else {
-                    $this->bindValue($key, $val);
-                }
+                $key = ($hasZeroIndex && is_numeric($key)) ? $key + 1 : $key;
+                $this->bindValue($key, $val);
             }
         }
 
         $this->stmt = sqlsrv_query($this->conn, $this->sql, $this->params);
         if (!$this->stmt) {
             throw SQLSrvException::fromSqlSrvErrors();
+        }
+
+        if ($this->lastInsertId) {
+            sqlsrv_next_result($this->stmt);
+            sqlsrv_fetch($this->stmt);
+            $this->lastInsertId->setId( sqlsrv_get_field($this->stmt, 0) );
         }
     }
 
@@ -180,9 +206,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
                 $ctorArgs = (isset($args[2])) ? $args[2] : array();
             }
             return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs);
-        } else {
-            throw new SQLSrvException("Fetch mode is not supported!");
         }
+
+        throw new SQLSrvException("Fetch mode is not supported!");
     }
 
     /**

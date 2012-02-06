@@ -27,7 +27,16 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
  */
 class SQLSrvConnection implements \Doctrine\DBAL\Driver\Connection
 {
+    /**
+     * @var resource
+     */
     protected $conn;
+
+    /**
+     * @var LastInsertId
+     */
+    protected $lastInsertId;
+
 
     public function __construct($serverName, $connectionOptions)
     {
@@ -35,6 +44,7 @@ class SQLSrvConnection implements \Doctrine\DBAL\Driver\Connection
         if (!$this->conn) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
+        $this->lastInsertId = new LastInsertId();
     }
 
     /**
@@ -42,7 +52,7 @@ class SQLSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function prepare($sql)
     {
-        return new SQLSrvStatement($this->conn, $sql);
+        return new SQLSrvStatement($this->conn, $sql, $lastInsertId);
     }
 
     /**
@@ -87,15 +97,15 @@ class SQLSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function lastInsertId($name = null)
     {
-        if ($name === null) {
-            $sql = "SELECT SCOPE_IDENTITY() AS LastInsertId";
-        } else {
+        if ($name !== null) {
             $sql = "SELECT IDENT_CURRENT(".$this->quote($name).") AS LastInsertId";
-        }
-        $stmt = $this->prepare($sql);
-        $stmt->execute();
+            $stmt = $this->prepare($sql);
+            $stmt->execute();
 
-        return $stmt->fetchColumn();
+            return $stmt->fetchColumn();
+        }
+
+        return $this->lastInsertId->getId();
     }
 
     /**
