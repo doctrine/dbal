@@ -15,7 +15,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         try {
             /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
             $table = new \Doctrine\DBAL\Schema\Table("write_table");
-            $table->addColumn('test_int', 'integer');
+            $table->addColumn('test_int', 'integer', array('autoincrement' => true));
             $table->addColumn('test_string', 'string', array('notnull' => false));
             $table->setPrimaryKey(array('test_int'));
 
@@ -133,5 +133,18 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(1, $this->_conn->update('write_table', array('test_string' => 'bar'), array('test_string' => 'foo')));
         $this->assertEquals(2, $this->_conn->update('write_table', array('test_string' => 'baz'), array('test_string' => 'bar')));
         $this->assertEquals(0, $this->_conn->update('write_table', array('test_string' => 'baz'), array('test_string' => 'bar')));
+    }
+
+    public function testLastInsertId()
+    {
+        if ( ! $this->_conn->getDatabasePlatform()->prefersIdentityColumns()) {
+            $this->markTestSkipped('Test only works on platforms with identity columns.');
+        }
+
+        $this->assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 2, 'test_string' => 'bar')));
+        $num = $this->_conn->lastInsertId();
+
+        $this->assertNotNull($num, "LastInsertId() should not be null.");
+        $this->assertTrue($num > 0, "LastInsertId() should be non-negative number.");
     }
 }

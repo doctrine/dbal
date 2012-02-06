@@ -65,7 +65,7 @@ class Connection extends \Doctrine\DBAL\Connection
                 } else if ($this->_platform->getName() === "drizzle") {
                     $params['portability'] = self::PORTABILITY_DRIZZLE;
                 } else if ($this->_platform->getName() === 'sqlsrv') {
-                    $params['portaility'] = $params['portabililty'] & self::PORTABILITY_SQLSRV;
+                    $params['portability'] = $params['portabililty'] & self::PORTABILITY_SQLSRV;
                 } else {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_OTHERVENDORS;
                 }

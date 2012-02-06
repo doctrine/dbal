@@ -29,16 +29,18 @@ class Driver implements \Doctrine\DBAL\Driver
         if (!isset($params['host'])) {
             throw new SQLSrvException("Missing 'host' in configuration for sqlsrv driver.");
         }
+        if (!isset($params['dbname'])) {
+            throw new SQLSrvException("Missing 'dbname' in configuration for sqlsrv driver.");
+        }
+
         $serverName = $params['host'];
         if (isset($params['port'])) {
             $serverName .= ', ' . $params['port'];
         }
-        if (!isset($params['dbname'])) {
-            throw new SQLSrvException("Missing 'dbname' in configuration for sqlsrv driver.");
-        }
         $driverOptions['Database'] = $params['dbname'];
         $driverOptions['UID'] = $username;
         $driverOptions['PWD'] = $password;
+
         if (!isset($driverOptions['ReturnDatesAsStrings'])) {
             $driverOptions['ReturnDatesAsStrings'] = 1;
         }
