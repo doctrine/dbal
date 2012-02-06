@@ -411,7 +411,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(1, $results[0]->test_int);
         $this->assertEquals('foo', $results[0]->test_string);
-        $this->assertEquals('2010-01-01 10:10:10', $results[0]->test_datetime);
+        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
     }
 }
 

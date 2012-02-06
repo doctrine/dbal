@@ -47,4 +47,10 @@ class DateTimeTest extends \Doctrine\Tests\DbalTestCase
     {
         $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
     }
+
+    public function testConvertDateTimeToPHPValue()
+    {
+        $date = new \DateTime("now");
+        $this->assertSame($date, $this->_type->convertToPHPValue($date, $this->_platform));
+    }
 }

@@ -125,6 +125,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table->addColumn('baz1', 'datetime');
         $table->addColumn('baz2', 'time');
         $table->addColumn('baz3', 'date');
+        $table->setPrimaryKey(array('id'));
 
         return $table;
     }
