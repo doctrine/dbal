@@ -519,7 +519,7 @@ class Connection implements DriverConnection
         }
 
         $query = 'INSERT INTO ' . $tableName
-               . ' (' . implode(', ', $cols) . ')'
+               . ' (`' . implode('`, `', $cols) . '`)'
                . ' VALUES (' . implode(', ', $placeholders) . ')';
 
         return $this->executeUpdate($query, array_values($data), $types);
