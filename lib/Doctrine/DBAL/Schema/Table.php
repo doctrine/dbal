@@ -160,6 +160,32 @@ class Table extends AbstractAsset
     }
 
     /**
+     * Drop an index from this table.
+     *
+     * @param string $indexName
+     * @return void
+     */
+    public function dropPrimaryKey()
+    {
+        $this->dropIndex($this->_primaryKeyName);
+    }
+
+    /**
+     * Drop an index from this table.
+     *
+     * @param string $indexName
+     * @return void
+     */
+    public function dropIndex($indexName)
+    {
+        $indexName = strtolower($indexName);
+        if (!$this->hasIndex($indexName)) {
+            throw SchemaException::indexDoesNotExist($indexName, $this->_name);
+        }
+        unset($this->_indexes[$indexName]);
+    }
+
+    /**
      *
      * @param array $columnNames
      * @param string $indexName
