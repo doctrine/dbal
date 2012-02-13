@@ -195,7 +195,11 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         if (isset($options['primary']) && !empty($options['primary'])) {
-            $columnListSql .= ', PRIMARY KEY(' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+            $flags = '';
+            if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
+                $flags = ' NONCLUSTERED';
+            }
+            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
@@ -224,6 +228,22 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * Get SQL to create an unnamed primary key constraint.
+     *
+     * @param Index $index
+     * @param string|Table $table
+     * @return string
+     */
+    public function getCreatePrimaryKeySQL(Index $index, $table)
+    {
+        $flags = '';
+        if ($index->hasFlag('nonclustered')) {
+            $flags = ' NONCLUSTERED';
+        }
+        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index->getColumns()) . ')';
+    }
+
+    /**
      * @override
      */
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
@@ -247,6 +267,25 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return $constraint;
+    }
+
+    /**
+     * @override
+     */
+    protected function getCreateIndexSQLFlags(Index $index)
+    {
+        $type = '';
+        if ($index->isUnique()) {
+            $type .= 'UNIQUE ';
+        }
+
+        if ($index->hasFlag('clustered')) {
+            $type .= 'CLUSTERED ';
+        } else if ($index->hasFlag('nonclustered')) {
+            $type .= 'NONCLUSTERED ';
+        }
+
+        return $type;
     }
 
     /**

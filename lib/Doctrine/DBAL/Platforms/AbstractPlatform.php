@@ -1028,6 +1028,7 @@ abstract class AbstractPlatform
                 /* @var $index Index */
                 if ($index->isPrimary()) {
                     $options['primary'] = $index->getColumns();
+                    $options['primary_index'] = $index;
                 } else {
                     $options['indexes'][$index->getName()] = $index;
                 }
@@ -1250,16 +1251,27 @@ abstract class AbstractPlatform
         if ($index->isPrimary()) {
             return $this->getCreatePrimaryKeySQL($index, $table);
         } else {
-            $type = '';
-            if ($index->isUnique()) {
-                $type = 'UNIQUE ';
-            }
 
-            $query = 'CREATE ' . $type . 'INDEX ' . $name . ' ON ' . $table;
+            $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
             $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
         }
 
         return $query;
+    }
+
+    /**
+     * Adds additional flags for index generation
+     *
+     * @param Index $index
+     * @return string
+     */
+    protected function getCreateIndexSQLFlags(Index $index)
+    {
+        $type = '';
+        if ($index->isUnique()) {
+            $type = 'UNIQUE ';
+        }
+        return $type;
     }
 
     /**

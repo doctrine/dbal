@@ -14,7 +14,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
+        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255) DEFAULT NULL, PRIMARY KEY (id))';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
@@ -187,5 +187,38 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('[fo][o]', $this->_platform->quoteSingleIdentifier('fo]o'));
         $this->assertEquals('[test]', $this->_platform->quoteSingleIdentifier('test'));
         $this->assertEquals('[test.test]', $this->_platform->quoteSingleIdentifier('test.test'));
+    }
+
+    /**
+     * @group DBAL-220
+     */
+    public function testCreateClusteredIndex()
+    {
+        $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'));
+        $idx->addFlag('clustered');
+        $this->assertEquals('CREATE CLUSTERED INDEX idx ON tbl (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
+    }
+
+    /**
+     * @group DBAL-220
+     */
+    public function testCreateNonClusteredPrimaryKeyInTable()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table("tbl");
+        $table->addColumn("id", "integer");
+        $table->setPrimaryKey(Array("id"));
+        $table->getIndex('primary')->addFlag('nonclustered');
+
+        $this->assertEquals(array('CREATE TABLE tbl (id INT NOT NULL, PRIMARY KEY NONCLUSTERED (id))'), $this->_platform->getCreateTableSQL($table));
+    }
+
+    /**
+     * @group DBAL-220
+     */
+    public function testCreateNonClusteredPrimaryKey()
+    {
+        $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
+        $idx->addFlag('nonclustered');
+        $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->_platform->getCreatePrimaryKeySQL($idx, 'tbl'));
     }
 }

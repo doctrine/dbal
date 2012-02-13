@@ -520,6 +520,22 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * @override
+     */
+    protected function getCreateIndexSQLFlags(Index $index)
+    {
+        $type = '';
+        if ($index->isUnique()) {
+            $type .= 'UNIQUE ';
+        } else if ($index->hasFlag('fulltext')) {
+            $type .= 'FULLTEXT ';
+        }
+
+        return $type;
+    }
+
+
+    /**
      * Obtain DBMS specific SQL code portion needed to declare an integer type
      * field to be used in statements like CREATE TABLE.
      *

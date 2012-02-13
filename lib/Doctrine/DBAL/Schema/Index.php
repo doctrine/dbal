@@ -39,12 +39,19 @@ class Index extends AbstractAsset implements Constraint
     protected $_isPrimary = false;
 
     /**
+     * Platform specific flags for indexes.
+     *
+     * @var array
+     */
+    protected $_flags = array();
+
+    /**
      * @param string $indexName
      * @param array $column
      * @param bool $isUnique
      * @param bool $isPrimary
      */
-    public function __construct($indexName, array $columns, $isUnique=false, $isPrimary=false)
+    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
     {
         $isUnique = ($isPrimary)?true:$isUnique;
 
@@ -52,8 +59,11 @@ class Index extends AbstractAsset implements Constraint
         $this->_isUnique = $isUnique;
         $this->_isPrimary = $isPrimary;
 
-        foreach($columns AS $column) {
+        foreach ($columns AS $column) {
             $this->_addColumn($column);
+        }
+        foreach ($flags as $flag) {
+            $this->addFlag($flag);
         }
     }
 
@@ -185,4 +195,40 @@ class Index extends AbstractAsset implements Constraint
         }
         return false;
     }
+
+    /**
+     * Add Flag for an index that translates to platform specific handling.
+     *
+     * @example $index->addFlag('CLUSTERED')
+     * @param string $flag
+     * @return Index
+     */
+    public function addFlag($flag)
+    {
+        $this->flags[strtolower($flag)] = true;
+        return $this;
+    }
+
+    /**
+     * Does this index have a specific flag?
+     *
+     * @param string $flag
+     * @return bool
+     */
+    public function hasFlag($flag)
+    {
+        return isset($this->flags[strtolower($flag)]);
+    }
+
+    /**
+     * Remove a flag
+     *
+     * @param string $flag
+     * @return void
+     */
+    public function removeFlag($flag)
+    {
+        unset($this->flags[strtolower($flag)]);
+    }
 }
+
