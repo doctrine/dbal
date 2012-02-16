@@ -132,7 +132,7 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
         }
     }
 
-You can modify the SQL declaration Doctrine will use. First, you need to enable this feature by overriding the canRequireSQLConversion method: 
+The job of Doctrine-DBAL is to transform your type into SQL declaration. You can modify the SQL declaration Doctrine will produce. At first, you must to enable this feature by overriding the canRequireSQLConversion method: 
 
 ::
 
