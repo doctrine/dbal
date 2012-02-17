@@ -58,14 +58,15 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
 
     public function getIterator()
     {
-        $data = $this->fetchAll($this->defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 
-    public function fetch($fetchStyle = PDO::FETCH_BOTH)
+    public function fetch($fetchStyle = null)
     {
         if (isset($this->data[$this->num])) {
             $row = $this->data[$this->num++];
+            $fetchStyle = $fetchStyle ?: $this->defaultFetchStyle;
             if ($fetchStyle === PDO::FETCH_ASSOC) {
                 return $row;
             } else if ($fetchStyle === PDO::FETCH_NUM) {
@@ -81,7 +82,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
         return false;
     }
 
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH)
+    public function fetchAll($fetchStyle = null)
     {
         $rows = array();
         while ($row = $this->fetch($fetchStyle)) {

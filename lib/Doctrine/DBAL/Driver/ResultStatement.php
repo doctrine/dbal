@@ -64,7 +64,7 @@ interface ResultStatement extends \Traversable
      *
      * @return mixed
      */
-    function fetch($fetchStyle = PDO::FETCH_BOTH);
+    function fetch($fetchStyle = null);
 
     /**
      * Returns an array containing all of the result set rows
@@ -75,7 +75,7 @@ interface ResultStatement extends \Traversable
      *
      * @return array
      */
-    function fetchAll($fetchStyle = PDO::FETCH_BOTH);
+    function fetchAll($fetchStyle = null);
 
     /**
      * fetchColumn
