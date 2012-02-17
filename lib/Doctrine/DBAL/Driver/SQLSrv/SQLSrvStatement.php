@@ -185,7 +185,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll($this->defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 
@@ -194,7 +194,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function fetch($fetchStyle = null)
     {
-        $fetchStyle = ($fetchStyle)?:$this->defaultFetchStyle;
+        $fetchStyle = $fetchStyle ?: $this->defaultFetchStyle;
         if (isset(self::$fetchMap[$fetchStyle])) {
             return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchStyle]);
         } else if ($fetchStyle == PDO::FETCH_OBJ || $fetchStyle == PDO::FETCH_CLASS) {

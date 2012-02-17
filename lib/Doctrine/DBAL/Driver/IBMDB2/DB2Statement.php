@@ -158,7 +158,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll($this->_defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 
@@ -185,7 +185,6 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function fetchAll($fetchStyle = null)
     {
-        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
         $rows = array();
         while ($row = $this->fetch($fetchStyle)) {
             $rows[] = $row;

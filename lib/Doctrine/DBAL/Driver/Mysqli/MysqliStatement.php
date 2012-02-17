@@ -251,13 +251,11 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function fetchAll($fetchStyle = null)
     {
-        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
-
-        $a = array();
+        $rows = array();
         while (($row = $this->fetch($fetchStyle)) !== null) {
-            $a[] = $row;
+            $rows[] = $row;
         }
-        return $a;
+        return $rows;
     }
 
     /**
@@ -319,9 +317,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode)
+    public function setFetchMode($fetchStyle)
     {
-        $this->_defaultFetchStyle = $fetchMode;
+        $this->_defaultFetchStyle = $fetchStyle;
     }
 
     /**
@@ -329,7 +327,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll($this->_defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 }

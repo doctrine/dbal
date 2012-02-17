@@ -139,7 +139,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
 
     public function getIterator()
     {
-        $data = $this->fetchAll($this->defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 
@@ -170,7 +170,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      *
      * @return mixed
      */
-    public function fetch($fetchStyle = PDO::FETCH_BOTH)
+    public function fetch($fetchStyle = null)
     {
         if ($this->data === null) {
             $this->data = array();
@@ -179,6 +179,8 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
         $row = $this->statement->fetch(PDO::FETCH_ASSOC);
         if ($row) {
             $this->data[] = $row;
+
+            $fetchStyle = $fetchStyle ?: $this->defaultFetchStyle;
 
             if ($fetchStyle == PDO::FETCH_ASSOC) {
                 return $row;
@@ -206,7 +208,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      *
      * @return array
      */
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH)
+    public function fetchAll($fetchStyle = null)
     {
         $rows = array();
         while ($row = $this->fetch($fetchStyle)) {
