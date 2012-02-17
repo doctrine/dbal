@@ -685,7 +685,9 @@ class Connection implements DriverConnection
             }
         }
 
-        if (!isset($stmt)) $stmt = new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
+        if (!isset($stmt)) {
+            $stmt = new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
+        }
 
         $stmt->setFetchMode($this->_defaultFetchStyle);
 
