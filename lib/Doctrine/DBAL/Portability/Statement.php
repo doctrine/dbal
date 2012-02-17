@@ -108,12 +108,14 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 
     public function getIterator()
     {
-        $data = $this->fetchAll($this->defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 
-    public function fetch($fetchStyle = PDO::FETCH_BOTH)
+    public function fetch($fetchStyle = null)
     {
+        $fetchStyle = $fetchStyle ?: $this->defaultFetchStyle;
+
         $row = $this->stmt->fetch($fetchStyle);
 
         $row = $this->fixRow($row,
@@ -124,8 +126,10 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         return $row;
     }
 
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $columnIndex = 0)
+    public function fetchAll($fetchStyle = null, $columnIndex = 0)
     {
+        $fetchStyle = $fetchStyle ?: $this->defaultFetchStyle;
+
         if ($columnIndex != 0) {
             $rows = $this->stmt->fetchAll($fetchStyle, $columnIndex);
         } else {

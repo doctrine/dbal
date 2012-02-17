@@ -194,7 +194,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      * @return mixed The return value of this function on success depends on the fetch type.
      *               In all cases, FALSE is returned on failure.
      */
-    public function fetch($fetchStyle = PDO::FETCH_BOTH)
+    public function fetch($fetchStyle = null)
     {
         return $this->stmt->fetch($fetchStyle);
     }
@@ -206,7 +206,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      * @param mixed $fetchArgument
      * @return array An array containing all of the remaining rows in the result set.
      */
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $fetchArgument = 0)
+    public function fetchAll($fetchStyle = null, $fetchArgument = 0)
     {
         if ($fetchArgument !== 0) {
             return $this->stmt->fetchAll($fetchStyle, $fetchArgument);
