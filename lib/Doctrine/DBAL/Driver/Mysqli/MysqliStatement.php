@@ -326,7 +326,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode = PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchStyle = $fetchMode;
     }
