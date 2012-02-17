@@ -173,6 +173,8 @@ class Connection implements DriverConnection
      */
     private $_isRollbackOnly = false;
 
+    private $_defaultFetchStyle = PDO::FETCH_ASSOC;
+
     /**
      * Initializes a new instance of the Connection class.
      *
@@ -354,6 +356,16 @@ class Connection implements DriverConnection
         }
 
         return true;
+    }
+
+    /**
+     * setFetchMode
+     *
+     * @param integer $fetchStyle
+     */
+    public function setFetchMode($fetchStyle)
+    {
+        $this->_defaultFetchStyle = $fetchStyle;
     }
 
     /**
@@ -577,7 +589,7 @@ class Connection implements DriverConnection
      */
     public function fetchAll($sql, array $params = array())
     {
-        return $this->executeQuery($sql, $params)->fetchAll(PDO::FETCH_ASSOC);
+        return $this->executeQuery($sql, $params)->fetchAll();
     }
 
     /**
@@ -590,7 +602,10 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
-        return new Statement($statement, $this);
+        $stmt = new Statement($statement, $this);
+        $stmt->setFetchMode($this->_defaultFetchStyle);
+
+        return $stmt;
     }
 
     /**
@@ -633,6 +648,8 @@ class Connection implements DriverConnection
             $stmt = $this->_conn->query($query);
         }
 
+        $stmt->setFetchMode($this->_defaultFetchStyle);
+
         if ($hasLogger) {
             $this->_config->getSQLLogger()->stopQuery();
         }
@@ -662,12 +679,17 @@ class Connection implements DriverConnection
         if ($data = $resultCache->fetch($cacheKey)) {
             // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
             if (isset($data[$realKey])) {
-                return new ArrayStatement($data[$realKey]);
+                $stmt = new ArrayStatement($data[$realKey]);
             } else if (array_key_exists($realKey, $data)) {
-                return new ArrayStatement(array());
+                $stmt = new ArrayStatement(array());
             }
         }
-        return new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
+
+        if (!isset($stmt)) $stmt = new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
+
+        $stmt->setFetchMode($this->_defaultFetchStyle);
+
+        return $stmt;
     }
 
     /**
@@ -714,6 +736,7 @@ class Connection implements DriverConnection
         }
 
         $statement = call_user_func_array(array($this->_conn, 'query'), $args);
+        $statement->setFetchMode($this->_defaultFetchStyle);
 
         if ($logger) {
             $logger->stopQuery();
