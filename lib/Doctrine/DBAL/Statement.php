@@ -123,15 +123,15 @@ class Statement implements \IteratorAggregate, DriverStatement
      */
     public function execute($params = null)
     {
-        $hasLogger = $this->conn->getConfiguration()->getSQLLogger();
-        if ($hasLogger) {
-            $this->conn->getConfiguration()->getSQLLogger()->startQuery($this->sql, $this->params);
+        $logger = $this->conn->getConfiguration()->getSQLLogger();
+        if ($logger) {
+            $logger->startQuery($this->sql, $this->params);
         }
 
         $stmt = $this->stmt->execute($params);
 
-        if ($hasLogger) {
-            $this->conn->getConfiguration()->getSQLLogger()->stopQuery();
+        if ($logger) {
+            $logger->stopQuery();
         }
         $this->params = array();
         return $stmt;
