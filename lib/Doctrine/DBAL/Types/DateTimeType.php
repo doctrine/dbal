@@ -50,7 +50,7 @@ class DateTimeType extends Type
             return null;
         }
 
-        $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
+        $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), substr($value,0,-1));
         if (!$val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString());
         }
