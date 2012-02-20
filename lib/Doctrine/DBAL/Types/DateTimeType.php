@@ -50,7 +50,11 @@ class DateTimeType extends Type
             return null;
         }
 
-        $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), substr($value,0,-1));
+        if ($platform->getName() == 'mssql') {
+            $value = substr($value,0,-1);
+        }
+
+        $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
         if (!$val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString());
         }
