@@ -90,7 +90,7 @@ class SQLParserUtils
         $bindIndex = -1;
         foreach ($types AS $name => $type) {
             ++$bindIndex;
-            if (is_int($type) && ($type === Connection::PARAM_INT_ARRAY || $type == Connection::PARAM_STR_ARRAY)) {
+            if ($type === Connection::PARAM_INT_ARRAY || $type === Connection::PARAM_STR_ARRAY) {
                 if ($isPositional) {
                     $name = $bindIndex;
                 }
