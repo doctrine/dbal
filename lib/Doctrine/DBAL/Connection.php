@@ -902,13 +902,21 @@ class Connection implements DriverConnection
         $logger = $this->_config->getSQLLogger();
 
         if ($this->_transactionNestingLevel == 1) {
-            if ($logger) $logger->startQuery('"START TRANSACTION"');
+            if ($logger) {
+                $logger->startQuery('"START TRANSACTION"');
+            }
             $this->_conn->beginTransaction();
-            if ($logger) $logger->stopQuery();
+            if ($logger) {
+                $logger->stopQuery();
+            }
         } else if ($this->_nestTransactionsWithSavepoints) {
-            if ($logger) $logger->startQuery('"SAVEPOINT"');
+            if ($logger) {
+                $logger->startQuery('"SAVEPOINT"');
+            }
             $this->createSavepoint($this->_getNestedTransactionSavePointName());
-            if ($logger) $logger->stopQuery();
+            if ($logger) {
+                $logger->stopQuery();
+            }
         }
     }
 
@@ -933,13 +941,21 @@ class Connection implements DriverConnection
         $logger = $this->_config->getSQLLogger();
 
         if ($this->_transactionNestingLevel == 1) {
-            if ($logger) $logger->startQuery('"COMMIT"');
+            if ($logger) {
+                $logger->startQuery('"COMMIT"');
+            }
             $this->_conn->commit();
-            if ($logger) $logger->stopQuery();
+            if ($logger) {
+                $logger->stopQuery();
+            }
         } else if ($this->_nestTransactionsWithSavepoints) {
-            if ($logger) $logger->startQuery('"RELEASE SAVEPOINT"');
+            if ($logger) {
+                $logger->startQuery('"RELEASE SAVEPOINT"');
+            }
             $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
-            if ($logger) $logger->stopQuery();
+            if ($logger) {
+                $logger->stopQuery();
+            }
         }
 
         --$this->_transactionNestingLevel;
@@ -964,16 +980,24 @@ class Connection implements DriverConnection
         $logger = $this->_config->getSQLLogger();
 
         if ($this->_transactionNestingLevel == 1) {
-            if ($logger) $logger->startQuery('"ROLLBACK"');
+            if ($logger) {
+                $logger->startQuery('"ROLLBACK"');
+            }
             $this->_transactionNestingLevel = 0;
             $this->_conn->rollback();
             $this->_isRollbackOnly = false;
-            if ($logger) $logger->stopQuery();
+            if ($logger) {
+                $logger->stopQuery();
+            }
         } else if ($this->_nestTransactionsWithSavepoints) {
-            if ($logger) $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
+            if ($logger) {
+                $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
+            }
             $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
             --$this->_transactionNestingLevel;
-            if ($logger) $logger->stopQuery();
+            if ($logger) {
+                $logger->stopQuery();
+            }
         } else {
             $this->_isRollbackOnly = true;
             --$this->_transactionNestingLevel;
