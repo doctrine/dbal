@@ -149,7 +149,7 @@ Then you can override the methods convertToPhpValueSQL and convertToDatabaseValu
     <?php
     public function convertToPHPValueSQL($sqlExpr, $platform)
     {
-        return 'MyMoneyFunction(\''.$sqlExpr.') ';
+        return 'MyMoneyFunction(\''.$sqlExpr.'\') ';
     }
     
     public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform)
