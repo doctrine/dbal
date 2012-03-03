@@ -142,7 +142,7 @@ The job of Doctrine-DBAL is to transform your type into SQL declaration. You can
         return true;
     }
 
-Then you can override the methods convertToPhpValueSQL and convertToDatabaseValueSQL : 
+Then you override the methods convertToPhpValueSQL and convertToDatabaseValueSQL : 
 
 ::
 
