@@ -121,7 +121,14 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDateAddDaysExpression($date, $days)
     {
-        return '(' . $date . '+' . $days . ')';
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return '(' . $date . '+' . $value . ')';
+        } else if ($unitl == "month") {
+            return "ADD_MONTHS(" . $date . ", " . $value . ")";
+        } else {
+            throw QueryException::semanticalError('DATE_ADD() only supports units of type day and month.');
+        }
     }
 
     /**
@@ -129,7 +136,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDateSubDaysExpression($date, $days)
     {
-        return '(' . $date . '-' . $days . ')';
+        return '(' . $date . '+' . $days . ')';
     }
 
     /**

@@ -101,26 +101,85 @@ class MySqlPlatform extends AbstractPlatform
         return 'CONCAT(' . join(', ', (array) $args) . ')';
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateDiffExpression($date1, $date2)
     {
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddIntervalExpression($date, $value, $unit)
+    {
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return 'DATE_ADD(' . $date . ', INTERVAL ' . $value . ' DAY)';
+        } else if ($unitl == "month") {
+            return 'DATE_ADD(' . $date . ', INTERVAL ' . $value . ' MONTH)';
+        } else {
+            throw QueryException::semanticalError('DATE_ADD() only supports units of type day and month.');
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
     }
 
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
-    }
-
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateAddMonthExpression($date, $months)
     {
         return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubIntervalExpression($date, $value, $unit)
+    {
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return 'DATE_SUB(' . $date . ', INTERVAL ' . $value . ' DAY)';
+        } else if ($unitl == "month") {
+            return 'DATE_SUB(' . $date . ', INTERVAL ' . $value . ' MONTH)';
+        } else {
+            throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateSubMonthExpression($date, $months)
     {
         return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';

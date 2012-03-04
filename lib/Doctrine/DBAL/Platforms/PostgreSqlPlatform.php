@@ -92,26 +92,81 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateDiffExpression($date1, $date2)
     {
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
     }
 
-    public function getDateAddDaysExpression($date, $days)
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateDiffIntervalExpression($date1, $date2)
     {
         return "(" . $date ." + (" . $days . " || ' day')::interval)";
     }
 
-    public function getDateSubDaysExpression($date, $days)
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddIntervalExpression($date, $value, $unit)
     {
         return "(" . $date ." - (" . $days . " || ' day')::interval)";
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return "(" . $date . "+ interval '" . $days . " day')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateAddMonthExpression($date, $months)
     {
         return "(" . $date ." + (" . $months . " || ' month')::interval)";
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubIntervalExpression($date, $value, $unit)
+    {
+        return "(" . $date . "- interval '" . $value . " " . $unit . "')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return "(" . $date . "- interval '" . $days . " day')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateSubMonthExpression($date, $months)
     {
         return "(" . $date ." - (" . $months . " || ' month')::interval)";
@@ -649,6 +704,26 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
         return 'TIME(0) WITHOUT TIME ZONE';
+    }
+
+    /**
+     * Gets the SQL specific for the platform to get the current timestamp
+     *
+     * @return string
+     */
+    public function getCurrentTimestampSQL()
+    {
+        return 'CURRENT_TIMESTAMP(0)';
+    }
+
+    /**
+     * Gets the SQL specific for the platform to get the current time.
+     *
+     * @return string
+     */
+    public function getCurrentTimeSQL()
+    {
+        return 'CURRENT_TIME(0)';
     }
 
     /**

@@ -125,31 +125,90 @@ class SqlitePlatform extends AbstractPlatform
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateDiffExpression($date1, $date2)
     {
         return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateAddIntervalExpression($date, $value, $unit)
+    {
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return "DATE(" . $date . ",'+". $value . " day')";
+        } else if ($unitl == "month") {
+            return "DATE(" . $date . ",'+". $value . " month')";
+        } else {
+            throw QueryException::semanticalError('DATE_ADD() only supports units of type day and month.');
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return "DATE(" . $date . ",'+". $days . " day')";
     }
 
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return "DATE(" . $date . ",'-". $days . " day')";
-    }
-
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateAddMonthExpression($date, $months)
     {
         return "DATE(" . $date . ",'+". $months . " month')";
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubIntervalExpression($date, $value, $unit)
+    {
+        $unitl = strtolower($unit);
+        if ($unitl == "day") {
+            return "DATE(" . $date . ",'-". $value . " day')";
+        } else if ($unitl == "month") {
+            return "DATE(" . $date . ",'-". $value . " month')";
+        } else {
+            throw QueryException::semanticalError('DATE_SUB() only supports units of type day and month.');
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return "DATE(" . $date . ",'-". $days . " day')";
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @override
+     */
     public function getDateSubMonthExpression($date, $months)
     {
         return "DATE(" . $date . ",'-". $months . " month')";
     }
-
+    
     protected function _getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
