@@ -508,10 +508,20 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the squared value of a column
+     *
+     * @param string $column    the column to use
+     * @return string           generated sql including an SQRT aggregate function
+     */
+    public function getSqrtExpression($column)
+    {
+        return 'SQRT(' . $column . ')';
+    }
+
+    /**
      * Rounds a numeric field to the number of decimals specified.
      *
      * @param string $expression1
-     * @param string $expression2
      * @return string
      */
     public function getRoundExpression($column, $decimals = 0)
@@ -2424,8 +2434,8 @@ abstract class AbstractPlatform
 
     /**
      * Does this platform views ?
-     * 
-     * @return boolean 
+     *
+     * @return boolean
      */
     public function supportsViews()
     {
