@@ -83,6 +83,10 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                 // Unicode data requires 2 bytes per character
                 $length = $length / 2;
                 break;
+            case 'uniqueidentifier':
+                //uniqueidentifier is a 36 character string
+                $length = 36;
+                break;
         }
 
         $options = array(
