@@ -198,6 +198,20 @@ abstract class AbstractPlatform
         }
     }
 
+    /**
+     * Get the SQL Snippet to create a GUID/UUID field.
+     *
+     * By default this maps directly to a VARCHAR and only maps to more
+     * special datatypes when the underlying databases support this datatype.
+     *
+     * @param array $field
+     * @return string
+     */
+    public function getGuidTypeDeclartionSQL(array $field)
+    {
+        return $this->getVarcharTypeDeclarationSQL($field);
+    }
+
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         throw DBALException::notSupported('VARCHARs not supported by Platform.');
