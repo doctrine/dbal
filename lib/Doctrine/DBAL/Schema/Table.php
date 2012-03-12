@@ -168,6 +168,7 @@ class Table extends AbstractAsset
     public function dropPrimaryKey()
     {
         $this->dropIndex($this->_primaryKeyName);
+        $this->_primaryKeyName = false;
     }
 
     /**
