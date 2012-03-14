@@ -520,6 +520,64 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * Fix for DROP/CREATE index after foreign key change from OneToOne to ManyToOne
+     *
+     * @param TableDiff $diff
+     * @return array
+     */
+    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
+    {
+        $sql = array();
+        $table = $diff->name;
+
+        foreach ($diff->removedIndexes AS $remKey => $remIndex) {
+
+            foreach ($diff->addedIndexes as $addKey => $addIndex) {
+                if ($remIndex->getColumns() == $addIndex->getColumns()) {
+
+                    $columns = $addIndex->getColumns();
+                    $type = '';
+                    if ($addIndex->isUnique()) {
+                        $type = 'UNIQUE ';
+                    }
+
+                    $query = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
+                    $query .= 'ADD ' . $type . 'INDEX ' . $addIndex->getName();
+                    $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
+
+                    $sql[] = $query;
+
+                    unset($diff->removedIndexes[$remKey]);
+                    unset($diff->addedIndexes[$addKey]);
+
+                    break;
+                }
+            }
+        }
+
+        $sql = array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
+
+        return $sql;
+    }
+
+
+    /**
+     * @override
+     */
+    protected function getCreateIndexSQLFlags(Index $index)
+    {
+        $type = '';
+        if ($index->isUnique()) {
+            $type .= 'UNIQUE ';
+        } else if ($index->hasFlag('fulltext')) {
+            $type .= 'FULLTEXT ';
+        }
+
+        return $type;
+    }
+
+
+    /**
      * Obtain DBMS specific SQL code portion needed to declare an integer type
      * field to be used in statements like CREATE TABLE.
      *
