@@ -5,9 +5,9 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Schema;
-
-require_once __DIR__ . '/../../TestInit.php';
+use Doctrine\DBAL\Schema\Index;
 
 class MySqlPlatformTest extends AbstractPlatformTestCase
 {
@@ -208,5 +208,22 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     public function getCreateTableColumnTypeCommentsSQL()
     {
         return array("CREATE TABLE test (id INT NOT NULL, data LONGTEXT NOT NULL COMMENT '(DC2Type:array)', PRIMARY KEY(id)) ENGINE = InnoDB");
+    }
+
+    /**
+     * @group DBAL-237
+     */
+    public function testChangeIndexWithForeignKeys()
+    {
+        $index = new Index("idx", array("col"), false);
+        $unique = new Index("uniq", array("col"), true);
+
+        $diff = new TableDiff("test", array(), array(), array(), array($unique), array(), array($index));
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array("ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)"), $sql);
+
+        $diff = new TableDiff("test", array(), array(), array(), array($index), array(), array($unique));
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array("ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"), $sql);
     }
 }
