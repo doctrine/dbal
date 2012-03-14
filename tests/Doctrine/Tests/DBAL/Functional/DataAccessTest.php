@@ -83,6 +83,27 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $rows[0]);
     }
 
+    /**
+     * @group DBAL-228
+     */
+    public function testPrepareWithFetchAllBoth()
+    {
+        $paramInt = 1;
+        $paramStr = 'foo';
+
+        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $stmt = $this->_conn->prepare($sql);
+        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
+
+        $stmt->bindParam(1, $paramInt);
+        $stmt->bindParam(2, $paramStr);
+        $stmt->execute();
+
+        $rows = $stmt->fetchAll(\PDO::FETCH_BOTH);
+        $rows[0] = array_change_key_case($rows[0], \CASE_LOWER);
+        $this->assertEquals(array('test_int' => 1, 'test_string' => 'foo', 0 => 1, 1 => 'foo'), $rows[0]);
+    }
+
     public function testPrepareWithFetchColumn()
     {
         $paramInt = 1;
