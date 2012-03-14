@@ -227,8 +227,14 @@ class OCI8Statement implements \IteratorAggregate, Statement
         }
 
         $result = array();
-        oci_fetch_all($this->_sth, $result, 0, -1,
-            self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | OCI_FETCHSTATEMENT_BY_ROW | OCI_RETURN_LOBS);
+        if (self::$fetchStyleMap[$fetchStyle] === OCI_BOTH) {
+            while ($row = $this->fetch($fetchStyle)) {
+                $result[] = $row;
+            }
+        } else {
+            oci_fetch_all($this->_sth, $result, 0, -1,
+                self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | OCI_FETCHSTATEMENT_BY_ROW | OCI_RETURN_LOBS);
+        }
 
         return $result;
     }
