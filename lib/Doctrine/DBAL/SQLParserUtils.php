@@ -61,7 +61,7 @@ class SQLParserUtils
                 } else {
                     $name = "";
                     // TODO: Something faster/better to match this than regex?
-                    for ($j = $i; ($j < $stmtLen && preg_match('(([:a-zA-Z0-9]{1}))', $statement[$j])); $j++) {
+                    for ($j = $i; ($j < $stmtLen && preg_match('(([:a-zA-Z0-9_]{1}))', $statement[$j])); $j++) {
                         $name .= $statement[$j];
                     }
                     $paramMap[$name][] = $i; // named parameters can be duplicated!
