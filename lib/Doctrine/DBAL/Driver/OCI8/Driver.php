@@ -61,14 +61,17 @@ class Driver implements \Doctrine\DBAL\Driver
             }
 
             if (isset($params['service']) && $params['service'] == true) {
-                $dsn .= '))(CONNECT_DATA=(SERVICE_NAME=' . $params['dbname'] . ')))';
+                $dsn .= '))(CONNECT_DATA=(SERVICE_NAME=' . $params['dbname'] . '))';
             } else {
-                $dsn .= '))(CONNECT_DATA=(SID=' . $params['dbname'] . ')))';
+                $dsn .= '))(CONNECT_DATA=(SID=' . $params['dbname'] . '))';
             }
+            if (isset($params['pooled']) && $params['pooled'] == true) {
+                $dsn .= '(SERVER=POOLED)';
+            }
+            $dsn .= ')';
         } else {
             $dsn .= $params['dbname'];
         }
-
         return $dsn;
     }
 
