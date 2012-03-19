@@ -54,11 +54,15 @@ class Driver implements \Doctrine\DBAL\Driver
         if (isset($params['port']) && !empty($params['port'])) {
             $dsn .= ',' . $params['port'];
         }
-		
-		if (isset($params['dbname'])) {
-			$dsn .= ';Database=' .  $params['dbname'];
-		}
-		
+
+        if (isset($params['dbname'])) {;
+            $dsn .= ';Database=' .  $params['dbname'];
+        }
+
+        if (isset($params['MultipleActiveResultSets'])) {
+            $dsn .= '; MultipleActiveResultSets=' . ($params['MultipleActiveResultSets'] ? 'true' : 'false');
+        }
+
         return $dsn;
     }
 
