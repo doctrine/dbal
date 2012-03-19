@@ -37,13 +37,18 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
      * @param string $password
      * @param string $db
      */
-    public function __construct($username, $password, $db, $charset = null, $sessionMode = OCI_DEFAULT)
+    public function __construct($username, $password, $db, $charset = null, $sessionMode = OCI_DEFAULT, $pooled = false)
     {
         if (!defined('OCI_NO_AUTO_COMMIT')) {
             define('OCI_NO_AUTO_COMMIT', 0);
         }
 
-        $this->_dbh = @oci_connect($username, $password, $db, $charset, $sessionMode);
+        if ($pooled) {
+            $this->_dbh = @oci_pconnect($username, $password, $db, $charset, $sessionMode);
+        } else {
+            $this->_dbh = @oci_connect($username, $password, $db, $charset, $sessionMode);
+        }
+
         if ( ! $this->_dbh) {
             throw OCI8Exception::fromErrorInfo(oci_error());
         }
