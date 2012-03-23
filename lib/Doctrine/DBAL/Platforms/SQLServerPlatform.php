@@ -705,7 +705,7 @@ class SQLServerPlatform extends AbstractPlatform
                 $start = $offset + 1;
                 $end = $offset + $limit;
 
-                $query = "SELECT * FROM (SELECT ROW_NUMBER() OVER ($over) AS \"doctrine_rownum\", $query) AS doctrine_tbl WHERE \"doctrine_rownum\" BETWEEN $start AND $end";
+                $query = "SELECT * FROM (SELECT ROW_NUMBER() OVER ($over) AS doctrine_rownum, $query) AS doctrine_tbl WHERE doctrine_rownum BETWEEN $start AND $end";
             }
         }
 
