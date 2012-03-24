@@ -233,13 +233,20 @@ abstract class AbstractSchemaManager
      *
      * @return Table[]
      */
-    public function listTables()
+    public function listTables($ignoreUnsupported=false)
     {
         $tableNames = $this->listTableNames();
 
         $tables = array();
         foreach ($tableNames AS $tableName) {
-            $tables[] = $this->listTableDetails($tableName);
+            try {
+                $tables[] = $this->listTableDetails($tableName);
+            }
+            catch(\Doctrine\DBAL\DBALException $ex) {
+                if(!$ignoreUnsupported) {
+                    throw $ex;
+                }
+            }
         }
 
         return $tables;
@@ -824,13 +831,23 @@ abstract class AbstractSchemaManager
      */
     public function createSchema()
     {
+        return $this->_createSchema(false);
+    }
+
+    protected function _createSchema($ignoreUnsupportedTables)
+    {
         $sequences = array();
-        if($this->_platform->supportsSequences()) {
+        if ($this->_platform->supportsSequences()) {
             $sequences = $this->listSequences();
         }
-        $tables = $this->listTables();
+        $tables = $this->listTables($ignoreUnsupportedTables);
 
         return new Schema($tables, $sequences, $this->createSchemaConfig());
+    }
+
+    public function createSchemaFromSupportedTables()
+    {
+        return $this->_createSchema(true);
     }
 
     /**
