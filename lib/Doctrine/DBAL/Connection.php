@@ -652,7 +652,7 @@ class Connection implements DriverConnection
     public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp)
     {
         $resultCache = $qcp->getResultCacheDriver() ?: $this->_config->getResultCacheImpl();
-        if (!$resultCache) {
+        if ( ! $resultCache) {
             throw CacheException::noResultDriverConfigured();
         }
 
@@ -872,7 +872,7 @@ class Connection implements DriverConnection
             throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
         }
 
-        if (!$this->_platform->supportsSavepoints()) {
+        if ( ! $this->_platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
@@ -1025,7 +1025,7 @@ class Connection implements DriverConnection
      */
     public function createSavepoint($savepoint)
     {
-        if (!$this->_platform->supportsSavepoints()) {
+        if ( ! $this->_platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
@@ -1041,7 +1041,7 @@ class Connection implements DriverConnection
      */
     public function releaseSavepoint($savepoint)
     {
-        if (!$this->_platform->supportsSavepoints()) {
+        if ( ! $this->_platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
@@ -1059,7 +1059,7 @@ class Connection implements DriverConnection
      */
     public function rollbackSavepoint($savepoint)
     {
-        if (!$this->_platform->supportsSavepoints()) {
+        if ( ! $this->_platform->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 

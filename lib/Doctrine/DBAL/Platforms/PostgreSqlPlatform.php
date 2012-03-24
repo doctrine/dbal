@@ -457,7 +457,7 @@ class PostgreSqlPlatform extends AbstractPlatform
 
         $tableSql = array();
 
-        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
+        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
             }

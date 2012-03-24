@@ -41,7 +41,7 @@ class SQLSrvConnection implements \Doctrine\DBAL\Driver\Connection
     public function __construct($serverName, $connectionOptions)
     {
         $this->conn = sqlsrv_connect($serverName, $connectionOptions);
-        if (!$this->conn) {
+        if ( ! $this->conn) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
         $this->lastInsertId = new LastInsertId();

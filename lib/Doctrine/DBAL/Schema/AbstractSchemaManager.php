@@ -148,7 +148,7 @@ abstract class AbstractSchemaManager
      */
     public function listTableColumns($table, $database = null)
     {
-        if (!$database) {
+        if ( ! $database) {
             $database = $this->_conn->getDatabase();
         }
 
@@ -212,7 +212,7 @@ abstract class AbstractSchemaManager
     protected function filterAssetNames($assetNames)
     {
         $filterExpr = $this->getFilterSchemaAssetsExpression();
-        if (!$filterExpr) {
+        if ( ! $filterExpr) {
             return $assetNames;
         }
         return array_values (
@@ -668,7 +668,7 @@ abstract class AbstractSchemaManager
                 $column = $eventArgs->getColumn();
             }
 
-            if (!$defaultPrevented) {
+            if ( ! $defaultPrevented) {
                 $column = $this->_getPortableTableColumnDefinition($tableColumn);
             }
 
@@ -733,7 +733,7 @@ abstract class AbstractSchemaManager
                 $index = $eventArgs->getIndex();
             }
 
-            if (!$defaultPrevented) {
+            if ( ! $defaultPrevented) {
                 $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags']);
             }
 

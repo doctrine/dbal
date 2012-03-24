@@ -509,7 +509,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $trimFn = '';
 
-        if (!$char) {
+        if ( ! $char) {
             if ($pos == self::TRIM_LEADING) {
                 $trimFn = 'LTRIM';
             } else if ($pos == self::TRIM_TRAILING) {
@@ -692,7 +692,7 @@ class SQLServerPlatform extends AbstractPlatform
             } else {
                 $orderby = stristr($query, 'ORDER BY');
 
-                if (!$orderby) {
+                if ( ! $orderby) {
                     $over = 'ORDER BY (SELECT 0)';
                 } else {
                     $over = preg_replace('/\"[^,]*\".\"([^,]*)\"/i', '"inner_tbl"."$1"', $orderby);

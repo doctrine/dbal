@@ -180,7 +180,7 @@ class Table extends AbstractAsset
     public function dropIndex($indexName)
     {
         $indexName = strtolower($indexName);
-        if (!$this->hasIndex($indexName)) {
+        if ( ! $this->hasIndex($indexName)) {
             throw SchemaException::indexDoesNotExist($indexName, $this->_name);
         }
         unset($this->_indexes[$indexName]);
@@ -549,7 +549,7 @@ class Table extends AbstractAsset
     public function getColumn($columnName)
     {
         $columnName = strtolower($this->trimQuotes($columnName));
-        if (!$this->hasColumn($columnName)) {
+        if ( ! $this->hasColumn($columnName)) {
             throw SchemaException::columnDoesNotExist($columnName, $this->_name);
         }
 
@@ -561,7 +561,7 @@ class Table extends AbstractAsset
      */
     public function getPrimaryKey()
     {
-        if (!$this->hasPrimaryKey()) {
+        if ( ! $this->hasPrimaryKey()) {
             return null;
         }
         return $this->getIndex($this->_primaryKeyName);
@@ -594,7 +594,7 @@ class Table extends AbstractAsset
     public function getIndex($indexName)
     {
         $indexName = strtolower($indexName);
-        if (!$this->hasIndex($indexName)) {
+        if ( ! $this->hasIndex($indexName)) {
             throw SchemaException::indexDoesNotExist($indexName, $this->_name);
         }
         return $this->_indexes[$indexName];

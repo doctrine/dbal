@@ -164,7 +164,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         $this->stmt = sqlsrv_query($this->conn, $this->sql, $this->params);
-        if (!$this->stmt) {
+        if ( ! $this->stmt) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
 

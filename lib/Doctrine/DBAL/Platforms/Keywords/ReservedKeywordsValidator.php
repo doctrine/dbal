@@ -71,7 +71,7 @@ class ReservedKeywordsValidator implements Visitor
 
     private function addViolation($asset, $violatedPlatforms)
     {
-        if (!$violatedPlatforms) {
+        if ( ! $violatedPlatforms) {
             return;
         }
 

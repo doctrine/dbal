@@ -53,7 +53,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
      */
     public function __construct($table, AbstractPlatform $platform)
     {
-        if (!$table instanceof Table && !is_string($table)) {
+        if ( ! $table instanceof Table && !is_string($table)) {
             throw new \InvalidArgumentException('SchemaCreateTableEventArgs expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 

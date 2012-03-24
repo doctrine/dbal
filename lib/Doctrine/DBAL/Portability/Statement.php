@@ -134,7 +134,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
         $fixCase = !is_null($this->case) && ($fetchStyle == PDO::FETCH_ASSOC || $fetchStyle == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE);
-        if (!$iterateRow && !$fixCase) {
+        if ( ! $iterateRow && !$fixCase) {
             return $rows;
         }
 
@@ -147,7 +147,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 
     protected function fixRow($row, $iterateRow, $fixCase)
     {
-        if (!$row) {
+        if ( ! $row) {
             return $row;
         }
 

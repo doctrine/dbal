@@ -100,7 +100,7 @@ class Comparator
 
         foreach ($toSchema->getSequences() as $sequence) {
             $sequenceName = $sequence->getShortestName($toSchema->getName());
-            if (!$fromSchema->hasSequence($sequenceName)) {
+            if ( ! $fromSchema->hasSequence($sequenceName)) {
                 $diff->newSequences[] = $sequence;
             } else {
                 if ($this->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
@@ -111,7 +111,7 @@ class Comparator
 
         foreach ($fromSchema->getSequences() as $sequence) {
             $sequenceName = $sequence->getShortestName($fromSchema->getName());
-            if (!$toSchema->hasSequence($sequenceName)) {
+            if ( ! $toSchema->hasSequence($sequenceName)) {
                 $diff->removedSequences[] = $sequence;
             }
         }

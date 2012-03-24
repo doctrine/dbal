@@ -97,7 +97,7 @@ EOT
         $conn = $this->getHelper('db')->getConnection();
 
         $keywordLists = (array)$input->getOption('list');
-        if (!$keywordLists) {
+        if ( ! $keywordLists) {
             $keywordLists = array('mysql', 'pgsql', 'sqlite', 'oracle', 'mssql');
         }
 

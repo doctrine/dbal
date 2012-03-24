@@ -109,7 +109,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
         $this->statement->closeCursor();
         if ($this->emptied && $this->data !== null) {
             $data = $this->resultCache->fetch($this->cacheKey);
-            if (!$data) {
+            if ( ! $data) {
                 $data = array();
             }
             $data[$this->realKey] = $this->data;

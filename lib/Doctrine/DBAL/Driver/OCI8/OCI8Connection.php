@@ -44,7 +44,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         }
 
         $this->_dbh = @oci_connect($username, $password, $db, $charset, $sessionMode);
-        if (!$this->_dbh) {
+        if ( ! $this->_dbh) {
             throw OCI8Exception::fromErrorInfo(oci_error());
         }
     }

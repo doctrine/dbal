@@ -1387,7 +1387,7 @@ abstract class AbstractPlatform
             return false;
         }
 
-        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
+        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
             return false;
         }
 
@@ -1410,7 +1410,7 @@ abstract class AbstractPlatform
             return false;
         }
 
-        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
+        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
             return false;
         }
 
@@ -1433,7 +1433,7 @@ abstract class AbstractPlatform
             return false;
         }
 
-        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
+        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
             return false;
         }
 
@@ -1457,7 +1457,7 @@ abstract class AbstractPlatform
             return false;
         }
 
-        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
+        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
             return false;
         }
 
@@ -1478,7 +1478,7 @@ abstract class AbstractPlatform
             return false;
         }
 
-        if (!$this->_eventManager->hasListeners(Events::onSchemaAlterTable)) {
+        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTable)) {
             return false;
         }
 
@@ -2672,7 +2672,7 @@ abstract class AbstractPlatform
     {
         $class = $this->getReservedKeywordsClass();
         $keywords = new $class;
-        if (!$keywords instanceof \Doctrine\DBAL\Platforms\Keywords\KeywordList) {
+        if ( ! $keywords instanceof \Doctrine\DBAL\Platforms\Keywords\KeywordList) {
             throw DBALException::notSupported(__METHOD__);
         }
         return $keywords;
