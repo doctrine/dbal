@@ -434,6 +434,23 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('foo', $results[0]->test_string);
         $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
     }
+
+    /**
+     * @group DBAL-241
+     */
+    public function testFetchAllStyleColumn()
+    {
+        $sql = "DELETE FROM fetch_table";
+        $this->_conn->executeUpdate($sql);
+
+        $this->_conn->insert('fetch_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $this->_conn->insert('fetch_table', array('test_int' => 10, 'test_string' => 'foo'));
+
+        $sql = "SELECT test_int FROM fetch_table";
+        $rows = $this->_conn->query($sql)->fetchAll(\PDO::FETCH_COLUMN);
+
+        $this->assertEquals(array(1, 10), $rows);
+    }
 }
 
 class MyFetchClass
