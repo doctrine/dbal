@@ -38,7 +38,8 @@ class Driver implements \Doctrine\DBAL\Driver
             $password,
             $this->_constructDsn($params),
             isset($params['charset']) ? $params['charset'] : null,
-            isset($params['sessionMode']) ? $params['sessionMode'] : OCI_DEFAULT
+            isset($params['sessionMode']) ? $params['sessionMode'] : OCI_DEFAULT,
+            isset($params['persistent']) ? $params['persistent'] : false
         );
     }
 
