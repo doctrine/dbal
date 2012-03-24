@@ -460,7 +460,7 @@ class MySqlPlatform extends AbstractPlatform
             $queryParts[] =  'RENAME TO ' . $diff->newName;
         }
 
-        foreach ($diff->addedColumns as $fieldName => $column) {
+        foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }

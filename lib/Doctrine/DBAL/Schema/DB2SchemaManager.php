@@ -124,7 +124,6 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         $eventManager = $this->_platform->getEventManager();
 
-        $tableIndexRows = array();
         $indexes = array();
         foreach($tableIndexes as $indexKey => $data) {
             $data = array_change_key_case($data, \CASE_LOWER);

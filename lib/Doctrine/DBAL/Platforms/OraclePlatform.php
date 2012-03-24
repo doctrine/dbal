@@ -354,7 +354,7 @@ class OraclePlatform extends AbstractPlatform
         }
 
         if (isset($indexes) && ! empty($indexes)) {
-            foreach ($indexes as $indexName => $index) {
+            foreach ($indexes as $index) {
                 $sql[] = $this->getCreateIndexSQL($index, $table);
             }
         }
@@ -408,10 +408,6 @@ class OraclePlatform extends AbstractPlatform
         $sql   = array();
 
         $indexName  = $table . '_AI_PK';
-        $definition = array(
-            'primary' => true,
-            'columns' => array($name => true),
-        );
 
         $idx = new \Doctrine\DBAL\Schema\Index($indexName, array($name), true, true);
 

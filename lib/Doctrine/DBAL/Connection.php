@@ -1164,7 +1164,7 @@ class Connection implements DriverConnection
             // Positional parameters
             $typeOffset = array_key_exists(0, $types) ? -1 : 0;
             $bindIndex = 1;
-            foreach ($params as $position => $value) {
+            foreach ($params as $value) {
                 $typeIndex = $bindIndex + $typeOffset;
                 if (isset($types[$typeIndex])) {
                     $type = $types[$typeIndex];
