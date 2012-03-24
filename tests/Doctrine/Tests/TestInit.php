@@ -7,6 +7,7 @@ namespace Doctrine\Tests;
 error_reporting(E_ALL | E_STRICT);
 
 require_once __DIR__ . '/../../../lib/vendor/doctrine-common/lib/Doctrine/Common/ClassLoader.php';
+require 'PHPUnit/Autoload.php';
 
 $classLoader = new \Doctrine\Common\ClassLoader('Doctrine\Common', __DIR__ . '/../../../lib/vendor/doctrine-common/lib');
 $classLoader->register();
