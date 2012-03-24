@@ -410,6 +410,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] == "oci8")  {
             $this->markTestSkipped("Not supported by OCI8");
         }
+        if ('mysqli' == $this->_conn->getDriver()->getName()) {
+            $this->markTestSkipped('Mysqli driver dont support this feature.');
+        }
 
         $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
         $this->_conn->insert('fetch_table', array(
