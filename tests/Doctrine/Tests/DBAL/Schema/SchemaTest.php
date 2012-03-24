@@ -208,4 +208,17 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $fk = current($fk);
         $this->assertSame($schemaNew->getTable('bar'), $this->readAttribute($fk, '_localTable'));
     }
+
+    /**
+     * @group DBAL-219
+     */
+    public function testHasTableForQuotedAsset()
+    {
+        $schema = new Schema();
+
+        $tableA = $schema->createTable('foo');
+        $tableA->addColumn('id', 'integer');
+
+        $this->assertTrue($schema->hasTable('`foo`'));
+    }
 }
