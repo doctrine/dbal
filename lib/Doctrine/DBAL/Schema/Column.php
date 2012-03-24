@@ -125,7 +125,7 @@ class Column extends AbstractAsset
      */
     public function setOptions(array $options)
     {
-        foreach ($options AS $name => $value) {
+        foreach ($options as $name => $value) {
             $method = "set".$name;
             if (method_exists($this, $method)) {
                 $this->$method($value);

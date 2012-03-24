@@ -138,7 +138,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
             return $rows;
         }
 
-        foreach ($rows AS $num => $row) {
+        foreach ($rows as $num => $row) {
             $rows[$num] = $this->fixRow($row, $iterateRow, $fixCase);
         }
 
@@ -156,7 +156,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         }
 
         if ($iterateRow) {
-            foreach ($row AS $k => $v) {
+            foreach ($row as $k => $v) {
                 if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) && $v === '') {
                     $row[$k] = null;
                 } else if (($this->portability & Connection::PORTABILITY_RTRIM) && is_string($v)) {

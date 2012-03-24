@@ -404,7 +404,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
         }
 
-        foreach ($diff->changedColumns AS $columnDiff) {
+        foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -533,7 +533,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         $sql[] = $query;
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
-            foreach ($options['indexes'] AS $index) {
+            foreach ($options['indexes'] as $index) {
                 $sql[] = $this->getCreateIndexSQL($index, $tableName);
             }
         }

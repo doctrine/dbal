@@ -374,7 +374,7 @@ class QueryBuilder
 
         if ($append) {
             if ($sqlPartName == "orderBy" || $sqlPartName == "groupBy" || $sqlPartName == "select" || $sqlPartName == "set") {
-                foreach ($sqlPart AS $part) {
+                foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
                 }
             } else if ($isArray && is_array($sqlPart[key($sqlPart)])) {

@@ -376,7 +376,7 @@ class DB2Platform extends AbstractPlatform
         $columnSql = array();
 
         $queryParts = array();
-        foreach ($diff->addedColumns AS $fieldName => $column) {
+        foreach ($diff->addedColumns as $fieldName => $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -384,7 +384,7 @@ class DB2Platform extends AbstractPlatform
             $queryParts[] = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
-        foreach ($diff->removedColumns AS $column) {
+        foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -392,7 +392,7 @@ class DB2Platform extends AbstractPlatform
             $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->changedColumns AS $columnDiff) {
+        foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -403,7 +403,7 @@ class DB2Platform extends AbstractPlatform
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
-        foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+        foreach ($diff->renamedColumns as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }

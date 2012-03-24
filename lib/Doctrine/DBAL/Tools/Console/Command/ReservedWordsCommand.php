@@ -102,7 +102,7 @@ EOT
         }
 
         $keywords = array();
-        foreach ($keywordLists AS $keywordList) {
+        foreach ($keywordLists as $keywordList) {
             if (!isset($this->keywordListClasses[$keywordList])) {
                 throw new \InvalidArgumentException(
                     "There exists no keyword list with name '" . $keywordList . "'. ".
@@ -125,7 +125,7 @@ EOT
             $output->write("No reserved keywords violations have been found!", true);
         } else {
             $output->write('There are <error>' . count($violations) . '</error> reserved keyword violations in your database schema:', true);
-            foreach ($violations AS $violation) {
+            foreach ($violations as $violation) {
                 $output->write('  - ' . $violation, true);
             }
         }

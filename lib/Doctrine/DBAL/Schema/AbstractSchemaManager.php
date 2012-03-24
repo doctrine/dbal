@@ -238,7 +238,7 @@ abstract class AbstractSchemaManager
         $tableNames = $this->listTableNames();
 
         $tables = array();
-        foreach ($tableNames AS $tableName) {
+        foreach ($tableNames as $tableName) {
             $tables[] = $this->listTableDetails($tableName);
         }
 
@@ -549,7 +549,7 @@ abstract class AbstractSchemaManager
     {
         $queries = $this->_platform->getAlterTableSQL($tableDiff);
         if (is_array($queries) && count($queries)) {
-            foreach ($queries AS $ddlQuery) {
+            foreach ($queries as $ddlQuery) {
                 $this->_execSql($ddlQuery);
             }
         }
@@ -698,7 +698,7 @@ abstract class AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
     {
         $result = array();
-        foreach($tableIndexRows AS $tableIndex) {
+        foreach($tableIndexRows as $tableIndex) {
             $indexName = $keyName = $tableIndex['key_name'];
             if($tableIndex['primary']) {
                 $keyName = 'primary';
@@ -721,7 +721,7 @@ abstract class AbstractSchemaManager
         $eventManager = $this->_platform->getEventManager();
 
         $indexes = array();
-        foreach($result AS $indexKey => $data) {
+        foreach($result as $indexKey => $data) {
             $index = null;
             $defaultPrevented = false;
 

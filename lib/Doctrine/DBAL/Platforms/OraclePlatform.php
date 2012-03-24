@@ -572,7 +572,7 @@ LEFT JOIN user_cons_columns r_cols
         $columnSql = array();
 
         $fields = array();
-        foreach ($diff->addedColumns AS $column) {
+        foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -587,7 +587,7 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         $fields = array();
-        foreach ($diff->changedColumns AS $columnDiff) {
+        foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -602,7 +602,7 @@ LEFT JOIN user_cons_columns r_cols
             $sql[] = 'ALTER TABLE ' . $diff->name . ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
-        foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+        foreach ($diff->renamedColumns as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
@@ -611,7 +611,7 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         $fields = array();
-        foreach ($diff->removedColumns AS $column) {
+        foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }

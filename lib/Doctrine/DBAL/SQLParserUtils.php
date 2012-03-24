@@ -88,7 +88,7 @@ class SQLParserUtils
         $isPositional = is_int(key($params));
         $arrayPositions = array();
         $bindIndex = -1;
-        foreach ($types AS $name => $type) {
+        foreach ($types as $name => $type) {
             ++$bindIndex;
             if ($type === Connection::PARAM_INT_ARRAY || $type === Connection::PARAM_STR_ARRAY) {
                 if ($isPositional) {
@@ -107,7 +107,7 @@ class SQLParserUtils
         if ($isPositional) {
             $paramOffset = 0;
             $queryOffset = 0;
-            foreach ($paramPos AS $needle => $needlePos) {
+            foreach ($paramPos as $needle => $needlePos) {
                 if (!isset($arrayPositions[$needle])) {
                     continue;
                 }

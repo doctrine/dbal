@@ -219,7 +219,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         $result = array();
-        foreach($list AS $constraint) {
+        foreach($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
                 array_values($constraint['local']), $constraint['foreignTable'],
                 array_values($constraint['foreign']),  $constraint['name'],

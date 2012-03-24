@@ -64,7 +64,7 @@ class OracleSessionInit implements EventSubscriber
         if (count($this->_defaultSessionVars)) {
             array_change_key_case($this->_defaultSessionVars, \CASE_UPPER);
             $vars = array();
-            foreach ($this->_defaultSessionVars AS $option => $value) {
+            foreach ($this->_defaultSessionVars as $option => $value) {
                 $vars[] = $option." = '".$value."'";
             }
             $sql = "ALTER SESSION SET ".implode(" ", $vars);

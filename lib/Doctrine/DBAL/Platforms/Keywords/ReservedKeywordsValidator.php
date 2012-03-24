@@ -61,7 +61,7 @@ class ReservedKeywordsValidator implements Visitor
         }
 
         $keywordLists = array();
-        foreach ($this->keywordLists AS $keywordList) {
+        foreach ($this->keywordLists as $keywordList) {
             if ($keywordList->isKeyword($word)) {
                 $keywordLists[] = $keywordList->getName();
             }
