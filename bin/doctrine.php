@@ -5,7 +5,7 @@ require_once 'Doctrine/Common/ClassLoader.php';
 $classLoader = new \Doctrine\Common\ClassLoader('Doctrine');
 $classLoader->register();
 
-$classLoader = new \Doctrine\Common\ClassLoader('Symfony', 'Doctrine');
+$classLoader = new \Doctrine\Common\ClassLoader('Symfony');
 $classLoader->register();
 
 $configFile = getcwd() . DIRECTORY_SEPARATOR . 'cli-config.php';
