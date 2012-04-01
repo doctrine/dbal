@@ -32,24 +32,29 @@ class SchemaConfig
     /**
      * @var bool
      */
-    protected $_hasExplicitForeignKeyIndexes = false;
+    protected $hasExplicitForeignKeyIndexes = false;
 
     /**
      * @var int
      */
-    protected $_maxIdentifierLength = 63;
+    protected $maxIdentifierLength = 63;
 
     /**
      * @var string
      */
-    protected $_name;
+    protected $name;
+
+    /**
+     * @var array
+     */
+    protected $defaultTableOptions = array();
 
     /**
      * @return bool
      */
     public function hasExplicitForeignKeyIndexes()
     {
-        return $this->_hasExplicitForeignKeyIndexes;
+        return $this->hasExplicitForeignKeyIndexes;
     }
 
     /**
@@ -57,7 +62,7 @@ class SchemaConfig
      */
     public function setExplicitForeignKeyIndexes($flag)
     {
-        $this->_hasExplicitForeignKeyIndexes = (bool)$flag;
+        $this->hasExplicitForeignKeyIndexes = (bool)$flag;
     }
 
     /**
@@ -65,7 +70,7 @@ class SchemaConfig
      */
     public function setMaxIdentifierLength($length)
     {
-        $this->_maxIdentifierLength = (int)$length;
+        $this->maxIdentifierLength = (int)$length;
     }
 
     /**
@@ -73,7 +78,7 @@ class SchemaConfig
      */
     public function getMaxIdentifierLength()
     {
-        return $this->_maxIdentifierLength;
+        return $this->maxIdentifierLength;
     }
 
     /**
@@ -83,7 +88,7 @@ class SchemaConfig
      */
     public function getName()
     {
-        return $this->_name;
+        return $this->name;
     }
 
     /**
@@ -93,6 +98,22 @@ class SchemaConfig
      */
     public function setName($name)
     {
-        $this->_name = $name;
+        $this->name = $name;
+    }
+
+    /**
+     * Get the default options that are passed to Table instances created with
+     * Schema#createTable().
+     *
+     * @return array
+     */
+    public function getDefaultTableOptions()
+    {
+        return $this->defaultTableOptions;
+    }
+
+    public function setDefaultTableOptions(array $defaultTableOptions)
+    {
+        $this->defaultTableOptions = $defaultTableOptions;
     }
 }

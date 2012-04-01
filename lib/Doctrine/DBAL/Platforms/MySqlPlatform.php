@@ -410,31 +410,28 @@ class MySqlPlatform extends AbstractPlatform
         if (!empty($options['temporary'])) {
             $query .= 'TEMPORARY ';
         }
-        $query.= 'TABLE ' . $tableName . ' (' . $queryFields . ')';
-
-        $optionStrings = array();
+        $query .= 'TABLE ' . $tableName . ' (' . $queryFields . ') ';
 
         if (isset($options['comment'])) {
-            $optionStrings['comment'] = 'COMMENT = ' . $options['comment'];
-        }
-        if (isset($options['charset'])) {
-            $optionStrings['charset'] = 'DEFAULT CHARACTER SET ' . $options['charset'];
-            if (isset($options['collate'])) {
-                $optionStrings['charset'] .= ' COLLATE ' . $options['collate'];
-            }
+            $query .= 'COMMENT = ' . $options['comment'] . ' ';
         }
 
-        // get the type of the table
-        if (isset($options['engine'])) {
-            $optionStrings[] = 'ENGINE = ' . $options['engine'];
-        } else {
-            // default to innodb
-            $optionStrings[] = 'ENGINE = InnoDB';
+        if ( ! isset($options['charset'])) {
+            $options['charset'] = 'utf8';
         }
 
-        if ( ! empty($optionStrings)) {
-            $query.= ' '.implode(' ', $optionStrings);
+        if ( ! isset($options['collate'])) {
+            $options['collate'] = 'utf8_general_ci';
         }
+
+        $query .= 'DEFAULT CHARACTER SET ' . $options['charset'];
+        $query .= ' COLLATE ' . $options['collate'];
+
+        if ( ! isset($options['engine'])) {
+            $options['engine'] = 'InnoDB';
+        }
+        $query .= ' ENGINE = ' . $options['engine'];
+
         $sql[] = $query;
 
         if (isset($options['foreignKeys'])) {

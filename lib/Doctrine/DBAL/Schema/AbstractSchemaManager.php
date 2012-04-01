@@ -848,6 +848,11 @@ abstract class AbstractSchemaManager
             $schemaConfig->setName($searchPaths[0]);
         }
 
+        $params = $this->_conn->getParams();
+        if (isset($params['defaultTableOptions'])) {
+            $schemaConfig->setDefaultTableOptions($params['defautTableOptions']);
+        }
+
         return $schemaConfig;
     }
 
