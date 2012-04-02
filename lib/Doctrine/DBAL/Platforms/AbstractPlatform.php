@@ -1927,7 +1927,7 @@ abstract class AbstractPlatform
      * returns given referential action in uppercase if valid, otherwise throws
      * an exception
      *
-     * @throws Doctrine_Exception_Exception     if unknown referential action given
+     * @throws \InvalidArgumentException if unknown referential action given
      * @param string $action    foreign key referential action
      * @return string
      */
