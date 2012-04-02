@@ -638,7 +638,7 @@ abstract class AbstractPlatform
      *
      * @param string  $str       literal string
      * @param string  $substr    literal string to find
-     * @param boolean $startPos  position to start at, beginning of string by default
+     * @param integer $startPos  position to start at, beginning of string by default
      * @return integer
      */
     public function getLocateExpression($str, $substr, $startPos = false)
