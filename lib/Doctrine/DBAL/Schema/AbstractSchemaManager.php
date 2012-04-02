@@ -68,7 +68,7 @@ abstract class AbstractSchemaManager
     /**
      * Return associated platform.
      *
-     * @return \Doctrine\DBAL\Platform\AbstractPlatform
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getDatabasePlatform()
     {
@@ -497,7 +497,7 @@ abstract class AbstractSchemaManager
      * Drop and create a new sequence
      *
      * @param Sequence $sequence
-     * @throws Doctrine\DBAL\ConnectionException     if something fails at database level
+     * @throws \Doctrine\DBAL\ConnectionException     if something fails at database level
      */
     public function dropAndCreateSequence(Sequence $sequence)
     {

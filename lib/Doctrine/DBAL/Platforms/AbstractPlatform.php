@@ -226,6 +226,8 @@ abstract class AbstractPlatform
 
     /**
      * Gets the SQL Snippet used to declare a BLOB column type.
+     *
+     * @param array $field
      */
     abstract public function getBlobTypeDeclarationSQL(array $field);
 
@@ -269,11 +271,11 @@ abstract class AbstractPlatform
         }
 
         $dbType = strtolower($dbType);
-        if (isset($this->doctrineTypeMapping[$dbType])) {
-            return $this->doctrineTypeMapping[$dbType];
-        } else {
+        if (!isset($this->doctrineTypeMapping[$dbType])) {
             throw new \Doctrine\DBAL\DBALException("Unknown database type ".$dbType." requested, " . get_class($this) . " may not support it.");
         }
+
+        return $this->doctrineTypeMapping[$dbType];
     }
 
     /**
@@ -306,7 +308,7 @@ abstract class AbstractPlatform
      * Is it necessary for the platform to add a parsable type comment to allow reverse engineering the given type?
      *
      * @param Type $doctrineType
-     * @return bool
+     * @return boolean
      */
     public function isCommentedDoctrineType(Type $doctrineType)
     {
@@ -502,6 +504,7 @@ abstract class AbstractPlatform
      *
      * Note: Not SQL92, but common functionality
      *
+     * @param string $column
      * @return string
      */
     public function getMd5Expression($column)
@@ -512,8 +515,7 @@ abstract class AbstractPlatform
     /**
      * Returns the length of a text field.
      *
-     * @param string $expression1
-     * @param string $expression2
+     * @param string $column
      * @return string
      */
     public function getLengthExpression($column)
@@ -535,7 +537,8 @@ abstract class AbstractPlatform
     /**
      * Rounds a numeric field to the number of decimals specified.
      *
-     * @param string $expression1
+     * @param string $column
+     * @param integer $decimals
      * @return string
      */
     public function getRoundExpression($column, $decimals = 0)
@@ -633,9 +636,9 @@ abstract class AbstractPlatform
     /**
      * returns the position of the first occurrence of substring $substr in string $str
      *
-     * @param string $substr    literal string to find
-     * @param string $str       literal string
-     * @param int    $pos       position to start at, beginning of string by default
+     * @param string  $str       literal string
+     * @param string  $substr    literal string to find
+     * @param integer $startPos  position to start at, beginning of string by default
      * @return integer
      */
     public function getLocateExpression($str, $substr, $startPos = false)
@@ -699,6 +702,7 @@ abstract class AbstractPlatform
      *   ->where($e->eq('id', $e->not('null'));
      * </code>
      *
+     * @param string $expression
      * @return string a logical expression
      */
     public function getNotExpression($expression)
@@ -715,8 +719,8 @@ abstract class AbstractPlatform
      * must contain a logical expression or an array with logical expressions.
      * These expressions will be matched against the first parameter.
      *
-     * @param string $column        the value that should be matched against
-     * @param string|array(string)  values that will be matched against $column
+     * @param string $column                the value that should be matched against
+     * @param string|array(string) $values  values that will be matched against $column
      * @return string logical expression
      */
     public function getInExpression($column, $values)
@@ -1209,7 +1213,7 @@ abstract class AbstractPlatform
     /**
      * Gets the SQL to create a constraint on a table on this platform.
      *
-     * @param Constraint $constraint
+     * @param \Doctrine\DBAL\Schema\Constraint $constraint
      * @param string|Table $table
      * @return string
      */
@@ -1313,7 +1317,7 @@ abstract class AbstractPlatform
     /**
      * Quotes a string so that it can be safely used as a table or column name,
      * even if it is a reserved word of the platform. This also detects identifier
-     * chains seperated by dot and quotes them independently.
+     * chains separated by dot and quotes them independently.
      *
      * NOTE: Just because you CAN use quoted identifiers doesn't mean
      * you SHOULD use them.  In general, they end up causing way more
@@ -1333,7 +1337,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Quote a single identifier (no dot chain seperation)
+     * Quote a single identifier (no dot chain separation)
      *
      * @param string $str
      * @return string
@@ -1380,6 +1384,7 @@ abstract class AbstractPlatform
      * @param Column $column
      * @param TableDiff $diff
      * @param array $columnSql
+     * @return boolean
      */
     protected function onSchemaAlterTableAddColumn(Column $column, TableDiff $diff, &$columnSql)
     {
@@ -1403,6 +1408,7 @@ abstract class AbstractPlatform
      * @param Column $column
      * @param TableDiff $diff
      * @param array $columnSql
+     * @return boolean
      */
     protected function onSchemaAlterTableRemoveColumn(Column $column, TableDiff $diff, &$columnSql)
     {
@@ -1426,6 +1432,7 @@ abstract class AbstractPlatform
      * @param ColumnDiff $columnDiff
      * @param TableDiff $diff
      * @param array $columnSql
+     * @return boolean
      */
     protected function onSchemaAlterTableChangeColumn(ColumnDiff $columnDiff, TableDiff $diff, &$columnSql)
     {
@@ -1450,6 +1457,7 @@ abstract class AbstractPlatform
      * @param Column $column
      * @param TableDiff $diff
      * @param array $columnSql
+     * @return boolean
      */
     protected function onSchemaAlterTableRenameColumn($oldColumnName, Column $column, TableDiff $diff, &$columnSql)
     {
@@ -1470,7 +1478,8 @@ abstract class AbstractPlatform
     }
     /**
      * @param TableDiff $diff
-     * @param array $columnSql
+     * @param array $qql
+     * @return boolean
      */
     protected function onSchemaAlterTable(TableDiff $diff, &$sql)
     {
@@ -1777,6 +1786,7 @@ abstract class AbstractPlatform
      * e.g. when a field has the "columnDefinition" keyword.
      * Only "AUTOINCREMENT" and "PRIMARY KEY" are added if appropriate.
      *
+     * @param array $columnDef
      * @return string
      */
     public function getCustomTypeDeclarationSQL(array $columnDef)
@@ -1789,6 +1799,7 @@ abstract class AbstractPlatform
      * Obtain DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
+     * @param array $fields
      * @return string
      */
     public function getIndexFieldDeclarationListSQL(array $fields)
@@ -1916,9 +1927,9 @@ abstract class AbstractPlatform
      * returns given referential action in uppercase if valid, otherwise throws
      * an exception
      *
-     * @throws Doctrine_Exception_Exception     if unknown referential action given
+     * @throws \InvalidArgumentException if unknown referential action given
      * @param string $action    foreign key referential action
-     * @param string            foreign key referential action in uppercase
+     * @return string
      */
     public function getForeignKeyReferentialActionSQL($action)
     {
@@ -2035,6 +2046,7 @@ abstract class AbstractPlatform
      * The default conversion in this implementation converts to integers (false => 0, true => 1).
      *
      * @param mixed $item
+     * @return mixed
      */
     public function convertBooleans($item)
     {
@@ -2572,7 +2584,7 @@ abstract class AbstractPlatform
      * Makes any fixes to a name of a schema element (table, sequence, ...) that are required
      * by restrictions of the platform, like a maximum length.
      *
-     * @param string $schemaName
+     * @param string $schemaElementName
      * @return string
      */
     public function fixSchemaElementName($schemaElementName)

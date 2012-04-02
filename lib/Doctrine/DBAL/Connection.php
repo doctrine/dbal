@@ -90,22 +90,22 @@ class Connection implements DriverConnection
     /**
      * The wrapped driver connection.
      *
-     * @var Doctrine\DBAL\Driver\Connection
+     * @var \Doctrine\DBAL\Driver\Connection
      */
     protected $_conn;
 
     /**
-     * @var Doctrine\DBAL\Configuration
+     * @var \Doctrine\DBAL\Configuration
      */
     protected $_config;
 
     /**
-     * @var Doctrine\Common\EventManager
+     * @var \Doctrine\Common\EventManager
      */
     protected $_eventManager;
 
     /**
-     * @var Doctrine\DBAL\Query\ExpressionBuilder
+     * @var \Doctrine\DBAL\Query\ExpressionBuilder
      */
     protected $_expr;
 
@@ -148,21 +148,21 @@ class Connection implements DriverConnection
      * The DatabasePlatform object that provides information about the
      * database platform used by the connection.
      *
-     * @var Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     protected $_platform;
 
     /**
      * The schema manager.
      *
-     * @var Doctrine\DBAL\Schema\SchemaManager
+     * @var \Doctrine\DBAL\Schema\AbstractSchemaManager
      */
     protected $_schemaManager;
 
     /**
      * The used DBAL driver.
      *
-     * @var Doctrine\DBAL\Driver
+     * @var \Doctrine\DBAL\Driver
      */
     protected $_driver;
 
@@ -322,7 +322,7 @@ class Connection implements DriverConnection
     /**
      * Gets the ExpressionBuilder for the connection.
      *
-     * @return \Doctrine\DBAL\Query\ExpressionBuilder
+     * @return \Doctrine\DBAL\Query\Expression\ExpressionBuilder
      */
     public function getExpressionBuilder()
     {
@@ -419,8 +419,8 @@ class Connection implements DriverConnection
     /**
      * Executes an SQL DELETE statement on a table.
      *
-     * @param string $table The name of the table on which to delete.
-     * @param array $identifier The deletion criteria. An associateve array containing column-value pairs.
+     * @param string $tableName The name of the table on which to delete.
+     * @param array $identifier The deletion criteria. An associative array containing column-value pairs.
      * @return integer The number of affected rows.
      */
     public function delete($tableName, array $identifier)
@@ -454,6 +454,7 @@ class Connection implements DriverConnection
      * Sets the transaction isolation level.
      *
      * @param integer $level The level to set.
+     * @return integer
      */
     public function setTransactionIsolation($level)
     {
@@ -475,7 +476,8 @@ class Connection implements DriverConnection
     /**
      * Executes an SQL UPDATE statement on a table.
      *
-     * @param string $table The name of the table to update.
+     * @param string $tableName The name of the table to update.
+     * @param array $data
      * @param array $identifier The update criteria. An associative array containing column-value pairs.
      * @param array $types Types of the merged $data and $identifier arrays in that order.
      * @return integer The number of affected rows.
@@ -500,7 +502,7 @@ class Connection implements DriverConnection
     /**
      * Inserts a table row with specified data.
      *
-     * @param string $table The name of the table to insert data into.
+     * @param string $tableName The name of the table to insert data into.
      * @param array $data An associative array containing column-value pairs.
      * @param array $types Types of the inserted data.
      * @return integer The number of affected rows.
@@ -863,7 +865,7 @@ class Connection implements DriverConnection
     /**
      * Set if nested transactions should use savepoints
      *
-     * @param boolean
+     * @param boolean $nestTransactionsWithSavepoints
      * @return void
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
@@ -1151,7 +1153,7 @@ class Connection implements DriverConnection
      * Binds a set of parameters, some or all of which are typed with a PDO binding type
      * or DBAL mapping type, to a given statement.
      *
-     * @param $stmt The statement to bind the values to.
+     * @param string $stmt The statement to bind the values to.
      * @param array $params The map/list of named/positional parameters.
      * @param array $types The parameter types (PDO binding types or DBAL mapping types).
      * @internal Duck-typing used on the $stmt parameter to support driver statements as well as
@@ -1213,7 +1215,7 @@ class Connection implements DriverConnection
     /**
      * Create a new instance of a SQL query builder.
      *
-     * @return Query\QueryBuilder
+     * @return \Doctrine\DBAL\Query\QueryBuilder
      */
     public function createQueryBuilder()
     {

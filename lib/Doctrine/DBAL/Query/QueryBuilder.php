@@ -134,7 +134,7 @@ class QueryBuilder
      * For more complex expression construction, consider storing the expression
      * builder object in a local variable.
      *
-     * @return \Doctrine\DBAL\Query\ExpressionBuilder
+     * @return \Doctrine\DBAL\Query\Expression\ExpressionBuilder
      */
     public function expr()
     {
@@ -271,6 +271,7 @@ class QueryBuilder
      * </code>
      *
      * @param array $params The query parameters to set.
+     * @param array $types  The query parameters types to set.
      * @return QueryBuilder This QueryBuilder instance.
      */
     public function setParameters(array $params, array $types = array())
@@ -356,9 +357,9 @@ class QueryBuilder
      * The available parts are: 'select', 'from', 'set', 'where',
      * 'groupBy', 'having' and 'orderBy'.
      *
-     * @param string $sqlPartName
-     * @param string $sqlPart
-     * @param string $append
+     * @param string  $sqlPartName
+     * @param string  $sqlPart
+     * @param boolean $append
      * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
      */
     public function add($sqlPartName, $sqlPart, $append = false)
@@ -940,11 +941,6 @@ class QueryBuilder
         return $this;
     }
 
-    /**
-     * Converts this instance into a SELECT string in SQL.
-     *
-     * @return string
-     */
     private function getSQLForSelect()
     {
         $query = 'SELECT ' . implode(', ', $this->sqlParts['select']) . ' FROM ';
