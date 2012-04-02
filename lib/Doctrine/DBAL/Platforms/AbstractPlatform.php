@@ -538,7 +538,7 @@ abstract class AbstractPlatform
      * Rounds a numeric field to the number of decimals specified.
      *
      * @param string $column
-     * @param int $decimals
+     * @param integer $decimals
      * @return string
      */
     public function getRoundExpression($column, $decimals = 0)

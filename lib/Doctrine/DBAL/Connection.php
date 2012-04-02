@@ -421,7 +421,7 @@ class Connection implements DriverConnection
      *
      * @param string $tableName The name of the table on which to delete.
      * @param array $identifier The deletion criteria. An associative array containing column-value pairs.
-     * @return int The number of affected rows.
+     * @return integer The number of affected rows.
      */
     public function delete($tableName, array $identifier)
     {
@@ -453,8 +453,8 @@ class Connection implements DriverConnection
     /**
      * Sets the transaction isolation level.
      *
-     * @param int $level The level to set.
-     * @return int
+     * @param integer $level The level to set.
+     * @return integer
      */
     public function setTransactionIsolation($level)
     {
@@ -466,7 +466,7 @@ class Connection implements DriverConnection
     /**
      * Gets the currently active transaction isolation level.
      *
-     * @return int The current transaction isolation level.
+     * @return integer The current transaction isolation level.
      */
     public function getTransactionIsolation()
     {
@@ -480,7 +480,7 @@ class Connection implements DriverConnection
      * @param array $data
      * @param array $identifier The update criteria. An associative array containing column-value pairs.
      * @param array $types Types of the merged $data and $identifier arrays in that order.
-     * @return int The number of affected rows.
+     * @return integer The number of affected rows.
      */
     public function update($tableName, array $data, array $identifier, array $types = array())
     {
