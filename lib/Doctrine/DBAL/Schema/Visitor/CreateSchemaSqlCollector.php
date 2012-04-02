@@ -163,12 +163,15 @@ class CreateSchemaSqlCollector implements Visitor
             if ($this->_platform->supportsSchemas()) {
                 // TODO: Create Schema here
             }
-            $sql = array_merge(
-                $sql,
-                $this->_createTableQueries[$namespace],
-                $this->_createSequenceQueries[$namespace],
-                $this->_createFkConstraintQueries[$namespace]
-            );
+        }
+        foreach ($this->_createTableQueries as $schemaSql) {
+            $sql = array_merge($sql, $schemaSql);
+        }
+        foreach ($this->_createSequenceQueries as $schemaSql) {
+            $sql = array_merge($sql, $schemaSql);
+        }
+        foreach ($this->_createFkConstraintQueries as $schemaSql) {
+            $sql = array_merge($sql, $schemaSql);
         }
         return $sql;
     }
