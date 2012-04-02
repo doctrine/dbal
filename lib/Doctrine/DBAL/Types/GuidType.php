@@ -33,5 +33,10 @@ class GuidType extends StringType
     {
         return $platform->getGuidTypeDeclartionSQL($fieldDeclaration);
     }
+
+    public function getName()
+    {
+        return Type::GUID;
+    }
 }
 
