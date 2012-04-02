@@ -43,15 +43,15 @@ class Statement implements \IteratorAggregate, DriverStatement
      */
     protected $params = array();
     /**
-     * @var Doctrine\DBAL\Driver\Statement The underlying driver statement.
+     * @var \Doctrine\DBAL\Driver\Statement The underlying driver statement.
      */
     protected $stmt;
     /**
-     * @var Doctrine\DBAL\Platforms\AbstractPlatform The underlying database platform.
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform The underlying database platform.
      */
     protected $platform;
     /**
-     * @var Doctrine\DBAL\Connection The connection this statement is bound to and executed on.
+     * @var \Doctrine\DBAL\Connection The connection this statement is bound to and executed on.
      */
     protected $conn;
 
@@ -77,8 +77,8 @@ class Statement implements \IteratorAggregate, DriverStatement
      * type and the value undergoes the conversion routines of the mapping type before
      * being bound.
      *
-     * @param $name The name or position of the parameter.
-     * @param $value The value of the parameter.
+     * @param string $name The name or position of the parameter.
+     * @param mixed $value The value of the parameter.
      * @param mixed $type Either a PDO binding type or a DBAL mapping type name or instance.
      * @return boolean TRUE on success, FALSE on failure.
      */
@@ -107,7 +107,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      * Binding a parameter by reference does not support DBAL mapping types.
      *
      * @param string $name The name or position of the parameter.
-     * @param mixed $value The reference to the variable to bind
+     * @param mixed $var The reference to the variable to bind
      * @param integer $type The PDO binding type.
      * @return boolean TRUE on success, FALSE on failure.
      */
@@ -119,6 +119,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * Executes the statement with the currently bound parameters.
      *
+     * @param array $params
      * @return boolean TRUE on success, FALSE on failure.
      */
     public function execute($params = null)
