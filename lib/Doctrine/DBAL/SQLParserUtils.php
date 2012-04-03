@@ -82,6 +82,7 @@ class SQLParserUtils
      * @param string $query
      * @param array $params
      * @param array $types
+     * @return array
      */
     static public function expandListParameters($query, $params, $types)
     {

@@ -66,7 +66,7 @@ class CompositeExpression implements \Countable
     /**
      * Adds multiple parts to composite expression.
      *
-     * @param array $args
+     * @param array $parts
      *
      * @return CompositeExpression
      */

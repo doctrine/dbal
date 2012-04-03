@@ -51,7 +51,7 @@ interface Driver
      * database schema of the platform this driver connects to.
      *
      * @param  \Doctrine\DBAL\Connection $conn
-     * @return \Doctrine\DBAL\SchemaManager
+     * @return \Doctrine\DBAL\Schema\AbstractSchemaManager
      */
     public function getSchemaManager(Connection $conn);
 
