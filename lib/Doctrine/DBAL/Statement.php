@@ -91,6 +91,7 @@ class Statement implements \IteratorAggregate, DriverStatement
             }
             if ($type instanceof Type) {
                 $value = $type->convertToDatabaseValue($value, $this->platform);
+                $this->params[$name] = $value;
                 $bindingType = $type->getBindingType();
             } else {
                 $bindingType = $type; // PDO::PARAM_* constants
