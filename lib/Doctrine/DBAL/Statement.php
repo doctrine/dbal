@@ -140,7 +140,7 @@ class Statement implements \IteratorAggregate, DriverStatement
             $logger->stopQuery();
         }
         $this->params = array();
-		$this->types = array();
+        $this->types = array();
         return $stmt;
     }
 
