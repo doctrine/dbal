@@ -43,6 +43,10 @@ class Statement implements \IteratorAggregate, DriverStatement
      */
     protected $params = array();
     /**
+     * @var array The parameter types
+     */
+    protected $types = array();
+    /**
      * @var \Doctrine\DBAL\Driver\Statement The underlying driver statement.
      */
     protected $stmt;
@@ -85,13 +89,13 @@ class Statement implements \IteratorAggregate, DriverStatement
     public function bindValue($name, $value, $type = null)
     {
         $this->params[$name] = $value;
+        $this->types[$name] = $type;
         if ($type !== null) {
             if (is_string($type)) {
                 $type = Type::getType($type);
             }
             if ($type instanceof Type) {
                 $value = $type->convertToDatabaseValue($value, $this->platform);
-                $this->params[$name] = $value;
                 $bindingType = $type->getBindingType();
             } else {
                 $bindingType = $type; // PDO::PARAM_* constants
@@ -127,7 +131,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     {
         $logger = $this->conn->getConfiguration()->getSQLLogger();
         if ($logger) {
-            $logger->startQuery($this->sql, $this->params);
+            $logger->startQuery($this->sql, $this->params, $this->types);
         }
 
         $stmt = $this->stmt->execute($params);
