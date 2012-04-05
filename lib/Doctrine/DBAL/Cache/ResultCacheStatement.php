@@ -169,6 +169,8 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
                 return array_values($row);
             } else if ($fetchStyle == PDO::FETCH_BOTH) {
                 return array_merge($row, array_values($row));
+            } else if ($fetchStyle == PDO::FETCH_COLUMN) {
+                return reset($row);
             } else {
                 throw new \InvalidArgumentException("Invalid fetch-style given for caching result.");
             }
