@@ -211,14 +211,19 @@ abstract class AbstractSchemaManager
      */
     protected function filterAssetNames($assetNames)
     {
-        $filterExpr = $this->getFilterSchemaAssetsExpression();
+        $options = $this->getFilterSchemaAssetsExpression();
+        $filterExpr = $options['assets'];
         if ( ! $filterExpr) {
             return $assetNames;
         }
         return array_values (
             array_filter($assetNames, function ($assetName) use ($filterExpr) {
                 $assetName = ($assetName instanceof AbstractAsset) ? $assetName->getName() : $assetName;
-                return preg_match('(' . $filterExpr . ')', $assetName);
+                if($filterExpr['include']) {
+                    return preg_match('(' . $assets . ')', $assetName);
+                } else {
+                    return !preg_match('(' . $assets . ')', $assetName);
+                }
             })
         );
     }
