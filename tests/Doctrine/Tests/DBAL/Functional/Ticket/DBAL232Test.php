@@ -18,37 +18,50 @@ class DBAL232Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
 	const TABLE_NAME = 'dbal232';
 
+	private function checkPlatform()
+	{
+		// Skip sqlite with no type comment feature available
+		if ($this->_conn->getDatabasePlatform()->getName() == 'sqlite') {
+			self::markTestSkipped("Not working on sqlite");
+		}
+	}
+
 	public function setUp()
     {
         parent::setUp();
+
+		$this->checkPlatform();
 
 		if ( ! Type::hasType(self::TYPE_NAME)) {
 			Type::addType(self::TYPE_NAME, __NAMESPACE__ . '\DBAL232TestType');
 			$this->_conn->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(self::TYPE_NAME));
 		}
 
-        try {
-            $table = new Table(self::TABLE_NAME);
-            $table->addColumn('id', 'integer');
-            $table->addColumn('value', self::TYPE_NAME);
-            $table->setPrimaryKey(array('id'));
+		$table = new Table(self::TABLE_NAME);
+		$table->addColumn('id', 'integer');
+		$table->addColumn('value', self::TYPE_NAME);
+		$table->setPrimaryKey(array('id'));
 
-            $sm = $this->_conn->getSchemaManager();
-            $sm->createTable($table);
-        } catch(\Exception $e) {
-
-        }
-        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL(self::TABLE_NAME));
+		$sm = $this->_conn->getSchemaManager();
+		$sm->createTable($table);
     }
 	
 	protected function tearDown()
 	{
+		$this->checkPlatform();
+
+		if ( ! $this->_conn instanceof \Doctrine\DBAL\Connection) {
+			return;
+		}
+
 		$sm = $this->_conn->getSchemaManager();
 		$sm->dropTable(self::TABLE_NAME);
 	}
 
 	public function testTypeRemoval()
 	{
+		$this->checkPlatform();
+
 		$sm = $this->_conn->getSchemaManager();
 
 		$columns = $sm->listTableColumns(self::TABLE_NAME);
