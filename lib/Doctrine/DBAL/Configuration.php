@@ -92,10 +92,14 @@ class Configuration
      * {AbstractSchemaManager#createSchema()}.
      *
      * @param string $filterExpression
+     * @param string $filter
      */
-    public function setFilterSchemaAssetsExpression($filterExpression)
+    public function setFilterSchemaAssetsExpression($filterExpression, $filter = 'include')
     {
-        $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
+        $this->_attributes['filterSchemaAssetsExpression'] = array(
+            'assets' => $filterExpression,
+            'include' =>$filter
+        );
     }
 
     /**
