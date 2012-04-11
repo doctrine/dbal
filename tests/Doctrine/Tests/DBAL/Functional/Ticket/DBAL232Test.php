@@ -14,80 +14,82 @@ require_once __DIR__ . '/../../../TestInit.php';
  */
 class DBAL232Test extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-	const TYPE_NAME = 'dbal232';
+    const TYPE_NAME = 'dbal232';
 
-	const TABLE_NAME = 'dbal232';
+    const TABLE_NAME = 'dbal232';
 
-	private function checkPlatform()
-	{
-		// Skip sqlite with no type comment feature available
-		if ($this->_conn->getDatabasePlatform()->getName() == 'sqlite') {
-			self::markTestSkipped("Not working on sqlite");
-		}
-	}
+    private function checkPlatform()
+    {
+        // Removed because this class doesn't test the doctrine type comment feature after all
+//        // Skip sqlite with no type comment feature available
+//        if ($this->_conn->getDatabasePlatform()->getName() == 'sqlite') {
+//            self::markTestSkipped("Not working on sqlite");
+//        }
+    }
 
-	public function setUp()
+    public function setUp()
     {
         parent::setUp();
 
-		$this->checkPlatform();
+        $this->checkPlatform();
 
-		if ( ! Type::hasType(self::TYPE_NAME)) {
-			Type::addType(self::TYPE_NAME, __NAMESPACE__ . '\DBAL232TestType');
-			$this->_conn->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(self::TYPE_NAME));
-		}
+        if ( ! Type::hasType(self::TYPE_NAME)) {
+            Type::addType(self::TYPE_NAME, __NAMESPACE__ . '\DBAL232TestType');
+            $this->_conn->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(self::TYPE_NAME));
+        }
 
-		$table = new Table(self::TABLE_NAME);
-		$table->addColumn('id', 'integer');
-		$table->addColumn('value', self::TYPE_NAME);
-		$table->setPrimaryKey(array('id'));
+        $table = new Table(self::TABLE_NAME);
+        $table->addColumn('id', 'integer');
+        $table->addColumn('value', self::TYPE_NAME);
+        $table->setPrimaryKey(array('id'));
 
-		$sm = $this->_conn->getSchemaManager();
-		$sm->createTable($table);
+        $sm = $this->_conn->getSchemaManager();
+        $sm->createTable($table);
     }
-	
-	protected function tearDown()
-	{
-		$this->checkPlatform();
+    
+    protected function tearDown()
+    {
+        $this->checkPlatform();
 
-		if ( ! $this->_conn instanceof \Doctrine\DBAL\Connection) {
-			return;
-		}
+        if ( ! $this->_conn instanceof \Doctrine\DBAL\Connection) {
+            return;
+        }
 
-		$sm = $this->_conn->getSchemaManager();
-		$sm->dropTable(self::TABLE_NAME);
-	}
+        $sm = $this->_conn->getSchemaManager();
+        $sm->dropTable(self::TABLE_NAME);
+    }
 
-	public function testTypeRemoval()
-	{
-		$this->checkPlatform();
+    public function testTypeRemoval()
+    {
+        $this->checkPlatform();
 
-		$sm = $this->_conn->getSchemaManager();
+        $sm = $this->_conn->getSchemaManager();
 
-		$columns = $sm->listTableColumns(self::TABLE_NAME);
-		$type = $columns['value']->getType();
-		self::assertInstanceOf(__NAMESPACE__ . '\DBAL232TestType', $type);
+        // Removed because this class doesn't test the doctrine type comment feature after all
+//        $columns = $sm->listTableColumns(self::TABLE_NAME);
+//        $type = $columns['value']->getType();
+//        self::assertInstanceOf(__NAMESPACE__ . '\DBAL232TestType', $type);
 
-		// This simulates the type removal
-		Type::overrideType(self::TYPE_NAME, null);
+        // This simulates the type removal
+        Type::overrideType(self::TYPE_NAME, null);
 
-		// Will throw an "unknown type" exception without the fix, string type 
-		// with it.
-		$columns = $sm->listTableColumns(self::TABLE_NAME);
-		$type = $columns['value']->getType();
-		self::assertEquals(Type::getType(Type::STRING), $type);
-	}
+        // Will throw an "unknown type" exception without the fix, string type
+        // with it.
+        $columns = $sm->listTableColumns(self::TABLE_NAME);
+        $type = $columns['value']->getType();
+        self::assertEquals(Type::getType(Type::STRING), $type);
+    }
 }
 
 class DBAL232TestType extends Type
 {
-	public function getName()
-	{
-		return DBAL232Test::TYPE_NAME;
-	}
+    public function getName()
+    {
+        return DBAL232Test::TYPE_NAME;
+    }
 
-	public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
-	{
-		return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
-	}
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    {
+        return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
+    }
 }
