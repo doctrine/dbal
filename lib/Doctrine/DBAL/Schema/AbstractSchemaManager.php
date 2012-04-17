@@ -218,7 +218,7 @@ abstract class AbstractSchemaManager
         return array_values (
             array_filter($assetNames, function ($assetName) use ($filterExpr) {
                 $assetName = ($assetName instanceof AbstractAsset) ? $assetName->getName() : $assetName;
-                return preg_match('(' . $filterExpr . ')', $assetName);
+                return preg_match($filterExpr, $assetName);
             })
         );
     }
