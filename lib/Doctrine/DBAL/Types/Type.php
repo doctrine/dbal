@@ -73,6 +73,14 @@ abstract class Type
         self::GUID => 'Doctrine\DBAL\Types\GuidType',
     );
 
+    /** The map of typehints to use within the entity generator for built in types */
+    private static $_typeHintsMap = array(
+        self::DATE => 'DateTime',
+        self::DATETIME => 'DateTime',
+        self::DATETIMETZ => 'DateTime',
+        self::TIME => 'DateTime',
+    );
+
     /* Prevent instantiation and force use of the factory method. */
     final private function __construct() {}
 
@@ -227,6 +235,16 @@ abstract class Type
     public static function getTypesMap()
     {
         return self::$_typesMap;
+    }
+
+    /**
+     * Get an array of the typehints to use within the entity generator for built in types
+     *
+     * @return array $typeHintsMap
+     */
+    public static function getTypeHintsMap()
+    {
+        return self::$_typeHintsMap;
     }
 
     public function __toString()
