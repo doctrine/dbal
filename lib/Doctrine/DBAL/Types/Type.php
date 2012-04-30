@@ -48,6 +48,7 @@ abstract class Type
     const TEXT = 'text';
     const BLOB = 'blob';
     const FLOAT = 'float';
+    const GUID = 'guid';
 
     /** Map of already instantiated type objects. One instance per type (flyweight). */
     private static $_typeObjects = array();
