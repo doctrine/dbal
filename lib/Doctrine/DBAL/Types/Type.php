@@ -47,6 +47,7 @@ abstract class Type
     const STRING = 'string';
     const TEXT = 'text';
     const FLOAT = 'float';
+    const GUID = 'guid';
 
     /** Map of already instantiated type objects. One instance per type (flyweight). */
     private static $_typeObjects = array();
@@ -67,6 +68,7 @@ abstract class Type
         self::TIME => 'Doctrine\DBAL\Types\TimeType',
         self::DECIMAL => 'Doctrine\DBAL\Types\DecimalType',
         self::FLOAT => 'Doctrine\DBAL\Types\FloatType',
+        self::GUID => 'Doctrine\DBAL\Types\GuidType',
     );
 
     /* Prevent instantiation and force use of the factory method. */
