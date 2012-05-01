@@ -34,10 +34,10 @@ class SQLAzurePlatform extends SQLServer2008Platform
     {
         $sql = parent::getCreateTableSQL($table, $createFlags);
 
-        if ($table->hasOption('azure.federatedOnDistributionName')) {
+        if ($table->hasOption('azure.federatedOnColumnName')) {
             $distributionName = $table->getOption('azure.federatedOnDistributionName');
-            $columnName = $table->getOption('azure.federatedOnColumnName');
-            $stmt = ' FEDERATED ON (' . $distributionName . ' = ' . $columnName . ')';
+            $columnName       = $table->getOption('azure.federatedOnColumnName');
+            $stmt             = ' FEDERATED ON (' . $distributionName . ' = ' . $columnName . ')';
 
             $sql[0] = $sql[0] . $stmt;
         }
