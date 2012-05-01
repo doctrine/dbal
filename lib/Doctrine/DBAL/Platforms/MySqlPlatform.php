@@ -739,7 +739,7 @@ class MySqlPlatform extends AbstractPlatform
             'mediumblob'    => 'blob',
             'tinyblob'      => 'blob',
             'binary'        => 'blob',
-            'varbinary'        => 'blob',
+            'varbinary'     => 'blob',
         );
     }
 
