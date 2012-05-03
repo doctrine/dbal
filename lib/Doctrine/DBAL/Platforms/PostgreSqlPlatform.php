@@ -620,7 +620,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Decleration for a UNIQUEIDENTIFIER (GUID) field in SQL Server
+     * Decleration for a UUID field in PostgreSQL
      *
      * @param array $field
      * @return string

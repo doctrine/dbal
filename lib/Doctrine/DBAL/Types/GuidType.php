@@ -38,18 +38,5 @@ class GuidType extends StringType
     {
         return Type::GUID;
     }
-    
-    /**
-     * Converts a value from its database representation to its PHP representation
-     * of this type.
-     *
-     * @param mixed $value The value to convert.
-     * @param AbstractPlatform $platform The currently used database platform.
-     * @return mixed The PHP representation of the value.
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
-    {
-        return (null === $value) ? null : str_replace("-","", $value);
-    }
 }
 
