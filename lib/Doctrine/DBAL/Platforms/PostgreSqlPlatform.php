@@ -620,6 +620,17 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * Decleration for a UNIQUEIDENTIFIER (GUID) field in SQL Server
+     *
+     * @param array $field
+     * @return string
+     */
+    public function getGuidTypeDeclartionSQL(array $field)
+    {
+        return 'UUID';
+    }
+
+    /**
      * @override
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)

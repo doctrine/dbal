@@ -70,6 +70,7 @@ abstract class Type
         self::DECIMAL => 'Doctrine\DBAL\Types\DecimalType',
         self::FLOAT => 'Doctrine\DBAL\Types\FloatType',
         self::BLOB => 'Doctrine\DBAL\Types\BlobType',
+        self::GUID => 'Doctrine\DBAL\Types\GuidType',
     );
 
     /* Prevent instantiation and force use of the factory method. */
