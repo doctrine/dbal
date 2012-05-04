@@ -119,20 +119,22 @@ class TableGenerator
             $stmt = $this->conn->executeQuery($sql, array($sequenceName));
 
             if ($row = $stmt->fetch()) {
-                $value = $row['sequence_value'];
-                $value++;
+                $sequence_value = $row[0];
+                $sequence_increment_by = $row[1];
 
-                if ($row['sequence_increment_by'] > 1) {
+                $value = $sequence_value + 1;
+
+                if ($sequence_increment_by > 1) {
                     $this->sequences[$sequenceName] = array(
                         'value' => $value,
-                        'max' => $row['sequence_value'] + $row['sequence_increment_by']
+                        'max' => $sequence_value + $sequence_increment_by
                     );
                 }
 
                 $sql = "UPDATE " . $this->generatorTableName . " ".
                        "SET sequence_value = sequence_value + sequence_increment_by " .
                        "WHERE sequence_name = ? AND sequence_value = ?";
-                $rows = $this->conn->executeUpdate($sql, array($sequenceName, $row['sequence_value']));
+                $rows = $this->conn->executeUpdate($sql, array($sequenceName, $sequence_value));
 
                 if ($rows != 1) {
                     throw new \Doctrine\DBAL\DBALException("Race-condition detected while updating sequence. Aborting generation");
