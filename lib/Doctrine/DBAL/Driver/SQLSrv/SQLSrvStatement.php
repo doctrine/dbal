@@ -175,7 +175,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
     }
 
-    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH)
+    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
     {
         $this->defaultFetchStyle = $fetchStyle;
     }
