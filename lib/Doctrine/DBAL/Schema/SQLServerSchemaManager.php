@@ -213,4 +213,35 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
         return $this->_getPortableTableIndexesList($tableIndexes, $table);
     }
+
+    /**
+     * @override
+     */
+    public function alterTable(TableDiff $tableDiff)
+    {
+        if(count($tableDiff->removedColumns) > 0) {
+            foreach($tableDiff->removedColumns as $col){
+                $columnConstraintSql = $this->getColumnConstraintSQL($tableDiff->name, $col->getName());
+                foreach ($this->_conn->fetchAll($columnConstraintSql) as $constraint) {
+                    $this->_conn->exec("ALTER TABLE $tableDiff->name DROP CONSTRAINT " . $constraint['Name']);
+                }
+            }
+        }
+
+        return parent::alterTable($tableDiff);
+    }
+
+    /**
+     * This function retrieves the constraints for a given column.
+     */
+    private function getColumnConstraintSQL($table, $column)
+    {
+        return "SELECT SysObjects.[Name]
+            FROM SysObjects INNER JOIN (SELECT [Name],[ID] FROM SysObjects WHERE XType = 'U') AS Tab
+            ON Tab.[ID] = Sysobjects.[Parent_Obj]
+            INNER JOIN sys.default_constraints DefCons ON DefCons.[object_id] = Sysobjects.[ID]
+            INNER JOIN SysColumns Col ON Col.[ColID] = DefCons.[parent_column_id] AND Col.[ID] = Tab.[ID]
+            WHERE Col.[Name] = " . $this->_conn->quote($column) ." AND Tab.[Name] = " . $this->_conn->quote($table) . "
+            ORDER BY Col.[Name]";
+    }
 }
