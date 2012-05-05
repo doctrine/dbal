@@ -132,7 +132,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
         return $this->statement->columnCount();
     }
 
-    public function setFetchMode($fetchStyle)
+    public function setFetchMode($fetchStyle, $arg2 = null, $arg3 = null)
     {
         $this->defaultFetchStyle = $fetchStyle;
     }
