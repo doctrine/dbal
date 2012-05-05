@@ -245,7 +245,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     public function fetchColumn($columnIndex = 0)
     {
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
-        return $row[$columnIndex];
+        return isset($row[$columnIndex]) ? $row[$columnIndex] : false;
     }
 
     /**
