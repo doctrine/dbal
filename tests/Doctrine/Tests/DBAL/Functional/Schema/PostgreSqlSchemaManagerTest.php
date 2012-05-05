@@ -13,8 +13,14 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function tearDown()
     {
         parent::tearDown();
+
+        if (!$this->_conn) {
+            return;
+        }
+
         $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression(null);
     }
+
     /**
      * @group DBAL-177
      */
@@ -24,6 +30,18 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $paths = $this->_sm->getSchemaSearchPaths();
         $this->assertEquals(array($params['user'], 'public'), $paths);
+    }
+
+    /**
+     * @group DBAL-244
+     */
+    public function testGetSchemaNames()
+    {
+        $names = $this->_sm->getSchemaNames();
+
+        $this->assertInternalType('array', $names);
+        $this->assertTrue(count($names) > 0);
+        $this->assertTrue(in_array('public', $names), "The public schema should be found.");
     }
 
     /**
