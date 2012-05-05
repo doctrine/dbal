@@ -43,7 +43,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     public function getSchemaNames()
     {
-        $rows = $this->_conn->fetchAll('SELECT schema_name FROM information_schema.schemata');
+        $rows = $this->_conn->fetchAll("SELECT nspname as schema_name FROM pg_namespace WHERE nspname !~ '^pg_.*' and nspname != 'information_schema'");
         return array_map(function($v) { return $v['schema_name']; }, $rows);
     }
 
