@@ -79,7 +79,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     {
         $args = func_get_args();
         $sql = $args[0];
-        //$fetchStyle = $args[1];
+        //$fetchMode = $args[1];
         $stmt = $this->prepare($sql);
         $stmt->execute();
         return $stmt;

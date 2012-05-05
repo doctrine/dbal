@@ -29,7 +29,7 @@ class DB2Statement implements \IteratorAggregate, Statement
 
     private $_bindParam = array();
 
-    private $_defaultFetchStyle = \PDO::FETCH_BOTH;
+    private $_defaultFetchMode = \PDO::FETCH_BOTH;
 
     /**
      * DB2_BINARY, DB2_CHAR, DB2_DOUBLE, or DB2_LONG
@@ -148,9 +148,9 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchStyle, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        $this->_defaultFetchStyle = $fetchStyle;
+        $this->_defaultFetchMode = $fetchMode;
     }
 
     /**
@@ -165,10 +165,10 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchStyle = null)
+    public function fetch($fetchMode = null)
     {
-        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
-        switch ($fetchStyle) {
+        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        switch ($fetchMode) {
             case \PDO::FETCH_BOTH:
                 return db2_fetch_both($this->_stmt);
             case \PDO::FETCH_ASSOC:
@@ -176,17 +176,17 @@ class DB2Statement implements \IteratorAggregate, Statement
             case \PDO::FETCH_NUM:
                 return db2_fetch_array($this->_stmt);
             default:
-                throw new DB2Exception("Given Fetch-Style " . $fetchStyle . " is not supported.");
+                throw new DB2Exception("Given Fetch-Style " . $fetchMode . " is not supported.");
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchStyle = null)
+    public function fetchAll($fetchMode = null)
     {
         $rows = array();
-        while ($row = $this->fetch($fetchStyle)) {
+        while ($row = $this->fetch($fetchMode)) {
             $rows[] = $row;
         }
         return $rows;
