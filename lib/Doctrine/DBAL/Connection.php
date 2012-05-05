@@ -565,7 +565,7 @@ class Connection implements DriverConnection
         $this->connect();
 
         list($value, $bindingType) = $this->getBindingInfo($input, $type);
-        return $this->_conn->quote($input, $bindingType);
+        return $this->_conn->quote($value, $bindingType);
     }
 
     /**
