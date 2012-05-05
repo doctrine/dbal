@@ -101,9 +101,10 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         return $this->stmt->execute($params);
     }
 
-    public function setFetchMode($fetchStyle)
+    public function setFetchMode($fetchStyle, $arg1 = null, $arg2 = null)
     {
         $this->defaultFetchStyle = $fetchStyle;
+        $this->stmt->setFetchMode($fetchStyle, $arg1, $arg2);
     }
 
     public function getIterator()
