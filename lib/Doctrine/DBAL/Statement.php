@@ -177,9 +177,9 @@ class Statement implements \IteratorAggregate, DriverStatement
         return $this->stmt->errorInfo();
     }
 
-    public function setFetchMode($fetchStyle)
+    public function setFetchMode($fetchStyle, $arg2 = null, $arg3 = null)
     {
-        return $this->stmt->setFetchMode($fetchStyle);
+        return $this->stmt->setFetchMode($fetchStyle, $arg2, $arg3);
     }
 
     public function getIterator()
