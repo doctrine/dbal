@@ -491,6 +491,16 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
     }
 
+    /**
+     * @group DBAL-257
+     */
+    public function testEmptyFetchColumnReturnsFalse()
+    {
+        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->assertFalse($this->_conn->fetchColumn('SELECT test_int FROM fetch_table'));
+        $this->assertFalse($this->_conn->query('SELECT test_int FROM fetch_table')->fetchColumn());
+    }
+
     private function setupFixture()
     {
         $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
