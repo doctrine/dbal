@@ -255,7 +255,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
 
         $a = array();
         if (PDO::FETCH_COLUMN == $fetchStyle) {
-            while (($value = $this->fetchColumn()) !== null) {
+            while (($value = $this->fetchColumn()) !== false) {
                 $a[] = $value;
             }
         } else {
