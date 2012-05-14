@@ -28,6 +28,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class DateType extends Type
 {
+    protected $class = 'DateTime';
+
     public function getName()
     {
         return Type::DATE;
@@ -50,7 +52,8 @@ class DateType extends Type
             return $value;
         }
 
-        $val = \DateTime::createFromFormat('!'.$platform->getDateFormatString(), $value);
+        $class = $this->class;
+        $val = $class::createFromFormat('!'.$platform->getDateFormatString(), $value);
         if (!$val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateFormatString());
         }

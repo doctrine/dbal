@@ -48,6 +48,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class DateTimeTzType extends Type
 {
+    protected $class = 'DateTime';
+
     public function getName()
     {
         return Type::DATETIMETZ;
@@ -70,7 +72,8 @@ class DateTimeTzType extends Type
             return $value;
         }
 
-        $val = \DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
+        $class = $this->class;
+        $val = $class::createFromFormat($platform->getDateTimeTzFormatString(), $value);
         if (!$val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeTzFormatString());
         }
