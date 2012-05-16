@@ -102,9 +102,25 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         return $stmt->rowCount();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function lastInsertId($name = null)
     {
-        //TODO: throw exception or support sequences?
+        // For sequence
+        if (is_string($name)) {
+            // We can check eventually check the presence of the sequence in the table
+            // USER_SEQUENCES
+            $sql = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
+            // will throw an exception if this sequence does not exist
+            $stmt = $this->query($sql);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($result !== false && isset($result['CURRVAL'])) {
+                return (int) $result['CURRVAL'];
+            }
+        }
+        // OCI8 driver does not provide support of lastInsertId
+        return null;
     }
 
     /**
