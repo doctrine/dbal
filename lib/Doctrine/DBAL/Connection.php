@@ -427,6 +427,8 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
+        list($tableName, $identifier) = $this->_platform->quoteArgsAsIdentifiers($tableName, $identifier);
+
         $criteria = array();
 
         foreach (array_keys($identifier) as $columnName) {
@@ -485,6 +487,9 @@ class Connection implements DriverConnection
     public function update($tableName, array $data, array $identifier, array $types = array())
     {
         $this->connect();
+
+        list($tableName, $data, $identifier, $types) = $this->_platform->quoteArgsAsIdentifiers($tableName, $data, $identifier, $types);
+
         $set = array();
         foreach ($data as $columnName => $value) {
             $set[] = $columnName . ' = ?';
@@ -510,6 +515,8 @@ class Connection implements DriverConnection
     public function insert($tableName, array $data, array $types = array())
     {
         $this->connect();
+
+        list($tableName, $data, $types) = $this->_platform->quoteArgsAsIdentifiers($tableName, $data, $types);
 
         // column names are specified as array keys
         $cols = array();
