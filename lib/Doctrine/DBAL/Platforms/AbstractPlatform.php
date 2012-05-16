@@ -1350,6 +1350,47 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Quotes its arguments as identifiers.
+     *
+     * @return array quoted arguments
+     */
+    public function quoteArgsAsIdentifiers()
+    {
+        $a = func_get_args();
+        $q = $this->quoteSingleIdentifier('q');
+        $q = $q[0];
+
+        foreach ($a as &$data)
+        {
+            if (is_string($data))
+            {
+                if (isset($data[0]) && $q !== $data[0])
+                {
+                    $data = $this->quoteIdentifier($data);
+                }
+            }
+            else
+            {
+                $quotedData = array();
+
+                foreach ($data as $k => $v)
+                {
+                    if (isset($k[0]) && $q !== $k[0])
+                    {
+                        $k = $this->quoteIdentifier($k);
+                    }
+
+                    $quotedData[$k] = $v;
+                }
+
+                $data = $quotedData;
+            }
+        }
+
+        return $a;
+    }
+
+    /**
      * Create a new foreign key
      *
      * @param ForeignKeyConstraint  $foreignKey    ForeignKey instance
