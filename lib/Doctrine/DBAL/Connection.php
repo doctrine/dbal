@@ -983,7 +983,7 @@ class Connection implements DriverConnection
      *
      * @throws ConnectionException If the rollback operation failed.
      */
-    public function rollback()
+    public function rollBack()
     {
         if ($this->_transactionNestingLevel == 0) {
             throw ConnectionException::noActiveTransaction();
