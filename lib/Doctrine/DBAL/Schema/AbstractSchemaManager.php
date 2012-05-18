@@ -403,7 +403,7 @@ abstract class AbstractSchemaManager
      * Create a new sequence
      *
      * @param Sequence $sequence
-     * @throws Doctrine\DBAL\ConnectionException     if something fails at database level
+     * @throws \Doctrine\DBAL\ConnectionException     if something fails at database level
      */
     public function createSequence($sequence)
     {

@@ -196,7 +196,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     }
 
     /**
-     * @return null|false|array
+     * @return boolean|array
      */
     private function _fetch()
     {

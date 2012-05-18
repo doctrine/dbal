@@ -291,7 +291,7 @@ class DrizzlePlatform extends AbstractPlatform
      * C/P from mysql platform
      *
      * @param TableDiff $diff
-     * @return type
+     * @return string
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
@@ -325,7 +325,7 @@ class DrizzlePlatform extends AbstractPlatform
                 continue;
             }
 
-            /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
+            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
@@ -385,7 +385,6 @@ class DrizzlePlatform extends AbstractPlatform
                $item = ($item) ? 'true' : 'false';
            }
         }
-        return $item;
         return $item;
     }
 

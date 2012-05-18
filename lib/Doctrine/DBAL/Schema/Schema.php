@@ -293,7 +293,7 @@ class Schema extends AbstractAsset
     /**
      * Return an array of necessary sql queries to create the schema on the given platform.
      *
-     * @param AbstractPlatform $platform
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      * @return array
      */
     public function toSql(\Doctrine\DBAL\Platforms\AbstractPlatform $platform)
@@ -307,7 +307,7 @@ class Schema extends AbstractAsset
     /**
      * Return an array of necessary sql queries to drop the schema on the given platform.
      *
-     * @param AbstractPlatform $platform
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      * @return array
      */
     public function toDropSql(\Doctrine\DBAL\Platforms\AbstractPlatform $platform)
@@ -320,7 +320,7 @@ class Schema extends AbstractAsset
 
     /**
      * @param Schema $toSchema
-     * @param AbstractPlatform $platform
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function getMigrateToSql(Schema $toSchema, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
@@ -331,7 +331,7 @@ class Schema extends AbstractAsset
 
     /**
      * @param Schema $fromSchema
-     * @param AbstractPlatform $platform
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function getMigrateFromSql(Schema $fromSchema, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {

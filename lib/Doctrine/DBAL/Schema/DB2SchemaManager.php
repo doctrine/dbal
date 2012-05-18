@@ -22,6 +22,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
+use Doctrine\DBAL\Events;
 
 /**
  * IBM Db2 Schema Manager

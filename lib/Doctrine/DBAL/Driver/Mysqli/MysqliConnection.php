@@ -51,7 +51,7 @@ class MysqliConnection implements Connection
      *
      * Could be used if part of your application is not using DBAL
      *
-     * @return mysqli
+     * @return \mysqli
      */
     public function getWrappedResourceHandle()
     {
