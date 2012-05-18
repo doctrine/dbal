@@ -19,7 +19,7 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
-use Symfony\Component\Console\Input\nputArgument,
+use Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console;
 
 /**
