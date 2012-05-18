@@ -202,11 +202,11 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column = $testTable->addColumn('id', 'integer');
         $this->_sm->createTable($testTable);
 
-        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('^dbal204_');
+        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_#');
         $names = $this->_sm->listTableNames();
         $this->assertEquals(2, count($names));
 
-        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('^dbal204_test');
+        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_test#');
         $names = $this->_sm->listTableNames();
         $this->assertEquals(1, count($names));
     }
