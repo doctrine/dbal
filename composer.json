@@ -13,9 +13,14 @@
     ],
     "require": {
         "php": ">=5.3.2",
-        "doctrine/common": "2.*"
+        "doctrine/common": "2.3.*"
     },
     "autoload": {
         "psr-0": { "Doctrine\\DBAL": "lib/" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.3.x-dev"
+        }
     }
 }
