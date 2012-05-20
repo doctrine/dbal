@@ -129,11 +129,12 @@ class Table extends AbstractAsset
      *
      * @param array $columns
      * @param string $indexName
+     * @param string $accessMethod
      * @return Table
      */
-    public function setPrimaryKey(array $columns, $indexName = false)
+    public function setPrimaryKey(array $columns, $indexName = false, $accessMethod = null )
     {
-        $primaryKey = $this->_createIndex($columns, $indexName ?: "primary", true, true);
+        $primaryKey = $this->_createIndex($columns, $indexName ?: "primary", true, true, array( ), $accessMethod );
 
         foreach ($columns as $columnName) {
             $column = $this->getColumn($columnName);
@@ -146,9 +147,10 @@ class Table extends AbstractAsset
     /**
      * @param array $columnNames
      * @param string $indexName
+     * @param string $accessMethod
      * @return Table
      */
-    public function addIndex(array $columnNames, $indexName = null)
+    public function addIndex(array $columnNames, $indexName = null, $accessMethod = null )
     {
         if($indexName == null) {
             $indexName = $this->_generateIdentifierName(
@@ -156,7 +158,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_createIndex($columnNames, $indexName, false, false);
+        return $this->_createIndex($columnNames, $indexName, false, false, array( ), $accessMethod);
     }
 
     /**
@@ -190,9 +192,10 @@ class Table extends AbstractAsset
      *
      * @param array $columnNames
      * @param string $indexName
+     * @param string $accessMethod
      * @return Table
      */
-    public function addUniqueIndex(array $columnNames, $indexName = null)
+    public function addUniqueIndex(array $columnNames, $indexName = null, $accessMethod = null )
     {
         if ($indexName === null) {
             $indexName = $this->_generateIdentifierName(
@@ -200,7 +203,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_createIndex($columnNames, $indexName, true, false);
+        return $this->_createIndex($columnNames, $indexName, true, false, array( ), $accessMethod );
     }
 
     /**
@@ -226,9 +229,10 @@ class Table extends AbstractAsset
      * @param string $indexName
      * @param bool $isUnique
      * @param bool $isPrimary
+     * @param string $accessMethod
      * @return Table
      */
-    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary)
+    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = array( ), $accessMethod = null )
     {
         if (preg_match('(([^a-zA-Z0-9_]+))', $indexName)) {
             throw SchemaException::indexNameInvalid($indexName);
@@ -243,7 +247,7 @@ class Table extends AbstractAsset
                 throw SchemaException::columnDoesNotExist($columnName, $this->_name);
             }
         }
-        $this->_addIndex(new Index($indexName, $columnNames, $isUnique, $isPrimary));
+        $this->_addIndex(new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags, $accessMethod ) );
         return $this;
     }
 

@@ -1281,6 +1281,7 @@ abstract class AbstractPlatform
         } else {
 
             $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
+            $query .= $index->getAccessMethod( ) !== null ? ' USING ' . $index->getAccessMethod( ) . ' ' : ' ';
             $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
         }
 
@@ -1775,8 +1776,9 @@ abstract class AbstractPlatform
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return $type . 'INDEX ' . $name . ' ('
-             . $this->getIndexFieldDeclarationListSQL($index->getColumns())
+        return $type . 'INDEX ' . $name . ' '
+             . $index->getAccessMethod( ) !== null ? ' USING ' . $index->getAccessMethod( ) . ' ' : ' ';
+             . ' ( ' . $this->getIndexFieldDeclarationListSQL($index->getColumns())
              . ')';
     }
 

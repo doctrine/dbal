@@ -46,18 +46,26 @@ class Index extends AbstractAsset implements Constraint
     protected $_flags = array();
 
     /**
+     * Platform specific access method (e. g. GIN, BTREE, HASH)
+     *
+     * @var string
+     */
+    protected $_accessMethod;
+
+    /**
      * @param string $indexName
      * @param array $column
      * @param bool $isUnique
      * @param bool $isPrimary
      */
-    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
+    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array(), $accessMethod = null )
     {
         $isUnique = ($isPrimary)?true:$isUnique;
 
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
         $this->_isPrimary = $isPrimary;
+        $this->_accessMethod = $accessMethod;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -111,6 +119,14 @@ class Index extends AbstractAsset implements Constraint
     public function isPrimary()
     {
         return $this->_isPrimary;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccessMethod( )
+    {
+        return $this->_accessMethod;
     }
 
     /**
