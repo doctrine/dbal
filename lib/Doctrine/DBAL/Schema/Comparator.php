@@ -30,7 +30,7 @@ namespace Doctrine\DBAL\Schema;
  * @version $Revision$
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
-class Comparator
+class Comparator implements ComparatorInterface
 {
     /**
      * @param Schema $fromSchema
