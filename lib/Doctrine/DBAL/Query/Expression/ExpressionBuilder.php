@@ -257,7 +257,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function notlike($x, $y)
+    public function notLike($x, $y)
     {
         return $this->comparison($x, 'NOT LIKE', $y);
     }
