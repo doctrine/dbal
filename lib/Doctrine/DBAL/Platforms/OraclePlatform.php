@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\DBALException;
 
 /**
  * OraclePlatform.
@@ -31,6 +32,20 @@ use Doctrine\DBAL\Schema\TableDiff;
  */
 class OraclePlatform extends AbstractPlatform
 {
+    /**
+     * Assertion for Oracle identifiers
+     *
+     * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
+     * @param string
+     * @throws DBALException
+     */
+    static public function assertValidIdentifier($identifier)
+    {
+        if ( ! preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier)) {
+            throw new DBALException("Invalid Oracle identifier");
+        }
+    }
+
     /**
      * return string to call a function to get a substring inside an SQL statement
      *

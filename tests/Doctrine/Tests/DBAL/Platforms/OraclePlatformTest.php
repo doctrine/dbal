@@ -9,6 +9,51 @@ require_once __DIR__ . '/../../TestInit.php';
 
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
+    static public function dataValidIdentifiers()
+    {
+        return array(
+            array('a'),
+            array('foo'),
+            array('Foo'),
+            array('Foo123'),
+            array('Foo#bar_baz$'),
+            array('"a"'),
+            array('"1"'),
+            array('"foo_bar"'),
+            array('"@$%&!"'),
+        );
+    }
+
+    /**
+     * @dataProvider dataValidIdentifiers
+     */
+    public function testValidIdentifiers($identifier)
+    {
+        $platform = $this->createPlatform();
+        $platform->assertValidIdentifier($identifier);
+    }
+
+    static public function dataInvalidIdentifiers()
+    {
+        return array(
+            array('1'),
+            array('abc&'),
+            array('abc-def'),
+            array('"'),
+            array('"foo"bar"'),
+        );
+    }
+
+    /**
+     * @dataProvider dataInvalidIdentifiers
+     */
+    public function testInvalidIdentifiers($identifier)
+    {
+        $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $platform = $this->createPlatform();
+        $platform->assertValidIdentifier($identifier);
+    }
+
     public function createPlatform()
     {
         return new OraclePlatform;
