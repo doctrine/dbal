@@ -84,7 +84,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * This is a PostgreSQL only function.
      *
-     * @return type
+     * @return void
      */
     public function determineExistingSchemaSearchPaths()
     {

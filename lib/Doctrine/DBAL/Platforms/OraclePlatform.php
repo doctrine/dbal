@@ -107,9 +107,9 @@ class OraclePlatform extends AbstractPlatform
      * them to the difference in days. This is obviously a restriction of the original functionality, but we
      * need to make this a portable function.
      *
-     * @param type $date1
-     * @param type $date2
-     * @return type
+     * @param string $date1
+     * @param string $date2
+     * @return string
      */
     public function getDateDiffExpression($date1, $date2)
     {
@@ -527,8 +527,8 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * @param  ForeignKeyConstraint|string $foreignKey
-     * @param  Table|string $table
+     * @param  \Doctrine\DBAL\Schema\ForeignKeyConstraint|string $foreignKey
+     * @param  \Doctrine\DBAL\Schema\Table|string $table
      * @return string
      */
     public function getDropForeignKeySQL($foreignKey, $table)

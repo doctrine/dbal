@@ -380,7 +380,7 @@ class MySqlPlatform extends AbstractPlatform
      *                              )
      *                          );
      *
-     * @return void
+     * @return string
      * @override
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
@@ -480,7 +480,7 @@ class MySqlPlatform extends AbstractPlatform
                 continue;
             }
 
-            /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
+            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
@@ -633,7 +633,7 @@ class MySqlPlatform extends AbstractPlatform
      * Return the FOREIGN KEY query section dealing with non-standard options
      * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
      *
-     * @param ForeignKeyConstraint $foreignKey
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey
      * @return string
      * @override
      */

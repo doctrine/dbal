@@ -94,7 +94,7 @@ class SchemaConfig
     /**
      * set default namespace name of schema objects.
      *
-     * @param _name the value to set.
+     * @param string $name the value to set.
      */
     public function setName($name)
     {

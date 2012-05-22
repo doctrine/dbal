@@ -43,7 +43,7 @@ class VarDateTimeType extends DateTimeType
      * @throws ConversionException
      * @param string $value
      * @param AbstractPlatform $platform
-     * @return DateTime
+     * @return \DateTime
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {

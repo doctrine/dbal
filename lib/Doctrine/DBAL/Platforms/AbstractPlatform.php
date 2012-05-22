@@ -2678,7 +2678,7 @@ abstract class AbstractPlatform
      * Throws exception if no keyword list is specified.
      *
      * @throws DBALException
-     * @return KeywordList
+     * @return \Doctrine\DBAL\Platforms\Keywords\KeywordList
      */
     final public function getReservedKeywordsList()
     {

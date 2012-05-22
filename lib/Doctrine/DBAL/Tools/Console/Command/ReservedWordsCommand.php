@@ -93,7 +93,7 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /* @var $conn Doctrine\DBAL\Connection */
+        /* @var $conn \Doctrine\DBAL\Connection */
         $conn = $this->getHelper('db')->getConnection();
 
         $keywordLists = (array)$input->getOption('list');

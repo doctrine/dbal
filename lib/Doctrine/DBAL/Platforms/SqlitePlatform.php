@@ -283,7 +283,7 @@ class SqlitePlatform extends AbstractPlatform
      *                          );
      * @param array $options  An associative array of table options:
      *
-     * @return void
+     * @return string
      * @override
      */
     protected function _getCreateTableSQL($name, array $columns, array $options = array())
