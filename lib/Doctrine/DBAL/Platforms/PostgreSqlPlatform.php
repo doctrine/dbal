@@ -316,8 +316,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      * create a new database
      *
      * @param string $name name of the database that should be created
-     * @throws PDOException
-     * @return void
+     * @return string
      * @override
      */
     public function getCreateDatabaseSQL($name)
@@ -329,7 +328,6 @@ class PostgreSqlPlatform extends AbstractPlatform
      * drop an existing database
      *
      * @param string $name name of the database that should be dropped
-     * @throws PDOException
      * @access public
      */
     public function getDropDatabaseSQL($name)
@@ -502,7 +500,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * @param  ForeignKeyConstraint|string $foreignKey
+     * @param  \Doctrine\DBAL\Schema\ForeignKeyConstraint|string $foreignKey
      * @param  Table|string $table
      * @return string
      */
@@ -514,10 +512,10 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * Gets the SQL used to create a table.
      *
-     * @param unknown_type $tableName
+     * @param string $tableName
      * @param array $columns
      * @param array $options
-     * @return unknown
+     * @return string
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {

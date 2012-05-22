@@ -105,7 +105,7 @@ class Connection implements DriverConnection
     protected $_eventManager;
 
     /**
-     * @var \Doctrine\DBAL\Query\ExpressionBuilder
+     * @var \Doctrine\DBAL\Query\Expression\ExpressionBuilder
      */
     protected $_expr;
 

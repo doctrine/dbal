@@ -39,7 +39,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     private $portability;
 
     /**
-     * @var Doctrine\DBAL\Driver\Statement
+     * @var \Doctrine\DBAL\Driver\Statement
      */
     private $stmt;
 
