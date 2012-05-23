@@ -1777,7 +1777,7 @@ abstract class AbstractPlatform
         }
 
         return $type . 'INDEX ' . $name . ' '
-             . $index->getAccessMethod( ) !== null ? ' USING ' . $index->getAccessMethod( ) . ' ' : ' ';
+             . $index->getAccessMethod( ) !== null ? ' USING ' . $index->getAccessMethod( ) . ' ' : ' '
              . ' ( ' . $this->getIndexFieldDeclarationListSQL($index->getColumns())
              . ')';
     }
