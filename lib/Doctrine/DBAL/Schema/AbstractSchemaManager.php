@@ -712,6 +712,7 @@ abstract class AbstractSchemaManager
                     'unique' => $tableIndex['non_unique'] ? false : true,
                     'primary' => $tableIndex['primary'],
                     'flags' => isset($tableIndex['flags']) ? $tableIndex['flags'] : array(),
+                    'accessMethod' => isset( $tableIndex[ 'accessMethod' ] ) ? $tableIndex[ 'accessMethod' ] : null
                 );
             } else {
                 $result[$keyName]['columns'][] = $tableIndex['column_name'];

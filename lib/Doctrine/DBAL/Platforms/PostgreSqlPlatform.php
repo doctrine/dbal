@@ -249,13 +249,15 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         return "SELECT relname, pg_index.indisunique, pg_index.indisprimary,
-                       pg_index.indkey, pg_index.indrelid
-                 FROM pg_class, pg_index
+                       pg_index.indkey, pg_index.indrelid, pg_am.amname
+                 FROM pg_class, pg_index, pg_opclass, pg_am
                  WHERE oid IN (
                     SELECT indexrelid
                     FROM pg_index si, pg_class sc, pg_namespace sn
                     WHERE " . $this->getTableWhereClause($table, 'sc', 'sn')." AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
-                 ) AND pg_index.indexrelid = oid";
+                 ) AND pg_index.indexrelid = oid
+                 AND pg_index.indclass = ARRAY[ pg_opclass.oid ]::oidvector
+                 AND pg_opclass.opcmethod = pg_am.id";
     }
 
     /**
