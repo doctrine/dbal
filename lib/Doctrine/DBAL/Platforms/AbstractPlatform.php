@@ -322,15 +322,15 @@ abstract class AbstractPlatform
     /**
      * Mark this type as to be commented in ALTER TABLE and CREATE TABLE statements.
      *
-     * @param Type $doctrineType
+     * @param string|Type $doctrineType
      * @return void
      */
-    public function markDoctrineTypeCommented(Type $doctrineType)
+    public function markDoctrineTypeCommented($doctrineType)
     {
         if ($this->doctrineTypeComments === null) {
             $this->initializeCommentedDoctrineTypes();
         }
-        $this->doctrineTypeComments[] = $doctrineType->getName();
+        $this->doctrineTypeComments[] = $doctrineType instanceof Type ? $doctrineType->getName() : $doctrineType;
     }
 
     /**
