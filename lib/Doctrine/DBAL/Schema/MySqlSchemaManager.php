@@ -135,8 +135,6 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'mediumblob':
             case 'longblob':
             case 'blob':
-            case 'binary':
-            case 'varbinary':
             case 'year':
                 $length = null;
                 break;
