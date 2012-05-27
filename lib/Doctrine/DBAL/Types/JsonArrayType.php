@@ -25,7 +25,7 @@ namespace Doctrine\DBAL\Types;
  * @since 2.3
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
-class SimpleArrayType extends Type
+class JsonArrayType extends Type
 {
     public function getSQLDeclaration(array $fieldDeclaration, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
