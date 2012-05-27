@@ -301,7 +301,7 @@ abstract class AbstractPlatform
      */
     protected function initializeCommentedDoctrineTypes()
     {
-        $this->doctrineTypeComments = array(Type::TARRAY, Type::OBJECT);
+        $this->doctrineTypeComments = array(Type::TARRAY, Type::SIMPLE_ARRAY, Type::JSON_ARRAY, Type::OBJECT);
     }
 
     /**

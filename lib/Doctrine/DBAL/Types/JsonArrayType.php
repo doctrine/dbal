@@ -20,9 +20,7 @@
 namespace Doctrine\DBAL\Types;
 
 /**
- * Array Type which can be used for simple values.
- *
- * Only use this type if you are sure that your values cannot contain a ",".
+ * Array Type which can be used to generate json arrays.
  *
  * @since 2.3
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
@@ -36,11 +34,11 @@ class SimpleArrayType extends Type
 
     public function convertToDatabaseValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
-        if (!$value) {
+        if (null === $value) {
             return null;
         }
 
-        return implode(',', $value);
+        return json_encode($value);
     }
 
     public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
@@ -51,11 +49,11 @@ class SimpleArrayType extends Type
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
 
-        return explode(',', $value);
+        return json_decode($value, true);
     }
 
     public function getName()
     {
-        return Type::SIMPLE_ARRAY;
+        return Type::JSON_ARRAY;
     }
 }
