@@ -116,4 +116,9 @@ class Connection extends \Doctrine\DBAL\Connection
         $stmt = call_user_func_array(array($this->_conn, 'query'), func_get_args());
         return new Statement($stmt, $this);
     }
+	
+    public function rollBack()
+    {
+    	parent::rollBack();
+    }
 }

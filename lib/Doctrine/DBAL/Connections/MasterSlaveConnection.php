@@ -228,10 +228,10 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function rollback()
+    public function rollBack()
     {
         $this->connect('master');
-        return parent::rollback();
+        return parent::rollBack();
     }
 
     /**
