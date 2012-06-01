@@ -1,3 +1,22 @@
+# Upgrade to 2.3
+
+## Schema Filter paths
+
+The Filter Schema assets expression is not wrapped in () anymore for the regexp.
+
+Before:
+
+    $config->setFilterSchemaAssetsExpression('foo');
+
+After:
+
+    $config->setFilterSchemaAssetsExpression('(foo)');
+
+## Creating MySQL Tables now defaults to UTF-8
+
+If you are creating a new MySQL Table through the Doctrine API, charset/collate are
+now set to 'utf8'/'utf8_general_ci' by default. Previously the MySQL server defaults were used.
+
 # Upgrade to 2.2
 
 ## Doctrine\DBAL\Connection#insert and Doctrine\DBAL\Connnection#update

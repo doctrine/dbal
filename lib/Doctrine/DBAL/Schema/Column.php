@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -25,7 +25,7 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 /**
  * Object representation of a database column
  *
- * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * 
  * @link    www.doctrine-project.org
  * @since   2.0
  * @version $Revision$
@@ -125,7 +125,7 @@ class Column extends AbstractAsset
      */
     public function setOptions(array $options)
     {
-        foreach ($options AS $name => $value) {
+        foreach ($options as $name => $value) {
             $method = "set".$name;
             if (method_exists($this, $method)) {
                 $this->$method($value);

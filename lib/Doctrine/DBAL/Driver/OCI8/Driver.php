@@ -15,7 +15,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -38,7 +38,8 @@ class Driver implements \Doctrine\DBAL\Driver
             $password,
             $this->_constructDsn($params),
             isset($params['charset']) ? $params['charset'] : null,
-            isset($params['sessionMode']) ? $params['sessionMode'] : OCI_DEFAULT
+            isset($params['sessionMode']) ? $params['sessionMode'] : OCI_DEFAULT,
+            isset($params['persistent']) ? $params['persistent'] : false
         );
     }
 
@@ -61,14 +62,17 @@ class Driver implements \Doctrine\DBAL\Driver
             }
 
             if (isset($params['service']) && $params['service'] == true) {
-                $dsn .= '))(CONNECT_DATA=(SERVICE_NAME=' . $params['dbname'] . ')))';
+                $dsn .= '))(CONNECT_DATA=(SERVICE_NAME=' . $params['dbname'] . '))';
             } else {
-                $dsn .= '))(CONNECT_DATA=(SID=' . $params['dbname'] . ')))';
+                $dsn .= '))(CONNECT_DATA=(SID=' . $params['dbname'] . '))';
             }
+            if (isset($params['pooled']) && $params['pooled'] == true) {
+                $dsn .= '(SERVER=POOLED)';
+            }
+            $dsn .= ')';
         } else {
             $dsn .= $params['dbname'];
         }
-
         return $dsn;
     }
 

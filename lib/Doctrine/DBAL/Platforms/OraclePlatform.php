@@ -13,13 +13,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\DBALException;
 
 /**
  * OraclePlatform.
@@ -31,6 +32,20 @@ use Doctrine\DBAL\Schema\TableDiff;
  */
 class OraclePlatform extends AbstractPlatform
 {
+    /**
+     * Assertion for Oracle identifiers
+     *
+     * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
+     * @param string
+     * @throws DBALException
+     */
+    static public function assertValidIdentifier($identifier)
+    {
+        if ( ! preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier)) {
+            throw new DBALException("Invalid Oracle identifier");
+        }
+    }
+
     /**
      * return string to call a function to get a substring inside an SQL statement
      *
@@ -107,9 +122,9 @@ class OraclePlatform extends AbstractPlatform
      * them to the difference in days. This is obviously a restriction of the original functionality, but we
      * need to make this a portable function.
      *
-     * @param type $date1
-     * @param type $date2
-     * @return type
+     * @param string $date1
+     * @param string $date2
+     * @return string
      */
     public function getDateDiffExpression($date1, $date2)
     {
@@ -354,7 +369,7 @@ class OraclePlatform extends AbstractPlatform
         }
 
         if (isset($indexes) && ! empty($indexes)) {
-            foreach ($indexes as $indexName => $index) {
+            foreach ($indexes as $index) {
                 $sql[] = $this->getCreateIndexSQL($index, $table);
             }
         }
@@ -408,10 +423,6 @@ class OraclePlatform extends AbstractPlatform
         $sql   = array();
 
         $indexName  = $table . '_AI_PK';
-        $definition = array(
-            'primary' => true,
-            'columns' => array($name => true),
-        );
 
         $idx = new \Doctrine\DBAL\Schema\Index($indexName, array($name), true, true);
 
@@ -531,8 +542,8 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * @param  ForeignKeyConstraint|string $foreignKey
-     * @param  Table|string $table
+     * @param  \Doctrine\DBAL\Schema\ForeignKeyConstraint|string $foreignKey
+     * @param  \Doctrine\DBAL\Schema\Table|string $table
      * @return string
      */
     public function getDropForeignKeySQL($foreignKey, $table)
@@ -572,7 +583,7 @@ LEFT JOIN user_cons_columns r_cols
         $columnSql = array();
 
         $fields = array();
-        foreach ($diff->addedColumns AS $column) {
+        foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -587,7 +598,7 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         $fields = array();
-        foreach ($diff->changedColumns AS $columnDiff) {
+        foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -602,7 +613,7 @@ LEFT JOIN user_cons_columns r_cols
             $sql[] = 'ALTER TABLE ' . $diff->name . ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
-        foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+        foreach ($diff->renamedColumns as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
@@ -611,7 +622,7 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         $fields = array();
-        foreach ($diff->removedColumns AS $column) {
+        foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -624,7 +635,7 @@ LEFT JOIN user_cons_columns r_cols
 
         $tableSql = array();
 
-        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
+        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
             }

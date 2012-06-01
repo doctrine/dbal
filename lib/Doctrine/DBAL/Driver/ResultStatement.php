@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -52,7 +52,7 @@ interface ResultStatement extends \Traversable
      *
      * @param integer $fetchStyle
      */
-    public function setFetchMode($fetchStyle);
+    function setFetchMode($fetchStyle, $arg2 = null, $arg3 = null);
 
     /**
      * fetch
@@ -61,23 +61,6 @@ interface ResultStatement extends \Traversable
      * @param integer $fetchStyle           Controls how the next row will be returned to the caller.
      *                                      This value must be one of the Query::HYDRATE_* constants,
      *                                      defaulting to Query::HYDRATE_BOTH
-     *
-     * @param integer $cursorOrientation    For a PDOStatement object representing a scrollable cursor,
-     *                                      this value determines which row will be returned to the caller.
-     *                                      This value must be one of the Query::HYDRATE_ORI_* constants, defaulting to
-     *                                      Query::HYDRATE_ORI_NEXT. To request a scrollable cursor for your
-     *                                      PDOStatement object,
-     *                                      you must set the PDO::ATTR_CURSOR attribute to Doctrine::CURSOR_SCROLL when you
-     *                                      prepare the SQL statement with Doctrine_Adapter_Interface->prepare().
-     *
-     * @param integer $cursorOffset         For a PDOStatement object representing a scrollable cursor for which the
-     *                                      $cursorOrientation parameter is set to Query::HYDRATE_ORI_ABS, this value specifies
-     *                                      the absolute number of the row in the result set that shall be fetched.
-     *
-     *                                      For a PDOStatement object representing a scrollable cursor for
-     *                                      which the $cursorOrientation parameter is set to Query::HYDRATE_ORI_REL, this value
-     *                                      specifies the row to fetch relative to the cursor position before
-     *                                      PDOStatement->fetch() was called.
      *
      * @return mixed
      */
@@ -89,9 +72,6 @@ interface ResultStatement extends \Traversable
      * @param integer $fetchStyle           Controls how the next row will be returned to the caller.
      *                                      This value must be one of the Query::HYDRATE_* constants,
      *                                      defaulting to Query::HYDRATE_BOTH
-     *
-     * @param integer $columnIndex          Returns the indicated 0-indexed column when the value of $fetchStyle is
-     *                                      Query::HYDRATE_COLUMN. Defaults to 0.
      *
      * @return array
      */

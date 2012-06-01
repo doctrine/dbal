@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
 */
 
@@ -53,7 +53,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
      */
     public function __construct($table, AbstractPlatform $platform)
     {
-        if (!$table instanceof Table && !is_string($table)) {
+        if ( ! $table instanceof Table && !is_string($table)) {
             throw new \InvalidArgumentException('SchemaCreateTableEventArgs expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 

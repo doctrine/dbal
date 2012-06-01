@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
 */
 
@@ -64,7 +64,7 @@ class OracleSessionInit implements EventSubscriber
         if (count($this->_defaultSessionVars)) {
             array_change_key_case($this->_defaultSessionVars, \CASE_UPPER);
             $vars = array();
-            foreach ($this->_defaultSessionVars AS $option => $value) {
+            foreach ($this->_defaultSessionVars as $option => $value) {
                 $vars[] = $option." = '".$value."'";
             }
             $sql = "ALTER SESSION SET ".implode(" ", $vars);

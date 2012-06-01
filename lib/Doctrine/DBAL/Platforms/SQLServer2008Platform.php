@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -59,6 +59,14 @@ class SQLServer2008Platform extends SQLServer2005Platform
     public function getDateTimeFormatString()
     {
         return 'Y-m-d H:i:s.u';
+    }
+
+    /**
+     * @override
+     */
+    public function getDateTimeTzFormatString()
+    {
+        return 'Y-m-d H:i:s.u P';
     }
 
     /**

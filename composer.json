@@ -4,7 +4,7 @@
     "description": "Database Abstraction Layer",
     "keywords": ["dbal", "database", "persistence", "queryobject"],
     "homepage": "http://www.doctrine-project.org",
-    "license": "LGPL",
+    "license": "MIT",
     "authors": [
         {"name": "Guilherme Blanco", "email": "guilhermeblanco@gmail.com"},
         {"name": "Roman Borschel", "email": "roman@code-factory.org"},
@@ -13,9 +13,14 @@
     ],
     "require": {
         "php": ">=5.3.2",
-        "doctrine/common": "2.*"
+        "doctrine/common": "2.3.*"
     },
     "autoload": {
         "psr-0": { "Doctrine\\DBAL": "lib/" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.3.x-dev"
+        }
     }
 }

@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -380,7 +380,7 @@ class MySqlPlatform extends AbstractPlatform
      *                              )
      *                          );
      *
-     * @return void
+     * @return string
      * @override
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
@@ -410,31 +410,28 @@ class MySqlPlatform extends AbstractPlatform
         if (!empty($options['temporary'])) {
             $query .= 'TEMPORARY ';
         }
-        $query.= 'TABLE ' . $tableName . ' (' . $queryFields . ')';
-
-        $optionStrings = array();
+        $query .= 'TABLE ' . $tableName . ' (' . $queryFields . ') ';
 
         if (isset($options['comment'])) {
-            $optionStrings['comment'] = 'COMMENT = ' . $options['comment'];
-        }
-        if (isset($options['charset'])) {
-            $optionStrings['charset'] = 'DEFAULT CHARACTER SET ' . $options['charset'];
-            if (isset($options['collate'])) {
-                $optionStrings['charset'] .= ' COLLATE ' . $options['collate'];
-            }
+            $query .= 'COMMENT = ' . $options['comment'] . ' ';
         }
 
-        // get the type of the table
-        if (isset($options['engine'])) {
-            $optionStrings[] = 'ENGINE = ' . $options['engine'];
-        } else {
-            // default to innodb
-            $optionStrings[] = 'ENGINE = InnoDB';
+        if ( ! isset($options['charset'])) {
+            $options['charset'] = 'utf8';
         }
 
-        if ( ! empty($optionStrings)) {
-            $query.= ' '.implode(' ', $optionStrings);
+        if ( ! isset($options['collate'])) {
+            $options['collate'] = 'utf8_general_ci';
         }
+
+        $query .= 'DEFAULT CHARACTER SET ' . $options['charset'];
+        $query .= ' COLLATE ' . $options['collate'];
+
+        if ( ! isset($options['engine'])) {
+            $options['engine'] = 'InnoDB';
+        }
+        $query .= ' ENGINE = ' . $options['engine'];
+
         $sql[] = $query;
 
         if (isset($options['foreignKeys'])) {
@@ -460,7 +457,7 @@ class MySqlPlatform extends AbstractPlatform
             $queryParts[] =  'RENAME TO ' . $diff->newName;
         }
 
-        foreach ($diff->addedColumns AS $fieldName => $column) {
+        foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -470,7 +467,7 @@ class MySqlPlatform extends AbstractPlatform
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
-        foreach ($diff->removedColumns AS $column) {
+        foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -478,12 +475,12 @@ class MySqlPlatform extends AbstractPlatform
             $queryParts[] =  'DROP ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->changedColumns AS $columnDiff) {
+        foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
 
-            /* @var $columnDiff Doctrine\DBAL\Schema\ColumnDiff */
+            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
@@ -491,7 +488,7 @@ class MySqlPlatform extends AbstractPlatform
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
-        foreach ($diff->renamedColumns AS $oldColumnName => $column) {
+        foreach ($diff->renamedColumns as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
@@ -505,7 +502,7 @@ class MySqlPlatform extends AbstractPlatform
         $sql = array();
         $tableSql = array();
 
-        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
+        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
             }
@@ -530,7 +527,7 @@ class MySqlPlatform extends AbstractPlatform
         $sql = array();
         $table = $diff->name;
 
-        foreach ($diff->removedIndexes AS $remKey => $remIndex) {
+        foreach ($diff->removedIndexes as $remKey => $remIndex) {
 
             foreach ($diff->addedIndexes as $addKey => $addIndex) {
                 if ($remIndex->getColumns() == $addIndex->getColumns()) {
@@ -636,7 +633,7 @@ class MySqlPlatform extends AbstractPlatform
      * Return the FOREIGN KEY query section dealing with non-standard options
      * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
      *
-     * @param ForeignKeyConstraint $foreignKey
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey
      * @return string
      * @override
      */
@@ -741,6 +738,8 @@ class MySqlPlatform extends AbstractPlatform
             'blob'          => 'blob',
             'mediumblob'    => 'blob',
             'tinyblob'      => 'blob',
+            'binary'        => 'blob',
+            'varbinary'     => 'blob',
         );
     }
 

@@ -15,7 +15,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
 */
 
@@ -34,7 +34,7 @@ class DB2Connection implements \Doctrine\DBAL\Driver\Connection
         } else {
             $this->_conn = db2_connect($params['dbname'], $username, $password, $driverOptions);
         }
-        if (!$this->_conn) {
+        if ( ! $this->_conn) {
             throw new DB2Exception(db2_conn_errormsg());
         }
     }
@@ -42,7 +42,7 @@ class DB2Connection implements \Doctrine\DBAL\Driver\Connection
     public function prepare($sql)
     {
         $stmt = @db2_prepare($this->_conn, $sql);
-        if (!$stmt) {
+        if ( ! $stmt) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
         return new DB2Statement($stmt);

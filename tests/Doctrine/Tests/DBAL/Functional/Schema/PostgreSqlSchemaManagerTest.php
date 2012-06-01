@@ -13,8 +13,14 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function tearDown()
     {
         parent::tearDown();
+
+        if (!$this->_conn) {
+            return;
+        }
+
         $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression(null);
     }
+
     /**
      * @group DBAL-177
      */
@@ -24,6 +30,18 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $paths = $this->_sm->getSchemaSearchPaths();
         $this->assertEquals(array($params['user'], 'public'), $paths);
+    }
+
+    /**
+     * @group DBAL-244
+     */
+    public function testGetSchemaNames()
+    {
+        $names = $this->_sm->getSchemaNames();
+
+        $this->assertInternalType('array', $names);
+        $this->assertTrue(count($names) > 0);
+        $this->assertTrue(in_array('public', $names), "The public schema should be found.");
     }
 
     /**
@@ -184,13 +202,47 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $column = $testTable->addColumn('id', 'integer');
         $this->_sm->createTable($testTable);
 
-        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('^dbal204_');
+        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_#');
         $names = $this->_sm->listTableNames();
         $this->assertEquals(2, count($names));
 
-        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('^dbal204_test');
+        $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_test#');
         $names = $this->_sm->listTableNames();
         $this->assertEquals(1, count($names));
+    }
+
+    public function testListForeignKeys()
+    {
+        if(!$this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped('Does not support foreign key constraints.');
+        }
+
+        $fkOptions = array('SET NULL', 'SET DEFAULT', 'NO ACTION','CASCADE', 'RESTRICT');
+        $foreignKeys = array();
+        $fkTable = $this->getTestTable('test_create_fk1');
+        for($i = 0; $i < count($fkOptions); $i++) {
+            $fkTable->addColumn("foreign_key_test$i", 'integer');
+            $foreignKeys[] = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
+                                 array("foreign_key_test$i"), 'test_create_fk2', array('id'), "foreign_key_test_$i"."_fk", array('onDelete' => $fkOptions[$i]));
+        }
+        $this->_sm->dropAndCreateTable($fkTable);
+        $this->createTestTable('test_create_fk2');
+
+        foreach($foreignKeys as $foreignKey) {
+            $this->_sm->createForeignKey($foreignKey, 'test_create_fk1');
+        }
+        $fkeys = $this->_sm->listTableForeignKeys('test_create_fk1');
+        $this->assertEquals(count($foreignKeys), count($fkeys), "Table 'test_create_fk1' has to have " . count($foreignKeys) . " foreign keys.");
+        for ($i = 0; $i < count($fkeys); $i++) {
+            $this->assertEquals(array("foreign_key_test$i"), array_map('strtolower', $fkeys[$i]->getLocalColumns()));
+            $this->assertEquals(array('id'), array_map('strtolower', $fkeys[$i]->getForeignColumns()));
+            $this->assertEquals('test_create_fk2', strtolower($fkeys[0]->getForeignTableName()));
+            if ($foreignKeys[$i]->getOption('onDelete') == 'NO ACTION') {
+                $this->assertFalse($fkeys[$i]->hasOption('onDelete'), 'Unexpected option: '. $fkeys[$i]->getOption('onDelete'));
+            } else {
+                $this->assertEquals($foreignKeys[$i]->getOption('onDelete'), $fkeys[$i]->getOption('onDelete'));
+            }
+        }
     }
 }
 

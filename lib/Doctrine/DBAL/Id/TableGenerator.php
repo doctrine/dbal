@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -118,7 +118,9 @@ class TableGenerator
                    "WHERE sequence_name = ? " . $platform->getWriteLockSQL();
             $stmt = $this->conn->executeQuery($sql, array($sequenceName));
 
-            if ($row = $stmt->fetch()) {
+            if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $row = array_change_key_case($row, CASE_LOWER);
+
                 $value = $row['sequence_value'];
                 $value++;
 

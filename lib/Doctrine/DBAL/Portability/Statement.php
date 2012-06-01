@@ -14,7 +14,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -39,7 +39,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     private $portability;
 
     /**
-     * @var Doctrine\DBAL\Driver\Statement
+     * @var \Doctrine\DBAL\Driver\Statement
      */
     private $stmt;
 
@@ -101,9 +101,10 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         return $this->stmt->execute($params);
     }
 
-    public function setFetchMode($fetchStyle)
+    public function setFetchMode($fetchStyle, $arg1 = null, $arg2 = null)
     {
         $this->defaultFetchStyle = $fetchStyle;
+        $this->stmt->setFetchMode($fetchStyle, $arg1, $arg2);
     }
 
     public function getIterator()
@@ -134,11 +135,11 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
         $fixCase = !is_null($this->case) && ($fetchStyle == PDO::FETCH_ASSOC || $fetchStyle == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE);
-        if (!$iterateRow && !$fixCase) {
+        if ( ! $iterateRow && !$fixCase) {
             return $rows;
         }
 
-        foreach ($rows AS $num => $row) {
+        foreach ($rows as $num => $row) {
             $rows[$num] = $this->fixRow($row, $iterateRow, $fixCase);
         }
 
@@ -147,7 +148,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 
     protected function fixRow($row, $iterateRow, $fixCase)
     {
-        if (!$row) {
+        if ( ! $row) {
             return $row;
         }
 
@@ -156,7 +157,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         }
 
         if ($iterateRow) {
-            foreach ($row AS $k => $v) {
+            foreach ($row as $k => $v) {
                 if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) && $v === '') {
                     $row[$k] = null;
                 } else if (($this->portability & Connection::PORTABILITY_RTRIM) && is_string($v)) {

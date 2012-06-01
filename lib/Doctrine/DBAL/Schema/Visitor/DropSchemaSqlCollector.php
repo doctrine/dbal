@@ -15,7 +15,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -28,12 +28,13 @@ use Doctrine\DBAL\Platforms\AbstractPlatform,
     Doctrine\DBAL\Schema\ForeignKeyConstraint,
     Doctrine\DBAL\Schema\Constraint,
     Doctrine\DBAL\Schema\Sequence,
+    Doctrine\DBAL\Schema\SchemaException,
     Doctrine\DBAL\Schema\Index;
 
 /**
  * Gather SQL statements that allow to completly drop the current schema.
  *
- * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * 
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
@@ -141,16 +142,16 @@ class DropSchemaSqlCollector implements Visitor
     public function getQueries()
     {
         $sql = array();
-        foreach ($this->constraints AS $fkConstraint) {
+        foreach ($this->constraints as $fkConstraint) {
             $localTable = $this->constraints[$fkConstraint];
             $sql[] = $this->platform->getDropForeignKeySQL($fkConstraint, $localTable);
         }
 
-        foreach ($this->sequences AS $sequence) {
+        foreach ($this->sequences as $sequence) {
             $sql[] = $this->platform->getDropSequenceSQL($sequence);
         }
 
-        foreach ($this->tables AS $table) {
+        foreach ($this->tables as $table) {
             $sql[] = $this->platform->getDropTableSQL($table);
         }
 

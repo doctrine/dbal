@@ -64,4 +64,25 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array("ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F FOREIGN KEY (foo_id) REFERENCES test_foreign (foo_id)"), $sqls);
     }
+
+    /**
+     * @group DDC-1737
+     */
+    public function testClobNoAlterTable()
+    {
+        $tableOld = new Table("test");
+        $tableOld->addColumn('id', 'integer');
+        $tableOld->addColumn('description', 'string', array('length' => 65536));
+        $tableNew = clone $tableOld;
+
+        $tableNew->setPrimaryKey(array('id'));
+
+        $diff = $this->comparator->diffTable($tableOld, $tableNew);
+        $sql = $this->platform->getAlterTableSQL($diff);
+
+        $this->assertEquals(
+            array('ALTER TABLE test ADD PRIMARY KEY (id)'),
+            $sql
+        );
+    }
 }

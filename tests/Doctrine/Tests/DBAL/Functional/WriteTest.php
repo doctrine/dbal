@@ -146,4 +146,35 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertNotNull($num, "LastInsertId() should not be null.");
         $this->assertTrue($num > 0, "LastInsertId() should be non-negative number.");
     }
+
+    public function testLastInsertIdSequence()
+    {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsSequences()) {
+            $this->markTestSkipped('Test only works on platforms with sequences.');
+        }
+
+        $sequence = new \Doctrine\DBAL\Schema\Sequence('write_table_seq');
+        try {
+            $this->_conn->getSchemaManager()->dropSequence($sequence);
+        } catch(\Exception $e) {}
+        $this->_conn->getSchemaManager()->createSequence($sequence);
+
+        $stmt = $this->_conn->query($this->_conn->getDatabasePlatform()->getSequenceNextValSQL('write_table_seq'));
+        $nextSequenceVal = $stmt->fetchColumn();
+
+        $lastInsertId = $this->_conn->lastInsertId('write_table_seq');
+
+        $this->assertTrue($lastInsertId > 0);
+        $this->assertEquals($nextSequenceVal, $lastInsertId);
+    }
+
+    public function testLastInsertIdNoSequenceGiven()
+    {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsSequences()) {
+            $this->markTestSkipped('Test only works on platforms with sequences.');
+        }
+
+        $this->assertFalse($this->_conn->lastInsertId( null ));
+
+    }
 }

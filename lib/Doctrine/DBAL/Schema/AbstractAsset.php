@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -27,7 +27,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables
  * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure
  *
- * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * 
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
@@ -123,7 +123,7 @@ abstract class AbstractAsset
     public function getFullQualifiedName($defaultNamespaceName)
     {
         $name = $this->getName();
-        if (!$this->_namespace) {
+        if ( ! $this->_namespace) {
             $name = $defaultNamespaceName . "." . $name;
         }
         return strtolower($name);
@@ -175,7 +175,7 @@ abstract class AbstractAsset
     {
         $keywords = $platform->getReservedKeywordsList();
         $parts = explode(".", $this->getName());
-        foreach ($parts AS $k => $v) {
+        foreach ($parts as $k => $v) {
             $parts[$k] = ($this->_quoted || $keywords->isKeyword($v)) ? $platform->quoteIdentifier($v) : $v;
         }
 

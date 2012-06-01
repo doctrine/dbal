@@ -65,6 +65,15 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_BOTH);
     }
+	
+    public function testFetchColumn()
+    {
+        $expectedResult = array();
+        foreach ($this->expectedResult AS $v) {
+            $expectedResult[] = array_shift($v);
+        }
+        $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_COLUMN);
+    }
 
     public function testMixingFetch()
     {
@@ -180,7 +189,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $data = array();
         while ($row = $stmt->fetch($fetchStyle)) {
-            $data[] = array_change_key_case($row, CASE_LOWER);
+            $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
         $stmt->closeCursor();
         return $data;
@@ -191,7 +200,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $data = array();
         $stmt->setFetchMode($fetchStyle);
         foreach ($stmt as $row) {
-            $data[] = array_change_key_case($row, CASE_LOWER);
+            $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
         $stmt->closeCursor();
         return $data;

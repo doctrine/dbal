@@ -407,16 +407,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testFetchAllSupportFetchClass()
     {
-        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] == "oci8")  {
-            $this->markTestSkipped("Not supported by OCI8");
-        }
-
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
-        $this->_conn->insert('fetch_table', array(
-            'test_int'      => 1,
-            'test_string'   => 'foo',
-            'test_datetime' => '2010-01-01 10:10:10'
-        ));
+        $this->skipOci8AndMysqli();
+        $this->setupFixture();
 
         $sql    = "SELECT test_int, test_string, test_datetime FROM fetch_table";
         $stmt   = $this->_conn->prepare($sql);
@@ -433,6 +425,100 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(1, $results[0]->test_int);
         $this->assertEquals('foo', $results[0]->test_string);
         $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
+    }
+
+    /**
+     * @group DBAL-241
+     */
+    public function testFetchAllStyleColumn()
+    {
+        $sql = "DELETE FROM fetch_table";
+        $this->_conn->executeUpdate($sql);
+
+        $this->_conn->insert('fetch_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $this->_conn->insert('fetch_table', array('test_int' => 10, 'test_string' => 'foo'));
+
+        $sql = "SELECT test_int FROM fetch_table";
+        $rows = $this->_conn->query($sql)->fetchAll(\PDO::FETCH_COLUMN);
+
+        $this->assertEquals(array(1, 10), $rows);
+    }
+
+    /**
+     * @group DBAL-214
+     */
+    public function testSetFetchModeClassFetchAll()
+    {
+        $this->skipOci8AndMysqli();
+        $this->setupFixture();
+
+        $sql = "SELECT * FROM fetch_table";
+        $stmt = $this->_conn->query($sql);
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass', array());
+
+        $results = $stmt->fetchAll();
+
+        $this->assertEquals(1, count($results));
+        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
+
+        $this->assertEquals(1, $results[0]->test_int);
+        $this->assertEquals('foo', $results[0]->test_string);
+        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
+    }
+
+    /**
+     * @group DBAL-214
+     */
+    public function testSetFetchModeClassFetch()
+    {
+        $this->skipOci8AndMysqli();
+        $this->setupFixture();
+
+        $sql = "SELECT * FROM fetch_table";
+        $stmt = $this->_conn->query($sql);
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass', array());
+
+        $results = array();
+        while ($row = $stmt->fetch()) {
+            $results[] = $row;
+        }
+
+        $this->assertEquals(1, count($results));
+        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
+
+        $this->assertEquals(1, $results[0]->test_int);
+        $this->assertEquals('foo', $results[0]->test_string);
+        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
+    }
+
+    /**
+     * @group DBAL-257
+     */
+    public function testEmptyFetchColumnReturnsFalse()
+    {
+        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->assertFalse($this->_conn->fetchColumn('SELECT test_int FROM fetch_table'));
+        $this->assertFalse($this->_conn->query('SELECT test_int FROM fetch_table')->fetchColumn());
+    }
+
+    private function setupFixture()
+    {
+        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->insert('fetch_table', array(
+            'test_int'      => 1,
+            'test_string'   => 'foo',
+            'test_datetime' => '2010-01-01 10:10:10'
+        ));
+    }
+
+    private function skipOci8AndMysqli()
+    {
+        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] == "oci8")  {
+            $this->markTestSkipped("Not supported by OCI8");
+        }
+        if ('mysqli' == $this->_conn->getDriver()->getName()) {
+            $this->markTestSkipped('Mysqli driver dont support this feature.');
+        }
     }
 }
 

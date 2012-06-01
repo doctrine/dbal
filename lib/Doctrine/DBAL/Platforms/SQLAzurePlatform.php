@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -34,10 +34,10 @@ class SQLAzurePlatform extends SQLServer2008Platform
     {
         $sql = parent::getCreateTableSQL($table, $createFlags);
 
-        if ($table->hasOption('azure.federatedOnDistributionName')) {
+        if ($table->hasOption('azure.federatedOnColumnName')) {
             $distributionName = $table->getOption('azure.federatedOnDistributionName');
-            $columnName = $table->getOption('azure.federatedOnColumnName');
-            $stmt = ' FEDERATED ON (' . $distributionName . ' = ' . $columnName . ')';
+            $columnName       = $table->getOption('azure.federatedOnColumnName');
+            $stmt             = ' FEDERATED ON (' . $distributionName . ' = ' . $columnName . ')';
 
             $sql[0] = $sql[0] . $stmt;
         }

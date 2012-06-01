@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -82,15 +82,16 @@ class SQLParserUtils
      * @param string $query
      * @param array $params
      * @param array $types
+     * @return array
      */
     static public function expandListParameters($query, $params, $types)
     {
         $isPositional = is_int(key($params));
         $arrayPositions = array();
         $bindIndex = -1;
-        foreach ($types AS $name => $type) {
+        foreach ($types as $name => $type) {
             ++$bindIndex;
-            if ($type === Connection::PARAM_INT_ARRAY || $type == Connection::PARAM_STR_ARRAY) {
+            if ($type === Connection::PARAM_INT_ARRAY || $type === Connection::PARAM_STR_ARRAY) {
                 if ($isPositional) {
                     $name = $bindIndex;
                 }
@@ -107,7 +108,7 @@ class SQLParserUtils
         if ($isPositional) {
             $paramOffset = 0;
             $queryOffset = 0;
-            foreach ($paramPos AS $needle => $needlePos) {
+            foreach ($paramPos as $needle => $needlePos) {
                 if (!isset($arrayPositions[$needle])) {
                     continue;
                 }

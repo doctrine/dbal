@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -134,7 +134,7 @@ class QueryBuilder
      * For more complex expression construction, consider storing the expression
      * builder object in a local variable.
      *
-     * @return \Doctrine\DBAL\Query\ExpressionBuilder
+     * @return \Doctrine\DBAL\Query\Expression\ExpressionBuilder
      */
     public function expr()
     {
@@ -271,6 +271,7 @@ class QueryBuilder
      * </code>
      *
      * @param array $params The query parameters to set.
+     * @param array $types  The query parameters types to set.
      * @return QueryBuilder This QueryBuilder instance.
      */
     public function setParameters(array $params, array $types = array())
@@ -356,9 +357,9 @@ class QueryBuilder
      * The available parts are: 'select', 'from', 'set', 'where',
      * 'groupBy', 'having' and 'orderBy'.
      *
-     * @param string $sqlPartName
-     * @param string $sqlPart
-     * @param string $append
+     * @param string  $sqlPartName
+     * @param string  $sqlPart
+     * @param boolean $append
      * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
      */
     public function add($sqlPartName, $sqlPart, $append = false)
@@ -374,7 +375,7 @@ class QueryBuilder
 
         if ($append) {
             if ($sqlPartName == "orderBy" || $sqlPartName == "groupBy" || $sqlPartName == "select" || $sqlPartName == "set") {
-                foreach ($sqlPart AS $part) {
+                foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
                 }
             } else if ($isArray && is_array($sqlPart[key($sqlPart)])) {
@@ -940,11 +941,6 @@ class QueryBuilder
         return $this;
     }
 
-    /**
-     * Converts this instance into a SELECT string in SQL.
-     *
-     * @return string
-     */
     private function getSQLForSelect()
     {
         $query = 'SELECT ' . implode(', ', $this->sqlParts['select']) . ' FROM ';

@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -34,13 +34,14 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /** Statement handle. */
     protected $_dbh;
     protected $_sth;
-    protected $_executeMode;
+    protected $_conn;
     protected static $_PARAM = ':param';
     protected static $fetchStyleMap = array(
         PDO::FETCH_BOTH => OCI_BOTH,
         PDO::FETCH_ASSOC => OCI_ASSOC,
         PDO::FETCH_NUM => OCI_NUM,
         PDO::PARAM_LOB => OCI_B_BLOB,
+        PDO::FETCH_COLUMN => OCI_NUM,
     );
     protected $_defaultFetchStyle = PDO::FETCH_BOTH;
     protected $_paramMap = array();
@@ -51,13 +52,13 @@ class OCI8Statement implements \IteratorAggregate, Statement
      * @param resource $dbh The connection handle.
      * @param string $statement The SQL statement.
      */
-    public function __construct($dbh, $statement, $executeMode)
+    public function __construct($dbh, $statement, OCI8Connection $conn)
     {
         list($statement, $paramMap) = self::convertPositionalToNamedPlaceholders($statement);
         $this->_sth = oci_parse($dbh, $statement);
         $this->_dbh = $dbh;
         $this->_paramMap = $paramMap;
-        $this->_executeMode = $executeMode;
+        $this->_conn = $conn;
     }
 
     /**
@@ -179,7 +180,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
             }
         }
 
-        $ret = @oci_execute($this->_sth, $this->_executeMode);
+        $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
         if ( ! $ret) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
@@ -189,7 +190,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH)
+    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchStyle = $fetchStyle;
     }
@@ -232,8 +233,17 @@ class OCI8Statement implements \IteratorAggregate, Statement
                 $result[] = $row;
             }
         } else {
+            $fetchStructure = OCI_FETCHSTATEMENT_BY_ROW;
+            if ($fetchStyle == PDO::FETCH_COLUMN) {
+                $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
+            }
+
             oci_fetch_all($this->_sth, $result, 0, -1,
-                self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | OCI_FETCHSTATEMENT_BY_ROW | OCI_RETURN_LOBS);
+                    self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
+
+            if ($fetchStyle == PDO::FETCH_COLUMN) {
+                $result = $result[0];
+            }
         }
 
         return $result;
@@ -245,7 +255,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     public function fetchColumn($columnIndex = 0)
     {
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
-        return $row[$columnIndex];
+        return isset($row[$columnIndex]) ? $row[$columnIndex] : false;
     }
 
     /**

@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -61,7 +61,7 @@ class ReservedKeywordsValidator implements Visitor
         }
 
         $keywordLists = array();
-        foreach ($this->keywordLists AS $keywordList) {
+        foreach ($this->keywordLists as $keywordList) {
             if ($keywordList->isKeyword($word)) {
                 $keywordLists[] = $keywordList->getName();
             }
@@ -71,7 +71,7 @@ class ReservedKeywordsValidator implements Visitor
 
     private function addViolation($asset, $violatedPlatforms)
     {
-        if (!$violatedPlatforms) {
+        if ( ! $violatedPlatforms) {
             return;
         }
 

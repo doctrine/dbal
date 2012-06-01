@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -164,7 +164,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         $this->stmt = sqlsrv_query($this->conn, $this->sql, $this->params);
-        if (!$this->stmt) {
+        if ( ! $this->stmt) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
@@ -175,7 +175,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
     }
 
-    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH)
+    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
     {
         $this->defaultFetchStyle = $fetchStyle;
     }

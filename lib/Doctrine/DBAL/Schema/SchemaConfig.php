@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -22,7 +22,7 @@ namespace Doctrine\DBAL\Schema;
 /**
  * Configuration for a Schema
  *
- * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * 
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
@@ -32,24 +32,29 @@ class SchemaConfig
     /**
      * @var bool
      */
-    protected $_hasExplicitForeignKeyIndexes = false;
+    protected $hasExplicitForeignKeyIndexes = false;
 
     /**
      * @var int
      */
-    protected $_maxIdentifierLength = 63;
+    protected $maxIdentifierLength = 63;
 
     /**
      * @var string
      */
-    protected $_name;
+    protected $name;
+
+    /**
+     * @var array
+     */
+    protected $defaultTableOptions = array();
 
     /**
      * @return bool
      */
     public function hasExplicitForeignKeyIndexes()
     {
-        return $this->_hasExplicitForeignKeyIndexes;
+        return $this->hasExplicitForeignKeyIndexes;
     }
 
     /**
@@ -57,7 +62,7 @@ class SchemaConfig
      */
     public function setExplicitForeignKeyIndexes($flag)
     {
-        $this->_hasExplicitForeignKeyIndexes = (bool)$flag;
+        $this->hasExplicitForeignKeyIndexes = (bool)$flag;
     }
 
     /**
@@ -65,7 +70,7 @@ class SchemaConfig
      */
     public function setMaxIdentifierLength($length)
     {
-        $this->_maxIdentifierLength = (int)$length;
+        $this->maxIdentifierLength = (int)$length;
     }
 
     /**
@@ -73,7 +78,7 @@ class SchemaConfig
      */
     public function getMaxIdentifierLength()
     {
-        return $this->_maxIdentifierLength;
+        return $this->maxIdentifierLength;
     }
 
     /**
@@ -83,16 +88,32 @@ class SchemaConfig
      */
     public function getName()
     {
-        return $this->_name;
+        return $this->name;
     }
 
     /**
      * set default namespace name of schema objects.
      *
-     * @param _name the value to set.
+     * @param string $name the value to set.
      */
     public function setName($name)
     {
-        $this->_name = $name;
+        $this->name = $name;
+    }
+
+    /**
+     * Get the default options that are passed to Table instances created with
+     * Schema#createTable().
+     *
+     * @return array
+     */
+    public function getDefaultTableOptions()
+    {
+        return $this->defaultTableOptions;
+    }
+
+    public function setDefaultTableOptions(array $defaultTableOptions)
+    {
+        $this->defaultTableOptions = $defaultTableOptions;
     }
 }

@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -37,7 +37,7 @@ class MysqliConnection implements Connection
         $socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
 
         $this->_conn = mysqli_init();
-        if (!$this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket)) {
+        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket)) {
             throw new MysqliException($this->_conn->connect_error, $this->_conn->connect_errno);
         }
 
@@ -51,7 +51,7 @@ class MysqliConnection implements Connection
      *
      * Could be used if part of your application is not using DBAL
      *
-     * @return mysqli
+     * @return \mysqli
      */
     public function getWrappedResourceHandle()
     {
