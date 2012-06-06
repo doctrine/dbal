@@ -16,7 +16,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id INTEGER NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY("id"))';
+        return 'CREATE TABLE test (id INTEGER NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
