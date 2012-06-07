@@ -107,6 +107,13 @@ abstract class AbstractPlatform
     protected $_eventManager;
 
     /**
+     * Holds the KeywordList instance for the current platform.
+     *
+     * @var Doctrine\DBAL\Platforms\Keywords\KeywordList
+     */
+    protected $_keywords;
+
+    /**
      * Constructor.
      */
     public function __construct() {}
@@ -2682,11 +2689,20 @@ abstract class AbstractPlatform
      */
     final public function getReservedKeywordsList()
     {
+        // Check for an existing instantiation of the keywords class.
+        if ($this->keywords) {
+            return $this->keywords;
+        }
+
         $class = $this->getReservedKeywordsClass();
         $keywords = new $class;
         if ( ! $keywords instanceof \Doctrine\DBAL\Platforms\Keywords\KeywordList) {
             throw DBALException::notSupported(__METHOD__);
         }
+
+        // Store the instance so it doesn't need to be generated on every request.
+        $this->keywords = $keywords;
+
         return $keywords;
     }
 
