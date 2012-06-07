@@ -2690,7 +2690,7 @@ abstract class AbstractPlatform
     final public function getReservedKeywordsList()
     {
         // Check for an existing instantiation of the keywords class.
-        if($this->keywords) {
+        if ($this->keywords) {
             return $this->keywords;
         }
 
