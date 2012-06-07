@@ -2690,8 +2690,8 @@ abstract class AbstractPlatform
     final public function getReservedKeywordsList()
     {
         // Check for an existing instantiation of the keywords class.
-        if ($this->keywords) {
-            return $this->keywords;
+        if ($this->_keywords) {
+            return $this->_keywords;
         }
 
         $class = $this->getReservedKeywordsClass();
@@ -2701,7 +2701,7 @@ abstract class AbstractPlatform
         }
 
         // Store the instance so it doesn't need to be generated on every request.
-        $this->keywords = $keywords;
+        $this->_keywords = $keywords;
 
         return $keywords;
     }
