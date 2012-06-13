@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -23,8 +23,8 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 
-use Doctrine\DBAL\Sharding\SchemaSynchronizer;
-use Doctrine\DBAL\Sharding\DefaultSchemaSynchronizer;
+use Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer;
+use Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer;
 
 /**
  * SQL Azure Schema Synchronizer
@@ -32,11 +32,11 @@ use Doctrine\DBAL\Sharding\DefaultSchemaSynchronizer;
  * Will iterate over all shards when performing schema operations. This is done
  * by partioning the passed schema into subschemas for the federation and the
  * global database and then applying the operations step by step using the
- * {@see \Doctrine\DBAL\Sharding\DefaultSchemaSynchronizer}.
+ * {@see \Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer}.
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class SQLAzureSchemaSynchronizer implements SchemaSynchronizer
+class SQLAzureFederationsSynchronizer implements SchemaSynchronizer
 {
     /**
      * @var Connection
@@ -60,7 +60,7 @@ class SQLAzureSchemaSynchronizer implements SchemaSynchronizer
     {
         $this->conn = $conn;
         $this->shardManager = $shardManager;
-        $this->synchronizer = $sync ?: new DefaultSchemaSynchronizer($conn);
+        $this->synchronizer = $sync ?: new SingleDatabaseSynchronizer($conn);
     }
 
 
