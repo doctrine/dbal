@@ -2,15 +2,15 @@
 namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureSchemaSynchronizer;
+use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer;
 
-class SQLAzureSchemaSynchronizerTest extends AbstractTestCase
+class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
 {
     public function testCreateSchema()
     {
         $schema = $this->createShopSchema();
 
-        $synchronizer = new SQLAzureSchemaSynchronizer($this->conn, $this->sm);
+        $synchronizer = new SQLAzureFederationsSynchronizer($this->conn, $this->sm);
         $sql = $synchronizer->getCreateSchema($schema);
 
         $this->assertEquals(array (
@@ -27,7 +27,7 @@ class SQLAzureSchemaSynchronizerTest extends AbstractTestCase
     {
         $schema = $this->createShopSchema();
 
-        $synchronizer = new SQLAzureSchemaSynchronizer($this->conn, $this->sm);
+        $synchronizer = new SQLAzureFederationsSynchronizer($this->conn, $this->sm);
         $synchronizer->dropAllSchema();
 
         $sql = $synchronizer->getUpdateSchema($schema);
@@ -39,7 +39,7 @@ class SQLAzureSchemaSynchronizerTest extends AbstractTestCase
     {
         $schema = $this->createShopSchema();
 
-        $synchronizer = new SQLAzureSchemaSynchronizer($this->conn, $this->sm);
+        $synchronizer = new SQLAzureFederationsSynchronizer($this->conn, $this->sm);
         $synchronizer->dropAllSchema();
         $synchronizer->createSchema($schema);
         $sql = $synchronizer->getDropSchema($schema);

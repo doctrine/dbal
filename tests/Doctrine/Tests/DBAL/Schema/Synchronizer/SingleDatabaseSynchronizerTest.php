@@ -13,17 +13,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the LGPL. For more information, see
+ * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\Tests\DBAL\Sharding;
+namespace Doctrine\Tests\DBAL\Schema\Synchronizer;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Sharding\DefaultSchemaSynchronizer;
+use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 
-class DefaultSchemaSynchronizerTest extends \PHPUnit_Framework_TestCase
+class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
 {
     private $conn;
     private $synchronizer;
@@ -34,7 +34,7 @@ class DefaultSchemaSynchronizerTest extends \PHPUnit_Framework_TestCase
             'driver' => 'pdo_sqlite',
             'memory' => true,
         ));
-        $this->synchronizer = new DefaultSchemaSynchronizer($this->conn);
+        $this->synchronizer = new SingleDatabaseSynchronizer($this->conn);
     }
 
     public function testGetCreateSchema()
