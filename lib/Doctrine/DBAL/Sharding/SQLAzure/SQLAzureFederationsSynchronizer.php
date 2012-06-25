@@ -23,7 +23,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 
-use Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer;
+use Doctrine\DBAL\Schema\Synchronizer\AbstractSchemaSynchronizer;
 use Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer;
 
 /**
@@ -36,15 +36,11 @@ use Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer;
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class SQLAzureFederationsSynchronizer implements SchemaSynchronizer
+class SQLAzureFederationsSynchronizer implements AbstractSchemaSynchronizer
 {
     const FEDERATION_TABLE_FEDERATED   = 'azure.federated';
     const FEDERATION_DISTRIBUTION_NAME = 'azure.federatedOnDistributionName';
 
-    /**
-     * @var Connection
-     */
-    private $conn;
 
     /**
      * @var SQLAzureShardManager
@@ -58,7 +54,7 @@ class SQLAzureFederationsSynchronizer implements SchemaSynchronizer
 
     public function __construct(Connection $conn, SQLAzureShardManager $shardManager, SchemaSynchronizer $sync = null)
     {
-        $this->conn = $conn;
+        parent::__construct($conn);
         $this->shardManager = $shardManager;
         $this->synchronizer = $sync ?: new SingleDatabaseSynchronizer($conn);
     }
@@ -228,24 +224,6 @@ class SQLAzureFederationsSynchronizer implements SchemaSynchronizer
         }
 
         return $partionedSchema;
-    }
-
-    private function processSqlSafely(array $sql)
-    {
-        foreach ($sql as $s) {
-            try {
-                $this->conn->exec($s);
-            } catch(\Exception $e) {
-
-            }
-        }
-    }
-
-    private function processSql(array $sql)
-    {
-        foreach ($sql as $s) {
-            $this->conn->exec($s);
-        }
     }
 
     /**

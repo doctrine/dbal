@@ -28,13 +28,8 @@ use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class SingleDatabaseSynchronizer implements SchemaSynchronizer
+class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
 {
-    /**
-     * @var Doctrine\DBAL\Connection
-     */
-    private $conn;
-
     /**
      * @var Doctrine\DBAL\Platforms\AbstractPlatform
      */
@@ -42,7 +37,7 @@ class SingleDatabaseSynchronizer implements SchemaSynchronizer
 
     public function __construct(Connection $conn)
     {
-        $this->conn     = $conn;
+        parent::__construct($conn);
         $this->platform = $conn->getDatabasePlatform();
     }
 
@@ -197,24 +192,6 @@ class SingleDatabaseSynchronizer implements SchemaSynchronizer
     public function dropAllSchema()
     {
         $this->processSql($this->getDropAllSchema());
-    }
-
-    private function processSqlSafely(array $sql)
-    {
-        foreach ($sql as $s) {
-            try {
-                $this->conn->exec($s);
-            } catch(\Exception $e) {
-
-            }
-        }
-    }
-
-    private function processSql(array $sql)
-    {
-        foreach ($sql as $s) {
-            $this->conn->exec($s);
-        }
     }
 }
 
