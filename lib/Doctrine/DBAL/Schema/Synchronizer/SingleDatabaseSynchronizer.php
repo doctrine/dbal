@@ -74,9 +74,9 @@ class SingleDatabaseSynchronizer implements SchemaSynchronizer
 
         if ($noDrops) {
             return $schemaDiff->toSaveSql($this->platform);
-        } else {
-            return $schemaDiff->toSql($this->platform);
         }
+
+        return $schemaDiff->toSql($this->platform);
     }
 
     /**
@@ -146,7 +146,7 @@ class SingleDatabaseSynchronizer implements SchemaSynchronizer
     public function getDropAllSchema()
     {
         $sm      = $this->conn->getSchemaManager();
-        $visitor = new \Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector($this->platform);
+        $visitor = new DropSchemaSqlCollector($this->platform);
 
         /* @var $schema \Doctrine\DBAL\Schema\Schema */
         $schema  = $sm->createSchema();

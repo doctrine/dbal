@@ -30,7 +30,7 @@ use Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer;
  * SQL Azure Schema Synchronizer
  *
  * Will iterate over all shards when performing schema operations. This is done
- * by partioning the passed schema into subschemas for the federation and the
+ * by partitioning the passed schema into subschemas for the federation and the
  * global database and then applying the operations step by step using the
  * {@see \Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer}.
  *
@@ -38,6 +38,9 @@ use Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer;
  */
 class SQLAzureFederationsSynchronizer implements SchemaSynchronizer
 {
+    const FEDERATION_TABLE_FEDERATED   = 'azure.federated';
+    const FEDERATION_DISTRIBUTION_NAME = 'azure.federatedOnDistributionName';
+
     /**
      * @var Connection
      */
@@ -53,16 +56,12 @@ class SQLAzureFederationsSynchronizer implements SchemaSynchronizer
      */
     private $synchronizer;
 
-    const FEDERATION_TABLE_FEDERATED   = 'azure.federated';
-    const FEDERATION_DISTRIBUTION_NAME = 'azure.federatedOnDistributionName';
-
     public function __construct(Connection $conn, SQLAzureShardManager $shardManager, SchemaSynchronizer $sync = null)
     {
         $this->conn = $conn;
         $this->shardManager = $shardManager;
         $this->synchronizer = $sync ?: new SingleDatabaseSynchronizer($conn);
     }
-
 
     /**
      * Get the SQL statements that can be executed to create the schema.

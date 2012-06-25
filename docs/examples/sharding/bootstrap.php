@@ -3,7 +3,7 @@
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Shards\DBAL\SQLAzure\SQLAzureShardManager;
 
-require_once "vendor/composer/autoload.php";
+require_once "vendor/autoload.php";
 
 $config = array(
     'dbname'   => 'SalesDB',

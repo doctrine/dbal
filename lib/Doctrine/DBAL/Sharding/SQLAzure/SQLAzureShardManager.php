@@ -129,7 +129,6 @@ class SQLAzureShardManager implements ShardManager
     }
 
     /**
-     * @override
      * {@inheritDoc}
      */
     public function selectGlobal()
@@ -144,7 +143,6 @@ class SQLAzureShardManager implements ShardManager
     }
 
     /**
-     * @override
      * {@inheritDoc}
      */
     public function selectShard($distributionValue)
@@ -171,7 +169,6 @@ class SQLAzureShardManager implements ShardManager
     }
 
     /**
-     * @override
      * {@inheritDoc}
      */
     public function getCurrentDistributionValue()
@@ -180,7 +177,6 @@ class SQLAzureShardManager implements ShardManager
     }
 
     /**
-     * @override
      * {@inheritDoc}
      */
     public function getShards()
@@ -196,7 +192,6 @@ class SQLAzureShardManager implements ShardManager
     }
 
      /**
-      * @override
       * {@inheritDoc}
       */
     public function queryAll($sql, array $params = array(), array $types = array())

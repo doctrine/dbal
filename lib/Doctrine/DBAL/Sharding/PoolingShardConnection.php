@@ -82,7 +82,7 @@ class PoolingShardConnection extends Connection
     private $connections;
 
     /**
-     * @var PoolingShardManager
+     * @var ShardManager
      */
     private $shardManager;
 
@@ -192,7 +192,7 @@ class PoolingShardConnection extends Connection
     public function isConnected($shardId = null)
     {
         if ($shardId === null) {
-            return ($this->_conn !== null);
+            return $this->_conn !== null;
         }
 
         return isset($this->activeConnections[$shardId]);
@@ -200,8 +200,8 @@ class PoolingShardConnection extends Connection
 
     public function close()
     {
-        unset($this->_conn);
-        unset($this->activeConnections);
+        $this->_conn             = null;
+        $this->activeConnections = null;
     }
 }
 
