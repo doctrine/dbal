@@ -13,8 +13,8 @@ select a shard to send queries to. At the moment there are no functionalities
 yet to dynamically pick a shard based on ID, query or database row yet. That
 means the sharding extension is primarily suited for:
 
-1. multi-tenant applications or
-2. applications with completly separated datasets (example: weather data).
+- multi-tenant applications or
+- applications with completly separated datasets (example: weather data).
 
 Both kind of application will work with both DBAL and ORM.
 
@@ -25,12 +25,12 @@ Both kind of application will work with both DBAL and ORM.
 
 You have to understand and integrate the following drawbacks:
 
-1. Pre-generation of IDs that are unique across all shards required.
-2. No transaction support across shards.
-3. No foreign key support across shards (meaning no "real" relations).
-4. Very complex (or impossible) to query aggregates across shards.
-5. Denormalization: Composite keys required where normalized non-sharded db schemas don't need them.
-6. Schema Operations have to be done on all shards.
+- Pre-generation of IDs that are unique across all shards required.
+- No transaction support across shards.
+- No foreign key support across shards (meaning no "real" relations).
+- Very complex (or impossible) to query aggregates across shards.
+- Denormalization: Composite keys required where normalized non-sharded db schemas don't need them.
+- Schema Operations have to be done on all shards.
 
 The primary questions in a sharding architecture are:
 
@@ -45,10 +45,10 @@ belong to this table are saved on the same shard.
 
 Take for example a multi-user blog application with the following tables:
 
-* Blog [id, name]
-* Post [id, blog_id, subject, body, author_id]
-* Comment [id, post_id, comment, author_id]
-* User [id, username]
+- Blog [id, name]
+- Post [id, blog_id, subject, body, author_id]
+- Comment [id, post_id, comment, author_id]
+- User [id, username]
 
 A sensible sharding architecture will split the application by blog. That means
 all the data for a particular blog will be on a single shard and scaling is
@@ -146,9 +146,9 @@ through the use of locking create new sequential ids.
 
 There are three important drawbacks to this strategy:
 
-1. Single point of failure
-2. Bottleneck when application is write-heavy
-3. A second independent database connection is needed to guarantee transaction
+-  Single point of failure
+-  Bottleneck when application is write-heavy
+-  A second independent database connection is needed to guarantee transaction
    safety.
 
 If you can live with this drawbacks then you can use table-generation with the
@@ -296,11 +296,11 @@ Azure the sharding functionality is called Federations. This
 functionality applies the following restrictions (in line with the ones listed
 above):
 
-1. IDENTITY columns are not allowed on sharded tables (federated tables)
-2. Each table may only have exactly one clustered index and this index has to
-   have the distribution key/sharding-id as one column.
-3. Every unique index (or primary key) has to contain the
-   distribution-key/sharding-id.
+- IDENTITY columns are not allowed on sharded tables (federated tables)
+- Each table may only have exactly one clustered index and this index has to
+  have the distribution key/sharding-id as one column.
+- Every unique index (or primary key) has to contain the
+  distribution-key/sharding-id.
 
 Especially the requirements 2 and 3 prevent normalized database schemas. You
 have to put the distribution key on every sharded table, which can affect your
