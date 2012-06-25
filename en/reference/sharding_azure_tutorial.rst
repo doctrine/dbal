@@ -1,6 +1,11 @@
 SQLAzure Sharding Tutorial
 ==========================
 
+.. note::
+
+    The sharding extension is currently in transition from a seperate Project
+    into DBAL. Class names may differ.
+
 This tutorial builds upon the `Brian Swans tutorial
 <http://blogs.msdn.com/b/silverlining/archive/2012/01/18/using-sql-azure-federations-via-php.aspx>`_
 on SQLAzure Sharding and turns all the examples into examples using the Doctrine Sharding support.

@@ -1,6 +1,11 @@
 Sharding
 ========
 
+.. note::
+
+    The sharding extension is currently in transition from a seperate Project
+    into DBAL. Class names may differ.
+
 Starting with 2.3 Doctrine DBAL contains some functionality to simplify the
 development of horizontally sharded applications. In this first release it
 contains a ``ShardManager`` interface. This interface allows to programatically
