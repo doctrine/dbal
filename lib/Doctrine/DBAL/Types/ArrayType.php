@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * Type that maps a PHP array to a clob SQL type.
  *
@@ -53,5 +55,10 @@ class ArrayType extends Type
     public function getName()
     {
         return Type::TARRAY;
+    }
+
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
     }
 }

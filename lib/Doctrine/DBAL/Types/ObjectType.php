@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * Type that maps a PHP object to a clob SQL type.
  *
@@ -53,5 +55,10 @@ class ObjectType extends Type
     public function getName()
     {
         return Type::OBJECT;
+    }
+
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
     }
 }

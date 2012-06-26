@@ -288,4 +288,19 @@ abstract class Type
     {
         return array();
     }
+
+    /**
+     * If this Doctrine Type maps to an already mapped database type,
+     * reverse schema engineering can't take them apart. You need to mark
+     * one of those types as commented, which will have Doctrine use an SQL
+     * comment to typehint the actual Doctrine Type.
+     *
+     * @param AbstractPlatform $platform
+     * @return bool
+     */
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return false;
+    }
 }
+

@@ -323,7 +323,14 @@ abstract class AbstractPlatform
      */
     protected function initializeCommentedDoctrineTypes()
     {
-        $this->doctrineTypeComments = array(Type::TARRAY, Type::SIMPLE_ARRAY, Type::JSON_ARRAY, Type::OBJECT);
+        $this->doctrineTypeComments = array();
+
+        foreach (Type::getTypesMap() as $typeName => $className) {
+            $type = Type::getType($typeName);
+            if ($type->requiresSQLCommentHint($this)) {
+                $this->doctrineTypeComments[] = $typeName;
+            }
+        }
     }
 
     /**

@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * Array Type which can be used to generate json arrays.
  *
@@ -55,5 +57,10 @@ class JsonArrayType extends Type
     public function getName()
     {
         return Type::JSON_ARRAY;
+    }
+
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
     }
 }

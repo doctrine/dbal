@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * Array Type which can be used for simple values.
  *
@@ -57,5 +59,10 @@ class SimpleArrayType extends Type
     public function getName()
     {
         return Type::SIMPLE_ARRAY;
+    }
+
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
     }
 }
