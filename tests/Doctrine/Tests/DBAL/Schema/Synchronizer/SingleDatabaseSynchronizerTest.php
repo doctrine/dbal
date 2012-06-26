@@ -45,7 +45,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
         $table->setPrimaryKey(array('id'));
 
         $sql = $this->synchronizer->getCreateSchema($schema);
-        $this->assertEquals(array('CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY("id"))'), $sql);
+        $this->assertEquals(array('CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'), $sql);
     }
 
     public function testGetUpdateSchema()
@@ -56,7 +56,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
         $table->setPrimaryKey(array('id'));
 
         $sql = $this->synchronizer->getUpdateSchema($schema);
-        $this->assertEquals(array('CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY("id"))'), $sql);
+        $this->assertEquals(array('CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))'), $sql);
     }
 
     public function testGetDropSchema()

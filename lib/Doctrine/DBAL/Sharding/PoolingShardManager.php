@@ -32,10 +32,11 @@ class PoolingShardManager implements ShardManager
     private $choser;
     private $currentDistributionValue;
 
-    public function __construct(PoolingShardConnection $conn, ShardChoser $choser)
+    public function __construct(PoolingShardConnection $conn)
     {
-        $this->conn = $conn;
-        $this->choser = $choser;
+        $params       = $conn->getParams();
+        $this->conn   = $conn;
+        $this->choser = $params['shardChoser'];
     }
 
     public function selectGlobal()

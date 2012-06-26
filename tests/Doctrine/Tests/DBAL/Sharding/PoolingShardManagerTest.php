@@ -51,9 +51,10 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
     {
         $shardId = 10;
         $conn = $this->createConnectionMock();
-        $conn->expects($this->once())->method('connect')->with($this->equalTo($shardId));
+        $conn->expects($this->at(0))->method('getParams')->will($this->returnValue(array('shardChoser' => $this->createPassthroughShardChoser())));
+        $conn->expects($this->at(1))->method('connect')->with($this->equalTo($shardId));
 
-        $shardManager = new PoolingShardManager($conn, $this->createPassthroughShardChoser());
+        $shardManager = new PoolingShardManager($conn);
         $shardManager->selectShard($shardId);
 
         $this->assertEquals($shardId, $shardManager->getCurrentDistributionValue());
@@ -62,9 +63,11 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
     public function testGetShards()
     {
         $conn = $this->createConnectionMock();
-        $conn->expects($this->once())->method('getParams')->will($this->returnValue(
-            array('shards' => array( array('id' => 1), array('id' => 2) ))
-        ));
+        $conn->expects($this->any())->method('getParams')->will(
+            $this->returnValue(
+                array('shards' => array( array('id' => 1), array('id' => 2) ), 'shardChoser' => $this->createPassthroughShardChoser())
+            )
+        );
 
         $shardManager = new PoolingShardManager($conn, $this->createPassthroughShardChoser());
         $shards = $shardManager->getShards();
@@ -80,15 +83,18 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
 
         $conn = $this->createConnectionMock();
         $conn->expects($this->at(0))->method('getParams')->will($this->returnValue(
-            array('shards' => array( array('id' => 1), array('id' => 2) ))
+            array('shards' => array( array('id' => 1), array('id' => 2) ), 'shardChoser' => $this->createPassthroughShardChoser())
         ));
-        $conn->expects($this->at(1))->method('connect')->with($this->equalTo(1));
-        $conn->expects($this->at(2))
+        $conn->expects($this->at(1))->method('getParams')->will($this->returnValue(
+            array('shards' => array( array('id' => 1), array('id' => 2) ), 'shardChoser' => $this->createPassthroughShardChoser())
+        ));
+        $conn->expects($this->at(2))->method('connect')->with($this->equalTo(1));
+        $conn->expects($this->at(3))
              ->method('fetchAll')
              ->with($this->equalTo($sql), $this->equalTo($params), $this->equalTo($types))
              ->will($this->returnValue(array( array('id' => 1) ) ));
-        $conn->expects($this->at(3))->method('connect')->with($this->equalTo(2));
-        $conn->expects($this->at(4))
+        $conn->expects($this->at(4))->method('connect')->with($this->equalTo(2));
+        $conn->expects($this->at(5))
              ->method('fetchAll')
              ->with($this->equalTo($sql), $this->equalTo($params), $this->equalTo($types))
              ->will($this->returnValue(array( array('id' => 2) ) ));

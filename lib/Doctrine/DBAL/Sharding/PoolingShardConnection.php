@@ -126,17 +126,11 @@ class PoolingShardConnection extends Connection
     }
 
     /**
-     * @return \Doctrine\DBAL\Sharding\PoolingShardManager
+     * Connect to a given shard
+     *
+     * @param mixed $shardId
+     * @return bool
      */
-    public function getShardManager()
-    {
-        if ($this->shardManager === null) {
-            $params = $this->getParams();
-            $this->shardManager = new PoolingShardManager($this, $params['shardChoser']);
-        }
-        return $this->shardManager;
-    }
-
     public function connect($shardId = null)
     {
         if ($shardId === null && $this->_conn) {
