@@ -186,6 +186,21 @@ abstract class AbstractPlatform
     abstract protected function initializeDoctrineTypeMappings();
 
     /**
+     * Initialize Doctrine Type Mappings with the platform defaults
+     * and with all additional type mappings.
+     */
+    private function initializeAllDoctrineTypeMappings()
+    {
+        $this->initializeDoctrineTypeMappings();
+
+        foreach (Type::getTypesMap() as $typeName => $className) {
+            foreach (Type::getType($typeName)->getMappedDatabaseTypes($this) as $dbType) {
+                $this->doctrineTypeMapping[$dbType] = $typeName;
+            }
+        }
+    }
+
+    /**
      * Gets the SQL snippet used to declare a VARCHAR column type.
      *
      * @param array $field
@@ -254,7 +269,7 @@ abstract class AbstractPlatform
     public function registerDoctrineTypeMapping($dbType, $doctrineType)
     {
         if ($this->doctrineTypeMapping === null) {
-            $this->initializeDoctrineTypeMappings();
+            $this->initializeAllDoctrineTypeMappings();
         }
 
         if (!Types\Type::hasType($doctrineType)) {
@@ -274,7 +289,7 @@ abstract class AbstractPlatform
     public function getDoctrineTypeMapping($dbType)
     {
         if ($this->doctrineTypeMapping === null) {
-            $this->initializeDoctrineTypeMappings();
+            $this->initializeAllDoctrineTypeMappings();
         }
 
         $dbType = strtolower($dbType);
@@ -294,7 +309,7 @@ abstract class AbstractPlatform
     public function hasDoctrineTypeMappingFor($dbType)
     {
         if ($this->doctrineTypeMapping === null) {
-            $this->initializeDoctrineTypeMappings();
+            $this->initializeAllDoctrineTypeMappings();
         }
 
         $dbType = strtolower($dbType);

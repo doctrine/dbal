@@ -277,4 +277,15 @@ abstract class Type
     {
         return $sqlExpr;
     }
+
+    /**
+     * Get an array of database types that map to this Doctrine type.
+     *
+     * @param AbstractPlatform $platform
+     * @return array
+     */
+    public function getMappedDatabaseTypes(AbstractPlatform $platform)
+    {
+        return array();
+    }
 }
