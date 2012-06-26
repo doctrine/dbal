@@ -184,9 +184,9 @@ class Statement implements \IteratorAggregate, DriverStatement
         return $this->stmt->errorInfo();
     }
 
-    public function setFetchMode($fetchStyle, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        return $this->stmt->setFetchMode($fetchStyle, $arg2, $arg3);
+        return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
     }
 
     public function getIterator()
@@ -197,28 +197,28 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * Fetches the next row from a result set.
      *
-     * @param integer $fetchStyle
+     * @param integer $fetchMode
      * @return mixed The return value of this function on success depends on the fetch type.
      *               In all cases, FALSE is returned on failure.
      */
-    public function fetch($fetchStyle = PDO::FETCH_BOTH)
+    public function fetch($fetchMode = null)
     {
-        return $this->stmt->fetch($fetchStyle);
+        return $this->stmt->fetch($fetchMode);
     }
 
     /**
      * Returns an array containing all of the result set rows.
      *
-     * @param integer $fetchStyle
+     * @param integer $fetchMode
      * @param mixed $fetchArgument
      * @return array An array containing all of the remaining rows in the result set.
      */
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $fetchArgument = 0)
+    public function fetchAll($fetchMode = null, $fetchArgument = 0)
     {
         if ($fetchArgument !== 0) {
-            return $this->stmt->fetchAll($fetchStyle, $fetchArgument);
+            return $this->stmt->fetchAll($fetchMode, $fetchArgument);
         }
-        return $this->stmt->fetchAll($fetchStyle);
+        return $this->stmt->fetchAll($fetchMode);
     }
 
     /**

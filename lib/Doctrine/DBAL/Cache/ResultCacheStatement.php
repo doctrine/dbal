@@ -81,7 +81,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * @var int
      */
-    private $defaultFetchStyle = PDO::FETCH_BOTH;
+    private $defaultFetchMode = PDO::FETCH_BOTH;
 
     /**
      * @param Statement $stmt
@@ -132,14 +132,14 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
         return $this->statement->columnCount();
     }
 
-    public function setFetchMode($fetchStyle, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        $this->defaultFetchStyle = $fetchStyle;
+        $this->defaultFetchMode = $fetchMode;
     }
 
     public function getIterator()
     {
-        $data = $this->fetchAll($this->defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 
@@ -147,13 +147,13 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      * fetch
      *
      * @see Query::HYDRATE_* constants
-     * @param integer $fetchStyle           Controls how the next row will be returned to the caller.
+     * @param integer $fetchMode            Controls how the next row will be returned to the caller.
      *                                      This value must be one of the Query::HYDRATE_* constants,
      *                                      defaulting to Query::HYDRATE_BOTH
      *
      * @return mixed
      */
-    public function fetch($fetchStyle = PDO::FETCH_BOTH)
+    public function fetch($fetchMode = null)
     {
         if ($this->data === null) {
             $this->data = array();
@@ -163,13 +163,15 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
         if ($row) {
             $this->data[] = $row;
 
-            if ($fetchStyle == PDO::FETCH_ASSOC) {
+            $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+
+            if ($fetchMode == PDO::FETCH_ASSOC) {
                 return $row;
-            } else if ($fetchStyle == PDO::FETCH_NUM) {
+            } else if ($fetchMode == PDO::FETCH_NUM) {
                 return array_values($row);
-            } else if ($fetchStyle == PDO::FETCH_BOTH) {
+            } else if ($fetchMode == PDO::FETCH_BOTH) {
                 return array_merge($row, array_values($row));
-            } else if ($fetchStyle == PDO::FETCH_COLUMN) {
+            } else if ($fetchMode == PDO::FETCH_COLUMN) {
                 return reset($row);
             } else {
                 throw new \InvalidArgumentException("Invalid fetch-style given for caching result.");
@@ -182,16 +184,16 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * Returns an array containing all of the result set rows
      *
-     * @param integer $fetchStyle           Controls how the next row will be returned to the caller.
+     * @param integer $fetchMode            Controls how the next row will be returned to the caller.
      *                                      This value must be one of the Query::HYDRATE_* constants,
      *                                      defaulting to Query::HYDRATE_BOTH
      *
      * @return array
      */
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH)
+    public function fetchAll($fetchMode = null)
     {
         $rows = array();
-        while ($row = $this->fetch($fetchStyle)) {
+        while ($row = $this->fetch($fetchMode)) {
             $rows[] = $row;
         }
         return $rows;

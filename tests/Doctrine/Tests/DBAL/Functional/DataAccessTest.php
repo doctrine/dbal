@@ -189,7 +189,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchBoth()
     {
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
-        $row = $this->_conn->executeQuery($sql, array(1, 'foo'))->fetch();
+        $row = $this->_conn->executeQuery($sql, array(1, 'foo'))->fetch(\PDO::FETCH_BOTH);
 
         $this->assertTrue($row !== false);
 

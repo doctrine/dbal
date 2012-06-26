@@ -50,32 +50,32 @@ interface ResultStatement extends \Traversable
      * setFetchMode
      * Set the fetch mode to use while iterating this statement.
      *
-     * @param integer $fetchStyle
+     * @param integer $fetchMode
      */
-    function setFetchMode($fetchStyle, $arg2 = null, $arg3 = null);
+    function setFetchMode($fetchMode, $arg2 = null, $arg3 = null);
 
     /**
      * fetch
      *
      * @see Query::HYDRATE_* constants
-     * @param integer $fetchStyle           Controls how the next row will be returned to the caller.
+     * @param integer $fetchMode            Controls how the next row will be returned to the caller.
      *                                      This value must be one of the Query::HYDRATE_* constants,
      *                                      defaulting to Query::HYDRATE_BOTH
      *
      * @return mixed
      */
-    function fetch($fetchStyle = PDO::FETCH_BOTH);
+    function fetch($fetchMode = null);
 
     /**
      * Returns an array containing all of the result set rows
      *
-     * @param integer $fetchStyle           Controls how the next row will be returned to the caller.
+     * @param integer $fetchMode            Controls how the next row will be returned to the caller.
      *                                      This value must be one of the Query::HYDRATE_* constants,
      *                                      defaulting to Query::HYDRATE_BOTH
      *
      * @return array
      */
-    function fetchAll($fetchStyle = PDO::FETCH_BOTH);
+    function fetchAll($fetchMode = null);
 
     /**
      * fetchColumn

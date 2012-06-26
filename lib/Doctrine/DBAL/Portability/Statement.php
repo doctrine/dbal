@@ -51,7 +51,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * @var int
      */
-    private $defaultFetchStyle = PDO::FETCH_BOTH;
+    private $defaultFetchMode = PDO::FETCH_BOTH;
 
     /**
      * Wraps <tt>Statement</tt> and applies portability measures
@@ -101,40 +101,44 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         return $this->stmt->execute($params);
     }
 
-    public function setFetchMode($fetchStyle, $arg1 = null, $arg2 = null)
+    public function setFetchMode($fetchMode, $arg1 = null, $arg2 = null)
     {
-        $this->defaultFetchStyle = $fetchStyle;
-        $this->stmt->setFetchMode($fetchStyle, $arg1, $arg2);
+        $this->defaultFetchMode = $fetchMode;
+        $this->stmt->setFetchMode($fetchMode, $arg1, $arg2);
     }
 
     public function getIterator()
     {
-        $data = $this->fetchAll($this->defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 
-    public function fetch($fetchStyle = PDO::FETCH_BOTH)
+    public function fetch($fetchMode = null)
     {
-        $row = $this->stmt->fetch($fetchStyle);
+        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+
+        $row = $this->stmt->fetch($fetchMode);
 
         $row = $this->fixRow($row,
             $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM),
-            !is_null($this->case) && ($fetchStyle == PDO::FETCH_ASSOC || $fetchStyle == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE)
+            !is_null($this->case) && ($fetchMode == PDO::FETCH_ASSOC || $fetchMode == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE)
         );
 
         return $row;
     }
 
-    public function fetchAll($fetchStyle = PDO::FETCH_BOTH, $columnIndex = 0)
+    public function fetchAll($fetchMode = null, $columnIndex = 0)
     {
+        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+
         if ($columnIndex != 0) {
-            $rows = $this->stmt->fetchAll($fetchStyle, $columnIndex);
+            $rows = $this->stmt->fetchAll($fetchMode, $columnIndex);
         } else {
-            $rows = $this->stmt->fetchAll($fetchStyle);
+            $rows = $this->stmt->fetchAll($fetchMode);
         }
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
-        $fixCase = !is_null($this->case) && ($fetchStyle == PDO::FETCH_ASSOC || $fetchStyle == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE);
+        $fixCase = !is_null($this->case) && ($fetchMode == PDO::FETCH_ASSOC || $fetchMode == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE);
         if ( ! $iterateRow && !$fixCase) {
             return $rows;
         }
