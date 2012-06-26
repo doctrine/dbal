@@ -60,7 +60,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     protected $_values = array();
 
-    protected $_defaultFetchStyle = PDO::FETCH_BOTH;
+    protected $_defaultFetchMode = PDO::FETCH_BOTH;
 
     public function __construct(\mysqli $conn, $prepareString)
     {
@@ -216,7 +216,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchStyle = null)
+    public function fetch($fetchMode = null)
     {
         $values = $this->_fetch();
         if (null === $values) {
@@ -227,9 +227,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
             throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
         }
 
-        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
+        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
-        switch ($fetchStyle) {
+        switch ($fetchMode) {
             case PDO::FETCH_NUM:
                 return $values;
 
@@ -242,29 +242,29 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 return $ret;
 
             default:
-                throw new MysqliException("Unknown fetch type '{$fetchStyle}'");
+                throw new MysqliException("Unknown fetch type '{$fetchMode}'");
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchStyle = null)
+    public function fetchAll($fetchMode = null)
     {
-        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
+        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
-        $a = array();
-        if (PDO::FETCH_COLUMN == $fetchStyle) {
-            while (($value = $this->fetchColumn()) !== false) {
-                $a[] = $value;
+        $rows = array();
+        if (PDO::FETCH_COLUMN == $fetchMode) {
+            while (($row = $this->fetchColumn()) !== false) {
+                $rows[] = $row;
             }
         } else {
-            while (($row = $this->fetch($fetchStyle)) !== null) {
-                $a[] = $row;
+            while (($row = $this->fetch($fetchMode)) !== null) {
+                $rows[] = $row;
             }
         }
 
-        return $a;
+        return $rows;
     }
 
     /**
@@ -326,9 +326,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode = PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        $this->_defaultFetchStyle = $fetchMode;
+        $this->_defaultFetchMode = $fetchMode;
     }
 
     /**
@@ -336,7 +336,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll($this->_defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 }

@@ -36,14 +36,14 @@ class OCI8Statement implements \IteratorAggregate, Statement
     protected $_sth;
     protected $_conn;
     protected static $_PARAM = ':param';
-    protected static $fetchStyleMap = array(
+    protected static $fetchModeMap = array(
         PDO::FETCH_BOTH => OCI_BOTH,
         PDO::FETCH_ASSOC => OCI_ASSOC,
         PDO::FETCH_NUM => OCI_NUM,
         PDO::PARAM_LOB => OCI_B_BLOB,
         PDO::FETCH_COLUMN => OCI_NUM,
     );
-    protected $_defaultFetchStyle = PDO::FETCH_BOTH;
+    protected $_defaultFetchMode = PDO::FETCH_BOTH;
     protected $_paramMap = array();
 
     /**
@@ -190,9 +190,9 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        $this->_defaultFetchStyle = $fetchStyle;
+        $this->_defaultFetchMode = $fetchMode;
     }
 
     /**
@@ -200,48 +200,48 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll($this->_defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchStyle = null)
+    public function fetch($fetchMode = null)
     {
-        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
-        if ( ! isset(self::$fetchStyleMap[$fetchStyle])) {
-            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
+        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        if ( ! isset(self::$fetchModeMap[$fetchMode])) {
+            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
         }
 
-        return oci_fetch_array($this->_sth, self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
+        return oci_fetch_array($this->_sth, self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchStyle = null)
+    public function fetchAll($fetchMode = null)
     {
-        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
-        if ( ! isset(self::$fetchStyleMap[$fetchStyle])) {
-            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchStyle);
+        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        if ( ! isset(self::$fetchModeMap[$fetchMode])) {
+            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
         }
 
         $result = array();
-        if (self::$fetchStyleMap[$fetchStyle] === OCI_BOTH) {
-            while ($row = $this->fetch($fetchStyle)) {
+        if (self::$fetchModeMap[$fetchMode] === OCI_BOTH) {
+            while ($row = $this->fetch($fetchMode)) {
                 $result[] = $row;
             }
         } else {
             $fetchStructure = OCI_FETCHSTATEMENT_BY_ROW;
-            if ($fetchStyle == PDO::FETCH_COLUMN) {
+            if ($fetchMode == PDO::FETCH_COLUMN) {
                 $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
             }
 
             oci_fetch_all($this->_sth, $result, 0, -1,
-                    self::$fetchStyleMap[$fetchStyle] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
+                    self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
 
-            if ($fetchStyle == PDO::FETCH_COLUMN) {
+            if ($fetchMode == PDO::FETCH_COLUMN) {
                 $result = $result[0];
             }
         }

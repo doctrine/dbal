@@ -27,7 +27,7 @@ class HydratorMockStatement implements \Doctrine\DBAL\Driver\Statement
      *
      * @return array
      */
-    public function fetchAll($fetchStyle = null, $columnIndex = null, array $ctorArgs = null)
+    public function fetchAll($fetchMode = null, $columnIndex = null, array $ctorArgs = null)
     {
         return $this->_resultSet;
     }
@@ -44,7 +44,7 @@ class HydratorMockStatement implements \Doctrine\DBAL\Driver\Statement
      * Fetches the next row in the result set.
      *
      */
-    public function fetch($fetchStyle = null)
+    public function fetch($fetchMode = null)
     {
         $current = current($this->_resultSet);
         next($this->_resultSet);

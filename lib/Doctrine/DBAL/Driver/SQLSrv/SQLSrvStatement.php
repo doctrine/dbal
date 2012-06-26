@@ -75,7 +75,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @param int
      */
-    private $defaultFetchStyle = PDO::FETCH_BOTH;
+    private $defaultFetchMode = PDO::FETCH_BOTH;
 
     /**
      * @var int|null
@@ -175,9 +175,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
     }
 
-    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        $this->defaultFetchStyle = $fetchStyle;
+        $this->defaultFetchMode = $fetchMode;
     }
 
     /**
@@ -185,19 +185,19 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll($this->defaultFetchStyle);
+        $data = $this->fetchAll();
         return new \ArrayIterator($data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchStyle = null)
+    public function fetch($fetchMode = null)
     {
-        $fetchStyle = ($fetchStyle)?:$this->defaultFetchStyle;
-        if (isset(self::$fetchMap[$fetchStyle])) {
-            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchStyle]);
-        } else if ($fetchStyle == PDO::FETCH_OBJ || $fetchStyle == PDO::FETCH_CLASS) {
+        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        if (isset(self::$fetchMap[$fetchMode])) {
+            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]);
+        } else if ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
             $className = null;
             $ctorArgs = null;
             if (func_num_args() >= 2) {
@@ -214,7 +214,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchStyle = null)
+    public function fetchAll($fetchMode = null)
     {
         $className = null;
         $ctorArgs = null;
@@ -225,7 +225,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         $rows = array();
-        while ($row = $this->fetch($fetchStyle, $className, $ctorArgs)) {
+        while ($row = $this->fetch($fetchMode, $className, $ctorArgs)) {
             $rows[] = $row;
         }
         return $rows;
