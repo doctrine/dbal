@@ -29,12 +29,12 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class JsonArrayType extends Type
 {
-    public function getSQLDeclaration(array $fieldDeclaration, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
     }
 
-    public function convertToDatabaseValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         if (null === $value) {
             return null;
@@ -43,7 +43,7 @@ class JsonArrayType extends Type
         return json_encode($value);
     }
 
-    public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === null) {
             return array();

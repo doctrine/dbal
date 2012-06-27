@@ -327,6 +327,7 @@ abstract class AbstractPlatform
 
         foreach (Type::getTypesMap() as $typeName => $className) {
             $type = Type::getType($typeName);
+
             if ($type->requiresSQLCommentHint($this)) {
                 $this->doctrineTypeComments[] = $typeName;
             }
