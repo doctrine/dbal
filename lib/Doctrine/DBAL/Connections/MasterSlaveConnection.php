@@ -91,6 +91,14 @@ class MasterSlaveConnection extends Connection
     protected $connections = array('master' => null, 'slave' => null);
 
     /**
+     * You can keep the slave connection and then switch back to it
+     * during the request if you know what you are doing.
+     *
+     * @var bool
+     */
+    protected $keepSlave = false;
+
+    /**
      * Create Master Slave Connection
      *
      * @param array $params
@@ -111,6 +119,8 @@ class MasterSlaveConnection extends Connection
         foreach ($params['slaves'] as $slaveKey => $slave) {
             $params['slaves'][$slaveKey]['driver'] = $params['driver'];
         }
+
+        $this->keepSlave = isset($params['keepSlave']) ? (bool)$params['keepSlave'] : false;
 
         parent::__construct($params, $driver, $config, $eventManager);
     }
@@ -152,11 +162,15 @@ class MasterSlaveConnection extends Connection
 
         if ($connectionName === 'master') {
             /** Set slave connection to master to avoid invalid reads */
-            if ($this->connections['slave']) {
+            if ($this->connections['slave'] && ! $this->keepSlave) {
                 unset($this->connections['slave']);
             }
 
-            $this->connections['master'] = $this->connections['slave'] = $this->_conn = $this->connectTo($connectionName);
+            $this->connections['master'] = $this->_conn = $this->connectTo($connectionName);
+
+            if ( ! $this->keepSlave) {
+                $this->connections['slave'] = $this->connections['master'];
+            }
         } else {
             $this->connections['slave'] = $this->_conn = $this->connectTo($connectionName);
         }
