@@ -34,7 +34,7 @@ use PDO, Closure, Exception,
  * events, transaction isolation levels, configuration, emulated transaction nesting,
  * lazy connecting and more.
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
@@ -537,6 +537,34 @@ class Connection implements DriverConnection
                . ' VALUES (' . implode(', ', $placeholders) . ')';
 
         return $this->executeUpdate($query, array_values($data), $types);
+    }
+
+    /**
+     *
+     * @param string $tableName The name of the table to insert data into.
+     * @param array $data An associative array containing column-value pairs.
+     * @param array $identifier
+     * @param array $types
+     * @return intt
+     */
+    public function upsert($tableName, array $data, array $identifier, array $types = array())
+    {
+        $this->connect();
+
+        if ($this->_platform->supportsNativeUpsert()) {
+            list ($sql, $params, $types) = $this->_platform->getUpsertSql($tableName, $data, $identifier, $types);
+            return $this->executeUpdate($sql, $params, $types);
+        } else {
+            $sql = 'SELECT COUNT(*) FROM ' . $tableName
+                 . ' WHERE ' . implode(' = ? AND ', array_keys($identifier))
+                 . ' = ?';
+
+            if ($this->fetchColumn($sql, $identifier)) {
+                return $this->update($tableName, $data, $identifier, $types);
+            } else {
+                return $this->insert($tableName, $data, $types);
+            }
+        }
     }
 
     /**

@@ -134,6 +134,23 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(0, $this->_conn->update('write_table', array('test_string' => 'baz'), array('test_string' => 'bar')));
     }
 
+    public function testUpsertInsert()
+    {
+        // FIXME, asserts
+        $this->_conn->upsert('write_table', array('test_int' => 1, 'test_string' => 'foo'), array('test_int' => 1));
+        $this->_conn->upsert('write_table', array('test_int' => 2, 'test_string' => 'bar'), array('test_int' => 2));
+    }
+
+    public function testUpsertUpdate()
+    {
+        $this->insertRows();
+
+        // FIXME, asserts
+        $this->_conn->upsert('write_table', array('test_string' => 'bar'), array('test_string' => 'foo'));
+        $this->_conn->upsert('write_table', array('test_string' => 'baz'), array('test_string' => 'bar'));
+        $this->_conn->upsert('write_table', array('test_string' => 'baz'), array('test_string' => 'bar'));
+    }
+
     public function testLastInsertId()
     {
         if ( ! $this->_conn->getDatabasePlatform()->prefersIdentityColumns()) {

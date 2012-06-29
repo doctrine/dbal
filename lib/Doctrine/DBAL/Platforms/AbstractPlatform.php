@@ -45,7 +45,7 @@ use Doctrine\DBAL\DBALException,
  * point of abstraction of platform-specific behaviors, features and SQL dialects.
  * They are a passive source of information.
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @version $Revision: 3938 $
@@ -2499,6 +2499,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Does this platform support native upsert.
+     *
+     * @return boolean
+     */
+    public function supportsNativeUpsert()
+    {
+        return false;
+    }
+
+    /**
      * Gets the format string, as accepted by the date() function, that describes
      * the format of a stored datetime value of this platform.
      *
@@ -2700,6 +2710,19 @@ abstract class AbstractPlatform
     public function rollbackSavePoint($savepoint)
     {
         return 'ROLLBACK TO SAVEPOINT ' . $savepoint;
+    }
+
+    /**
+     * @param type $tableName
+     * @param array $data
+     * @param array $identifier
+     * @param array $types
+     * @throws Doctrine\DBAL\DBALException
+     * @return array
+     */
+    public function getUpsertSql($tableName, array $data, array $identifier, array $types)
+    {
+        throw DBALException::notSupported(__METHOD__);
     }
 
     /**
