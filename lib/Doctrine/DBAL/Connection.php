@@ -545,7 +545,7 @@ class Connection implements DriverConnection
      * @param array $data An associative array containing column-value pairs.
      * @param array $identifier
      * @param array $types
-     * @return intt
+     * @return int
      */
     public function upsert($tableName, array $data, array $identifier, array $types = array())
     {
@@ -557,7 +557,8 @@ class Connection implements DriverConnection
         } else {
             $sql = 'SELECT COUNT(*) FROM ' . $tableName
                  . ' WHERE ' . implode(' = ? AND ', array_keys($identifier))
-                 . ' = ?';
+                 . ' = ?'
+                 . ' ' . $this->_platform->getReadLockSQL();
 
             if ($this->fetchColumn($sql, $identifier)) {
                 return $this->update($tableName, $data, $identifier, $types);
