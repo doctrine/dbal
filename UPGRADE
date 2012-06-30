@@ -1,8 +1,15 @@
 # Upgrade to 2.3
 
+## Doctrine\DBAL\Schema\Table#renameColumn() removed
+
+Doctrine\DBAL\Schema\Table#renameColumn() was removed, because it drops and recreates
+the column instead. There is no fix available, because a schema diff
+cannot reliably detect if a column was renamed or one column was created
+and another one dropped.
+
 ## Schema Filter paths
 
-The Filter Schema assets expression is not wrapped in () anymore for the regexp.
+The Filter Schema assets expression is not wrapped in () anymore for the regexp automatically.
 
 Before:
 

@@ -270,11 +270,9 @@ class Table extends AbstractAsset
      */
     public function renameColumn($oldColumnName, $newColumnName)
     {
-        $column = $this->getColumn($oldColumnName);
-        $this->dropColumn($oldColumnName);
-
-        $column->_setName($newColumnName);
-        return $this;
+        throw new DBALException("Table#renameColumn() was removed, because it drops and recreates " .
+            "the column instead. There is no fix available, because a schema diff cannot reliably detect if a " .
+            "column was renamed or one column was created and another one dropped.");
     }
 
     /**
