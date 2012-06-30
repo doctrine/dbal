@@ -7,6 +7,8 @@ the column instead. There is no fix available, because a schema diff
 cannot reliably detect if a column was renamed or one column was created
 and another one dropped.
 
+You should use explicit SQL ALTER TABLE statements to change columns names.
+
 ## Schema Filter paths
 
 The Filter Schema assets expression is not wrapped in () anymore for the regexp automatically.
