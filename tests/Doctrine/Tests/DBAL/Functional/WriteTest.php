@@ -139,6 +139,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         // FIXME, asserts
         $this->_conn->upsert('write_table', array('test_int' => 1, 'test_string' => 'foo'), array('test_int' => 1));
         $this->_conn->upsert('write_table', array('test_int' => 2, 'test_string' => 'bar'), array('test_int' => 2));
+        $this->_conn->upsert('write_table', array('test_string' => 2, 'test_int' => 4), array('test_int' => '3'));
     }
 
     public function testUpsertUpdate()
@@ -146,9 +147,9 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->insertRows();
 
         // FIXME, asserts
-        $this->_conn->upsert('write_table', array('test_string' => 'bar'), array('test_string' => 'foo'));
-        $this->_conn->upsert('write_table', array('test_string' => 'baz'), array('test_string' => 'bar'));
-        $this->_conn->upsert('write_table', array('test_string' => 'baz'), array('test_string' => 'bar'));
+        $this->_conn->upsert('write_table', array('test_string' => 'foo'), array('test_int' => 1));
+        $this->_conn->upsert('write_table', array('test_string' => 'bar'), array('test_int' => 2));
+
     }
 
     public function testLastInsertId()

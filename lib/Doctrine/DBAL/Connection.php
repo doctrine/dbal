@@ -558,9 +558,9 @@ class Connection implements DriverConnection
             $sql = 'SELECT COUNT(*) FROM ' . $tableName
                  . ' WHERE ' . implode(' = ? AND ', array_keys($identifier))
                  . ' = ?'
-                 . ' ' . $this->_platform->getReadLockSQL();
+                 . ' ' . $this->_platform->getWriteLockSQL();
 
-            if ($this->fetchColumn($sql, $identifier)) {
+            if ($this->fetchColumn($sql, array_values($identifier))) {
                 return $this->update($tableName, $data, $identifier, $types);
             } else {
                 return $this->insert($tableName, $data, $types);
