@@ -555,12 +555,16 @@ class Connection implements DriverConnection
             list ($sql, $params, $types) = $this->_platform->getUpsertSql($tableName, $data, $identifier, $types);
             return $this->executeUpdate($sql, $params, $types);
         } else {
-            $sql = 'SELECT COUNT(*) FROM ' . $tableName
+            $sql = 'SELECT ' . implode(', ', array_keys($identifier)) . ' FROM ' . $tableName
                  . ' WHERE ' . implode(' = ? AND ', array_keys($identifier))
                  . ' = ?'
                  . ' ' . $this->_platform->getWriteLockSQL();
 
-            if ($this->fetchColumn($sql, array_values($identifier))) {
+            $stmt = $this->executeQuery($sql, array_values($identifier));
+            $haveRows = (bool)$stmt->fetch(PDO::FETCH_NUM);
+            $stmt->closeCursor();
+
+            if ($haveRows) {
                 return $this->update($tableName, $data, $identifier, $types);
             } else {
                 return $this->insert($tableName, $data, $types);
