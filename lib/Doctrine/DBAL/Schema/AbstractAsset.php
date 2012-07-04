@@ -27,7 +27,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables
  * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
@@ -58,7 +58,7 @@ abstract class AbstractAsset
      */
     protected function _setName($name)
     {
-        if ($this->isQuoted($name)) {
+        if ($this->isIdentifierQuoted($name)) {
             $this->_quoted = true;
             $name = $this->trimQuotes($name);
         }
@@ -130,12 +130,22 @@ abstract class AbstractAsset
     }
 
     /**
+     * Check if this asset's name is quoted
+     *
+     * @return bool
+     */
+    public function isQuoted()
+    {
+        return $this->_quoted;
+    }
+
+    /**
      * Check if this identifier is quoted.
      *
      * @param  string $identifier
      * @return bool
      */
-    protected function isQuoted($identifier)
+    protected function isIdentifierQuoted($identifier)
     {
         return (isset($identifier[0]) && ($identifier[0] == '`' || $identifier[0] == '"'));
     }
