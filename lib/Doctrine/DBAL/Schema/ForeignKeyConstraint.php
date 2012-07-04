@@ -128,6 +128,16 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     }
 
     /**
+     * Gets the options associated with this constraint
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->_options;
+    }
+
+    /**
      * Foreign Key onUpdate status
      *
      * @return string|null
