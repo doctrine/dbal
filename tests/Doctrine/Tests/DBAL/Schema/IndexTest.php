@@ -97,4 +97,19 @@ class IndexTest extends \PHPUnit_Framework_TestCase
         $idx1->removeFlag('clustered');
         $this->assertFalse($idx1->hasFlag('clustered'));
     }
+
+    /**
+     * @group DBAL-285
+     */
+    public function testIndexQuotes()
+    {
+        $index = new Index("foo", array("`bar`", "`baz`"));
+
+        $this->assertTrue($index->spansColumns(array("bar", "baz")));
+        $this->assertTrue($index->hasColumnAtPosition("bar", 0));
+        $this->assertTrue($index->hasColumnAtPosition("baz", 1));
+
+        $this->assertFalse($index->hasColumnAtPosition("bar", 1));
+        $this->assertFalse($index->hasColumnAtPosition("baz", 0));
+    }
 }
