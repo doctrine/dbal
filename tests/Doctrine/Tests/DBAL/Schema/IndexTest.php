@@ -81,4 +81,19 @@ class IndexTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($idx1->isFullfilledBy($pri));
         $this->assertTrue($idx1->isFullfilledBy($uniq));
     }
+
+    /**
+     * @group DBAL-285
+     */
+    public function testIndexQuotes()
+    {
+        $index = new Index("foo", array("`bar`", "`baz`"));
+
+        $this->assertTrue($index->spansColumns(array("bar", "baz")));
+        $this->assertTrue($index->hasColumnAtPosition("bar", 0));
+        $this->assertTrue($index->hasColumnAtPosition("baz", 1));
+
+        $this->assertFalse($index->hasColumnAtPosition("bar", 1));
+        $this->assertFalse($index->hasColumnAtPosition("baz", 0));
+    }
 }
