@@ -1,5 +1,20 @@
 # Upgrade to 2.3
 
+## Doctrine\DBAL\Connection#setCharsetSQL() removed
+
+This method only worked on MySQL and it is considered unsafe on MySQL to use SET NAMES UTF-8 instead
+of setting the charset directly on connection already. Replace this behavior with the
+connection charset option:
+
+Before:
+
+    $conn = DriverManager::getConnection(array(..));
+    $conn->setCharset('UTF8');
+
+After:
+
+    $conn = DriverManager::getConnection(array('charset' => 'UTF8', ..));
+
 ## Doctrine\DBAL\Schema\Table#renameColumn() removed
 
 Doctrine\DBAL\Schema\Table#renameColumn() was removed, because it drops and recreates

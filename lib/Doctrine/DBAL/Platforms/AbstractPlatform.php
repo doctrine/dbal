@@ -2093,20 +2093,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Gets the SQL statement specific for the platform to set the charset.
-     *
-     * This function is MySQL specific and required by
-     * {@see \Doctrine\DBAL\Connection::setCharset($charset)}
-     *
-     * @param string $charset
-     * @return string
-     */
-    public function getSetCharsetSQL($charset)
-    {
-        return "SET NAMES '".$charset."'";
-    }
-
-    /**
      * Gets the SQL specific for the platform to get the current date.
      *
      * @return string

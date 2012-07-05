@@ -540,16 +540,6 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Sets the given charset on the current connection.
-     *
-     * @param string $charset The charset to set.
-     */
-    public function setCharset($charset)
-    {
-        $this->executeUpdate($this->_platform->getSetCharsetSQL($charset));
-    }
-
-    /**
      * Quote a string so it can be safely used as a table or column name, even if
      * it is a reserved name.
      *
