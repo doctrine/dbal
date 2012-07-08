@@ -110,13 +110,29 @@ class Comparator
         }
 
         foreach ($fromSchema->getSequences() as $sequence) {
+            if ($this->isAutoIncrementSequenceInSchema($toSchema, $sequence)) {
+                continue;
+            }
+
             $sequenceName = $sequence->getShortestName($fromSchema->getName());
+
             if ( ! $toSchema->hasSequence($sequenceName)) {
                 $diff->removedSequences[] = $sequence;
             }
         }
 
         return $diff;
+    }
+
+    private function isAutoIncrementSequenceInSchema($schema, $sequence)
+    {
+        foreach ($schema->getTables() as $table) {
+            if ($sequence->isAutoIncrementsFor($table)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

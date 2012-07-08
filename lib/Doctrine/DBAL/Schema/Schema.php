@@ -87,6 +87,7 @@ class Schema extends AbstractAsset
         foreach ($tables as $table) {
             $this->_addTable($table);
         }
+
         foreach ($sequences as $sequence) {
             $this->_addSequence($sequence);
         }

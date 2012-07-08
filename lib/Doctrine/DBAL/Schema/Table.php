@@ -565,6 +565,14 @@ class Table extends AbstractAsset
         return $this->getIndex($this->_primaryKeyName);
     }
 
+    public function getPrimaryKeyColumns()
+    {
+        if ( ! $this->hasPrimaryKey()) {
+            throw new DBALException("Table " . $this->getName() . " has no primary key.");
+        }
+        return $this->getPrimaryKey()->getColumns();
+    }
+
     /**
      * Check if this table has a primary key.
      *
