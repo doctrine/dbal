@@ -22,6 +22,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class ForeignKeyConstraint extends AbstractAsset implements Constraint
 {
