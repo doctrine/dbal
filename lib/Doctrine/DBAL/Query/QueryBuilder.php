@@ -961,10 +961,10 @@ class QueryBuilder
                 foreach ($this->sqlParts['join'] as $joins) {
                     foreach ($joins as $join) {
                         $fromClause .= ' ' . strtoupper($join['joinType'])
-                        . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
-                        . ' ON ' . ((string) $join['joinCondition']);
+                            . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
+                            . ' ON ' . ((string) $join['joinCondition']);
+                        $joinAliases[$join['joinAlias']] = true;
                     }
-                    $joinAliases[$join['joinAlias']] = true;
                 }
                 $joinsPending = false;
             }
