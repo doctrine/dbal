@@ -27,14 +27,15 @@ use PDO, Closure, Exception,
     Doctrine\DBAL\Cache\ResultCacheStatement,
     Doctrine\DBAL\Cache\QueryCacheProfile,
     Doctrine\DBAL\Cache\ArrayStatement,
-    Doctrine\DBAL\Cache\CacheException;
+    Doctrine\DBAL\Cache\CacheException
+    Doctrine\DBAL\Transactional;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
  * events, transaction isolation levels, configuration, emulated transaction nesting,
  * lazy connecting and more.
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
@@ -44,7 +45,7 @@ use PDO, Closure, Exception,
  * @author  Lukas Smith <smith@pooteeweet.org> (MDB2 library)
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
-class Connection implements DriverConnection
+class Connection implements DriverConnection, Transactional
 {
     /**
      * Constant for transaction isolation level READ UNCOMMITTED.
