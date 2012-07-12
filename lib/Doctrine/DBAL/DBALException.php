@@ -92,4 +92,14 @@ class DBALException extends \Exception
     {
         return new self('Type to be overwritten '.$name.' does not exist.');
     }
+
+    /**
+     * @param string $name
+     * @return DBALException
+     */
+    public static function invalidCallback($name)
+    {
+        $message = sprintf('method expects parameter %s to be callable.', $name);
+        return new self($message);
+    }
 }

@@ -864,10 +864,14 @@ class Connection implements DriverConnection, Transactional
      * If an exception occurs during execution of the function or transaction commit,
      * the transaction is rolled back and the exception re-thrown.
      *
-     * @param Closure $func The function to execute transactionally.
+     * @param Callable $func The function to execute transactionally.
      */
-    public function transactional(Closure $func)
+    public function transactional($func)
     {
+        if (!is_callable($func)) {
+            throw ConnectionException::invalidCallback('func');
+        }
+
         $this->beginTransaction();
         try {
             $func($this);

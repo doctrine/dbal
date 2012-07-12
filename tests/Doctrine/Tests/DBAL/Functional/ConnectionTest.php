@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\DBALException;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -207,6 +208,19 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             /* @var $conn Connection */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
+    }
+
+    public function testTransactionalThrowsExceptionForInvalidCallback()
+    {
+        $message = null;
+        try {
+            $this->_conn->transactional('invalid callback');
+        } catch (DBALException $ex) {
+            $message = $ex->getMessage();
+        }
+
+        $expectedMessage = DBALException::invalidCallback('func')->getMessage();
+        $this->assertSame($expectedMessage, $message);
     }
 
     /**
