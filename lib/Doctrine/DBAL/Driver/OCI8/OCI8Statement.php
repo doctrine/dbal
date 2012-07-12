@@ -34,7 +34,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /** Statement handle. */
     protected $_dbh;
     protected $_sth;
-    protected $_executeMode;
+    protected $_conn;
     protected static $_PARAM = ':param';
     protected static $fetchStyleMap = array(
         PDO::FETCH_BOTH => OCI_BOTH,
@@ -51,13 +51,13 @@ class OCI8Statement implements \IteratorAggregate, Statement
      * @param resource $dbh The connection handle.
      * @param string $statement The SQL statement.
      */
-    public function __construct($dbh, $statement, $executeMode)
+    public function __construct($dbh, $statement, OCI8Connection $conn)
     {
         list($statement, $paramMap) = self::convertPositionalToNamedPlaceholders($statement);
         $this->_sth = oci_parse($dbh, $statement);
         $this->_dbh = $dbh;
         $this->_paramMap = $paramMap;
-        $this->_executeMode = $executeMode;
+        $this->_conn = $conn;
     }
 
     /**
@@ -179,7 +179,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
             }
         }
 
-        $ret = @oci_execute($this->_sth, $this->_executeMode);
+        $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
         if ( ! $ret) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
@@ -189,7 +189,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH)
+    public function setFetchMode($fetchStyle = PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchStyle = $fetchStyle;
     }
@@ -245,7 +245,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     public function fetchColumn($columnIndex = 0)
     {
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
-        return $row[$columnIndex];
+        return isset($row[$columnIndex]) ? $row[$columnIndex] : false;
     }
 
     /**

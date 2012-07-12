@@ -61,10 +61,10 @@ class SQLParserUtils
                 } else {
                     $name = "";
                     // TODO: Something faster/better to match this than regex?
-                    for ($j = $i; ($j < $stmtLen && preg_match('(([:a-zA-Z0-9_]{1}))', $statement[$j])); $j++) {
+                    for ($j = $i + 1; ($j < $stmtLen && preg_match('(([a-zA-Z0-9_]{1}))', $statement[$j])); $j++) {
                         $name .= $statement[$j];
                     }
-                    $paramMap[$name][] = $i; // named parameters can be duplicated!
+                    $paramMap[$i] = $name; // named parameters can be duplicated!
                     $i = $j;
                 }
                 ++$count;
@@ -139,34 +139,28 @@ class SQLParserUtils
             $queryOffset= 0;
             $typesOrd   = array();
             $paramsOrd  = array();
-            foreach ($paramPos as $needle => $needlePos) {
-                $paramLen   = strlen($needle);
-                $token      = substr($needle,0,1);
-                $needle     = substr($needle,1);
-                $value      = $params[$needle];
+            foreach ($paramPos as $pos => $paramName) {
+                $paramLen   = strlen($paramName) + 1;
+                $value      = $params[$paramName];
 
-                if (!isset($arrayPositions[$needle])) {
-                    foreach ($needlePos as $pos) {
-                        $pos         += $queryOffset;
-                        $queryOffset -= ($paramLen - 1);
-                        $paramsOrd[]  = $value;
-                        $typesOrd[]   = $types[$needle];
-                        $query        = substr($query, 0, $pos) . '?' . substr($query, ($pos + $paramLen));
-                    }
+                if (!isset($arrayPositions[$paramName])) {
+                    $pos         += $queryOffset;
+                    $queryOffset -= ($paramLen - 1);
+                    $paramsOrd[]  = $value;
+                    $typesOrd[]   = $types[$paramName];
+                    $query        = substr($query, 0, $pos) . '?' . substr($query, ($pos + $paramLen));
                 } else {
                     $len = count($value);
                     $expandStr = implode(", ", array_fill(0, $len, "?"));
-                    foreach ($needlePos as $pos) {
 
-                        foreach ($value as $val) {
-                            $paramsOrd[] = $val;
-                            $typesOrd[]  = $types[$needle] - Connection::ARRAY_PARAM_OFFSET;
-                        }
-
-                        $pos         += $queryOffset;
-                        $queryOffset += (strlen($expandStr) - $paramLen);
-                        $query        = substr($query, 0, $pos) . $expandStr . substr($query, ($pos + $paramLen));
+                    foreach ($value as $val) {
+                        $paramsOrd[] = $val;
+                        $typesOrd[]  = $types[$paramName] - Connection::ARRAY_PARAM_OFFSET;
                     }
+
+                    $pos         += $queryOffset;
+                    $queryOffset += (strlen($expandStr) - $paramLen);
+                    $query        = substr($query, 0, $pos) . $expandStr . substr($query, ($pos + $paramLen));
                 }
             }
 

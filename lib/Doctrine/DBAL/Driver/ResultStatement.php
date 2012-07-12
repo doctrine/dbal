@@ -52,7 +52,7 @@ interface ResultStatement extends \Traversable
      *
      * @param integer $fetchStyle
      */
-    public function setFetchMode($fetchStyle);
+    function setFetchMode($fetchStyle, $arg2 = null, $arg3 = null);
 
     /**
      * fetch

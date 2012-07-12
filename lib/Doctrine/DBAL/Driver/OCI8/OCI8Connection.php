@@ -57,7 +57,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
      */
     public function prepare($prepareString)
     {
-        return new OCI8Statement($this->_dbh, $prepareString, $this->_executeMode);
+        return new OCI8Statement($this->_dbh, $prepareString, $this);
     }
 
     /**
@@ -105,6 +105,14 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     public function lastInsertId($name = null)
     {
         //TODO: throw exception or support sequences?
+    }
+
+    /**
+     * Return the current execution mode.
+     */
+    public function getExecuteMode()
+    {
+        return $this->_executeMode;
     }
 
     /**

@@ -148,7 +148,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchStyle = \PDO::FETCH_BOTH)
+    public function setFetchMode($fetchStyle = \PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchStyle = $fetchStyle;
     }

@@ -78,6 +78,14 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
+     * @return array
+     */
+    public function getUnquotedColumns()
+    {
+        return array_map(array($this, 'trimQuotes'), $this->getColumns());
+    }
+
+    /**
      * Is the index neither unique nor primary key?
      *
      * @return bool
@@ -108,11 +116,11 @@ class Index extends AbstractAsset implements Constraint
      * @param  int $pos
      * @return bool
      */
-    public function hasColumnAtPosition($columnName, $pos=0)
+    public function hasColumnAtPosition($columnName, $pos = 0)
     {
-        $columnName = strtolower($columnName);
-        $indexColumns = \array_map('strtolower', $this->getColumns());
-        return \array_search($columnName, $indexColumns) === $pos;
+        $columnName   = $this->trimQuotes(strtolower($columnName));
+        $indexColumns = array_map('strtolower', $this->getUnquotedColumns());
+        return array_search($columnName, $indexColumns) === $pos;
     }
 
     /**
@@ -125,7 +133,7 @@ class Index extends AbstractAsset implements Constraint
     {
         $sameColumns = true;
         for ($i = 0; $i < count($this->_columns); $i++) {
-            if (!isset($columnNames[$i]) || strtolower($this->_columns[$i]) != strtolower($columnNames[$i])) {
+            if (!isset($columnNames[$i]) || $this->trimQuotes(strtolower($this->_columns[$i])) != $this->trimQuotes(strtolower($columnNames[$i]))) {
                 $sameColumns = false;
             }
         }

@@ -280,7 +280,7 @@ class SQLServerPlatform extends AbstractPlatform
         $columnSql = array();
 
         if ($diff->newName !== false) {
-            $queryParts[] = 'RENAME TO ' . $diff->newName;
+            $queryParts[] = "sp_RENAME '" . $diff->name . "', '" . $diff->newName . "'";
         }
 
         foreach ($diff->addedColumns AS $fieldName => $column) {

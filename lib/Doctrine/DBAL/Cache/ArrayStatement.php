@@ -47,8 +47,12 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
         return $this->columnCount;
     }
 
-    public function setFetchMode($fetchStyle)
+    public function setFetchMode($fetchStyle, $arg2 = null, $arg3 = null)
     {
+        if ($arg2 !== null || $arg3 !== null) {
+            throw new \InvalidArgumentException("Caching layer does not support 2nd/3rd argument to setFetchMode()");
+        }
+
         $this->defaultFetchStyle = $fetchStyle;
     }
 

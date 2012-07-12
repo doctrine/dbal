@@ -267,7 +267,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     {
         $row = $this->fetch(PDO::FETCH_NUM);
         if (null === $row) {
-            return null;
+            return false;
         }
         return $row[$columnIndex];
     }
@@ -319,7 +319,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode = PDO::FETCH_BOTH)
+    public function setFetchMode($fetchMode = PDO::FETCH_BOTH, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchStyle = $fetchMode;
     }
