@@ -32,7 +32,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform,
     Doctrine\DBAL\Schema\Index;
 
 /**
- * Gather SQL statements that allow to completly drop the current schema.
+ * Gather SQL statements that allow to completely drop the current schema.
  *
  * 
  * @link    www.doctrine-project.org

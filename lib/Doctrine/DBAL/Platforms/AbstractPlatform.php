@@ -708,12 +708,12 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns a series of strings concatinated
+     * Returns a series of strings concatenated
      *
      * concat() accepts an arbitrary number of parameters. Each parameter
      * must contain an expression
      *
-     * @param string $arg1, $arg2 ... $argN     strings that will be concatinated.
+     * @param string $arg1, $arg2 ... $argN     strings that will be concatenated.
      * @return string
      */
     public function getConcatExpression()
@@ -1812,7 +1812,7 @@ abstract class AbstractPlatform
 
     /**
      * getCustomTypeDeclarationSql
-     * Obtail SQL code portion needed to create a custom column,
+     * Obtain SQL code portion needed to create a custom column,
      * e.g. when a field has the "columnDefinition" keyword.
      * Only "AUTOINCREMENT" and "PRIMARY KEY" are added if appropriate.
      *
@@ -2319,7 +2319,7 @@ abstract class AbstractPlatform
 
     /**
      * Whether the platform supports identity columns.
-     * Identity columns are columns that recieve an auto-generated value from the
+     * Identity columns are columns that receive an auto-generated value from the
      * database on insert of a row.
      *
      * @return boolean
@@ -2450,7 +2450,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Does this plaform support to add inline column comments as postfix.
+     * Does this platform support to add inline column comments as postfix.
      *
      * @return bool
      */
@@ -2460,7 +2460,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Does this platform support the propriortary synatx "COMMENT ON asset"
+     * Does this platform support the proprietary syntax "COMMENT ON asset"
      *
      * @return bool
      */
@@ -2609,7 +2609,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Maximum length of any given databse identifier, like tables or column names.
+     * Maximum length of any given database identifier, like tables or column names.
      *
      * @return int
      */

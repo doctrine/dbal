@@ -39,7 +39,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      * Note: Not SQL92, but common functionality.
      *
      * @param string $value the target $value the string or the string column.
-     * @param int $from extract from this characeter.
+     * @param int $from extract from this character.
      * @param int $len extract this amount of characters.
      * @return string sql that extracts part of a string.
      * @override
@@ -618,7 +618,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Decleration for a UUID field in PostgreSQL
+     * Declaration for a UUID field in PostgreSQL
      *
      * @param array $field
      * @return string
