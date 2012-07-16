@@ -44,7 +44,7 @@ Assumptions:
 
 * For querying you either want to query ALL or just exactly one shard.
 * IDs for ALL sharded tables have to be unique across all shards.
-* Non-shareded data is replicated between all shards. They redundantly keep the information available. This is necessary so join queries on shards to reference data work.
+* Non-sharded data is replicated between all shards. They redundantly keep the information available. This is necessary so join queries on shards to reference data work.
 * If you retrieve an object A from a shard, then all references and collections of this object reside on the same shard.
 * The database schema on all shards is the same (or compatible)
 

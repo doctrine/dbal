@@ -108,7 +108,7 @@ class PoolingShardConnection extends Connection
 
         foreach ($params['shards'] as $shard) {
             if ( ! isset($shard['id'])) {
-                throw new \InvalidArgumentException("Missing 'id' for one configured shard. Please specificy a unique shard-id.");
+                throw new \InvalidArgumentException("Missing 'id' for one configured shard. Please specify a unique shard-id.");
             }
 
             if ( !is_numeric($shard['id']) || $shard['id'] < 1) {

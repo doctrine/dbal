@@ -94,7 +94,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             if (isset(self::$_paramTypeMap[$type])) {
                 $type = self::$_paramTypeMap[$type];
             } else {
-                throw new MysqliException("Unkown type: '{$type}'");
+                throw new MysqliException("Unknown type: '{$type}'");
             }
         }
 

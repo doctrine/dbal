@@ -151,7 +151,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * Check if the other index already fullfills all the indexing and constraint needs of the current one.
+     * Check if the other index already fulfills all the indexing and constraint needs of the current one.
      *
      * @param Index $other
      * @return bool
@@ -171,7 +171,7 @@ class Index extends AbstractAsset implements Constraint
             if ( ! $this->isUnique() && !$this->isPrimary()) {
                 // this is a special case: If the current key is neither primary or unique, any uniqe or
                 // primary key will always have the same effect for the index and there cannot be any constraint
-                // overlaps. This means a primary or unique index can always fullfill the requirements of just an
+                // overlaps. This means a primary or unique index can always fulfill the requirements of just an
                 // index that has no constraints.
                 return true;
             } else if ($other->isPrimary() != $this->isPrimary()) {

@@ -746,7 +746,7 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * Maximum length of any given databse identifier, like tables or column names.
+     * Maximum length of any given database identifier, like tables or column names.
      *
      * @return int
      */
