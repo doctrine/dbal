@@ -317,10 +317,6 @@ class SQLServerPlatform extends AbstractPlatform
         $sql = array();
         $columnSql = array();
 
-        if ($diff->newName !== false) {
-            $queryParts[] = "sp_RENAME '" . $diff->name . "', '" . $diff->newName . "'";
-        }
-
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
@@ -369,6 +365,10 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
+
+        if ($diff->newName !== false) {
+            $sql[] = "sp_RENAME '" . $diff->name . "', '" . $diff->newName . "'";
+        }
 
         return array_merge($sql, $tableSql, $columnSql);
     }

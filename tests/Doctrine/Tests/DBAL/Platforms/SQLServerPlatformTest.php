@@ -28,11 +28,11 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            'ALTER TABLE mytable RENAME TO userlist',
             'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
             'ALTER TABLE mytable DROP COLUMN foo',
             'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) DEFAULT \'def\' NOT NULL',
             'ALTER TABLE mytable ALTER COLUMN bloo BIT DEFAULT \'0\' NOT NULL',
+            "sp_RENAME 'mytable', 'userlist'",
         );
     }
 
