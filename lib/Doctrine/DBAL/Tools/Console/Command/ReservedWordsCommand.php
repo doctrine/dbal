@@ -69,12 +69,12 @@ with names that are identifiers in this dialect or in other SQL dialects.
 By default SQLite, MySQL, PostgreSQL, MsSQL and Oracle
 keywords are checked:
 
-    <info>doctrine dbal:reserved-words</info>
+    <info>%command.full_name%</info>
 
 If you want to check against specific dialects you can
 pass them to the command:
 
-    <info>doctrine dbal:reserved-words mysql pgsql</info>
+    <info>%command.full_name% mysql pgsql</info>
 
 The following keyword lists are currently shipped with Doctrine:
 
