@@ -87,12 +87,12 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Returns a series of strings concatinated
+     * Returns a series of strings concatenated
      *
      * concat() accepts an arbitrary number of parameters. Each parameter
      * must contain an expression or an array with expressions.
      *
-     * @param string|array(string) strings that will be concatinated.
+     * @param string|array(string) strings that will be concatenated.
      * @override
      */
     public function getConcatExpression()
@@ -138,7 +138,7 @@ class MySqlPlatform extends AbstractPlatform
 
     /**
      * Two approaches to listing the table indexes. The information_schema is
-     * prefered, because it doesn't cause problems with SQL keywords such as "order" or "table".
+     * preferred, because it doesn't cause problems with SQL keywords such as "order" or "table".
      *
      * @param string $table
      * @param string $currentDatabase

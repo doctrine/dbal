@@ -24,7 +24,7 @@ use Doctrine\DBAL\Platforms;
 /**
  * PDO Oracle driver
  *
- * WARNING: This driver gives us segfauls in our testsuites on CLOB and other
+ * WARNING: This driver gives us segfaults in our testsuites on CLOB and other
  * stuff. PDO Oracle is not maintained by Oracle or anyone in the PHP community,
  * which leads us to the recommendation to use the "oci8" driver to connect
  * to Oracle instead.

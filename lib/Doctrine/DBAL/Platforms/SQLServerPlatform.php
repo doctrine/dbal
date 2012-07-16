@@ -606,7 +606,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Decleration for a UNIQUEIDENTIFIER (GUID) field in SQL Server
+     * Declaration for a UNIQUEIDENTIFIER (GUID) field in SQL Server
      *
      * @param array $field
      * @return string
@@ -869,7 +869,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function appendLockHint($fromClause, $lockMode)
     {
-        // @todo coorect
+        // @todo correct
         if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_READ) {
             return $fromClause . ' WITH (tablockx)';
         } else if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) {

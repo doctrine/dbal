@@ -185,7 +185,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * Drop all assets from the underyling db.
+     * Drop all assets from the underlying db.
      *
      * @return void
      */

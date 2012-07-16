@@ -46,7 +46,7 @@ class Comparator
     /**
      * Returns a SchemaDiff object containing the differences between the schemas $fromSchema and $toSchema.
      *
-     * The returned diferences are returned in such a way that they contain the
+     * The returned differences are returned in such a way that they contain the
      * operations to change the schema stored in $fromSchema to the schema that is
      * stored in $toSchema.
      *
@@ -262,7 +262,7 @@ class Comparator
 
     /**
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
-     * however ambiguouties between different possibilites should not lead to renaming at all.
+     * however ambiguities between different possibilities should not lead to renaming at all.
      *
      * @param TableDiff $tableDifferences
      */
