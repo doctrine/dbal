@@ -556,17 +556,14 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
     {
         $qb = new QueryBuilder($this->conn);
 
-        $qb->select("l.id", "mdsh.xcode", "mdso.xcode")
-                ->from("location_tree", "l")
-                ->join("l", "location_tree_pos", "p", "l.id = p.tree_id")
-                ->rightJoin("l", "hotel", "h", "h.location_id = l.id")
-                ->leftJoin("l", "offer_location", "ol", "l.id=ol.location_id")
-                ->leftJoin("ol", "mds_offer", "mdso", "ol.offer_id = mdso.offer_id")
-                ->leftJoin("h", "mds_hotel", "mdsh", "h.id = mdsh.hotel_id")
-                ->where("p.parent_id IN (:ids)")
-                ->andWhere("(mdso.xcode IS NOT NULL OR mdsh.xcode IS NOT NULL)");
+        $qb->select('COUNT(DISTINCT news.id)')
+            ->from('cb_newspages', 'news')
+            ->innerJoin('news', 'nodeversion', 'nv', 'nv.refId = news.id AND nv.refEntityname=\'News\'')
+            ->innerJoin('invalid', 'nodetranslation', 'nt', 'nv.nodetranslation = nt.id')
+            ->innerJoin('nt', 'node', 'n', 'nt.node = n.id')
+            ->where('nt.lang = :lang AND n.deleted != 1');
 
-        $this->setExpectedException('Doctrine\DBAL\Query\QueryException', "The given alias 'ol' is not part of any FROM clause table. The currently registered FROM-clause aliases are: l");
+        $this->setExpectedException('Doctrine\DBAL\Query\QueryException', "The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv, nt, n.");
         $this->assertEquals('', $qb->getSQL());
     }
 }
