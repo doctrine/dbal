@@ -134,7 +134,11 @@ class Statement implements \IteratorAggregate, DriverStatement
             $logger->startQuery($this->sql, $this->params, $this->types);
         }
 
-        $stmt = $this->stmt->execute($params);
+        try {
+            $stmt = $this->stmt->execute($params);
+        } catch (\Exception $ex) {
+            throw DBALException::driverExceptionDuringQuery($ex, $this->sql, $this->conn->resolveParams($this->params, $this->types));
+        }
 
         if ($logger) {
             $logger->stopQuery();
