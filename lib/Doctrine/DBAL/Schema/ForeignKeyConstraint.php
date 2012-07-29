@@ -22,6 +22,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class ForeignKeyConstraint extends AbstractAsset implements Constraint
 {
@@ -107,6 +108,24 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     public function getForeignTableName()
     {
         return $this->_foreignTableName;
+    }
+
+    /**
+     * Get the quoted representation of this asset but only if it was defined with one. Otherwise
+     * return the plain unquoted value as inserted.
+     *
+     * @param AbstractPlatform $platform
+     * @return string
+     */
+    public function getQuotedForeignTableName(AbstractPlatform $platform)
+    {
+        $keywords = $platform->getReservedKeywordsList();
+        $parts = explode(".", $this->getForeignTableName());
+        foreach ($parts AS $k => $v) {
+            $parts[$k] = ($this->_quoted || $keywords->isKeyword($v)) ? $platform->quoteIdentifier($v) : $v;
+        }
+
+        return implode(".", $parts);
     }
 
     /**

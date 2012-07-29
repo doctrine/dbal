@@ -2004,7 +2004,7 @@ abstract class AbstractPlatform
 
         $sql .= implode(', ', $foreignKey->getLocalColumns())
               . ') REFERENCES '
-              . $foreignKey->getForeignTableName() . ' ('
+              . $foreignKey->getQuotedForeignTableName($this) . ' ('
               . implode(', ', $foreignKey->getForeignColumns()) . ')';
 
         return $sql;
