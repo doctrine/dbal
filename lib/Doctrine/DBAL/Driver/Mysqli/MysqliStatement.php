@@ -86,7 +86,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null)
+    public function bindParam($column, &$variable, $type = null, $length = null)
     {
         if (null === $type) {
             $type = 's';
