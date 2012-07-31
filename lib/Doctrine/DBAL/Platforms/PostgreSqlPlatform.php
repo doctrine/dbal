@@ -744,6 +744,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         $this->doctrineTypeMapping = array(
             'smallint'      => 'smallint',
             'int2'          => 'smallint',
+            '_int2'         => 'smallint',
             'serial'        => 'integer',
             'serial4'       => 'integer',
             'int'           => 'integer',
@@ -756,6 +757,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'bool'          => 'boolean',
             'boolean'       => 'boolean',
             'text'          => 'text',
+            '_text'         => 'text',
             'varchar'       => 'string',
             'interval'      => 'string',
             '_varchar'      => 'string',
@@ -779,6 +781,10 @@ class PostgreSqlPlatform extends AbstractPlatform
             'year'          => 'date',
             'uuid'          => 'guid',
             'bytea'         => 'blob',
+            'unknown'       => 'text',
+            'regprocedure'  => 'string',
+            'inet'          => 'string',
+            'name'          => 'string',
         );
     }
 
