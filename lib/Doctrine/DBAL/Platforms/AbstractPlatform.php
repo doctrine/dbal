@@ -237,7 +237,7 @@ abstract class AbstractPlatform
      *
      * @return string
      */
-    public function getGuidTypeDeclartionSQL(array $field)
+    public function getGuidTypeDeclarationSQL(array $field)
     {
         return $this->getVarcharTypeDeclarationSQL($field);
     }
