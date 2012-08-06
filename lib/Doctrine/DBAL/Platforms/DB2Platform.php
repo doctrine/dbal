@@ -54,7 +54,9 @@ class DB2Platform extends AbstractPlatform
     /**
      * Gets the SQL snippet used to declare a VARCHAR column type.
      *
-     * @param array $field
+     * @param int $length
+     * @param boolean $fixed
+     * @return string
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
@@ -66,6 +68,7 @@ class DB2Platform extends AbstractPlatform
      * Gets the SQL snippet used to declare a CLOB column type.
      *
      * @param array $field
+     * @return string
      */
     public function getClobTypeDeclarationSQL(array $field)
     {
@@ -203,6 +206,7 @@ class DB2Platform extends AbstractPlatform
      *
      * @license New BSD License
      * @param  string $table
+     * @param string $database
      * @return string
      */
     public function getListTableColumnsSQL($table, $database = null)

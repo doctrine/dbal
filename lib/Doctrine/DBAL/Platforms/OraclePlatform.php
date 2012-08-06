@@ -73,6 +73,7 @@ class OraclePlatform extends AbstractPlatform
      * - CURRENT_DATE (date, DATE type)
      * - CURRENT_TIME (time, TIME type)
      *
+     * @param string $type
      * @return string to call a variable with the current timestamp
      * @override
      */
@@ -92,8 +93,8 @@ class OraclePlatform extends AbstractPlatform
      *
      * @param string $substr    literal string to find
      * @param string $str       literal string
-     * @param int    $pos       position to start at, beginning of string by default
-     * @return integer
+     * @param int    $startPos  position to start at, beginning of string by default
+     * @return string
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
@@ -319,6 +320,7 @@ class OraclePlatform extends AbstractPlatform
      * Gets the SQL snippet used to declare a VARCHAR column on the Oracle platform.
      *
      * @params array $field
+     * @return string
      * @override
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
@@ -381,6 +383,7 @@ class OraclePlatform extends AbstractPlatform
      * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaOracleReader.html
      * @param  string $table
+     * @param  string $currentDatabase
      * @return string
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
@@ -569,11 +572,7 @@ LEFT JOIN user_cons_columns r_cols
      *
      * The method returns an array of sql statements, since some platforms need several statements.
      *
-     * @param string $diff->name          name of the table that is intended to be changed.
-     * @param array $changes        associative array that contains the details of each type      *
-     * @param boolean $check        indicates whether the function should just check if the DBMS driver
-     *                              can perform the requested table alterations if the value is true or
-     *                              actually perform them otherwise.
+     * @param \Doctrine\DBAL\Schema\TableDiff $diff
      * @return array
      */
     public function getAlterTableSQL(TableDiff $diff)

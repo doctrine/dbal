@@ -194,6 +194,7 @@ class MySqlPlatform extends AbstractPlatform
      * Gets the SQL snippet used to declare a VARCHAR column on the MySql platform.
      *
      * @params array $field
+     * @return string
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {

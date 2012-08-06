@@ -45,7 +45,7 @@ use Doctrine\DBAL\DBALException,
  * point of abstraction of platform-specific behaviors, features and SQL dialects.
  * They are a passive source of information.
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @version $Revision: 3938 $
@@ -109,7 +109,7 @@ abstract class AbstractPlatform
     /**
      * Holds the KeywordList instance for the current platform.
      *
-     * @var Doctrine\DBAL\Platforms\Keywords\KeywordList
+     * @var \Doctrine\DBAL\Platforms\Keywords\KeywordList
      */
     protected $_keywords;
 
@@ -204,6 +204,7 @@ abstract class AbstractPlatform
      * Gets the SQL snippet used to declare a VARCHAR column type.
      *
      * @param array $field
+     * @return string
      */
     public function getVarcharTypeDeclarationSQL(array $field)
     {
@@ -234,6 +235,12 @@ abstract class AbstractPlatform
         return $this->getVarcharTypeDeclarationSQL($field);
     }
 
+    /**
+     * @param int $length
+     * @param boolean $fixed
+     * @return string
+     * @throws \Doctrine\DBAL\DBALException
+     */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         throw DBALException::notSupported('VARCHARs not supported by Platform.');
@@ -265,6 +272,7 @@ abstract class AbstractPlatform
      *
      * @param string $dbType
      * @param string $doctrineType
+     * @throws \Doctrine\DBAL\DBALException if the type is not found
      */
     public function registerDoctrineTypeMapping($dbType, $doctrineType)
     {
@@ -669,7 +677,7 @@ abstract class AbstractPlatform
      * @param string  $str       literal string
      * @param string  $substr    literal string to find
      * @param integer $startPos  position to start at, beginning of string by default
-     * @return integer
+     * @return string
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
@@ -700,9 +708,9 @@ abstract class AbstractPlatform
      */
     public function getSubstringExpression($value, $from, $len = null)
     {
-        if ($len === null)
+        if ($len === null) {
             return 'SUBSTRING(' . $value . ' FROM ' . $from . ')';
-        else {
+        } else {
             return 'SUBSTRING(' . $value . ' FROM ' . $from . ' FOR ' . $len . ')';
         }
     }
@@ -750,7 +758,7 @@ abstract class AbstractPlatform
      * These expressions will be matched against the first parameter.
      *
      * @param string $column                the value that should be matched against
-     * @param string|array(string) $values  values that will be matched against $column
+     * @param string|array<string> $values  values that will be matched against $column
      * @return string logical expression
      */
     public function getInExpression($column, $values)
@@ -1506,9 +1514,10 @@ abstract class AbstractPlatform
 
         return $eventArgs->isDefaultPrevented();
     }
+
     /**
      * @param TableDiff $diff
-     * @param array $qql
+     * @param array $sql
      * @return boolean
      */
     protected function onSchemaAlterTable(TableDiff $diff, &$sql)
@@ -1889,40 +1898,7 @@ abstract class AbstractPlatform
      * Obtain DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      * of a field declaration to be used in statements like CREATE TABLE.
      *
-     * @param array $definition         an associative array with the following structure:
-     *          name                    optional constraint name
-     *
-     *          local                   the local field(s)
-     *
-     *          foreign                 the foreign reference field(s)
-     *
-     *          foreignTable            the name of the foreign table
-     *
-     *          onDelete                referential delete action
-     *
-     *          onUpdate                referential update action
-     *
-     *          deferred                deferred constraint checking
-     *
-     * The onDelete and onUpdate keys accept the following values:
-     *
-     * CASCADE: Delete or update the row from the parent table and automatically delete or
-     *          update the matching rows in the child table. Both ON DELETE CASCADE and ON UPDATE CASCADE are supported.
-     *          Between two tables, you should not define several ON UPDATE CASCADE clauses that act on the same column
-     *          in the parent table or in the child table.
-     *
-     * SET NULL: Delete or update the row from the parent table and set the foreign key column or columns in the
-     *          child table to NULL. This is valid only if the foreign key columns do not have the NOT NULL qualifier
-     *          specified. Both ON DELETE SET NULL and ON UPDATE SET NULL clauses are supported.
-     *
-     * NO ACTION: In standard SQL, NO ACTION means no action in the sense that an attempt to delete or update a primary
-     *           key value is not allowed to proceed if there is a related foreign key value in the referenced table.
-     *
-     * RESTRICT: Rejects the delete or update operation for the parent table. NO ACTION and RESTRICT are the same as
-     *           omitting the ON DELETE or ON UPDATE clause.
-     *
-     * SET DEFAULT
-     *
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey
      * @return string  DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      *                 of a field declaration.
      */
@@ -2126,6 +2102,7 @@ abstract class AbstractPlatform
      * Get sql for transaction isolation level Connection constant
      *
      * @param integer $level
+     * @return string
      */
     protected function _getTransactionIsolationLevelSQL($level)
     {
@@ -2196,6 +2173,7 @@ abstract class AbstractPlatform
      *
      * @param string $table
      * @param string $currentDatabase
+     * @return string
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
@@ -2236,6 +2214,7 @@ abstract class AbstractPlatform
      * Get sql to set the transaction isolation level
      *
      * @param integer $level
+     * @return string
      */
     public function getSetTransactionIsolationSQL($level)
     {
@@ -2258,6 +2237,7 @@ abstract class AbstractPlatform
      * Obtain DBMS specific SQL to be used to create datetime with timezone offset fields.
      *
      * @param array $fieldDeclaration
+     * @return string
      */
     public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
     {

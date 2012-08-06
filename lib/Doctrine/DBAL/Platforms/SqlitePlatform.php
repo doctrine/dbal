@@ -47,6 +47,7 @@ class SqlitePlatform extends AbstractPlatform
      * Return string to call a variable with the current timestamp inside an SQL statement
      * There are three special variables for current date and time.
      *
+     * @param string $type
      * @return string       sqlite function as string
      * @override
      */
