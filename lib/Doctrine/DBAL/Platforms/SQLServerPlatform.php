@@ -611,7 +611,7 @@ class SQLServerPlatform extends AbstractPlatform
      * @param array $field
      * @return string
      */
-    public function getGuidTypeDeclartionSQL(array $field)
+    public function getGuidTypeDeclarationSQL(array $field)
     {
         return 'UNIQUEIDENTIFIER';
     }
