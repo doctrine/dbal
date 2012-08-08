@@ -100,7 +100,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             $decimal = strtok('(), ') ? strtok('(), '):null;
         }
         $type = array();
-        $unsigned = $fixed = null;
+        $fixed = null;
 
         if ( ! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
@@ -147,7 +147,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $options = array(
             'length'        => $length,
-            'unsigned'      => (bool) $unsigned,
+            'unsigned'      => (bool) (strpos($tableColumn['type'], 'unsigned') !== false),
             'fixed'         => (bool) $fixed,
             'default'       => isset($tableColumn['default']) ? $tableColumn['default'] : null,
             'notnull'       => (bool) ($tableColumn['null'] != 'YES'),
