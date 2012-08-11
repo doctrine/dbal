@@ -66,7 +66,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getDateDiffExpression($date1, $date2)
     {
-        // TODO
+        return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
     }
 
     public function getDateAddDaysExpression($date, $days)
