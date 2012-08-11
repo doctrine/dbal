@@ -269,11 +269,6 @@ class AkibanServerPlatform extends AbstractPlatform
                " MINVALUE " . $sequence->getInitialValue();
     }
 
-    public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
-    {
-        // TODO
-    }
-
     /**
      * Drop existing sequence
      * @param  \Doctrine\DBAL\Schema\Sequence $sequence
