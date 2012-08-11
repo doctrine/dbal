@@ -48,7 +48,7 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
     {
         $this-dbh = pg_connect($connectionString);
         if ( ! $this->dbh ) {
-            // throw exception
+            throw AkibanSrvException::fromErrorString("Failed to connect to Akiban Server.");
         }
     }
 
