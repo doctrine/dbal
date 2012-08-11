@@ -21,7 +21,7 @@
 
 namespace Doctrine\DBAL\Driver\AkibanSrv;
 
-use Doctrine\DBAL\Platforms\AkibanSrvPlatform;
+use Doctrine\DBAL\Platforms\AkibanServerPlatform;
 
 /**
  * Akiban Server implementation of the Connection interface.

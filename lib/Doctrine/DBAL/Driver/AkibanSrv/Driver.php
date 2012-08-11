@@ -53,12 +53,12 @@ class Driver implements \Doctrine\DBAL\Driver
 
     public function getDatabasePlatform()
     {
-        return new \Doctrine\DBAL\Platforms\AkibanSrvPlatform();
+        return new \Doctrine\DBAL\Platforms\AkibanServerPlatform();
     }
 
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
-        return new \Doctrine\DBAL\Schema\AkibanSrvSchemaManager($conn);
+        return new \Doctrine\DBAL\Schema\AkibanServerSchemaManager($conn);
     }
 
     public function getName()
