@@ -56,7 +56,12 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
-        // TODO
+        if ($startPos !== false) {
+            $str = $this->getSubstringExpression($str, $startPos);
+            return 'CASE WHEN (POSITION('.$substr.' IN '.$str.') = 0) THEN 0 ELSE (POSITION('.$substr.' IN '.$str.') + '.($startPos-1).') END';
+        } else {
+            return 'POSITION('.$substr.' IN '.$str.')';
+        }
     }
 
     public function getDateDiffExpression($date1, $date2)
