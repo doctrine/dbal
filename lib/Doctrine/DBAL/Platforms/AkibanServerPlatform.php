@@ -154,7 +154,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getListViewsSQL($database)
     {
-        // TODO
+        return "SELECT table_name as viewname, view_definition as definition FROM information_schema.views";
     }
 
     public function getListTableForeignKeysSQL($table, $database = null)
