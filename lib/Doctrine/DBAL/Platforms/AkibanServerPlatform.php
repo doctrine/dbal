@@ -335,7 +335,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getSequenceNextValSQL($sequenceName)
     {
-        return "SELECT NEXTVAL('" . $sequenceName . "')";
+        return "SELECT NEXT VALUE FOR ". $sequenceName;
     }
 
     public function getSetTransactionIsolationSQL($level)
