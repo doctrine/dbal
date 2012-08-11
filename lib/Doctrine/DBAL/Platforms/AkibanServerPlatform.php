@@ -81,7 +81,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getDateAddMonthExpression($date, $months)
     {
-        // TODO
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
     }
 
     public function getDateSubMonthExpression($date, $months)
