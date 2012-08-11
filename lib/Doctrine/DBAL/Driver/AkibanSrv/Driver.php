@@ -20,31 +20,35 @@ class Driver implements \Doctrine\DBAL\Driver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         return new AkibanSrvConnection(
-            $username,
-            $password,
-            $this->_constructDsn($params)
+            $this->_constructConnectionString($params, $username, $password)
         );
     }
 
     /**
-     * Constructs the Akiban Server DSN.
+     * Constructs the Akiban Server connection string.
      *
-     * @return string The DSN.
+     * @return string The connection string.
      */
-    private function _constructPdoDsn(array $params)
+    private function _constructConnectionString(array $params, $username, $password)
     {
-        $dsn = '';
+        $connString = '';
         if (isset($params['host']) && $params['host'] != '') {
-            $dsn .= 'host=' . $params['host'] . ' ';
+            $connString .= 'host=' . $params['host'] . ' ';
         }
         if (isset($params['port']) && $params['port'] != '') {
-            $dsn .= 'port=' . $params['port'] . ' ';
+            $connString .= 'port=' . $params['port'] . ' ';
         }
         if (isset($params['dbname'])) {
-            $dsn .= 'dbname=' . $params['dbname'] . ' ';
+            $connString .= 'dbname=' . $params['dbname'] . ' ';
+        }
+        if (isset($username)) {
+            $connString .= 'user=' . $username . ' ';
+        }
+        if (isset($password)) {
+            $connString .= 'user=' . $username . ' ';
         }
 
-        return $dsn;
+        return $connString;
     }
 
     public function getDatabasePlatform()
