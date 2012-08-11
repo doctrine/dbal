@@ -222,7 +222,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($name)
     {
-        return 'DROP SCHEMA ' . $name;
+        return "DROP SCHEMA " . $name . " CASCADE";
     }
 
     /**
