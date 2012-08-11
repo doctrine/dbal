@@ -278,7 +278,10 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getCreateSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
-        // TODO
+        return "CREATE SEQUENCE " . $sequence->getQuotedName($this) .
+               " START WITH " . $sequence->getInitialValue() .
+               " INCREMENT BY " . $sequence->getAllocationSize() .
+               " MINVALUE " . $sequence->getInitialValue();
     }
 
     public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
