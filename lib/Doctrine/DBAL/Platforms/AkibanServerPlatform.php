@@ -86,7 +86,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getDateSubMonthExpression($date, $months)
     {
-        // TODO
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';
     }
 
     /**
