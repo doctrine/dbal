@@ -47,17 +47,6 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * regexp
-     *
-     * @return string           the regular expression operator
-     * @override
-     */
-    public function getRegexpExpression()
-    {
-        // TODO
-    }
-
-    /**
      * returns the position of the first occurrence of substring $substr in string $str
      *
      * @param string $substr    literal string to find
