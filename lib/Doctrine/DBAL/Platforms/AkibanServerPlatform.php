@@ -47,16 +47,6 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Returns the SQL string to return the current system date and time.
-     *
-     * @return string
-     */
-    public function getNowExpression()
-    {
-        // TODO
-    }
-
-    /**
      * regexp
      *
      * @return string           the regular expression operator
