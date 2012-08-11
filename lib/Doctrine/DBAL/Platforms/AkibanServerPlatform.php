@@ -164,12 +164,12 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getCreateViewSQL($name, $sql)
     {
-        // TODO
+        return "CREATE VIEW " . $name . " AS " . $sql;
     }
 
     public function getDropViewSQL($name)
     {
-        return 'DROP VIEW '. $name;
+        return "DROP VIEW " . $name;
     }
 
     public function getListTableConstraintsSQL($table)
