@@ -71,7 +71,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getDateAddDaysExpression($date, $days)
     {
-        // TODO
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
     }
 
     public function getDateSubDaysExpression($date, $days)
