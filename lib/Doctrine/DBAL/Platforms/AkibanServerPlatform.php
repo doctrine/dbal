@@ -338,7 +338,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
-        // TODO
+        return 'BOOLEAN';
     }
 
     /**
