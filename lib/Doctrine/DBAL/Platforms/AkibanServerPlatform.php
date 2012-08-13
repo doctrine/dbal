@@ -377,7 +377,11 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        // TODO
+        if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] == true) {
+            return 'TIMESTAMP';
+        } else {
+            return 'DATETIME';
+        }
     }
 
     /**
