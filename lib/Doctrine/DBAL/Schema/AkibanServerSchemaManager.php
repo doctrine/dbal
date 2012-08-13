@@ -87,7 +87,7 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
 
     protected function _getPortableViewDefinition($view)
     {
-        // TODO
+        return new View($view['viewname'], $view['definition']);
     }
 
     protected function _getPortableUserDefinition($user)
