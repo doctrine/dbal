@@ -401,7 +401,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        // TODO
+        return 'TIME';
     }
 
     /**
