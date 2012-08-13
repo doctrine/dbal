@@ -43,7 +43,11 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getSubstringExpression($value, $from, $len = null)
     {
-        // TODO
+        if ($len === null) {
+            return 'SUBSTR(' . $value . ', ' . $from . ')';
+        } else {
+            return 'SUBSTR(' . $value . ', ' . $from . ', ' . $len . ')';
+        }
     }
 
     /**
