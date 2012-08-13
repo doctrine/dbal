@@ -480,7 +480,28 @@ class AkibanServerPlatform extends AbstractPlatform
 
     protected function initializeDoctrineTypeMappings()
     {
-        // TODO
+        $this->doctrineTypeMapping = array(
+            'smallint'      => 'smallint',
+            'serial'        => 'integer',
+            'int'           => 'integer',
+            'integer'       => 'integer',
+            'bigserial'     => 'bigint',
+            'bigint'        => 'bigint',
+            'boolean'       => 'boolean',
+            'varchar'       => 'string',
+            'char'          => 'string',
+            'date'          => 'date',
+            'datetime'      => 'datetime',
+            'timestamp'     => 'datetime',
+            'time'          => 'time',
+            'float'         => 'float',
+            'double'        => 'float',
+            'real'          => 'float',
+            'decimal'       => 'decimal',
+            'numeric'       => 'decimal',
+            'year'          => 'date',
+            'blob'          => 'blob',
+        );
     }
 
     public function getVarcharMaxLength()
