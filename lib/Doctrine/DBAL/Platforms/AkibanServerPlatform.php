@@ -154,8 +154,8 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getListTablesSQL()
     {
-        return "SELECT table_name, table_schema
-                FROM information_schema.tables WHERE table_schema != 'information_schema';
+        return "SELECT table_name, table_schema " .
+                "FROM information_schema.tables WHERE table_schema != 'information_schema'";
     }
 
     public function getListViewsSQL($database)
@@ -191,17 +191,19 @@ class AkibanServerPlatform extends AbstractPlatform
         // TODO - should $currentDatabase be used?
         return "SELECT table_name, index_name, is_unique " .
                "FROM information_schema.indexes " .
-               "WHERE table_name = ' . $table;
+               "WHERE table_name = '" . $table . "'";
     }
 
     public function getListTableColumnsSQL($table, $database = null)
     {
+        if ( ! is_null($database)) {
+            $schemaPredicate = "schema_name = '" . $database . "' and ";
+        } else {
+            $schemePredicate = "";
+        }
         return "SELECT column_name, type, nullable, character_set_name, collation_name " .
                "FROM information_schema.columns " .
-               "WHERE schema_name != 'information_schema' and " .
-               if ( ! is_null($database)) {
-                   "schema_name = '" . $database . "' and " .
-               } 
+               "WHERE schema_name != 'information_schema' and " . $schemaPredicate .
                "table_name = '" . $table . "'";
     }
 

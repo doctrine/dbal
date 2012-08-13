@@ -26,7 +26,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  * @since       2.3
  * @author      Padraig O'Sullivan <osullivan.padraig@gmail.com>
  */
-class PostgreSQLKeywords extends KeywordList
+class AkibanSrvKeywords extends KeywordList
 {
     public function getName()
     {
