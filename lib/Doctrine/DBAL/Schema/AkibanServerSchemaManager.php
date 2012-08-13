@@ -36,7 +36,8 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
      */
     public function getSchemaNames()
     {
-        // TODO
+        $rows = $this->_conn->fetchAll("SELECT schema_name FROM information_schema.schemata WHERE schema_name != 'information_schema'");
+        return array_map(function($v) { return $v['schema_name']; }, $rows);
     }
 
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
