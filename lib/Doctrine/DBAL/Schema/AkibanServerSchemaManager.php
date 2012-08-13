@@ -61,9 +61,24 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
         $this->_conn = $tmpConn;
     }
 
-    public function createDatabase($database)
+    public function createDatabase($database = null)
     {
-        // TODO
+        if (is_null($database)) {
+            $database = $this->_conn->getDatabase();
+        }
+
+        $params = $this->_conn->getParams();
+        $params["dbname"] = "information_schema";
+        $tmpPlatform = $this->_platform;
+        $tmpConn = $this->_conn;
+
+        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+        $this->_platform = $this->_conn->getDatabasePlatform();
+
+        parent::createDatabase($database);
+
+        $this->_platform = $tmpPlatform;
+        $this->_conn = $tmpConn;
     }
 
     protected function _getPortableTriggerDefinition($trigger)
