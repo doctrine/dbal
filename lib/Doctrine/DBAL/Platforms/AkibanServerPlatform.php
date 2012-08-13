@@ -330,11 +330,6 @@ class AkibanServerPlatform extends AbstractPlatform
         return "SELECT NEXT VALUE FOR ". $sequenceName;
     }
 
-    public function getSetTransactionIsolationSQL($level)
-    {
-        // TODO
-    }
-
     /**
      * @override
      */
