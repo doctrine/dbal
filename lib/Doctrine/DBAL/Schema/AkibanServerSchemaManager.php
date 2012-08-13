@@ -85,11 +85,6 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
         $this->_conn = $tmpConn;
     }
 
-    protected function _getPortableTriggerDefinition($trigger)
-    {
-        // TODO
-    }
-
     protected function _getPortableViewDefinition($view)
     {
         // TODO
