@@ -100,7 +100,7 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
 
     protected function _getPortableTableDefinition($table)
     {
-        // TODO
+        return $table['table_name'];
     }
 
     /**
