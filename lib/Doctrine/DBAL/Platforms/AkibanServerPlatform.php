@@ -197,7 +197,13 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getListTableColumnsSQL($table, $database = null)
     {
-        // TODO
+        return "SELECT column_name, type, nullable, character_set_name, collation_name " .
+               "FROM information_schema.columns " .
+               "WHERE schema_name != 'information_schema' and " .
+               if ( ! is_null($database)) {
+                   "schema_name = '" . $database . "' and " .
+               } 
+               "table_name = '" . $table . "'";
     }
 
     /**
