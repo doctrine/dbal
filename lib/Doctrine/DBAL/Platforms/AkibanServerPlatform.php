@@ -438,14 +438,6 @@ class AkibanServerPlatform extends AbstractPlatform
     /**
      * @override
      */
-    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
-    {
-        // TODO
-    }
-
-    /**
-     * @override
-     */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
         return 'DATE';
@@ -506,11 +498,6 @@ class AkibanServerPlatform extends AbstractPlatform
     public function getSQLResultCasing($column)
     {
         return strtolower($column);
-    }
-
-    public function getDateTimeTzFormatString()
-    {
-        // TODO
     }
 
     /**
