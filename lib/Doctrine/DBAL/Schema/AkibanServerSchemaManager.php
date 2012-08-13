@@ -47,7 +47,18 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
 
     public function dropDatabase($database)
     {
-        // TODO
+        $params = $this->_conn->getParams();
+        $params["dbname"] = "information_schema";
+        $tmpPlatform = $this->_platform;
+        $tmpConn = $this->_conn;
+
+        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+        $this->_platform = $this->_conn->getDatabasePlatform();
+
+        parent::dropDatabase($database);
+
+        $this->_platform = $tmpPlatform;
+        $this->_conn = $tmpConn;
     }
 
     public function createDatabase($database)
