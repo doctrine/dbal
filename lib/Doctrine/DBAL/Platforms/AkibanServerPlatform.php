@@ -357,16 +357,6 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @param  \Doctrine\DBAL\Schema\ForeignKeyConstraint|string $foreignKey
-     * @param  Table|string $table
-     * @return string
-     */
-    public function getDropForeignKeySQL($foreignKey, $table)
-    {
-        // TODO
-    }
-
-    /**
      * Gets the SQL used to create a table.
      *
      * @param string $tableName
