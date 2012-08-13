@@ -314,17 +314,6 @@ class AkibanServerPlatform extends AbstractPlatform
         // TODO
     }
 
-    /**
-     * Postgres wants boolean values converted to the strings 'true'/'false'.
-     *
-     * @param array $item
-     * @override
-     */
-    public function convertBooleans($item)
-    {
-        // TODO
-    }
-
     public function getSequenceNextValSQL($sequenceName)
     {
         return "SELECT NEXT VALUE FOR ". $sequenceName;
