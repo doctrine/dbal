@@ -187,7 +187,10 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        // TODO
+        // TODO - should $currentDatabase be used?
+        return "SELECT table_name, index_name, is_unique " .
+               "FROM information_schema.indexes " .
+               "WHERE table_name = ' . $table;
     }
 
     /**
