@@ -40,11 +40,6 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
         return array_map(function($v) { return $v['schema_name']; }, $rows);
     }
 
-    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
-    {
-        // TODO
-    }
-
     public function dropDatabase($database = null)
     {
         if (is_null($database)) {
