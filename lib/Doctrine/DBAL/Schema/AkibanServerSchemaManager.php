@@ -120,7 +120,7 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
 
     protected function _getPortableSequenceDefinition($sequence)
     {
-        // TODO
+        return new Sequence($sequence['sequence_name'], $sequence['increment_by'], $sequence['min_value']);
     }
 
     protected function _getPortableTableColumnDefinition($tableColumn)
