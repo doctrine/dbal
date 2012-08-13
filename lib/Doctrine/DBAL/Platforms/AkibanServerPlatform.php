@@ -235,19 +235,6 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Return the FOREIGN KEY query section dealing with non-standard options
-     * as MATCH, INITIALLY DEFERRED, ON UPDATE, ...
-     *
-     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey         foreign key definition
-     * @return string
-     * @override
-     */
-    public function getAdvancedForeignKeyOptionsSQL(\Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey)
-    {
-        // TODO
-    }
-
-    /**
      * generates the sql for altering an existing table in Akiban Server
      *
      * @see Doctrine_Export::alterTable()
