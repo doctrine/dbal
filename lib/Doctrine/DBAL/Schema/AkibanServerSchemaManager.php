@@ -115,7 +115,7 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
 
     protected function _getPortableDatabaseDefinition($database)
     {
-        // TODO
+        return $database['datname'];
     }
 
     protected function _getPortableSequenceDefinition($sequence)
