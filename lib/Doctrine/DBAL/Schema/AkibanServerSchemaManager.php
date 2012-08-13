@@ -92,7 +92,10 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
 
     protected function _getPortableUserDefinition($user)
     {
-        // TODO
+        return array(
+            'user' => $user['usename'],
+            'password' => $user['passwd']
+        );
     }
 
     protected function _getPortableTableDefinition($table)
