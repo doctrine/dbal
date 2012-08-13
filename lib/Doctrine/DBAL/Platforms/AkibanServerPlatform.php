@@ -376,7 +376,48 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
-        // TODO
+        $columnListSql = $this->getColumnDeclarationListSQL($columns);
+
+        if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
+            foreach ($options['uniqueConstraints'] as $name => $definition) {
+                // TODO
+            }
+        }
+
+        if (isset($options['primary']) && ! empty($options['primary'])) {
+            $keyColumns = array_unique(array_values($options['primary']));
+            $columnListSql .= ", PRIMARY KEY(" . implode(", ", $keyColumns) . ")";
+        }
+
+        $query = "CREATE TABLE " . $tableName . " (" . $columnListSql . ")";
+
+        $check = $this->getCheckDeclarationSQL($columns);
+        if ( ! empty($check)) {
+            // TODO
+        }
+
+        $sql[] = $query;
+
+        foreach ($columns as $name => $column) {
+            if (isset($column['sequence'])) {
+                $sql[] = $this->getCreateSequenceSQL($column['sequence'], 1);
+            }
+
+            if (isset($column['autoincrement']) && $column['autoincrement'] ||
+               (isset($column['autoinc']) && $column['autoinc'])) {
+                // TODO??
+            }
+        }
+
+        if (isset($options['indexes']) && ! empty($options['indexes'])) {
+            foreach ($options['indexes'] as $index) {
+                $sql[] = $this->getCreateIndexSQL($index, $tableName);
+            }
+        }
+
+        // TODO - foreign keys
+
+        return $sql;
     }
 
     public function getSequenceNextValSQL($sequenceName)
