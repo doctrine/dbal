@@ -147,7 +147,9 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getListSequencesSQL($database)
     {
-        // TODO
+        return "SELECT sequence_name, sequence_schema as schemaname " .
+               "FROM information_schema.sequences " .
+               "WHERE sequence_name != 'information_schema'";
     }
 
     public function getListTablesSQL()
