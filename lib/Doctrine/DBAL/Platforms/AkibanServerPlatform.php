@@ -250,18 +250,83 @@ class AkibanServerPlatform extends AbstractPlatform
     /**
      * generates the sql for altering an existing table in Akiban Server
      *
-     * @param string $name          name of the table that is intended to be changed.
-     * @param array $changes        associative array that contains the details of each type      *
-     * @param boolean $check        indicates whether the function should just check if the DBMS driver
-     *                              can perform the requested table alterations if the value is true or
-     *                              actually perform them otherwise.
      * @see Doctrine_Export::alterTable()
+     * @param TableDiff $diff
      * @return array
      * @override
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        // TODO
+        $sql = array();
+        $commentsSQL = array(); // Akiban Server does not support comments as of 1.4.0
+        $columnSql = array(); 
+
+        foreach ($diff->addedColumns as $column) {
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $query = "ADD " . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+            if ($comment = $this->getColumnComment($column)) {
+                // TODO
+            }
+        }
+
+        foreach ($diff->removedColumns as $column) {
+            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $query = "DROP " . $column->getQuotedName($this);
+            $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+        }
+
+        foreach ($diff->changedColumns as $columnDiff) {
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
+            $oldColumnName = $columnDiff->oldColumnName;
+            $column = $columnDiff->column;
+
+            if ($columnDiff->hasChanged('type')) {
+                $type = $column->getType();
+
+                $query = "ALTER " . $oldColumnName . " SET DATA TYPE " . $type->getSqlDeclaration($column->toArray(), $this);
+                $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+            }
+            if ($columnDiff->hasChanged('default')) {
+                // TODO
+            }
+            if ($columnDiff->hasChanged('notnull')) {
+                // TODO
+            }
+            if ($columnDiff->hasChanged('autoincrement')) {
+                // TODO
+            }
+            if ($columnDiff->hasChanged('comment') && $comment = $this->getColumnComment($column)) {
+                // TODO
+            }
+        }
+
+        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
+            }
+            // TODO
+        }
+
+        $tableSql = array();
+
+        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
+            if ($diff->newName !== false) {
+                // TODO
+            }
+            // TODO - handle foreign keys alter statements
+        }
+
+        return array_merge($sql, $tableSql, $columnSql);
     }
 
     /**
