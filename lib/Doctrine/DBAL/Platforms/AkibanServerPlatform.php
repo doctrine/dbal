@@ -180,7 +180,11 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getListTableConstraintsSQL($table)
     {
-        // TODO
+        // TODO - do we only want unique and primary key indexes here?
+        return "SELECT index_name " .
+               "FROM information_schema.indexes " .
+               "WHERE schema_name != 'information_schema' AND " .
+               "table_name = '" . $table . "'";
     }
 
     /**
