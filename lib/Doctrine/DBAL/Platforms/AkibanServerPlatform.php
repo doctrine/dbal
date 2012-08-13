@@ -195,17 +195,6 @@ class AkibanServerPlatform extends AbstractPlatform
                "WHERE table_name = ' . $table;
     }
 
-    /**
-     * @param string $table
-     * @param string $classAlias
-     * @param string $namespaceAlias
-     * @return string
-     */
-    private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n')
-    {
-        // TODO
-    }
-
     public function getListTableColumnsSQL($table, $database = null)
     {
         // TODO
