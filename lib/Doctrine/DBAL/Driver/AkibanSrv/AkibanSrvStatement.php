@@ -127,7 +127,10 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function columnCount()
     {
-        // TODO
+        if ($this->_results) {
+            return pg_num_fields($this->_results);
+        }
+        return 0;
     }
 
     /**
@@ -151,9 +154,6 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if (is_null($params)) {
-            $args = array();
-        } 
         if (empty($this->_parameters) && is_null($params)) {
             $this->_results = pg_query($this->_dbh, $this->_statement);
         } else if (empty($this->_parameters) && ! is_null($params)) {
