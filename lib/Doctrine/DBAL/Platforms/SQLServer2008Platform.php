@@ -28,7 +28,7 @@ namespace Doctrine\DBAL\Platforms;
 class SQLServer2008Platform extends SQLServer2005Platform
 {
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -38,7 +38,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -46,7 +46,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -54,7 +54,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDateTimeFormatString()
     {
@@ -62,7 +62,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDateTimeTzFormatString()
     {
@@ -70,22 +70,24 @@ class SQLServer2008Platform extends SQLServer2005Platform
     }
 
     /**
-     * @override
-	 */
+     * {@inheritDoc}
+     */
     public function getDateFormatString()
     {
         return 'Y-m-d';
     }
 
     /**
-     * @override
-	 */
+     * {@inheritDoc}
+     */
     public function getTimeFormatString()
     {
         return 'H:i:s';
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Adding Datetime2 Type
      */
     protected function initializeDoctrineTypeMappings()
