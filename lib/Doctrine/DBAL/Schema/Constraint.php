@@ -21,10 +21,12 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * Marker interface for contraints
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @version $Revision$
@@ -33,6 +35,8 @@ namespace Doctrine\DBAL\Schema;
 interface Constraint
 {
     public function getName();
+
+    public function getQuotedName(AbstractPlatform $platform);
 
     public function getColumns();
 }
