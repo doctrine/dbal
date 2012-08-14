@@ -34,7 +34,7 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
     /**
      * @var resource
      */
-    protected $dbh;
+    protected $_dbh;
 
     /**
      * Create a Connection to an Akiban Server Database using 
@@ -46,8 +46,8 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function __construct($connectionString)
     {
-        $this->dbh = pg_connect($connectionString);
-        if ( ! $this->dbh ) {
+        $this->_dbh = pg_connect($connectionString);
+        if ( ! $this->_dbh ) {
             throw AkibanSrvException::fromErrorString("Failed to connect to Akiban Server.");
         }
     }
@@ -60,7 +60,7 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function prepare($prepareString)
     {
-        return new AkibanSrvStatement($this->dbh, $prepareString, $this);
+        return new AkibanSrvStatement($this->_dbh, $prepareString, $this);
     }
 
     /**
@@ -71,7 +71,7 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
     {
         $args = func_get_args();
         $sql = $args[0];
-        $stmt = $this->prepare($sql);
+        $stmt = new AkibanSrvStatement($this->_dbh, $sql, $this);
         $stmt->execute();
         return $stmt;
     }
@@ -146,11 +146,11 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
     public function errorCode()
     {
         // TODO - this returns error message, not error code
-        return pg_last_error($this->dbh);
+        return pg_last_error($this->_dbh);
     }
 
     public function errorInfo()
     {
-        return pg_last_error($this->dbh);
+        return pg_last_error($this->_dbh);
     }
 }

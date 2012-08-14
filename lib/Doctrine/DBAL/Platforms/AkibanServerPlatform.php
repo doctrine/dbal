@@ -140,6 +140,27 @@ class AkibanServerPlatform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * Whether the platform supports savepoints.
+     *
+     * @return boolean
+     */
+    public function supportsSavepoints()
+    {
+        return false;
+    }
+
+    /**
+     * Whether the platform supports releasing savepoints.
+     *
+     * @return boolean
+     */
+    public function supportsReleaseSavepoints()
+    {
+        return $this->supportsSavepoints();
+    }
+
+
     public function getListDatabasesSQL()
     {
         return "SELECT schema_name FROM information_schema.schemata";
@@ -227,7 +248,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($name)
     {
-        return "DROP SCHEMA " . $name . " CASCADE";
+        return "DROP SCHEMA IF EXISTS " . $name . " CASCADE";
     }
 
     /**
@@ -531,7 +552,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        return 'TRUNCATE '.$tableName.' '.(($cascade)?'CASCADE':'');
+        return 'TRUNCATE TABLE ' . $tableName . ' ' . (($cascade) ? 'CASCADE' : '');
     }
 
     protected function initializeDoctrineTypeMappings()

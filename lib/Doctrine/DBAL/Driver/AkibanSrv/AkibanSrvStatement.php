@@ -46,17 +46,60 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
     private $_statement;
 
     /**
+     * randomly generated name for this statement.
+     */
+    private $_statementName;
+
+    /**
+     * query results
+     */
+    private $_results;
+
+    /**
      * Akiban Server connection object.
      *
      * @var resource
      */
     private $_conn;
 
+    private $_parameters = array();
+
     public function __construct($dbh, $statement, AkibanSrvConnection $conn)
     {
-        $this->_statement = $statement;
+        $this->_statement = $this->convertPositionalToNumberedParameters($statement);
         $this->_dbh = $dbh;
         $this->_conn = $conn;
+        // generate a random name for this statement
+        $this->_statementName = "my_query";
+        $this->_results = false;
+        //pg_prepare($this->_dbh, $this->_statementName, $this->_statement);
+    }
+
+    /**
+     * Convert positional (?) into numbered parameters ($<num>).
+     *
+     * The PostgreSQL client libraries do not support positional parameters, hence
+     * this method converts all positional parameters into numbered parameters.
+     */
+    private function convertPositionalToNumberedParameters($statement)
+    {
+        $count = 1;
+        $inLiteral = false;
+        $stmtLen = strlen($statement);
+        for ($i = 0; $i < $stmtLen; $i++) {
+            if ($statement[$i] == '?' && ! $inLiteral) {
+                $param = "$" . $count;
+                $len = strlen($param);
+                $statement = substr_replace($statement, $param, $i, 1);
+                $i += $len - 1;
+                $stmtLen = strlen($statement);
+                ++$count;
+            } else if ($statement[$i] == "'" || $statement[$i] == '"') {
+                $inLiteral = ! $inLiteral;
+            }
+        }
+
+        return $statement;
     }
 
     /**
@@ -72,7 +115,7 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = null, $length = null)
     {
-        // TODO
+        $this->_parameters[] = $variable;
     }
 
     public function closeCursor()
@@ -109,7 +152,17 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        // TODO
+        if (is_null($params)) {
+            $args = array();
+        } 
+        if (empty($this->_parameters) && is_null($params)) {
+            $this->_results = pg_query($this->_dbh, $this->_statement);
+        } else if (empty($this->_parameters) && ! is_null($params)) {
+            $this->_results = pg_query_params($this->_dbh, $this->_statement, $params);
+        } else {
+            $this->_results = pg_query_params($this->_dbh, $this->_statement, $this->_parameters);
+        }
+        return $this->_results;
     }
 
     /**
@@ -141,7 +194,7 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function fetchAll($fetchMode = null)
     {
-        // TODO
+        return pg_fetch_all($this->_results);
     }
 
     /**
@@ -157,7 +210,10 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function rowCount()
     {
-        // TODO
+        if ($this->_results) {
+            return pg_affected_rows($this->_results);
+        }
+        return 0;
     }
 }
 
