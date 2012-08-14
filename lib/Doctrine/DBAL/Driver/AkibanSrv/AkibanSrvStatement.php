@@ -72,11 +72,17 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     private $_defaultFetchMode = PDO::FETCH_BOTH;
 
+    private $_className;
+    private $_ctorArgs;
+
     private static $fetchModeMap = 
       array(
-        PDO::FETCH_BOTH => PGSQL_BOTH,
-        PDO::FETCH_ASSOC => PGSQL_ASSOC,
-        PDO::FETCH_NUM => PGSQL_NUM,
+        PDO::FETCH_BOTH   => PGSQL_BOTH,
+        PDO::FETCH_ASSOC  => PGSQL_ASSOC,
+        PDO::FETCH_NUM    => PGSQL_NUM,
+        PDO::FETCH_COLUMN => 1,
+        PDO::FETCH_OBJ    => 1,
+        PDO::FETCH_CLASS  => 1,
       );
 
     public function __construct($dbh, $statement, AkibanSrvConnection $conn)
@@ -87,6 +93,8 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
         // generate a random name for this statement
         $this->_statementName = "my_query";
         $this->_results = false;
+        $this->_className = null;
+        $this->_ctorArgs = null;
     }
 
     /**
@@ -135,7 +143,9 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
     public function closeCursor()
     {
         if ($this->_results) {
-            return pg_free_result($this->_results);
+            $ret = pg_free_result($this->_results);
+            $this->_results = false;
+            return $ret;
         }
         return false;
     }
@@ -188,6 +198,13 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchMode = $fetchMode;
+        if ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
+            if (func_num_args() >= 2) {
+                $args = func_get_args();
+                $this->_className = $args[1];
+                $this->_ctorArgs = (isset($args[2])) ? $args[2] : array();
+            }
+        }
     }
 
     /**
@@ -205,12 +222,37 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
     public function fetch($fetchMode = null, $rowPos = 0)
     {
         $fetchMode = $fetchMode ? : $this->_defaultFetchMode;
+
         if ( ! isset(self::$fetchModeMap[$fetchMode])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
         }
-        if ($this->_results) {
-            return pg_fetch_array($this->_results, $rowPos, self::$fetchModeMap[$fetchMode]);
+
+        if ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
+            if ($this->_results && $this->_className) {
+                if (empty($this->_ctorArgs)) {
+                    if ($rowPos != 0) {
+                        return pg_fetch_object($this->_results, $rowPos, $this->_className);
+                    } else {
+                        return pg_fetch_object($this->_results, NULL, $this->_className);
+                    }
+                } else {
+                    if ($rowPos != 0) {
+                        return pg_fetch_object($this->_results, $rowPos, $this->_className, $this->_ctorArgs);
+                    } else {
+                        return pg_fetch_object($this->_results, NULL, $this->_className, $this->_ctorArgs);
+                    }
+                }
+            }
         }
+
+        if ($this->_results) {
+            if ($rowPos == 0) {
+                return pg_fetch_array($this->_results, NULL, self::$fetchModeMap[$fetchMode]);
+            } else {
+                return pg_fetch_array($this->_results, $rowPos, self::$fetchModeMap[$fetchMode]);
+            }
+        }
+
         return false;
     }
 
@@ -220,9 +262,28 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
     public function fetchAll($fetchMode = null)
     {
         $fetchMode = $fetchMode ? : $this->_defaultFetchMode;
+
         if ( ! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
+            throw new \InvalidArgumentException("Invalid fetch mode: " . $fetchMode);
         }
+
+        if ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
+            $className = null;
+            $ctorArgs = null;
+            if (func_num_args() >= 2) {
+                $args = func_get_args();
+                $this->_className = $args[1];
+                $this->_ctorArgs = (isset($args[2])) ? $args[2] : array();
+            }
+            if ($this->_results && $this->_className) {
+                if (empty($this->_ctorArgs)) {
+                    return pg_fetch_object($this->_results, 0, $this->_className);
+                } else {
+                    return pg_fetch_object($this->_results, 0, $this->_className, $this->_ctorArgs);
+                }
+            }
+        }
+
         if ($this->_results) {
             $result = array();
             if (self::$fetchModeMap[$fetchMode] == PGSQL_BOTH) {
@@ -237,20 +298,32 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
                     $result[] = $row;
                 }
                 return $result;
+            } else if ($fetchMode == PDO::FETCH_COLUMN) {
+                for ($i = 0; $i < pg_num_rows($this->_results); $i++) {
+                    for ($col = 0; $col < $this->columnCount(); $col++) {
+                        $result[] = $this->fetchColumn($col, $i);
+                    }
+                }
+                return $result;
             } else {
                 return pg_fetch_all($this->_results);
             }
         }
+
         return false;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn($columnIndex = 0, $rowPos = 0)
     {
         if ($this->_results) {
-            $row = pg_fetch_array($this->_results, 0, PGSQL_NUM);
+            if ($rowPos != 0) {
+                $row = pg_fetch_array($this->_results, $rowPos, PGSQL_NUM);
+            } else {
+                $row = pg_fetch_array($this->_results, NULL, PGSQL_NUM);
+            }
             return isset($row[$columnIndex]) ? $row[$columnIndex] : false;
         }
         return false;
