@@ -22,8 +22,9 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Schema\Index,
-    Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * The SQLServerPlatform provides the behavior, features and SQL dialect of the
@@ -44,33 +45,43 @@ class SQLServerPlatform extends AbstractPlatform
         return 'DATEDIFF(day, ' . $date2 . ',' . $date1 . ')';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return 'DATEADD(day, ' . $days . ', ' . $date . ')';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getDateSubDaysExpression($date, $days)
     {
         return 'DATEADD(day, -1 * ' . $days . ', ' . $date . ')';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getDateAddMonthExpression($date, $months)
     {
         return 'DATEADD(month, ' . $months . ', ' . $date . ')';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getDateSubMonthExpression($date, $months)
     {
         return 'DATEADD(month, -1 * ' . $months . ', ' . $date . ')';
     }
 
     /**
-     * Whether the platform prefers identity columns for ID generation.
+     * {@inheritDoc}
+     *
      * MsSql prefers "autoincrement" identity columns since sequences can only
      * be emulated with a table.
-     *
-     * @return boolean
-     * @override
      */
     public function prefersIdentityColumns()
     {
@@ -78,11 +89,9 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Whether the platform supports identity columns.
-     * MsSql supports this through AUTO_INCREMENT columns.
+     * {@inheritDoc}
      *
-     * @return boolean
-     * @override
+     * MsSql supports this through AUTO_INCREMENT columns.
      */
     public function supportsIdentityColumns()
     {
@@ -90,9 +99,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Whether the platform supports releasing savepoints.
-     *
-     * @return boolean
+     * {@inheritDoc}
      */
     public function supportsReleaseSavepoints()
     {
@@ -100,11 +107,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * create a new database
-     *
-     * @param string $name name of the database that should be created
-     * @return string
-     * @override
+     * {@inheritDoc}
      */
     public function getCreateDatabaseSQL($name)
     {
@@ -112,11 +115,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * drop an existing database
-     *
-     * @param string $name name of the database that should be dropped
-     * @return string
-     * @override
+     * {@inheritDoc}
      */
     public function getDropDatabaseSQL($name)
     {
@@ -124,7 +123,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function supportsCreateDropDatabase()
     {
@@ -132,15 +131,15 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
-        if ($foreignKey instanceof \Doctrine\DBAL\Schema\ForeignKeyConstraint) {
+        if ($foreignKey instanceof ForeignKeyConstraint) {
             $foreignKey = $foreignKey->getQuotedName($this);
         }
 
-        if ($table instanceof \Doctrine\DBAL\Schema\Table) {
+        if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         }
 
@@ -148,11 +147,11 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
-    public function getDropIndexSQL($index, $table=null)
+    public function getDropIndexSQL($index, $table = null)
     {
-        if ($index instanceof \Doctrine\DBAL\Schema\Index) {
+        if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
         } else if (!is_string($index)) {
             throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
@@ -160,25 +159,25 @@ class SQLServerPlatform extends AbstractPlatform
 
         if (!isset($table)) {
             return 'DROP INDEX ' . $index;
-        } else {
-            if ($table instanceof \Doctrine\DBAL\Schema\Table) {
-                $table = $table->getQuotedName($this);
-            }
-
-            return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
-						ALTER TABLE " . $table . " DROP CONSTRAINT " . $index . "
-					ELSE
-						DROP INDEX " . $index . " ON " . $table;
         }
+
+        if ($table instanceof Table) {
+            $table = $table->getQuotedName($this);
+        }
+
+        return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
+                    ALTER TABLE " . $table . " DROP CONSTRAINT " . $index . "
+                ELSE
+                    DROP INDEX " . $index . " ON " . $table;
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
         // @todo does other code breaks because of this?
-        // foce primary keys to be not null
+        // force primary keys to be not null
         foreach ($columns as &$column) {
             if (isset($column['primary']) && $column['primary']) {
                 $column['notnull'] = true;
@@ -227,11 +226,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Get SQL to create an unnamed primary key constraint.
-     *
-     * @param Index $index
-     * @param string|Table $table
-     * @return string
+     * {@inheritDoc}
      */
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
@@ -243,7 +238,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
@@ -255,7 +250,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getCreateIndexSQL(Index $index, $table)
     {
@@ -269,7 +264,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     protected function getCreateIndexSQLFlags(Index $index)
     {
@@ -292,6 +287,7 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param string $sql
      * @param Index $index
+     *
      * @return string
      */
     private function _appendUniqueConstraintDefinition($sql, Index $index)
@@ -309,7 +305,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
@@ -374,7 +370,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getEmptyIdentityInsertSQL($quotedTableName, $quotedIdentifierColumnName)
     {
@@ -382,7 +378,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getShowDatabasesSQL()
     {
@@ -390,7 +386,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getListTablesSQL()
     {
@@ -399,7 +395,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
@@ -407,7 +403,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
@@ -428,7 +424,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
@@ -436,7 +432,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getCreateViewSQL($name, $sql)
     {
@@ -444,7 +440,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getListViewsSQL($database)
     {
@@ -452,7 +448,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDropViewSQL($name)
     {
@@ -460,10 +456,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Returns the regular expression operator.
-     *
-     * @return string
-     * @override
+     * {@inheritDoc}
      */
     public function getRegexpExpression()
     {
@@ -471,10 +464,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Returns global unique identifier
-     *
-     * @return string to get global unique identifier
-     * @override
+     * {@inheritDoc}
      */
     public function getGuidExpression()
     {
@@ -482,19 +472,19 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
         if ($startPos == false) {
             return 'CHARINDEX(' . $substr . ', ' . $str . ')';
-        } else {
-            return 'CHARINDEX(' . $substr . ', ' . $str . ', ' . $startPos . ')';
         }
+
+        return 'CHARINDEX(' . $substr . ', ' . $str . ', ' . $startPos . ')';
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getModExpression($expression1, $expression2)
     {
@@ -502,50 +492,56 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
     {
-        $trimFn = '';
-
         if ( ! $char) {
-            if ($pos == self::TRIM_LEADING) {
-                $trimFn = 'LTRIM';
-            } else if ($pos == self::TRIM_TRAILING) {
-                $trimFn = 'RTRIM';
-            } else {
-                return 'LTRIM(RTRIM(' . $str . '))';
+            switch ($pos) {
+                case self::TRIM_LEADING:
+                    $trimFn = 'LTRIM';
+                    break;
+
+                case self::TRIM_TRAILING:
+                    $trimFn = 'RTRIM';
+                    break;
+
+                default:
+                    return 'LTRIM(RTRIM(' . $str . '))';
             }
 
             return $trimFn . '(' . $str . ')';
-        } else {
-            /** Original query used to get those expressions
-              declare @c varchar(100) = 'xxxBarxxx', @trim_char char(1) = 'x';
-              declare @pat varchar(10) = '%[^' + @trim_char + ']%';
-              select @c as string
-              , @trim_char as trim_char
-              , stuff(@c, 1, patindex(@pat, @c) - 1, null) as trim_leading
-              , reverse(stuff(reverse(@c), 1, patindex(@pat, reverse(@c)) - 1, null)) as trim_trailing
-              , reverse(stuff(reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null)), 1, patindex(@pat, reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null))) - 1, null)) as trim_both;
-             */
-            $pattern = "'%[^' + $char + ']%'";
-
-            if ($pos == self::TRIM_LEADING) {
-                return 'stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)';
-            } else if ($pos == self::TRIM_TRAILING) {
-                return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
-            } else {
-                return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)), 1, patindex(' . $pattern . ', reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null))) - 1, null))';
-            }
         }
+
+        /** Original query used to get those expressions
+          declare @c varchar(100) = 'xxxBarxxx', @trim_char char(1) = 'x';
+          declare @pat varchar(10) = '%[^' + @trim_char + ']%';
+          select @c as string
+          , @trim_char as trim_char
+          , stuff(@c, 1, patindex(@pat, @c) - 1, null) as trim_leading
+          , reverse(stuff(reverse(@c), 1, patindex(@pat, reverse(@c)) - 1, null)) as trim_trailing
+          , reverse(stuff(reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null)), 1, patindex(@pat, reverse(stuff(@c, 1, patindex(@pat, @c) - 1, null))) - 1, null)) as trim_both;
+         */
+        $pattern = "'%[^' + $char + ']%'";
+
+        if ($pos == self::TRIM_LEADING) {
+            return 'stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)';
+        }
+
+        if ($pos == self::TRIM_TRAILING) {
+            return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
+        }
+
+        return 'reverse(stuff(reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)), 1, patindex(' . $pattern . ', reverse(stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null))) - 1, null))';
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getConcatExpression()
     {
         $args = func_get_args();
+
         return '(' . implode(' + ', $args) . ')';
     }
 
@@ -555,18 +551,19 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
-    public function getSubstringExpression($value, $from, $len = null)
+    public function getSubstringExpression($value, $from, $length = null)
     {
-        if (!is_null($len)) {
-            return 'SUBSTRING(' . $value . ', ' . $from . ', ' . $len . ')';
+        if (!is_null($length)) {
+            return 'SUBSTRING(' . $value . ', ' . $from . ', ' . $length . ')';
         }
+
         return 'SUBSTRING(' . $value . ', ' . $from . ', LEN(' . $value . ') - ' . $from . ' + 1)';
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getLengthExpression($column)
     {
@@ -574,7 +571,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getSetTransactionIsolationSQL($level)
     {
@@ -582,7 +579,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
@@ -590,7 +587,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
@@ -598,7 +595,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
@@ -606,30 +603,31 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Decleration for a UNIQUEIDENTIFIER (GUID) field in SQL Server
-     *
-     * @param array $field
-     * @return string
+     * {@inheritDoc}
      */
     public function getGuidTypeDeclartionSQL(array $field)
     {
         return 'UNIQUEIDENTIFIER';
     }
 
-    /** @override */
+    /**
+     * {@inheritDoc}
+     */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'CHAR(255)') : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
     }
 
-    /** @override */
+    /**
+     * {@inheritDoc}
+     */
     public function getClobTypeDeclarationSQL(array $field)
     {
         return 'TEXT';
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
@@ -643,7 +641,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -651,7 +649,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -659,7 +657,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -667,7 +665,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
@@ -675,13 +673,9 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Adds an adapter-specific LIMIT clause to the SELECT statement.
+     * {@inheritDoc}
      *
-     * @param string $query
-     * @param integer $limit
-     * @param integer $offset
      * @link http://lists.bestpractical.com/pipermail/rt-devel/2005-June/007339.html
-     * @return string
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
@@ -712,7 +706,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function supportsLimitOffset()
     {
@@ -720,7 +714,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function convertBooleans($item)
     {
@@ -730,16 +724,15 @@ class SQLServerPlatform extends AbstractPlatform
                     $item[$key] = ($value) ? 1 : 0;
                 }
             }
-        } else {
-            if (is_bool($item) || is_numeric($item)) {
-                $item = ($item) ? 1 : 0;
-            }
+        } else if (is_bool($item) || is_numeric($item)) {
+            $item = ($item) ? 1 : 0;
         }
+
         return $item;
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getCreateTemporaryTableSnippetSQL()
     {
@@ -747,7 +740,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getTemporaryTableName($tableName)
     {
@@ -755,7 +748,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDateTimeFormatString()
     {
@@ -763,7 +756,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDateFormatString()
     {
@@ -771,7 +764,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getTimeFormatString()
     {
@@ -779,7 +772,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getDateTimeTzFormatString()
     {
@@ -787,9 +780,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Get the platform name for this instance
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getName()
     {
@@ -797,7 +788,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     protected function initializeDoctrineTypeMappings()
     {
@@ -832,10 +823,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Generate SQL to create a new savepoint
-     *
-     * @param string $savepoint
-     * @return string
+     * {@inheritDoc}
      */
     public function createSavePoint($savepoint)
     {
@@ -843,10 +831,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Generate SQL to release a savepoint
-     *
-     * @param string $savepoint
-     * @return string
+     * {@inheritDoc}
      */
     public function releaseSavePoint($savepoint)
     {
@@ -854,10 +839,7 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Generate SQL to rollback a savepoint
-     *
-     * @param string $savepoint
-     * @return string
+     * {@inheritDoc}
      */
     public function rollbackSavePoint($savepoint)
     {
@@ -865,28 +847,33 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function appendLockHint($fromClause, $lockMode)
     {
         // @todo coorect
         if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_READ) {
             return $fromClause . ' WITH (tablockx)';
-        } else if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) {
-            return $fromClause . ' WITH (tablockx)';
-        } else {
-            return $fromClause;
         }
+
+        if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) {
+            return $fromClause . ' WITH (tablockx)';
+        }
+
+        return $fromClause;
     }
 
     /**
-     * @override
+     * {@inheritDoc}
      */
     public function getForUpdateSQL()
     {
         return ' ';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\MsSQLKeywords';
@@ -900,13 +887,16 @@ class SQLServerPlatform extends AbstractPlatform
         return "[" . str_replace("]", "][", $str) . "]";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         return 'TRUNCATE TABLE '.$tableName;
     }
 
     /**
-     * Gets the SQL Snippet used to declare a BLOB column type.
+     * {@inheritDoc}
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
