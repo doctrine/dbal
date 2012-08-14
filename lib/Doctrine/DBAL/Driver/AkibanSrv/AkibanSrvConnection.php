@@ -56,7 +56,7 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      * Create a non-executed prepared statement.
      *
      * @param  string $prepareString
-     * @return AkibanSrvStatement
+     * @return AkibanSrvStatement that has not been executed
      */
     public function prepare($prepareString)
     {
@@ -64,14 +64,16 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
     }
 
     /**
-     * @param string $sql
-     * @return AkibanSrvStatement
+     * Create an executed prepared statement.
+     *
+     * @param  string $sql
+     * @return AkibanSrvStatement that has been executed
      */
     public function query()
     {
         $args = func_get_args();
         $sql = $args[0];
-        $stmt = new AkibanSrvStatement($this->_dbh, $sql, $this);
+        $stmt = $this->prepare($sql);
         $stmt->execute();
         return $stmt;
     }
@@ -121,8 +123,10 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function beginTransaction()
     {
-        // TODO
-        return false;
+        if (! pg_query($this->_dbh, "BEGIN")) {
+            throw AkibanSrvException::fromErrorString($this->errorInfo());
+        }
+        return true;
     }
 
     /**
@@ -130,8 +134,10 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function commit()
     {
-        // TODO
-        return false;
+        if (! pg_query($this->_dbh, "COMMIT")) {
+            throw AkibanSrvException::fromErrorString($this->errorInfo());
+        }
+        return true;
     }
 
     /**
@@ -139,8 +145,10 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function rollBack()
     {
-        // TODO
-        return false;
+        if (! pg_query($this->_dbh, "ROLLBACK")) {
+            throw AkibanSrvException::fromErrorString($this->errorInfo());
+        }
+        return true;
     }
 
     public function errorCode()

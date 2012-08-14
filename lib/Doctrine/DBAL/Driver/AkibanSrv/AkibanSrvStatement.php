@@ -72,7 +72,6 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
         // generate a random name for this statement
         $this->_statementName = "my_query";
         $this->_results = false;
-        //pg_prepare($this->_dbh, $this->_statementName, $this->_statement);
     }
 
     /**
