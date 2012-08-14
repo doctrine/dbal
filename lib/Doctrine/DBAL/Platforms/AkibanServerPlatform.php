@@ -110,6 +110,14 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
+     * Akiban does not support this syntax in current release.
+     */
+    public function getForUpdateSQL()
+    {
+        return "";
+    }
+
+    /**
      * Whether the platform supports sequences.
      * Akbian Server has native support for sequences.
      *
