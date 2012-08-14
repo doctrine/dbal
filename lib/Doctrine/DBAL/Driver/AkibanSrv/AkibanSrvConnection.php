@@ -87,8 +87,11 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function quote($value, $type=\PDO::PARAM_STR)
     {
-        // TODO
-        return "";
+        if (is_int($value) || is_float($value)) {
+            return $value;
+        }
+        $value = str_replace("'", "''", $value);
+        return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
     }
 
     /**
