@@ -94,6 +94,22 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getBitAndComparisonExpression($value1, $value2)
+    {
+        return "BITAND(" . $value1 . ", " . $value2 . ")";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBitOrComparisonExpression($value1, $value2)
+    {
+        return "BITOR(" . $value1 . ", " . $value2 . ")";
+    }
+
+    /**
      * Whether the platform supports sequences.
      * Akbian Server has native support for sequences.
      *
