@@ -126,8 +126,11 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function beginTransaction()
     {
-        if (! pg_query($this->_dbh, "BEGIN")) {
-            throw AkibanSrvException::fromErrorString($this->errorInfo());
+        $trxStatus = pg_transaction_status($this->_dbh);
+        if (! $trxStatus == PGSQL_TRANSACTION_INTRANS) {
+            if (! pg_query($this->_dbh, "BEGIN")) {
+                throw AkibanSrvException::fromErrorString($this->errorInfo());
+            }
         }
         return true;
     }
@@ -148,8 +151,11 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function rollBack()
     {
-        if (! pg_query($this->_dbh, "ROLLBACK")) {
-            throw AkibanSrvException::fromErrorString($this->errorInfo());
+        $trxStatus = pg_transaction_status($this->_dbh);
+        if ($trxStatus == PGSQL_TRANSACTION_INTRANS) {
+            if (! pg_query($this->_dbh, "ROLLBACK")) {
+                throw AkibanSrvException::fromErrorString($this->errorInfo());
+            }
         }
         return true;
     }
