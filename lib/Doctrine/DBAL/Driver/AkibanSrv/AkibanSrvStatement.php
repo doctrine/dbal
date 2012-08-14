@@ -62,7 +62,22 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     private $_conn;
 
+    /**
+     * An array of the parameters for this statement.
+     */
     private $_parameters = array();
+
+    /**
+     * The fetch mode for this statement.
+     */
+    private $_defaultFetchMode = PDO::FETCH_BOTH;
+
+    private static $fetchModeMap = 
+      array(
+        PDO::FETCH_BOTH => PGSQL_BOTH,
+        PDO::FETCH_ASSOC => PGSQL_ASSOC,
+        PDO::FETCH_NUM => PGSQL_NUM,
+      );
 
     public function __construct($dbh, $statement, AkibanSrvConnection $conn)
     {
@@ -119,7 +134,10 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
 
     public function closeCursor()
     {
-        // TODO
+        if ($this->_results) {
+            return pg_free_result($this->_results);
+        }
+        return false;
     }
 
     /**
@@ -169,7 +187,7 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        // TODO
+        $this->_defaultFetchMode = $fetchMode;
     }
 
     /**
@@ -177,15 +195,23 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        // TODO
+        $data = $this->fetchAll();
+        return new \ArrayIterator($data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $rowPos = 0)
     {
-        // TODO
+        $fetchMode = $fetchMode ? : $this->_defaultFetchMode;
+        if ( ! isset(self::$fetchModeMap[$fetchMode])) {
+            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
+        }
+        if ($this->_results) {
+            return pg_fetch_array($this->_results, $rowPos, self::$fetchModeMap[$fetchMode]);
+        }
+        return false;
     }
 
     /**
@@ -193,7 +219,29 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function fetchAll($fetchMode = null)
     {
-        return pg_fetch_all($this->_results);
+        $fetchMode = $fetchMode ? : $this->_defaultFetchMode;
+        if ( ! isset(self::$fetchModeMap[$fetchMode])) {
+            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
+        }
+        if ($this->_results) {
+            $result = array();
+            if (self::$fetchModeMap[$fetchMode] == PGSQL_BOTH) {
+                for ($i = 0; $i < pg_num_rows($this->_results); $i++) {
+                    $row = $this->fetch($fetchMode, $i);
+                    $result[] = $row;
+                }
+                return $result;
+            } else if (self::$fetchModeMap[$fetchMode] == PGSQL_NUM) {
+                for ($i = 0; $i < pg_num_rows($this->_results); $i++) {
+                    $row = $this->fetch($fetchMode, $i);
+                    $result[] = $row;
+                }
+                return $result;
+            } else {
+                return pg_fetch_all($this->_results);
+            }
+        }
+        return false;
     }
 
     /**
@@ -201,7 +249,11 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        // TODO
+        if ($this->_results) {
+            $row = pg_fetch_array($this->_results, 0, PGSQL_NUM);
+            return isset($row[$columnIndex]) ? $row[$columnIndex] : false;
+        }
+        return false;
     }
 
     /**
