@@ -192,7 +192,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getListSequencesSQL($database)
     {
-        return "SELECT sequence_name, sequence_schema as schemaname " .
+        return "SELECT sequence_name, sequence_schema as schemaname, increment as increment_by, minimum_value as min_value " .
                "FROM information_schema.sequences " .
                "WHERE sequence_name != 'information_schema'";
     }
