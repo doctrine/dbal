@@ -115,8 +115,14 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
             return false;
         }
 
-        // TODO
-        return 0;
+        $sql = "SELECT CURRENT VALUE FOR " . $name;
+        $stmt = $this->query($sql);
+        $result = $stmt->fetchColumn(0);
+
+        if ($result === false) {
+            throw new AkibanSrvException("lastInsertId failed due to now current value being returned for a sequence.");
+        }
+        return (int) $result[0];
     }
 
     /**
