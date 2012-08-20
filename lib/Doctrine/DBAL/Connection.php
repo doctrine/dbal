@@ -528,7 +528,7 @@ class Connection implements DriverConnection
         $placeholders = array();
 
         foreach ($data as $columnName => $value) {
-            $cols[] = $columnName;
+            $cols[] = $this->quoteIdentifier($columnName);
             $placeholders[] = '?';
         }
 
