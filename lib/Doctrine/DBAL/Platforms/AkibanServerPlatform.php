@@ -352,10 +352,12 @@ class AkibanServerPlatform extends AbstractPlatform
                 $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
             }
             if ($columnDiff->hasChanged('default')) {
-                // TODO
+                $query = "ALTER " . $oldColumnName . $this->getDefaultValueDeclarationSQL($column->toArray());
+                $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
             }
             if ($columnDiff->hasChanged('notnull')) {
-                // TODO
+                $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotNull() ? 'NOT NULL' : 'NULL');
+                $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
             }
             if ($columnDiff->hasChanged('autoincrement')) {
                 // TODO
