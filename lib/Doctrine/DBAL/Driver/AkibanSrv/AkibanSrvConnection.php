@@ -120,7 +120,7 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
         $result = $stmt->fetchColumn(0);
 
         if ($result === false) {
-            throw new AkibanSrvException("lastInsertId failed due to now current value being returned for a sequence.");
+            throw new AkibanSrvException("lastInsertId failed due to current value not being returned for a sequence.");
         }
         return (int) $result[0];
     }
