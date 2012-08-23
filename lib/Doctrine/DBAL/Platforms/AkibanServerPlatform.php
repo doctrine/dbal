@@ -185,6 +185,26 @@ class AkibanServerPlatform extends AbstractPlatform
         return $this->supportsSavepoints();
     }
 
+    /**  
+     * Does the platform supports foreign key constraints?
+     *    
+     * @return boolean
+     */   
+    public function supportsForeignKeyConstraints()
+    {    
+        return false;
+    }    
+
+    /**  
+     * Does this platform supports onUpdate in foreign key constraints?
+     *    
+     * @return bool 
+     */   
+    public function supportsForeignKeyOnUpdate()
+    {    
+        return ($this->supportsForeignKeyConstraints() && true);
+    }  
+
 
     public function getListDatabasesSQL()
     {
