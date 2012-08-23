@@ -46,11 +46,6 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
     private $_statement;
 
     /**
-     * randomly generated name for this statement.
-     */
-    private $_statementName;
-
-    /**
      * query results
      */
     private $_results;
@@ -90,8 +85,6 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
         $this->_statement = $this->convertPositionalToNumberedParameters($statement);
         $this->_dbh = $dbh;
         $this->_conn = $conn;
-        // generate a random name for this statement
-        $this->_statementName = "my_query";
         $this->_results = false;
         $this->_className = null;
         $this->_ctorArgs = null;
