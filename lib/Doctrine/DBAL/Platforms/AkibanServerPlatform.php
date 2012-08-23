@@ -255,13 +255,13 @@ class AkibanServerPlatform extends AbstractPlatform
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         if (! is_null($currentDatabase)) {
-            $schemaPredicate = "c.schema_name = '" . $currentDatabase . "' and ";
+            $schemaPredicate = "i.schema_name = '" . $currentDatabase . "' and ";
         } else {
             $schemaPredicate = "";
         }
         return "SELECT i.table_name as table_name, i.index_name as index_name, i.is_unique as is_unique, i.index_type as index_type, c.column_name as column_name " .
-               "FROM information_schema.indexes i left outer join information_schema.columns c on i.table_name = c.table_name " .
-               "WHERE c.schema_name != 'information_schema' and " . $schemaPredicate . "c.table_name = '" . $table . "'";
+               "FROM information_schema.indexes i join information_schema.index_columns c on i.index_name = c.index_name and i.table_name = c.index_table_name " .
+               "WHERE c.schema_name != 'information_schema' and " . $schemaPredicate . "i.table_name = '" . $table . "'";
     }
 
     public function getListTableColumnsSQL($table, $database = null)

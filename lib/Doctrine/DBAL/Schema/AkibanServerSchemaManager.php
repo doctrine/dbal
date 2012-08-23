@@ -114,7 +114,7 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
                     $buffer['non_unique'] = false;
                 } else {
                     $buffer['primary'] = false;
-                    $buffer['non_unique'] = ($tableIndex['is_unique'] == 0) ? true : false;
+                    $buffer['non_unique'] = ($tableIndex['is_unique'] == 'YES') ? false : true;
                 }
                 $buffer['key_name'] = $tableIndex['index_name'];
                 $buffer['column_name'] = $tableIndex['column_name'];
