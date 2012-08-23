@@ -8,7 +8,7 @@ use Doctrine\DBAL\Platforms;
  * Driver that connects to Akiban Server through pgsql.
  *
  * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
- * @since 2.3
+ * @since  2.3
  */
 class Driver implements \Doctrine\DBAL\Driver
 {

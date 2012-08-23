@@ -23,8 +23,8 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 /**
  * Akiban Server Keywordlist
  *
- * @since       2.3
- * @author      Padraig O'Sullivan <osullivan.padraig@gmail.com>
+ * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
+ * @since  2.3
  */
 class AkibanSrvKeywords extends KeywordList
 {

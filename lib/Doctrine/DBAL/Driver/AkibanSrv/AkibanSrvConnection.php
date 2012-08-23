@@ -27,7 +27,7 @@ use Doctrine\DBAL\Platforms\AkibanServerPlatform;
  * Akiban Server implementation of the Connection interface.
  *
  * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
- * @since 2.3
+ * @since  2.3
  */
 class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
 {

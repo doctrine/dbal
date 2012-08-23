@@ -23,8 +23,8 @@ namespace Doctrine\DBAL\Schema;
 /**
  * Akiban Server Schema Manager
  *
- * @author      Padraig O'Sullivan <osullivan.padraig@gmail.com>
- * @since       2.3
+ * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
+ * @since  2.3
  */
 class AkibanServerSchemaManager extends AbstractSchemaManager
 {

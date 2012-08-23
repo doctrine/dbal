@@ -26,7 +26,7 @@ use Doctrine\DBAL\Schema\TableDiff,
  * AkibanServerPlatform.
  *
  * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
- * @since 2.3
+ * @since  2.3
  */
 class AkibanServerPlatform extends AbstractPlatform
 {

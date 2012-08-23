@@ -26,8 +26,8 @@ use Doctrine\DBAL\Driver\Statement;
 /**
  * Akiban Server Statement
  *
- * @since 2.3
  * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
+ * @since  2.3
  */
 class AkibanSrvStatement implements IteratorAggregate, Statement
 {
