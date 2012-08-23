@@ -254,23 +254,29 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        // TODO - should $currentDatabase be used?
-        return "SELECT table_name, index_name, is_unique " .
-               "FROM information_schema.indexes " .
-               "WHERE table_name = '" . $table . "'";
+        if (! is_null($currentDatabase)) {
+            $schemaPredicate = "c.schema_name = '" . $currentDatabase . "' and ";
+        } else {
+            $schemaPredicate = "";
+        }
+        return "SELECT i.table_name as table_name, i.index_name as index_name, i.is_unique as is_unique, i.index_type as index_type, c.column_name as column_name " .
+               "FROM information_schema.indexes i left outer join information_schema.columns c on i.table_name = c.table_name " .
+               "WHERE c.schema_name != 'information_schema' and " . $schemaPredicate . "c.table_name = '" . $table . "'";
     }
 
     public function getListTableColumnsSQL($table, $database = null)
     {
         if (! is_null($database)) {
-            $schemaPredicate = "schema_name = '" . $database . "' and ";
+            $schemaPredicate = "c.schema_name = '" . $database . "' and ";
         } else {
-            $schemePredicate = "";
+            $schemaPredicate = "";
         }
-        return "SELECT column_name, type, nullable, character_set_name, collation_name " .
-               "FROM information_schema.columns " .
-               "WHERE schema_name != 'information_schema' and " . $schemaPredicate .
-               "table_name = '" . $table . "'";
+        return "SELECT c.column_name as column_name, c.length as length, c.type as type, c.nullable as nullable, " .
+               "c.character_set_name as character_set_name, c.collation_name as collation_name, " .
+               "i.index_type as index_type " .
+               "FROM information_schema.columns c left outer join information_schema.indexes i on c.table_name = i.table_name " .
+               "WHERE c.schema_name != 'information_schema' and " . $schemaPredicate .
+               "c.table_name = '" . $table . "'";
     }
 
     /**
@@ -629,6 +635,7 @@ class AkibanServerPlatform extends AbstractPlatform
             'numeric'       => 'decimal',
             'year'          => 'date',
             'blob'          => 'blob',
+            'longblob'      => 'blob',
         );
     }
 

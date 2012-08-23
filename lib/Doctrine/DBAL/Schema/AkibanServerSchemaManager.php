@@ -105,12 +105,28 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
-        // TODO
+        $indexBuffer = array();
+        if (! empty($tableIndexes)) {
+            foreach ($tableIndexes as $tableIndex) {
+                if ($tableIndex['index_type'] == "PRIMARY") {
+                    $keyName = 'primary';
+                    $buffer['primary'] = true;
+                    $buffer['non_unique'] = false;
+                } else {
+                    $buffer['primary'] = false;
+                    $buffer['non_unique'] = ($tableIndex['is_unique'] == 0) ? true : false;
+                }
+                $buffer['key_name'] = $tableIndex['index_name'];
+                $buffer['column_name'] = $tableIndex['column_name'];
+                $indexBuffer[] = $buffer;
+            }
+        }
+        return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
     }
 
     protected function _getPortableDatabaseDefinition($database)
     {
-        return $database['datname'];
+        return $database['schema_name'];
     }
 
     protected function _getPortableSequenceDefinition($sequence)
@@ -120,7 +136,89 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
 
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        // TODO
+        $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
+
+        if (strtolower($tableColumn['type']) === 'varchar') {
+            // get length from varchar definition
+            $length = $tableColumn['length'];
+        }
+
+        $matches = array();
+
+        $autoincrement = false;
+        $tableColumn['default'] = null;
+
+        $length = (isset($tableColumn['length'])) ? $tableColumn['length'] : null;
+        if ((int) $length <= 0) {
+            $length = null;
+        }
+        $fixed = null;
+
+        if (!isset($tableColumn['column_name'])) {
+            $tableColumn['name'] = '';
+        }
+
+        $precision = null;
+        $scale = null;
+
+        $dbType = strtolower($tableColumn['type']);
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+
+        switch ($dbType) {
+            case 'smallint':
+                $length = null;
+                break;
+            case 'int':
+            case 'integer':
+                $length = null;
+                break;
+            case 'bigint':
+                $length = null;
+                break;
+            case 'boolean':
+                $length = null;
+                break;
+            case 'varchar':
+            case 'interval':
+                $fixed = false;
+                break;
+            case 'char':
+                $fixed = true;
+                break;
+            case 'float':
+            case 'double':
+            case 'double precision':
+            case 'real':
+            case 'decimal':
+            case 'numeric':
+                // TODO
+                break;
+            case 'year':
+                $length = null;
+                break;
+        }
+
+        if ($tableColumn['default'] && preg_match("('([^']+)'::)", $tableColumn['default'], $match)) {
+            $tableColumn['default'] = $match[1];
+        }
+
+        $tableColumn['nullable'] == 'NO' ? $notnull = true : $notnull = false;
+        $tableColumn['index_type'] == 'PRIMARY' ? $primaryKey = true : $primaryKey = false;
+
+        $options = array(
+            'length'        => $length,
+            'notnull'       => $notnull,
+            'default'       => $tableColumn['default'],
+            'primary'       => $primaryKey,
+            'precision'     => $precision,
+            'scale'         => $scale,
+            'fixed'         => $fixed,
+            'unsigned'      => false,
+            'autoincrement' => $autoincrement,
+            'comment'       => NULL,
+        );
+
+        return new Column($tableColumn['column_name'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
 
 }
