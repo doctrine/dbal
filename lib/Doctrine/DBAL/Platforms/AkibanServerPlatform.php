@@ -44,9 +44,9 @@ class AkibanServerPlatform extends AbstractPlatform
     public function getSubstringExpression($value, $from, $len = null)
     {
         if ($len === null) {
-            return 'SUBSTR(' . $value . ', ' . $from . ')';
+            return "SUBSTR(" . $value . ", " . $from . ")";
         } else {
-            return 'SUBSTR(' . $value . ', ' . $from . ', ' . $len . ')';
+            return "SUBSTR(" . $value . ", " . $from . ", " . $len . ")";
         }
     }
 
@@ -62,35 +62,35 @@ class AkibanServerPlatform extends AbstractPlatform
     {
         if ($startPos !== false) {
             $str = $this->getSubstringExpression($str, $startPos);
-            return 'CASE WHEN (POSITION('.$substr.' IN '.$str.') = 0) THEN 0 ELSE (POSITION('.$substr.' IN '.$str.') + '.($startPos-1).') END';
+            return "CASE WHEN (POSITION(" . $substr . " IN " . $str . ") = 0) THEN 0 ELSE (POSITION(" . $substr . " IN " . $str . ") + " . ($startPos-1) . ") END";
         } else {
-            return 'POSITION('.$substr.' IN '.$str.')';
+            return "POSITION(" . $substr . " IN " . $str . ")";
         }
     }
 
     public function getDateDiffExpression($date1, $date2)
     {
-        return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
+        return "DATEDIFF(" . $date1 . ", " . $date2 . ")";
     }
 
     public function getDateAddDaysExpression($date, $days)
     {
-        return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
+        return "DATE_ADD(" . $date . ", INTERVAL " . $days . " DAY)";
     }
 
     public function getDateSubDaysExpression($date, $days)
     {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
+        return "DATE_SUB(" . $date . ", INTERVAL " . $days . " DAY)";
     }
 
     public function getDateAddMonthExpression($date, $months)
     {
-        return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+        return "DATE_ADD(" . $date . ", INTERVAL " . $months . " MONTH)";
     }
 
     public function getDateSubMonthExpression($date, $months)
     {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';
+        return "DATE_SUB(" . $date . ", INTERVAL " . $months . " MONTH)";
     }
 
     /**
@@ -241,7 +241,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
     public function getListTableColumnsSQL($table, $database = null)
     {
-        if ( ! is_null($database)) {
+        if (! is_null($database)) {
             $schemaPredicate = "schema_name = '" . $database . "' and ";
         } else {
             $schemePredicate = "";
@@ -261,7 +261,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getCreateDatabaseSQL($name)
     {
-        return 'CREATE SCHEMA ' . $name;
+        return "CREATE SCHEMA " . $name;
     }
 
     /**
@@ -381,7 +381,7 @@ class AkibanServerPlatform extends AbstractPlatform
         if ($sequence instanceof \Doctrine\DBAL\Schema\Sequence) {
             $sequence = $sequence->getQuotedName($this);
         }
-        return 'DROP SEQUENCE ' . $sequence . ' RESTRICT';
+        return "DROP SEQUENCE " . $sequence . " RESTRICT";
     }
 
     /**
@@ -448,7 +448,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
-        return 'BOOLEAN';
+        return "BOOLEAN";
     }
 
     /**
@@ -456,10 +456,10 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
-        if ( ! empty($field['autoincrement'])) {
-            return 'SERIAL';
+        if (! empty($field['autoincrement'])) {
+            return "SERIAL";
         }
-        return 'INT';
+        return "INT";
     }
 
     /**
@@ -467,10 +467,10 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
-        if ( ! empty($field['autoincrement'])) {
-            return 'BIGSERIAL';
+        if (! empty($field['autoincrement'])) {
+            return "BIGSERIAL";
         }
-        return 'BIGINT';
+        return "BIGINT";
     }
 
     /**
@@ -478,7 +478,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
-        return 'SMALLINT';
+        return "SMALLINT";
     }
 
     /**
@@ -487,9 +487,9 @@ class AkibanServerPlatform extends AbstractPlatform
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
         if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] == true) {
-            return 'TIMESTAMP';
+            return "TIMESTAMP";
         } else {
-            return 'DATETIME';
+            return "DATETIME";
         }
     }
 
@@ -498,7 +498,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'DATE';
+        return "DATE";
     }
 
     /**
@@ -506,7 +506,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'TIME';
+        return "TIME";
     }
 
     /**
@@ -514,7 +514,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
-        return '';
+        return "";
     }
 
     /**
@@ -532,7 +532,7 @@ class AkibanServerPlatform extends AbstractPlatform
     /** @override */
     public function getClobTypeDeclarationSQL(array $field)
     {
-        return 'BLOB';
+        return "BLOB";
     }
 
     /**
@@ -542,7 +542,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getName()
     {
-        return 'akibansrv';
+        return "akibansrv";
     }
 
     /**
@@ -567,7 +567,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getEmptyIdentityInsertSQL($quotedTableName, $quotedIdentifierColumnName)
     {
-        return 'INSERT INTO ' . $quotedTableName . ' (' . $quotedIdentifierColumnName . ') VALUES (DEFAULT)';
+        return "INSERT INTO " . $quotedTableName . " (" . $quotedIdentifierColumnName . ") VALUES (DEFAULT)";
     }
 
     /**
@@ -575,7 +575,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        return 'TRUNCATE TABLE ' . $tableName . ' ' . (($cascade) ? 'CASCADE' : '');
+        return "TRUNCATE TABLE " . $tableName . " " . (($cascade) ? "CASCADE" : "");
     }
 
     protected function initializeDoctrineTypeMappings()
@@ -611,7 +611,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\AkibanSrvKeywords';
+        return "Doctrine\DBAL\Platforms\Keywords\AkibanSrvKeywords";
     }
 
     /**
@@ -619,6 +619,6 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
-        return 'BLOB';
+        return "BLOB";
     }
 }
