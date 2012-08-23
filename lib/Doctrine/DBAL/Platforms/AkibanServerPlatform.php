@@ -19,7 +19,8 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\TableDiff,
+use Doctrine\DBAL\Schema\Index,
+    Doctrine\DBAL\Schema\TableDiff,
     Doctrine\DBAL\Schema\Table;
 
 /**
@@ -384,6 +385,18 @@ class AkibanServerPlatform extends AbstractPlatform
         return "DROP SEQUENCE " . $sequence . " RESTRICT";
     }
 
+     /**  
+      * @override
+      */ 
+    public function getUniqueConstraintDeclarationSQL($name, Index $index)
+    {
+        // TODO - akiban does not support speciifying names for unique constraints in 1.4.0
+
+        return " UNIQUE ("
+             . $this->getIndexFieldDeclarationListSQL($index->getColumns())
+             . ")"; 
+    }
+
     /**
      * Gets the SQL used to create a table.
      *
@@ -398,7 +411,7 @@ class AkibanServerPlatform extends AbstractPlatform
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
             foreach ($options['uniqueConstraints'] as $name => $definition) {
-                // TODO
+                $columnListSql .= $this->getUniqueConstraintDeclarationSQL($name, $definition);
             }
         }
 
@@ -410,8 +423,8 @@ class AkibanServerPlatform extends AbstractPlatform
         $query = "CREATE TABLE " . $tableName . " (" . $columnListSql . ")";
 
         $check = $this->getCheckDeclarationSQL($columns);
-        if ( ! empty($check)) {
-            // TODO
+        if (! empty($check)) {
+            // TODO - Akiban does not support CHECK constraints in 1.4.0
         }
 
         $sql[] = $query;
@@ -419,11 +432,6 @@ class AkibanServerPlatform extends AbstractPlatform
         foreach ($columns as $name => $column) {
             if (isset($column['sequence'])) {
                 $sql[] = $this->getCreateSequenceSQL($column['sequence'], 1);
-            }
-
-            if (isset($column['autoincrement']) && $column['autoincrement'] ||
-               (isset($column['autoinc']) && $column['autoinc'])) {
-                // TODO??
             }
         }
 
@@ -433,7 +441,7 @@ class AkibanServerPlatform extends AbstractPlatform
             }
         }
 
-        // TODO - foreign keys
+        // TODO - foreign keys, Akiban does not support in 1.4.0
 
         return $sql;
     }
