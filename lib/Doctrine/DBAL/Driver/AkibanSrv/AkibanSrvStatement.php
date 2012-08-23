@@ -117,6 +117,15 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
         return $statement;
     }
 
+    private function fetchRows($fetchMode)
+    {
+        $result = array();
+        for ($i = 0; $i < pg_num_rows($this->_results); $i++) {
+            $result[] = $this->fetch($fetchMode, $i);
+        }
+        return $result;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -250,7 +259,9 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
 
         $result = array();
 
-        if ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
+        switch ($fetchMode) {
+        case PDO::FETCH_OBJ:
+        case PDO::FETCH_CLASS:
             $className = null;
             $ctorArgs = null;
             if (func_num_args() >= 2) {
@@ -258,34 +269,25 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
                 $this->_className = $args[1];
                 $this->_ctorArgs = (isset($args[2])) ? $args[2] : array();
             }
-            for ($i = 0; $i < pg_num_rows($this->_results); $i++) {
-                $result[] = $this->fetch($fetchMode, $i);
-            }
-            return $result;
-        }
-
-        if (self::$fetchModeMap[$fetchMode] == PGSQL_BOTH) {
-            for ($i = 0; $i < pg_num_rows($this->_results); $i++) {
-                $result[] = $this->fetch($fetchMode, $i);
-            }
-            return $result;
-        } else if (self::$fetchModeMap[$fetchMode] == PGSQL_NUM) {
-            for ($i = 0; $i < pg_num_rows($this->_results); $i++) {
-                $result[] = $this->fetch($fetchMode, $i);
-            }
-            return $result;
-        } else if ($fetchMode == PDO::FETCH_COLUMN) {
+            $result = $this->fetchRows($fetchMode);
+            break;
+        case PDO::FETCH_BOTH:
+        case PDO::FETCH_NUM:
+            $result = $this->fetchRows($fetchMode);
+            break;
+        case PDO::FETCH_COLUMN:
             for ($i = 0; $i < pg_num_rows($this->_results); $i++) {
                 for ($col = 0; $col < $this->columnCount(); $col++) {
                     $result[] = $this->fetchColumn($col, $i);
                 }
             }
-            return $result;
-        } else {
-            return pg_fetch_all($this->_results);
+            break;
+        default:
+            $result = pg_fetch_all($this->_results);
+            break;
         }
 
-        return false;
+        return empty($result) ? false : $result;
     }
 
     /**
