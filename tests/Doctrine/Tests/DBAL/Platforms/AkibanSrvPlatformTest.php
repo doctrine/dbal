@@ -145,7 +145,7 @@ class AkibanSrvPlatformTest extends AbstractPlatformTestCase
 
     public function testSupportsSavePoints()
     {
-        $this->assertTrue($this->_platform->supportsSavepoints());
+        $this->assertFalse($this->_platform->supportsSavepoints());
     }
 
     public function testSupportsSequences()
