@@ -413,18 +413,6 @@ class AkibanServerPlatform extends AbstractPlatform
         return "DROP SEQUENCE " . $sequence . " RESTRICT";
     }
 
-     /**  
-      * @override
-      */ 
-    public function getUniqueConstraintDeclarationSQL($name, Index $index)
-    {
-        // TODO - akiban does not support speciifying names for unique constraints in 1.4.0
-
-        return " UNIQUE ("
-             . $this->getIndexFieldDeclarationListSQL($index->getColumns())
-             . ")"; 
-    }
-
     /**
      * Gets the SQL used to create a table.
      *

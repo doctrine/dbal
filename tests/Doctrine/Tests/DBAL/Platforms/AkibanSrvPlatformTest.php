@@ -36,8 +36,8 @@ class AkibanSrvPlatformTest extends AbstractPlatformTestCase
             "ALTER TABLE mytable ALTER bar DEFAULT 'def'",
             'ALTER TABLE mytable ALTER bar NOT NULL',
             'ALTER TABLE mytable ALTER bloo SET DATA TYPE BOOLEAN',
+            "ALTER TABLE mytable ALTER bloo DEFAULT '0'",
             'ALTER TABLE mytable ALTER bloo NOT NULL',
-            'ALTER TABLE mytable RENAME TO userlist',
         );
     }
 
@@ -57,7 +57,7 @@ class AkibanSrvPlatformTest extends AbstractPlatformTestCase
     public function testGeneratesDDLSnippets()
     {
         $this->assertEquals('CREATE SCHEMA foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
-        $this->assertEquals('DROP DATABASE foobar', $this->_platform->getDropDatabaseSQL('foobar'));
+        $this->assertEquals('DROP SCHEMA IF EXISTS foobar CASCADE', $this->_platform->getDropDatabaseSQL('foobar'));
         $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
     }
 
@@ -123,7 +123,7 @@ class AkibanSrvPlatformTest extends AbstractPlatformTestCase
             $this->_platform->getDropSequenceSQL('myseq')
         );
         $this->assertEquals(
-            "SELECT NEXT VALUE FOR 'myseq'",
+            "SELECT NEXT VALUE FOR myseq",
             $this->_platform->getSequenceNextValSQL('myseq')
         );
     }
