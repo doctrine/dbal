@@ -338,7 +338,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT * FROM fetch_table WHERE test_string = " . $this->_conn->quote("bar' OR '1'='1");
         $rows = $this->_conn->fetchAll($sql);
 
-        $this->assertEquals(0, ($rows == false) ? 0 : count($rows), "no result should be returned, otherwise SQL injection is possible");
+        $this->assertEquals(0, count($rows), "no result should be returned, otherwise SQL injection is possible");
     }
 
     /**

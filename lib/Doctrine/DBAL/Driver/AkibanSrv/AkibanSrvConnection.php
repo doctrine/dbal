@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,27 +25,26 @@ use Doctrine\DBAL\Platforms\AkibanServerPlatform;
  * Akiban Server implementation of the Connection interface.
  *
  * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
- * @since  2.3
+ * @since  2.4
  */
 class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
 {
     /**
+     * Internal handle for this connection.
      * @var resource
      */
-    protected $_dbh;
+    protected $connectionHandle;
 
     /**
      * Create a Connection to an Akiban Server Database using 
      * the native PostgreSQL PHP driver.
      *
-     * @param string $username
-     * @param string $password
-     * @param string $schema
+     * @param string $connectionString
      */
     public function __construct($connectionString)
     {
-        $this->_dbh = pg_connect($connectionString);
-        if ( ! $this->_dbh ) {
+        $this->connectionHandle= pg_connect($connectionString);
+        if (! $this->connectionHandle) {
             throw AkibanSrvException::fromErrorString("Failed to connect to Akiban Server.");
         }
     }
@@ -60,7 +57,9 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
      */
     public function prepare($prepareString)
     {
-        return new AkibanSrvStatement($this->_dbh, $prepareString, $this);
+        return new AkibanSrvStatement($this->connectionHandle, 
+                                      $prepareString, 
+                                      $this);
     }
 
     /**
@@ -79,13 +78,9 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
     }
 
     /**
-     * Quote input value.
-     *
-     * @param mixed $input
-     * @param int $type PDO::PARAM*
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function quote($value, $type=\PDO::PARAM_STR)
+    public function quote($value, $type = \PDO::PARAM_STR)
     {
         if (is_int($value) || is_float($value)) {
             return $value;
@@ -95,9 +90,7 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
     }
 
     /**
-     *
-     * @param  string $statement
-     * @return int
+     * {@inheritDoc}
      */
     public function exec($statement)
     {
@@ -126,54 +119,57 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
     }
 
     /**
-     * Start a transactiom
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function beginTransaction()
     {
-        $trxStatus = pg_transaction_status($this->_dbh);
-        if (! $trxStatus == PGSQL_TRANSACTION_INTRANS) {
-            if (! pg_query($this->_dbh, "BEGIN")) {
-                throw AkibanSrvException::fromErrorString($this->errorInfo());
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function commit()
-    {
-        if (! pg_query($this->_dbh, "COMMIT")) {
+        $trxStatus = pg_transaction_status($this->connectionHandle);
+        if (! $trxStatus == PGSQL_TRANSACTION_INTRANS && 
+            ! pg_query($this->connectionHandle, "BEGIN")) {
             throw AkibanSrvException::fromErrorString($this->errorInfo());
         }
         return true;
     }
 
     /**
-     * @return bool
+     * {@inheritDoc}
      */
-    public function rollBack()
+    public function commit()
     {
-        $trxStatus = pg_transaction_status($this->_dbh);
-        if ($trxStatus == PGSQL_TRANSACTION_INTRANS) {
-            if (! pg_query($this->_dbh, "ROLLBACK")) {
-                throw AkibanSrvException::fromErrorString($this->errorInfo());
-            }
+        if (! pg_query($this->connectionHandle, "COMMIT")) {
+            throw AkibanSrvException::fromErrorString($this->errorInfo());
         }
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function rollBack()
+    {
+        $trxStatus = pg_transaction_status($this->connectionHandle);
+        if ($trxStatus == PGSQL_TRANSACTION_INTRANS && 
+            ! pg_query($this->connectionHandle, "ROLLBACK")) {
+            throw AkibanSrvException::fromErrorString($this->errorInfo());
+        }
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function errorCode()
     {
         // TODO - this returns error message, not error code
-        return pg_last_error($this->_dbh);
+        return pg_last_error($this->connectionHandle);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function errorInfo()
     {
-        return pg_last_error($this->_dbh);
+        return pg_last_error($this->connectionHandle);
     }
 }
+

@@ -26,7 +26,7 @@ class AkibanSrvSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $names = $this->_sm->getSchemaNames();
 
         $this->assertInternalType('array', $names);
-        $this->assertTrue(count($names) > 0);
+        $this->assertGreaterThan(0, count($names));
     }
 
     /**

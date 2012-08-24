@@ -1,5 +1,4 @@
 <?php
-
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,7 +23,7 @@ namespace Doctrine\DBAL\Schema;
  * Akiban Server Schema Manager
  *
  * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
- * @since  2.3
+ * @since  2.4
  */
 class AkibanServerSchemaManager extends AbstractSchemaManager
 {
@@ -40,9 +39,12 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
         return array_map(function($v) { return $v['schema_name']; }, $rows);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function dropDatabase($database = null)
     {
-        if (is_null($database)) {
+        if (null === $database) {
             $database = $this->_conn->getDatabase();
         }
 
@@ -60,9 +62,12 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
         $this->_conn = $tmpConn;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function createDatabase($database = null)
     {
-        if (is_null($database)) {
+        if (null === $database) {
             $database = $this->_conn->getDatabase();
         }
 
@@ -106,20 +111,18 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
         $indexBuffer = array();
-        if (! empty($tableIndexes)) {
-            foreach ($tableIndexes as $tableIndex) {
-                if ($tableIndex['index_type'] == "PRIMARY") {
-                    $keyName = 'primary';
-                    $buffer['primary'] = true;
-                    $buffer['non_unique'] = false;
-                } else {
-                    $buffer['primary'] = false;
-                    $buffer['non_unique'] = ($tableIndex['is_unique'] == 'YES') ? false : true;
-                }
-                $buffer['key_name'] = $tableIndex['index_name'];
-                $buffer['column_name'] = $tableIndex['column_name'];
-                $indexBuffer[] = $buffer;
+        foreach ($tableIndexes as $tableIndex) {
+            if ($tableIndex['index_type'] == "PRIMARY") {
+                $keyName = 'primary';
+                $buffer['primary'] = true;
+                $buffer['non_unique'] = false;
+            } else {
+                $buffer['primary'] = false;
+                $buffer['non_unique'] = ($tableIndex['is_unique'] == 'YES') ? false : true;
             }
+            $buffer['key_name'] = $tableIndex['index_name'];
+            $buffer['column_name'] = $tableIndex['column_name'];
+            $indexBuffer[] = $buffer;
         }
         return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
     }
@@ -222,3 +225,4 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
     }
 
 }
+

@@ -19,76 +19,76 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\Index,
-    Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * AkibanServerPlatform.
  *
  * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
- * @since  2.3
+ * @since  2.4
  */
 class AkibanServerPlatform extends AbstractPlatform
 {
     /**
-     * Returns part of a string.
-     *
-     * Note: Not SQL92, but common functionality.
-     *
-     * @param string $value the target $value the string or the string column.
-     * @param int $from extract from this character.
-     * @param int $len extract this amount of characters.
-     * @return string sql that extracts part of a string.
-     * @override
+     * {@inheritdoc}
      */
     public function getSubstringExpression($value, $from, $len = null)
     {
         if ($len === null) {
             return "SUBSTR(" . $value . ", " . $from . ")";
-        } else {
-            return "SUBSTR(" . $value . ", " . $from . ", " . $len . ")";
         }
+        return "SUBSTR(" . $value . ", " . $from . ", " . $len . ")";
     }
 
     /**
-     * returns the position of the first occurrence of substring $substr in string $str
-     *
-     * @param string $substr    literal string to find
-     * @param string $str       literal string
-     * @param int    $pos       position to start at, beginning of string by default
-     * @return integer
+     * {@inheritdoc}
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
         if ($startPos !== false) {
             $str = $this->getSubstringExpression($str, $startPos);
             return "CASE WHEN (POSITION(" . $substr . " IN " . $str . ") = 0) THEN 0 ELSE (POSITION(" . $substr . " IN " . $str . ") + " . ($startPos-1) . ") END";
-        } else {
-            return "POSITION(" . $substr . " IN " . $str . ")";
         }
+        return "POSITION(" . $substr . " IN " . $str . ")";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDateDiffExpression($date1, $date2)
     {
         return "DATEDIFF(" . $date1 . ", " . $date2 . ")";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return "DATE_ADD(" . $date . ", INTERVAL " . $days . " DAY)";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDateSubDaysExpression($date, $days)
     {
         return "DATE_SUB(" . $date . ", INTERVAL " . $days . " DAY)";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDateAddMonthExpression($date, $months)
     {
         return "DATE_ADD(" . $date . ", INTERVAL " . $months . " MONTH)";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDateSubMonthExpression($date, $months)
     {
         return "DATE_SUB(" . $date . ", INTERVAL " . $months . " MONTH)";
@@ -111,7 +111,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Akiban does not support this syntax in current release.
+     * Akiban does not support this syntax in 1.4.0 release.
      */
     public function getForUpdateSQL()
     {
@@ -119,10 +119,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Whether the platform supports sequences.
-     * Akbian Server has native support for sequences.
-     *
-     * @return boolean
+     * {@inheritdoc}
      */
     public function supportsSequences()
     {
@@ -130,9 +127,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Whether the platform supports database schemas.
-     *
-     * @return boolean
+     * {@inheritdoc}
      */
     public function supportsSchemas()
     {
@@ -140,25 +135,23 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Whether the platform supports identity columns.
-     * Akiban Server supports these through the SERIAL keyword.
-     *
-     * @return boolean
+     * {@inheritdoc}
      */
     public function supportsIdentityColumns()
     {
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function supportsCommentOnStatement()
     {
         return false;
     }
 
     /**
-     * Whether the platform prefers sequences for ID generation.
-     *
-     * @return boolean
+     * {@inheritdoc}
      */
     public function prefersSequences()
     {
@@ -166,9 +159,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Whether the platform supports savepoints.
-     *
-     * @return boolean
+     * {@inheritdoc}
      */
     public function supportsSavepoints()
     {
@@ -176,41 +167,41 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Whether the platform supports releasing savepoints.
-     *
-     * @return boolean
+     * {@inheritdoc}
      */
     public function supportsReleaseSavepoints()
     {
         return $this->supportsSavepoints();
     }
 
-    /**  
-     * Does the platform supports foreign key constraints?
-     *    
-     * @return boolean
-     */   
+    /**
+     * {@inheritdoc}
+     */
     public function supportsForeignKeyConstraints()
     {    
         return false;
     }    
 
-    /**  
-     * Does this platform supports onUpdate in foreign key constraints?
-     *    
-     * @return bool 
-     */   
+    /**
+     * {@inheritdoc}
+     */
     public function supportsForeignKeyOnUpdate()
     {    
         return ($this->supportsForeignKeyConstraints() && true);
     }  
 
 
+    /**
+     * {@inheritdoc}
+     */
     public function getListDatabasesSQL()
     {
         return "SELECT schema_name FROM information_schema.schemata";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getListSequencesSQL($database)
     {
         return "SELECT sequence_name, sequence_schema as schemaname, increment as increment_by, minimum_value as min_value " .
@@ -218,27 +209,42 @@ class AkibanServerPlatform extends AbstractPlatform
                "WHERE sequence_name != 'information_schema'";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getListTablesSQL()
     {
         return "SELECT table_name, table_schema " .
                 "FROM information_schema.tables WHERE table_schema != 'information_schema'";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getListViewsSQL($database)
     {
         return "SELECT table_name as viewname, view_definition as definition FROM information_schema.views";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getCreateViewSQL($name, $sql)
     {
         return "CREATE VIEW " . $name . " AS " . $sql;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDropViewSQL($name)
     {
         return "DROP VIEW " . $name;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getListTableConstraintsSQL($table)
     {
         // TODO - do we only want unique and primary key indexes here?
@@ -249,27 +255,27 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @param  string $table
-     * @return string
+     * {@inheritdoc}
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        if (! is_null($currentDatabase)) {
+        $schemaPredicate = "";
+        if (null !== $currentDatabase) {
             $schemaPredicate = "i.schema_name = '" . $currentDatabase . "' and ";
-        } else {
-            $schemaPredicate = "";
         }
         return "SELECT i.table_name as table_name, i.index_name as index_name, i.is_unique as is_unique, i.index_type as index_type, c.column_name as column_name " .
                "FROM information_schema.indexes i join information_schema.index_columns c on i.index_name = c.index_name and i.table_name = c.index_table_name " .
                "WHERE c.schema_name != 'information_schema' and " . $schemaPredicate . "i.table_name = '" . $table . "'";
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        if (! is_null($database)) {
+        $schemaPredicate = "";
+        if (null !== $database) {
             $schemaPredicate = "c.schema_name = '" . $database . "' and ";
-        } else {
-            $schemaPredicate = "";
         }
         return "SELECT c.column_name as column_name, c.length as length, c.type as type, c.nullable as nullable, " .
                "c.character_set_name as character_set_name, c.collation_name as collation_name, " .
@@ -280,11 +286,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * create a new database
-     *
-     * @param string $name name of the database that should be created
-     * @return string
-     * @override
+     * {@inheritdoc}
      */
     public function getCreateDatabaseSQL($name)
     {
@@ -292,10 +294,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * drop an existing database
-     *
-     * @param string $name name of the database that should be dropped
-     * @access public
+     * {@inheritdoc}
      */
     public function getDropDatabaseSQL($name)
     {
@@ -303,12 +302,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * generates the sql for altering an existing table in Akiban Server
-     *
-     * @see Doctrine_Export::alterTable()
-     * @param TableDiff $diff
-     * @return array
-     * @override
+     * {@inheritdoc}
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
@@ -387,10 +381,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Gets the SQL to create a sequence on this platform.
-     *
-     * @param \Doctrine\DBAL\Schema\Sequence $sequence
-     * @return string
+     * {@inheritdoc}
      */
     public function getCreateSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
@@ -401,9 +392,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Drop existing sequence
-     * @param  \Doctrine\DBAL\Schema\Sequence $sequence
-     * @return string
+     * {@inheritdoc}
      */
     public function getDropSequenceSQL($sequence)
     {
@@ -414,12 +403,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Gets the SQL used to create a table.
-     *
-     * @param string $tableName
-     * @param array $columns
-     * @param array $options
-     * @return string
+     * {@inheritdoc}
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
@@ -462,13 +446,16 @@ class AkibanServerPlatform extends AbstractPlatform
         return $sql;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSequenceNextValSQL($sequenceName)
     {
         return "SELECT NEXT VALUE FOR ". $sequenceName;
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
@@ -476,7 +463,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
@@ -487,7 +474,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
@@ -498,7 +485,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
@@ -506,19 +493,18 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] == true) {
+        if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] === true) {
             return "TIMESTAMP";
-        } else {
-            return "DATETIME";
         }
+        return "DATETIME";
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -526,7 +512,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -534,7 +520,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
@@ -542,10 +528,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Gets the SQL snippet used to declare a VARCHAR column on the MySql platform.
-     *
-     * @params array $field
-     * @override
+     * {@inheritdoc}
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
@@ -553,16 +536,16 @@ class AkibanServerPlatform extends AbstractPlatform
                 : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
 
-    /** @override */
+    /**
+     * {@inheritdoc}
+     */
     public function getClobTypeDeclarationSQL(array $field)
     {
         return "BLOB";
     }
 
     /**
-     * Get the platform name for this instance
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -570,12 +553,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Gets the character casing of a column in an SQL result set.
-     *
-     * Akiban Server returns all column names in SQL result sets in lowercase.
-     *
-     * @param string $column The column name for which to get the correct character casing.
-     * @return string The column name in the character casing used in SQL result sets.
+     * {@inheritdoc}
      */
     public function getSQLResultCasing($column)
     {
@@ -583,11 +561,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Get the insert sql for an empty insert statement
-     *
-     * @param string $tableName
-     * @param string $identifierColumnName
-     * @return string $sql
+     * {@inheritdoc}
      */
     public function getEmptyIdentityInsertSQL($quotedTableName, $quotedIdentifierColumnName)
     {
@@ -595,7 +569,7 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
@@ -640,10 +614,11 @@ class AkibanServerPlatform extends AbstractPlatform
     }
 
     /**
-     * Gets the SQL Snippet used to declare a BLOB column type.
+     * {@inheritdoc}
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return "BLOB";
     }
 }
+

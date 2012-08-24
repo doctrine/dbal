@@ -122,8 +122,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(1, count($this->_conn->fetchAll('SELECT * FROM write_table')));
 
         $this->assertEquals(1, $this->_conn->delete('write_table', array('test_int' => 1)));
-        $result = $this->_conn->fetchAll('SELECT * FROM write_table');
-        $this->assertEquals(0, ($result == false) ? 0 : count($result));
+        $this->assertEquals(0, count($this->_conn->fetchAll('SELECT * FROM write_table')));
     }
 
     public function testUpdate()
