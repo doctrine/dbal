@@ -36,7 +36,7 @@ use Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer;
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class SQLAzureFederationsSynchronizer implements AbstractSchemaSynchronizer
+class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
 {
     const FEDERATION_TABLE_FEDERATED   = 'azure.federated';
     const FEDERATION_DISTRIBUTION_NAME = 'azure.federatedOnDistributionName';
