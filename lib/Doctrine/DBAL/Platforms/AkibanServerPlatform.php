@@ -324,7 +324,7 @@ class AkibanServerPlatform extends AbstractPlatform
             $query = "ADD " . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
             if ($comment = $this->getColumnComment($column)) {
-                // TODO
+                // TODO - Akiban does not support comments on tables or columns in 1.4.0
             }
         }
 
@@ -360,10 +360,10 @@ class AkibanServerPlatform extends AbstractPlatform
                 $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
             }
             if ($columnDiff->hasChanged('autoincrement')) {
-                // TODO
+                // TODO - Akiban does not support modifying sequences created with SERIAL in 1.4.0
             }
             if ($columnDiff->hasChanged('comment') && $comment = $this->getColumnComment($column)) {
-                // TODO
+                // TODO - Akiban does not support comments on tables or columns in 1.4.0
             }
         }
 
@@ -371,12 +371,12 @@ class AkibanServerPlatform extends AbstractPlatform
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
-            // TODO
+            // TODO - Akiban does not support renaming columns with ALTER in 1.4.0
         }
 
         $tableSql = array();
 
-        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
+        if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
                 // TODO
             }
