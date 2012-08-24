@@ -48,10 +48,10 @@ class Driver implements \Doctrine\DBAL\Driver
     private function constructConnectionString(array $params, $username, $password)
     {
         $connString = '';
-        if (isset($params['host']) && $params['host'] != '') {
+        if (isset($params['host']) && $params['host'] !== '') {
             $connString .= 'host=' . $params['host'] . ' ';
         }
-        if (isset($params['port']) && $params['port'] != '') {
+        if (isset($params['port']) && $params['port'] !== '') {
             $connString .= 'port=' . $params['port'] . ' ';
         }
         if (isset($params['dbname'])) {

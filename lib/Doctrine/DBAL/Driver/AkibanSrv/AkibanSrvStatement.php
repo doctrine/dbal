@@ -103,14 +103,14 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
         $inLiteral = false;
         $stmtLen = strlen($statement);
         for ($i = 0; $i < $stmtLen; $i++) {
-            if ($statement[$i] == '?' && ! $inLiteral) {
+            if ($statement[$i] === '?' && ! $inLiteral) {
                 $param = "$" . $count;
                 $len = strlen($param);
                 $statement = substr_replace($statement, $param, $i, 1);
                 $i += $len - 1;
                 $stmtLen = strlen($statement);
                 ++$count;
-            } else if ($statement[$i] == "'" || $statement[$i] == '"') {
+            } else if ($statement[$i] === "'" || $statement[$i] === '"') {
                 $inLiteral = ! $inLiteral;
             }
         }
@@ -245,7 +245,7 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
         }
 
-        if (($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) &&
+        if (($fetchMode === PDO::FETCH_OBJ || $fetchMode === PDO::FETCH_CLASS) &&
             $this->results &&
             $this->className) {
             if (empty($this->constructorArguments)) {
