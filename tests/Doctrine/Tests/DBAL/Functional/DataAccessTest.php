@@ -419,18 +419,12 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             __NAMESPACE__.'\\MyFetchClass'
         );
 
-        $resObj = null;
-        if (is_array($results)) {
-            $resObj = $results[0];
-        } else {
-            $resObj = $results;
-        }
-        $this->assertEquals(1, count($resObj));
-        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $resObj);
+        $this->assertEquals(1, count($results));
+        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
 
-        $this->assertEquals(1, $resObj->test_int);
-        $this->assertEquals('foo', $resObj->test_string);
-        $this->assertStringStartsWith('2010-01-01 10:10:10', $resObj->test_datetime);
+        $this->assertEquals(1, $results[0]->test_int);
+        $this->assertEquals('foo', $results[0]->test_string);
+        $this->assertEquals('foo', $results[0]->test_string);
     }
 
     /**
@@ -465,19 +459,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $results = $stmt->fetchAll();
 
         $this->assertEquals(1, count($results));
+        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
 
-        $resObj = null;
-        if (is_array($results)) {
-            $resObj = $results[0];
-        } else {
-            $resObj = $results;
-        }
-
-        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $resObj);
-
-        $this->assertEquals(1, $resObj->test_int);
-        $this->assertEquals('foo', $resObj->test_string);
-        $this->assertStringStartsWith('2010-01-01 10:10:10', $resObj->test_datetime);
+        $this->assertEquals(1, $results[0]->test_int);
+        $this->assertEquals('foo', $results[0]->test_string);
+        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
     }
 
     /**
