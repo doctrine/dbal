@@ -51,13 +51,6 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
     private $results;
 
     /**
-     * Akiban Server connection object.
-     *
-     * @var resource
-     */
-    private $connection;
-
-    /**
      * An array of the parameters for this statement.
      */
     private $parameters = array();
@@ -80,12 +73,10 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
     );
 
     public function __construct($connectionHandle, 
-                                $statement, 
-                                AkibanSrvConnection $connection)
+                                $statement)
     {
         $this->statement = $this->convertPositionalToNumberedParameters($statement);
         $this->connectionHandle = $connectionHandle;
-        $this->connection = $connection;
         $this->results = false;
         $this->className = null;
         $this->constructorArguments = null;
@@ -188,26 +179,24 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        $noExistingParameters = empty($this->parameters) ? true : false;
-        $parametersPassed = null !== $params ? true : false;
-        if ($noExistingParameters && ! $parametersPassed) {
-            return $this->executeQuery($this->connectionHandle, $this->statement);
+        if ( ! empty($this->parameters)) {
+            return $this->executeParameterizedQuery($this->statement, $this->parameters);
         }
-        if ($noExistingParameters && $parametersPassed) {
-            return $this->executeParameterizedQuery($this->connectionHandle, $this->statement, $params);
+        if (null !== $params) {
+            return $this->executeParameterizedQuery($this->statement, $params);
         }
-        return $this->executeParameterizedQuery($this->connectionHandle, $this->statement, $this->parameters);
+        return $this->executeQuery($this->statement);
     }
 
-    private function executeParameterizedQuery($connectionHandle, $statement, $parameters)
+    private function executeParameterizedQuery($statement, $parameters)
     {
-        $this->results = pg_query_params($connectionHandle, $statement, $parameters);
+        $this->results = pg_query_params($this->connectionHandle, $statement, $parameters);
         return $this->results;
     }
 
-    private function executeQuery($connectionHandle, $statement)
+    private function executeQuery($statement)
     {
-        $this->results = pg_query($connectionHandle, $statement);
+        $this->results = pg_query($this->connectionHandle, $statement);
         return $this->results;
     }
 
@@ -239,7 +228,7 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null, $rowPos = null)
     {
-        $fetchMode = $fetchMode ? : $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
@@ -262,7 +251,7 @@ class AkibanSrvStatement implements IteratorAggregate, Statement
      */
     public function fetchAll($fetchMode = null)
     {
-        $fetchMode = $fetchMode ? : $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
             throw new \InvalidArgumentException("Invalid fetch mode: " . $fetchMode);

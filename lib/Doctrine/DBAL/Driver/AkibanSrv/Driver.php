@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver\AkibanSrv;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AkibanServerPlatform;
 use Doctrine\DBAL\Schema\AkibanServerSchemaManager;
 
@@ -48,19 +49,19 @@ class Driver implements \Doctrine\DBAL\Driver
     private function constructConnectionString(array $params, $username, $password)
     {
         $connString = '';
-        if (isset($params['host']) && $params['host'] !== '') {
+        if (! empty($params['host'])) {
             $connString .= 'host=' . $params['host'] . ' ';
         }
-        if (isset($params['port']) && $params['port'] !== '') {
+        if (! empty($params['port'])) {
             $connString .= 'port=' . $params['port'] . ' ';
         }
-        if (isset($params['dbname'])) {
+        if (! empty($params['dbname'])) {
             $connString .= 'dbname=' . $params['dbname'] . ' ';
         }
-        if (isset($username)) {
+        if (! empty($username)) {
             $connString .= 'user=' . $username . ' ';
         }
-        if (isset($password)) {
+        if (! empty($password)) {
             $connString .= 'user=' . $username . ' ';
         }
 
@@ -78,7 +79,7 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * {@inheritDoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
         return new AkibanServerSchemaManager($conn);
     }
@@ -94,7 +95,7 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * {@inheritDoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
         return $params['dbname'];

@@ -19,6 +19,9 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Types\Type;
+
 /**
  * Akiban Server Schema Manager
  *
@@ -53,7 +56,7 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
         $tmpPlatform = $this->_platform;
         $tmpConn = $this->_conn;
 
-        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+        $this->_conn = DriverManager::getConnection($params);
         $this->_platform = $this->_conn->getDatabasePlatform();
 
         parent::dropDatabase($database);
@@ -205,12 +208,12 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
             $tableColumn['default'] = $match[1];
         }
 
-        $tableColumn['nullable'] == 'NO' ? $notnull = true : $notnull = false;
-        $tableColumn['index_type'] == 'PRIMARY' ? $primaryKey = true : $primaryKey = false;
+        $notNull = $tableColumn['nullable'] === 'NO';
+        $primaryKey = $tableColumn['index_type'] === 'PRIMARY';
 
         $options = array(
             'length'        => $length,
-            'notnull'       => $notnull,
+            'notnull'       => $notNull,
             'default'       => $tableColumn['default'],
             'primary'       => $primaryKey,
             'precision'     => $precision,
@@ -221,7 +224,7 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
             'comment'       => NULL,
         );
 
-        return new Column($tableColumn['column_name'], \Doctrine\DBAL\Types\Type::getType($type), $options);
+        return new Column($tableColumn['column_name'], Type::getType($type), $options);
     }
 
 }

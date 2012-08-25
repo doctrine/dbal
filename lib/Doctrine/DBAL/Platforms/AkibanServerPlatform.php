@@ -187,7 +187,7 @@ class AkibanServerPlatform extends AbstractPlatform
      */
     public function supportsForeignKeyOnUpdate()
     {    
-        return ($this->supportsForeignKeyConstraints() && true);
+        return $this->supportsForeignKeyConstraints();
     }  
 
 

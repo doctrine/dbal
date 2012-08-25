@@ -58,8 +58,7 @@ class AkibanSrvConnection implements \Doctrine\DBAL\Driver\Connection
     public function prepare($prepareString)
     {
         return new AkibanSrvStatement($this->connectionHandle, 
-                                      $prepareString, 
-                                      $this);
+                                      $prepareString);
     }
 
     /**
