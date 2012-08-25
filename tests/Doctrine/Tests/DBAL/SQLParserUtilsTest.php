@@ -98,6 +98,24 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
                 array(1, 2, 3, 4, 5),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
+            //  Positional : Empty "integer" array DDC-1978
+            array(
+                "SELECT * FROM Foo WHERE foo IN (?)",
+                array('foo'=>array()),
+                array('foo'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?)',
+                array(),
+                array()
+            ),
+            //  Positional : Empty "str" array DDC-1978
+            array(
+                "SELECT * FROM Foo WHERE foo IN (?)",
+                array('foo'=>array()),
+                array('foo'=>Connection::PARAM_STR_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?)',
+                array(),
+                array()
+            ),
             //  Named parameters : Very simple with param int
             array(
                 "SELECT * FROM Foo WHERE foo = :foo",
@@ -190,6 +208,24 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
                 'SELECT * FROM Foo WHERE (? = 2) AND (? = 3) AND (? = 2)',
                 array(2, 3, 2),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+             //  Named parameters : Empty "integer" array DDC-1978
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo)",
+                array('foo'=>array()),
+                array('foo'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?)',
+                array(),
+                array()
+            ),
+             //  Named parameters : Two empty "str" array DDC-1978
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)",
+                array('foo'=>array(), 'bar'=>array()),
+                array('foo'=>Connection::PARAM_STR_ARRAY, 'bar'=>Connection::PARAM_STR_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?) OR bar IN (?)',
+                array(),
+                array()
             ),
         );
     }
