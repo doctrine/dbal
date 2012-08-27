@@ -140,6 +140,10 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
+        if ($platform->getName() === 'akibansrv') {
+            $this->markTestSkipped('Akiban 1.4.0 does not support lastInsertId');
+        }
+
         $this->assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 2, 'test_string' => 'bar')));
         $num = $this->_conn->lastInsertId();
 
@@ -151,6 +155,10 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         if ( ! $this->_conn->getDatabasePlatform()->supportsSequences()) {
             $this->markTestSkipped('Test only works on platforms with sequences.');
+        }
+
+        if ($this->_conn->getDatabasePlatform()->getName() === 'akibansrv') {
+            $this->markTestSkipped('Akiban 1.4.0 does not support lastInsertId');
         }
 
         $sequence = new \Doctrine\DBAL\Schema\Sequence('write_table_id_seq');

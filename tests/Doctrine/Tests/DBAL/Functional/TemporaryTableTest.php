@@ -35,7 +35,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testDropTemporaryTableNotAutoCommitTransaction()
     {
         $platform = $this->_conn->getDatabasePlatform();
-        if ($platform->getName() == "akibansrv") {
+        if ($platform->getName() === 'akibansrv') {
             $this->markTestSkipped('Akiban does not support temporary tables');
         }
         $columnDefinitions = array("id" => array("type" => Type::getType("integer"), "notnull" => true));
@@ -71,7 +71,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testCreateTemporaryTableNotAutoCommitTransaction()
     {
         $platform = $this->_conn->getDatabasePlatform();
-        if ($platform->getName() == "akibansrv") {
+        if ($platform->getName() === 'akibansrv') {
             $this->markTestSkipped('Akiban does not support temporary tables');
         }
         $columnDefinitions = array("id" => array("type" => Type::getType("integer"), "notnull" => true));
