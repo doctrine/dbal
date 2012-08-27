@@ -79,7 +79,7 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
         $tmpPlatform = $this->_platform;
         $tmpConn = $this->_conn;
 
-        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+        $this->_conn = DriverManager::getConnection($params);
         $this->_platform = $this->_conn->getDatabasePlatform();
 
         parent::createDatabase($database);
@@ -115,13 +115,13 @@ class AkibanServerSchemaManager extends AbstractSchemaManager
     {
         $indexBuffer = array();
         foreach ($tableIndexes as $tableIndex) {
-            if ($tableIndex['index_type'] == "PRIMARY") {
+            if ($tableIndex['index_type'] === "PRIMARY") {
                 $keyName = 'primary';
                 $buffer['primary'] = true;
                 $buffer['non_unique'] = false;
             } else {
                 $buffer['primary'] = false;
-                $buffer['non_unique'] = ($tableIndex['is_unique'] == 'YES') ? false : true;
+                $buffer['non_unique'] = $tableIndex['is_unique'] === 'NO';
             }
             $buffer['key_name'] = $tableIndex['index_name'];
             $buffer['column_name'] = $tableIndex['column_name'];
