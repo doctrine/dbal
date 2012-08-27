@@ -20,11 +20,12 @@
 namespace Doctrine\DBAL\Driver\AkibanSrv;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Platforms\AkibanServerPlatform;
 use Doctrine\DBAL\Schema\AkibanServerSchemaManager;
 
 /**
- * Driver that connects to Akiban Server through pgsql.
+ * Driver that connects to Akiban Server through pdo_pgsql.
  *
  * @author Padraig O'Sullivan <osullivan.padraig@gmail.com>
  * @since  2.4
@@ -36,36 +37,33 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return new AkibanSrvConnection(
-            $this->constructConnectionString($params, $username, $password)
+        return new PDOConnection(
+            $this->constructPdoDsn($params),
+            $username,
+            $password,
+            $driverOptions
         );
     }
 
     /**
-     * Constructs the Akiban Server connection string.
+     * Constructs the Akiban Server PDO DSN.
      *
-     * @return string The connection string.
+     * @return string The DSN.
      */
-    private function constructConnectionString(array $params, $username, $password)
+    private function constructPdoDsn(array $params)
     {
-        $connString = '';
+        $dsn = 'pgsql:';
         if (! empty($params['host'])) {
-            $connString .= 'host=' . $params['host'] . ' ';
+            $dsn .= 'host=' . $params['host'] . ' ';
         }
         if (! empty($params['port'])) {
-            $connString .= 'port=' . $params['port'] . ' ';
+            $dsn .= 'port=' . $params['port'] . ' ';
         }
         if (! empty($params['dbname'])) {
-            $connString .= 'dbname=' . $params['dbname'] . ' ';
-        }
-        if (! empty($username)) {
-            $connString .= 'user=' . $username . ' ';
-        }
-        if (! empty($password)) {
-            $connString .= 'user=' . $username . ' ';
+            $dsn .= 'dbname=' . $params['dbname'] . ' ';
         }
 
-        return $connString;
+        return $dsn;
     }
 
     /**
