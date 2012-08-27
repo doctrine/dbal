@@ -140,7 +140,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        if ($platform->getName() === 'akibansrv') {
+        if ($this->_conn->getDatabasePlatform()->getName() === 'akibansrv') {
             $this->markTestSkipped('Akiban 1.4.0 does not support lastInsertId');
         }
 
