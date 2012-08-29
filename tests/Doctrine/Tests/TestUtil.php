@@ -71,8 +71,7 @@ class TestUtil
                 $tmpConn = \Doctrine\DBAL\DriverManager::getConnection($tmpDbParams);
                 $realConn->close();
 
-                $tmpConn->getSchemaManager()->dropDatabase($dbname);
-                $tmpConn->getSchemaManager()->createDatabase($dbname);
+                $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
 
                 $tmpConn->close();
             } else {
