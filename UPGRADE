@@ -1,5 +1,27 @@
 # Upgrade to 2.3
 
+## Doctrine\DBAL\Connection and Doctrine\DBAL\Statement
+
+The query related methods including but not limited to executeQuery, exec, query, and executeUpdate
+now wrap the driver exceptions such as PDOException with DBALException to add more debugging
+information such as the executed SQL statement, and any bound parameters.
+
+If you want to retrieve the driver specific exception, you can retrieve it by calling the
+``getPrevious()`` method on DBALException.
+
+Before:
+
+    catch(\PDOException $ex) {
+        // ...
+    }
+
+After:
+
+    catch(\Doctrine\DBAL\DBALException $ex) {
+        $pdoException = $ex->getPrevious();
+        // ...
+    }
+
 ## Doctrine\DBAL\Connection#setCharsetSQL() removed
 
 This method only worked on MySQL and it is considered unsafe on MySQL to use SET NAMES UTF-8 instead

@@ -123,6 +123,35 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
+     * @expectedException Doctrine\DBAL\DBALException
+     * @dataProvider getQueryMethods
+     */
+    public function testDriverExceptionIsWrapped($method)
+    {
+        $this->setExpectedException('Doctrine\DBAL\DBALException', "An exception occurred while executing 'MUUHAAAAHAAAA':
+
+SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
+
+        $con = \Doctrine\DBAL\DriverManager::getConnection(array(
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
+        ));
+
+        $con->$method('MUUHAAAAHAAAA');
+    }
+
+    public function getQueryMethods()
+    {
+        return array(
+            array('exec'),
+            array('query'),
+            array('executeQuery'),
+            array('executeUpdate'),
+            array('prepare'),
+        );
+    }
+
+    /**
      * Pretty dumb test, however we want to check that the EchoSQLLogger correctly implements the interface.
      *
      * @group DBAL-11

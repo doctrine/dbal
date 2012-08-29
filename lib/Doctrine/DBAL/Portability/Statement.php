@@ -66,7 +66,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         $this->case = $conn->getFetchCase();
     }
 
-    public function bindParam($column, &$variable, $type = null)
+    public function bindParam($column, &$variable, $type = null,$length = null)
     {
         return $this->stmt->bindParam($column, $variable, $type);
     }
