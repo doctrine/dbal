@@ -51,16 +51,6 @@ class BigIntType extends Type
      */  
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {   
-        if (null === $value) {
-            return $value;
-        }
-        /*  
-         * PostgreSQL detects 32 vs 64 bit systems and casts correctly
-         * for bigint types.
-         */  
-        if ($platform->getName() === 'postgresql' && PHP_INT_SIZE !== 4) {
-            return (string) $value;
-        }
-        return $value;
+        return (null === $value) ? null : (string) $value;
     }
 }
