@@ -48,13 +48,12 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $obj = new \stdClass();
         $obj->foo = "bar";
         $obj->bar = "baz";
-        $bigIntExpectedPhpType = (PHP_INT_SIZE === 4) ? 'string' : 'int';
 
         return array(
             array('string',     'ABCDEFGaaaBBB', 'string'),
             array('boolean',    true, 'bool'),
             array('boolean',    false, 'bool'),
-            array('bigint',     12345678, $bigIntExpectedPhpType),
+            array('bigint',     12345678, 'string'),
             array('smallint',   123, 'int'),
             array('datetime',   new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
             array('datetimetz', new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
