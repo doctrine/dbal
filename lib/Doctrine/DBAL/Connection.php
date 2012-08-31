@@ -402,11 +402,11 @@ class Connection implements DriverConnection
      *
      * @param  string  $sql    The SQL-query
      * @param  array   $params An array of params
-     * @param  array   $types  An array of types. For instance, PDO::PARAM* constants
      * @param  integer $colnum 0-indexed column number to retrieve
+     * @param  array   $types  An array of types. For instance, PDO::PARAM* constants
      * @return string
      */
-    public function fetchColumn($sql, array $params = array(), array $types = array(), $colnum = 0)
+    public function fetchColumn($sql, array $params = array(), $colnum = 0, array $types = array())
     {
         return $this->executeQuery($sql, $params, $types)->fetchColumn($colnum);
     }
