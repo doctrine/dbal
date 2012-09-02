@@ -47,17 +47,6 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $schema->getTable("unknown");
     }
 
-    public function testCreateTableTwiceThrowsException()
-    {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
-
-        $tableName = "foo";
-        $table = new Table($tableName);
-        $tables = array($table, $table);
-
-        $schema = new Schema($tables);
-    }
-
     public function testRenameTable()
     {
         $tableName = "foo";
