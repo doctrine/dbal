@@ -190,6 +190,12 @@ class Statement implements \IteratorAggregate, DriverStatement
 
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
+        if ($arg2 === null) {
+            return $this->stmt->setFetchMode($fetchMode);
+        } else if ($arg3 === null) {
+            return $this->stmt->setFetchMode($fetchMode, $arg2);
+        }
+
         return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
     }
 
