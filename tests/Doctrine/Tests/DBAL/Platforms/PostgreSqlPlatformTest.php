@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class PostgreSqlPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()
