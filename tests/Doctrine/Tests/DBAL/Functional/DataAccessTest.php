@@ -501,6 +501,21 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertFalse($this->_conn->query('SELECT test_int FROM fetch_table')->fetchColumn());
     }
 
+    /**
+     * @group DBAL-339
+     */
+    public function testSetFetchModeOnDbalStatement()
+    {
+        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $stmt = $this->_conn->executeQuery($sql, array(1, "foo"));
+        $stmt->setFetchMode(\PDO::FETCH_NUM);
+
+        while ($row = $stmt->fetch()) {
+            $this->assertTrue(isset($row[0]));
+            $this->assertTrue(isset($row[1]));
+        }
+    }
+
     private function setupFixture()
     {
         $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
