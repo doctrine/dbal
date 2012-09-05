@@ -578,7 +578,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getGuidTypeDeclartionSQL(array $field)
+    public function getGuidTypeDeclarationSQL(array $field)
     {
         return 'UUID';
     }

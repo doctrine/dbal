@@ -31,7 +31,7 @@ class GuidType extends StringType
 {
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getGuidTypeDeclartionSQL($fieldDeclaration);
+        return $platform->getGuidTypeDeclarationSQL($fieldDeclaration);
     }
 
     public function getName()
