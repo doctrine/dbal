@@ -71,7 +71,7 @@ With sharding all the ids have to be generated for global uniqueness. There are 
 2. Having a central table that is accessed with a second connection to generate sequential ids
 3. Using natural keys from the domain.
 
-The second approach has the benefit of having numerical primary keys, however also a central failure location. The third strategy can seldom be used, because the domains dont allow this. Identity columns cannot be used at all.
+The second approach has the benefit of having numerical primary keys, however also a central failure location. The third strategy can seldom be used, because the domains don't allow this. Identity columns cannot be used at all.
 
     @@@ php
     <?php
