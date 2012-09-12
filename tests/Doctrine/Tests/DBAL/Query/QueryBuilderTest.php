@@ -566,4 +566,22 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->setExpectedException('Doctrine\DBAL\Query\QueryException', "The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv, nt, n.");
         $this->assertEquals('', $qb->getSQL());
     }
+
+    /**
+     * @group DBAL-172
+     */
+    public function testSelectFromMasterWithWhereOnJoinedTables()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('COUNT(DISTINCT news.id)')
+            ->from('newspages', 'news')
+            ->innerJoin('news', 'nodeversion', 'nv', "nv.refId = news.id AND nv.refEntityname='Entity\\News'")
+            ->innerJoin('nv', 'nodetranslation', 'nt', 'nv.nodetranslation = nt.id')
+            ->innerJoin('nt', 'node', 'n', 'nt.node = n.id')
+            ->where('nt.lang = ?')
+            ->andWhere('n.deleted = 0');
+
+        $this->assertEquals("SELECT COUNT(DISTINCT news.id) FROM newspages news INNER JOIN nodeversion nv ON nv.refId = news.id AND nv.refEntityname='Entity\\News' INNER JOIN nodetranslation nt ON nv.nodetranslation = nt.id INNER JOIN node n ON nt.node = n.id WHERE (nt.lang = ?) AND (n.deleted = 0)", $qb->getSQL());
+    }
 }
