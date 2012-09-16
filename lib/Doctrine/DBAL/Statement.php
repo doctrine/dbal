@@ -129,7 +129,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      */
     public function execute($params = null)
     {
-        if(is_array($params)) {
+        if (is_array($params)) {
             $this->params = $params;
         }
         
