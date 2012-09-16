@@ -63,7 +63,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
                 ->method('getSQLLogger')
                 ->will($this->returnValue($logger));
         
-        $statement = new Statement('', $this->conn);
+        $statement = new Statement($sql, $this->conn);
         $statement->bindValue($name, $var, $type);
         $statement->execute();
     }
@@ -85,7 +85,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
                 ->method('getSQLLogger')
                 ->will($this->returnValue($logger));
         
-        $statement = new Statement('', $this->conn);
+        $statement = new Statement($sql, $this->conn);
         $statement->execute($values);
     }
 }
