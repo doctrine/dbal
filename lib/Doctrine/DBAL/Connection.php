@@ -369,43 +369,46 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Prepares and executes an SQL query and returns the first row of the result
-     * as an associative array.
+     * Prepares and executes the SQL-query and returns the first row of the result
+     * as an associative array
      *
-     * @param string $statement The SQL query.
-     * @param array $params The query parameters.
+     * @param  string $sql    The SQL-query
+     * @param  array  $params An array of params
+     * @param  array  $types  An array of types. For instance, PDO::PARAM* constants
      * @return array
      */
-    public function fetchAssoc($statement, array $params = array())
+    public function fetchAssoc($sql, array $params = array(), array $types = array())
     {
-        return $this->executeQuery($statement, $params)->fetch(PDO::FETCH_ASSOC);
+        return $this->executeQuery($sql, $params, $types)->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Prepares and executes an SQL query and returns the first row of the result
-     * as a numerically indexed array.
+     * Prepares and executes the SQL query and returns the first row of the result
+     * as a numerically indexed array
      *
-     * @param string $statement         sql query to be executed
-     * @param array $params             prepared statement params
+     * @param  string $sql    The SQL-query
+     * @param  array  $params An array of params
+     * @param  array  $types  An array of types. For instance, PDO::PARAM* constants
      * @return array
      */
-    public function fetchArray($statement, array $params = array())
+    public function fetchArray($sql, array $params = array(), array $types = array())
     {
-        return $this->executeQuery($statement, $params)->fetch(PDO::FETCH_NUM);
+        return $this->executeQuery($sql, $params, $types)->fetch(PDO::FETCH_NUM);
     }
 
     /**
-     * Prepares and executes an SQL query and returns the value of a single column
-     * of the first row of the result.
+     * Prepares and executes the SQL-query and returns the value of a single column
+     * of the first row of the result
      *
-     * @param string $statement         sql query to be executed
-     * @param array $params             prepared statement params
-     * @param int $colnum               0-indexed column number to retrieve
-     * @return mixed
+     * @param  string  $sql    The SQL-query
+     * @param  array   $params An array of params
+     * @param  integer $colnum 0-indexed column number to retrieve
+     * @param  array   $types  An array of types. For instance, PDO::PARAM* constants
+     * @return string
      */
-    public function fetchColumn($statement, array $params = array(), $colnum = 0)
+    public function fetchColumn($sql, array $params = array(), $colnum = 0, array $types = array())
     {
-        return $this->executeQuery($statement, $params)->fetchColumn($colnum);
+        return $this->executeQuery($sql, $params, $types)->fetchColumn($colnum);
     }
 
     /**
@@ -573,15 +576,16 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Prepares and executes an SQL query and returns the result as an associative array.
+     * Prepares and executes an SQL query and returns the result as an associative array
      *
-     * @param string $sql The SQL query.
-     * @param array $params The query parameters.
+     * @param  string $sql    The SQL query
+     * @param  array  $params An array of params
+     * @param  array  $types  An array of types. For instance, PDO::PARAM* constants
      * @return array
      */
-    public function fetchAll($sql, array $params = array())
+    public function fetchAll($sql, array $params = array(), array $types = array())
     {
-        return $this->executeQuery($sql, $params)->fetchAll();
+        return $this->executeQuery($sql, $params, $types)->fetchAll();
     }
 
     /**
