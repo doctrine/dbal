@@ -32,11 +32,12 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         }
     }
 
-    public function createMasterSlaveConnection()
+    public function createMasterSlaveConnection($keepSlave = false)
     {
         $params = $this->_conn->getParams();
-        $params['master'] = $params;
-        $params['slaves'] = array($params, $params);
+        $params['master']       = $params;
+        $params['slaves']       = array($params, $params);
+        $params['keepSlave']    = $keepSlave;
         $params['wrapperClass'] = 'Doctrine\DBAL\Connections\MasterSlaveConnection';
 
         return DriverManager::getConnection($params);
@@ -78,5 +79,24 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
         $this->assertEquals(2, $data[0]['num']);
         $this->assertTrue($conn->isConnectedToMaster());
+    }
+
+    /**
+     * @group DBAL-335
+     */
+    public function testKeepSlaveBeginTransactionStaysOnMaster()
+    {
+        $conn = $this->createMasterSlaveConnection($keepSlave = true);
+        $conn->connect('slave');
+
+        $conn->insert('master_slave_table', array('test_int' => 30));
+
+        $this->assertTrue($conn->isConnectedToMaster());
+
+        $conn->connect();
+        $this->assertTrue($conn->isConnectedToMaster());
+
+        $conn->connect('slave');
+        $this->assertFalse($conn->isConnectedToMaster());
     }
 }
