@@ -1,5 +1,16 @@
 # Upgrade to 2.3
 
+## Oracle Session Init now sets Numeric Character
+
+Before 2.3 the Oracle Session Init did not care about the numeric character of the Session.
+This could lead to problems on non english locale systems that required a comma as a floating
+point seperator in Oracle. Since 2.3, using the Oracle Session Init on connection start the
+client session will be altered to set the numeric character to ".,":
+
+    ALTER SESSION SET NLS_NUMERIC_CHARACTERS = '.,'
+
+See [DBAL-345](http://www.doctrine-project.org/jira/browse/DBAL-345) for more details.
+
 ## Doctrine\DBAL\Connection and Doctrine\DBAL\Statement
 
 The query related methods including but not limited to executeQuery, exec, query, and executeUpdate
