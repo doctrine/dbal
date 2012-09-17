@@ -376,7 +376,7 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         if ( ! isset($options['collate'])) {
-            $options['collate'] = 'utf8_general_ci';
+            $options['collate'] = 'utf8_unicode_ci';
         }
 
         $query .= 'DEFAULT CHARACTER SET ' . $options['charset'];
