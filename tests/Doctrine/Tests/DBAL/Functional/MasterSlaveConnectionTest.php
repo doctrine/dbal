@@ -89,7 +89,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn = $this->createMasterSlaveConnection($keepSlave = true);
         $conn->connect('slave');
 
-        $conn->insert('master_slave_table', array('test_int' => 30));
+        $conn->insert('master_slave_table', array('test_int' => 40));
 
         $this->assertTrue($conn->isConnectedToMaster());
 
