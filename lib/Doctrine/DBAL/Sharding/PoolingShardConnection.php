@@ -155,7 +155,7 @@ class PoolingShardConnection extends Connection
         $this->_conn = $this->activeConnections[$this->activeShardId] = $this->connectTo($this->activeShardId);
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
-            $eventArgs = new Event\ConnectionEventArgs($this);
+            $eventArgs = new \Doctrine\DBAL\Event\ConnectionEventArgs($this);
             $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 

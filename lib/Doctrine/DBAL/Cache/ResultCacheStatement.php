@@ -62,7 +62,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     private $lifetime;
 
     /**
-     * @var Doctrine\DBAL\Driver\Statement
+     * @var \Doctrine\DBAL\Driver\Statement
      */
     private $statement;
 

@@ -50,7 +50,7 @@ class QueryBuilder
     const STATE_CLEAN = 1;
 
     /**
-     * @var Doctrine\DBAL\Connection DBAL Connection
+     * @var \Doctrine\DBAL\Connection DBAL Connection
      */
     private $connection = null;
 
