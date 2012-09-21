@@ -103,7 +103,7 @@ abstract class AbstractPlatform
     protected $doctrineTypeComments = null;
 
     /**
-     * @var Doctrine\Common\EventManager
+     * @var \Doctrine\Common\EventManager
      */
     protected $_eventManager;
 

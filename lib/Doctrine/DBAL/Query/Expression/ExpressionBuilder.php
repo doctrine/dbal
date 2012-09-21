@@ -40,7 +40,7 @@ class ExpressionBuilder
     const GTE = '>=';
 
     /**
-     * @var Doctrine\DBAL\Connection DBAL Connection
+     * @var \Doctrine\DBAL\Connection DBAL Connection
      */
     private $connection = null;
 

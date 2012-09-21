@@ -86,7 +86,7 @@ class MasterSlaveConnection extends Connection
     /**
      * Master and slave connection (one of the randomly picked slaves)
      *
-     * @var Doctrine\DBAL\Driver\Connection[]
+     * @var \Doctrine\DBAL\Driver\Connection[]
      */
     protected $connections = array('master' => null, 'slave' => null);
 
