@@ -30,11 +30,11 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array("SELECT '?' FROM foo WHERE bar = ?", true, array(32)),
 
             // named
-            array('SELECT :foo FROM :bar', false, array(':foo' => array(7), ':bar' => array(17))),
-            array('SELECT * FROM Foo WHERE bar IN (:name1, :name2)', false, array(':name1' => array(32), ':name2' => array(40))),
-            array('SELECT ":foo" FROM Foo WHERE bar IN (:name1, :name2)', false, array(':name1' => array(37), ':name2' => array(45))),
-            array("SELECT ':foo' FROM Foo WHERE bar IN (:name1, :name2)", false, array(':name1' => array(37), ':name2' => array(45))),
-            array('SELECT :foo_id', false, array(':foo_id' => array(7))), // Ticket DBAL-231
+            array('SELECT :foo FROM :bar', false, array(7 => 'foo', 17 => 'bar')),
+            array('SELECT * FROM Foo WHERE bar IN (:name1, :name2)', false, array(32 => 'name1', 40 => 'name2')),
+            array('SELECT ":foo" FROM Foo WHERE bar IN (:name1, :name2)', false, array(37 => 'name1', 45 => 'name2')),
+            array("SELECT ':foo' FROM Foo WHERE bar IN (:name1, :name2)", false, array(37 => 'name1', 45 => 'name2')),
+            array('SELECT :foo_id', false, array(7 => 'foo_id')), // Ticket DBAL-231
         );
     }
 
@@ -97,6 +97,24 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
                 array(1, 2, 3, 4, 5),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+            //  Positional : Empty "integer" array DDC-1978
+            array(
+                "SELECT * FROM Foo WHERE foo IN (?)",
+                array('foo'=>array()),
+                array('foo'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?)',
+                array(),
+                array()
+            ),
+            //  Positional : Empty "str" array DDC-1978
+            array(
+                "SELECT * FROM Foo WHERE foo IN (?)",
+                array('foo'=>array()),
+                array('foo'=>Connection::PARAM_STR_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?)',
+                array(),
+                array()
             ),
             //  Named parameters : Very simple with param int
             array(
@@ -180,6 +198,34 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND NOT bar IN (?, ?, ?)',
                 array(1, 2, 3, 1, 2, 3),
                 array(\PDO::PARAM_INT,\PDO::PARAM_INT, \PDO::PARAM_INT,\PDO::PARAM_INT,\PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+
+             //  Named parameters : Same name, other name in between DBAL-299
+            array(
+                "SELECT * FROM Foo WHERE (:foo = 2) AND (:bar = 3) AND (:foo = 2)",
+                array('foo'=>2,'bar'=>3),
+                array('foo'=>\PDO::PARAM_INT,'bar'=>\PDO::PARAM_INT),
+                'SELECT * FROM Foo WHERE (? = 2) AND (? = 3) AND (? = 2)',
+                array(2, 3, 2),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+             //  Named parameters : Empty "integer" array DDC-1978
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo)",
+                array('foo'=>array()),
+                array('foo'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?)',
+                array(),
+                array()
+            ),
+             //  Named parameters : Two empty "str" array DDC-1978
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)",
+                array('foo'=>array(), 'bar'=>array()),
+                array('foo'=>Connection::PARAM_STR_ARRAY, 'bar'=>Connection::PARAM_STR_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?) OR bar IN (?)',
+                array(),
+                array()
             ),
         );
     }

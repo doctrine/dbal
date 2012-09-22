@@ -24,9 +24,9 @@ use Doctrine\DBAL\Events;
 use Doctrine\Common\EventSubscriber;
 
 /**
- * Should be used when Oracle Server default enviroment does not match the Doctrine requirements.
+ * Should be used when Oracle Server default environment does not match the Doctrine requirements.
  *
- * The following enviroment variables are required for the Doctrine default date format:
+ * The following environment variables are required for the Doctrine default date format:
  *
  * NLS_TIME_FORMAT="HH24:MI:SS"
  * NLS_DATE_FORMAT="YYYY-MM-DD HH24:MI:SS"
@@ -45,6 +45,7 @@ class OracleSessionInit implements EventSubscriber
         'NLS_DATE_FORMAT' => "YYYY-MM-DD HH24:MI:SS",
         'NLS_TIMESTAMP_FORMAT' => "YYYY-MM-DD HH24:MI:SS",
         'NLS_TIMESTAMP_TZ_FORMAT' => "YYYY-MM-DD HH24:MI:SS TZH:TZM",
+        'NLS_NUMERIC_CHARACTERS' => ".,",
     );
 
     /**

@@ -36,7 +36,7 @@ use Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer;
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class SQLAzureFederationsSynchronizer implements AbstractSchemaSynchronizer
+class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
 {
     const FEDERATION_TABLE_FEDERATED   = 'azure.federated';
     const FEDERATION_DISTRIBUTION_NAME = 'azure.federatedOnDistributionName';
@@ -185,7 +185,7 @@ class SQLAzureFederationsSynchronizer implements AbstractSchemaSynchronizer
     }
 
     /**
-     * Drop all assets from the underyling db.
+     * Drop all assets from the underlying db.
      *
      * @return void
      */
@@ -204,15 +204,15 @@ class SQLAzureFederationsSynchronizer implements AbstractSchemaSynchronizer
 
     private function extractSchemaFederation(Schema $schema, $isFederation)
     {
-        $partionedSchema = clone $schema;
+        $partitionedSchema = clone $schema;
 
-        foreach ($partionedSchema->getTables() as $table) {
+        foreach ($partitionedSchema->getTables() as $table) {
             if ($isFederation) {
                 $table->addOption(self::FEDERATION_DISTRIBUTION_NAME, $this->shardManager->getDistributionKey());
             }
 
             if ( $table->hasOption(self::FEDERATION_TABLE_FEDERATED) !== $isFederation) {
-                $partionedSchema->dropTable($table->getName());
+                $partitionedSchema->dropTable($table->getName());
             } else {
                 foreach ($table->getForeignKeys() as $fk) {
                     $foreignTable = $schema->getTable($fk->getForeignTableName());
@@ -223,13 +223,13 @@ class SQLAzureFederationsSynchronizer implements AbstractSchemaSynchronizer
             }
         }
 
-        return $partionedSchema;
+        return $partitionedSchema;
     }
 
     /**
      * Work on the Global/Federation based on currently existing shards and
-     * perform the given operation on the underyling schema synchronizer given
-     * the different partioned schema instances.
+     * perform the given operation on the underlying schema synchronizer given
+     * the different partitioned schema instances.
      *
      * @param Schema $schema
      * @param Closure $operation

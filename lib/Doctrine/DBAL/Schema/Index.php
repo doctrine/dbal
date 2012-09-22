@@ -88,6 +88,14 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
+     * @return array
+     */
+    public function getUnquotedColumns()
+    {
+        return array_map(array($this, 'trimQuotes'), $this->getColumns());
+    }
+
+    /**
      * Is the index neither unique nor primary key?
      *
      * @return bool
@@ -118,11 +126,11 @@ class Index extends AbstractAsset implements Constraint
      * @param  int $pos
      * @return bool
      */
-    public function hasColumnAtPosition($columnName, $pos=0)
+    public function hasColumnAtPosition($columnName, $pos = 0)
     {
-        $columnName = strtolower($columnName);
-        $indexColumns = \array_map('strtolower', $this->getColumns());
-        return \array_search($columnName, $indexColumns) === $pos;
+        $columnName   = $this->trimQuotes(strtolower($columnName));
+        $indexColumns = array_map('strtolower', $this->getUnquotedColumns());
+        return array_search($columnName, $indexColumns) === $pos;
     }
 
     /**
@@ -135,7 +143,7 @@ class Index extends AbstractAsset implements Constraint
     {
         $sameColumns = true;
         for ($i = 0; $i < count($this->_columns); $i++) {
-            if (!isset($columnNames[$i]) || strtolower($this->_columns[$i]) != strtolower($columnNames[$i])) {
+            if (!isset($columnNames[$i]) || $this->trimQuotes(strtolower($this->_columns[$i])) != $this->trimQuotes(strtolower($columnNames[$i]))) {
                 $sameColumns = false;
             }
         }
@@ -143,7 +151,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * Check if the other index already fullfills all the indexing and constraint needs of the current one.
+     * Check if the other index already fulfills all the indexing and constraint needs of the current one.
      *
      * @param Index $other
      * @return bool
@@ -163,7 +171,7 @@ class Index extends AbstractAsset implements Constraint
             if ( ! $this->isUnique() && !$this->isPrimary()) {
                 // this is a special case: If the current key is neither primary or unique, any uniqe or
                 // primary key will always have the same effect for the index and there cannot be any constraint
-                // overlaps. This means a primary or unique index can always fullfill the requirements of just an
+                // overlaps. This means a primary or unique index can always fulfill the requirements of just an
                 // index that has no constraints.
                 return true;
             } else if ($other->isPrimary() != $this->isPrimary()) {

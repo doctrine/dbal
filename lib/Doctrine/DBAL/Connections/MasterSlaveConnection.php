@@ -86,7 +86,7 @@ class MasterSlaveConnection extends Connection
     /**
      * Master and slave connection (one of the randomly picked slaves)
      *
-     * @var Doctrine\DBAL\Driver\Connection[]
+     * @var \Doctrine\DBAL\Driver\Connection[]
      */
     protected $connections = array('master' => null, 'slave' => null);
 
@@ -138,16 +138,26 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function connect($connectionName = 'slave')
+    public function connect($connectionName = null)
     {
+        $requestedConnectionChange = ($connectionName !== null);
+        $connectionName            = $connectionName ?: 'slave';
+
         if ( $connectionName !== 'slave' && $connectionName !== 'master' ) {
             throw new \InvalidArgumentException("Invalid option to connect(), only master or slave allowed.");
+        }
+
+        // If we have a connection open, and this is not an explicit connection
+        // change request, then abort right here, because we are already done.
+        // This prevents writes to the slave in case of "keepSlave" option enabled.
+        if ($this->_conn && !$requestedConnectionChange) {
+            return false;
         }
 
         $forceMasterAsSlave = false;
 
         if ($this->getTransactionNestingLevel() > 0) {
-            $connectionName = 'master';
+            $connectionName     = 'master';
             $forceMasterAsSlave = true;
         }
 
@@ -161,7 +171,7 @@ class MasterSlaveConnection extends Connection
         }
 
         if ($connectionName === 'master') {
-            /** Set slave connection to master to avoid invalid reads */
+            // Set slave connection to master to avoid invalid reads
             if ($this->connections['slave'] && ! $this->keepSlave) {
                 unset($this->connections['slave']);
             }
@@ -242,10 +252,10 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function rollback()
+    public function rollBack()
     {
         $this->connect('master');
-        return parent::rollback();
+        return parent::rollBack();
     }
 
     /**

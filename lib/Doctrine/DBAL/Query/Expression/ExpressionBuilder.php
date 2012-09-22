@@ -40,7 +40,7 @@ class ExpressionBuilder
     const GTE = '>=';
 
     /**
-     * @var Doctrine\DBAL\Connection DBAL Connection
+     * @var \Doctrine\DBAL\Connection DBAL Connection
      */
     private $connection = null;
 
@@ -247,6 +247,32 @@ class ExpressionBuilder
     public function like($x, $y)
     {
         return $this->comparison($x, 'LIKE', $y);
+    }
+
+    /**
+     * Creates a IN () comparison expression with the given arguments.
+     *
+     * @param string $x field in string format to be inspected by IN() comparison.
+     * @param array $y Array of values to be used by IN() comparison.
+     *
+     * @return string
+     */
+    public function in($x, array $y)
+    {
+        return $this->comparison($x, 'IN', '('.implode(', ', $y).')');
+    }
+
+    /**
+     * Creates a NOT IN () comparison expression with the given arguments.
+     *
+     * @param string $x field in string format to be inspected by NOT IN() comparison.
+     * @param array $y Array of values to be used by NOT IN() comparison.
+     *
+     * @return string
+     */
+    public function notIn($x, array $y)
+    {
+        return $this->comparison($x, 'NOT IN', '('.implode(', ', $y).')');
     }
 
     /**

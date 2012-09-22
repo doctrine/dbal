@@ -131,7 +131,7 @@ class Connection implements DriverConnection
     private $_transactionIsolationLevel;
 
     /**
-     * If nested transations should use savepoints
+     * If nested transactions should use savepoints
      *
      * @var integer
      */
@@ -639,16 +639,21 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
-        $stmt = new Statement($statement, $this);
+        try {
+            $stmt = new Statement($statement, $this);
+        } catch (\Exception $ex) {
+            throw DBALException::driverExceptionDuringQuery($ex, $statement);
+        }
+
         $stmt->setFetchMode($this->_defaultFetchMode);
 
         return $stmt;
     }
 
     /**
-     * Executes an, optionally parameterized, SQL query.
+     * Executes an, optionally parametrized, SQL query.
      *
-     * If the query is parameterized, a prepared statement is used.
+     * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
      * @param string $query The SQL query to execute.
@@ -671,18 +676,22 @@ class Connection implements DriverConnection
             $logger->startQuery($query, $params, $types);
         }
 
-        if ($params) {
-            list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
+        try {
+            if ($params) {
+                list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
 
-            $stmt = $this->_conn->prepare($query);
-            if ($types) {
-                $this->_bindTypedValues($stmt, $params, $types);
-                $stmt->execute();
+                $stmt = $this->_conn->prepare($query);
+                if ($types) {
+                    $this->_bindTypedValues($stmt, $params, $types);
+                    $stmt->execute();
+                } else {
+                    $stmt->execute($params);
+                }
             } else {
-                $stmt->execute($params);
+                $stmt = $this->_conn->query($query);
             }
-        } else {
-            $stmt = $this->_conn->query($query);
+        } catch (\Exception $ex) {
+            throw DBALException::driverExceptionDuringQuery($ex, $query, $this->resolveParams($params, $types));
         }
 
         $stmt->setFetchMode($this->_defaultFetchMode);
@@ -732,13 +741,13 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Executes an, optionally parameterized, SQL query and returns the result,
+     * Executes an, optionally parametrized, SQL query and returns the result,
      * applying a given projection/transformation function on each row of the result.
      *
      * @param string $query The SQL query to execute.
      * @param array $params The parameters, if any.
      * @param Closure $mapper The transformation function that is applied on each row.
-     *                        The function receives a single paramater, an array, that
+     *                        The function receives a single parameter, an array, that
      *                        represents a row of the result set.
      * @return mixed The projected result of the query.
      */
@@ -774,7 +783,12 @@ class Connection implements DriverConnection
             $logger->startQuery($args[0]);
         }
 
-        $statement = call_user_func_array(array($this->_conn, 'query'), $args);
+        try {
+            $statement = call_user_func_array(array($this->_conn, 'query'), $args);
+        } catch (\Exception $ex) {
+            throw DBALException::driverExceptionDuringQuery($ex, func_get_arg(0));
+        }
+
         $statement->setFetchMode($this->_defaultFetchMode);
 
         if ($logger) {
@@ -805,19 +819,23 @@ class Connection implements DriverConnection
             $logger->startQuery($query, $params, $types);
         }
 
-        if ($params) {
-            list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
+        try {
+            if ($params) {
+                list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
 
-            $stmt = $this->_conn->prepare($query);
-            if ($types) {
-                $this->_bindTypedValues($stmt, $params, $types);
-                $stmt->execute();
+                $stmt = $this->_conn->prepare($query);
+                if ($types) {
+                    $this->_bindTypedValues($stmt, $params, $types);
+                    $stmt->execute();
+                } else {
+                    $stmt->execute($params);
+                }
+                $result = $stmt->rowCount();
             } else {
-                $stmt->execute($params);
+                $result = $this->_conn->exec($query);
             }
-            $result = $stmt->rowCount();
-        } else {
-            $result = $this->_conn->exec($query);
+        } catch (\Exception $ex) {
+            throw DBALException::driverExceptionDuringQuery($ex, $query, $this->resolveParams($params, $types));
         }
 
         if ($logger) {
@@ -842,7 +860,11 @@ class Connection implements DriverConnection
             $logger->startQuery($statement);
         }
 
-        $result = $this->_conn->exec($statement);
+        try {
+            $result = $this->_conn->exec($statement);
+        } catch (\Exception $ex) {
+            throw DBALException::driverExceptionDuringQuery($ex, $statement);
+        }
 
         if ($logger) {
             $logger->stopQuery();
@@ -1270,6 +1292,53 @@ class Connection implements DriverConnection
             $bindingType = $type; // PDO::PARAM_* constants
         }
         return array($value, $bindingType);
+    }
+
+    /**
+     * Resolves the parameters to a format which can be displayed.
+     *
+     * @internal This is a purely internal method. If you rely on this method, you are advised to
+     *           copy/paste the code as this method may change, or be removed without prior notice.
+     *
+     * @param array $params
+     * @param array $types
+     *
+     * @return array
+     */
+    public function resolveParams(array $params, array $types)
+    {
+        $resolvedParams = array();
+
+        // Check whether parameters are positional or named. Mixing is not allowed, just like in PDO.
+        if (is_int(key($params))) {
+            // Positional parameters
+            $typeOffset = array_key_exists(0, $types) ? -1 : 0;
+            $bindIndex = 1;
+            foreach ($params as $value) {
+                $typeIndex = $bindIndex + $typeOffset;
+                if (isset($types[$typeIndex])) {
+                    $type = $types[$typeIndex];
+                    list($value,) = $this->getBindingInfo($value, $type);
+                    $resolvedParams[$bindIndex] = $value;
+                } else {
+                    $resolvedParams[$bindIndex] = $value;
+                }
+                ++$bindIndex;
+            }
+        } else {
+            // Named parameters
+            foreach ($params as $name => $value) {
+                if (isset($types[$name])) {
+                    $type = $types[$name];
+                    list($value,) = $this->getBindingInfo($value, $type);
+                    $resolvedParams[$name] = $value;
+                } else {
+                    $resolvedParams[$name] = $value;
+                }
+            }
+        }
+
+        return $resolvedParams;
     }
 
     /**

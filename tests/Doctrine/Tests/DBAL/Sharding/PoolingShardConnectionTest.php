@@ -132,7 +132,7 @@ class PoolingShardConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testShardMissingId()
     {
-        $this->setExpectedException('InvalidArgumentException', "Missing 'id' for one configured shard. Please specificy a unique shard-id.");
+        $this->setExpectedException('InvalidArgumentException', "Missing 'id' for one configured shard. Please specify a unique shard-id.");
 
         $conn = DriverManager::getConnection(array(
             'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',

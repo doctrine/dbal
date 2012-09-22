@@ -1,8 +1,65 @@
 # Upgrade to 2.3
 
+## Oracle Session Init now sets Numeric Character
+
+Before 2.3 the Oracle Session Init did not care about the numeric character of the Session.
+This could lead to problems on non english locale systems that required a comma as a floating
+point seperator in Oracle. Since 2.3, using the Oracle Session Init on connection start the
+client session will be altered to set the numeric character to ".,":
+
+    ALTER SESSION SET NLS_NUMERIC_CHARACTERS = '.,'
+
+See [DBAL-345](http://www.doctrine-project.org/jira/browse/DBAL-345) for more details.
+
+## Doctrine\DBAL\Connection and Doctrine\DBAL\Statement
+
+The query related methods including but not limited to executeQuery, exec, query, and executeUpdate
+now wrap the driver exceptions such as PDOException with DBALException to add more debugging
+information such as the executed SQL statement, and any bound parameters.
+
+If you want to retrieve the driver specific exception, you can retrieve it by calling the
+``getPrevious()`` method on DBALException.
+
+Before:
+
+    catch(\PDOException $ex) {
+        // ...
+    }
+
+After:
+
+    catch(\Doctrine\DBAL\DBALException $ex) {
+        $pdoException = $ex->getPrevious();
+        // ...
+    }
+
+## Doctrine\DBAL\Connection#setCharsetSQL() removed
+
+This method only worked on MySQL and it is considered unsafe on MySQL to use SET NAMES UTF-8 instead
+of setting the charset directly on connection already. Replace this behavior with the
+connection charset option:
+
+Before:
+
+    $conn = DriverManager::getConnection(array(..));
+    $conn->setCharset('UTF8');
+
+After:
+
+    $conn = DriverManager::getConnection(array('charset' => 'UTF8', ..));
+
+## Doctrine\DBAL\Schema\Table#renameColumn() removed
+
+Doctrine\DBAL\Schema\Table#renameColumn() was removed, because it drops and recreates
+the column instead. There is no fix available, because a schema diff
+cannot reliably detect if a column was renamed or one column was created
+and another one dropped.
+
+You should use explicit SQL ALTER TABLE statements to change columns names.
+
 ## Schema Filter paths
 
-The Filter Schema assets expression is not wrapped in () anymore for the regexp.
+The Filter Schema assets expression is not wrapped in () anymore for the regexp automatically.
 
 Before:
 
@@ -15,11 +72,11 @@ After:
 ## Creating MySQL Tables now defaults to UTF-8
 
 If you are creating a new MySQL Table through the Doctrine API, charset/collate are
-now set to 'utf8'/'utf8_general_ci' by default. Previously the MySQL server defaults were used.
+now set to 'utf8'/'utf8_unicode_ci' by default. Previously the MySQL server defaults were used.
 
 # Upgrade to 2.2
 
-## Doctrine\DBAL\Connection#insert and Doctrine\DBAL\Connnection#update
+## Doctrine\DBAL\Connection#insert and Doctrine\DBAL\Connection#update
 
 Both methods now accept an optional last parameter $types with binding types of the values passed.
 This can potentially break child classes that have overwritten one of these methods.
@@ -31,7 +88,7 @@ Doctrine\DBAL\Connection#executeQuery() got a new last parameter "QueryCacheProf
 ## Doctrine\DBAL\Driver\Statement split
 
 The Driver statement was split into a ResultStatement and the normal statement extending from it.
-This seperates the configuration and the retrieval API from a statement.
+This separates the configuration and the retrieval API from a statement.
 
 ## MsSql Platform/SchemaManager renamed
 

@@ -760,6 +760,28 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group DDC-1657
+     */
+    public function testAutoIncremenetSequences()
+    {
+        $oldSchema = new Schema();
+        $table = $oldSchema->createTable("foo");
+        $table->addColumn("id", "integer", array("autoincrement" => true));
+        $table->setPrimaryKey(array("id"));
+        $oldSchema->createSequence("foo_id_seq");
+
+        $newSchema = new Schema();
+        $table = $newSchema->createTable("foo");
+        $table->addColumn("id", "integer", array("autoincrement" => true));
+        $table->setPrimaryKey(array("id"));
+
+        $c = new Comparator();
+        $diff = $c->compare($oldSchema, $newSchema);
+
+        $this->assertCount(0, $diff->removedSequences);
+    }
+
+    /**
      * @param SchemaDiff $diff
      * @param int $newTableCount
      * @param int $changeTableCount

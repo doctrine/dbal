@@ -36,6 +36,17 @@ class DBALException extends \Exception
             "Doctrine currently supports only the following drivers: ".implode(", ", $knownDrivers));
     }
 
+    public static function driverExceptionDuringQuery(\Exception $driverEx, $sql, array $params = array())
+    {
+        $msg = "An exception occurred while executing '".$sql."'";
+        if ($params) {
+            $msg .= " with params ".json_encode($params);
+        }
+        $msg .= ":\n\n".$driverEx->getMessage();
+
+        return new self($msg, 0, $driverEx);
+    }
+
     public static function invalidWrapperClass($wrapperClass)
     {
         return new self("The given 'wrapperClass' ".$wrapperClass." has to be a ".

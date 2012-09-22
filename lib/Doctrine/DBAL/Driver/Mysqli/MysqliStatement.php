@@ -86,7 +86,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null)
+    public function bindParam($column, &$variable, $type = null, $length = null)
     {
         if (null === $type) {
             $type = 's';
@@ -94,7 +94,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             if (isset(self::$_paramTypeMap[$type])) {
                 $type = self::$_paramTypeMap[$type];
             } else {
-                throw new MysqliException("Unkown type: '{$type}'");
+                throw new MysqliException("Unknown type: '{$type}'");
             }
         }
 

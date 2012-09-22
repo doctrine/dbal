@@ -47,7 +47,7 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
  * execute them. Only the queries for the currently connected database are
  * executed.
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
@@ -87,6 +87,7 @@ class Schema extends AbstractAsset
         foreach ($tables as $table) {
             $this->_addTable($table);
         }
+
         foreach ($sequences as $sequence) {
             $this->_addSequence($sequence);
         }
@@ -155,7 +156,7 @@ class Schema extends AbstractAsset
      */
     private function getFullQualifiedAssetName($name)
     {
-        if ($this->isQuoted($name)) {
+        if ($this->isIdentifierQuoted($name)) {
             $name = $this->trimQuotes($name);
         }
         if (strpos($name, ".") === false) {

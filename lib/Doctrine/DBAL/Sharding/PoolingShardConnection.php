@@ -108,7 +108,7 @@ class PoolingShardConnection extends Connection
 
         foreach ($params['shards'] as $shard) {
             if ( ! isset($shard['id'])) {
-                throw new \InvalidArgumentException("Missing 'id' for one configured shard. Please specificy a unique shard-id.");
+                throw new \InvalidArgumentException("Missing 'id' for one configured shard. Please specify a unique shard-id.");
             }
 
             if ( !is_numeric($shard['id']) || $shard['id'] < 1) {
@@ -155,7 +155,7 @@ class PoolingShardConnection extends Connection
         $this->_conn = $this->activeConnections[$this->activeShardId] = $this->connectTo($this->activeShardId);
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
-            $eventArgs = new Event\ConnectionEventArgs($this);
+            $eventArgs = new \Doctrine\DBAL\Event\ConnectionEventArgs($this);
             $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 

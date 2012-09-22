@@ -28,11 +28,11 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            'ALTER TABLE mytable RENAME TO userlist',
             'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
             'ALTER TABLE mytable DROP COLUMN foo',
             'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) DEFAULT \'def\' NOT NULL',
             'ALTER TABLE mytable ALTER COLUMN bloo BIT DEFAULT \'0\' NOT NULL',
+            "sp_RENAME 'mytable', 'userlist'",
         );
     }
 
@@ -154,7 +154,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testModifyLimitQueryWithOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY username DESC) AS "doctrine_rownum", * FROM user) AS doctrine_tbl WHERE "doctrine_rownum" BETWEEN 6 AND 15', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT ROW_NUMBER() OVER (ORDER BY username DESC) AS doctrine_rownum, * FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15', $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy()

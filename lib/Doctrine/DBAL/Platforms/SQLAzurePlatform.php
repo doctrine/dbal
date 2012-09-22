@@ -30,6 +30,9 @@ use Doctrine\DBAL\Schema\Table;
  */
 class SQLAzurePlatform extends SQLServer2008Platform
 {
+    /**
+     * {@inheritDoc}
+     */
     public function getCreateTableSQL(Table $table, $createFlags=self::CREATE_INDEXES)
     {
         $sql = parent::getCreateTableSQL($table, $createFlags);
@@ -41,6 +44,7 @@ class SQLAzurePlatform extends SQLServer2008Platform
 
             $sql[0] = $sql[0] . $stmt;
         }
+
         return $sql;
     }
 }
