@@ -34,7 +34,7 @@ instance passed to the Connection factory:
     $evm = new EventManager();
     $evm->addEventSubscriber(new OracleSessionInit(array(
         'NLS_TIME_FORMAT' => 'HH24:MI:SS',
-    ));
+    )));
     
     $conn = DriverManager::getConnection($connectionParams, null, $evm);
 
