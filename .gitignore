@@ -4,7 +4,3 @@ reports/
 dist/
 download/
 lib/Doctrine/Common/
-.project
-.buildpath
-.settings/
-
