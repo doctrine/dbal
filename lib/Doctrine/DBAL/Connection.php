@@ -543,9 +543,9 @@ class Connection implements DriverConnection
      *
      * @param string $tableName The name of the table to insert data into.
      * @param array $data An associative array containing column-value pairs.
-     * @param array $identifier
-     * @param array $types
-     * @return int
+     * @param array $identifier $identifier The update criteria. An associative array containing column-value pairs.
+     * @param array Types of the merged $data and $identifier arrays in that order.
+     * @return int Depending on driver and platform
      */
     public function upsert($tableName, array $data, array $identifier, array $types = array())
     {
@@ -554,22 +554,24 @@ class Connection implements DriverConnection
         if ($this->_platform->supportsNativeUpsert()) {
             list ($sql, $params, $types) = $this->_platform->getUpsertSql($tableName, $data, $identifier, $types);
             return $this->executeUpdate($sql, $params, $types);
-        } else {
-            $sql = 'SELECT ' . implode(', ', array_keys($identifier)) . ' FROM ' . $tableName
-                 . ' WHERE ' . implode(' = ? AND ', array_keys($identifier))
-                 . ' = ?'
-                 . ' ' . $this->_platform->getWriteLockSQL();
-
-            $stmt = $this->executeQuery($sql, array_values($identifier));
-            $haveRows = (bool)$stmt->fetch(PDO::FETCH_NUM);
-            $stmt->closeCursor();
-
-            if ($haveRows) {
-                return $this->update($tableName, $data, $identifier, $types);
-            } else {
-                return $this->insert($tableName, $data, $types);
-            }
         }
+
+        $sql = 'SELECT ' . implode(', ', array_keys($identifier)) . ' FROM ' . $tableName
+            . ' WHERE ' . implode(' = ? AND ', array_keys($identifier))
+            . ' = ?'
+            . ' ' . $this->_platform->getWriteLockSQL();
+
+        // TODO Support types
+        $stmt = $this->executeQuery($sql, array_values($identifier));
+        $haveRows = (bool)$stmt->fetch(PDO::FETCH_NUM);
+        $stmt->closeCursor();
+
+        if ($haveRows) {
+            return $this->update($tableName, $data, $identifier, $types);
+        }
+
+        // TODO remove $identifier tyoes
+        return $this->insert($tableName, $data, $types);
     }
 
     /**
