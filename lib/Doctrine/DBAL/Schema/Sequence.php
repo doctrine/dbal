@@ -1,21 +1,21 @@
 <?php
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
- * <http://www.doctrine-project.org>.
- */
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+* A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+		* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+		* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+* This software consists of voluntary contributions made by many individuals
+* and is licensed under the MIT license. For more information, see
+* <http://www.doctrine-project.org>.
+*/
 
 namespace Doctrine\DBAL\Schema;
 
@@ -24,7 +24,7 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 /**
  * Sequence Structure
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @version $Revision$
@@ -32,89 +32,114 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
  */
 class Sequence extends AbstractAsset
 {
-    /**
-     * @var int
-     */
-    protected $_allocationSize = 1;
+	/**
+	 * @var int
+	 */
+	protected $_allocationSize = 1;
 
-    /**
-     * @var int
-     */
-    protected $_initialValue = 1;
+	/**
+	 * @var int
+	 */
+	protected $_initialValue = 1;
 
-    /**
-     *
-     * @param string $name
-     * @param int $allocationSize
-     * @param int $initialValue
-     */
-    public function __construct($name, $allocationSize=1, $initialValue=1)
-    {
-        $this->_setName($name);
-        $this->_allocationSize = (is_numeric($allocationSize))?$allocationSize:1;
-        $this->_initialValue = (is_numeric($initialValue))?$initialValue:1;
-    }
+	/**
+	 * @var string
+	 */
+	protected $_cacheSize;
 
-    public function getAllocationSize()
-    {
-        return $this->_allocationSize;
-    }
+	/**
+	 *
+	 * @param string $name
+	 * @param int $allocationSize
+	 * @param int $initialValue
+	 * @param string $cacheSize
+	 */
+	public function __construct($name, $allocationSize=1, $initialValue=1, $cacheSize = 20)
+	{
+		$this->_setName($name);
+		$this->_allocationSize = (is_numeric($allocationSize))?$allocationSize:1;
+		$this->_initialValue = (is_numeric($initialValue))?$initialValue:1;
+		$this->setCacheSize($cacheSize);
+	}
 
-    public function getInitialValue()
-    {
-        return $this->_initialValue;
-    }
+	public function getAllocationSize()
+	{
+		return $this->_allocationSize;
+	}
 
-    public function setAllocationSize($allocationSize)
-    {
-        $this->_allocationSize = (is_numeric($allocationSize))?$allocationSize:1;
-    }
+	public function getInitialValue()
+	{
+		return $this->_initialValue;
+	}
 
-    public function setInitialValue($initialValue)
-    {
-        $this->_initialValue = (is_numeric($initialValue))?$initialValue:1;
-    }
+	public function setAllocationSize($allocationSize)
+	{
+		$this->_allocationSize = (is_numeric($allocationSize))?$allocationSize:1;
+	}
 
-    /**
-     * Check if this sequence is an autoincrement sequence for a given table.
-     *
-     * This is used inside the comparator to not report sequences as missing,
-     * when the "from" schema implicitly creates the sequences.
-     *
-     * @param Table $table
-     *
-     * @return bool
-     */
-    public function isAutoIncrementsFor(Table $table)
-    {
-        if ( ! $table->hasPrimaryKey()) {
-            return false;
-        }
+	public function setInitialValue($initialValue)
+	{
+		$this->_initialValue = (is_numeric($initialValue))?$initialValue:1;
+	}
 
-        $pkColumns = $table->getPrimaryKey()->getColumns();
+	/**
+	 * Check if this sequence is an autoincrement sequence for a given table.
+	 *
+	 * This is used inside the comparator to not report sequences as missing,
+	 * when the "from" schema implicitly creates the sequences.
+	 *
+	 * @param Table $table
+	 *
+	 * @return bool
+	 */
+	public function isAutoIncrementsFor(Table $table)
+	{
+		if ( ! $table->hasPrimaryKey()) {
+			return false;
+		}
 
-        if (count($pkColumns) != 1) {
-            return false;
-        }
+		$pkColumns = $table->getPrimaryKey()->getColumns();
 
-        $column = $table->getColumn($pkColumns[0]);
+		if (count($pkColumns) != 1) {
+			return false;
+		}
 
-        if ( ! $column->getAutoincrement()) {
-            return false;
-        }
+		$column = $table->getColumn($pkColumns[0]);
 
-        $sequenceName      = $this->getShortestName($table->getNamespaceName());
-        $tableName         = $table->getShortestName($table->getNamespaceName());
-        $tableSequenceName = sprintf('%s_%s_seq', $tableName, $pkColumns[0]);
+		if ( ! $column->getAutoincrement()) {
+			return false;
+		}
 
-        return $tableSequenceName === $sequenceName;
-    }
+		$sequenceName      = $this->getShortestName($table->getNamespaceName());
+		$tableName         = $table->getShortestName($table->getNamespaceName());
+		$tableSequenceName = sprintf('%s_%s_seq', $tableName, $pkColumns[0]);
 
-    /**
-     * @param Visitor $visitor
-     */
-    public function visit(Visitor $visitor)
-    {
-        $visitor->acceptSequence($this);
-    }
+		return $tableSequenceName === $sequenceName;
+	}
+
+	/**
+	 * @param Visitor $visitor
+	 */
+	public function visit(Visitor $visitor)
+	{
+		$visitor->acceptSequence($this);
+	}
+
+	public function getCacheSize()
+	{
+		return $this->_cacheSize;
+	}
+
+	public function setCacheSize($cacheSize)
+	{
+		switch($cacheSize){
+			case 0: $this->_cacheSize = 'NOCACHE';
+			break;
+			case 1: $this->_cacheSize = 'CACHE 20';
+			break;
+			default:
+				$this->_cacheSize = 'CACHE '.(is_numeric($cacheSize))?($cacheSize >(ceil(pow(10,27) - $this->_initialValue))/abs($this->_allocationSize)?20:$cacheSize):20;
+
+		}
+	}
 }
