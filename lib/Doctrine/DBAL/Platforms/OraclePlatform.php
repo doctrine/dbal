@@ -172,7 +172,8 @@ class OraclePlatform extends AbstractPlatform
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' START WITH ' . $sequence->getInitialValue() .
                ' MINVALUE ' . $sequence->getInitialValue() .
-               ' INCREMENT BY ' . $sequence->getAllocationSize();
+               ' INCREMENT BY ' . $sequence->getAllocationSize().
+        		$sequence->getCacheSize();
     }
 
     /**
