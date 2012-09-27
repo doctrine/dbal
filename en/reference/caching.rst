@@ -48,4 +48,6 @@ object is closed:
 
 .. warning::
 
-    When using the cache layer not all fetch modes are supported.
+    When using the cache layer not all fetch modes are supported. See the code of the
+`ResultCacheStatement 
+<https://github.com/doctrine/dbal/blob/master/lib/Doctrine/DBAL/Cache/ResultCacheStatement.php#L156>`_ for details.
