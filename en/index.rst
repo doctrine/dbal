@@ -28,6 +28,7 @@ Contents:
    reference/sharding_azure_tutorial
    reference/supporting-other-databases
    reference/portability
+   reference/caching
    reference/known-vendor-issues
 
 Indices and tables
