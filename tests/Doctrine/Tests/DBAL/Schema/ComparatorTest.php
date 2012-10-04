@@ -783,7 +783,10 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * You can get multiple drops for a FK when 
+     * You can get multiple drops for a FK when a table referenced by a foreign
+     * key is deleted, as this FK is referenced twice, once on the orphanedForeignKeys
+     * array because of the dropped table, and once on changedTables array. We
+     * now check that the key is present once.
      */
     public function testAvoidMultipleDropForeignKey()
     {
@@ -804,6 +807,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $diff = $c->compare($oldSchema, $newSchema);
 
         $this->assertCount(0, $diff->changedTables['foo']->removedForeignKeys);
+        $this->assertCount(1, $diff->orphanedForeignKeys);
     }
 
 
