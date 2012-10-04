@@ -295,8 +295,7 @@ class Comparator
                 $removedColumnName = strtolower($removedColumn->getName());
                 $addedColumnName = strtolower($addedColumn->getName());
                 
-                if (!isset($tableDifferences->renamedColumns[$removedColumnName]))
-                {
+                if ( ! isset($tableDifferences->renamedColumns[$removedColumnName])) {
                     $tableDifferences->renamedColumns[$removedColumnName] = $addedColumn;
                     unset($tableDifferences->addedColumns[$addedColumnName]);
                     unset($tableDifferences->removedColumns[$removedColumnName]);
