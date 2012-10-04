@@ -99,9 +99,11 @@ class Comparator
                 // deleting duplicated foreign keys present on both on the orphanedForeignKey
                 // and the removedForeignKeys from changedTables
                 foreach ($foreignKeysToTable[$tableName] as $foreignKey) {
-                    if (isset($diff->changedTables[$foreignKey->getLocalTableName()])) {
-                        foreach ($diff->changedTables[$foreignKey->getLocalTableName()]->removedForeignKeys as $key => $removedForeignKey) {
-                            unset($diff->changedTables[$foreignKey->getLocalTableName()]->removedForeignKeys[$key]);
+                    // strtolower the table name to make if compatible with getShortestName
+                    $localTableName = strtolower($foreignKey->getLocalTableName());
+                    if (isset($diff->changedTables[$localTableName])) {
+                        foreach ($diff->changedTables[$localTableName]->removedForeignKeys as $key => $removedForeignKey) {
+                            unset($diff->changedTables[$localTableName]->removedForeignKeys[$key]);
                         }
                     }
                 }
