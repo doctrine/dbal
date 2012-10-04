@@ -781,6 +781,32 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(0, $diff->removedSequences);
     }
 
+
+    /**
+     * You can get multiple drops for a FK when 
+     */
+    public function testAvoidMultipleDropForeignKey()
+    {
+        $oldSchema = new Schema();
+
+        $tableForeign = $oldSchema->createTable('foreign');
+        $tableForeign->addColumn('id', 'integer');
+
+        $table = $oldSchema->createTable('foo');
+        $table->addColumn('fk', 'integer');
+        $table->addForeignKeyConstraint($tableForeign, array('fk'), array('id'));
+
+
+        $newSchema = new Schema();
+        $table = $newSchema->createTable('foo');
+
+        $c = new Comparator();
+        $diff = $c->compare($oldSchema, $newSchema);
+
+        $this->assertCount(0, $diff->changedTables['foo']->removedForeignKeys);
+    }
+
+
     /**
      * @param SchemaDiff $diff
      * @param int $newTableCount
