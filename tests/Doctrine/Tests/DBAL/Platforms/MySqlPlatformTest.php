@@ -40,7 +40,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            "ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE bloo bloo TINYINT(1) DEFAULT '0' NOT NULL"
+            "ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, CHANGE `bar` baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE `bloo` bloo TINYINT(1) DEFAULT '0' NOT NULL"
         );
     }
 
@@ -202,7 +202,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
 
     public function getAlterTableColumnCommentsSQL()
     {
-        return array("ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'");
+        return array("ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', CHANGE `bar` baz VARCHAR(255) NOT NULL COMMENT 'B comment'");
     }
 
     public function getCreateTableColumnTypeCommentsSQL()
