@@ -128,6 +128,8 @@ EOT
             foreach ($violations as $violation) {
                 $output->write('  - ' . $violation, true);
             }
+
+            return 1;
         }
     }
 }
