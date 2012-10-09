@@ -229,7 +229,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(0, $tableDiff->removedColumns, "Nothing should be removed.");
         $this->assertCount(0, $tableDiff->changedColumns, "Nothing should be changed as all fields old & new have diff names.");
     }
-    
+
     public function testCompareRemovedIndex()
     {
         $schema1 = new Schema( array(
