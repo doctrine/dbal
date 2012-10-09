@@ -26,7 +26,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform,
     Doctrine\DBAL\Schema\Schema,
     Doctrine\DBAL\Schema\Column,
     Doctrine\DBAL\Schema\ForeignKeyConstraint,
-    Doctrine\DBAL\Schema\Constraint,
     Doctrine\DBAL\Schema\Sequence,
     Doctrine\DBAL\Schema\Index;
 
