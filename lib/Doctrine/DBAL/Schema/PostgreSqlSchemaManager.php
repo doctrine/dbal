@@ -134,6 +134,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         parent::dropDatabase($database);
 
+        $this->_conn->close();
+
         $this->_platform = $tmpPlatform;
         $this->_conn = $tmpConn;
     }
@@ -149,6 +151,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $this->_platform = $this->_conn->getDatabasePlatform();
 
         parent::createDatabase($database);
+
+        $this->_conn->close();
 
         $this->_platform = $tmpPlatform;
         $this->_conn = $tmpConn;
