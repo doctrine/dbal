@@ -368,7 +368,7 @@ class MySqlPlatform extends AbstractPlatform
         $query .= 'TABLE ' . $tableName . ' (' . $queryFields . ') ';
 
         if (isset($options['comment'])) {
-            $query .= 'COMMENT = ' . $options['comment'] . ' ';
+            $query .= sprintf("COMMENT = '%s' ", $options['comment']);
         }
 
         if ( ! isset($options['charset'])) {
