@@ -2600,6 +2600,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Does this platform support native upsert.
+     *
+     * @return boolean
+     */
+    public function supportsNativeUpsert()
+    {
+        return false;
+    }
+
+    /**
      * Gets the format string, as accepted by the date() function, that describes
      * the format of a stored datetime value of this platform.
      *
@@ -2812,6 +2822,19 @@ abstract class AbstractPlatform
     public function rollbackSavePoint($savepoint)
     {
         return 'ROLLBACK TO SAVEPOINT ' . $savepoint;
+    }
+
+    /**
+     * @param type $tableName
+     * @param array $data
+     * @param array $identifier
+     * @param array $types
+     * @throws Doctrine\DBAL\DBALException
+     * @return array
+     */
+    public function getUpsertSql($tableName, array $data, array $identifier, array $types)
+    {
+        throw DBALException::notSupported(__METHOD__);
     }
 
     /**

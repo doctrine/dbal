@@ -134,6 +134,39 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(0, $this->_conn->update('write_table', array('test_string' => 'baz'), array('test_string' => 'bar')));
     }
 
+    public function testUpsertInsert()
+    {
+        $this->createUpsertTable();
+
+        // FIXME, asserts
+        $this->_conn->upsert('upsert_table', array('test_int' => 1, 'test_string' => 'foo'), array('test_int' => 1));
+        $this->_conn->upsert('upsert_table', array('test_int' => 2, 'test_string' => 'bar'), array('test_int' => 2));
+        $this->_conn->upsert('upsert_table', array('test_string' => 2, 'test_int' => 4), array('test_int' => '3'));
+
+        $sql = "SELECT id, test_int, test_string FROM upsert_table";
+        $data = $this->_conn->fetchAll($sql);
+
+        var_export($data);
+
+        $expected = array (
+            0 => array ('id' => 14,'test_int' => '1', 'test_string' => 'foo'),
+            1 => array ('id' => 15, 'test_int' => '2', 'test_string' => 'bar'),
+            2 => array ( 'id' => 16, 'test_int' => '4', 'test_string' => '2'),
+        );
+    }
+
+    public function testUpsertUpdate()
+    {
+        $this->createUpsertTable();
+
+        // $this->insertRows();
+
+        // FIXME, asserts
+        $this->_conn->upsert('write_table', array('test_string' => 'foo'), array('test_int' => 1));
+        $this->_conn->upsert('write_table', array('test_string' => 'bar'), array('test_int' => 2));
+
+    }
+
     public function testLastInsertId()
     {
         if ( ! $this->_conn->getDatabasePlatform()->prefersIdentityColumns()) {
@@ -181,5 +214,26 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertFalse($this->_conn->lastInsertId( null ));
 
+    }
+
+    private function createUpsertTable()
+    {
+
+        try {
+            $sql = $this->_conn->getDatabasePlatform()->getDropTableSQL('upsert_table');
+            $this->_conn->executeUpdate($sql);
+        }
+        catch (\Exception $e) {}
+
+        $table = new \Doctrine\DBAL\Schema\Table("upsert_table");
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('test_int', 'integer', array('notnull' => false));
+        $table->addColumn('test_string', 'string');
+        $table->setPrimaryKey(array('id'));
+        $table->addUniqueIndex(array('test_int'));
+
+        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
     }
 }
