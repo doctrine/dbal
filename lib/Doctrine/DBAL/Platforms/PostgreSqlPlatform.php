@@ -407,6 +407,11 @@ class PostgreSqlPlatform extends AbstractPlatform
             if ($columnDiff->hasChanged('comment') && $comment = $this->getColumnComment($column)) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
+
+            if ($columnDiff->hasChanged('length')) {
+                $query = 'ALTER ' . $column->getName() . ' TYPE ' . $column->getType()->getSqlDeclaration($column->toArray(), $this);
+                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            }
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {

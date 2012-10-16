@@ -24,7 +24,7 @@ namespace Doctrine\DBAL\Schema;
  *
  * @copyright Copyright (C) 2005-2009 eZ Systems AS. All rights reserved.
  * @license http://ez.no/licenses/new_bsd New BSD License
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @version $Revision$
@@ -46,7 +46,7 @@ class Comparator
     /**
      * Returns a SchemaDiff object containing the differences between the schemas $fromSchema and $toSchema.
      *
-     * The returned diferences are returned in such a way that they contain the
+     * The returned differences are returned in such a way that they contain the
      * operations to change the schema stored in $fromSchema to the schema that is
      * stored in $toSchema.
      *
@@ -95,6 +95,18 @@ class Comparator
         foreach ($diff->removedTables as $tableName => $table) {
             if (isset($foreignKeysToTable[$tableName])) {
                 $diff->orphanedForeignKeys = array_merge($diff->orphanedForeignKeys, $foreignKeysToTable[$tableName]);
+
+                // deleting duplicated foreign keys present on both on the orphanedForeignKey
+                // and the removedForeignKeys from changedTables
+                foreach ($foreignKeysToTable[$tableName] as $foreignKey) {
+                    // strtolower the table name to make if compatible with getShortestName
+                    $localTableName = strtolower($foreignKey->getLocalTableName());
+                    if (isset($diff->changedTables[$localTableName])) {
+                        foreach ($diff->changedTables[$localTableName]->removedForeignKeys as $key => $removedForeignKey) {
+                            unset($diff->changedTables[$localTableName]->removedForeignKeys[$key]);
+                        }
+                    }
+                }
             }
         }
 
@@ -262,7 +274,7 @@ class Comparator
 
     /**
      * Try to find columns that only changed their name, rename operations maybe cheaper than add/drop
-     * however ambiguouties between different possibilites should not lead to renaming at all.
+     * however ambiguities between different possibilities should not lead to renaming at all.
      *
      * @param TableDiff $tableDifferences
      */
