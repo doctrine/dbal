@@ -105,9 +105,17 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
     }
 
+    /**
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testGeneratesForeignKeyCreationSql()
+    {
+        parent::testGeneratesForeignKeyCreationSql();
+    }
+
     public function getGenerateForeignKeySql()
     {
-        $this->markTestSkipped('SQLite does not support ForeignKeys.');
+        return null;
     }
 
     public function testModifyLimitQuery()
@@ -124,12 +132,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateAlterTableSql()
     {
-        $this->markTestSkipped('SQlite does not support ALTER Table.');
-    }
-
-    public function testGetAlterTableSqlDispatchEvent()
-    {
-        $this->markTestSkipped('SQlite does not support ALTER Table.');
+        return array(
+            "CREATE TABLE __temp__userlist (id INTEGER NOT NULL, baz VARCHAR(255) DEFAULT 'def' NOT NULL, bloo BOOLEAN DEFAULT '0' NOT NULL, quota INTEGER DEFAULT NULL, PRIMARY KEY(id))",
+            "INSERT INTO __temp__userlist (id, baz, bloo) SELECT id, bar, bloo FROM mytable",
+            "DROP TABLE mytable",
+            "ALTER TABLE __temp__userlist RENAME TO userlist",
+        );
     }
 
     /**
@@ -145,11 +153,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals(
             'CREATE TABLE test ("like" INTEGER NOT NULL, PRIMARY KEY("like"))',
             $createTableSQL[0]
-        );
-
-        $this->assertEquals(
-            'ALTER TABLE test ADD PRIMARY KEY ("like")',
-            $this->_platform->getCreatePrimaryKeySQL($table->getIndex('primary'), 'test')
         );
     }
 

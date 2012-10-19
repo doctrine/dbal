@@ -28,12 +28,14 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals(false, file_exists($path));
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testRenameTable()
     {
+        $this->createTestTable('oldname');
         $this->_sm->renameTable('oldname', 'newname');
+
+        $tables = $this->_sm->listTableNames();
+        $this->assertContains('newname', $tables);
+        $this->assertNotContains('oldname', $tables);
     }
 
     public function testAutoincrementDetection()

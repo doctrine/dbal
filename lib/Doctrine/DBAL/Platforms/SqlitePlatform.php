@@ -20,6 +20,10 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 
 /**
  * The SqlitePlatform class describes the specifics and dialects of the SQLite
@@ -263,24 +267,34 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($name, array $columns, array $options = array())
     {
-        $name = str_replace(".", "__", $name);
+        $name = str_replace('.', '__', $name);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
+
+        if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
+            foreach ($options['uniqueConstraints'] as $name => $definition) {
+                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
+            }
+        }
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
             $keyColumns = array_unique(array_values($options['primary']));
             $queryFields.= ', PRIMARY KEY('.implode(', ', $keyColumns).')';
         }
 
-        $query[] = 'CREATE TABLE ' . $name . ' (' . $queryFields . ')';
-
-        if (isset($options['indexes']) && ! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $index => $indexDef) {
-                $query[] = $this->getCreateIndexSQL($indexDef, $name);
+        if (isset($options['foreignKeys'])) {
+            foreach ($options['foreignKeys'] as $foreignKey) {
+                $queryFields.= ', '.$this->getForeignKeyDeclarationSQL($foreignKey);
             }
         }
 
-        if (isset($options['unique']) && ! empty($options['unique'])) {
-            foreach ($options['unique'] as $index => $indexDef) {
+        $query[] = 'CREATE TABLE ' . $name . ' (' . $queryFields . ')';
+
+        if (isset($options['alter']) && true === $options['alter']) {
+            return $query;
+        }
+
+        if (isset($options['indexes']) && ! empty($options['indexes'])) {
+            foreach ($options['indexes'] as $index => $indexDef) {
                 $query[] = $this->getCreateIndexSQL($indexDef, $name);
             }
         }
@@ -307,7 +321,7 @@ class SqlitePlatform extends AbstractPlatform
 
     public function getListTableConstraintsSQL($table)
     {
-        $table = str_replace(".", "__", $table);
+        $table = str_replace('.', '__', $table);
 
         return "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = '$table' AND sql NOT NULL ORDER BY name";
     }
@@ -324,7 +338,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        $table = str_replace(".", "__", $table);
+        $table = str_replace('.', '__', $table);
 
         return "PRAGMA index_list($table)";
     }
@@ -356,26 +370,6 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * SQLite does support foreign key constraints, but only in CREATE TABLE statements...
-     * This really limits their usefulness and requires SQLite specific handling, so
-     * we simply say that SQLite does NOT support foreign keys for now...
-     */
-    public function supportsForeignKeyConstraints()
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function supportsAlterTable()
-    {
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public function supportsIdentityColumns()
     {
@@ -395,7 +389,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        $tableName = str_replace(".", "__", $tableName);
+        $tableName = str_replace('.', '__', $tableName);
         return 'DELETE FROM '.$tableName;
     }
 
@@ -498,6 +492,60 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
+    {
+        if ( ! $diff->fromTable instanceof Table) {
+            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
+        }
+
+        $sql = array();
+        foreach ($diff->fromTable->getIndexes() as $index) {
+            if ( ! $index->isPrimary()) {
+                $sql[] = $this->getDropIndexSQL($index, $diff->name);
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
+    {
+        if ( ! $diff->fromTable instanceof Table) {
+            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
+        }
+
+        $sql = array();
+        $indexes = $diff->fromTable->getIndexes();
+
+        foreach ($diff->removedIndexes as $index) {
+            if (isset($indexes[$index->getName()])) {
+                unset($indexes[$index->getName()]);
+            }
+        }
+
+        foreach (array_merge($diff->changedIndexes, $diff->addedIndexes) as $index) {
+            $name = $index->getName();
+            $indexes[$name] = $index;
+        }
+
+        $tableName = $diff->newName ?: $diff->name;
+        foreach ($indexes as $indexName => $index) {
+            if ($index->isPrimary()) {
+                continue;
+            }
+
+            $sql[] = $this->getCreateIndexSQL($index, $tableName);
+        }
+
+        return $sql;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'BLOB';
@@ -508,7 +556,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getTemporaryTableName($tableName)
     {
-        $tableName = str_replace(".", "__", $tableName);
+        $tableName = str_replace('.', '__', $tableName);
 
         return $tableName;
     }
@@ -525,5 +573,168 @@ class SqlitePlatform extends AbstractPlatform
     public function canEmulateSchemas()
     {
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreatePrimaryKeySQL(Index $index, $table)
+    {
+        throw new DBALException('Sqlite platform does not support alter primary key.');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table)
+    {
+        throw new DBALException('Sqlite platform does not support alter foreign key.');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDropForeignKeySQL($foreignKey, $table)
+    {
+        throw new DBALException('Sqlite platform does not support alter foreign key.');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getListTableForeignKeysSQL($table, $database = null)
+    {
+        $table = str_replace('.', '__', $table);
+
+        return "PRAGMA foreign_key_list($table)";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAlterTableSQL(TableDiff $diff)
+    {
+        $fromTable = $diff->fromTable;
+        if ( ! $fromTable instanceof Table) {
+            throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
+        }
+
+        $table = clone $fromTable;
+
+        $columns = $table->getColumns();
+
+        $columnSql = array();
+        foreach ($diff->removedColumns as $columnName => $column) {
+            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
+            unset($columns[$columnName]);
+        }
+
+        $fromColumns = array();
+        $toColumns = array();
+        foreach ($columns as $columnName => $column) {
+            $fromColumns[$columnName] = $toColumns[$columnName] = $column->getQuotedName($this);
+        }
+
+        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
+            }
+
+            unset($columns[$oldColumnName]);
+            $columns[$column->getName()] = $column;
+            $toColumns[$oldColumnName] = $column->getQuotedName($this);
+        }
+
+        foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
+            unset($columns[$oldColumnName]);
+            $columnName = $columnDiff->column->getName();
+            $columns[$columnName] = $columnDiff->column;
+            $toColumns[$oldColumnName] = $columnDiff->column->getQuotedName($this);
+        }
+
+        foreach ($diff->addedColumns as $columnName => $column) {
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $columns[$columnName] = $column;
+        }
+
+        $foreignKeys = $table->getForeignKeys();
+
+        foreach ($diff->removedForeignKeys as $constraint) {
+            $constraintName = strtolower($constraint->getName());
+            if (isset($foreignKeys[$constraintName])) {
+                unset($foreignKeys[$constraintName]);
+            }
+        }
+
+        foreach ($diff->changedForeignKeys as $constraint) {
+            $constraintName = strtolower($constraint->getName());
+            $foreignKeys[$constraintName] = $constraint;
+        }
+
+        foreach ($diff->addedForeignKeys as $constraint) {
+            $foreignKeys[] = $constraint;
+        }
+
+        $sql = array();
+        $tableSql = array();
+        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
+            $newTableName = $diff->newName ?: $diff->name;
+
+            $tempTable = new Table('__temp__'.$newTableName, $columns, $this->getPrimaryIndex($diff), $foreignKeys, 0, $table->getOptions());
+            $tempTable->addOption('alter', true);
+            $newTable = new Table($newTableName);
+
+            $sql = array_merge($this->getPreAlterTableIndexForeignKeySQL($diff), $this->getCreateTableSQL($tempTable, self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS));
+            $sql[] = sprintf('INSERT INTO %s (%s) SELECT %s FROM %s', $tempTable->getQuotedName($this), implode(', ', $toColumns), implode(', ', $fromColumns), $table->getQuotedName($this));
+            $sql[] = $this->getDropTableSQL($fromTable);
+            $sql[] = 'ALTER TABLE '.$tempTable->getQuotedName($this).' RENAME TO '.$newTable->getQuotedName($this);
+            $sql = array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff));
+        }
+
+        return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    private function getPrimaryIndex(TableDiff $diff)
+    {
+        $primaryIndex = array();
+
+        foreach ($diff->fromTable->getIndexes() as $index) {
+            if ($index->isPrimary()) {
+                $primaryIndex = array($index->getName() => $index);
+            }
+        }
+
+        foreach ($diff->removedIndexes as $index) {
+            if (isset($primaryIndex[$index->getName()])) {
+                $primaryIndex = array();
+                break;
+            }
+        }
+
+        foreach ($diff->changedIndexes as $index) {
+            if ($index->isPrimary()) {
+                $primaryIndex = array($index);
+            } elseif (isset($primaryIndex[$index->getName()])) {
+                $primaryIndex = array();
+            }
+        }
+
+        foreach ($diff->addedIndexes as $index) {
+            if ($index->isPrimary()) {
+                $primaryIndex = array($index);
+            }
+        }
+
+        return $primaryIndex;
     }
 }
