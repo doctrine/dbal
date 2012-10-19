@@ -45,12 +45,11 @@ class ArrayType extends Type
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        // check for plain vs base64 encoded serialized data
-        if (strpos($value, 'a:') === 0 ||strpos($value, 'b:') === 0) {
-            $val = unserialize($value);
-        } else {
-            $val = unserialize(base64_decode($value));
+        // check for base64 encoded serialized data
+        if (strpos($value, ':') !== 1) {
+            $value = base64_decode($value);
         }
+        $val = unserialize($value);
         if ($val === false && $value != 'b:0;') {
             throw ConversionException::conversionFailed($value, $this->getName());
         }

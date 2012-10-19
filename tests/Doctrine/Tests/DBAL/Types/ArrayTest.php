@@ -65,4 +65,12 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
     {
         $this->assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
     }
+
+    /**
+     * @group DBAL-73
+     */
+    public function testFalseConversionForBase64()
+    {
+        $this->assertFalse($this->_type->convertToPHPValue(base64_encode(serialize(false)), $this->_platform));
+    }
 }
