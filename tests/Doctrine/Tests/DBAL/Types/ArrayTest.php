@@ -39,6 +39,13 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    public function testArrayConvertsBase64ToPHPValue()
+    {
+        $this->assertTrue(
+            is_array($this->_type->convertToPHPValue(base64_encode(serialize(array())), $this->_platform))
+        );
+    }
+
     public function testConversionFailure()
     {
         error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );

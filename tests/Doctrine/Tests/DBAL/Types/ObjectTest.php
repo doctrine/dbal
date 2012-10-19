@@ -34,6 +34,11 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
         $this->assertInternalType('object', $this->_type->convertToPHPValue(serialize(new \stdClass), $this->_platform));
     }
 
+    public function testObjectConvertsBase64ToPHPValue()
+    {
+        $this->assertInternalType('object', $this->_type->convertToPHPValue(base64_encode(serialize(new \stdClass)), $this->_platform));
+    }
+
     public function testConversionFailure()
     {
         error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
