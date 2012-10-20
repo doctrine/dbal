@@ -197,6 +197,31 @@ class SqliteSchemaManager extends AbstractSchemaManager
         );
     }
 
+    protected function _getPortableTableColumnList($table, $database, $tableColumns)
+    {
+        $list = parent::_getPortableTableColumnList($table, $database, $tableColumns);
+        $autoincrementColumn = null;
+        $autoincrementCount = 0;
+        foreach ($tableColumns as $tableColumn) {
+            if ('1' == $tableColumn['pk']) {
+                $autoincrementCount++;
+                if (null === $autoincrementColumn && 'integer' == strtolower($tableColumn['type'])) {
+                    $autoincrementColumn = $tableColumn['name'];
+                }
+            }
+        }
+
+        if (1 == $autoincrementCount && null !== $autoincrementColumn) {
+            foreach ($list as $column) {
+                if ($autoincrementColumn == $column->getName()) {
+                    $column->setAutoincrement(true);
+                }
+            }
+        }
+
+        return $list;
+    }
+
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
         $e = explode('(', $tableColumn['type']);

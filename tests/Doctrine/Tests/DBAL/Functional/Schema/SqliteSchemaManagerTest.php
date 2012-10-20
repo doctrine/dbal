@@ -38,11 +38,11 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertNotContains('oldname', $tables);
     }
 
-    public function testAutoincrementDetection()
+    public function createListTableColumns()
     {
-      $this->markTestSkipped(
-          'There is currently no reliable way to determine whether an SQLite column is marked as '
-          . 'auto-increment. So, while it does support a single identity column, we cannot with '
-          . 'certainty determine which it is.');
+        $table = parent::createListTableColumns();
+        $table->getColumn('id')->setAutoincrement(true);
+
+        return $table;
     }
 }
