@@ -53,9 +53,19 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
         $this->_type->convertToPHPValue('abcdefg', $this->_platform);
     }
 
-    public function testNullConversion()
+    public function testPlainNullConversion()
     {
         $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+    }
+
+    public function testNullConversion()
+    {
+        $this->assertNull($this->_type->convertToPHPValue(serialize(null), $this->_platform));
+    }
+
+    public function testNullConversionForBase64()
+    {
+        $this->assertNull($this->_type->convertToPHPValue(base64_encode(serialize(null)), $this->_platform));
     }
 
     /**

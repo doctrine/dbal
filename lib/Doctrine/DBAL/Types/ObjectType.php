@@ -46,7 +46,7 @@ class ObjectType extends Type
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
         // check for base64 encoded serialized data
-        if (strpos($value, ':') !== 1) {
+        if (strpos($value, ':') !== 1 && strpos($value, ';') !== 1) {
             $value = base64_decode($value);
         }
         $val = unserialize($value);
