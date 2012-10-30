@@ -1212,6 +1212,8 @@ abstract class AbstractPlatform
             $columnData['comment'] = $this->getColumnComment($column);
 
             if (in_array($column->getName(), $options['primary'])) {
+                $key = array_search($column->getName(), $options['primary']);
+                $options['primary'][$key] = $column->getQuotedName($this);
                 $columnData['primary'] = true;
             }
 
