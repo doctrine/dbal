@@ -850,7 +850,7 @@ abstract class AbstractSchemaManager
 
         $params = $this->_conn->getParams();
         if (isset($params['defaultTableOptions'])) {
-            $schemaConfig->setDefaultTableOptions($params['defautTableOptions']);
+            $schemaConfig->setDefaultTableOptions($params['defaultTableOptions']);
         }
 
         return $schemaConfig;
