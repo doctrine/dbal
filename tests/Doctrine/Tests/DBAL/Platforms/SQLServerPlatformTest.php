@@ -221,4 +221,10 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $idx->addFlag('nonclustered');
         $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->_platform->getCreatePrimaryKeySQL($idx, 'tbl'));
     }
+
+    public function testAlterAddPrimaryKey()
+    {
+        $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
+        $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
+    }
 }
