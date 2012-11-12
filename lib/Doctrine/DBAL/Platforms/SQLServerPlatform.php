@@ -256,7 +256,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $constraint = parent::getCreateIndexSQL($index, $table);
 
-        if ($index->isUnique()) {
+        if ($index->isUnique() && !$index->isPrimary()) {
             $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
         }
 
