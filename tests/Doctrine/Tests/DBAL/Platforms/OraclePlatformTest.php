@@ -269,4 +269,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
                 $this->getBitAndComparisonExpressionSql($value1, $value2)
                 . '+' . $value2 . ')';
     }
+
+    protected function getQuotedColumnInPrimaryKeySQL()
+    {
+        return array();
+    }
+
+    protected function getQuotedColumnInIndexSQL()
+    {
+        return array();
+    }
 }

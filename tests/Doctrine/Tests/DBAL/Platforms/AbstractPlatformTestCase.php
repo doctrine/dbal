@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Schema\Table;
 
 abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 {
@@ -75,7 +76,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testCreateWithNoColumns()
     {
-        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table = new Table('test');
 
         $this->setExpectedException('Doctrine\DBAL\DBALException');
         $sql = $this->_platform->getCreateTableSQL($table);
@@ -83,7 +84,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGeneratesTableCreationSql()
     {
-        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table = new Table('test');
         $table->addColumn('id', 'integer', array('notnull' => true, 'autoincrement' => true));
         $table->addColumn('test', 'string', array('notnull' => false, 'length' => 255));
         $table->setPrimaryKey(array('id'));
@@ -96,7 +97,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGenerateTableWithMultiColumnUniqueIndex()
     {
-        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table = new Table('test');
         $table->addColumn('foo', 'string', array('notnull' => false, 'length' => 255));
         $table->addColumn('bar', 'string', array('notnull' => false, 'length' => 255));
         $table->addUniqueIndex(array("foo", "bar"));
@@ -203,7 +204,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $expectedSql = $this->getGenerateAlterTableSql();
 
-        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff = new TableDiff('mytable');
         $tableDiff->newName = 'userlist';
         $tableDiff->addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('notnull' => false));
         $tableDiff->removedColumns['foo'] = new \Doctrine\DBAL\Schema\Column('foo', \Doctrine\DBAL\Types\Type::getType('integer'));
@@ -246,7 +247,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $this->_platform->setEventManager($eventManager);
 
-        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table = new Table('test');
         $table->addColumn('foo', 'string', array('notnull' => false, 'length' => 255));
         $table->addColumn('bar', 'string', array('notnull' => false, 'length' => 255));
 
@@ -307,7 +308,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $this->_platform->setEventManager($eventManager);
 
-        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff = new TableDiff('mytable');
         $tableDiff->addedColumns['added'] = new \Doctrine\DBAL\Schema\Column('added', \Doctrine\DBAL\Types\Type::getType('integer'), array());
         $tableDiff->removedColumns['removed'] = new \Doctrine\DBAL\Schema\Column('removed', \Doctrine\DBAL\Types\Type::getType('integer'), array());
         $tableDiff->changedColumns['changed'] = new \Doctrine\DBAL\Schema\ColumnDiff(
@@ -326,7 +327,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testCreateTableColumnComments()
     {
-        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table = new Table('test');
         $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
         $table->setPrimaryKey(array('id'));
 
@@ -338,7 +339,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testAlterTableColumnComments()
     {
-        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff = new TableDiff('mytable');
         $tableDiff->addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('comment' => 'A comment'));
         $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'bar', new \Doctrine\DBAL\Schema\Column(
@@ -352,7 +353,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testCreateTableColumnTypeComments()
     {
-        $table = new \Doctrine\DBAL\Schema\Table('test');
+        $table = new Table('test');
         $table->addColumn('id', 'integer');
         $table->addColumn('data', 'array');
         $table->setPrimaryKey(array('id'));
@@ -384,5 +385,34 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->assertInstanceOf('Doctrine\DBAL\Platforms\Keywords\KeywordList', $keywordList);
 
         $this->assertTrue($keywordList->isKeyword('table'));
+    }
+
+    /**
+     * @group DBAL-374
+     */
+    public function testQuotedColumnInPrimaryKeyPropagation()
+    {
+        $table = new Table('`quoted`');
+        $table->addColumn('`key`', 'string');
+        $table->setPrimaryKey(array('key'));
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals($this->getQuotedColumnInPrimaryKeySQL(), $sql);
+    }
+
+    abstract protected function getQuotedColumnInPrimaryKeySQL();
+    abstract protected function getQuotedColumnInIndexSQL();
+
+    /**
+     * @group DBAL-374
+     */
+    public function testQuotedColumnInIndexPropagation()
+    {
+        $table = new Table('`quoted`');
+        $table->addColumn('`key`', 'string');
+        $table->addIndex(array('key'));
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals($this->getQuotedColumnInIndexSQL(), $sql);
     }
 }

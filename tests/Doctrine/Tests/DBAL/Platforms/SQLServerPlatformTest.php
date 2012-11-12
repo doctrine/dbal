@@ -227,4 +227,14 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
         $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
     }
+
+    protected function getQuotedColumnInPrimaryKeySQL()
+    {
+        return array();
+    }
+
+    protected function getQuotedColumnInIndexSQL()
+    {
+        return array();
+    }
 }
