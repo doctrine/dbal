@@ -152,4 +152,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getCreatePrimaryKeySQL($table->getIndex('primary'), 'test')
         );
     }
+
+    protected function getQuotedColumnInPrimaryKeySQL()
+    {
+        return array();
+    }
+
+    protected function getQuotedColumnInIndexSQL()
+    {
+        return array();
+    }
 }

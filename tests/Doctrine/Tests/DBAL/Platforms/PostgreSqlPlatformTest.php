@@ -225,4 +225,14 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
         );
     }
+
+    protected function getQuotedColumnInPrimaryKeySQL()
+    {
+        return array();
+    }
+
+    protected function getQuotedColumnInIndexSQL()
+    {
+        return array();
+    }
 }
