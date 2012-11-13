@@ -226,4 +226,18 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $sql = $this->_platform->getAlterTableSQL($diff);
         $this->assertEquals(array("ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"), $sql);
     }
+
+    protected function getQuotedColumnInPrimaryKeySQL()
+    {
+        return array(
+            'CREATE TABLE `quoted` (`key` VARCHAR(255) NOT NULL, PRIMARY KEY(`key`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
+        );
+    }
+
+    protected function getQuotedColumnInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE `quoted` (`key` VARCHAR(255) NOT NULL, INDEX IDX_22660D028A90ABA9 (`key`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
+        );
+    }
 }

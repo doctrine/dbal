@@ -227,4 +227,19 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
         $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
     }
+
+    protected function getQuotedColumnInPrimaryKeySQL()
+    {
+        return array(
+            'CREATE TABLE [quoted] ([key] NVARCHAR(255) NOT NULL, PRIMARY KEY ([key]))',
+        );
+    }
+
+    protected function getQuotedColumnInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE [quoted] ([key] NVARCHAR(255) NOT NULL)',
+            'CREATE INDEX IDX_22660D028A90ABA9 ON [quoted] ([key])',
+        );
+    }
 }
