@@ -225,4 +225,19 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
         );
     }
+
+    protected function getQuotedColumnInPrimaryKeySQL()
+    {
+        return array(
+            'CREATE TABLE "quoted" ("key" VARCHAR(255) NOT NULL, PRIMARY KEY("key"))',
+        );
+    }
+
+    protected function getQuotedColumnInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE "quoted" ("key" VARCHAR(255) NOT NULL)',
+            'CREATE INDEX IDX_22660D028A90ABA9 ON "quoted" ("key")',
+        );
+    }
 }
