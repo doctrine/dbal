@@ -710,10 +710,34 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the SQL Snippet used to declare a BLOB column type.
+     *     TINYBLOB   : 2 ^  8 - 1 = 255
+     *     BLOB       : 2 ^ 16 - 1 = 65535
+     *     MEDIUMBLOB : 2 ^ 24 - 1 = 16777215
+     *     LONGBLOB   : 2 ^ 32 - 1 = 4294967295
+     *
+     * @param array $field
+     *
+     * @return string
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
+        if ( ! empty($field['length']) && is_numeric($field['length'])) {
+            $length = $field['length'];
+
+            if ($length <= 255) {
+                return 'TINYBLOB';
+            }
+
+            if ($length <= 65535) {
+                return 'BLOB';
+            }
+
+            if ($length <= 16777215) {
+                return 'MEDIUMBLOB';
+            }
+        }
+
         return 'LONGBLOB';
     }
 }
