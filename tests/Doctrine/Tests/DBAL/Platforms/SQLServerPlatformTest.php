@@ -230,11 +230,16 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     protected function getQuotedColumnInPrimaryKeySQL()
     {
-        return array();
+        return array(
+            'CREATE TABLE [quoted] ([key] NVARCHAR(255) NOT NULL, PRIMARY KEY ([key]))',
+        );
     }
 
     protected function getQuotedColumnInIndexSQL()
     {
-        return array();
+        return array(
+            'CREATE TABLE [quoted] ([key] NVARCHAR(255) NOT NULL)',
+            'CREATE INDEX IDX_22660D028A90ABA9 ON [quoted] ([key])',
+        );
     }
 }
