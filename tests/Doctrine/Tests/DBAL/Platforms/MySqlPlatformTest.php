@@ -9,6 +9,8 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Index;
 
+require_once __DIR__ . '/../../TestInit.php';
+
 class MySqlPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()
@@ -225,5 +227,29 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $diff = new TableDiff("test", array(), array(), array(), array($index), array(), array($unique));
         $sql = $this->_platform->getAlterTableSQL($diff);
         $this->assertEquals(array("ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"), $sql);
+    }
+
+    public function testClobTypeDeclarationSQL()
+    {
+        $this->assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 1)));
+        $this->assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 255)));
+        $this->assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 256)));
+        $this->assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 65535)));
+        $this->assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 65536)));
+        $this->assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 16777215)));
+        $this->assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 16777216)));
+        $this->assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL(array()));
+    }
+
+    public function testBlobTypeDeclarationSQL()
+    {
+        $this->assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 1)));
+        $this->assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 255)));
+        $this->assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 256)));
+        $this->assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 65535)));
+        $this->assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 65536)));
+        $this->assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777215)));
+        $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777216)));
+        $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array()));
     }
 }
