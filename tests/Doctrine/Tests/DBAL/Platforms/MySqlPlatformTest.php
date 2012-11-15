@@ -9,8 +9,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Index;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class MySqlPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()
