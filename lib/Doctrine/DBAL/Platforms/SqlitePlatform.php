@@ -301,6 +301,12 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
+        if (isset($options['unique']) && ! empty($options['unique'])) {
+            foreach ($options['unique'] as $index => $indexDef) {
+                $query[] = $this->getCreateIndexSQL($indexDef, $name);
+            }
+        }
+
         return $query;
     }
 
@@ -330,7 +336,7 @@ class SqlitePlatform extends AbstractPlatform
 
     public function getListTableColumnsSQL($table, $currentDatabase = null)
     {
-        $table = str_replace(".", "__", $table);
+        $table = str_replace('.', '__', $table);
 
         return "PRAGMA table_info($table)";
     }
@@ -373,6 +379,25 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
+    {
+        $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
+
+        if ($foreignKey->hasOption('deferrable') && $foreignKey->getOption('deferrable') !== false) {
+            $query .= ' DEFERRABLE';
+        } else {
+            $query .= ' NOT DEFERRABLE';
+        }
+
+        if ($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false) {
+            $query .= ' INITIALLY DEFERRED';
+        } else {
+            $query .= ' INITIALLY IMMEDIATE';
+        }
+
+        return $query;
+    }
+
     public function supportsIdentityColumns()
     {
         return true;
@@ -392,6 +417,7 @@ class SqlitePlatform extends AbstractPlatform
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         $tableName = str_replace('.', '__', $tableName);
+
         return 'DELETE FROM '.$tableName;
     }
 
