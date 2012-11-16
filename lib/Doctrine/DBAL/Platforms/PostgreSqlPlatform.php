@@ -322,7 +322,9 @@ class PostgreSqlPlatform extends AbstractPlatform
             $query .= ' NOT DEFERRABLE';
         }
 
-        if ($foreignKey->hasOption('feferred') && $foreignKey->getOption('feferred') !== false) {
+        if (($foreignKey->hasOption('feferred') && $foreignKey->getOption('feferred') !== false)
+            || ($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false)
+        ) {
             $query .= ' INITIALLY DEFERRED';
         } else {
             $query .= ' INITIALLY IMMEDIATE';
