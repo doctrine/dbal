@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Constraint;
 
 /**
  * The SqlitePlatform class describes the specifics and dialects of the SQLite
@@ -32,6 +33,7 @@ use Doctrine\DBAL\Schema\Index;
  * @since 2.0
  * @author Roman Borschel <roman@code-factory.org>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Martin Hasoň <martin.hason@gmail.com>
  * @todo Rename: SQLitePlatform
  */
 class SqlitePlatform extends AbstractPlatform
@@ -602,6 +604,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getCreateConstraintSQL(Constraint $constraint, $table)
+    {
+        throw new DBALException('Sqlite platform does not support alter constraint.');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
         $table = str_replace('.', '__', $table);
@@ -614,6 +624,11 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
+        $sql = $this->getSimpleAlterTableSQL($diff);
+        if (false !== $sql) {
+            return $sql;
+        }
+
         $fromTable = $diff->fromTable;
         if ( ! $fromTable instanceof Table) {
             throw new DBALException('Sqlite platform requires for alter table the table diff with reference to original table schema');
@@ -699,6 +714,54 @@ class SqlitePlatform extends AbstractPlatform
             $sql[] = $this->getDropTableSQL($fromTable);
             $sql[] = 'ALTER TABLE '.$tempTable->getQuotedName($this).' RENAME TO '.$newTable->getQuotedName($this);
             $sql = array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff));
+        }
+
+        return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    private function getSimpleAlterTableSQL(TableDiff $diff)
+    {
+        if ( ! empty($diff->renamedColumns) || ! empty($diff->addedForeignKeys) || ! empty($diff->addedIndexes)
+                || ! empty($diff->changedColumns) || ! empty($diff->changedForeignKeys) || ! empty($diff->changedIndexes)
+                || ! empty($diff->removedColumns) || ! empty($diff->removedForeignKeys) || ! empty($diff->removedIndexes)
+        ) {
+            return false;
+        }
+
+        $table = new Table($diff->name);
+
+        $sql = array();
+        $tableSql = array();
+        $columnSql = array();
+
+        foreach ($diff->addedColumns as $columnName => $column) {
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $field = array_merge(array('unique' => null, 'autoincrement' => null, 'default' => null), $column->toArray());
+            $type = (string) $field['type'];
+            switch (true) {
+                case isset($field['columnDefinition']) || $field['autoincrement'] || $field['unique']:
+                case $type == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL():
+                case $type == 'Date' && $field['default'] == $this->getCurrentDateSQL():
+                case $type == 'Time' && $field['default'] == $this->getCurrentTimeSQL():
+                    return false;
+            }
+
+            $field['name'] = $column->getQuotedName($this);
+            if (strtolower($field['type']) == 'string' && $field['length'] === null) {
+                $field['length'] = 255;
+            }
+
+            $sql[] = 'ALTER TABLE '.$table->getQuotedName($this).' ADD COLUMN '.$this->getColumnDeclarationSQL($field['name'], $field);
+        }
+
+        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
+            if ($diff->newName !== false) {
+                $newTable = new Table($diff->newName);
+                $sql[] = 'ALTER TABLE '.$table->getQuotedName($this).' RENAME TO '.$newTable->getQuotedName($this);
+            }
         }
 
         return array_merge($sql, $tableSql, $columnSql);

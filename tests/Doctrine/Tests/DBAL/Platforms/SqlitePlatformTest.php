@@ -2,8 +2,11 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\DBALException;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -113,6 +116,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         parent::testGeneratesForeignKeyCreationSql();
     }
 
+    /**
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testGeneratesConstraintCreationSql()
+    {
+        parent::testGeneratesConstraintCreationSql();
+    }
+
     public function getGenerateForeignKeySql()
     {
         return null;
@@ -154,6 +165,41 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE test ("like" INTEGER NOT NULL, PRIMARY KEY("like"))',
             $createTableSQL[0]
         );
+    }
+
+    public function testAlterTableAddColumns()
+    {
+        $diff = new TableDiff('user');
+        $diff->addedColumns['foo'] = new Column('foo', Type::getType('string'));
+        $diff->addedColumns['count'] = new Column('count', Type::getType('integer'), array('notnull' => false, 'default' => 1));
+
+        $expected = array(
+            'ALTER TABLE user ADD COLUMN foo VARCHAR(255) NOT NULL',
+            'ALTER TABLE user ADD COLUMN count INTEGER DEFAULT 1',
+        );
+
+        $this->assertEquals($expected, $this->_platform->getAlterTableSQL($diff));
+    }
+
+    public function testAlterTableAddComplexColumns()
+    {
+        $diff = new TableDiff('user');
+        $diff->addedColumns['time'] = new Column('time', Type::getType('date'), array('default' => 'CURRENT_DATE'));
+
+        try {
+            $this->_platform->getAlterTableSQL($diff);
+            $this->fail();
+        } catch (DBALException $e) {
+        }
+
+        $diff = new TableDiff('user');
+        $diff->addedColumns['id'] = new Column('id', Type::getType('integer'), array('autoincrement' => true));
+
+        try {
+            $this->_platform->getAlterTableSQL($diff);
+            $this->fail();
+        } catch (DBALException $e) {
+        }
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
