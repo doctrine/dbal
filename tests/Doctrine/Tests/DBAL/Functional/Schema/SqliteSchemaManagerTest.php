@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+
 use Doctrine\DBAL\Schema;
 
 require_once __DIR__ . '/../../../TestInit.php';
@@ -44,5 +46,30 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->getColumn('id')->setAutoincrement(true);
 
         return $table;
+    }
+
+    public function testListForeignKeysFromExistingDatabase()
+    {
+        $this->_conn->executeQuery(<<<EOS
+CREATE TABLE user (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
+    parent INTEGER REFERENCES user(id) ON DELETE CASCADE,
+    log INTEGER,
+    CONSTRAINT FK_3 FOREIGN KEY (log) REFERENCES log ON UPDATE SET NULL NOT DEFERRABLE
+)
+EOS
+        );
+
+        $expected = array(
+            new ForeignKeyConstraint(array('log'), 'log', array(null), 'FK_3',
+                array('onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false)),
+            new ForeignKeyConstraint(array('parent'), 'user', array('id'), '1',
+                array('onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false)),
+            new ForeignKeyConstraint(array('page'), 'page', array('key'), 'FK_1',
+                array('onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true)),
+        );
+
+        $this->assertEquals($expected, $this->_sm->listTableForeignKeys('user'));
     }
 }

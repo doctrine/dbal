@@ -28,6 +28,7 @@ use Doctrine\DBAL\DBALException;
  * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @author      Martin Hasoň <martin.hason@gmail.com>
  * @version     $Revision$
  * @since       2.0
  */
@@ -121,15 +122,29 @@ class SqliteSchemaManager extends AbstractSchemaManager
         if ( ! empty($tableForeignKeys)) {
             $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
             $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
-            if (preg_match_all('#(?:CONSTRAINT\s+([^\s]+)\s+)?FOREIGN\s+KEY\s+\(#', $createSql, $match)) {
+            if (preg_match_all('#
+                    (?:CONSTRAINT\s+([^\s]+)\s+)?
+                    (?:FOREIGN\s+KEY[^\)]+\)\s*)?
+                    REFERENCES\s+[^\s]+\s+(?:\([^\)]+\))?
+                    (?:
+                        [^,]*?
+                        (NOT\s+DEFERRABLE|DEFERRABLE)
+                        (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
+                    )?#isx',
+                    $createSql, $match)) {
+
                 $names = array_reverse($match[1]);
+                $deferrable = array_reverse($match[2]);
+                $deferred = array_reverse($match[3]);
             } else {
-                $names = array();
+                $names = $deferrable = $deferred = array();
             }
 
             foreach ($tableForeignKeys as $key => $value) {
                 $id = $value['id'];
                 $tableForeignKeys[$key]['constraint_name'] = isset($names[$id]) && '' != $names[$id] ? $names[$id] : $id;
+                $tableForeignKeys[$key]['deferrable'] = isset($deferrable[$id]) && 'deferrable' == strtolower($deferrable[$id]) ? true : false;
+                $tableForeignKeys[$key]['deferred'] = isset($deferred[$id]) && 'deferred' == strtolower($deferred[$id]) ? true : false;
             }
         }
 
@@ -293,7 +308,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $list = array();
         foreach ($tableForeignKeys as $key => $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            if ( ! isset($list[$value['constraint_name']])) {
+            $name = $value['constraint_name'];
+            if ( ! isset($list[$name])) {
                 if ( ! isset($value['on_delete']) || $value['on_delete'] == "RESTRICT") {
                     $value['on_delete'] = null;
                 }
@@ -301,17 +317,19 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     $value['on_update'] = null;
                 }
 
-                $list[$value['constraint_name']] = array(
-                    'name' => $value['constraint_name'],
+                $list[$name] = array(
+                    'name' => $name,
                     'local' => array(),
                     'foreign' => array(),
                     'foreignTable' => $value['table'],
                     'onDelete' => $value['on_delete'],
                     'onUpdate' => $value['on_update'],
+                    'deferrable' => $value['deferrable'],
+                    'deferred'=> $value['deferred'],
                 );
             }
-            $list[$value['constraint_name']]['local'][] = $value['from'];
-            $list[$value['constraint_name']]['foreign'][] = $value['to'];
+            $list[$name]['local'][] = $value['from'];
+            $list[$name]['foreign'][] = $value['to'];
         }
 
         $result = array();
@@ -322,6 +340,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 array(
                     'onDelete' => $constraint['onDelete'],
                     'onUpdate' => $constraint['onUpdate'],
+                    'deferrable' => $constraint['deferrable'],
+                    'deferred'=> $constraint['deferred'],
                 )
             );
         }
