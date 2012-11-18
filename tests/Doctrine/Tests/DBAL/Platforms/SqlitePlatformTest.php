@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -200,6 +201,32 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->fail();
         } catch (DBALException $e) {
         }
+    }
+
+    public function testCreateTableWithDeferredForeignKeys()
+    {
+        $table = new Table('user');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('article', 'integer');
+        $table->addColumn('post', 'integer');
+        $table->addColumn('parent', 'integer');
+        $table->addForeignKeyConstraint('article', array('article'), array('id'), array('deferrable' => true));
+        $table->addForeignKeyConstraint('post', array('post'), array('id'), array('deferred' => true));
+        $table->addForeignKeyConstraint('user', array('parent'), array('id'), array('deferrable' => true, 'deferred' => true));
+
+        $sql = array(
+            'CREATE TABLE user ('
+                . 'article INTEGER NOT NULL, post INTEGER NOT NULL, parent INTEGER NOT NULL, id INTEGER NOT NULL'
+                . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article) REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
+                . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (post) REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
+                . ', CONSTRAINT FK_8D93D6493D8E604F FOREIGN KEY (parent) REFERENCES user (id) DEFERRABLE INITIALLY DEFERRED'
+                . ')',
+            'CREATE INDEX IDX_8D93D64923A0E66 ON user (article)',
+            'CREATE INDEX IDX_8D93D6495A8A6C8D ON user (post)',
+            'CREATE INDEX IDX_8D93D6493D8E604F ON user (parent)',
+        );
+
+        $this->assertEquals($sql, $this->_platform->getCreateTableSQL($table));
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()

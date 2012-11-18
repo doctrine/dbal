@@ -638,6 +638,16 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getCreateTableSQL(Table $table, $createFlags = null)
+    {
+        $createFlags = null === $createFlags ? self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS : $createFlags;
+
+        return parent::getCreateTableSQL($table, $createFlags);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
         $table = str_replace('.', '__', $table);
