@@ -862,4 +862,31 @@ class SQLServerPlatform extends AbstractPlatform
     {
         return 'VARBINARY(MAX)';
     }
+
+    /**
+     * Obtain DBMS specific SQL code portion needed to set a default value
+     * declaration to be used in statements like CREATE TABLE.
+     *
+     * @param array $field      field definition array
+     *
+     * @return string           DBMS specific SQL code portion needed to set a default value
+     */
+    public function getDefaultValueDeclarationSQL($field)
+    {
+        $default = empty($field['notnull']) ? ' NULL' : '';
+
+        if (isset($field['default'])) {
+            $default = " DEFAULT '".$field['default']."'";
+            if (isset($field['type'])) {
+                if (in_array((string)$field['type'], array("Integer", "BigInteger", "SmallInteger"))) {
+                    $default = " DEFAULT ".$field['default'];
+                } else if ((string)$field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
+                    $default = " DEFAULT ".$this->getCurrentTimestampSQL();
+                } else if ((string) $field['type'] == 'Boolean') {
+                    $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
+                }
+            }
+        }
+        return $default;
+    }
 }
