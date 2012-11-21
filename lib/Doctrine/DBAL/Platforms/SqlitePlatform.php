@@ -327,6 +327,9 @@ class SqlitePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableConstraintsSQL($table)
     {
         $table = str_replace('.', '__', $table);
@@ -334,6 +337,9 @@ class SqlitePlatform extends AbstractPlatform
         return "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = '$table' AND sql NOT NULL ORDER BY name";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableColumnsSQL($table, $currentDatabase = null)
     {
         $table = str_replace('.', '__', $table);
@@ -351,6 +357,9 @@ class SqlitePlatform extends AbstractPlatform
         return "PRAGMA index_list($table)";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTablesSQL()
     {
         return "SELECT name FROM sqlite_master WHERE type = 'table' AND name != 'sqlite_sequence' AND name != 'geometry_columns' AND name != 'spatial_ref_sys' "
@@ -366,11 +375,17 @@ class SqlitePlatform extends AbstractPlatform
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getCreateViewSQL($name, $sql)
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getDropViewSQL($name)
     {
         return 'DROP VIEW '. $name;
@@ -383,21 +398,15 @@ class SqlitePlatform extends AbstractPlatform
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
 
-        if ($foreignKey->hasOption('deferrable') && $foreignKey->getOption('deferrable') !== false) {
-            $query .= ' DEFERRABLE';
-        } else {
-            $query .= ' NOT DEFERRABLE';
-        }
-
-        if ($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false) {
-            $query .= ' INITIALLY DEFERRED';
-        } else {
-            $query .= ' INITIALLY IMMEDIATE';
-        }
+        $query .= (($foreignKey->hasOption('deferrable') && $foreignKey->getOption('deferrable') !== false) ? ' ' : ' NOT ') . 'DEFERRABLE';
+        $query .= ' INITIALLY ' . (($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false) ? 'DEFERRED' : 'IMMEDIATE');
 
         return $query;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function supportsIdentityColumns()
     {
         return true;
@@ -463,6 +472,9 @@ class SqlitePlatform extends AbstractPlatform
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getForUpdateSql()
     {
         return '';
