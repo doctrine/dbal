@@ -34,6 +34,11 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
         $this->assertInternalType('object', $this->_type->convertToPHPValue(serialize(new \stdClass), $this->_platform));
     }
 
+    public function testObjectConvertsBase64ToPHPValue()
+    {
+        $this->assertInternalType('object', $this->_type->convertToPHPValue(base64_encode(serialize(new \stdClass)), $this->_platform));
+    }
+
     public function testConversionFailure()
     {
         error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
@@ -41,9 +46,19 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
         $this->_type->convertToPHPValue('abcdefg', $this->_platform);
     }
 
-    public function testNullConversion()
+    public function testPlainNullConversion()
     {
         $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+    }
+
+    public function testNullConversion()
+    {
+        $this->assertNull($this->_type->convertToPHPValue(serialize(null), $this->_platform));
+    }
+
+    public function testNullConversionForBase64()
+    {
+        $this->assertNull($this->_type->convertToPHPValue(base64_encode(serialize(null)), $this->_platform));
     }
 
     /**
@@ -52,5 +67,13 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
     public function testFalseConversion()
     {
         $this->assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
+    }
+
+    /**
+     * @group DBAL-73
+     */
+    public function testFalseConversionForBase64()
+    {
+        $this->assertFalse($this->_type->convertToPHPValue(base64_encode(serialize(false)), $this->_platform));
     }
 }

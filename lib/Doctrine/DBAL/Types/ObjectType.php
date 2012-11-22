@@ -35,7 +35,7 @@ class ObjectType extends Type
 
     public function convertToDatabaseValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
-        return serialize($value);
+        return base64_encode(serialize($value));
     }
 
     public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
@@ -45,6 +45,10 @@ class ObjectType extends Type
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
+        // check for base64 encoded serialized data
+        if (strpos($value, ':') !== 1 && strpos($value, ';') !== 1) {
+            $value = base64_decode($value);
+        }
         $val = unserialize($value);
         if ($val === false && $value !== 'b:0;') {
             throw ConversionException::conversionFailed($value, $this->getName());

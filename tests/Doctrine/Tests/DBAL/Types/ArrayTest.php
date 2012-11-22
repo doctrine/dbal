@@ -39,6 +39,13 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    public function testArrayConvertsBase64ToPHPValue()
+    {
+        $this->assertTrue(
+            is_array($this->_type->convertToPHPValue(base64_encode(serialize(array())), $this->_platform))
+        );
+    }
+
     public function testConversionFailure()
     {
         error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
@@ -46,9 +53,19 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
         $this->_type->convertToPHPValue('abcdefg', $this->_platform);
     }
 
-    public function testNullConversion()
+    public function testPlainNullConversion()
     {
         $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+    }
+
+    public function testNullConversion()
+    {
+        $this->assertNull($this->_type->convertToPHPValue(serialize(null), $this->_platform));
+    }
+
+    public function testNullConversionForBase64()
+    {
+        $this->assertNull($this->_type->convertToPHPValue(base64_encode(serialize(null)), $this->_platform));
     }
 
     /**
@@ -57,5 +74,13 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
     public function testFalseConversion()
     {
         $this->assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
+    }
+
+    /**
+     * @group DBAL-73
+     */
+    public function testFalseConversionForBase64()
+    {
+        $this->assertFalse($this->_type->convertToPHPValue(base64_encode(serialize(false)), $this->_platform));
     }
 }
