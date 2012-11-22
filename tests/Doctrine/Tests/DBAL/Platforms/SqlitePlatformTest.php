@@ -145,10 +145,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            "CREATE TABLE __temp__userlist (id INTEGER NOT NULL, baz VARCHAR(255) DEFAULT 'def' NOT NULL, bloo BOOLEAN DEFAULT '0' NOT NULL, quota INTEGER DEFAULT NULL, PRIMARY KEY(id))",
-            "INSERT INTO __temp__userlist (id, baz, bloo) SELECT id, bar, bloo FROM mytable",
+            "CREATE TEMPORARY TABLE __temp__mytable AS SELECT id, bar, bloo FROM mytable",
             "DROP TABLE mytable",
-            "ALTER TABLE __temp__userlist RENAME TO userlist",
+            "CREATE TABLE mytable (id INTEGER NOT NULL, baz VARCHAR(255) DEFAULT 'def' NOT NULL, bloo BOOLEAN DEFAULT '0' NOT NULL, quota INTEGER DEFAULT NULL, PRIMARY KEY(id))",
+            "INSERT INTO mytable (id, baz, bloo) SELECT id, bar, bloo FROM __temp__mytable",
+            "DROP TABLE __temp__mytable",
+            "ALTER TABLE mytable RENAME TO userlist",
         );
     }
 
@@ -210,13 +212,15 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('article', 'integer');
         $table->addColumn('post', 'integer');
         $table->addColumn('parent', 'integer');
+        $table->setPrimaryKey(array('id'));
         $table->addForeignKeyConstraint('article', array('article'), array('id'), array('deferrable' => true));
         $table->addForeignKeyConstraint('post', array('post'), array('id'), array('deferred' => true));
         $table->addForeignKeyConstraint('user', array('parent'), array('id'), array('deferrable' => true, 'deferred' => true));
 
         $sql = array(
             'CREATE TABLE user ('
-                . 'article INTEGER NOT NULL, post INTEGER NOT NULL, parent INTEGER NOT NULL, id INTEGER NOT NULL'
+                . 'id INTEGER NOT NULL, article INTEGER NOT NULL, post INTEGER NOT NULL, parent INTEGER NOT NULL'
+                . ', PRIMARY KEY(id)'
                 . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article) REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
                 . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (post) REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
                 . ', CONSTRAINT FK_8D93D6493D8E604F FOREIGN KEY (parent) REFERENCES user (id) DEFERRABLE INITIALLY DEFERRED'
@@ -227,6 +231,50 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
 
         $this->assertEquals($sql, $this->_platform->getCreateTableSQL($table));
+    }
+
+    public function testAlterTable()
+    {
+        $table = new Table('user');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('article', 'integer');
+        $table->addColumn('post', 'integer');
+        $table->addColumn('parent', 'integer');
+        $table->setPrimaryKey(array('id'));
+        $table->addForeignKeyConstraint('article', array('article'), array('id'), array('deferrable' => true));
+        $table->addForeignKeyConstraint('post', array('post'), array('id'), array('deferred' => true));
+        $table->addForeignKeyConstraint('user', array('parent'), array('id'), array('deferrable' => true, 'deferred' => true));
+        $table->addIndex(array('article', 'post'), 'index1');
+
+        $diff = new TableDiff('user');
+        $diff->fromTable = $table;
+        $diff->newName = 'client';
+        $diff->renamedColumns['id'] = new \Doctrine\DBAL\Schema\Column('key', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $diff->renamedColumns['post'] = new \Doctrine\DBAL\Schema\Column('comment', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $diff->removedColumns['parent'] = new \Doctrine\DBAL\Schema\Column('comment', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $diff->removedIndexes['index1'] = $table->getIndex('index1');
+
+        $sql = array(
+            'DROP INDEX IDX_8D93D64923A0E66',
+            'DROP INDEX IDX_8D93D6495A8A6C8D',
+            'DROP INDEX IDX_8D93D6493D8E604F',
+            'DROP INDEX index1',
+            'CREATE TEMPORARY TABLE __temp__user AS SELECT id, article, post FROM user',
+            'DROP TABLE user',
+            'CREATE TABLE user ('
+                . '"key" INTEGER NOT NULL, article INTEGER NOT NULL, comment INTEGER NOT NULL'
+                . ', PRIMARY KEY("key")'
+                . ', CONSTRAINT FK_8D93D64923A0E66 FOREIGN KEY (article) REFERENCES article (id) DEFERRABLE INITIALLY IMMEDIATE'
+                . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (comment) REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
+                . ')',
+            'INSERT INTO user ("key", article, comment) SELECT id, article, post FROM __temp__user',
+            'DROP TABLE __temp__user',
+            'ALTER TABLE user RENAME TO client',
+            'CREATE INDEX IDX_8D93D64923A0E66 ON client (article)',
+            'CREATE INDEX IDX_8D93D6495A8A6C8D ON client (comment)',
+        );
+
+        $this->assertEquals($sql, $this->_platform->getAlterTableSQL($diff));
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()

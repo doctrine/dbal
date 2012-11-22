@@ -205,6 +205,16 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
+     * Returns platform specific flags for indexes.
+     *
+     * @return array
+     */
+    public function getFlags()
+    {
+        return array_keys($this->_flags);
+    }
+
+    /**
      * Add Flag for an index that translates to platform specific handling.
      *
      * @example $index->addFlag('CLUSTERED')

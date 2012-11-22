@@ -558,21 +558,8 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         $sql = array();
-        $indexes = $diff->fromTable->getIndexes();
-
-        foreach ($diff->removedIndexes as $index) {
-            if (isset($indexes[$index->getName()])) {
-                unset($indexes[$index->getName()]);
-            }
-        }
-
-        foreach (array_merge($diff->changedIndexes, $diff->addedIndexes) as $index) {
-            $name = $index->getName();
-            $indexes[$name] = $index;
-        }
-
         $tableName = $diff->newName ?: $diff->name;
-        foreach ($indexes as $indexName => $index) {
+        foreach ($this->getIndexesInAlteredTable($diff) as $indexName => $index) {
             if ($index->isPrimary()) {
                 continue;
             }
@@ -684,21 +671,28 @@ class SqlitePlatform extends AbstractPlatform
 
         $table = clone $fromTable;
 
-        $columns = $table->getColumns();
-
+        $columns = array();
+        $oldColumnNames = array();
+        $newColumnNames = array();
         $columnSql = array();
+
+        foreach ($table->getColumns() as $columnName => $column) {
+            $columnName = strtolower($columnName);
+            $columns[$columnName] = $column;
+            $oldColumnNames[$columnName] = $newColumnNames[$columnName] = $column->getQuotedName($this);
+        }
+
         foreach ($diff->removedColumns as $columnName => $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
-            unset($columns[$columnName]);
-        }
-
-        $fromColumns = array();
-        $toColumns = array();
-        foreach ($columns as $columnName => $column) {
-            $fromColumns[$columnName] = $toColumns[$columnName] = $column->getQuotedName($this);
+            $columnName = strtolower($columnName);
+            if (isset($columns[$columnName])) {
+                unset($columns[$columnName]);
+                unset($oldColumnNames[$columnName]);
+                unset($newColumnNames[$columnName]);
+            }
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -706,9 +700,16 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            unset($columns[$oldColumnName]);
-            $columns[$column->getName()] = $column;
-            $toColumns[$oldColumnName] = $column->getQuotedName($this);
+            $oldColumnName = strtolower($oldColumnName);
+            if (isset($columns[$oldColumnName])) {
+                unset($columns[$oldColumnName]);
+            }
+
+            $columns[strtolower($column->getName())] = $column;
+
+            if (isset($newColumnNames[$oldColumnName])) {
+                $newColumnNames[$oldColumnName] = $column->getQuotedName($this);
+            }
         }
 
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
@@ -716,10 +717,15 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            unset($columns[$oldColumnName]);
-            $columnName = $columnDiff->column->getName();
-            $columns[$columnName] = $columnDiff->column;
-            $toColumns[$oldColumnName] = $columnDiff->column->getQuotedName($this);
+            if (isset($columns[$oldColumnName])) {
+                unset($columns[$oldColumnName]);
+            }
+
+            $columns[strtolower($columnDiff->column->getName())] = $columnDiff->column;
+
+            if (isset($newColumnNames[$oldColumnName])) {
+                $newColumnNames[$oldColumnName] = $columnDiff->column->getQuotedName($this);
+            }
         }
 
         foreach ($diff->addedColumns as $columnName => $column) {
@@ -727,25 +733,7 @@ class SqlitePlatform extends AbstractPlatform
                 continue;
             }
 
-            $columns[$columnName] = $column;
-        }
-
-        $foreignKeys = $table->getForeignKeys();
-
-        foreach ($diff->removedForeignKeys as $constraint) {
-            $constraintName = strtolower($constraint->getName());
-            if (isset($foreignKeys[$constraintName])) {
-                unset($foreignKeys[$constraintName]);
-            }
-        }
-
-        foreach ($diff->changedForeignKeys as $constraint) {
-            $constraintName = strtolower($constraint->getName());
-            $foreignKeys[$constraintName] = $constraint;
-        }
-
-        foreach ($diff->addedForeignKeys as $constraint) {
-            $foreignKeys[] = $constraint;
+            $columns[strtolower($columnName)] = $column;
         }
 
         $sql = array();
@@ -753,14 +741,25 @@ class SqlitePlatform extends AbstractPlatform
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             $newTableName = $diff->newName ?: $diff->name;
 
-            $tempTable = new Table('__temp__'.$newTableName, $columns, $this->getPrimaryIndex($diff), $foreignKeys, 0, $table->getOptions());
-            $tempTable->addOption('alter', true);
-            $newTable = new Table($newTableName);
+            $dataTable = new Table('__temp__'.$table->getName());
 
-            $sql = array_merge($this->getPreAlterTableIndexForeignKeySQL($diff), $this->getCreateTableSQL($tempTable, self::CREATE_INDEXES | self::CREATE_FOREIGNKEYS));
-            $sql[] = sprintf('INSERT INTO %s (%s) SELECT %s FROM %s', $tempTable->getQuotedName($this), implode(', ', $toColumns), implode(', ', $fromColumns), $table->getQuotedName($this));
+            $newTable = new Table($table->getName(), $columns, $this->getPrimaryIndexInAlteredTable($diff), $this->getForeignKeysInAlteredTable($diff), 0, $table->getOptions());
+            $newTable->addOption('alter', true);
+
+            $sql = $this->getPreAlterTableIndexForeignKeySQL($diff);
+            //$sql = array_merge($sql, $this->getCreateTableSQL($dataTable, 0));
+            $sql[] = sprintf('CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s', $dataTable->getQuotedName($this), implode(', ', $oldColumnNames), $table->getQuotedName($this));
             $sql[] = $this->getDropTableSQL($fromTable);
-            $sql[] = 'ALTER TABLE '.$tempTable->getQuotedName($this).' RENAME TO '.$newTable->getQuotedName($this);
+
+            $sql = array_merge($sql, $this->getCreateTableSQL($newTable));
+            $sql[] = sprintf('INSERT INTO %s (%s) SELECT %s FROM %s', $newTable->getQuotedName($this), implode(', ', $newColumnNames), implode(', ', $oldColumnNames), $dataTable->getQuotedName($this));
+            $sql[] = $this->getDropTableSQL($dataTable);
+
+            if ($diff->newName && $diff->newName != $diff->name) {
+                $renamedTable = new Table($diff->newName);
+                $sql[] = 'ALTER TABLE '.$newTable->getQuotedName($this).' RENAME TO '.$renamedTable->getQuotedName($this);
+            }
+
             $sql = array_merge($sql, $this->getPostAlterTableIndexForeignKeySQL($diff));
         }
 
@@ -815,34 +814,137 @@ class SqlitePlatform extends AbstractPlatform
         return array_merge($sql, $tableSql, $columnSql);
     }
 
-    private function getPrimaryIndex(TableDiff $diff)
+    private function getColumnNamesInAlteredTable(TableDiff $diff)
     {
-        $primaryIndex = array();
+        $columns = array();
 
-        foreach ($diff->fromTable->getIndexes() as $index) {
-            if ($index->isPrimary()) {
-                $primaryIndex = array($index->getName() => $index);
+        foreach ($diff->fromTable->getColumns() as $columnName => $column) {
+            $columns[strtolower($columnName)] = $column->getName();
+        }
+
+        foreach ($diff->removedColumns as $columnName => $column) {
+            $columnName = strtolower($columnName);
+            if (isset($columns[$columnName])) {
+                unset($columns[$columnName]);
+            }
+        }
+
+        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+            $columnName = $column->getName();
+            $columns[strtolower($oldColumnName)] = $columnName;
+            $columns[strtolower($columnName)] = $columnName;
+        }
+
+        foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
+            $columnName = $columnDiff->column->getName();
+            $columns[strtolower($oldColumnName)] = $columnName;
+            $columns[strtolower($columnName)] = $columnName;
+        }
+
+        foreach ($diff->addedColumns as $columnName => $column) {
+            $columns[strtolower($columnName)] = $columnName;
+        }
+
+        return $columns;
+    }
+
+    private function getIndexesInAlteredTable(TableDiff $diff)
+    {
+        $indexes = $diff->fromTable->getIndexes();
+        $columnNames = $this->getColumnNamesInAlteredTable($diff);
+
+        foreach ($indexes as $key => $index) {
+            $changed = false;
+            $indexColumns = array();
+            foreach ($index->getColumns() as $columnName) {
+                $normalizedColumnName = strtolower($columnName);
+                if ( ! isset($columnNames[$normalizedColumnName])) {
+                    unset($indexes[$key]);
+                    continue 2;
+                } else {
+                    $indexColumns[] = $columnNames[$normalizedColumnName];
+                    if ($columnName !== $columnNames[$normalizedColumnName]) {
+                        $changed = true;
+                    }
+                }
+            }
+
+            if ($changed) {
+                $indexes[$key] = new Index($index->getName(), $indexColumns, $index->isUnique(), $index->isPrimary(), $index->getFlags());
             }
         }
 
         foreach ($diff->removedIndexes as $index) {
-            if (isset($primaryIndex[$index->getName()])) {
-                $primaryIndex = array();
-                break;
+            $indexName = strtolower($index->getName());
+            if (strlen($indexName) && isset($indexes[$indexName])) {
+                unset($indexes[$indexName]);
             }
         }
 
-        foreach ($diff->changedIndexes as $index) {
-            if ($index->isPrimary()) {
-                $primaryIndex = array($index);
-            } elseif (isset($primaryIndex[$index->getName()])) {
-                $primaryIndex = array();
+        foreach (array_merge($diff->changedIndexes, $diff->addedIndexes) as $index) {
+            $indexName = strtolower($index->getName());
+            if (strlen($indexName)) {
+                $indexes[$indexName] = $index;
+            } else {
+                $indexes[] = $index;
             }
         }
 
-        foreach ($diff->addedIndexes as $index) {
+        return $indexes;
+    }
+
+    private function getForeignKeysInAlteredTable(TableDiff $diff)
+    {
+        $foreignKeys = $diff->fromTable->getForeignKeys();
+        $columnNames = $this->getColumnNamesInAlteredTable($diff);
+
+        foreach ($foreignKeys as $key => $constraint) {
+            $changed = false;
+            $localColumns = array();
+            foreach ($constraint->getLocalColumns() as $columnName) {
+                $normalizedColumnName = strtolower($columnName);
+                if ( ! isset($columnNames[$normalizedColumnName])) {
+                    unset($foreignKeys[$key]);
+                    continue 2;
+                } else {
+                    $localColumns[] = $columnNames[$normalizedColumnName];
+                    if ($columnName !== $columnNames[$normalizedColumnName]) {
+                        $changed = true;
+                    }
+                }
+            }
+
+            if ($changed) {
+                $foreignKeys[$key] = new ForeignKeyConstraint($localColumns, $constraint->getForeignTableName(), $constraint->getForeignColumns(), $constraint->getName(), $constraint->getOptions());
+            }
+        }
+
+        foreach ($diff->removedForeignKeys as $constraint) {
+            $constraintName = strtolower($constraint->getName());
+            if (strlen($constraintName) && isset($foreignKeys[$constraintName])) {
+                unset($foreignKeys[$constraintName]);
+            }
+        }
+
+        foreach (array_merge($diff->changedForeignKeys, $diff->addedForeignKeys) as $constraint) {
+            $constraintName = strtolower($constraint->getName());
+            if (strlen($constraintName)) {
+                $foreignKeys[$constraintName] = $constraint;
+            } else {
+                $foreignKeys[] = $constraint;
+            }
+        }
+
+        return $foreignKeys;
+    }
+
+    private function getPrimaryIndexInAlteredTable(TableDiff $diff)
+    {
+        $primaryIndex = array();
+
+        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
             if ($index->isPrimary()) {
-                $primaryIndex = array($index);
+                $primaryIndex = array($index->getName() => $index);
             }
         }
 
