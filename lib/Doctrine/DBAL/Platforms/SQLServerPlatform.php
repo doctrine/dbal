@@ -896,4 +896,32 @@ class SQLServerPlatform extends AbstractPlatform
     {
         return 'VARBINARY(MAX)';
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDefaultValueDeclarationSQL($field)
+    {
+        if ( ! isset($field['default'])) {
+            return empty($field['notnull']) ? ' NULL' : '';
+        }
+
+        if ( ! isset($field['type'])) {
+            return " DEFAULT '" . $field['default'] . "'";
+        }
+
+        if (in_array((string) $field['type'], array('Integer', 'BigInteger', 'SmallInteger'))) {
+            return " DEFAULT " . $field['default'];
+        }
+
+        if ((string) $field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
+            return " DEFAULT " . $this->getCurrentTimestampSQL();
+        }
+
+        if ((string) $field['type'] == 'Boolean') {
+            return " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
+        }
+
+        return " DEFAULT '" . $field['default'] . "'";
+    }
 }
