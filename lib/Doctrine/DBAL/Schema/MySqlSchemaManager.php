@@ -141,17 +141,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
 
         $length = ((int) $length == 0) ? null : (int) $length;
-        $def =  array(
-            'type' => $type,
-            'length' => $length,
-            'unsigned' => (bool) $unsigned,
-            'fixed' => (bool) $fixed
-        );
 
         $options = array(
             'length'        => $length,
-            'unsigned'      => (bool)$unsigned,
-            'fixed'         => (bool)$fixed,
+            'unsigned'      => (bool) (strpos($tableColumn['type'], 'unsigned') !== false),
+            'fixed'         => (bool) $fixed,
             'default'       => isset($tableColumn['default']) ? $tableColumn['default'] : null,
             'notnull'       => (bool) ($tableColumn['null'] != 'YES'),
             'scale'         => null,
