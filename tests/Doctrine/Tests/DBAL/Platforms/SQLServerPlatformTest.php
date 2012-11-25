@@ -14,13 +14,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255) DEFAULT NULL, PRIMARY KEY (id))';
+        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255) NULL, PRIMARY KEY (id))';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
         return array(
-            'CREATE TABLE test (foo NVARCHAR(255) DEFAULT NULL, bar NVARCHAR(255) DEFAULT NULL)',
+            'CREATE TABLE test (foo NVARCHAR(255) NULL, bar NVARCHAR(255) NULL)',
             'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar) WHERE foo IS NOT NULL AND bar IS NOT NULL'
         );
     }
@@ -28,7 +28,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
+            'ALTER TABLE mytable ADD quota INT NULL',
             'ALTER TABLE mytable DROP COLUMN foo',
             'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) DEFAULT \'def\' NOT NULL',
             'ALTER TABLE mytable ALTER COLUMN bloo BIT DEFAULT \'0\' NOT NULL',
