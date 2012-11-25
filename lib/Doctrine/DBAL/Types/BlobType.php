@@ -52,7 +52,7 @@ class BlobType extends Type
         } else if ( ! is_resource($value)) {
             throw ConversionException::conversionFailed($value, self::BLOB);
         }
-        return $value;
+        return stream_get_contents($value);
     }
 
     public function getName()

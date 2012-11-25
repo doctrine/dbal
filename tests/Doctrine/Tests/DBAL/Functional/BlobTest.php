@@ -77,7 +77,6 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $blobValue = Type::getType('blob')->convertToPHPValue($row['blobfield'], $this->_conn->getDatabasePlatform());
 
-        $this->assertInternalType('resource', $blobValue);
-        $this->assertEquals($text, stream_get_contents($blobValue));
+        $this->assertEquals($text, $blobValue);
     }
 }
