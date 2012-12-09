@@ -28,6 +28,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array("SELECT '?' FROM foo", true, array()),
             array('SELECT "?" FROM foo WHERE bar = ?', true, array(32)),
             array("SELECT '?' FROM foo WHERE bar = ?", true, array(32)),
+            array("SELECT id, ?, \"\\?\\\"\"\nFROM Foo WHERE id = ?", true, array (11, 41)),
 
             // named
             array('SELECT :foo FROM :bar', false, array(7 => 'foo', 17 => 'bar')),
@@ -35,6 +36,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT ":foo" FROM Foo WHERE bar IN (:name1, :name2)', false, array(37 => 'name1', 45 => 'name2')),
             array("SELECT ':foo' FROM Foo WHERE bar IN (:name1, :name2)", false, array(37 => 'name1', 45 => 'name2')),
             array('SELECT :foo_id', false, array(7 => 'foo_id')), // Ticket DBAL-231
+            array("SELECT id, :id, '\\:id\\''\nFROM Foo WHERE id = :id", false, array ( 11 => 'id', 45 => 'id',)),
         );
     }
 

@@ -36,7 +36,7 @@ class SQLParserUtils
      * Get an array of the placeholders in an sql statements as keys and their positions in the query string.
      *
      * Returns an integer => integer pair (indexed from zero) for a positional statement
-     * and a string => int[] pair for a named statement.
+     * and a integer => string pair for a named statement.
      *
      * @param string $statement
      * @param bool $isPositional
@@ -48,28 +48,38 @@ class SQLParserUtils
         if (strpos($statement, $match) === false) {
             return array();
         }
-
-        $count = 0;
         $inLiteral = false; // a valid query never starts with quotes
-        $stmtLen = strlen($statement);
         $paramMap = array();
-        for ($i = 0; $i < $stmtLen; $i++) {
-            if ($statement[$i] == $match && !$inLiteral) {
-                // real positional parameter detected
-                if ($isPositional) {
-                    $paramMap[$count] = $i;
-                } else {
-                    $name = "";
-                    // TODO: Something faster/better to match this than regex?
-                    for ($j = $i + 1; ($j < $stmtLen && preg_match('(([a-zA-Z0-9_]{1}))', $statement[$j])); $j++) {
-                        $name .= $statement[$j];
+        $quote = '';
+        $slashCount = 0;
+        $slashPosition = 0;
+        if (preg_match_all("/['\"\\\\{$match}]/", $statement, $symbols, PREG_OFFSET_CAPTURE)) {
+            foreach ($symbols[0] as $symbol) {
+                list($symbol, $i) = $symbol;
+                if ($symbol == $match && !$inLiteral) {
+                    // real positional parameter detected
+                    if ($isPositional) {
+                        $paramMap[] = $i;
+                    } elseif (preg_match('/^.{' . ($i + 1) . '}([a-zA-Z0-9_]+)/s', $statement, $tmp)) {
+                        $paramMap[$i] = $tmp[1]; // named parameters can be duplicated!
                     }
-                    $paramMap[$i] = $name; // named parameters can be duplicated!
-                    $i = $j;
+                } elseif (($symbol == "'" || $symbol == '"') && ($slashPosition !== $i - 1 || $slashCount % 2 === 0)) {
+                    if (!$inLiteral) {
+                        $quote = $symbol;
+                        $inLiteral = true;
+                    } elseif ($quote === $symbol) {
+                        $inLiteral = false;
+                    }
+                } elseif ($symbol == "\\") {
+                    if ($slashCount > 0 && $slashPosition === $i - 1) {
+                        $slashCount++;
+                    } else {
+                        $slashCount = 1;
+                    }
+                    $slashPosition = $i;
+                } else {
+                    $slashCount = 0;
                 }
-                ++$count;
-            } else if ($statement[$i] == "'" || $statement[$i] == '"') {
-                $inLiteral = ! $inLiteral; // switch state!
             }
         }
 
