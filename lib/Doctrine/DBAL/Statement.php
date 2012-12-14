@@ -23,7 +23,8 @@ namespace Doctrine\DBAL;
 
 use PDO,
     Doctrine\DBAL\Types\Type,
-    Doctrine\DBAL\Driver\Statement as DriverStatement;
+    Doctrine\DBAL\Driver\Statement as DriverStatement,
+    Doctrine\DBAL\Driver\DriverException;
 
 /**
  * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
@@ -141,7 +142,7 @@ class Statement implements \IteratorAggregate, DriverStatement
         try {
             $stmt = $this->stmt->execute($params);
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $this->sql, $this->conn->resolveParams($this->params, $this->types));
+            throw DriverException::driverExceptionDuringQuery($ex, $this->sql, $this->conn->resolveParams($this->params, $this->types));
         }
 
         if ($logger) {

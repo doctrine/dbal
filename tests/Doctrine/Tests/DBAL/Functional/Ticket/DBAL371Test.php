@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\DriverException;
 
 /**
  * @group DBAL-371
@@ -22,6 +23,17 @@ class DBAL371Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
             $this->_conn->getSchemaManager()->createTable($table);
         }
+    }
+
+    /**
+     * @expectedException \Doctrine\DBAL\Driver\DriverException
+     */
+    public function testException()
+    {
+        $stmt = $this->_conn->prepare('INSERT INTO DBAL371 VALUES (1)');
+        $this->_conn->beginTransaction();
+        $stmt->execute();
+        $stmt->execute();
     }
 
     public function testExceptionCode()
