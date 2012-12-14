@@ -31,7 +31,6 @@ class DBAL371Test extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testException()
     {
         $stmt = $this->_conn->prepare('INSERT INTO DBAL371 VALUES (1)');
-        $this->_conn->beginTransaction();
         $stmt->execute();
         $stmt->execute();
     }
