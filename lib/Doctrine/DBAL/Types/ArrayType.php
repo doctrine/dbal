@@ -35,6 +35,7 @@ class ArrayType extends Type
 
     public function convertToDatabaseValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
+        // @todo 3.0 - $value === null check to save real NULL in database
         return serialize($value);
     }
 

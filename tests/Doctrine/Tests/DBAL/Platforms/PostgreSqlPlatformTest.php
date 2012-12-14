@@ -59,6 +59,46 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE",
             $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
         );
+
+        $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
+            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('match' => 'full')
+        );
+        $this->assertEquals(
+            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full NOT DEFERRABLE INITIALLY IMMEDIATE",
+            $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
+        );
+
+        $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
+            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferrable' => true)
+        );
+        $this->assertEquals(
+            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) DEFERRABLE INITIALLY IMMEDIATE",
+            $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
+        );
+
+        $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
+            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferred' => true)
+        );
+        $this->assertEquals(
+            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED",
+            $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
+        );
+
+        $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
+            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('feferred' => true)
+        );
+        $this->assertEquals(
+            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED",
+            $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
+        );
+
+        $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
+            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferrable' => true, 'deferred' => true, 'match' => 'full')
+        );
+        $this->assertEquals(
+            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full DEFERRABLE INITIALLY DEFERRED",
+            $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
+        );
     }
 
     public function testGeneratesSqlSnippets()
@@ -223,6 +263,21 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
         return array(
             "CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))",
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
+        );
+    }
+
+    protected function getQuotedColumnInPrimaryKeySQL()
+    {
+        return array(
+            'CREATE TABLE "quoted" ("key" VARCHAR(255) NOT NULL, PRIMARY KEY("key"))',
+        );
+    }
+
+    protected function getQuotedColumnInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE "quoted" ("key" VARCHAR(255) NOT NULL)',
+            'CREATE INDEX IDX_22660D028A90ABA9 ON "quoted" ("key")',
         );
     }
 }
