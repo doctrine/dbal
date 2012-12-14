@@ -24,24 +24,18 @@ class DBAL371Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->getSchemaManager()->createTable($table);
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\Driver\DriverException
-     */
-    public function testException()
-    {
-        $stmt = $this->_conn->prepare('INSERT INTO dbal371 VALUES (1)');
-        $stmt->execute();
-        $stmt->execute();
-    }
-
     public function testExceptionCode()
     {
         $stmt = $this->_conn->prepare('INSERT INTO dbal371 VALUES (1)');
         $stmt->execute();
+        $exception = false;
         try {
             $stmt->execute();
         } catch(DBALException $e) {
+            $exception = true;
+            $this->assertInstanceOf('Doctrine\DBAL\Driver\DriverException', $e);
             $this->assertGreaterThan(0, $e->getCode());
         }
+        $this->assertTrue($exception);
     }
 }
