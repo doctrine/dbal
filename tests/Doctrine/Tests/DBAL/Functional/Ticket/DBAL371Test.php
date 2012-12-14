@@ -14,10 +14,10 @@ class DBAL371Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->_conn->getSchemaManager()->tablesExist('DBAL371')) {
-            $this->_conn->executeQuery('DELETE FROM DBAL371');
+        if ($this->_conn->getSchemaManager()->tablesExist('dbal371')) {
+            $this->_conn->executeQuery('DELETE FROM dbal371');
         } else {
-            $table = new \Doctrine\DBAL\Schema\Table('DBAL371');
+            $table = new \Doctrine\DBAL\Schema\Table('dbal371');
             $table->addColumn('id', 'integer');
             $table->setPrimaryKey(array('id'));
 
@@ -30,14 +30,14 @@ class DBAL371Test extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testException()
     {
-        $stmt = $this->_conn->prepare('INSERT INTO DBAL371 VALUES (1)');
+        $stmt = $this->_conn->prepare('INSERT INTO dbal371 VALUES (1)');
         $stmt->execute();
         $stmt->execute();
     }
 
     public function testExceptionCode()
     {
-        $stmt = $this->_conn->prepare('INSERT INTO DBAL371 VALUES (1)');
+        $stmt = $this->_conn->prepare('INSERT INTO dbal371 VALUES (1)');
         $this->_conn->beginTransaction();
         $stmt->execute();
         try {
