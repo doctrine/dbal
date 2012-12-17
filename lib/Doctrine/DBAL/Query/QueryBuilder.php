@@ -946,28 +946,36 @@ class QueryBuilder
         $query = 'SELECT ' . implode(', ', $this->sqlParts['select']) . ' FROM ';
 
         $fromClauses = array();
+        $joinsPending = true;
+        $joinAliases = array();
 
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
             $fromClause = $from['table'] . ' ' . $from['alias'];
 
-            if (isset($this->sqlParts['join'][$from['alias']])) {
-                foreach ($this->sqlParts['join'][$from['alias']] as $join) {
-                    $fromClause .= ' ' . strtoupper($join['joinType'])
-                                 . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
-                                 . ' ON ' . ((string) $join['joinCondition']);
+            if ($joinsPending && isset($this->sqlParts['join'][$from['alias']])) {
+                foreach ($this->sqlParts['join'] as $joins) {
+                    foreach ($joins as $join) {
+                        $fromClause .= ' ' . strtoupper($join['joinType'])
+                                     . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
+                                     . ' ON ' . ((string) $join['joinCondition']);
+                        $joinAliases[$join['joinAlias']] = true;
+                    }
                 }
+                $joinsPending = false;
             }
 
             $fromClauses[$from['alias']] = $fromClause;
         }
 
-        // loop through all JOIN clasues for validation purpose
+        // loop through all JOIN clauses for validation purpose
+        $knownAliases = array_merge($fromClauses,$joinAliases);
         foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
-            if ( ! isset($fromClauses[$fromAlias]) ) {
-                throw QueryException::unknownFromAlias($fromAlias, array_keys($fromClauses));
+            if ( ! isset($knownAliases[$fromAlias]) ) {
+                throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
             }
         }
+
 
         $query .= implode(', ', $fromClauses)
                 . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
