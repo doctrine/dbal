@@ -54,7 +54,7 @@ class SQLParserUtils
         $stmtLen = strlen($statement);
         $paramMap = array();
         for ($i = 0; $i < $stmtLen; $i++) {
-            if ($statement[$i] == $match && !$inLiteral) {
+            if ($statement[$i] == $match && !$inLiteral && ($isPositional || $statement[$i+1] != '=')) {
                 // real positional parameter detected
                 if ($isPositional) {
                     $paramMap[$count] = $i;
