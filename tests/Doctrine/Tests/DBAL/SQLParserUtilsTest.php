@@ -35,6 +35,8 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT ":foo" FROM Foo WHERE bar IN (:name1, :name2)', false, array(37 => 'name1', 45 => 'name2')),
             array("SELECT ':foo' FROM Foo WHERE bar IN (:name1, :name2)", false, array(37 => 'name1', 45 => 'name2')),
             array('SELECT :foo_id', false, array(7 => 'foo_id')), // Ticket DBAL-231
+            array('SELECT @rank := 1', false, array()), // Ticket DBAL-398
+            array('SELECT @rank := 1 AS rank, :foo AS foo FROM :bar', false, array(27 => 'foo', 44 => 'bar')), // Ticket DBAL-398
         );
     }
 
