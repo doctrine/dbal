@@ -486,6 +486,29 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($tableDiff->changedForeignKeys));
     }
 
+    public function testMovedForeignKeyForeignTable()
+    {
+        $tableForeign = new Table("bar");
+        $tableForeign->addColumn('id', 'integer');
+
+        $tableForeign2 = new Table("bar2");
+        $tableForeign2->addColumn('id', 'integer');
+
+        $table1 = new Table("foo");
+        $table1->addColumn('fk', 'integer');
+        $table1->addForeignKeyConstraint($tableForeign, array('fk'), array('id'));
+
+        $table2 = new Table("foo");
+        $table2->addColumn('fk', 'integer');
+        $table2->addForeignKeyConstraint($tableForeign2, array('fk'), array('id'));
+
+        $c = new Comparator();
+        $tableDiff = $c->diffTable($table1, $table2);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        $this->assertEquals(1, count($tableDiff->changedForeignKeys));
+    }
+
     public function testTablesCaseInsensitive()
     {
         $schemaA = new Schema();
