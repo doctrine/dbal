@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+
 use Doctrine\DBAL\Schema;
 
 require_once __DIR__ . '/../../../TestInit.php';
@@ -28,19 +30,46 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals(false, file_exists($path));
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
     public function testRenameTable()
     {
+        $this->createTestTable('oldname');
         $this->_sm->renameTable('oldname', 'newname');
+
+        $tables = $this->_sm->listTableNames();
+        $this->assertContains('newname', $tables);
+        $this->assertNotContains('oldname', $tables);
     }
 
-    public function testAutoincrementDetection()
+    public function createListTableColumns()
     {
-      $this->markTestSkipped(
-          'There is currently no reliable way to determine whether an SQLite column is marked as '
-          . 'auto-increment. So, while it does support a single identity column, we cannot with '
-          . 'certainty determine which it is.');
+        $table = parent::createListTableColumns();
+        $table->getColumn('id')->setAutoincrement(true);
+
+        return $table;
+    }
+
+    public function testListForeignKeysFromExistingDatabase()
+    {
+        $this->_conn->executeQuery(<<<EOS
+CREATE TABLE user (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
+    parent INTEGER REFERENCES user(id) ON DELETE CASCADE,
+    log INTEGER,
+    CONSTRAINT FK_3 FOREIGN KEY (log) REFERENCES log ON UPDATE SET NULL NOT DEFERRABLE
+)
+EOS
+        );
+
+        $expected = array(
+            new ForeignKeyConstraint(array('log'), 'log', array(null), 'FK_3',
+                array('onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false)),
+            new ForeignKeyConstraint(array('parent'), 'user', array('id'), '1',
+                array('onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false)),
+            new ForeignKeyConstraint(array('page'), 'page', array('key'), 'FK_1',
+                array('onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true)),
+        );
+
+        $this->assertEquals($expected, $this->_sm->listTableForeignKeys('user'));
     }
 }

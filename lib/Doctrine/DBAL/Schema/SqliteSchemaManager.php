@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\DBALException;
+
 /**
  * SqliteSchemaManager
  *
@@ -26,6 +28,7 @@ namespace Doctrine\DBAL\Schema;
  * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author      Jonathan H. Wage <jonwage@gmail.com>
+ * @author      Martin Hasoň <martin.hason@gmail.com>
  * @version     $Revision$
  * @since       2.0
  */
@@ -59,6 +62,93 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
         $conn->connect();
         $conn->close();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function renameTable($name, $newName)
+    {
+        $tableDiff = new TableDiff($name);
+        $tableDiff->fromTable = $this->listTableDetails($name);
+        $tableDiff->newName = $newName;
+        $this->alterTable($tableDiff);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createForeignKey(ForeignKeyConstraint $foreignKey, $table)
+    {
+        $tableDiff = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
+        $tableDiff->addedForeignKeys[] = $foreignKey;
+
+        $this->alterTable($tableDiff);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table)
+    {
+        $tableDiff = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
+        $tableDiff->changedForeignKeys[] = $foreignKey;
+
+        $this->alterTable($tableDiff);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropForeignKey($foreignKey, $table)
+    {
+        $tableDiff = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
+        $tableDiff->removedForeignKeys[] = $foreignKey;
+
+        $this->alterTable($tableDiff);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listTableForeignKeys($table, $database = null)
+    {
+        if (null === $database) {
+            $database = $this->_conn->getDatabase();
+        }
+        $sql = $this->_platform->getListTableForeignKeysSQL($table, $database);
+        $tableForeignKeys = $this->_conn->fetchAll($sql);
+
+        if ( ! empty($tableForeignKeys)) {
+            $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
+            $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
+            if (preg_match_all('#
+                    (?:CONSTRAINT\s+([^\s]+)\s+)?
+                    (?:FOREIGN\s+KEY[^\)]+\)\s*)?
+                    REFERENCES\s+[^\s]+\s+(?:\([^\)]+\))?
+                    (?:
+                        [^,]*?
+                        (NOT\s+DEFERRABLE|DEFERRABLE)
+                        (?:\s+INITIALLY\s+(DEFERRED|IMMEDIATE))?
+                    )?#isx',
+                    $createSql, $match)) {
+
+                $names = array_reverse($match[1]);
+                $deferrable = array_reverse($match[2]);
+                $deferred = array_reverse($match[3]);
+            } else {
+                $names = $deferrable = $deferred = array();
+            }
+
+            foreach ($tableForeignKeys as $key => $value) {
+                $id = $value['id'];
+                $tableForeignKeys[$key]['constraint_name'] = isset($names[$id]) && '' != $names[$id] ? $names[$id] : $id;
+                $tableForeignKeys[$key]['deferrable'] = isset($deferrable[$id]) && 'deferrable' == strtolower($deferrable[$id]) ? true : false;
+                $tableForeignKeys[$key]['deferred'] = isset($deferred[$id]) && 'deferred' == strtolower($deferred[$id]) ? true : false;
+            }
+        }
+
+        return $this->_getPortableTableForeignKeysList($tableForeignKeys);
     }
 
     protected function _getPortableTableDefinition($table)
@@ -120,6 +210,31 @@ class SqliteSchemaManager extends AbstractSchemaManager
             'name' => $tableIndex['name'],
             'unique' => (bool) $tableIndex['unique']
         );
+    }
+
+    protected function _getPortableTableColumnList($table, $database, $tableColumns)
+    {
+        $list = parent::_getPortableTableColumnList($table, $database, $tableColumns);
+        $autoincrementColumn = null;
+        $autoincrementCount = 0;
+        foreach ($tableColumns as $tableColumn) {
+            if ('1' == $tableColumn['pk']) {
+                $autoincrementCount++;
+                if (null === $autoincrementColumn && 'integer' == strtolower($tableColumn['type'])) {
+                    $autoincrementColumn = $tableColumn['name'];
+                }
+            }
+        }
+
+        if (1 == $autoincrementCount && null !== $autoincrementColumn) {
+            foreach ($list as $column) {
+                if ($autoincrementColumn == $column->getName()) {
+                    $column->setAutoincrement(true);
+                }
+            }
+        }
+
+        return $list;
     }
 
     protected function _getPortableTableColumnDefinition($tableColumn)
@@ -189,5 +304,68 @@ class SqliteSchemaManager extends AbstractSchemaManager
     protected function _getPortableViewDefinition($view)
     {
         return new View($view['name'], $view['sql']);
+    }
+
+    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    {
+        $list = array();
+        foreach ($tableForeignKeys as $key => $value) {
+            $value = array_change_key_case($value, CASE_LOWER);
+            $name = $value['constraint_name'];
+            if ( ! isset($list[$name])) {
+                if ( ! isset($value['on_delete']) || $value['on_delete'] == "RESTRICT") {
+                    $value['on_delete'] = null;
+                }
+                if ( ! isset($value['on_update']) || $value['on_update'] == "RESTRICT") {
+                    $value['on_update'] = null;
+                }
+
+                $list[$name] = array(
+                    'name' => $name,
+                    'local' => array(),
+                    'foreign' => array(),
+                    'foreignTable' => $value['table'],
+                    'onDelete' => $value['on_delete'],
+                    'onUpdate' => $value['on_update'],
+                    'deferrable' => $value['deferrable'],
+                    'deferred'=> $value['deferred'],
+                );
+            }
+            $list[$name]['local'][] = $value['from'];
+            $list[$name]['foreign'][] = $value['to'];
+        }
+
+        $result = array();
+        foreach($list as $constraint) {
+            $result[] = new ForeignKeyConstraint(
+                array_values($constraint['local']), $constraint['foreignTable'],
+                array_values($constraint['foreign']), $constraint['name'],
+                array(
+                    'onDelete' => $constraint['onDelete'],
+                    'onUpdate' => $constraint['onUpdate'],
+                    'deferrable' => $constraint['deferrable'],
+                    'deferred'=> $constraint['deferred'],
+                )
+            );
+        }
+
+        return $result;
+    }
+
+    private function getTableDiffForAlterForeignKey(ForeignKeyConstraint $foreignKey, $table)
+    {
+        if ( ! $table instanceof Table) {
+            $tableDetails = $this->tryMethod('listTableDetails', $table);
+            if (false === $table) {
+                throw new \DBALException(sprintf('Sqlite schema manager requires to modify foreign keys table definition "%s".', $table));
+            }
+
+            $table = $tableDetails;
+        }
+
+        $tableDiff = new TableDiff($table->getName());
+        $tableDiff->fromTable = $table;
+
+        return $tableDiff;
     }
 }
