@@ -317,6 +317,10 @@ class Comparator
             return true;
         }
 
+        if (strtolower($key1->getForeignTableName()) != strtolower($key2->getForeignTableName())) {
+            return true;
+        }
+
         if ($key1->onUpdate() != $key2->onUpdate()) {
             return true;
         }
