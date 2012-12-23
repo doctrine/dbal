@@ -205,7 +205,15 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $expectedSql = $this->getGenerateAlterTableSql();
 
+        $table = new Table('mytable');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
+        $table->addColumn('bar', 'string');
+        $table->addColumn('bloo', 'boolean');
+        $table->setPrimaryKey(array('id'));
+
         $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = $table;
         $tableDiff->newName = 'userlist';
         $tableDiff->addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('notnull' => false));
         $tableDiff->removedColumns['foo'] = new \Doctrine\DBAL\Schema\Column('foo', \Doctrine\DBAL\Types\Type::getType('integer'));
@@ -309,7 +317,13 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $this->_platform->setEventManager($eventManager);
 
+        $table = new Table('mytable');
+        $table->addColumn('removed', 'integer');
+        $table->addColumn('changed', 'integer');
+        $table->addColumn('renamed', 'integer');
+
         $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = $table;
         $tableDiff->addedColumns['added'] = new \Doctrine\DBAL\Schema\Column('added', \Doctrine\DBAL\Types\Type::getType('integer'), array());
         $tableDiff->removedColumns['removed'] = new \Doctrine\DBAL\Schema\Column('removed', \Doctrine\DBAL\Types\Type::getType('integer'), array());
         $tableDiff->changedColumns['changed'] = new \Doctrine\DBAL\Schema\ColumnDiff(
