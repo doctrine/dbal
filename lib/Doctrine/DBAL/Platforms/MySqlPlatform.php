@@ -484,6 +484,8 @@ class MySqlPlatform extends AbstractPlatform
                 if ($remIndex->getColumns() == $addIndex->getColumns()) {
 
                     $columns = $addIndex->getColumns();
+                    $subParts = $addIndex->getSubParts();
+
                     $type = '';
                     if ($addIndex->isUnique()) {
                         $type = 'UNIQUE ';
@@ -491,7 +493,7 @@ class MySqlPlatform extends AbstractPlatform
 
                     $query = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
                     $query .= 'ADD ' . $type . 'INDEX ' . $addIndex->getName();
-                    $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
+                    $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns, $subParts) . ')';
 
                     $sql[] = $query;
 
