@@ -186,6 +186,38 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('foo', $row['test_string']);
     }
 
+    /**
+     * @group DBAL-209
+     */
+    public function testFetchAllWithTypes()
+    {
+        $datetimeString = '2010-01-01 10:10:10';
+        $datetime = new \DateTime($datetimeString);
+        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $data = $this->_conn->fetchAll($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
+
+        $this->assertEquals(1, count($data));
+
+        $row = $data[0];
+        $this->assertEquals(2, count($row));
+
+        $row = array_change_key_case($row, \CASE_LOWER);
+        $this->assertEquals(1, $row['test_int']);
+        $this->assertEquals($datetimeString, $row['test_datetime']);        
+    }
+    
+    /**
+     * @group DBAL-209
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testFetchAllWithMissingTypes()
+    {
+        $datetimeString = '2010-01-01 10:10:10';
+        $datetime = new \DateTime($datetimeString);
+        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $data = $this->_conn->fetchAll($sql, array(1, $datetime));
+    }
+
     public function testFetchBoth()
     {
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";

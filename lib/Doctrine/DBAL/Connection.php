@@ -577,11 +577,12 @@ class Connection implements DriverConnection
      *
      * @param string $sql The SQL query.
      * @param array $params The query parameters.
+     * @param array $types Query parameter types.
      * @return array
      */
-    public function fetchAll($sql, array $params = array())
+    public function fetchAll($sql, array $params = array(), $types = array())
     {
-        return $this->executeQuery($sql, $params)->fetchAll();
+        return $this->executeQuery($sql, $params, $types)->fetchAll();
     }
 
     /**
