@@ -234,7 +234,7 @@ class SQLServerPlatform extends AbstractPlatform
         if ($index->hasFlag('nonclustered')) {
             $flags = ' NONCLUSTERED';
         }
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index->getColumns()) . ')';
+        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index->getColumns(), $index->getSubParts()) . ')';
     }
 
     /**

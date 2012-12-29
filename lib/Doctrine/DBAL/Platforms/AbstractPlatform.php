@@ -1396,6 +1396,7 @@ abstract class AbstractPlatform
         }
         $name = $index->getQuotedName($this);
         $columns = $index->getColumns();
+        $subParts = $index->getSubParts();
 
         if (count($columns) == 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
@@ -1406,7 +1407,7 @@ abstract class AbstractPlatform
         }
 
         $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
+        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns, $subParts) . ')';
 
         return $query;
     }
@@ -1433,7 +1434,7 @@ abstract class AbstractPlatform
      */
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index->getColumns()) . ')';
+        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index->getColumns(), $index->getSubParts()) . ')';
     }
 
     /**
@@ -1890,7 +1891,7 @@ abstract class AbstractPlatform
         }
 
         return 'CONSTRAINT ' . $name . ' UNIQUE ('
-             . $this->getIndexFieldDeclarationListSQL($index->getColumns())
+             . $this->getIndexFieldDeclarationListSQL($index->getColumns(), $index->getSubParts())
              . ')';
     }
 
@@ -1916,7 +1917,7 @@ abstract class AbstractPlatform
         }
 
         return $type . 'INDEX ' . $name . ' ('
-             . $this->getIndexFieldDeclarationListSQL($index->getColumns())
+             . $this->getIndexFieldDeclarationListSQL($index->getColumns(), $index->getSubParts())
              . ')';
     }
 
@@ -1941,19 +1942,28 @@ abstract class AbstractPlatform
      * declaration to be used in statements like CREATE TABLE.
      *
      * @param array $fields
+     * @param array $subParts
      *
      * @return string
      */
-    public function getIndexFieldDeclarationListSQL(array $fields)
+    public function getIndexFieldDeclarationListSQL(array $fields, array $subParts = array())
     {
         $ret = array();
 
+        $i = 0;
         foreach ($fields as $field => $definition) {
             if (is_array($definition)) {
-                $ret[] = $field;
+                $oneRet = $field;
             } else {
-                $ret[] = $definition;
+                $oneRet = $definition;
             }
+
+            if (isset($subParts[$i])) {
+                $oneRet .= " (".$subParts[$i].")";
+            }
+
+            $ret[] = $oneRet;
+            $i++;
         }
 
         return implode(', ', $ret);

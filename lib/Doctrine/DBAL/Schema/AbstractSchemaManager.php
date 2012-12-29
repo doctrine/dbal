@@ -705,6 +705,8 @@ abstract class AbstractSchemaManager
             }
             $keyName = strtolower($keyName);
 
+            $columnSubPart = isset($tableIndex['sub_part']) ? $tableIndex['sub_part'] : null;
+
             if(!isset($result[$keyName])) {
                 $result[$keyName] = array(
                     'name' => $indexName,
@@ -712,9 +714,11 @@ abstract class AbstractSchemaManager
                     'unique' => $tableIndex['non_unique'] ? false : true,
                     'primary' => $tableIndex['primary'],
                     'flags' => isset($tableIndex['flags']) ? $tableIndex['flags'] : array(),
+                    'sub_parts' => array($columnSubPart),
                 );
             } else {
                 $result[$keyName]['columns'][] = $tableIndex['column_name'];
+                $result[$keyName]['sub_parts'][] = $columnSubPart;
             }
         }
 
@@ -734,7 +738,7 @@ abstract class AbstractSchemaManager
             }
 
             if ( ! $defaultPrevented) {
-                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags']);
+                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['sub_parts']);
             }
 
             if ($index) {

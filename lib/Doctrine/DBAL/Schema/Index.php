@@ -46,18 +46,24 @@ class Index extends AbstractAsset implements Constraint
     protected $_flags = array();
 
     /**
+     * @var array
+     */
+    protected $_subParts = array();
+
+    /**
      * @param string $indexName
      * @param array $column
      * @param bool $isUnique
      * @param bool $isPrimary
      */
-    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
+    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array(), array $subParts = array())
     {
         $isUnique = ($isPrimary)?true:$isUnique;
 
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
         $this->_isPrimary = $isPrimary;
+        $this->_subParts = $subParts;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -247,6 +253,14 @@ class Index extends AbstractAsset implements Constraint
     public function removeFlag($flag)
     {
         unset($this->flags[strtolower($flag)]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getSubParts()
+    {
+        return $this->_subParts;
     }
 }
 
