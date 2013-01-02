@@ -433,12 +433,14 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         // dont check for index size here, some platforms automatically add indexes for foreign keys.
         $this->assertFalse($table->hasIndex('foo_idx'));
 
-        $this->assertEquals(1, count($table->getForeignKeys()));
-        $fks = $table->getForeignKeys();
-        $foreignKey = current($fks);
-        $this->assertEquals('alter_table_foreign', strtolower($foreignKey->getForeignTableName()));
-        $this->assertEquals(array('foreign_key_test'), array_map('strtolower', $foreignKey->getColumns()));
-        $this->assertEquals(array('id'), array_map('strtolower', $foreignKey->getForeignColumns()));
+        if ($this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $fks = $table->getForeignKeys();
+            $this->assertCount(1, $fks);
+            $foreignKey = current($fks);
+            $this->assertEquals('alter_table_foreign', strtolower($foreignKey->getForeignTableName()));
+            $this->assertEquals(array('foreign_key_test'), array_map('strtolower', $foreignKey->getColumns()));
+            $this->assertEquals(array('id'), array_map('strtolower', $foreignKey->getForeignColumns()));
+        }
     }
 
     public function testCreateAndListViews()
