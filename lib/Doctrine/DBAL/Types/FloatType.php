@@ -17,22 +17,22 @@
  * <http://www.doctrine-project.org>.
  */
 
-
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class FloatType extends Type
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return Type::FLOAT;
     }
 
     /**
-     * @param array $fieldDeclaration
-     * @param AbstractPlatform $platform
-     * @return string
+     * {@inheritdoc}
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
@@ -40,12 +40,7 @@ class FloatType extends Type
     }
 
     /**
-     * Converts a value from its database representation to its PHP representation
-     * of this type.
-     *
-     * @param mixed $value The value to convert.
-     * @param AbstractPlatform $platform The currently used database platform.
-     * @return mixed The PHP representation of the value.
+     * {@inheritdoc}
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {

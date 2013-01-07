@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -30,19 +28,25 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class StringType extends Type
 {
-    /** @override */
+    /**
+     * {@inheritdoc}
+     */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
     }
 
-    /** @override */
+    /**
+     * {@inheritdoc}
+     */
     public function getDefaultLength(AbstractPlatform $platform)
     {
         return $platform->getVarcharDefaultLength();
     }
 
-    /** @override */
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return Type::STRING;

@@ -20,10 +20,13 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 /**
- * Driver for ext/sqlsrv
+ * Driver for ext/sqlsrv.
  */
 class Driver implements \Doctrine\DBAL\Driver
 {
+    /**
+     * {@inheritdoc}
+     */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         if (!isset($params['host'])) {
@@ -48,25 +51,36 @@ class Driver implements \Doctrine\DBAL\Driver
         return new SQLSrvConnection($serverName, $driverOptions);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDatabasePlatform()
     {
         return new \Doctrine\DBAL\Platforms\SQLServer2008Platform();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
         return new \Doctrine\DBAL\Schema\SQLServerSchemaManager($conn);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'sqlsrv';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {
         $params = $conn->getParams();
         return $params['dbname'];
     }
 }
-

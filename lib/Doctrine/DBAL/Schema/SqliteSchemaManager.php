@@ -22,22 +22,18 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\DBALException;
 
 /**
- * SqliteSchemaManager
+ * Sqlite SchemaManager.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
- * @author      Jonathan H. Wage <jonwage@gmail.com>
- * @author      Martin Hasoň <martin.hason@gmail.com>
- * @version     $Revision$
- * @since       2.0
+ * @author Konsta Vesterinen <kvesteri@cc.hut.fi>
+ * @author Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
+ * @author Jonathan H. Wage <jonwage@gmail.com>
+ * @author Martin Hasoň <martin.hason@gmail.com>
+ * @since  2.0
  */
 class SqliteSchemaManager extends AbstractSchemaManager
 {
     /**
      * {@inheritdoc}
-     *
-     * @override
      */
     public function dropDatabase($database)
     {
@@ -48,8 +44,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     /**
      * {@inheritdoc}
-     *
-     * @override
      */
     public function createDatabase($database)
     {
@@ -151,17 +145,19 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $this->_getPortableTableForeignKeysList($tableForeignKeys);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableDefinition($table)
     {
         return $table['name'];
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
-     * @param  array $tableIndexes
-     * @param  string $tableName
-     * @return array
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
@@ -204,6 +200,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableIndexDefinition($tableIndex)
     {
         return array(
@@ -212,6 +211,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableColumnList($table, $database, $tableColumns)
     {
         $list = parent::_getPortableTableColumnList($table, $database, $tableColumns);
@@ -237,6 +239,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $list;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
         $e = explode('(', $tableColumn['type']);
@@ -301,15 +306,21 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return new Column($tableColumn['name'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableViewDefinition($view)
     {
         return new View($view['name'], $view['sql']);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = array();
-        foreach ($tableForeignKeys as $key => $value) {
+        foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
             $name = $value['constraint_name'];
             if ( ! isset($list[$name])) {
@@ -352,12 +363,20 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $result;
     }
 
+    /**
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey
+     * @param \Doctrine\DBAL\Schema\Table|string         $table
+     *
+     * @return \Doctrine\DBAL\Schema\TableDiff
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     */
     private function getTableDiffForAlterForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
         if ( ! $table instanceof Table) {
             $tableDetails = $this->tryMethod('listTableDetails', $table);
             if (false === $table) {
-                throw new \DBALException(sprintf('Sqlite schema manager requires to modify foreign keys table definition "%s".', $table));
+                throw new DBALException(sprintf('Sqlite schema manager requires to modify foreign keys table definition "%s".', $table));
             }
 
             $table = $tableDetails;

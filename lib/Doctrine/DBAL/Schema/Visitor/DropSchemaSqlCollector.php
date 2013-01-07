@@ -19,21 +19,18 @@
 
 namespace Doctrine\DBAL\Schema\Visitor;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\Table,
-    Doctrine\DBAL\Schema\Schema,
-    Doctrine\DBAL\Schema\ForeignKeyConstraint,
-    Doctrine\DBAL\Schema\Constraint,
-    Doctrine\DBAL\Schema\Sequence,
-    Doctrine\DBAL\Schema\SchemaException,
-    Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\SchemaException;
 
 /**
- * Gather SQL statements that allow to completely drop the current schema.
+ * Gathers SQL statements that allow to completely drop the current schema.
  *
- * @link    www.doctrine-project.org
- * @since   2.0
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
+ * @link   www.doctrine-project.org
+ * @since  2.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class DropSchemaSqlCollector extends AbstractVisitor
 {
@@ -53,13 +50,12 @@ class DropSchemaSqlCollector extends AbstractVisitor
     private $tables;
 
     /**
-     *
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $platform;
 
     /**
-     * @param AbstractPlatform $platform
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct(AbstractPlatform $platform)
     {
@@ -68,7 +64,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @param Table $table
+     * {@inheritdoc}
      */
     public function acceptTable(Table $table)
     {
@@ -76,8 +72,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @param Table $localTable
-     * @param ForeignKeyConstraint $fkConstraint
+     * {@inheritdoc}
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
@@ -90,7 +85,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @param Sequence $sequence
+     * {@inheritdoc}
      */
     public function acceptSequence(Sequence $sequence)
     {

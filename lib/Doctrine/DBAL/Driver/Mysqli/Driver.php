@@ -64,6 +64,7 @@ class Driver implements DriverInterface
     public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {
         $params = $conn->getParams();
+
         return $params['dbname'];
     }
 }

@@ -24,16 +24,22 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 /**
  * Array Type which can be used to generate json arrays.
  *
- * @since 2.3
+ * @since  2.3
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
 class JsonArrayType extends Type
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         if (null === $value) {
@@ -43,6 +49,9 @@ class JsonArrayType extends Type
         return json_encode($value);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === null) {
@@ -54,11 +63,17 @@ class JsonArrayType extends Type
         return json_decode($value, true);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return Type::JSON_ARRAY;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {
         return true;

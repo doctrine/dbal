@@ -15,7 +15,7 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
 namespace Doctrine\DBAL\Event;
 
@@ -24,10 +24,9 @@ use Doctrine\Common\EventArgs;
 /**
  * Base class for schema related events.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.com
- * @since       2.2
- * @author      Jan Sorgalla <jsorgalla@googlemail.com>
+ * @link   www.doctrine-project.org
+ * @since  2.2
+ * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaEventArgs extends EventArgs
 {

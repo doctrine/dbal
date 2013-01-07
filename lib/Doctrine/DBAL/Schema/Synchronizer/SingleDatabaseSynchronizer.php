@@ -16,6 +16,7 @@
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
+
 namespace Doctrine\DBAL\Schema\Synchronizer;
 
 use Doctrine\DBAL\Connection;
@@ -24,7 +25,7 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 
 /**
- * Schema Synchronizer for Default DBAL Connection
+ * Schema Synchronizer for Default DBAL Connection.
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
@@ -35,6 +36,9 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
      */
     private $platform;
 
+    /**
+     * @param \Doctrine\DBAL\Connection $conn
+     */
     public function __construct(Connection $conn)
     {
         parent::__construct($conn);
@@ -42,22 +46,16 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * Get the SQL statements that can be executed to create the schema.
-     *
-     * @param Schema $createSchema
-     * @return array
+     * {@inheritdoc}
      */
     public function getCreateSchema(Schema $createSchema)
     {
         return $createSchema->toSql($this->platform);
     }
 
+
     /**
-     * Get the SQL Statements to update given schema with the underlying db.
-     *
-     * @param Schema $toSchema
-     * @param bool $noDrops
-     * @return array
+     * {@inheritdoc}
      */
     public function getUpdateSchema(Schema $toSchema, $noDrops = false)
     {
@@ -75,10 +73,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * Get the SQL Statements to drop the given schema from underlying db.
-     *
-     * @param Schema $dropSchema
-     * @return array
+     * {@inheritdoc}
      */
     public function getDropSchema(Schema $dropSchema)
     {
@@ -114,7 +109,6 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         }
 
         foreach ($dropSchema->getTables() as $table) {
-            /* @var $sequence Table */
             if ( ! $table->hasPrimaryKey()) {
                 continue;
             }
@@ -134,9 +128,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * Get the SQL statements to drop all schema assets from underlying db.
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getDropAllSchema()
     {
@@ -151,10 +143,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * Create the Schema
-     *
-     * @param Schema $createSchema
-     * @return void
+     * {@inheritdoc}
      */
     public function createSchema(Schema $createSchema)
     {
@@ -162,11 +151,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * Update the Schema to new schema version.
-     *
-     * @param Schema $toSchema
-     * @param bool $noDrops
-     * @return void
+     * {@inheritdoc}
      */
     public function updateSchema(Schema $toSchema, $noDrops = false)
     {
@@ -174,10 +159,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * Drop the given database schema from the underlying db.
-     *
-     * @param Schema $dropSchema
-     * @return void
+     * {@inheritdoc}
      */
     public function dropSchema(Schema $dropSchema)
     {
@@ -185,13 +167,10 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     }
 
     /**
-     * Drop all assets from the underlying db.
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function dropAllSchema()
     {
         $this->processSql($this->getDropAllSchema());
     }
 }
-

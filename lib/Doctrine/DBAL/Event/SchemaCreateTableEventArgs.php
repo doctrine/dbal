@@ -15,42 +15,41 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Event Arguments used when SQL queries for creating tables are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.com
- * @since       2.2
- * @author      Jan Sorgalla <jsorgalla@googlemail.com>
+ * @link   www.doctrine-project.org
+ * @since  2.2
+ * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaCreateTableEventArgs extends SchemaEventArgs
 {
     /**
      * @var \Doctrine\DBAL\Schema\Table
      */
-    private $_table = null;
+    private $_table;
 
     /**
      * @var array
      */
-    private $_columns = null;
+    private $_columns;
 
     /**
      * @var array
      */
-    private $_options = null;
+    private $_options;
 
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    private $_platform = null;
+    private $_platform;
 
     /**
      * @var array
@@ -58,9 +57,9 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
     private $_sql = array();
 
     /**
-     * @param \Doctrine\DBAL\Schema\Table $table
-     * @param array $columns
-     * @param array $options
+     * @param \Doctrine\DBAL\Schema\Table               $table
+     * @param array                                     $columns
+     * @param array                                     $options
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct(Table $table, array $columns, array $options, AbstractPlatform $platform)
@@ -105,6 +104,7 @@ class SchemaCreateTableEventArgs extends SchemaEventArgs
 
     /**
      * @param string|array $sql
+     *
      * @return \Doctrine\DBAL\Event\SchemaCreateTableEventArgs
      */
     public function addSql($sql)

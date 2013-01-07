@@ -1,14 +1,39 @@
 <?php
+/*
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * This software consists of voluntary contributions made by many individuals
+ * and is licensed under the MIT license. For more information, see
+ * <http://www.doctrine-project.org>.
+ */
 
 namespace Doctrine\DBAL;
 
 class DBALException extends \Exception
 {
+    /**
+     * @param string $method
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function notSupported($method)
     {
         return new self("Operation '$method' is not supported by platform.");
     }
 
+    /**
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function invalidPlatformSpecified()
     {
         return new self(
@@ -16,6 +41,9 @@ class DBALException extends \Exception
             "\Doctrine\DBAL\Platforms\AbstractPlatform.");
     }
 
+    /**
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function invalidPdoInstance()
     {
         return new self(
@@ -24,18 +52,34 @@ class DBALException extends \Exception
         );
     }
 
+    /**
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function driverRequired()
     {
         return new self("The options 'driver' or 'driverClass' are mandatory if no PDO ".
             "instance is given to DriverManager::getConnection().");
     }
 
+    /**
+     * @param string $unknownDriverName
+     * @param array  $knownDrivers
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function unknownDriver($unknownDriverName, array $knownDrivers)
     {
         return new self("The given 'driver' ".$unknownDriverName." is unknown, ".
             "Doctrine currently supports only the following drivers: ".implode(", ", $knownDrivers));
     }
 
+    /**
+     * @param \Exception $driverEx
+     * @param string     $sql
+     * @param array      $params
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function driverExceptionDuringQuery(\Exception $driverEx, $sql, array $params = array())
     {
         $msg = "An exception occurred while executing '".$sql."'";
@@ -69,12 +113,22 @@ class DBALException extends \Exception
         }, $params)) . ']';
     }
 
+    /**
+     * @param string $wrapperClass
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function invalidWrapperClass($wrapperClass)
     {
         return new self("The given 'wrapperClass' ".$wrapperClass." has to be a ".
             "subtype of \Doctrine\DBAL\Connection.");
     }
 
+    /**
+     * @param string $driverClass
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function invalidDriverClass($driverClass)
     {
         return new self("The given 'driverClass' ".$driverClass." has to implement the ".
@@ -83,7 +137,8 @@ class DBALException extends \Exception
 
     /**
      * @param string $tableName
-     * @return DBALException
+     *
+     * @return \Doctrine\DBAL\DBALException
      */
     public static function invalidTableName($tableName)
     {
@@ -92,23 +147,37 @@ class DBALException extends \Exception
 
     /**
      * @param string $tableName
-     * @return DBALException
+     *
+     * @return \Doctrine\DBAL\DBALException
      */
     public static function noColumnsSpecifiedForTable($tableName)
     {
         return new self("No columns specified for table ".$tableName);
     }
 
+    /**
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function limitOffsetInvalid()
     {
         return new self("Invalid Offset in Limit Query, it has to be larger or equal to 0.");
     }
 
+    /**
+     * @param string $name
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function typeExists($name)
     {
         return new self('Type '.$name.' already exists.');
     }
 
+    /**
+     * @param string $name
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function unknownColumnType($name)
     {
         return new self('Unknown column type "'.$name.'" requested. Any Doctrine type that you use has ' .
@@ -121,6 +190,11 @@ class DBALException extends \Exception
         );
     }
 
+    /**
+     * @param string $name
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
     public static function typeNotFound($name)
     {
         return new self('Type to be overwritten '.$name.' does not exist.');

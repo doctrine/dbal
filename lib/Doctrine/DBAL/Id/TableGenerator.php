@@ -79,8 +79,10 @@ class TableGenerator
     private $sequences = array();
 
     /**
-     * @param Connection $conn
-     * @param string $generatorTableName
+     * @param \Doctrine\DBAL\Connection $conn
+     * @param string                    $generatorTableName
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function __construct(Connection $conn, $generatorTableName = 'sequences')
     {
@@ -93,10 +95,13 @@ class TableGenerator
     }
 
     /**
-     * Generate the next unused value for the given sequence name
+     * Generates the next unused value for the given sequence name.
      *
-     * @param string
-     * @return int
+     * @param string $sequenceName
+     *
+     * @return integer
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function nextValue($sequenceName)
     {
@@ -106,6 +111,7 @@ class TableGenerator
             if ($this->sequences[$sequenceName]['value'] >= $this->sequences[$sequenceName]['max']) {
                 unset ($this->sequences[$sequenceName]);
             }
+
             return $value;
         }
 
@@ -157,4 +163,3 @@ class TableGenerator
         return $value;
     }
 }
-

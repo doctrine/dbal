@@ -19,17 +19,16 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * PostgreSqlPlatform.
  *
- * @since 2.0
+ * @since  2.0
  * @author Roman Borschel <roman@code-factory.org>
  * @author Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @todo Rename: PostgreSQLPlatform
+ * @todo   Rename: PostgreSQLPlatform
  */
 class PostgreSqlPlatform extends AbstractPlatform
 {
@@ -181,11 +180,17 @@ class PostgreSqlPlatform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListDatabasesSQL()
     {
         return 'SELECT datname FROM pg_database';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListSequencesSQL($database)
     {
         return "SELECT
@@ -196,6 +201,9 @@ class PostgreSqlPlatform extends AbstractPlatform
                     (n.nspname NOT LIKE 'pg_%' AND n.nspname != 'information_schema')";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTablesSQL()
     {
         return "SELECT tablename AS table_name, schemaname AS schema_name
@@ -210,6 +218,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         return 'SELECT viewname, definition FROM pg_views';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
         return "SELECT r.conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
@@ -223,16 +234,25 @@ class PostgreSqlPlatform extends AbstractPlatform
                   AND r.contype = 'f'";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getCreateViewSQL($name, $sql)
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getDropViewSQL($name)
     {
         return 'DROP VIEW '. $name;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableConstraintsSQL($table)
     {
         return "SELECT
@@ -287,6 +307,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $whereClause;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableColumnsSQL($table, $database = null)
     {
         return "SELECT
@@ -573,6 +596,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $item;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getSequenceNextValSQL($sequenceName)
     {
         return "SELECT NEXTVAL('" . $sequenceName . "')";

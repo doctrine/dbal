@@ -25,11 +25,10 @@ namespace Doctrine\DBAL\Driver;
  *
  * This resembles (a subset of) the PDOStatement interface.
  *
- * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author      Roman Borschel <roman@code-factory.org>
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.org
- * @since       2.0
+ * @author Konsta Vesterinen <kvesteri@cc.hut.fi>
+ * @author Roman Borschel <roman@code-factory.org>
+ * @link   www.doctrine-project.org
+ * @since  2.0
  */
 interface Statement extends ResultStatement
 {
@@ -37,14 +36,13 @@ interface Statement extends ResultStatement
      * Binds a value to a corresponding named or positional
      * placeholder in the SQL statement that was used to prepare the statement.
      *
-     * @param mixed $param          Parameter identifier. For a prepared statement using named placeholders,
-     *                              this will be a parameter name of the form :name. For a prepared statement
-     *                              using question mark placeholders, this will be the 1-indexed position of the parameter
+     * @param mixed   $param Parameter identifier. For a prepared statement using named placeholders,
+     *                       this will be a parameter name of the form :name. For a prepared statement
+     *                       using question mark placeholders, this will be the 1-indexed position of the parameter.
+     * @param mixed   $value The value to bind to the parameter.
+     * @param integer $type  Explicit data type for the parameter using the PDO::PARAM_* constants.
      *
-     * @param mixed $value          The value to bind to the parameter.
-     * @param integer $type         Explicit data type for the parameter using the PDO::PARAM_* constants.
-     *
-     * @return boolean              Returns TRUE on success or FALSE on failure.
+     * @return boolean TRUE on success or FALSE on failure.
      */
     function bindValue($param, $value, $type = null);
 
@@ -59,35 +57,35 @@ interface Statement extends ResultStatement
      * of stored procedures that return data as output parameters, and some also as input/output
      * parameters that both send in data and are updated to receive it.
      *
-     * @param mixed $column         Parameter identifier. For a prepared statement using named placeholders,
-     *                              this will be a parameter name of the form :name. For a prepared statement
-     *                              using question mark placeholders, this will be the 1-indexed position of the parameter
+     * @param mixed        $column   Parameter identifier. For a prepared statement using named placeholders,
+     *                               this will be a parameter name of the form :name. For a prepared statement using
+     *                               question mark placeholders, this will be the 1-indexed position of the parameter.
+     * @param mixed        $variable Name of the PHP variable to bind to the SQL statement parameter.
+     * @param integer|null $type     Explicit data type for the parameter using the PDO::PARAM_* constants. To return
+     *                               an INOUT parameter from a stored procedure, use the bitwise OR operator to set the
+     *                               PDO::PARAM_INPUT_OUTPUT bits for the data_type parameter.
+     * @param integer|null $length   You must specify maxlength when using an OUT bind
+     *                               so that PHP allocates enough memory to hold the returned value.
      *
-     * @param mixed $variable       Name of the PHP variable to bind to the SQL statement parameter.
-     *
-     * @param integer $type         Explicit data type for the parameter using the PDO::PARAM_* constants. To return
-     *                              an INOUT parameter from a stored procedure, use the bitwise OR operator to set the
-     *                              PDO::PARAM_INPUT_OUTPUT bits for the data_type parameter.
-     * @param integer $length		You must specify maxlength when using an OUT bind so that PHP allocates enough memory to hold the returned value.
-     * @return boolean              Returns TRUE on success or FALSE on failure.
+     * @return boolean TRUE on success or FALSE on failure.
      */
     function bindParam($column, &$variable, $type = null, $length = null);
 
     /**
-     * errorCode
-     * Fetch the SQLSTATE associated with the last operation on the statement handle
+     * Fetches the SQLSTATE associated with the last operation on the statement handle.
      *
      * @see Doctrine_Adapter_Interface::errorCode()
-     * @return string       error code string
+     *
+     * @return string The error code string.
      */
     function errorCode();
 
     /**
-     * errorInfo
-     * Fetch extended error information associated with the last operation on the statement handle
+     * Fetches extended error information associated with the last operation on the statement handle.
      *
      * @see Doctrine_Adapter_Interface::errorInfo()
-     * @return array        error info array
+     *
+     * @return array The error info array.
      */
     function errorInfo();
 
@@ -98,18 +96,18 @@ interface Statement extends ResultStatement
      * call PDOStatement->bindParam() to bind PHP variables to the parameter markers:
      * bound variables pass their value as input and receive the output value,
      * if any, of their associated parameter markers or pass an array of input-only
-     * parameter values
+     * parameter values.
      *
      *
-     * @param array $params             An array of values with as many elements as there are
-     *                                  bound parameters in the SQL statement being executed.
-     * @return boolean                  Returns TRUE on success or FALSE on failure.
+     * @param array|null $params An array of values with as many elements as there are
+     *                           bound parameters in the SQL statement being executed.
+     *
+     * @return boolean TRUE on success or FALSE on failure.
      */
     function execute($params = null);
 
     /**
-     * rowCount
-     * rowCount() returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
+     * Returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
      * executed by the corresponding object.
      *
      * If the last SQL statement executed by the associated Statement object was a SELECT statement,
@@ -117,7 +115,7 @@ interface Statement extends ResultStatement
      * this behaviour is not guaranteed for all databases and should not be
      * relied on for portable applications.
      *
-     * @return integer                      Returns the number of rows.
+     * @return integer The number of rows.
      */
     function rowCount();
 }

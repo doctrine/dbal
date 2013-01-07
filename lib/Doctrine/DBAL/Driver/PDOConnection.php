@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -21,7 +19,7 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use \PDO;
+use PDO;
 
 /**
  * PDO implementation of the Connection interface.
@@ -31,6 +29,12 @@ use \PDO;
  */
 class PDOConnection extends PDO implements Connection
 {
+    /**
+     * @param string      $dsn
+     * @param string|null $user
+     * @param string|null $password
+     * @param array|null  $options
+     */
     public function __construct($dsn, $user = null, $password = null, array $options = null)
     {
         parent::__construct($dsn, $user, $password, $options);

@@ -32,7 +32,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class ForeignKeyConstraint extends AbstractAsset implements Constraint
 {
     /**
-     * @var Table Instance of the referencing table the foreign key constraint is associated with.
+     * Instance of the referencing table the foreign key constraint is associated with.
+     *
+     * @var \Doctrine\DBAL\Schema\Table
      */
     protected $_localTable;
 
@@ -110,7 +112,9 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      * Sets the Table instance of the referencing table
      * the foreign key constraint is associated with.
      *
-     * @param Table $table Instance of the referencing table.
+     * @param \Doctrine\DBAL\Schema\Table $table Instance of the referencing table.
+     *
+     * @return void
      */
     public function setLocalTable(Table $table)
     {
@@ -160,12 +164,9 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     }
 
     /**
-     * Returns the names of the referencing table columns
-     * the foreign key constraint is associated with.
+     * {@inheritdoc}
      *
      * @see getLocalColumns
-     *
-     * @return array
      */
     public function getColumns()
     {
@@ -203,7 +204,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     }
 
     /**
-     * Return the non-schema qualified foreign table name.
+     * Returns the non-schema qualified foreign table name.
      *
      * @return string
      */
@@ -342,3 +343,4 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         return false;
     }
 }
+

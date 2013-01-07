@@ -22,13 +22,16 @@ namespace Doctrine\DBAL\Query;
 use Doctrine\DBAL\DBALException;
 
 /**
- * Driver interface.
- * Interface that all DBAL drivers must implement.
- *
  * @since 2.1.4
  */
 class QueryException extends DBALException
 {
+    /**
+     * @param string $alias
+     * @param array  $registeredAliases
+     *
+     * @return \Doctrine\DBAL\Query\QueryException
+     */
     static public function unknownAlias($alias, $registeredAliases)
     {
         return new self("The given alias '" . $alias . "' is not part of " .

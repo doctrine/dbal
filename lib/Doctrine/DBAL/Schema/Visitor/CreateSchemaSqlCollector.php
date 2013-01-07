@@ -19,12 +19,10 @@
 
 namespace Doctrine\DBAL\Schema\Visitor;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\Table,
-    Doctrine\DBAL\Schema\Schema,
-    Doctrine\DBAL\Schema\ForeignKeyConstraint,
-    Doctrine\DBAL\Schema\Constraint,
-    Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Sequence;
 
 class CreateSchemaSqlCollector extends AbstractVisitor
 {
@@ -58,9 +56,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * Generate DDL Statements to create the accepted table with all its dependencies.
-     *
-     * @param Table $table
+     * {@inheritdoc}
      */
     public function acceptTable(Table $table)
     {
@@ -73,8 +69,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @param Table $localTable
-     * @param ForeignKeyConstraint $fkConstraint
+     * {@inheritdoc}
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
@@ -91,7 +86,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @param Sequence $sequence
+     * {@inheritdoc}
      */
     public function acceptSequence(Sequence $sequence)
     {
@@ -103,6 +98,11 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         );
     }
 
+    /**
+     * @param \Doctrine\DBAL\Schema\AbstractAsset $asset
+     *
+     * @return string
+     */
     private function getNamespace($asset)
     {
         $namespace = $asset->getNamespaceName() ?: 'default';
@@ -116,7 +116,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * @return array
+     * @return void
      */
     public function resetQueries()
     {
@@ -126,7 +126,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
-     * Get all queries collected so far.
+     * Gets all queries collected so far.
      *
      * @return array
      */
