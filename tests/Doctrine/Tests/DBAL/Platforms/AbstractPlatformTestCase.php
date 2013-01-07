@@ -10,7 +10,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 {
     /**
-     * @var Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     protected $_platform;
 
@@ -154,6 +154,21 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name'), 'foreign', array('id'), 'constraint_fk');
         $sql = $this->_platform->getCreateConstraintSQL($fk, 'test');
         $this->assertEquals($this->getGenerateConstraintForeignKeySql(), $sql);
+    }
+
+    public function testGeneratesForeignKeySqlOnlyWhenSupportingForeignKeys()
+    {
+        $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name'), 'foreign', array('id'), 'constraint_fk');
+
+        if ($this->_platform->supportsForeignKeyConstraints()) {
+            $this->assertInternalType(
+                'string',
+                $this->_platform->getCreateForeignKeySQL($fk, 'test')
+            );
+        } else {
+            $this->setExpectedException('Doctrine\DBAL\DBALException');
+            $this->_platform->getCreateForeignKeySQL($fk, 'test');
+        }
     }
 
     protected function getBitAndComparisonExpressionSql($value1, $value2)
