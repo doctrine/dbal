@@ -47,4 +47,21 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertFalse($diff, "no changes expected.");
     }
+
+    public function testFulltextIndex()
+    {
+        $table = new Table('fulltext_index');
+        $table->addColumn('text', 'text');
+        $table->addIndex(array('text'), 'f_index');
+        $table->addOption('engine', 'MyISAM');
+
+        $index = $table->getIndex('f_index');
+        $index->addFlag('fulltext');
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $indexes = $this->_sm->listTableIndexes('fulltext_index');
+        $this->assertArrayHasKey('f_index', $indexes);
+        $this->assertTrue($indexes['f_index']->hasFlag('fulltext'));
+    }
 }
