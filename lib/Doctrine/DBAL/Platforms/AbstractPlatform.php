@@ -1193,26 +1193,14 @@ abstract class AbstractPlatform
                 }
             }
 
-            $columnData = array();
+            $columnData = $column->toArray();
             $columnData['name'] = $column->getQuotedName($this);
-            $columnData['type'] = $column->getType();
-            $columnData['length'] = $column->getLength();
-            $columnData['notnull'] = $column->getNotNull();
-            $columnData['fixed'] = $column->getFixed();
-            $columnData['unique'] = false; // TODO: what do we do about this?
             $columnData['version'] = $column->hasPlatformOption("version") ? $column->getPlatformOption('version') : false;
+            $columnData['comment'] = $this->getColumnComment($column);
 
             if (strtolower($columnData['type']) == "string" && $columnData['length'] === null) {
                 $columnData['length'] = 255;
             }
-
-            $columnData['unsigned'] = $column->getUnsigned();
-            $columnData['precision'] = $column->getPrecision();
-            $columnData['scale'] = $column->getScale();
-            $columnData['default'] = $column->getDefault();
-            $columnData['columnDefinition'] = $column->getColumnDefinition();
-            $columnData['autoincrement'] = $column->getAutoincrement();
-            $columnData['comment'] = $this->getColumnComment($column);
 
             if (in_array($column->getName(), $options['primary'])) {
                 $columnData['primary'] = true;
