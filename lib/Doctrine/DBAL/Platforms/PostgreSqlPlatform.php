@@ -722,6 +722,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             '_varchar'      => 'string',
             'char'          => 'string',
             'bpchar'        => 'string',
+            'inet'          => 'string',
             'date'          => 'date',
             'datetime'      => 'datetime',
             'timestamp'     => 'datetime',
