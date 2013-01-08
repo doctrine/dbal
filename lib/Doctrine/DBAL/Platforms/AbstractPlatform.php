@@ -1893,17 +1893,11 @@ abstract class AbstractPlatform
      */
     public function getIndexDeclarationSQL($name, Index $index)
     {
-        $type = '';
-
-        if ($index->isUnique()) {
-            $type = 'UNIQUE ';
-        }
-
         if (count($index->getColumns()) === 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return $type . 'INDEX ' . $name . ' ('
+        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ('
              . $this->getIndexFieldDeclarationListSQL($index->getColumns())
              . ')';
     }

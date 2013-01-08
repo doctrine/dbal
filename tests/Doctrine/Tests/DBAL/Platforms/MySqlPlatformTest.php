@@ -240,4 +240,18 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE `quoted` (`key` VARCHAR(255) NOT NULL, INDEX IDX_22660D028A90ABA9 (`key`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
         );
     }
+
+    public function testCreateTableWithFulltextIndex()
+    {
+        $table = new Table('fulltext_table');
+        $table->addOption('engine', 'MyISAM');
+        $table->addColumn('text', 'text');
+        $table->addIndex(array('text'), 'fulltext_text');
+
+        $index = $table->getIndex('fulltext_text');
+        $index->addFlag('fulltext');
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals(array('CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (text)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
+    }
 }
