@@ -1212,6 +1212,7 @@ abstract class AbstractPlatform
             $columnData['default'] = $column->getDefault();
             $columnData['columnDefinition'] = $column->getColumnDefinition();
             $columnData['autoincrement'] = $column->getAutoincrement();
+            $columnData['customSchemaOptions'] = $column->getCustomSchemaOptions();
             $columnData['comment'] = $this->getColumnComment($column);
 
             if (in_array($column->getName(), $options['primary'])) {
