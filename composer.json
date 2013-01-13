@@ -13,7 +13,13 @@
     ],
     "require": {
         "php": ">=5.3.2",
-        "doctrine/common": ">=2.3-dev,<2.5-dev"
+        "doctrine/common": "2.4.x-dev"
+    },
+    "require-dev": {
+        "symfony/console": "2.*"
+    },
+    "suggest": {
+        "symfony/console": "For helpful console commands such as SQL execution and import of files."
     },
     "autoload": {
         "psr-0": { "Doctrine\\DBAL\\": "lib/" }

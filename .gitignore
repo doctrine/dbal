@@ -4,3 +4,4 @@ reports/
 dist/
 download/
 lib/Doctrine/Common/
+vendor/
