@@ -669,12 +669,16 @@ class PostgreSqlPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * @return array The format strings enabled in postgresql.
      */
-    public function getDateTimeFormatString()
+    public function formatDateTime($value)
     {
-        return array('Y-m-d H:i:s.u', 'Y-m-d H:i:s');
+        foreach (array('Y-m-d H:i:s.u', 'Y-m-d H:i:s') as $dateTimeFormatString) {
+            $val = \DateTime::createFromFormat($dateTimeFormatString, $value);
+
+            if ($val instanceof \DateTime) {
+                return $val;
+            }
+        }
     }
 
     /**
