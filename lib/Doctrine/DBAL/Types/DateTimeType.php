@@ -50,10 +50,22 @@ class DateTimeType extends Type
             return $value;
         }
 
-        $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
-        if ( ! $val) {
+        if (is_array($platform->getDateTimeFormatString())) {
+            foreach ($platform->getDateTimeFormatString() as $dateTimeFormatString) {
+                $val = \DateTime::createFromFormat($dateTimeFormatString, $value);
+
+                if ($val instanceof \DateTime) {
+                    return $val;
+                }
+            }
+        } else {
+            $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
+        }
+
+        if (!$val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString());
         }
+
         return $val;
     }
 }

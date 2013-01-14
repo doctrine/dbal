@@ -465,6 +465,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ($sequence instanceof \Doctrine\DBAL\Schema\Sequence) {
             $sequence = $sequence->getQuotedName($this);
         }
+
         return 'DROP SEQUENCE ' . $sequence;
     }
 
@@ -571,6 +572,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ( ! empty($field['autoincrement'])) {
             return 'BIGSERIAL';
         }
+
         return 'BIGINT';
     }
 
@@ -663,6 +665,16 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getSQLResultCasing($column)
     {
         return strtolower($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array The format strings enabled in postgresql.
+     */
+    public function getDateTimeFormatString()
+    {
+        return array('Y-m-d H:i:s.u', 'Y-m-d H:i:s');
     }
 
     /**
