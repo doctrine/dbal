@@ -687,12 +687,12 @@ class SQLServerPlatform extends AbstractPlatform
 
                 // Remove ORDER BY clause from $query
                 $query = preg_replace('/\s+ORDER BY(.*)/', '', $query);
-                $query = preg_replace('/^SELECT\s/', '', $query);
+                $query = preg_replace('/\sFROM/i', ", ROW_NUMBER() OVER ($over) AS doctrine_rownum FROM", $query);
 
                 $start = $offset + 1;
                 $end = $offset + $limit;
 
-                $query = "SELECT * FROM (SELECT ROW_NUMBER() OVER ($over) AS doctrine_rownum, $query) AS doctrine_tbl WHERE doctrine_rownum BETWEEN $start AND $end";
+                $query = "SELECT * FROM ($query) AS doctrine_tbl WHERE doctrine_rownum BETWEEN $start AND $end";
             }
         }
 
