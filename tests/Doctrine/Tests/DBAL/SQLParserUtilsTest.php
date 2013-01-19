@@ -28,6 +28,13 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array("SELECT '?' FROM foo", true, array()),
             array('SELECT "?" FROM foo WHERE bar = ?', true, array(32)),
             array("SELECT '?' FROM foo WHERE bar = ?", true, array(32)),
+            array(
+<<<'SQLDATA'
+SELECT * FROM foo WHERE bar = 'it\'s a trap? \\' OR bar = ?
+AND baz = "\"quote\" me on it? \\" OR baz = ?
+SQLDATA
+                , true, array(58, 104)
+            ),
 
             // named
             array('SELECT :foo FROM :bar', false, array(7 => 'foo', 17 => 'bar')),
@@ -37,6 +44,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT :foo_id', false, array(7 => 'foo_id')), // Ticket DBAL-231
             array('SELECT @rank := 1', false, array()), // Ticket DBAL-398
             array('SELECT @rank := 1 AS rank, :foo AS foo FROM :bar', false, array(27 => 'foo', 44 => 'bar')), // Ticket DBAL-398
+            array('SELECT * FROM Foo WHERE bar > :start_date AND baz > :start_date', false, array(30 => 'start_date', 52 =>  'start_date')) // Ticket GH-113
         );
     }
 
