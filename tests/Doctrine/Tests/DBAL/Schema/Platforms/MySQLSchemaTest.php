@@ -42,8 +42,8 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             array(
-                'ALTER TABLE test DROP PRIMARY KEY',
-                'ALTER TABLE test ADD PRIMARY KEY (bar_id, foo_id)'
+                'ALTER TABLE `test` DROP PRIMARY KEY',
+                'ALTER TABLE `test` ADD PRIMARY KEY (`bar_id`, `foo_id`)'
             ), $sql
         );
     }
@@ -81,7 +81,7 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
         $sql = $this->platform->getAlterTableSQL($diff);
 
         $this->assertEquals(
-            array('ALTER TABLE test ADD PRIMARY KEY (id)'),
+            array('ALTER TABLE `test` ADD PRIMARY KEY (`id`)'),
             $sql
         );
     }

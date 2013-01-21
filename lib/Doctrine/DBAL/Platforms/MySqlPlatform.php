@@ -408,7 +408,7 @@ class MySqlPlatform extends AbstractPlatform
         $columnSql = array();
         $queryParts = array();
         if ($diff->newName !== false) {
-            $queryParts[] = 'RENAME TO ' . $diff->newName;
+            $queryParts[] = 'RENAME TO ' . $this->quoteSingleIdentifier($diff->newName);
         }
 
         foreach ($diff->addedColumns as $column) {
@@ -438,7 +438,7 @@ class MySqlPlatform extends AbstractPlatform
             $column = $columnDiff->column;
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[] =  'CHANGE ' . ($columnDiff->oldColumnName) . ' '
+            $queryParts[] =  'CHANGE ' . $this->quoteSingleIdentifier($columnDiff->oldColumnName) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
@@ -458,7 +458,7 @@ class MySqlPlatform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
+                $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' ' . implode(", ", $queryParts);
             }
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
@@ -489,8 +489,8 @@ class MySqlPlatform extends AbstractPlatform
                         $type = 'UNIQUE ';
                     }
 
-                    $query = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
-                    $query .= 'ADD ' . $type . 'INDEX ' . $addIndex->getName();
+                    $query = 'ALTER TABLE ' . $this->quoteSingleIdentifier($table) . ' DROP INDEX ' . $this->quoteSingleIdentifier($remIndex->getName()) . ', ';
+                    $query .= 'ADD ' . $type . 'INDEX ' . $this->quoteSingleIdentifier($addIndex->getName());
                     $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
 
                     $sql[] = $query;
@@ -599,7 +599,7 @@ class MySqlPlatform extends AbstractPlatform
             return $this->getDropPrimaryKeySQL($table);
         }
 
-        return 'DROP INDEX ' . $indexName . ' ON ' . $table;
+        return 'DROP INDEX ' . $indexName . ' ON ' . $this->quoteSingleIdentifier($table);
     }
 
     /**
@@ -609,7 +609,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     protected function getDropPrimaryKeySQL($table)
     {
-        return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
+        return 'ALTER TABLE ' . $this->quoteSingleIdentifier($table) . ' DROP PRIMARY KEY';
     }
 
     /**

@@ -1393,7 +1393,7 @@ abstract class AbstractPlatform
             return $this->getCreatePrimaryKeySQL($index, $table);
         }
 
-        $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
+        $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $this->quoteSingleIdentifier($table);
         $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
 
         return $query;
@@ -1421,7 +1421,7 @@ abstract class AbstractPlatform
      */
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index->getColumns()) . ')';
+        return 'ALTER TABLE ' . $this->quoteSingleIdentifier($table) . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index->getColumns()) . ')';
     }
 
     /**
@@ -1932,9 +1932,9 @@ abstract class AbstractPlatform
 
         foreach ($fields as $field => $definition) {
             if (is_array($definition)) {
-                $ret[] = $field;
+                $ret[] = $this->quoteSingleIdentifier($field);
             } else {
-                $ret[] = $definition;
+                $ret[] = $this->quoteSingleIdentifier($definition);
             }
         }
 
