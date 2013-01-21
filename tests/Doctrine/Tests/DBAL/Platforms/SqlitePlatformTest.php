@@ -27,7 +27,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
-            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
+            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON "test" ("foo", "bar")',
         );
     }
 
@@ -101,12 +101,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql()
     {
-        return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
+        return 'CREATE INDEX my_idx ON "mytable" ("user_name", "last_login")';
     }
 
     public function getGenerateUniqueIndexSql()
     {
-        return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
+        return 'CREATE UNIQUE INDEX index_name ON "test" ("test", "test2")';
     }
 
     /**
@@ -225,9 +225,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
                 . ', CONSTRAINT FK_8D93D6495A8A6C8D FOREIGN KEY (post) REFERENCES post (id) NOT DEFERRABLE INITIALLY DEFERRED'
                 . ', CONSTRAINT FK_8D93D6493D8E604F FOREIGN KEY (parent) REFERENCES user (id) DEFERRABLE INITIALLY DEFERRED'
                 . ')',
-            'CREATE INDEX IDX_8D93D64923A0E66 ON user (article)',
-            'CREATE INDEX IDX_8D93D6495A8A6C8D ON user (post)',
-            'CREATE INDEX IDX_8D93D6493D8E604F ON user (parent)',
+            'CREATE INDEX IDX_8D93D64923A0E66 ON "user" ("article")',
+            'CREATE INDEX IDX_8D93D6495A8A6C8D ON "user" ("post")',
+            'CREATE INDEX IDX_8D93D6493D8E604F ON "user" ("parent")',
         );
 
         $this->assertEquals($sql, $this->_platform->getCreateTableSQL($table));
@@ -270,8 +270,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'INSERT INTO user ("key", article, comment) SELECT id, article, post FROM __temp__user',
             'DROP TABLE __temp__user',
             'ALTER TABLE user RENAME TO client',
-            'CREATE INDEX IDX_8D93D64923A0E66 ON client (article)',
-            'CREATE INDEX IDX_8D93D6495A8A6C8D ON client (comment)',
+            'CREATE INDEX IDX_8D93D64923A0E66 ON "client" ("article")',
+            'CREATE INDEX IDX_8D93D6495A8A6C8D ON "client" ("comment")',
         );
 
         $this->assertEquals($sql, $this->_platform->getAlterTableSQL($diff));
