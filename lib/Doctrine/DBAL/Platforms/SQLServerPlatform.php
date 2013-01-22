@@ -674,27 +674,25 @@ class SQLServerPlatform extends AbstractPlatform
         if ($limit > 0) {
             $orderby = stristr($query, 'ORDER BY');
             //Remove ORDER BY from $query
-            $query = preg_replace('/\s*ORDER\s*BY([^\)]*)/', '', $query);
+            $query = preg_replace('/\s+ORDER\s+BY\s+([^\)]*)/', '', $query);
             $over = 'ORDER BY';
 
             if ( ! $orderby) {
                 $over .= ' (SELECT 0)';
             } else {
                 //Clear ORDER BY
-                $orderby = preg_replace('/ORDER BY\s?([^\)]*)(.*)/', '$1', $orderby);
+                $orderby = preg_replace('/ORDER\s+BY\s+([^\)]*)(.*)/', '$1', $orderby);
                 $orderbyParts = explode(',', $orderby);
                 $orderbyColumns = array();
 
                 //Split ORDER BY into parts
                 foreach ($orderbyParts as &$part) {
                     $part = trim($part);
-                    if (preg_match('/([^\s]*\.)?([^\.\s]*)\s*(ASC|DESC)?/i', $part, $matches)) {
+                    if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', $part, $matches)) {
                         $orderbyColumns[] = array(
-                            'table' => empty($matches[1])
-                                ? '[^\.\s]*'
-                                : rtrim($matches[1], '.'),
-                            'column' => $matches[2],
-                            'sort' => isset($matches[3]) ? $matches[3] : null
+                            'table' => empty($matches[2]) ? '[^\.\s]*' : $matches[2],
+                            'column' => $matches[3],
+                            'sort' => isset($matches[4]) ? $matches[4] : null
                         );
                     }
                 }
@@ -702,7 +700,7 @@ class SQLServerPlatform extends AbstractPlatform
                 //Find alias for each colum used in ORDER BY
                 if (count($orderbyColumns)) {
                     foreach ($orderbyColumns as $column) {
-                        if (preg_match('/' . $column['table'] . '\.(' . $column['column'] . ')\s?(AS)?\s?([^,\s\)]*)/i', $query, $matches)) {
+                        if (preg_match('/' . $column['table'] . '\.(' . $column['column'] . ')\s*(AS)?\s*([^,\s\)]*)/i', $query, $matches)) {
                             $over .= ' ' . $matches[3];
                             $over .= isset($column['sort']) ? ' ' . $column['sort'] . ',' : ',';
                         } else {
