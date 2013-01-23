@@ -1,0 +1,37 @@
+Supporting Other Databases
+==========================
+
+To support a database which is not currently shipped with Doctrine
+you have to implement the following interfaces and abstract
+classes:
+
+
+-  ``\Doctrine\DBAL\Driver\Driver``
+-  ``\Doctrine\DBAL\Driver\Statement``
+-  ``\Doctrine\DBAL\Platforms\AbstractPlatform``
+-  ``\Doctrine\DBAL\Schema\AbstractSchemaManager``
+
+For an already supported platform but unsupported driver you only
+need to implement the first two interfaces, since the SQL
+Generation and Schema Management is already supported by the
+respective platform and schema instances. You can also make use of
+several Abstract Unittests in the ``\Doctrine\Tests\DBAL`` package
+to check if your platform behaves like all the others which is
+necessary for SchemaTool support, namely:
+
+
+-  ``\Doctrine\Tests\DBAL\Platforms\AbstractPlatformTestCase``
+-  ``\Doctrine\Tests\DBAL\Functional\Schema\AbstractSchemaManagerTestCase``
+
+We would be very happy if any support for new databases would be
+contributed back to Doctrine to make it an even better product.
+
+Implementation Steps in Detail
+------------------------------
+
+1. Add your driver shortcut to class-name `Doctrine\DBAL\DriverManager`.
+2. Make a copy of tests/dbproperties.xml.dev and adjust the values to your driver shortcut and testdatabase.
+3. Create three new classes implementing ``\Doctrine\DBAL\Driver\Driver``, ``\Doctrine\DBAL\Driver\Statement``
+   and ``Doctrine\DBAL\Driver``. You can take a look at the ``Doctrine\DBAL\Driver\OCI8`` driver.
+4. You can run the testsuite of your new database driver by calling "cd tests/ && phpunit -c myconfig.xml Doctrine/Tess/AllTests.php"
+5. Start implementing AbstractPlatform and AbstractSchemaManager. Other implementations should serve as good example.
