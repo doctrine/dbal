@@ -1000,7 +1000,7 @@ abstract class AbstractPlatform
     /**
      * Get the sql snippet to append to any SELECT statement which locks rows in shared read lock.
      *
-     * This defaults to the ASNI SQL "FOR UPDATE", which is an exclusive lock (Write). Some database
+     * This defaults to the ANSI SQL "FOR UPDATE", which is an exclusive lock (Write). Some database
      * vendors allow to lighten this constraint up to be a real read lock.
      *
      * @return string
@@ -1013,7 +1013,7 @@ abstract class AbstractPlatform
     /**
      * Get the SQL snippet to append to any SELECT statement which obtains an exclusive lock on the rows.
      *
-     * The semantics of this lock mode should equal the SELECT .. FOR UPDATE of the ASNI SQL standard.
+     * The semantics of this lock mode should equal the SELECT .. FOR UPDATE of the ANSI SQL standard.
      *
      * @return string
      */
