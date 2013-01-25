@@ -34,6 +34,7 @@ use Doctrine\DBAL\Schema\Table;
  * @author Roman Borschel <roman@code-factory.org>
  * @author Jonathan H. Wage <jonwage@gmail.com>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Steve Müller <st.mueller@dzh-online.de>
  */
 class SQLServerPlatform extends AbstractPlatform
 {
@@ -845,16 +846,19 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function appendLockHint($fromClause, $lockMode)
     {
-        // @todo correct
+        $tableHint = '';
+
+        if ($lockMode == \Doctrine\DBAL\LockMode::NONE) {
+            $tableHint = ' WITH (READUNCOMMITTED)'; // equivalent to NOLOCK
+        }
         if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_READ) {
-            return $fromClause . ' WITH (tablockx)';
+            $tableHint = ' WITH (READCOMMITTED)';
         }
-
         if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) {
-            return $fromClause . ' WITH (tablockx)';
+            $tableHint = ' WITH (SERIALIZABLE)'; // equivalent to HOLDLOCK
         }
 
-        return $fromClause;
+        return $fromClause . $tableHint;
     }
 
     /**
