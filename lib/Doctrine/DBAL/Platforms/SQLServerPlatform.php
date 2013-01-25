@@ -468,7 +468,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getGuidExpression()
     {
-        return 'UUID()';
+        return 'NEWID()';
     }
 
     /**
