@@ -1306,4 +1306,26 @@ class Connection implements DriverConnection
     {
         return new Query\QueryBuilder($this);
     }
+
+    /**
+     * Create a QueryBuilder instance from DQL parts
+     *
+     * @param array $parts
+     *
+     * @return Query\QueryBuilder
+     */
+    public function createQueryBuilderFromParts(array $parts = array())
+    {
+        $queryBuilder = new Query\QueryBuilder($this);
+        foreach ($parts as $name => $part)
+        {
+            if ($part) {
+                if (is_array($part) && $name != 'join') {
+                    $part = current($part);
+                }
+                $queryBuilder->add($name, $part);
+            }
+        }
+        return $queryBuilder;
+    }
 }
