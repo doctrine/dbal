@@ -1314,7 +1314,7 @@ class Connection implements DriverConnection
      *
      * @return Query\QueryBuilder
      */
-    public function createQueryBuilderFromParts(array $parts = array())
+    public function setDQLParts(array $parts = array())
     {
         $queryBuilder = new Query\QueryBuilder($this);
         foreach ($parts as $name => $part)
