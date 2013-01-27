@@ -109,6 +109,14 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function hasNativeGuidType()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getCreateDatabaseSQL($name)
     {
         return 'CREATE DATABASE ' . $name;
