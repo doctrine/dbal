@@ -33,7 +33,7 @@ use Doctrine\DBAL\Connection;
 class SQLParserUtils
 {
     const POSITIONAL_TOKEN = '\?';
-    const NAMED_TOKEN      = ':[a-zA-Z_][a-zA-Z0-9_]*';
+    const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
 
     // Quote characters within string literals can be preceded by a backslash.
     const ESCAPED_SINGLE_QUOTED_TEXT = "'(?:[^'\\\\]|\\\\'|\\\\\\\\)*'";
