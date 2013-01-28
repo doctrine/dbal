@@ -20,6 +20,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -846,19 +847,19 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function appendLockHint($fromClause, $lockMode)
     {
-        $tableHint = '';
-
-        if ($lockMode == \Doctrine\DBAL\LockMode::NONE) {
-            $tableHint = ' WITH (READUNCOMMITTED)'; // equivalent to NOLOCK
-        }
-        if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_READ) {
-            $tableHint = ' WITH (READCOMMITTED)';
-        }
-        if ($lockMode == \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) {
-            $tableHint = ' WITH (SERIALIZABLE)'; // equivalent to HOLDLOCK
+        if ($lockMode == LockMode::NONE) {
+            return $fromClause . ' WITH (READUNCOMMITTED)'; // equivalent to NOLOCK
         }
 
-        return $fromClause . $tableHint;
+        if ($lockMode == LockMode::PESSIMISTIC_READ) {
+            return $fromClause . ' WITH (READCOMMITTED)';
+        }
+
+        if ($lockMode == LockMode::PESSIMISTIC_WRITE) {
+            return $fromClause . ' WITH (SERIALIZABLE)'; // equivalent to HOLDLOCK
+        }
+
+        return $fromClause;
     }
 
     /**
