@@ -28,6 +28,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  * @since       2.0
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      David Coallier <davidc@php.net>
+ * @author      Steve Müller <st.mueller@dzh-online.de>
  */
 class MsSQLKeywords extends KeywordList
 {
@@ -238,6 +239,12 @@ class MsSQLKeywords extends KeywordList
             'GRANT',
             'OPENDATASOURCE',
             'SELECT',
+            'SEMANTICKEYPHRASETABLE',
+            'SEMANTICSIMILARITYDETAILSTABLE',
+            'SEMANTICSIMILARITYTABLE',
+            'TRY_CONVERT',
+            'WITHIN',
+            'SEQUENCE'
         );
     }
 }

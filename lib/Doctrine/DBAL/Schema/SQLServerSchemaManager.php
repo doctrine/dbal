@@ -30,10 +30,19 @@ use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
  * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author      Juozas Kaziukenas <juozas@juokaz.com>
+ * @author      Steve Müller <st.mueller@dzh-online.de>
  * @since       2.0
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
+    /**
+     * {@inheritdoc}
+     */
+    protected function _getPortableSequenceDefinition($sequence)
+    {
+        return new Sequence($sequence['name'], $sequence['increment'], $sequence['start_value']);
+    }
+
     /**
      * @override
      */
