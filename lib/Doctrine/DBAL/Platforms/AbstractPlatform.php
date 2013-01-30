@@ -2573,6 +2573,16 @@ abstract class AbstractPlatform
         return false;
     }
 
+    /**
+     * Does this platform have native guid type.
+     *
+     * @return boolean
+     */
+    public function hasNativeGuidType()
+    {
+        return false;
+    }
+
     public function getIdentityColumnNullInsertSQL()
     {
         return "";
