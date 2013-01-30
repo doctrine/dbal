@@ -114,11 +114,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $this->assertTrue($this->_platform->prefersIdentityColumns());
     }
 
-    public function testDoesNotPreferSequences()
-    {
-        $this->assertFalse($this->_platform->prefersSequences());
-    }
-
     public function testSupportsIdentityColumns()
     {
         $this->assertTrue($this->_platform->supportsIdentityColumns());
@@ -127,11 +122,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function testDoesNotSupportSavePoints()
     {
         $this->assertTrue($this->_platform->supportsSavepoints());
-    }
-
-    public function testSupportsSequences()
-    {
-        $this->assertTrue($this->_platform->supportsSequences());
     }
 
     public function getGenerateIndexSql()
@@ -236,23 +226,6 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
         $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
-    }
-
-    public function testGeneratesSequenceSqlCommands()
-    {
-        $sequence = new \Doctrine\DBAL\Schema\Sequence('myseq', 20, 1);
-        $this->assertEquals(
-            'CREATE SEQUENCE myseq START WITH 1 INCREMENT BY 20 MINVALUE 1',
-            $this->_platform->getCreateSequenceSQL($sequence)
-        );
-        $this->assertEquals(
-            'DROP SEQUENCE myseq',
-            $this->_platform->getDropSequenceSQL('myseq')
-        );
-        $this->assertEquals(
-            "SELECT NEXT VALUE FOR myseq",
-            $this->_platform->getSequenceNextValSQL('myseq')
-        );
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
