@@ -75,7 +75,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
      */
     public function getSequenceNextValSQL($sequenceName)
     {
-        throw 'SELECT NEXT VALUE FOR ' . $sequenceName;
+        return 'SELECT NEXT VALUE FOR ' . $sequenceName;
     }
 
     /**
