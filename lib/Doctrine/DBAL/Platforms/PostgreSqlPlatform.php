@@ -155,6 +155,14 @@ class PostgreSqlPlatform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function hasNativeGuidType()
+    {
+        return true;
+    }
+
     public function getListDatabasesSQL()
     {
         return 'SELECT datname FROM pg_database';

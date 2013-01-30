@@ -38,5 +38,10 @@ class GuidType extends StringType
     {
         return Type::GUID;
     }
+
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return !$platform->hasNativeGuidType();
+    }
 }
 
