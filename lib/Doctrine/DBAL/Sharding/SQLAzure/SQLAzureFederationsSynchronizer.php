@@ -24,7 +24,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 
 use Doctrine\DBAL\Schema\Synchronizer\AbstractSchemaSynchronizer;
-use Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer;
+use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
+use Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer;
 
 /**
  * SQL Azure Schema Synchronizer
@@ -32,7 +33,7 @@ use Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer;
  * Will iterate over all shards when performing schema operations. This is done
  * by partitioning the passed schema into subschemas for the federation and the
  * global database and then applying the operations step by step using the
- * {@see \Doctrine\DBAL\Sharding\SingleDatabaseSynchronizer}.
+ * {@see \Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer}.
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
