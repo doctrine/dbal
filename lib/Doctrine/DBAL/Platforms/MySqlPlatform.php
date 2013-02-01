@@ -36,6 +36,25 @@ use Doctrine\DBAL\DBALException,
  */
 class MySqlPlatform extends AbstractPlatform
 {
+
+    /**
+     * Adds MySQL-specific LIMIT clause to the query
+     * 18446744073709551615 is 2^64-1 maximum of unsigned BIGINT the biggest limit possible
+     */
+    protected function doModifyLimitQuery($query, $limit, $offset)
+    {
+        if ($limit !== null) {
+            $query .= ' LIMIT ' . $limit;
+            if ($offset !== null) {
+                $query .= ' OFFSET ' . $offset;
+            }
+        }elseif ($offset !== null) {
+            $query .= ' LIMIT 18446744073709551615 OFFSET ' . $offset;
+        }
+
+        return $query;
+    }
+
     /**
      * {@inheritDoc}
      */
