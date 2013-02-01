@@ -382,7 +382,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getShowDatabasesSQL()
     {
-        return 'SHOW DATABASES';
+        return 'exec sp_databases';
     }
 
     /**
