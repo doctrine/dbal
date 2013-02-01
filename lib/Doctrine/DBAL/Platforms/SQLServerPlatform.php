@@ -848,15 +848,15 @@ class SQLServerPlatform extends AbstractPlatform
     public function appendLockHint($fromClause, $lockMode)
     {
         if ($lockMode == LockMode::NONE) {
-            return $fromClause . ' WITH (READUNCOMMITTED)'; // equivalent to NOLOCK
+            return $fromClause . ' WITH (NOLOCK)';
         }
 
         if ($lockMode == LockMode::PESSIMISTIC_READ) {
-            return $fromClause . ' WITH (READCOMMITTED)';
+            return $fromClause . ' WITH (HOLDLOCK, ROWLOCK)';
         }
 
         if ($lockMode == LockMode::PESSIMISTIC_WRITE) {
-            return $fromClause . ' WITH (SERIALIZABLE)'; // equivalent to HOLDLOCK
+            return $fromClause . ' WITH (UPDLOCK, ROWLOCK)';
         }
 
         return $fromClause;
