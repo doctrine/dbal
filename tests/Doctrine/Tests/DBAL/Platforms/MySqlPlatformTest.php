@@ -75,7 +75,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesDDLSnippets()
     {
-        $this->assertEquals('SHOW DATABASES', $this->_platform->getShowDatabasesSQL());
+        $this->assertEquals('SHOW DATABASES', $this->_platform->getListDatabasesSQL());
         $this->assertEquals('CREATE DATABASE foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
         $this->assertEquals('DROP DATABASE foobar', $this->_platform->getDropDatabaseSQL('foobar'));
         $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));

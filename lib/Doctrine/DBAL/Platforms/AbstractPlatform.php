@@ -1973,16 +1973,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Get sql query to show a list of database.
-     *
-     * @return string
-     */
-    public function getShowDatabasesSQL()
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
      * Obtain DBMS specific SQL code portion needed to set the FOREIGN KEY constraint
      * of a field declaration to be used in statements like CREATE TABLE.
      *
