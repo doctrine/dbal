@@ -107,6 +107,14 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function supportsSchemas()
+    {
+        return true;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function hasNativeGuidType()
