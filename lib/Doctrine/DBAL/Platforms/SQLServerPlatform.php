@@ -34,6 +34,7 @@ use Doctrine\DBAL\Schema\Table;
  * @author Roman Borschel <roman@code-factory.org>
  * @author Jonathan H. Wage <jonwage@gmail.com>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Steve Müller <st.mueller@dzh-online.de>
  */
 class SQLServerPlatform extends AbstractPlatform
 {
@@ -461,14 +462,6 @@ class SQLServerPlatform extends AbstractPlatform
     public function getDropViewSQL($name)
     {
         return 'DROP VIEW ' . $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getRegexpExpression()
-    {
-        return 'RLIKE';
     }
 
     /**
