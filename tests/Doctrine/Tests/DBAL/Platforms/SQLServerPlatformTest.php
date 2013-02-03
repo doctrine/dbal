@@ -36,9 +36,16 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    /**
+     * @expectedException Doctrine\DBAL\DBALException
+     */
+    public function testDoesNotSupportRegexp()
+    {
+        $this->_platform->getRegexpExpression();
+    }
+
     public function testGeneratesSqlSnippets()
     {
-        $this->assertEquals('RLIKE', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
         $this->assertEquals('"', $this->_platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
         $this->assertEquals('(column1 + column2 + column3)', $this->_platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
     }
