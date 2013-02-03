@@ -28,14 +28,21 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  * @since       2.0
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
  * @author      David Coallier <davidc@php.net>
+ * @author      Steve Müller <st.mueller@dzh-online.de>
  */
 class MsSQLKeywords extends KeywordList
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'MsSQL';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getKeywords()
     {
         return array(
@@ -237,7 +244,7 @@ class MsSQLKeywords extends KeywordList
             'CURRENT_TIME',
             'GRANT',
             'OPENDATASOURCE',
-            'SELECT',
+            'SELECT'
         );
     }
 }
