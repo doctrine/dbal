@@ -85,4 +85,12 @@ class SQLServer2012Platform extends SQLServer2008Platform
     {
         return true;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords';
+    }
 }
