@@ -119,6 +119,11 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $this->assertTrue($this->_platform->supportsIdentityColumns());
     }
 
+    public function testSupportsSchemas()
+    {
+        $this->assertTrue($this->_platform->supportsSchemas());
+    }
+
     public function testDoesNotSupportSavePoints()
     {
         $this->assertTrue($this->_platform->supportsSavepoints());
