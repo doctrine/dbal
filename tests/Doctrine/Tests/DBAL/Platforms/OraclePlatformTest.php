@@ -119,14 +119,6 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     /**
      * @expectedException Doctrine\DBAL\DBALException
      */
-    public function testShowDatabasesThrowsException()
-    {
-        $this->assertEquals('SHOW DATABASES', $this->_platform->getShowDatabasesSQL());
-    }
-
-    /**
-     * @expectedException Doctrine\DBAL\DBALException
-     */
     public function testCreateDatabaseThrowsException()
     {
         $this->assertEquals('CREATE DATABASE foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
