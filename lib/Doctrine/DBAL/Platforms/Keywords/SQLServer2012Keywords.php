@@ -24,7 +24,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  *
  * @license BSD http://www.opensource.org/licenses/bsd-license.php
  * @link    www.doctrine-project.com
- * @since   2.0
+ * @since   2.3
  * @author  Steve Müller <st.mueller@dzh-online.de>
  */
 class SQLServer2012Keywords extends MsSQLKeywords
@@ -42,13 +42,13 @@ class SQLServer2012Keywords extends MsSQLKeywords
      */
     protected function getKeywords()
     {
-        return array_merge(parent::getKeywords(),
+        return array_merge(parent::getKeywords(), array(
             'SEMANTICKEYPHRASETABLE',
             'SEMANTICSIMILARITYDETAILSTABLE',
             'SEMANTICSIMILARITYTABLE',
             'TRY_CONVERT',
             'WITHIN',
             'SEQUENCE'
-        );
+        ));
     }
 }
