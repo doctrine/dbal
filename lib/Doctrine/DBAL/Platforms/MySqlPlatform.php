@@ -294,14 +294,6 @@ class MySqlPlatform extends AbstractPlatform
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getShowDatabasesSQL()
-    {
-        return 'SHOW DATABASES';
-    }
-
     public function getListTablesSQL()
     {
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
