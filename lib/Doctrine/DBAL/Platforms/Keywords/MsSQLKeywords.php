@@ -32,11 +32,17 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  */
 class MsSQLKeywords extends KeywordList
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'MsSQL';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getKeywords()
     {
         return array(
@@ -238,13 +244,7 @@ class MsSQLKeywords extends KeywordList
             'CURRENT_TIME',
             'GRANT',
             'OPENDATASOURCE',
-            'SELECT',
-            'SEMANTICKEYPHRASETABLE',
-            'SEMANTICSIMILARITYDETAILSTABLE',
-            'SEMANTICSIMILARITYTABLE',
-            'TRY_CONVERT',
-            'WITHIN',
-            'SEQUENCE'
+            'SELECT'
         );
     }
 }
