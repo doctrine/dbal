@@ -16,6 +16,12 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         return new MysqlPlatform;
     }
 
+    public function testdoModifyLimitQuery()
+    {
+        $sql=$this->_platform->doModifyLimitQuery('SELECT n FROM Foo', null , 10);
+        $this->assertEquals('SELECT n FROM Foo LIMIT 18446744073709551615 OFFSET 10',$sql);
+    }
+
     public function testGenerateMixedCaseTableCreate()
     {
         $table = new Table("Foo");
