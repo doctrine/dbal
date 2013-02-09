@@ -36,6 +36,14 @@ use Doctrine\DBAL\DBALException,
  */
 class MySqlPlatform extends AbstractPlatform
 {
+    const LENGTH_LIMIT_TINYTEXT   = 255;
+    const LENGTH_LIMIT_TEXT       = 65535;
+    const LENGTH_LIMIT_MEDIUMTEXT = 16777215;
+
+    const LENGTH_LIMIT_TINYBLOB   = 255;
+    const LENGTH_LIMIT_BLOB       = 65535;
+    const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
+
     /**
      * {@inheritDoc}
      */
@@ -193,21 +201,30 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the SQL snippet used to declare a CLOB column type.
+     *     TINYTEXT   : 2 ^  8 - 1 = 255
+     *     TEXT       : 2 ^ 16 - 1 = 65535
+     *     MEDIUMTEXT : 2 ^ 24 - 1 = 16777215
+     *     LONGTEXT   : 2 ^ 32 - 1 = 4294967295
+     *
+     * @param array $field
+     *
+     * @return string
      */
     public function getClobTypeDeclarationSQL(array $field)
     {
         if ( ! empty($field['length']) && is_numeric($field['length'])) {
             $length = $field['length'];
-            if ($length <= 255) {
+
+            if ($length <= static::LENGTH_LIMIT_TINYTEXT) {
                 return 'TINYTEXT';
             }
 
-            if ($length <= 65532) {
+            if ($length <= static::LENGTH_LIMIT_TEXT) {
                 return 'TEXT';
             }
 
-            if ($length <= 16777215) {
+            if ($length <= static::LENGTH_LIMIT_MEDIUMTEXT) {
                 return 'MEDIUMTEXT';
             }
         }
@@ -701,10 +718,34 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the SQL Snippet used to declare a BLOB column type.
+     *     TINYBLOB   : 2 ^  8 - 1 = 255
+     *     BLOB       : 2 ^ 16 - 1 = 65535
+     *     MEDIUMBLOB : 2 ^ 24 - 1 = 16777215
+     *     LONGBLOB   : 2 ^ 32 - 1 = 4294967295
+     *
+     * @param array $field
+     *
+     * @return string
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
+        if ( ! empty($field['length']) && is_numeric($field['length'])) {
+            $length = $field['length'];
+
+            if ($length <= static::LENGTH_LIMIT_TINYBLOB) {
+                return 'TINYBLOB';
+            }
+
+            if ($length <= static::LENGTH_LIMIT_BLOB) {
+                return 'BLOB';
+            }
+
+            if ($length <= static::LENGTH_LIMIT_MEDIUMBLOB) {
+                return 'MEDIUMBLOB';
+            }
+        }
+
         return 'LONGBLOB';
     }
 }
