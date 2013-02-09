@@ -36,6 +36,14 @@ use Doctrine\DBAL\DBALException,
  */
 class MySqlPlatform extends AbstractPlatform
 {
+    const LENGTH_LIMIT_TINYTEXT   = 255;
+    const LENGTH_LIMIT_TEXT       = 65535;
+    const LENGTH_LIMIT_MEDIUMTEXT = 16777215;
+
+    const LENGTH_LIMIT_TINYBLOB   = 255;
+    const LENGTH_LIMIT_BLOB       = 65535;
+    const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
+
     /**
      * {@inheritDoc}
      */
@@ -208,15 +216,15 @@ class MySqlPlatform extends AbstractPlatform
         if ( ! empty($field['length']) && is_numeric($field['length'])) {
             $length = $field['length'];
 
-            if ($length <= 255) {
+            if ($length <= static::LENGTH_LIMIT_TINYTEXT) {
                 return 'TINYTEXT';
             }
 
-            if ($length <= 65535) {
+            if ($length <= static::LENGTH_LIMIT_TEXT) {
                 return 'TEXT';
             }
 
-            if ($length <= 16777215) {
+            if ($length <= static::LENGTH_LIMIT_MEDIUMTEXT) {
                 return 'MEDIUMTEXT';
             }
         }
@@ -725,15 +733,15 @@ class MySqlPlatform extends AbstractPlatform
         if ( ! empty($field['length']) && is_numeric($field['length'])) {
             $length = $field['length'];
 
-            if ($length <= 255) {
+            if ($length <= static::LENGTH_LIMIT_TINYBLOB) {
                 return 'TINYBLOB';
             }
 
-            if ($length <= 65535) {
+            if ($length <= static::LENGTH_LIMIT_BLOB) {
                 return 'BLOB';
             }
 
-            if ($length <= 16777215) {
+            if ($length <= static::LENGTH_LIMIT_MEDIUMBLOB) {
                 return 'MEDIUMBLOB';
             }
         }
