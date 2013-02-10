@@ -50,10 +50,12 @@ class DateTimeType extends Type
             return $value;
         }
 
-        $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
-        if ( ! $val) {
+        $val = $platform->formatDateTime($value);
+
+        if (!$val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString());
         }
+
         return $val;
     }
 }

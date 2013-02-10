@@ -473,6 +473,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ($sequence instanceof \Doctrine\DBAL\Schema\Sequence) {
             $sequence = $sequence->getQuotedName($this);
         }
+
         return 'DROP SEQUENCE ' . $sequence;
     }
 
@@ -579,6 +580,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ( ! empty($field['autoincrement'])) {
             return 'BIGSERIAL';
         }
+
         return 'BIGINT';
     }
 
@@ -671,6 +673,20 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getSQLResultCasing($column)
     {
         return strtolower($column);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function formatDateTime($value)
+    {
+        foreach (array('Y-m-d H:i:s.u', 'Y-m-d H:i:s') as $dateTimeFormatString) {
+            $val = \DateTime::createFromFormat($dateTimeFormatString, $value);
+
+            if ($val instanceof \DateTime) {
+                return $val;
+            }
+        }
     }
 
     /**
