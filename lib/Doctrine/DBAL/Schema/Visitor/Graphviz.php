@@ -1,5 +1,4 @@
 <?php
-
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -21,22 +20,20 @@
 namespace Doctrine\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform,
- Doctrine\DBAL\Schema\Table,
- Doctrine\DBAL\Schema\Schema,
- Doctrine\DBAL\Schema\Column,
- Doctrine\DBAL\Schema\ForeignKeyConstraint,
- Doctrine\DBAL\Schema\Constraint,
- Doctrine\DBAL\Schema\Sequence,
- Doctrine\DBAL\Schema\Index;
+    Doctrine\DBAL\Schema\Table,
+    Doctrine\DBAL\Schema\Schema,
+    Doctrine\DBAL\Schema\ForeignKeyConstraint,
+    Doctrine\DBAL\Schema\Constraint;
 
-class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
+/**
+ * Create a Graphviz output of a Schema.
+ */
+class Graphviz extends AbstractVisitor
 {
+    /**
+     * @var string
+     */
     private $output = '';
-
-    public function acceptColumn(Table $table, Column $column)
-    {
-
-    }
 
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
@@ -51,11 +48,6 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
         );
     }
 
-    public function acceptIndex(Table $table, Index $index)
-    {
-
-    }
-
     public function acceptSchema(Schema $schema)
     {
         $this->output  = 'digraph "' . sha1( mt_rand() ) . '" {' . "\n";
@@ -64,11 +56,6 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
         $this->output .= 'outputorder=edgesfirst;'."\n";
         $this->output .= 'mindist = 0.6;' . "\n";
         $this->output .= 'sep = .2;' . "\n";
-    }
-
-    public function acceptSequence(Sequence $sequence)
-    {
-
     }
 
     public function acceptTable(Table $table)
@@ -134,6 +121,16 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
     }
 
     /**
+     * Get Graphviz Output
+     *
+     * @return string
+     */
+    public function getOutput()
+    {
+        return $this->output . "}";
+    }
+
+    /**
      * Write dot language output to a file. This should usually be a *.dot file.
      *
      * You have to convert the output into a viewable format. For example use "neato" on linux systems
@@ -146,6 +143,6 @@ class Graphviz implements \Doctrine\DBAL\Schema\Visitor\Visitor
      */
     public function write($filename)
     {
-        file_put_contents($filename, $this->output . "}");
+        file_put_contents($filename, $this->getOutput());
     }
 }

@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -24,7 +22,6 @@ namespace Doctrine\DBAL\Schema\Visitor;
 use Doctrine\DBAL\Platforms\AbstractPlatform,
     Doctrine\DBAL\Schema\Table,
     Doctrine\DBAL\Schema\Schema,
-    Doctrine\DBAL\Schema\Column,
     Doctrine\DBAL\Schema\ForeignKeyConstraint,
     Doctrine\DBAL\Schema\Constraint,
     Doctrine\DBAL\Schema\Sequence,
@@ -34,12 +31,11 @@ use Doctrine\DBAL\Platforms\AbstractPlatform,
 /**
  * Gather SQL statements that allow to completely drop the current schema.
  *
- * 
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
-class DropSchemaSqlCollector implements Visitor
+class DropSchemaSqlCollector extends AbstractVisitor
 {
     /**
      * @var \SplObjectStorage
@@ -72,27 +68,11 @@ class DropSchemaSqlCollector implements Visitor
     }
 
     /**
-     * @param Schema $schema
-     */
-    public function acceptSchema(Schema $schema)
-    {
-
-    }
-
-    /**
      * @param Table $table
      */
     public function acceptTable(Table $table)
     {
         $this->tables->attach($table);
-    }
-
-    /**
-     * @param Column $column
-     */
-    public function acceptColumn(Table $table, Column $column)
-    {
-
     }
 
     /**
@@ -107,15 +87,6 @@ class DropSchemaSqlCollector implements Visitor
 
         $this->constraints->attach($fkConstraint);
         $this->constraints[$fkConstraint] = $localTable;
-    }
-
-    /**
-     * @param Table $table
-     * @param Index $index
-     */
-    public function acceptIndex(Table $table, Index $index)
-    {
-
     }
 
     /**
@@ -142,6 +113,7 @@ class DropSchemaSqlCollector implements Visitor
     public function getQueries()
     {
         $sql = array();
+
         foreach ($this->constraints as $fkConstraint) {
             $localTable = $this->constraints[$fkConstraint];
             $sql[] = $this->platform->getDropForeignKeySQL($fkConstraint, $localTable);

@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -31,45 +29,52 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
 
 /**
- * Schema Visitor used for Validation or Generation purposes.
- *
- * 
- * @link    www.doctrine-project.org
- * @since   2.0
- * @version $Revision$
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
+ * Abstract Visitor with empty methods for easy extension.
  */
-interface Visitor
+class AbstractVisitor implements Visitor
 {
     /**
      * @param Schema $schema
      */
-    public function acceptSchema(Schema $schema);
+    public function acceptSchema(Schema $schema)
+    {
+    }
 
     /**
      * @param Table $table
      */
-    public function acceptTable(Table $table);
+    public function acceptTable(Table $table)
+    {
+    }
 
     /**
      * @param Column $column
      */
-    public function acceptColumn(Table $table, Column $column);
+    public function acceptColumn(Table $table, Column $column)
+    {
+    }
 
     /**
      * @param Table $localTable
      * @param ForeignKeyConstraint $fkConstraint
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint);
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    {
+    }
 
     /**
      * @param Table $table
      * @param Index $index
      */
-    public function acceptIndex(Table $table, Index $index);
+    public function acceptIndex(Table $table, Index $index)
+    {
+    }
 
     /**
      * @param Sequence $sequence
      */
-    public function acceptSequence(Sequence $sequence);
+    public function acceptSequence(Sequence $sequence)
+    {
+    }
 }
+
