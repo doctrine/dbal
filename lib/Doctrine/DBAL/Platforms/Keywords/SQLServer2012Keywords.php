@@ -20,14 +20,14 @@
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
- * SQL Server 2012 reserved keywords list.
+ * Microsoft SQL Server 2012 reserved keyword dictionary.
  *
  * @license BSD http://www.opensource.org/licenses/bsd-license.php
  * @link    www.doctrine-project.com
  * @since   2.3
  * @author  Steve Müller <st.mueller@dzh-online.de>
  */
-class SQLServer2012Keywords extends MsSQLKeywords
+class SQLServer2012Keywords extends SQLServer2008Keywords
 {
     /**
      * {@inheritdoc}
@@ -39,6 +39,8 @@ class SQLServer2012Keywords extends MsSQLKeywords
 
     /**
      * {@inheritdoc}
+     *
+     * @link http://msdn.microsoft.com/en-us/library/ms189822.aspx
      */
     protected function getKeywords()
     {
@@ -47,8 +49,7 @@ class SQLServer2012Keywords extends MsSQLKeywords
             'SEMANTICSIMILARITYDETAILSTABLE',
             'SEMANTICSIMILARITYTABLE',
             'TRY_CONVERT',
-            'WITHIN',
-            'SEQUENCE'
+            'WITHIN GROUP'
         ));
     }
 }

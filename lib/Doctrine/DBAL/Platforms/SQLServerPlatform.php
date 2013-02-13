@@ -82,8 +82,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * MsSql prefers "autoincrement" identity columns since sequences can only
-     * be emulated with a table.
+     * Microsoft SQL Server prefers "autoincrement" identity columns
+     * since sequences can only be emulated with a table.
      */
     public function prefersIdentityColumns()
     {
@@ -93,7 +93,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * MsSql supports this through AUTO_INCREMENT columns.
+     * Microsoft SQL Server supports this through AUTO_INCREMENT columns.
      */
     public function supportsIdentityColumns()
     {
@@ -903,7 +903,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\MsSQLKeywords';
+        return 'Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords';
     }
 
     /**
