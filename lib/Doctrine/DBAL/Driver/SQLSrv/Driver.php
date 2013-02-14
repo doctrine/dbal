@@ -50,7 +50,7 @@ class Driver implements \Doctrine\DBAL\Driver
 
     public function getDatabasePlatform()
     {
-        return new \Doctrine\DBAL\Platforms\SQLServer2012Platform();
+        return new \Doctrine\DBAL\Platforms\SQLServer2008Platform();
     }
 
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
