@@ -543,7 +543,10 @@ class SQLServerPlatform extends AbstractPlatform
     public function getConcatExpression()
     {
         $args = func_get_args();
-
+        
+        if(is_array($args[0])){
+            $args = $args[0];
+        }
         return '(' . implode(' + ', $args) . ')';
     }
 
