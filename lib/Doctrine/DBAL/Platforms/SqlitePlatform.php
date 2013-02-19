@@ -969,4 +969,12 @@ class SqlitePlatform extends AbstractPlatform
 
         return $primaryIndex;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $collation;
+    }
 }

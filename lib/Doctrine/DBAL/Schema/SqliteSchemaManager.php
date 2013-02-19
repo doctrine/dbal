@@ -234,6 +234,15 @@ class SqliteSchemaManager extends AbstractSchemaManager
             }
         }
 
+        $sqlCreateTable = $this->_conn->fetchColumn("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '$table'");
+        if (false !== $sqlCreateTable) {
+            $collations = $this->getSqlCreateTableColumnsCollation($sqlCreateTable);
+
+            foreach ($collations as $columnName => $collation) {
+                $list[$columnName]->setPlatformOption('collate', $collation);
+            }
+        }
+
         return $list;
     }
 
@@ -367,5 +376,39 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $tableDiff->fromTable = $table;
 
         return $tableDiff;
+    }
+
+    private function getSqlCreateTableColumnsCollation($sql)
+    {
+        $collations = array();
+
+        // Correctly extract parts with proper handling of parentheses and commas
+        $partsRegex = '/
+            (?<part>
+                [^,()]+
+                |
+                (?:
+                    \(
+                        \g<part>
+                        (?:
+                            ,
+                            \g<part>
+                        )*
+                    \)
+                )
+            )+
+        /x';
+        if (preg_match('/^CREATE TABLE [^(]+ \(([\S\s]+)\)$/', trim($sql), $innerMatches)
+            && preg_match_all($partsRegex, $innerMatches[1], $partsMatches)) {
+            $parts = array_map('trim', $partsMatches[0]);
+
+            foreach ($parts as $part) {
+                if (preg_match('/(?<name>\S+).+COLLATE\s+(?<collate>\S+)/', $part, $matches)) {
+                    $collations[$matches['name']] = $matches['collate'];
+                }
+            }
+        }
+
+        return $collations;
     }
 }

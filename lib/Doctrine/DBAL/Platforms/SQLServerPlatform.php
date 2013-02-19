@@ -957,4 +957,12 @@ class SQLServerPlatform extends AbstractPlatform
 
         return " DEFAULT '" . $field['default'] . "'";
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $collation;
+    }
 }

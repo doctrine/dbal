@@ -72,4 +72,22 @@ EOS
 
         $this->assertEquals($expected, $this->_sm->listTableForeignKeys('user'));
     }
+
+    public function testCollationCharset()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table($tableName = 'test_collation_charset');
+        $column = $table->addColumn($columnName = 'test', 'string');
+
+        $this->_sm->dropAndCreateTable($table);
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertFalse($columns[$columnName]->hasPlatformOption('collate')); // SQLite should not report any collation on the column
+
+        $column->setPlatformOption('collate', $collation = 'NOCASE');
+
+        $this->_sm->dropAndCreateTable($table);
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertEquals($collation, $columns[$columnName]->getPlatformOption('collate'));
+    }
 }

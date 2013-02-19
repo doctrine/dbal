@@ -1195,7 +1195,9 @@ abstract class AbstractPlatform
 
             $columnData = $column->toArray();
             $columnData['name'] = $column->getQuotedName($this);
-            $columnData['version'] = $column->hasPlatformOption("version") ? $column->getPlatformOption('version') : false;
+            if ($column->hasPlatformOption("version")) {
+                $columnData['version'] = $column->getPlatformOption('version');
+            }
             $columnData['comment'] = $this->getColumnComment($column);
 
             if (strtolower($columnData['type']) == "string" && $columnData['length'] === null) {
@@ -1702,7 +1704,7 @@ abstract class AbstractPlatform
      *          to not be set to null.
      *      charset
      *          Text value with the default CHARACTER SET for this field.
-     *      collation
+     *      collate
      *          Text value with the default COLLATION for this field.
      *      unique
      *          unique constraint
@@ -1742,7 +1744,7 @@ abstract class AbstractPlatform
      *          to not be set to null.
      *      charset
      *          Text value with the default CHARACTER SET for this field.
-     *      collation
+     *      collate
      *          Text value with the default COLLATION for this field.
      *      unique
      *          unique constraint
@@ -1763,8 +1765,8 @@ abstract class AbstractPlatform
             $charset = (isset($field['charset']) && $field['charset']) ?
                     ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
 
-            $collation = (isset($field['collation']) && $field['collation']) ?
-                    ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
+            $collation = (isset($field['collate']) && $field['collate']) ?
+                    ' ' . $this->getColumnCollationDeclarationSQL($field['collate']) : '';
 
             $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
 
