@@ -457,7 +457,7 @@ class MySqlPlatform extends AbstractPlatform
     private function buildPartitionOptions(array $options)
     {
         return (isset($options['partition_options']))
-            ? $options['partition_options']
+            ? ' ' . $options['partition_options']
             : '';
     }
 
