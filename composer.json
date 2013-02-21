@@ -16,6 +16,7 @@
         "doctrine/common": "2.4.x-dev"
     },
     "require-dev": {
+        "phpunit/phpunit": "3.7.*",
         "symfony/console": "2.*"
     },
     "suggest": {

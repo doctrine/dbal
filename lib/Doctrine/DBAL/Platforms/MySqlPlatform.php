@@ -371,32 +371,14 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         $query = 'CREATE ';
+
         if (!empty($options['temporary'])) {
             $query .= 'TEMPORARY ';
         }
+
         $query .= 'TABLE ' . $tableName . ' (' . $queryFields . ') ';
-
-        if (isset($options['comment'])) {
-            $comment = trim($options['comment'], " '");
-
-            $query .= sprintf("COMMENT = '%s' ", str_replace("'", "''", $comment));
-        }
-
-        if ( ! isset($options['charset'])) {
-            $options['charset'] = 'utf8';
-        }
-
-        if ( ! isset($options['collate'])) {
-            $options['collate'] = 'utf8_unicode_ci';
-        }
-
-        $query .= 'DEFAULT CHARACTER SET ' . $options['charset'];
-        $query .= ' COLLATE ' . $options['collate'];
-
-        if ( ! isset($options['engine'])) {
-            $options['engine'] = 'InnoDB';
-        }
-        $query .= ' ENGINE = ' . $options['engine'];
+        $query .= $this->buildTableOptions($options);
+        $query .= $this->buildPartitionOptions($options);
 
         $sql[] = $query;
 
@@ -407,6 +389,76 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         return $sql;
+    }
+
+    /**
+     * Build SQL for table options
+     *
+     * @param array $options
+     *
+     * @return string
+     */
+    private function buildTableOptions(array $options)
+    {
+        if (isset($options['table_options'])) {
+            return $options['table_options'];
+        }
+
+        $tableOptions = array();
+
+        // Charset
+        if ( ! isset($options['charset'])) {
+            $options['charset'] = 'utf8';
+        }
+
+        $tableOptions[] = sprintf('DEFAULT CHARACTER SET %s', $options['charset']);
+
+        // Collate
+        if ( ! isset($options['collate'])) {
+            $options['collate'] = 'utf8_unicode_ci';
+        }
+
+        $tableOptions[] = sprintf('COLLATE %s', $options['collate']);
+
+        // Engine
+        if ( ! isset($options['engine'])) {
+            $options['engine'] = 'InnoDB';
+        }
+
+        $tableOptions[] = sprintf('ENGINE = %s', $options['engine']);
+
+        // Auto increment
+        if (isset($options['auto_increment'])) {
+            $tableOptions[] = sprintf('AUTO_INCREMENT = %s', $options['auto_increment']);
+        }
+
+        // Comment
+        if (isset($options['comment'])) {
+            $comment = trim($options['comment'], " '");
+
+            $tableOptions[] = sprintf("COMMENT = '%s' ", str_replace("'", "''", $comment));
+        }
+
+        // Row format
+        if (isset($options['row_format'])) {
+            $tableOptions[] = sprintf('ROW_FORMAT = %s', $options['row_format']);
+        }
+
+        return implode(' ', $tableOptions);
+    }
+
+    /**
+     * Build SQL for partition options.
+     *
+     * @param array $options
+     *
+     * @return string
+     */
+    private function buildPartitionOptions(array $options)
+    {
+        return (isset($options['partition_options']))
+            ? $options['partition_options']
+            : '';
     }
 
     /**
