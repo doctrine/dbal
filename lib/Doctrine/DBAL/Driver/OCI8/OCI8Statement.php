@@ -112,7 +112,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null,$length = null)
+    public function bindParam($column, &$variable, $type = null, $length = null)
     {
         $column = isset($this->_paramMap[$column]) ? $this->_paramMap[$column] : $column;
 
@@ -122,7 +122,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
 
             return oci_bind_by_name($this->_sth, $column, $lob, -1, OCI_B_BLOB);
         } else {
-            return oci_bind_by_name($this->_sth, $column, $variable);
+            return oci_bind_by_name($this->_sth, $column, $variable, $length);
         }
     }
 
