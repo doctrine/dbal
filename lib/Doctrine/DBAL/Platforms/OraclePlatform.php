@@ -408,7 +408,7 @@ BEGIN
   END IF;
 END;';
 
-        $sequenceName = $table . '_SEQ';
+        $sequenceName = $table . '_' . $name . '_SEQ';
         $sequence = new Sequence($sequenceName, $start);
         $sql[] = $this->getCreateSequenceSQL($sequence);
 
