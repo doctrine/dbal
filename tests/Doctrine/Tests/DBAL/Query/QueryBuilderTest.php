@@ -211,6 +211,19 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('SELECT u.*, p.* FROM users u GROUP BY u.id, u.foo, u.bar', (string) $qb);
     }
 
+    public function testSelectDuplicateAddGroupBy()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.*')
+           ->from('users', 'u')
+           ->groupBy('u.id')
+           ->addGroupBy('u.id');
+
+        $this->assertEquals('SELECT u.* FROM users u GROUP BY u.id', (string) $qb);
+    }
+
     public function testSelectHaving()
     {
         $qb   = new QueryBuilder($this->conn);
@@ -332,6 +345,19 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('SELECT u.*, p.* FROM users u ORDER BY u.name ASC, u.username DESC', (string) $qb);
     }
 
+    public function testSelectDuplicateAddOrderBy()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.*')
+           ->from('users', 'u')
+           ->addOrderBy('u.name', 'ASC')
+           ->addOrderBy('u.name', 'ASC');
+
+        $this->assertEquals('SELECT u.* FROM users u ORDER BY u.name ASC', (string) $qb);
+    }
+
     public function testEmptySelect()
     {
         $qb   = new QueryBuilder($this->conn);
@@ -351,6 +377,18 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
            ->from('users', 'u');
 
         $this->assertEquals('SELECT u.*, p.* FROM users u', (string) $qb);
+    }
+
+    public function testSelectDuplicateAddSelect()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.*')
+           ->addSelect('u.*')
+           ->from('users', 'u');
+
+        $this->assertEquals('SELECT u.* FROM users u', (string) $qb);
     }
 
     public function testEmptyAddSelect()
@@ -375,6 +413,18 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('SELECT u.*, p.* FROM users u, phonenumbers p', (string) $qb);
     }
 
+    public function testSelectDuplicateFrom()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.*')
+           ->from('users', 'u')
+           ->from('users', 'u');
+
+        $this->assertEquals('SELECT u.* FROM users u', (string) $qb);
+    }
+
     public function testUpdate()
     {
         $qb   = new QueryBuilder($this->conn);
@@ -384,6 +434,17 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertEquals(QueryBuilder::UPDATE, $qb->getType());
         $this->assertEquals('UPDATE users u SET u.foo = ?, u.bar = ?', (string) $qb);
+    }
+
+    public function testUpdateDuplicateSet()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->update('users', 'u')
+           ->set('u.foo', '?')
+           ->set('u.foo', '?');
+
+        $this->assertEquals(QueryBuilder::UPDATE, $qb->getType());
+        $this->assertEquals('UPDATE users u SET u.foo = ?', (string) $qb);
     }
 
     public function testUpdateWithoutAlias()

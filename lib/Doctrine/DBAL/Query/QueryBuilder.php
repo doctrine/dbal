@@ -943,12 +943,12 @@ class QueryBuilder
 
     private function getSQLForSelect()
     {
-        $query = 'SELECT ' . implode(', ', $this->sqlParts['select']) . ' FROM ';
+        $query = 'SELECT ' . implode(', ', array_unique($this->sqlParts['select'])) . ' FROM ';
 
         $fromClauses = array();
         $joinsPending = true;
         $joinAliases = array();
-        
+
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
             $fromClause = $from['table'] . ' ' . $from['alias'];
@@ -964,7 +964,7 @@ class QueryBuilder
                 }
                 $joinsPending = false;
             }
-            
+
             $fromClauses[$from['alias']] = $fromClause;
         }
 
@@ -975,12 +975,12 @@ class QueryBuilder
                 throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
             }
         }
-        
+
         $query .= implode(', ', $fromClauses)
                 . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
-                . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
+                . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', array_unique($this->sqlParts['groupBy'])) : '')
                 . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
-                . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
+                . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', array_unique($this->sqlParts['orderBy'])) : '');
 
         return ($this->maxResults === null && $this->firstResult == null)
             ? $query
@@ -996,7 +996,7 @@ class QueryBuilder
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
         $query = 'UPDATE ' . $table
-               . ' SET ' . implode(", ", $this->sqlParts['set'])
+               . ' SET ' . implode(", ", array_unique($this->sqlParts['set']))
                . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
 
         return $query;
