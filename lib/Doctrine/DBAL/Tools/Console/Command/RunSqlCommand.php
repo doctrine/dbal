@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
+use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputOption,
     Symfony\Component\Console;
@@ -47,7 +48,8 @@ class RunSqlCommand extends Console\Command\Command
         ->setDescription('Executes arbitrary SQL directly from the command line.')
         ->setDefinition(array(
             new InputArgument('sql', InputArgument::REQUIRED, 'The SQL statement to execute.'),
-            new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'Dumping depth of result set.', 7)
+            new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'Dumping depth of result set.', 7),
+            new InputOption('format', null, InputOption::VALUE_REQUIRED, 'The output format. Available: doctrine-debug (default), jms-serializer-json', 'doctrine-debug'),
         ))
         ->setHelp(<<<EOT
 Executes arbitrary SQL directly from the command line.
@@ -78,10 +80,22 @@ EOT
             $resultSet = $conn->executeUpdate($sql);
         }
 
-        ob_start();
-        \Doctrine\Common\Util\Debug::dump($resultSet, (int) $depth);
-        $message = ob_get_clean();
+        switch ($input->getOption('format')) {
+            case 'doctrine-debug':
+                ob_start();
+                \Doctrine\Common\Util\Debug::dump($resultSet, (int) $depth);
+                $message = ob_get_clean();
 
-        $output->write($message);
+                $output->write($message);
+                break;
+
+            case 'jms-serializer-json':
+                $serializer = SerializerBuilder::create()->build();
+                $output->write($serializer->serialize($resultSet, 'json'));
+                break;
+
+            default:
+                throw new \LogicException(sprintf('The output format "%s" is unknown. Available: doctrine-debug, jms-serializer-json', $input->getOption('format')));
+        }
     }
 }
