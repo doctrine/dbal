@@ -515,28 +515,6 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $sql;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Postgres wants boolean values converted to the strings 'true'/'false'.
-     */
-    public function convertBooleans($item)
-    {
-        if (is_array($item)) {
-            foreach ($item as $key => $value) {
-                if (is_bool($value) || is_numeric($item)) {
-                    $item[$key] = ($value) ? 'true' : 'false';
-                }
-            }
-        } else {
-           if (is_bool($item) || is_numeric($item)) {
-               $item = ($item) ? 'true' : 'false';
-           }
-        }
-
-        return $item;
-    }
-
     public function getSequenceNextValSQL($sequenceName)
     {
         return "SELECT NEXTVAL('" . $sequenceName . "')";

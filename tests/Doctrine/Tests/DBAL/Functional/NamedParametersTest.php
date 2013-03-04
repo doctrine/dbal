@@ -112,8 +112,8 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             try {
                 $table = new \Doctrine\DBAL\Schema\Table("ddc1372_foobar");
                 $table->addColumn('id', 'integer');
-                $table->addColumn('foo','string');
-                $table->addColumn('bar','string');
+                $table->addColumn('foo','integer');
+                $table->addColumn('bar','integer');
                 $table->setPrimaryKey(array('id'));
 
 

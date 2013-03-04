@@ -36,29 +36,47 @@ class TestUtil
                 $GLOBALS['db_host'], $GLOBALS['db_name'], $GLOBALS['db_port']) &&
            isset($GLOBALS['tmpdb_type'], $GLOBALS['tmpdb_username'], $GLOBALS['tmpdb_password'],
                 $GLOBALS['tmpdb_host'], $GLOBALS['tmpdb_name'], $GLOBALS['tmpdb_port'])) {
-            $realDbParams = array(
-                'driver' => $GLOBALS['db_type'],
-                'user' => $GLOBALS['db_username'],
-                'password' => $GLOBALS['db_password'],
-                'host' => $GLOBALS['db_host'],
-                'dbname' => $GLOBALS['db_name'],
-                'port' => $GLOBALS['db_port']
-            );
-            $tmpDbParams = array(
-                'driver' => $GLOBALS['tmpdb_type'],
-                'user' => $GLOBALS['tmpdb_username'],
-                'password' => $GLOBALS['tmpdb_password'],
-                'host' => $GLOBALS['tmpdb_host'],
-                'dbname' => $GLOBALS['tmpdb_name'],
-                'port' => $GLOBALS['tmpdb_port']
-            );
+            $realDbParams = array();
+            $tmpDbParams = array();
+            $optionsPrefix = 'options_';
+            foreach ($GLOBALS as $key => $value) {
+                if (strpos($key, 'db_') === 0) {
+                    $prefix = 'db_';
+                    $params = &$realDbParams;
+                } elseif (strpos($key, 'tmpdb_') === 0) {
+                    $prefix = 'tmpdb_';
+                    $params = &$tmpDbParams;
+                } else {
+                    continue;
+                }
+                $key = substr($key, strlen($prefix));
 
-            if (isset($GLOBALS['db_unix_socket'])) {
-                $realDbParams['unix_socket'] = $GLOBALS['db_unix_socket'];
-            }
-
-            if (isset($GLOBALS['tmpdb_unix_socket'])) {
-                $tmpDbParams['unix_socket'] = $GLOBALS['tmpdb_unix_socket'];
+                switch ($key) {
+                    case 'type':
+                        $params['driver'] = $value;
+                        break;
+                    case 'username':
+                        $params['user'] = $value;
+                        break;
+                    case 'name':
+                        $params['dbname'] = $value;
+                        break;
+                    case (strpos($key, $optionsPrefix) === 0):
+                        $optionKey = substr($key, strlen($optionsPrefix));
+                        if (defined($optionKey)) {
+                            $optionKey = constant($optionKey);
+                        }
+                        if (defined($value)) {
+                            $value = constant($value);
+                        }
+                        $params['driverOptions'][$optionKey] = $value;
+                        break;
+                    case 'host':
+                    case 'port':
+                    case 'password':
+                        $params[$key] = $value;
+                        break;
+                }
             }
 
             $realConn = \Doctrine\DBAL\DriverManager::getConnection($realDbParams);
