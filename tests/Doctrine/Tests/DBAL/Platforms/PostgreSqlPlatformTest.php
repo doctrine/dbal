@@ -280,4 +280,28 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             'CREATE INDEX IDX_22660D028A90ABA9 ON "quoted" ("key")',
         );
     }
+
+    /**
+     * @group DBAL-457
+     */
+    public function testConvertBooleanAsStrings()
+    {
+        $platform = $this->createPlatform();
+
+        $this->assertEquals('true', $platform->convertBooleans(true));
+        $this->assertEquals('false', $platform->convertBooleans(false));
+    }
+
+    /**
+     * @group DBAL-457
+     */
+    public function testConvertBooleanAsIntegers()
+    {
+        $platform = $this->createPlatform();
+        $platform->setUseBooleanTrueFalseStrings(false);
+
+        $this->assertEquals('1', $platform->convertBooleans(true));
+        $this->assertEquals('0', $platform->convertBooleans(false));
+    }
 }
+

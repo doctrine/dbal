@@ -119,6 +119,11 @@ pdo\_pgsql
 -  ``port`` (integer): Port of the database to connect to.
 -  ``dbname`` (string): Name of the database/schema to connect to.
 
+PostgreSQL behaves differently with regard to booleans when you use
+``PDO::ATTR_EMULATE_PREPARES`` or not. To switch from using ``'true'``
+and ``'false'`` as strings you can change to integers by using:
+``$conn->getDatabasePlatform()->setUseBooleanTrueFalseStrings($flag)``.
+
 pdo\_oci / oci8
 ^^^^^^^^^^^^^^^
 
@@ -159,5 +164,3 @@ Custom Driver Options
 The ``driverOptions`` option allows to pass arbitrary options
 through to the driver. This is equivalent to the fourth argument of
 the `PDO constructor <http://php.net/manual/en/pdo.construct.php>`_.
-
-
