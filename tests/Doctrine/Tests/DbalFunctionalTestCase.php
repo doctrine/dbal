@@ -49,8 +49,18 @@ class DbalFunctionalTestCase extends DbalTestCase
         if(isset($this->_sqlLoggerStack->queries) && count($this->_sqlLoggerStack->queries)) {
             $queries = "";
             $i = count($this->_sqlLoggerStack->queries);
+            $scalarConverter = function($p) { if (is_object($p)) return get_class($p); else return "'".$p."'"; };
             foreach (array_reverse($this->_sqlLoggerStack->queries) AS $query) {
-                $params = array_map(function($p) { if (is_object($p)) return get_class($p); else return "'".$p."'"; }, $query['params'] ?: array());
+                $params = array_map(
+                    function($p) use ($scalarConverter) {
+                        if (is_array($p)) { // Parameter can be an array, convert it like [foo, bar]
+                            return '['.implode(', ', array_map($scalarConverter, $p)).']';
+                        } else {
+                            return $scalarConverter($p);
+                        }
+                    },
+                    $query['params'] ?: array()
+                );
                 $queries .= ($i+1).". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
                 $i--;
             }

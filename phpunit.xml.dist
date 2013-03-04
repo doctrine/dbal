@@ -32,6 +32,7 @@
     <var name="db_name" value="doctrine_tests" />
     <var name="db_port" value="3306"/>
     -->
+    <!--<var name="db_options_PDO::ATTR_EMULATE_PREPARES" value="true" /> Any driver options can be added with db_options_*-->
     <!--<var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit">-->
     
     <!-- Database for temporary connections (i.e. to drop/create the main database) -->
