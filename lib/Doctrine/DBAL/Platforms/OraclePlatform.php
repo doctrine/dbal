@@ -393,6 +393,8 @@ class OraclePlatform extends AbstractPlatform
     public function getCreateAutoincrementSql($name, $table, $start = 1)
     {
         $table = strtoupper($table);
+        $name = strtoupper($name);
+
         $sql   = array();
 
         $indexName  = $table . '_AI_PK';

@@ -226,15 +226,16 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testGenerateTableWithAutoincrement()
     {
-        $columnName = 'id' . uniqid();
-        $table = new \Doctrine\DBAL\Schema\Table('autoinc_table');
+        $columnName = strtoupper('id' . uniqid());
+        $tableName = strtoupper('table' . uniqid());
+        $table = new \Doctrine\DBAL\Schema\Table($tableName);
         $column = $table->addColumn($columnName, 'integer');
         $column->setAutoincrement(true);
         $targets = array(
-          "CREATE TABLE autoinc_table ({$columnName} NUMBER(10) NOT NULL)",
-          "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = 'AUTOINC_TABLE' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE AUTOINC_TABLE ADD CONSTRAINT AUTOINC_TABLE_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
-          "CREATE SEQUENCE AUTOINC_TABLE_{$columnName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
-          "CREATE TRIGGER AUTOINC_TABLE_AI_PK BEFORE INSERT ON AUTOINC_TABLE FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT AUTOINC_TABLE_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT AUTOINC_TABLE_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = 'AUTOINC_TABLE_{$columnName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT AUTOINC_TABLE_{$columnName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
+          "CREATE TABLE {$tableName} ({$columnName} NUMBER(10) NOT NULL)",
+          "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '{$tableName}' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE {$tableName} ADD CONSTRAINT {$tableName}_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
+          "CREATE SEQUENCE {$tableName}_{$columnName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
+          "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_{$columnName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
         );
         $statements = $this->_platform->getCreateTableSQL($table);
         //strip all the whitespace from the statements
