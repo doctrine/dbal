@@ -279,4 +279,13 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777216)));
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array()));
     }
+
+    protected function getTestGetCharsetCollationColumnDeclarationSql($column, $sqlDeclaration)
+    {
+        return array(
+            'sql' => sprintf('%s %s CHARACTER SET utf8 DEFAULT NULL COLLATE utf8_bin', $column, $sqlDeclaration),
+            'collation' => 'utf8_bin',
+            'charset' => 'utf8',
+        );
+    }
 }

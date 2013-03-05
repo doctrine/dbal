@@ -492,4 +492,12 @@ class DrizzlePlatform extends AbstractPlatform
     {
         return 'RLIKE';
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $collation;
+    }
 }

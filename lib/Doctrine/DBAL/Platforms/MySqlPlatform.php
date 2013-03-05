@@ -269,20 +269,6 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
-     * Obtain DBMS specific SQL code portion needed to set the COLLATION
-     * of a field declaration to be used in statements like CREATE TABLE.
-     *
-     * @param string $collation   name of the collation
-     *
-     * @return string  DBMS specific SQL code portion needed to set the COLLATION
-     *                 of a field declaration.
-     */
-    public function getCollationFieldDeclaration($collation)
-    {
-        return 'COLLATE ' . $collation;
-    }
-
-    /**
      * {@inheritDoc}
      *
      * MySql prefers "autoincrement" identity columns since sequences can only
@@ -321,7 +307,7 @@ class MySqlPlatform extends AbstractPlatform
         if ($database) {
             return "SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ".
                    "COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, " .
-                   "CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS CollactionName ".
+                   "CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS CollationName ".
                    "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" . $database . "' AND TABLE_NAME = '" . $table . "'";
         }
 
@@ -799,5 +785,21 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         return 'LONGBLOB';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnCharsetDeclarationSQL($charset)
+    {
+        return 'CHARACTER SET ' . $charset;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $collation;
     }
 }

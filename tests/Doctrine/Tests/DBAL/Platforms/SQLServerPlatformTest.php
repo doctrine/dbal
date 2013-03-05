@@ -281,4 +281,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             'CREATE INDEX IDX_22660D028A90ABA9 ON [quoted] ([key])',
         );
     }
+
+    protected function getTestGetCharsetCollationColumnDeclarationSql($column, $sqlDeclaration)
+    {
+        return array(
+            'sql' => sprintf('%s %s NULL COLLATE utf8_bin', $column, $sqlDeclaration),
+            'collation' => 'utf8_bin',
+        );
+    }
 }

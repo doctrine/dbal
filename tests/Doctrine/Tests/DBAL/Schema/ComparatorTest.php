@@ -906,4 +906,22 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($changeSequenceCount, count($diff->changedSequences), "Expected number of changed sequences is wrong.");
         $this->assertEquals($removeSequenceCount, count($diff->removedSequences), "Expected number of removed sequences is wrong.");
     }
+
+    public function testDiffColumnPlatformOptions()
+    {
+        $columnCollationFoo = new Column('foo', Type::getType('string'));
+        $columnCollationFoo->setPlatformOption('collate', 'foo');
+
+        $columnCollationBar = new Column('foo', Type::getType('string'));
+        $columnCollationBar->setPlatformOption('collate', 'bar');
+
+        $columnNoCollation = new Column('foo', Type::getType('string'));
+
+        $comparator = new Comparator();
+
+        $this->assertEquals(array('platformOptions'), $comparator->diffColumn($columnCollationFoo, $columnCollationBar));
+        $this->assertEquals(array('platformOptions'), $comparator->diffColumn($columnCollationBar, $columnCollationFoo));
+        $this->assertEquals(array(), $comparator->diffColumn($columnCollationFoo, $columnNoCollation));
+        $this->assertEquals(array(), $comparator->diffColumn($columnNoCollation, $columnCollationFoo));
+    }
 }

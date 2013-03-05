@@ -64,4 +64,29 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertArrayHasKey('f_index', $indexes);
         $this->assertTrue($indexes['f_index']->hasFlag('fulltext'));
     }
+
+    public function testCollationCharset()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table($tableName = 'test_collation_charset');
+        $column = $table
+            ->addOption('charset', $charset = 'ascii')
+            ->addOption('collate', $collation = 'ascii_general_ci')
+            ->addColumn($columnName = 'test', 'string');
+
+        $this->_sm->dropAndCreateTable($table);
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertEquals($charset, $columns[$columnName]->getPlatformOption('charset'));
+        $this->assertEquals($collation, $columns[$columnName]->getPlatformOption('collate'));
+
+        $column
+            ->setPlatformOption('charset', $charset = 'utf8')
+            ->setPlatformOption('collate', $collation = 'utf8_general_ci');
+
+        $this->_sm->dropAndCreateTable($table);
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertEquals($charset, $columns[$columnName]->getPlatformOption('charset'));
+        $this->assertEquals($collation, $columns[$columnName]->getPlatformOption('collate'));
+    }
 }

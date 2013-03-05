@@ -447,4 +447,37 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $sql = $this->_platform->getCreateTableSQL($table);
         $this->assertEquals($this->getQuotedColumnInIndexSQL(), $sql);
     }
+
+    public function testGetCharsetCollationColumnDeclarationSql()
+    {
+        $type = $this->getMockForAbstractClass('Doctrine\DBAL\Types\Type', array(), '', false, true, true, array('getSqlDeclaration'));
+        $type->expects($this->once())
+            ->method('getSqlDeclaration')
+            ->will($this->returnValue($sqlDeclaration = 'bar'));
+
+        $name = 'foo';
+        $subclassData = $this->getTestGetCharsetCollationColumnDeclarationSql($name, $sqlDeclaration);
+        $expectedSql = $subclassData['sql'];
+        $collation = isset($subclassData['collation']) ? $subclassData['collation'] : null;
+        $charset = isset($subclassData['charset']) ? $subclassData['charset'] : null;
+
+        $field = array(
+            'charset' => $charset,
+            'collate' => $collation,
+            'type' => $type,
+        );
+
+        $this->assertEquals(
+            $expectedSql,
+            $this->_platform->getColumnDeclarationSQL($name, $field)
+        );
+    }
+
+    /**
+     * @return array('sql' => ..., 'collation' => ..., 'charset' => ...) charset and collation being optional
+     */
+    protected function getTestGetCharsetCollationColumnDeclarationSql($column, $sqlDeclaration)
+    {
+        $this->markTestSkipped('Platform does not support Column collation and/or charset.');
+    }
 }
