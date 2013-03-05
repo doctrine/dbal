@@ -1008,7 +1008,7 @@ class SQLServerPlatform extends AbstractPlatform
                 ' ' . $field['check'] : '';
 
             $typeDecl = $field['type']->getSqlDeclaration($field, $this);
-            $columnDef = $typeDecl . $collation . $notnull . $default . $unique . $check;
+            $columnDef = $typeDecl . $collation . $default . $notnull . $unique . $check;
         }
 
         return $name . ' ' . $columnDef;
