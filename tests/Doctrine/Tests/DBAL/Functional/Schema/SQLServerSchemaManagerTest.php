@@ -34,4 +34,22 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $columns = $this->_sm->listTableColumns('sqlsrv_drop_column');
         $this->assertEquals(1, count($columns));
     }
+
+    public function testCollationCharset()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table($tableName = 'test_collation_charset');
+        $column = $table->addColumn($columnName = 'test', 'string');
+
+        $this->_sm->dropAndCreateTable($table);
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertTrue($columns[$columnName]->hasPlatformOption('collate')); // SQL Server should report a default collation on the column
+
+        $column->setPlatformOption('collate', $collation = 'Icelandic_CS_AS');
+
+        $this->_sm->dropAndCreateTable($table);
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertEquals($collation, $columns[$columnName]->getPlatformOption('collate'));
+    }
 }
