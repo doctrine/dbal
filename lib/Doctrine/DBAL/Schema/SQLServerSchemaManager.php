@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * SQL Server Schema Manager
@@ -44,48 +45,23 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $dbType = strtolower($tableColumn['TYPE_NAME']);
-
-        $autoincrement = false;
-        if (stripos($dbType, 'identity')) {
-            $dbType = trim(str_ireplace('identity', '', $dbType));
-            $autoincrement = true;
-        }
-
-        $type = array();
-        $unsigned = $fixed = null;
+        $dbType = $tableColumn['type'];
+        $fixed = null;
+        $length = (int) $tableColumn['length'];
+        $default = $tableColumn['default'];
 
         if (!isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
-        $default = $tableColumn['COLUMN_DEF'];
-
         while ($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
             $default = trim($default2, "'");
         }
 
-        $length = (int) $tableColumn['LENGTH'];
-
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
-        switch ($type) {
-            case 'char':
-                if ($tableColumn['LENGTH'] == '1') {
-                    $type = 'boolean';
-                    if (preg_match('/^(is|has)/', $tableColumn['name'])) {
-                        $type = array_reverse($type);
-                    }
-                }
-                $fixed = true;
-                break;
-            case 'text':
-                $fixed = false;
-                break;
-        }
         switch ($dbType) {
             case 'nchar':
             case 'nvarchar':
@@ -93,20 +69,44 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                 // Unicode data requires 2 bytes per character
                 $length = $length / 2;
                 break;
+            case 'varchar':
+                // TEXT type is returned as VARCHAR(MAX) with a length of -1
+                if ($length == -1) {
+                    $dbType = 'text';
+                }
+                break;
+        }
+
+        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+
+        switch ($type) {
+            case 'char':
+                $fixed = true;
+                break;
+            case 'text':
+                $fixed = false;
+                break;
         }
 
         $options = array(
             'length' => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
-            'unsigned' => (bool) $unsigned,
+            'unsigned' => false,
             'fixed' => (bool) $fixed,
             'default' => $default !== 'NULL' ? $default : null,
-            'notnull' => (bool) ($tableColumn['IS_NULLABLE'] != 'YES'),
-            'scale' => $tableColumn['SCALE'],
-            'precision' => $tableColumn['PRECISION'],
-            'autoincrement' => $autoincrement,
+            'notnull' => (bool) $tableColumn['notnull'],
+            'scale' => $tableColumn['scale'],
+            'precision' => $tableColumn['precision'],
+            'autoincrement' => (bool) $tableColumn['autoincrement'],
         );
 
-        return new Column($tableColumn['COLUMN_NAME'], \Doctrine\DBAL\Types\Type::getType($type), $options);
+        $platformOptions = array(
+            'collate' => $tableColumn['collation'] == 'NULL' ? null : $tableColumn['collation']
+        );
+
+        $column = new Column($tableColumn['name'], Type::getType($type), $options);
+        $column->setPlatformOptions($platformOptions);
+
+        return $column;
     }
 
     /**
