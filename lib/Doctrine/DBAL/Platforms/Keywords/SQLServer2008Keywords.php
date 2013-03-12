@@ -17,48 +17,35 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Platforms;
+namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
- * Platform to ensure compatibility of Doctrine with Microsoft SQL Server 2005 version and
- * higher.
+ * Microsoft SQL Server 2008 reserved keyword dictionary.
  *
- * Differences to SQL Server 2008 are:
- *
- * - DATETIME2 datatype does not exist, only DATETIME which has a precision of
- *   3. This is not supported by PHP DateTime, so we are emulating it by
- *   setting .000 manually.
- * - Starting with SQLServer2005 VARCHAR(MAX), VARBINARY(MAX) and
- *   NVARCHAR(max) replace the old TEXT, NTEXT and IMAGE types. See
- *   {@link http://www.sql-server-helper.com/faq/sql-server-2005-varchar-max-p01.aspx}
- *   for more information.
+ * @license BSD http://www.opensource.org/licenses/bsd-license.php
+ * @link    www.doctrine-project.com
+ * @since   2.3
+ * @author  Steve Müller <st.mueller@dzh-online.de>
  */
-class SQLServer2005Platform extends SQLServerPlatform
+class SQLServer2008Keywords extends SQLServer2005Keywords
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function supportsLimitOffset()
+    public function getName()
     {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getClobTypeDeclarationSQL(array $field)
-    {
-        return 'VARCHAR(MAX)';
+        return 'SQLServer2008';
     }
 
     /**
      * {@inheritdoc}
      *
-     * Returns Microsoft SQL Server 2005 specific keywords class
+     * @link http://msdn.microsoft.com/en-us/library/ms189822%28v=sql.100%29.aspx
      */
-    protected function getReservedKeywordsClass()
+    protected function getKeywords()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords';
+        return array_merge(parent::getKeywords(), array(
+            'MERGE'
+        ));
     }
 }
-
