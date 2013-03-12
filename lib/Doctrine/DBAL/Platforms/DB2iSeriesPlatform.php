@@ -479,7 +479,7 @@ and table_name = UPPER('" . $table . "')
 
         if (!$this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE BDPRUEBAS.' . $diff->name . ' ' . implode(" ", $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(" ", $queryParts);
             }
 
             $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
