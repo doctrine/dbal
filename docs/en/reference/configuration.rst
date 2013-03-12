@@ -37,7 +37,7 @@ interfaces to use. It can be configured in one of three ways:
 
 -  ``driver``: The built-in driver implementation to use. The
    following drivers are currently available:
-   
+
    -  ``pdo_mysql``: A MySQL driver that uses the pdo\_mysql PDO
       extension.
    -  ``pdo_sqlite``: An SQLite driver that uses the pdo\_sqlite PDO
@@ -47,7 +47,7 @@ interfaces to use. It can be configured in one of three ways:
    -  ``pdo_oci``: An Oracle driver that uses the pdo\_oci PDO
       extension.
       **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
-   -  ``pdo_sqlsrv``: An MSSQL driver that uses pdo\_sqlsrv PDO
+   -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo\_sqlsrv PDO
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
 
 -  ``driverClass``: Specifies a custom driver implementation if no

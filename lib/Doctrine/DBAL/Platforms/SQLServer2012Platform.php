@@ -22,7 +22,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Schema\Sequence;
 
 /**
- * Platform to ensure compatibility of Doctrine with SQLServer2012 version.
+ * Platform to ensure compatibility of Doctrine with Microsoft SQL Server 2012 version.
  *
  * Differences to SQL Server 2008 and before are that sequences are introduced.
  *
@@ -88,6 +88,8 @@ class SQLServer2012Platform extends SQLServer2008Platform
 
     /**
      * {@inheritdoc}
+     *
+     * Returns Microsoft SQL Server 2012 specific keywords class
      */
     protected function getReservedKeywordsClass()
     {

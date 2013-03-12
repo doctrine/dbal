@@ -4,7 +4,7 @@ Portability
 There are often cases when you need to write an application or library that is portable
 across multiple different database vendors. The Doctrine ORM is one example of such
 a library. It is an abstraction layer over all the currently supported vendors (MySQL, Oracle,
-PostgreSQL, SQLite and MSSQL). If you want to use the DBAL to write a portable application
+PostgreSQL, SQLite and Microsoft SQL Server). If you want to use the DBAL to write a portable application
 or library you have to follow lots of rules to make all the different vendors work the
 same.
 

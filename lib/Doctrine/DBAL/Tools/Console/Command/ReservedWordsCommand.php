@@ -30,12 +30,15 @@ use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 class ReservedWordsCommand extends Command
 {
     private $keywordListClasses = array(
-        'mysql'     => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
-        'mssql'     => 'Doctrine\DBAL\Platforms\Keywords\MsSQLKeywords',
-        'sqlite'    => 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords',
-        'pgsql'     => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords',
-        'oracle'    => 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords',
-        'db2'       => 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords',
+        'mysql'         => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
+        'sqlserver'     => 'Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords',
+        'sqlserver2005' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords',
+        'sqlserver2008' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords',
+        'sqlserver2012' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords',
+        'sqlite'        => 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords',
+        'pgsql'         => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords',
+        'oracle'        => 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords',
+        'db2'           => 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords',
     );
 
     /**
@@ -66,7 +69,7 @@ class ReservedWordsCommand extends Command
 Checks if the current database contains tables and columns
 with names that are identifiers in this dialect or in other SQL dialects.
 
-By default SQLite, MySQL, PostgreSQL, MsSQL and Oracle
+By default SQLite, MySQL, PostgreSQL, Microsoft SQL Server and Oracle
 keywords are checked:
 
     <info>%command.full_name%</info>
@@ -82,7 +85,10 @@ The following keyword lists are currently shipped with Doctrine:
     * pgsql
     * sqlite
     * oracle
-    * mssql
+    * sqlserver
+    * sqlserver2005
+    * sqlserver2008
+    * sqlserver2012
     * db2 (Not checked by default)
 EOT
         );
@@ -98,7 +104,16 @@ EOT
 
         $keywordLists = (array)$input->getOption('list');
         if ( ! $keywordLists) {
-            $keywordLists = array('mysql', 'pgsql', 'sqlite', 'oracle', 'mssql');
+            $keywordLists = array(
+                'mysql',
+                'pgsql',
+                'sqlite',
+                'oracle',
+                'sqlserver',
+                'sqlserver2005',
+                'sqlserver2008',
+                'sqlserver2012'
+            );
         }
 
         $keywords = array();
