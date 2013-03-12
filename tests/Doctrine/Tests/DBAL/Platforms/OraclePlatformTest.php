@@ -224,6 +224,30 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('SELECT a.* FROM (SELECT * FROM user ORDER BY username DESC) a WHERE ROWNUM <= 10', $sql);
     }
 
+    public function testGenerateTableWithAutoincrement()
+    {
+        $columnName = strtoupper('id' . uniqid());
+        $tableName = strtoupper('table' . uniqid());
+        $table = new \Doctrine\DBAL\Schema\Table($tableName);
+        $column = $table->addColumn($columnName, 'integer');
+        $column->setAutoincrement(true);
+        $targets = array(
+          "CREATE TABLE {$tableName} ({$columnName} NUMBER(10) NOT NULL)",
+          "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '{$tableName}' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE {$tableName} ADD CONSTRAINT {$tableName}_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
+          "CREATE SEQUENCE {$tableName}_{$columnName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
+          "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_{$columnName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
+        );
+        $statements = $this->_platform->getCreateTableSQL($table);
+        //strip all the whitespace from the statements
+        array_walk($statements, function(&$value){
+          $value = preg_replace('/\s+/', ' ',$value);
+        });
+        foreach($targets as $key => $sql){
+          $this->assertArrayHasKey($key,$statements);
+          $this->assertEquals($sql, $statements[$key]);
+        }
+    }
+
     public function getCreateTableColumnCommentsSQL()
     {
         return array(

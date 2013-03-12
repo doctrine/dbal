@@ -393,6 +393,8 @@ class OraclePlatform extends AbstractPlatform
     public function getCreateAutoincrementSql($name, $table, $start = 1)
     {
         $table = strtoupper($table);
+        $name = strtoupper($name);
+
         $sql   = array();
 
         $indexName  = $table . '_AI_PK';
@@ -408,7 +410,7 @@ BEGIN
   END IF;
 END;';
 
-        $sequenceName = $table . '_SEQ';
+        $sequenceName = $table . '_' . $name . '_SEQ';
         $sequence = new Sequence($sequenceName, $start);
         $sql[] = $this->getCreateSequenceSQL($sequence);
 
