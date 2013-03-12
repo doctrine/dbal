@@ -639,7 +639,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm->createTable($this->getTestCompositeTable('test_create_fk4'));
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('id', 'foreign_key_test'), 'test_create_fk4', array('id', 'other_id'), 'foreign_key_test_fk'
+            array('id', 'foreign_key_test'), 'test_create_fk4', array('id', 'other_id'), 'foreign_key_test_fk2'
         );
 
         $this->_sm->createForeignKey($foreignKey, 'test_create_fk3');
