@@ -151,6 +151,7 @@ class OracleKeywords extends KeywordList
             'MODE',
             'ROWS',
             'WITH',
+            'RANGE',
         );
     }
 }
