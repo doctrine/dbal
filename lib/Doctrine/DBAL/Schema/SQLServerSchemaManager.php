@@ -49,7 +49,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $dbType = $tableColumn['type'];
+        $dbType = strtok($tableColumn['type'], '(), ');
         $fixed = null;
         $length = (int) $tableColumn['length'];
         $default = $tableColumn['default'];
