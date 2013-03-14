@@ -190,6 +190,7 @@ class MySQLKeywords extends KeywordList
             'PROCEDURE',
             'PURGE',
             'RAID0',
+            'RANGE',
             'READ',
             'READS',
             'REAL',
