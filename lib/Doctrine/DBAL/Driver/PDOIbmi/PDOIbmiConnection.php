@@ -24,11 +24,12 @@ use Doctrine\DBAL\Platforms\DB2iSeriesPlatform;
 
 /**
  *
- * @since 2.0
+ * @since 2.5
  */
 class PDOIbmiConnection extends \Doctrine\DBAL\Driver\PDOConnection {
 
-    public function lastInsertId($name = null) {
+    public function lastInsertId($name = null)
+    {
         $stm = parent::prepare("SELECT IDENTITY_VAL_LOCAL() AS VAL FROM SYSIBM.SYSDUMMY1");
         $stm->execute();
         $result = $stm->fetch(parent::FETCH_ASSOC);
@@ -36,4 +37,3 @@ class PDOIbmiConnection extends \Doctrine\DBAL\Driver\PDOConnection {
     }
 
 }
-

@@ -30,14 +30,16 @@ class DB2iSeriesPlatform extends AbstractPlatform {
     /**
      * {@inheritDoc}
      */
-    public function getBlobTypeDeclarationSQL(array $field) {
+    public function getBlobTypeDeclarationSQL(array $field)
+    {
         throw DBALException::notSupported(__METHOD__);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function initializeDoctrineTypeMappings() {
+    public function initializeDoctrineTypeMappings()
+    {
         $this->doctrineTypeMapping = array(
             'smallint' => 'smallint',
             'bigint' => 'bigint',
@@ -59,14 +61,16 @@ class DB2iSeriesPlatform extends AbstractPlatform {
     /**
      * {@inheritDoc}
      */
-    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed) {
+    protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
+    {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)') : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getClobTypeDeclarationSQL(array $field) {
+    public function getClobTypeDeclarationSQL(array $field)
+    {
         // todo clob(n) with $field['length'];
         return 'CLOB(1M)';
     }
@@ -74,11 +78,13 @@ class DB2iSeriesPlatform extends AbstractPlatform {
     /**
      * {@inheritDoc}
      */
-    public function getName() {
+    public function getName()
+    {
         return 'db2';
     }
 
-    public function getDecimalTypeDeclarationSQL(array $columnDef) {
+    public function getDecimalTypeDeclarationSQL(array $columnDef)
+    {
         $columnDef['precision'] = (!isset($columnDef['precision']) || empty($columnDef['precision'])) ? 10 : $columnDef['precision'];
         $columnDef['scale'] = (!isset($columnDef['scale']) || empty($columnDef['scale'])) ? 0 : $columnDef['scale'];
 
@@ -88,35 +94,40 @@ class DB2iSeriesPlatform extends AbstractPlatform {
     /**
      * {@inheritDoc}
      */
-    public function getBooleanTypeDeclarationSQL(array $columnDef) {
+    public function getBooleanTypeDeclarationSQL(array $columnDef)
+    {
         return 'SMALLINT';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getIntegerTypeDeclarationSQL(array $columnDef) {
+    public function getIntegerTypeDeclarationSQL(array $columnDef)
+    {
         return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getBigIntTypeDeclarationSQL(array $columnDef) {
+    public function getBigIntTypeDeclarationSQL(array $columnDef)
+    {
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getSmallIntTypeDeclarationSQL(array $columnDef) {
+    public function getSmallIntTypeDeclarationSQL(array $columnDef)
+    {
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef) {
+    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    {
         $autoinc = '';
         if (!empty($columnDef['autoincrement'])) {
             $autoinc = ' GENERATED ALWAYS AS IDENTITY  (START WITH 1, INCREMENT BY 1)';
@@ -129,7 +140,8 @@ class DB2iSeriesPlatform extends AbstractPlatform {
     /**
      * {@inheritDoc}
      */
-    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration) {
+    public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
+    {
         if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] == true) {
             return "TIMESTAMP WITH DEFAULT";
         }
@@ -140,31 +152,32 @@ class DB2iSeriesPlatform extends AbstractPlatform {
     /**
      * {@inheritDoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration) {
+    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    {
         return 'DATE';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getTimeTypeDeclarationSQL(array $fieldDeclaration) {
+    public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
+    {
         return 'TIME';
     }
 
-    public function getListDatabasesSQL() {
+    public function getListDatabasesSQL()
+    {
         throw DBALException::notSupported(__METHOD__);
     }
 
-    public function getListSequencesSQL($database) {
+    public function getListSequencesSQL($database)
+    {
         throw DBALException::notSupported(__METHOD__);
     }
 
-    public function getListTableConstraintsSQL($table) {
-
+    public function getListTableConstraintsSQL($table)
+    {
         throw DBALException::notSupported(__METHOD__);
-//        return "SELECT constraint_name as NAME,table_name as COLNAMES ,'Y' as UNIQUERULE
-//        FROM ".$database.".SYSCST
-//        where table_name = UPPER('.$table.')";
     }
 
     /**
@@ -175,22 +188,11 @@ class DB2iSeriesPlatform extends AbstractPlatform {
      * @param string $database
      * @return string
      */
-    public function getListTableColumnsSQL($table, $database = null) {
-//        return "SELECT DISTINCT c.tabschema, c.tabname, c.colname, c.colno,
-//                c.typename, c.default, c.nulls, c.length, c.scale,
-//                c.identity, tc.type AS tabconsttype, k.colseq
-//                FROM syscat.columns c
-//                LEFT JOIN (syscat.keycoluse k JOIN syscat.tabconst tc
-//                ON (k.tabschema = tc.tabschema
-//                    AND k.tabname = tc.tabname
-//                    AND tc.type = 'P'))
-//                ON (c.tabschema = k.tabschema
-//                    AND c.tabname = k.tabname
-//                    AND c.colname = k.colname)
-//                WHERE UPPER(c.tabname) = UPPER('" . $table . "') ORDER BY c.colno";
+    public function getListTableColumnsSQL($table, $database = null)
+    {
         return " SELECT c.table_schema as tabschema,c.table_name as tabname,c.column_name as colname,c.ordinal_position as colno,
-                    c.data_type as typename,c.column_default as default,c.is_nullable as nulls,c.length,c.numeric_scale as scale,
-                    case 
+                    trim(c.data_type) as typename,c.column_default as default,c.is_nullable as nulls,c.length,c.numeric_scale as scale,
+                    case
                         when c.is_identity  ='YES' then 'Y'
                         else 'N'
                         end identity,
@@ -217,44 +219,40 @@ class DB2iSeriesPlatform extends AbstractPlatform {
                 WHERE UPPER(C.TABLE_NAME) = UPPER('" . $table . "')";
     }
 
-    public function getListTablesSQL($database = null) {
+    public function getListTablesSQL($database = null)
+    {
         return "SELECT TABLE_NAME FROM " . \strtoupper($database) . ".SYSTABLES WHERE TYPE = 'T'";
-        //return "SELECT DISTINCT DBIFMT FROM QSYS.QADBIFLD WHERE DBILIB = '".$database."' AND DBIATR = 'TB'";
     }
 
-    public function getListUsersSQL() {
+    public function getListUsersSQL()
+    {
         throw DBALException::notSupported(__METHOD__);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getListViewsSQL($database) {
+    public function getListViewsSQL($database)
+    {
         return "SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS";
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null) {
-        //return "SELECT NAME, COLNAMES, UNIQUERULE FROM SYSIBM.SYSINDEXES WHERE TBNAME = UPPER('" . $table . "')";
-//        return "SELECT i.index_name as NAME,t.column_names as COLNAMES ,i.is_unique as UNIQUERULE
-//            FROM QSYS2.SYSINDEXES i, qsys2.SYSINDEXSTAT t
-//            where i.index_name = t.index_name
-//            and i.table_name = UPPER('" . $table . "') ";
-
+    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    {
         return "SELECT i.index_name as NAME,t.column_names as COLNAMES ,i.is_unique as UNIQUERULE
             FROM QSYS2.SYSINDEXES i, qsys2.SYSINDEXSTAT t
             where i.index_name = t.index_name
             and i.table_name = UPPER('" . $table . "')
                 union        
         SELECT s.constraint_name as NAME, 'ID' as COLNAMES ,'P' as UNIQUERULE
-FROM ".$currentDatabase.".SYSCST s left join sysibm.sysdummy1 a on (s.table_name = a.ibmreqd)";
+FROM " . $currentDatabase . ".SYSCST s left join sysibm.sysdummy1 a on (s.table_name = a.ibmreqd)";
     }
 
-    public function getListTableForeignKeysSQL($table, $database = null) {
-//        return "SELECT TBNAME, RELNAME, REFTBNAME, DELETERULE, UPDATERULE, FKCOLNAMES, PKCOLNAMES ".
-//               "FROM SYSIBM.SYSRELS WHERE TBNAME = UPPER('".$table."')";
+    public function getListTableForeignKeysSQL($table, $database = null)
+    {
         return "SELECT table_name as TBNAME, rc.constraint_name as RELNAME, pktable_name as REFTBNAME,
 rc.delete_rule as DELETERULE, rc.update_rule as UPDATERULE,fkcolumn_name as FKCOLNAMES, pkcolumn_name as PKCOLNAMES 
 FROM  " . $database . ".SYSREFCST rc,  " . $database . ".SYSCST c, SYSIBM.SQLFOREIGNKEYS fk
@@ -263,85 +261,98 @@ and table_name = UPPER('" . $table . "')
 ";
     }
 
-    public function getCreateViewSQL($name, $sql) {
+    public function getCreateViewSQL($name, $sql)
+    {
         return "CREATE VIEW " . $name . " AS " . $sql;
     }
 
-    public function getDropViewSQL($name) {
+    public function getDropViewSQL($name)
+    {
         return "DROP VIEW " . $name;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDropSequenceSQL($sequence) {
+    public function getDropSequenceSQL($sequence)
+    {
         throw DBALException::notSupported(__METHOD__);
     }
 
-    public function getSequenceNextValSQL($sequenceName) {
+    public function getSequenceNextValSQL($sequenceName)
+    {
         throw DBALException::notSupported(__METHOD__);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCreateDatabaseSQL($database) {
+    public function getCreateDatabaseSQL($database)
+    {
         return "CREATE DATABASE " . $database;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDropDatabaseSQL($database) {
+    public function getDropDatabaseSQL($database)
+    {
         return "DROP DATABASE " . $database . ";";
     }
 
     /**
      * {@inheritDoc}
      */
-    public function supportsCreateDropDatabase() {
+    public function supportsCreateDropDatabase()
+    {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function supportsReleaseSavepoints() {
+    public function supportsReleaseSavepoints()
+    {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCurrentDateSQL() {
+    public function getCurrentDateSQL()
+    {
         return 'VALUES CURRENT DATE';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCurrentTimeSQL() {
+    public function getCurrentTimeSQL()
+    {
         return 'VALUES CURRENT TIME';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCurrentTimestampSQL() {
+    public function getCurrentTimestampSQL()
+    {
         return "VALUES CURRENT TIMESTAMP";
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getIndexDeclarationSQL($name, Index $index) {
+    public function getIndexDeclarationSQL($name, Index $index)
+    {
         return $this->getUniqueConstraintDeclarationSQL($name, $index);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = array()) {
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    {
         $indexes = array();
         if (isset($options['indexes'])) {
             $indexes = $options['indexes'];
@@ -390,7 +401,8 @@ and table_name = UPPER('" . $table . "')
      *
      * @return string  DBMS specific SQL code portion that should be used to declare the column.
      */
-    public function getAlterColumnDeclarationSQL($name, array $field, $alter) {
+    public function getAlterColumnDeclarationSQL($name, array $field, $alter)
+    {
         if (isset($field['columnDefinition'])) {
             $columnDef = $this->getCustomTypeDeclarationSQL($field);
         } else {
@@ -403,11 +415,10 @@ and table_name = UPPER('" . $table . "')
                     ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
 
-           $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+            $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
 
-           $notnull ="";
-
-
+            // Cannot add notnull to existing tables in db2
+            $notnull = "";
 
             $unique = (isset($field['unique']) && $field['unique']) ?
                     ' ' . $this->getUniqueFieldDeclarationSQL() : '';
@@ -418,10 +429,8 @@ and table_name = UPPER('" . $table . "')
             $typeDecl = $field['type']->getSqlDeclaration($field, $this);
 
             $typePref = (isset($alter) && $alter) ? 'SET DATA TYPE ' : '';
-     
-            $columnDef = $typePref . $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
 
-            
+            $columnDef = $typePref . $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
         }
 
         if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment']) {
@@ -434,7 +443,8 @@ and table_name = UPPER('" . $table . "')
     /**
      * {@inheritDoc}
      */
-    public function getAlterTableSQL(TableDiff $diff) {
+    public function getAlterTableSQL(TableDiff $diff)
+    {
         $sql = array();
         $columnSql = array();
 
@@ -444,7 +454,7 @@ and table_name = UPPER('" . $table . "')
                 continue;
             }
 
-            $queryParts[] = 'ADD COLUMN ' . $this->getAlterColumnDeclarationSQL($column->getQuotedName($this), $column->toArray(),false);
+            $queryParts[] = 'ADD COLUMN ' . $this->getAlterColumnDeclarationSQL($column->getQuotedName($this), $column->toArray(), false);
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -495,7 +505,8 @@ and table_name = UPPER('" . $table . "')
     /**
      * {@inheritDoc}
      */
-    public function getDefaultValueDeclarationSQL($field) {
+    public function getDefaultValueDeclarationSQL($field)
+    {
         //var_dump($field);
 
         /**
@@ -553,25 +564,29 @@ and table_name = UPPER('" . $table . "')
     /**
      * {@inheritDoc}
      */
-    public function getEmptyIdentityInsertSQL($tableName, $identifierColumnName) {
+    public function getEmptyIdentityInsertSQL($tableName, $identifierColumnName)
+    {
         return 'INSERT INTO ' . $tableName . ' (' . $identifierColumnName . ') VALUES (DEFAULT)';
     }
 
-    public function getCreateTemporaryTableSnippetSQL() {
+    public function getCreateTemporaryTableSnippetSQL()
+    {
         return "DECLARE GLOBAL TEMPORARY TABLE";
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getTemporaryTableName($tableName) {
+    public function getTemporaryTableName($tableName)
+    {
         return "SESSION." . $tableName;
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function doModifyLimitQuery($query, $limit, $offset = null) {
+    protected function doModifyLimitQuery($query, $limit, $offset = null)
+    {
         if ($limit === null && $offset === null) {
             return $query;
         }
@@ -589,7 +604,8 @@ and table_name = UPPER('" . $table . "')
     /**
      * {@inheritDoc}
      */
-    public function getLocateExpression($str, $substr, $startPos = false) {
+    public function getLocateExpression($str, $substr, $startPos = false)
+    {
         if ($startPos == false) {
             return 'LOCATE(' . $substr . ', ' . $str . ')';
         }
@@ -600,7 +616,8 @@ and table_name = UPPER('" . $table . "')
     /**
      * {@inheritDoc}
      */
-    public function getSubstringExpression($value, $from, $length = null) {
+    public function getSubstringExpression($value, $from, $length = null)
+    {
         if ($length === null) {
             return 'SUBSTR(' . $value . ', ' . $from . ')';
         }
@@ -611,14 +628,16 @@ and table_name = UPPER('" . $table . "')
     /**
      * {@inheritDoc}
      */
-    public function supportsIdentityColumns() {
+    public function supportsIdentityColumns()
+    {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function prefersIdentityColumns() {
+    public function prefersIdentityColumns()
+    {
         return true;
     }
 
@@ -627,18 +646,21 @@ and table_name = UPPER('" . $table . "')
      *
      * DB2 returns all column names in SQL result sets in uppercase.
      */
-    public function getSQLResultCasing($column) {
+    public function getSQLResultCasing($column)
+    {
         return strtoupper($column);
     }
 
-    public function getForUpdateSQL() {
+    public function getForUpdateSQL()
+    {
         return ' WITH RR USE AND KEEP UPDATE LOCKS';
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDummySelectSQL() {
+    public function getDummySelectSQL()
+    {
         return 'SELECT 1 FROM sysibm.sysdummy1';
     }
 
@@ -649,14 +671,16 @@ and table_name = UPPER('" . $table . "')
      *
      * TODO: We have to investigate how to get DB2 up and running with savepoints.
      */
-    public function supportsSavepoints() {
+    public function supportsSavepoints()
+    {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function getReservedKeywordsClass() {
+    protected function getReservedKeywordsClass()
+    {
         return 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords';
     }
 
@@ -668,7 +692,8 @@ and table_name = UPPER('" . $table . "')
      *
      * @return string
      */
-    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey) {
+    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
+    {
         $query = '';
         if ($this->supportsForeignKeyOnUpdate() && $foreignKey->hasOption('onUpdate')) {
             $query .= ' ON UPDATE ' . $this->getForeignKeyReferentialActionSQLUpdate($foreignKey->getOption('onUpdate'));
@@ -689,7 +714,8 @@ and table_name = UPPER('" . $table . "')
      *
      * @return string
      */
-    public function getForeignKeyReferentialActionSQLUpdate($action) {
+    public function getForeignKeyReferentialActionSQLUpdate($action)
+    {
         $upper = strtoupper($action);
         switch ($upper) {
             case 'CASCADE': return 'RESTRICT';
@@ -702,7 +728,8 @@ and table_name = UPPER('" . $table . "')
         }
     }
 
-    public function getForeignKeyReferentialActionSQLDelete($action) {
+    public function getForeignKeyReferentialActionSQLDelete($action)
+    {
         $upper = strtoupper($action);
         switch ($upper) {
             case 'CASCADE':
@@ -714,6 +741,26 @@ and table_name = UPPER('" . $table . "')
             default:
                 throw new \InvalidArgumentException('Invalid foreign key action: ' . $upper);
         }
+    }
+
+    /**
+     * Get the Doctrine type that is mapped for the given database column type.
+     *
+     * @param  string $dbType
+     *
+     * @return string
+     */
+    public function getDoctrineTypeMapping($dbType)
+    {
+        if ($this->doctrineTypeMapping === null) {
+            $this->initializeDoctrineTypeMappings();
+        }
+        $dbType = strtolower($dbType);
+        if (!isset($this->doctrineTypeMapping[$dbType])) {
+            throw new \Doctrine\DBAL\DBALException("Unknown database type " . $dbType . " requested, " . get_class($this) . " may not support it.");
+        }
+
+        return $this->doctrineTypeMapping[$dbType];
     }
 
 }
