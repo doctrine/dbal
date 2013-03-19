@@ -210,7 +210,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         return 'ALTER TABLE test ADD CONSTRAINT constraint_name PRIMARY KEY (test)';
     }
 
-    public function getGenerateConstraintForeignKeySql(\Doctrine\DBAL\Schema\ForeignKeyConstraint $fk)
+    public function getGenerateConstraintForeignKeySql(ForeignKeyConstraint $fk)
     {
         $quotedForeignTable = $fk->getQuotedForeignTableName($this->_platform);
 
