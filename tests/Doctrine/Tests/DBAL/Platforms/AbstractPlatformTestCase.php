@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
@@ -153,7 +154,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name'), 'foreign', array('id'), 'constraint_fk');
         $sql = $this->_platform->getCreateConstraintSQL($fk, 'test');
-        $this->assertEquals($this->getGenerateConstraintForeignKeySql(), $sql);
+        $this->assertEquals($this->getGenerateConstraintForeignKeySql($fk), $sql);
     }
 
     public function testGeneratesForeignKeySqlOnlyWhenSupportingForeignKeys()
@@ -209,9 +210,11 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         return 'ALTER TABLE test ADD CONSTRAINT constraint_name PRIMARY KEY (test)';
     }
 
-    public function getGenerateConstraintForeignKeySql()
+    public function getGenerateConstraintForeignKeySql(ForeignKeyConstraint $fk)
     {
-        return 'ALTER TABLE test ADD CONSTRAINT constraint_fk FOREIGN KEY (fk_name) REFERENCES foreign (id)';
+        $quotedForeignTable = $fk->getQuotedForeignTableName($this->_platform);
+
+        return "ALTER TABLE test ADD CONSTRAINT constraint_fk FOREIGN KEY (fk_name) REFERENCES $quotedForeignTable (id)";
     }
 
     abstract public function getGenerateAlterTableSql();

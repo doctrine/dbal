@@ -1362,7 +1362,8 @@ abstract class AbstractPlatform
                 $foreignColumns[] = $column;
             }
 
-            $referencesClause = ' REFERENCES '.$constraint->getForeignTableName(). ' ('.implode(', ', $foreignColumns).')';
+            $referencesClause = ' REFERENCES ' . $constraint->getQuotedForeignTableName($this) .
+                ' (' . implode(', ', $foreignColumns) . ')';
         }
         $query .= ' '.$columnList.$referencesClause;
 
