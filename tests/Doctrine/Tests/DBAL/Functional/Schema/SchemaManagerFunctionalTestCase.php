@@ -8,8 +8,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     /**

@@ -7,8 +7,6 @@ use Doctrine\DBAL\Event\Listeners\OracleSessionInit;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class OracleSessionInitTest extends DbalTestCase
 {
     public function testPostConnect()

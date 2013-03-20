@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Query;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder,
     Doctrine\DBAL\Query\QueryBuilder;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 /**
  * @group DBAL-12
  */

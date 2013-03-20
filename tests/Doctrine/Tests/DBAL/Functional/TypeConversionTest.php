@@ -4,8 +4,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     static private $typeCounter = 0;

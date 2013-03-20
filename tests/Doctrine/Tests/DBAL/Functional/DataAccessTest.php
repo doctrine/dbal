@@ -6,8 +6,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Connection;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     static private $generated = false;
@@ -203,9 +201,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $row = array_change_key_case($row, \CASE_LOWER);
         $this->assertEquals(1, $row['test_int']);
-        $this->assertEquals($datetimeString, $row['test_datetime']);        
+        $this->assertEquals($datetimeString, $row['test_datetime']);
     }
-    
+
     /**
      * @group DBAL-209
      * @expectedException \Doctrine\DBAL\DBALException

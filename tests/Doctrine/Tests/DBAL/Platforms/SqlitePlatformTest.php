@@ -9,8 +9,6 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\DBALException;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()

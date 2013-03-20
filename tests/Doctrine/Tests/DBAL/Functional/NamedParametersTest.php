@@ -5,9 +5,6 @@ namespace Doctrine\Tests\DBAL\Functional\Ticket;
 use Doctrine\DBAL\Connection;
 use\PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
-
 /**
  * @group DDC-1372
  */

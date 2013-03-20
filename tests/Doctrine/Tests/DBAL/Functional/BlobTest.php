@@ -6,8 +6,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Connection;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 /**
  * @group DBAL-6
  */

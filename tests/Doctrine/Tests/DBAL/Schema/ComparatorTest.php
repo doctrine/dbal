@@ -19,8 +19,6 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 use Doctrine\DBAL\Schema\Schema,
     Doctrine\DBAL\Schema\SchemaConfig,
     Doctrine\DBAL\Schema\Table,

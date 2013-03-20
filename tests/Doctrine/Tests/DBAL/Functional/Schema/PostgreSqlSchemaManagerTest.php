@@ -6,8 +6,6 @@ use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     public function tearDown()

@@ -7,8 +7,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 /**
  * @group DBAL-56
  */

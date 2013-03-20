@@ -5,8 +5,6 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 /**
  * @group DDC-217
  */
@@ -65,7 +63,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_BOTH);
     }
-	
+
     public function testFetchColumn()
     {
         $expectedResult = array();
