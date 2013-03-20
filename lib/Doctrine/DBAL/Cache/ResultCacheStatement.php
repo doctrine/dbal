@@ -106,6 +106,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      */
     public function closeCursor()
     {
+    	$savedInCache = true;
         $this->statement->closeCursor();
         if ($this->emptied && $this->data !== null) {
             $data = $this->resultCache->fetch($this->cacheKey);
@@ -113,10 +114,10 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
                 $data = array();
             }
             $data[$this->realKey] = $this->data;
-
-            $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
+            $savedInCache = $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
             unset($this->data);
         }
+        return $savedInCache;
     }
 
     /**
@@ -217,6 +218,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
             // TODO: verify this is correct behavior
             return false;
         }
+        $this->emptied = true;
         return $row[$columnIndex];
     }
 

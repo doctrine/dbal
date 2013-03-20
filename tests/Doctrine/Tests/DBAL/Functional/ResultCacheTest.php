@@ -74,7 +74,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_COLUMN);
     }
-
+    
     public function testMixingFetch()
     {
         $numExpectedResult = array();
@@ -184,6 +184,28 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(2, count($this->sqlLogger->queries), "two hits");
         $this->assertEquals(1, count($secondCache->fetch("emptycachekey")));
     }
+    
+    public function testFetchColumnCache()
+    {
+    	$stmt = $this->_conn->executeQuery("SELECT test_int FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+    	$row = $stmt->fetchColumn(0);
+    	$stmt->closeCursor();
+    	
+    	$stmt = $this->_conn->executeQuery("SELECT test_int FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+    	$row = $stmt->fetchColumn(0);
+    	$this->assertEquals(1, count($this->sqlLogger->queries), "just one dbal hit");
+    }
+    
+    public function testFailedResultCacheSaveReturnsFalse(){
+    	$mockCache = $this->getMock('\Doctrine\Common\Cache\ArrayCache');
+    	$mockCache->expects($this->once())
+    	          ->method('save')
+    	          ->will($this->returnValue(false));
+    	
+    	$stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "emptycachekey", $mockCache));
+        $data = $this->hydrateStmt($stmt);
+    }
+    
 
     private function hydrateStmt($stmt, $fetchMode = \PDO::FETCH_ASSOC)
     {
