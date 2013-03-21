@@ -71,7 +71,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      *
      * @var bool
      */
-    private $emptied = false;
+    private $atEndOfStatement = false;
 
     /**
      * @var array
@@ -108,7 +108,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     {
         $savedInCache = true;
         $this->statement->closeCursor();
-        if ($this->emptied && $this->data !== null) {
+        if ($this->atEndOfStatement && $this->data !== null) {
             $data = $this->resultCache->fetch($this->cacheKey);
             if ( ! $data) {
                 $data = array();
@@ -178,7 +178,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
                 throw new \InvalidArgumentException("Invalid fetch-style given for caching result.");
             }
         }
-        $this->emptied = true;
+        $this->atEndOfStatement = true;
         return false;
     }
 
@@ -218,7 +218,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
             // TODO: verify this is correct behavior
             return false;
         }
-        $this->emptied = true;
+        $this->atEndOfStatement = true;
         return $row[$columnIndex];
     }
 
