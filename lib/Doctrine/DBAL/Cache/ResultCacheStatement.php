@@ -106,7 +106,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      */
     public function closeCursor()
     {
-    	$savedInCache = true;
+        $savedInCache = true;
         $this->statement->closeCursor();
         if ($this->emptied && $this->data !== null) {
             $data = $this->resultCache->fetch($this->cacheKey);

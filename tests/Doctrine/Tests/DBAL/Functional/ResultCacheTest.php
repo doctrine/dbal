@@ -74,7 +74,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_COLUMN);
     }
-    
+	
     public function testMixingFetch()
     {
         $numExpectedResult = array();
@@ -206,7 +206,6 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $data = $this->hydrateStmt($stmt);
     }
     
-
     private function hydrateStmt($stmt, $fetchMode = \PDO::FETCH_ASSOC)
     {
         $data = array();
