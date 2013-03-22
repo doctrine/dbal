@@ -463,7 +463,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ($sequence instanceof \Doctrine\DBAL\Schema\Sequence) {
             $sequence = $sequence->getQuotedName($this);
         }
-        return 'DROP SEQUENCE ' . $sequence;
+        return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
     }
 
     /**
