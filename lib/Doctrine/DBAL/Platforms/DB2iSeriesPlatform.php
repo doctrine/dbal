@@ -718,7 +718,8 @@ and table_name = UPPER('" . $table . "')
     {
         $upper = strtoupper($action);
         switch ($upper) {
-            case 'CASCADE': return 'RESTRICT';
+            case 'CASCADE': 
+                return 'RESTRICT';
             case 'NO ACTION':
             case 'RESTRICT':
             case 'SET DEFAULT':

@@ -24,9 +24,8 @@ use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Events;
 
 /**
- * IBM Db2 Schema Manager
+ * IBM Db2 Schema Manager for iSeries
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
  * @since       2.5
  * @author      Benjamin Eberlei <kontakt@beberlei.de>

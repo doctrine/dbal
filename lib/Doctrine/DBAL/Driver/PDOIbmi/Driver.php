@@ -54,7 +54,6 @@ use Doctrine\DBAL\Connection;
 /**
  * Driver for the PDO IBM extension
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.com
  * @since       2.5
  * @author      Benjamin Eberlei <kontakt@beberlei.de>
