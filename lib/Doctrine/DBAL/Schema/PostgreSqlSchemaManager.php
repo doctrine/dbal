@@ -232,12 +232,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     protected function _getPortableSequenceDefinition($sequence)
     {
         if ($sequence['schemaname'] != 'public') {
-            $sequenceName = $sequence['schemaname'] . "." . $sequence['relname'];
+            $sequenceName = $this->_conn->quoteIdentifier($sequence['schemaname']) . "." .
+                $this->_conn->quoteIdentifier($sequence['relname']);
         } else {
-            $sequenceName = $sequence['relname'];
+            $sequenceName = $this->_conn->quoteIdentifier($sequence['relname']);
         }
 
-        $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+        $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $sequenceName);
         return new Sequence($sequenceName, $data[0]['increment_by'], $data[0]['min_value']);
     }
 
