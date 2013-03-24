@@ -232,7 +232,7 @@ abstract class AbstractPlatform
      * Returns the SQL snippet for declaring a GUID/UUID column.
      *
      * By default this maps directly to a VARCHAR and only maps to more
-     * special datatypes when the underlying databases support this datatype.
+     * special data types when the underlying databases support this data type.
      *
      * @param array $field Column definition.
      *
@@ -1627,7 +1627,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Dispatches event for adding a column during a table alteraton.
+     * Dispatches event for adding a column during a table alteration.
      *
      * @param \Doctrine\DBAL\Schema\Column    $column     Column to add during the table alteration.
      * @param \Doctrine\DBAL\Schema\TableDiff $diff       Diff of changes to perform on the table.
@@ -1654,7 +1654,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Dispatches event for removing a column during a table alteraton.
+     * Dispatches event for removing a column during a table alteration.
      *
      * @param \Doctrine\DBAL\Schema\Column    $column     Column to remove during the table alteration.
      * @param \Doctrine\DBAL\Schema\TableDiff $diff       Diff of changes to perform on the table.
@@ -1681,7 +1681,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Dispatches event for changing a column during a table alteraton.
+     * Dispatches event for changing a column during a table alteration.
      *
      * @param \Doctrine\DBAL\Schema\ColumnDiff $columnDiff Diff of changes to perform on the column.
      * @param \Doctrine\DBAL\Schema\TableDiff  $diff       Diff of changes to perform on the table.
@@ -1708,7 +1708,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Dispatches event for renaming a column during a table alteraton.
+     * Dispatches event for renaming a column during a table alteration.
      *
      * @param string                          $oldColumnName Old/current name of the column.
      * @param \Doctrine\DBAL\Schema\Column    $column        Column to rename during the table alteration.
