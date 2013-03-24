@@ -1128,7 +1128,7 @@ abstract class AbstractPlatform
     {
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } else if ( ! is_string($table)) {
+        } elseif ( ! is_string($table)) {
             throw new \InvalidArgumentException(
                 'getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.'
             );
@@ -1172,7 +1172,7 @@ abstract class AbstractPlatform
     {
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
-        } else if ( ! is_string($index)) {
+        } elseif ( ! is_string($index)) {
             throw new \InvalidArgumentException(
                 'AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.'
             );
@@ -1451,14 +1451,14 @@ abstract class AbstractPlatform
         if ($constraint instanceof Index) {
             if ($constraint->isPrimary()) {
                 $query .= ' PRIMARY KEY';
-            } else if ($constraint->isUnique()) {
+            } elseif ($constraint->isUnique()) {
                 $query .= ' UNIQUE';
             } else {
                 throw new \InvalidArgumentException(
                     'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
                 );
             }
-        } else if ($constraint instanceof ForeignKeyConstraint) {
+        } elseif ($constraint instanceof ForeignKeyConstraint) {
             $query .= ' FOREIGN KEY';
 
             $referencesClause = ' REFERENCES ' . $constraint->getQuotedForeignTableName($this) .
@@ -2327,7 +2327,7 @@ abstract class AbstractPlatform
                     $item[$key] = (int) $value;
                 }
             }
-        } else if (is_bool($item)) {
+        } elseif (is_bool($item)) {
             $item = (int) $item;
         }
 
