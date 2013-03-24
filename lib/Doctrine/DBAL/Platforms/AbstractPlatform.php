@@ -2485,6 +2485,10 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL statement for listing all indexes of a table.
      *
+     * Attention: Some platforms only support currentDatabase when they
+     * are connected with that database. Cross-database information schema
+     * requests may be impossible.
+     *
      * @param string $table           Table name to list all indexes for.
      * @param string $currentDatabase Name of the currently used database.
      *
@@ -2665,6 +2669,8 @@ abstract class AbstractPlatform
 
     /**
      * Returns the default transaction isolation level of the platform.
+     *
+     * @see Doctrine\DBAL\Connection\TRANSACTION_* constants.
      *
      * @return integer The default isolation level of the platform.
      */
