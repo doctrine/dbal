@@ -1497,7 +1497,7 @@ abstract class AbstractPlatform
 
        return
            'CREATE ' . $this->getCreateIndexSQLFlags($index) .
-           ' INDEX ' . $index->getQuotedName($this) .
+           'INDEX ' . $index->getQuotedName($this) .
            ' ON ' . $table .
            ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
     }
