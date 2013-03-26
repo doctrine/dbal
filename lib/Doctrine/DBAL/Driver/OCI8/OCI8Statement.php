@@ -122,7 +122,11 @@ class OCI8Statement implements \IteratorAggregate, Statement
 
             return oci_bind_by_name($this->_sth, $column, $lob, -1, OCI_B_BLOB);
         } else {
-            return oci_bind_by_name($this->_sth, $column, $variable);
+            if ($length!=null) {
+                return oci_bind_by_name($this->_sth, $column, $variable, $length);
+            } else {
+                return oci_bind_by_name($this->_sth, $column, $variable);
+            }
         }
     }
 
