@@ -19,12 +19,6 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereException;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Types\Type;
 
 /**
