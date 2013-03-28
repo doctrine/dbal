@@ -41,6 +41,9 @@ class ReservedWordsCommand extends Command
         'pgsql'         => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords',
         'oracle'        => 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords',
         'db2'           => 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords',
+        'sqlanywhere'   => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords',
+        'sqlanywhere11' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords',
+        'sqlanywhere12' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords'
     );
 
     /**
@@ -73,8 +76,8 @@ class ReservedWordsCommand extends Command
 Checks if the current database contains tables and columns
 with names that are identifiers in this dialect or in other SQL dialects.
 
-By default SQLite, MySQL, PostgreSQL, Microsoft SQL Server and Oracle
-keywords are checked:
+By default SQLite, MySQL, PostgreSQL, Microsoft SQL Server, Oracle
+and SQL Anywhere keywords are checked:
 
     <info>%command.full_name%</info>
 
@@ -93,6 +96,9 @@ The following keyword lists are currently shipped with Doctrine:
     * sqlserver2005
     * sqlserver2008
     * sqlserver2012
+    * sqlanywhere
+    * sqlanywhere11
+    * sqlanywhere12
     * db2 (Not checked by default)
 EOT
         );
@@ -116,7 +122,10 @@ EOT
                 'sqlserver',
                 'sqlserver2005',
                 'sqlserver2008',
-                'sqlserver2012'
+                'sqlserver2012',
+                'sqlanywhere',
+                'sqlanywhere11',
+                'sqlanywhere12'
             );
         }
 
