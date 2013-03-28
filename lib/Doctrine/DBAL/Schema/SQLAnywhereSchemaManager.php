@@ -31,13 +31,6 @@ use Doctrine\DBAL\Types\Type;
 class SQLAnywhereSchemaManager extends AbstractSchemaManager
 {
     /**
-     * Holds instance of the database platform used for this schema manager
-     *
-     * @var \Doctrine\DBAL\Platforms\SQLAnywherePlatform $_platform
-     */
-    protected $_platform;
-
-    /**
      * {@inheritdoc}
      *
      * Starts a database after creation
