@@ -125,7 +125,7 @@ EOT
                 'sqlserver2012',
                 'sqlanywhere',
                 'sqlanywhere11',
-                'sqlanywhere12'
+                'sqlanywhere12',
             );
         }
 
