@@ -117,7 +117,7 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
         if ($deterministic) {
             $this->assertEquals($expectedResults, $data);
         } else {
-            $this->assertEquals(count($expectedResults), count($data));
+            $this->assertCount(count($expectedResults), $data);
         }
     }
 }
