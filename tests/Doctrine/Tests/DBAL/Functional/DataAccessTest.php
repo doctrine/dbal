@@ -548,6 +548,18 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
+    /**
+     * @group DBAL-435
+     */
+    public function testEmptyParameters()
+    {
+        $sql = "SELECT * FROM fetch_table WHERE test_int IN (?)";
+        $stmt = $this->_conn->executeQuery($sql, array(array()), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
+        $rows = $stmt->fetchAll();
+
+        $this->assertEquals(array(), $rows);
+    }
+
     private function setupFixture()
     {
         $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
