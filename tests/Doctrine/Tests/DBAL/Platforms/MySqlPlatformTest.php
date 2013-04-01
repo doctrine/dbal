@@ -8,6 +8,8 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 
 
 class MySqlPlatformTest extends AbstractPlatformTestCase
@@ -34,14 +36,14 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
         return array(
-            'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA (foo, bar)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
+            'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA (`foo`, `bar`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
         );
     }
 
     public function getGenerateAlterTableSql()
     {
         return array(
-            "ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE bloo bloo TINYINT(1) DEFAULT '0' NOT NULL"
+            "ALTER TABLE `mytable` RENAME TO `userlist`, ADD quota INT DEFAULT NULL, DROP foo, CHANGE `bar` baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE `bloo` bloo TINYINT(1) DEFAULT '0' NOT NULL"
         );
     }
 
@@ -135,12 +137,12 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql()
     {
-        return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
+        return 'CREATE INDEX my_idx ON `mytable` (`user_name`, `last_login`)';
     }
 
     public function getGenerateUniqueIndexSql()
     {
-        return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
+        return 'CREATE UNIQUE INDEX index_name ON `test` (`test`, `test2`)';
     }
 
     public function getGenerateForeignKeySql()
@@ -169,8 +171,8 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $sql = $this->_platform->getAlterTableSQL($diff);
 
         $this->assertEquals(array(
-            "ALTER TABLE foo ADD PRIMARY KEY (bar)",
-            "CREATE UNIQUE INDEX UNIQ_8C73652178240498 ON foo (baz)",
+            "ALTER TABLE `foo` ADD PRIMARY KEY (`bar`)",
+            "CREATE UNIQUE INDEX UNIQ_8C73652178240498 ON `foo` (`baz`)",
         ), $sql);
     }
 
@@ -203,7 +205,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
 
     public function getAlterTableColumnCommentsSQL()
     {
-        return array("ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'");
+        return array("ALTER TABLE `mytable` ADD quota INT NOT NULL COMMENT 'A comment', CHANGE `bar` baz VARCHAR(255) NOT NULL COMMENT 'B comment'");
     }
 
     public function getCreateTableColumnTypeCommentsSQL()
@@ -221,11 +223,11 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
 
         $diff = new TableDiff("test", array(), array(), array(), array($unique), array(), array($index));
         $sql = $this->_platform->getAlterTableSQL($diff);
-        $this->assertEquals(array("ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)"), $sql);
+        $this->assertEquals(array("ALTER TABLE `test` DROP INDEX `idx`, ADD UNIQUE INDEX `uniq` (`col`)"), $sql);
 
         $diff = new TableDiff("test", array(), array(), array(), array($index), array(), array($unique));
         $sql = $this->_platform->getAlterTableSQL($diff);
-        $this->assertEquals(array("ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"), $sql);
+        $this->assertEquals(array("ALTER TABLE `test` DROP INDEX `uniq`, ADD INDEX `idx` (`col`)"), $sql);
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
@@ -253,7 +255,64 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $index->addFlag('fulltext');
 
         $sql = $this->_platform->getCreateTableSQL($table);
-        $this->assertEquals(array('CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (text)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
+        $this->assertEquals(array('CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (`text`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
+    }
+
+    public function testIdentifierQuotingInAlterTable()
+    {
+        // Table
+        // -----
+        $diff = new TableDiff("table", array(), array(), array(), array(), array(), array());
+        $diff->newName = "database";
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array("ALTER TABLE `table` RENAME TO `database`"), $sql);
+
+        // Columns
+        // -------
+        $col = new Column("right", Type::getType("integer"));
+        $colDiff = new ColumnDiff("left", $col, array());
+
+        // Added column
+        $diff = new TableDiff("table", array($col), array(), array(), array(), array(), array());
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array("ALTER TABLE `table` ADD `right` INT NOT NULL"), $sql);
+
+        // Modified column
+        $diff = new TableDiff("table", array(), array($colDiff), array(), array(), array(), array());
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array("ALTER TABLE `table` CHANGE `left` `right` INT NOT NULL"), $sql);
+
+        // Removed column
+        $diff = new TableDiff("table", array(), array(), array($col), array(), array(), array());
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array("ALTER TABLE `table` DROP `right`"), $sql);
+
+        // Indexes
+        // -------
+        $idx = new Index("index", array("column"), false);
+
+        // Added index
+        $diff = new TableDiff("table", array(), array(), array(), array($idx), array(), array());
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array("CREATE INDEX `index` ON `table` (`column`)"), $sql);
+
+        // Modified index
+        $diff = new TableDiff("table", array(), array(), array(), array(), array($idx), array());
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array(
+            "DROP INDEX `index` ON `table`",
+            "CREATE INDEX `index` ON `table` (`column`)",
+        ), $sql);
+
+        // Removed index
+        $diff = new TableDiff("table", array(), array(), array(), array(), array(), array($idx));
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array("DROP INDEX `index` ON `table`"), $sql);
+
+        // Indexes sharing columns
+        $diff = new TableDiff("table", array(), array(), array(), array($idx), array(), array($idx));
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals(array("ALTER TABLE `table` DROP INDEX `index`, ADD INDEX `index` (`column`)"), $sql);
     }
 
     public function testClobTypeDeclarationSQL()

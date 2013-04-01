@@ -21,7 +21,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'CREATE TABLE test (foo NVARCHAR(255) NULL, bar NVARCHAR(255) NULL)',
-            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar) WHERE foo IS NOT NULL AND bar IS NOT NULL'
+            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON [test] ([foo], [bar]) WHERE foo IS NOT NULL AND bar IS NOT NULL'
         );
     }
 
@@ -138,12 +138,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql()
     {
-        return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
+        return 'CREATE INDEX my_idx ON [mytable] ([user_name], [last_login])';
     }
 
     public function getGenerateUniqueIndexSql()
     {
-        return 'CREATE UNIQUE INDEX index_name ON test (test, test2) WHERE test IS NOT NULL AND test2 IS NOT NULL';
+        return 'CREATE UNIQUE INDEX index_name ON [test] ([test], [test2]) WHERE test IS NOT NULL AND test2 IS NOT NULL';
     }
 
     public function getGenerateForeignKeySql()
@@ -235,7 +235,7 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'));
         $idx->addFlag('clustered');
-        $this->assertEquals('CREATE CLUSTERED INDEX idx ON tbl (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
+        $this->assertEquals('CREATE CLUSTERED INDEX idx ON [tbl] ([id])', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
     /**
@@ -258,13 +258,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     {
         $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
         $idx->addFlag('nonclustered');
-        $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->_platform->getCreatePrimaryKeySQL($idx, 'tbl'));
+        $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED ([id])', $this->_platform->getCreatePrimaryKeySQL($idx, 'tbl'));
     }
 
     public function testAlterAddPrimaryKey()
     {
         $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
-        $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
+        $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY ([id])', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()

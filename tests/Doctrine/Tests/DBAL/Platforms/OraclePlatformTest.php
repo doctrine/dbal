@@ -68,7 +68,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'CREATE TABLE test (foo VARCHAR2(255) DEFAULT NULL, bar VARCHAR2(255) DEFAULT NULL)',
-            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
+            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON "test" ("foo", "bar")',
         );
     }
 
@@ -187,12 +187,12 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateIndexSql()
     {
-        return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
+        return 'CREATE INDEX my_idx ON "mytable" ("user_name", "last_login")';
     }
 
     public function getGenerateUniqueIndexSql()
     {
-        return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
+        return 'CREATE UNIQUE INDEX index_name ON "test" ("test", "test2")';
     }
 
     public function getGenerateForeignKeySql()
