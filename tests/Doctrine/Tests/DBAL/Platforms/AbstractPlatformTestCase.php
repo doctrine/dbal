@@ -374,6 +374,12 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $tableDiff = new TableDiff('mytable');
         $tableDiff->addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('comment' => 'A comment'));
+        $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'foo', new \Doctrine\DBAL\Schema\Column(
+                'foo', \Doctrine\DBAL\Types\Type::getType('string')
+            ),
+            array('comment')
+        );
         $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'bar', new \Doctrine\DBAL\Schema\Column(
                 'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('comment' => 'B comment')

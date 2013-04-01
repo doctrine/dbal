@@ -432,8 +432,12 @@ class PostgreSqlPlatform extends AbstractPlatform
                 }
             }
 
-            if ($columnDiff->hasChanged('comment') && $comment = $this->getColumnComment($column)) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
+            if ($columnDiff->hasChanged('comment')) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $diff->name,
+                    $column->getName(),
+                    $this->getColumnComment($column)
+                );
             }
 
             if ($columnDiff->hasChanged('length')) {
@@ -461,6 +465,16 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCommentOnColumnSQL($tableName, $columnName, $comment)
+    {
+        $comment = $comment === null ? 'NULL' : "'$comment'";
+
+        return "COMMENT ON COLUMN $tableName.$columnName IS $comment";
     }
 
     /**
