@@ -108,21 +108,21 @@ SQLDATA
                 array(1, 2, 3, 4, 5),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
-            //  Positional : Empty "integer" array DDC-1978
+            // Positional: Empty "integer" array DDC-1978
             array(
                 "SELECT * FROM Foo WHERE foo IN (?)",
-                array('foo'=>array()),
-                array('foo'=>Connection::PARAM_INT_ARRAY),
-                'SELECT * FROM Foo WHERE foo IN (?)',
+                array(array()),
+                array(Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (NULL)',
                 array(),
                 array()
             ),
-            //  Positional : Empty "str" array DDC-1978
+            // Positional: Empty "str" array DDC-1978
             array(
                 "SELECT * FROM Foo WHERE foo IN (?)",
-                array('foo'=>array()),
-                array('foo'=>Connection::PARAM_STR_ARRAY),
-                'SELECT * FROM Foo WHERE foo IN (?)',
+                array(array()),
+                array(Connection::PARAM_STR_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (NULL)',
                 array(),
                 array()
             ),
@@ -145,7 +145,6 @@ SQLDATA
                 array(1,'Some String'),
                 array(\PDO::PARAM_INT, \PDO::PARAM_STR)
             ),
-
             //  Named parameters : Very simple with one needle
             array(
                 "SELECT * FROM Foo WHERE foo IN (:foo)",
@@ -224,7 +223,7 @@ SQLDATA
                 "SELECT * FROM Foo WHERE foo IN (:foo)",
                 array('foo'=>array()),
                 array('foo'=>Connection::PARAM_INT_ARRAY),
-                'SELECT * FROM Foo WHERE foo IN (?)',
+                'SELECT * FROM Foo WHERE foo IN (NULL)',
                 array(),
                 array()
             ),
@@ -233,7 +232,7 @@ SQLDATA
                 "SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)",
                 array('foo'=>array(), 'bar'=>array()),
                 array('foo'=>Connection::PARAM_STR_ARRAY, 'bar'=>Connection::PARAM_STR_ARRAY),
-                'SELECT * FROM Foo WHERE foo IN (?) OR bar IN (?)',
+                'SELECT * FROM Foo WHERE foo IN (NULL) OR bar IN (NULL)',
                 array(),
                 array()
             ),
