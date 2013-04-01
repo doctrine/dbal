@@ -149,4 +149,22 @@ Microsoft SQL Server takes Unique very seriously. There is only
 ever one NULL allowed contrary to the standard where you can have
 multiple NULLs in a unique column.
 
+DateTime, DateTimeTz and Time Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+SQL Server has a variable return format for the datatype DATETIME(n)
+if microseconds are allowed (n > 0). Whenever you save
+a value with microseconds = 0.
+
+If you do not let Doctrine create the date column types and rather
+use types with microseconds you have replace the "DateTime",
+"DateTimeTz" and "Time" types with a more liberal DateTime parser
+that detects the format automatically:
+
+::
+
+    use Doctrine\DBAL\Types\Type;
+    
+    Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTime');
+    Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTime');
+    Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTime');
