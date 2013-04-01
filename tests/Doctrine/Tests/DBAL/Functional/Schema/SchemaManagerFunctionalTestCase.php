@@ -535,6 +535,20 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $columns = $this->_sm->listTableColumns("column_comment_test");
         $this->assertEquals(1, count($columns));
         $this->assertEquals('This is a comment', $columns['id']->getComment());
+
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('column_comment_test');
+        $tableDiff->changedColumns['id'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'id', new \Doctrine\DBAL\Schema\Column(
+                'id', \Doctrine\DBAL\Types\Type::getType('integer'), array('primary' => true)
+            ),
+            array('comment')
+        );
+
+        $this->_sm->alterTable($tableDiff);
+
+        $columns = $this->_sm->listTableColumns("column_comment_test");
+        $this->assertEquals(1, count($columns));
+        $this->assertEmpty($columns['id']->getComment());
     }
 
     /**

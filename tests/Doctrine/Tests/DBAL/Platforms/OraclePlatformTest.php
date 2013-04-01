@@ -268,8 +268,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         return array(
             "ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)",
-            "ALTER TABLE mytable MODIFY (baz  VARCHAR2(255) NOT NULL)",
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
+            "COMMENT ON COLUMN mytable.foo IS ''",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }

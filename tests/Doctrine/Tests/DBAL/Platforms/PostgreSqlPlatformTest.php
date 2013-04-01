@@ -254,6 +254,7 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
         return array(
             "ALTER TABLE mytable ADD quota INT NOT NULL",
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
+            "COMMENT ON COLUMN mytable.foo IS NULL",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }
