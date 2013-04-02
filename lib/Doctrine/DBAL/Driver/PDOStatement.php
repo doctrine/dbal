@@ -47,4 +47,13 @@ class PDOStatement extends \PDOStatement implements Statement
 
         return parent::setFetchMode($fetchMode, $arg2, $arg3);
     }
+    
+   public function bindValue($parameter, $value, $data_type = \PDO::PARAM_STR)
+   {
+      if ($data_type == \PDO::PARAM_BOOL)
+      {
+         $data_type = \PDO::PARAM_INT;
+      }
+      return parent::bindValue($parameter, $value, $data_type);
+   }    
 }
