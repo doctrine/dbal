@@ -110,6 +110,34 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    {
+        $foreignKeys = array();
+
+        foreach ($tableForeignKeys as $tableForeignKey) {
+            if ( ! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
+                $foreignKeys[$tableForeignKey['ForeignKey']] = array(
+                    'local_columns' => array($tableForeignKey['ColumnName']),
+                    'foreign_table' => $tableForeignKey['ReferenceTableName'],
+                    'foreign_columns' => array($tableForeignKey['ReferenceColumnName']),
+                    'name' => $tableForeignKey['ForeignKey'],
+                    'options' => array(
+                        'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
+                        'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc'])
+                    )
+                );
+            } else {
+                $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][] = $tableForeignKey['ColumnName'];
+                $foreignKeys[$tableForeignKey['ForeignKey']]['foreign_columns'][] = $tableForeignKey['ReferenceColumnName'];
+            }
+        }
+
+        return parent::_getPortableTableForeignKeysList($foreignKeys);
+    }
+
+    /**
      * @override
      */
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
@@ -167,19 +195,16 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
-    public function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         return new ForeignKeyConstraint(
-                (array) $tableForeignKey['ColumnName'],
-                $tableForeignKey['ReferenceTableName'],
-                (array) $tableForeignKey['ReferenceColumnName'],
-                $tableForeignKey['ForeignKey'],
-                array(
-                    'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
-                    'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc']),
-                )
+            $tableForeignKey['local_columns'],
+            $tableForeignKey['foreign_table'],
+            $tableForeignKey['foreign_columns'],
+            $tableForeignKey['name'],
+            $tableForeignKey['options']
         );
     }
 
