@@ -194,11 +194,21 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
+        $defaultConstraintsSql = array();
+
         // @todo does other code breaks because of this?
         // force primary keys to be not null
         foreach ($columns as &$column) {
             if (isset($column['primary']) && $column['primary']) {
                 $column['notnull'] = true;
+            }
+
+            /**
+             * Build default constraints SQL statements
+             */
+            if ( ! empty($column['default']) || is_numeric($column['default'])) {
+                $defaultConstraintsSql[] = 'ALTER TABLE ' . $tableName .
+                    ' ADD' . $this->getDefaultConstraintDeclarationSQL($tableName, $column);
             }
         }
 
@@ -240,7 +250,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
         }
 
-        return $sql;
+        return array_merge($sql, $defaultConstraintsSql);
     }
 
     /**
@@ -253,6 +263,29 @@ class SQLServerPlatform extends AbstractPlatform
             $flags = ' NONCLUSTERED';
         }
         return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index->getColumns()) . ')';
+    }
+
+    /**
+     * Returns the SQL snippet for declaring a default constraint.
+     *
+     * @param string $table  Name of the table to return the default constraint declaration for.
+     * @param array  $column Column definition.
+     *
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function getDefaultConstraintDeclarationSQL($table, array $column)
+    {
+        if (empty($column['default']) && ! is_numeric($column['default'])) {
+            throw new \InvalidArgumentException("Incomplete column definition. 'default' required.");
+        }
+
+        return
+            ' CONSTRAINT ' .
+            $this->generateDefaultConstraintName($table, $column['name']) .
+            $this->getDefaultValueDeclarationSQL($column) .
+            ' FOR ' . $column['name'];
     }
 
     /**
@@ -331,12 +364,19 @@ class SQLServerPlatform extends AbstractPlatform
         $sql = array();
         $columnSql = array();
 
+        /** @var \Doctrine\DBAL\Schema\Column $column */
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $columnDef = $column->toArray();
+            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
+
+            if ( ! empty($columnDef['default']) || is_numeric($columnDef['default'])) {
+                $columnDef['name'] = $column->getQuotedName($this);
+                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+            }
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -347,15 +387,35 @@ class SQLServerPlatform extends AbstractPlatform
             $queryParts[] = 'DROP COLUMN ' . $column->getQuotedName($this);
         }
 
+        /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
         foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
 
-            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
+            $fromColumn = $columnDiff->fromColumn;
+            $fromColumnDefault = isset($fromColumn) ? $fromColumn->getDefault() : null;
             $column = $columnDiff->column;
+            $columnDef = $column->toArray();
+            $columnDefaultHasChanged = $columnDiff->hasChanged('default');
+
+            /**
+             * Drop existing column default constraint
+             * if default value has changed and another
+             * default constraint already exists for the column.
+             */
+            if ($columnDefaultHasChanged && ( ! empty($fromColumnDefault) || is_numeric($fromColumnDefault))) {
+                $queryParts[] = 'DROP CONSTRAINT ' .
+                    $this->generateDefaultConstraintName($diff->name, $columnDiff->oldColumnName);
+            }
+
             $queryParts[] = 'ALTER COLUMN ' .
-                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
+
+            if ($columnDefaultHasChanged && (! empty($columnDef['default']) || is_numeric($columnDef['default']))) {
+                $columnDef['name'] = $column->getQuotedName($this);
+                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+            }
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -364,8 +424,28 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "' , '".$column->getQuotedName($this)."', 'COLUMN'";
+
+            $columnDef = $column->toArray();
+
+            /**
+             * Drop existing default constraint for the old column name
+             * if column has default value.
+             */
+            if ( ! empty($columnDef['default']) || is_numeric($columnDef['default'])) {
+                $queryParts[] = 'DROP CONSTRAINT ' .
+                    $this->generateDefaultConstraintName($diff->name, $oldColumnName);
+            }
+
             $queryParts[] = 'ALTER COLUMN ' .
-                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
+
+            /**
+             * Readd default constraint for the new column name.
+             */
+            if ( ! empty($columnDef['default']) || is_numeric($columnDef['default'])) {
+                $columnDef['name'] = $column->getQuotedName($this);
+                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+            }
         }
 
         $tableSql = array();
@@ -382,6 +462,23 @@ class SQLServerPlatform extends AbstractPlatform
 
         if ($diff->newName !== false) {
             $sql[] = "sp_RENAME '" . $diff->name . "', '" . $diff->newName . "'";
+
+            /**
+             * Rename table's default constraints names
+             * to match the new table name.
+             * This is necessary to ensure that the default
+             * constraints can be referenced in future table
+             * alterations as the table name is encoded in
+             * default constraints' names.
+             */
+            $sql[] = "DECLARE @sql NVARCHAR(MAX) = N''; " .
+                "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
+                "+ REPLACE(dc.name, '" . $this->generateIdentifierName($diff->name) . "', " .
+                "'" . $this->generateIdentifierName($diff->newName) . "') + ''', ''OBJECT'';' " .
+                "FROM sys.default_constraints dc " .
+                "JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
+                "WHERE tbl.name = '" . $diff->newName . "';" .
+                "EXEC sp_executesql @sql";
         }
 
         return array_merge($sql, $tableSql, $columnSql);
@@ -994,8 +1091,6 @@ class SQLServerPlatform extends AbstractPlatform
         if (isset($field['columnDefinition'])) {
             $columnDef = $this->getCustomTypeDeclarationSQL($field);
         } else {
-            $default = $this->getDefaultValueDeclarationSQL($field);
-
             $collation = (isset($field['collate']) && $field['collate']) ?
                 ' ' . $this->getColumnCollationDeclarationSQL($field['collate']) : '';
 
@@ -1008,9 +1103,34 @@ class SQLServerPlatform extends AbstractPlatform
                 ' ' . $field['check'] : '';
 
             $typeDecl = $field['type']->getSqlDeclaration($field, $this);
-            $columnDef = $typeDecl . $collation . $default . $notnull . $unique . $check;
+            $columnDef = $typeDecl . $collation . $notnull . $unique . $check;
         }
 
         return $name . ' ' . $columnDef;
+    }
+
+    /**
+     * Returns a unique default constraint name for a table and column.
+     *
+     * @param string $table  Name of the table to generate the unique default constraint name for.
+     * @param string $column Name of the column in the table to generate the unique default constraint name for.
+     *
+     * @return string
+     */
+    private function generateDefaultConstraintName($table, $column)
+    {
+        return 'DF_' . $this->generateIdentifierName($table) . '_' . $this->generateIdentifierName($column);
+    }
+
+    /**
+     * Returns a hash value for a given identifier.
+     *
+     * @param string $identifier Identifier to generate a hash value for.
+     *
+     * @return string
+     */
+    private function generateIdentifierName($identifier)
+    {
+        return strtoupper(dechex(crc32($identifier)));
     }
 }

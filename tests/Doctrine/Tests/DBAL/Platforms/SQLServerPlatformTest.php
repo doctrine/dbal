@@ -14,13 +14,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255) NULL, PRIMARY KEY (id))';
+        return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255), PRIMARY KEY (id))';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
         return array(
-            'CREATE TABLE test (foo NVARCHAR(255) NULL, bar NVARCHAR(255) NULL)',
+            'CREATE TABLE test (foo NVARCHAR(255), bar NVARCHAR(255))',
             'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar) WHERE foo IS NOT NULL AND bar IS NOT NULL'
         );
     }
@@ -28,11 +28,19 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            'ALTER TABLE mytable ADD quota INT NULL',
+            'ALTER TABLE mytable ADD quota INT',
             'ALTER TABLE mytable DROP COLUMN foo',
-            'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) DEFAULT \'def\' NOT NULL',
-            'ALTER TABLE mytable ALTER COLUMN bloo BIT DEFAULT \'0\' NOT NULL',
+            'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) NOT NULL',
+            "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_78240498 DEFAULT 'def' FOR baz",
+            'ALTER TABLE mytable ALTER COLUMN bloo BIT NOT NULL',
             "sp_RENAME 'mytable', 'userlist'",
+            "DECLARE @sql NVARCHAR(MAX) = N''; " .
+            "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
+            "+ REPLACE(dc.name, '6B2BD609', 'E2B58069') + ''', ''OBJECT'';' " .
+            "FROM sys.default_constraints dc " .
+            "JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
+            "WHERE tbl.name = 'userlist';" .
+            "EXEC sp_executesql @sql"
         );
     }
 

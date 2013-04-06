@@ -60,6 +60,10 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
         while ($default != ($default2 = preg_replace("/^\((.*)\)$/", '$1', $default))) {
             $default = trim($default2, "'");
+
+            if ($default == 'getdate()') {
+                $default = $this->_platform->getCurrentTimestampSQL();
+            }
         }
 
         switch ($dbType) {
