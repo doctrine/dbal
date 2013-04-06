@@ -19,8 +19,6 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Events;
-use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
 use Doctrine\DBAL\Types\Type;
 
@@ -142,60 +140,17 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
     {
-        // TODO: Remove code duplication with AbstractSchemaManager;
-        $result = array();
-        foreach ($tableIndexRows as $tableIndex) {
-            $indexName = $keyName = $tableIndex['index_name'];
-            if (strpos($tableIndex['index_description'], 'primary key') !== false) {
-                $keyName = 'primary';
-            }
-            $keyName = strtolower($keyName);
-
-            $flags = array();
-            if (strpos($tableIndex['index_description'], 'clustered') !== false) {
-                $flags[] = 'clustered';
-            } else if (strpos($tableIndex['index_description'], 'nonclustered') !== false) {
-                $flags[] = 'nonclustered';
-            }
-
-            $result[$keyName] = array(
-                'name' => $indexName,
-                'columns' => explode(', ', $tableIndex['index_keys']),
-                'unique' => strpos($tableIndex['index_description'], 'unique') !== false,
-                'primary' => strpos($tableIndex['index_description'], 'primary key') !== false,
-                'flags' => $flags,
-            );
+        foreach ($tableIndexRows as &$tableIndex) {
+            $tableIndex['non_unique'] = (boolean) $tableIndex['non_unique'];
+            $tableIndex['primary'] = (boolean) $tableIndex['primary'];
+            $tableIndex['flags'] = $tableIndex['flags'] ? array($tableIndex['flags']) : null;
         }
 
-        $eventManager = $this->_platform->getEventManager();
-
-        $indexes = array();
-        foreach ($result as $indexKey => $data) {
-            $index = null;
-            $defaultPrevented = false;
-
-            if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
-                $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->_conn);
-                $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
-
-                $defaultPrevented = $eventArgs->isDefaultPrevented();
-                $index = $eventArgs->getIndex();
-            }
-
-            if ( ! $defaultPrevented) {
-                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary']);
-            }
-
-            if ($index) {
-                $indexes[$indexKey] = $index;
-            }
-        }
-
-        return $indexes;
+        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
     }
 
     /**

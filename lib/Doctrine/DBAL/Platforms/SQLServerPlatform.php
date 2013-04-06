@@ -553,7 +553,21 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        return "exec sp_helpindex '" . $table . "'";
+        return "SELECT idx.name AS key_name,
+                       col.name AS column_name,
+	                   ~idx.is_unique AS non_unique,
+	                   idx.is_primary_key AS [primary],
+                       CASE idx.type
+                           WHEN '1' THEN 'clustered'
+                           WHEN '2' THEN 'nonclustered'
+                           ELSE NULL
+                       END AS flags
+                FROM sys.tables AS tbl
+                JOIN sys.indexes AS idx ON tbl.object_id = idx.object_id
+                JOIN sys.index_columns AS idxcol ON idx.object_id = idxcol.object_id AND idx.index_id = idxcol.index_id
+                JOIN sys.columns AS col ON idxcol.object_id = col.object_id AND idxcol.column_id = col.column_id
+                WHERE tbl.name = '$table'
+                ORDER BY idx.index_id ASC, idxcol.index_column_id ASC";
     }
 
     /**
