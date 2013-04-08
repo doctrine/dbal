@@ -237,6 +237,22 @@ SQLDATA
                 array(),
                 array()
             ),
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar OR baz = :baz",
+                array('foo' => array(1, 2), 'bar' => 'bar', 'baz' => 'baz'),
+                array('foo' => Connection::PARAM_INT_ARRAY, 'baz' => 'string'),
+                'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ? OR baz = ?',
+                array(1, 2, 'bar', 'baz'),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR, 'string')
+            ),
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar",
+                array('foo' => array(1, 2), 'bar' => 'bar'),
+                array('foo' => Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ?',
+                array(1, 2, 'bar'),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
+            ),
         );
     }
 

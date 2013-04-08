@@ -80,7 +80,7 @@ class SQLParserUtils
      * @param string    $query  The SQL query to execute.
      * @param array     $params The parameters to bind to the query.
      * @param array     $types  The types the previous parameters are in.
-     * 
+     *
      * @return array
      */
     static public function expandListParameters($query, $params, $types)
@@ -103,7 +103,7 @@ class SQLParserUtils
             $arrayPositions[$name] = false;
         }
 
-        if (( ! $arrayPositions && $isPositional) || (count($params) != count($types))) {
+        if (( ! $arrayPositions && $isPositional)) {
             return array($query, $params, $types);
         }
 
@@ -130,7 +130,9 @@ class SQLParserUtils
 
                 $types = array_merge(
                     array_slice($types, 0, $needle),
-                    array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET), // array needles are at PDO::PARAM_* + 100
+                    $count ?
+                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) : // array needles are at PDO::PARAM_* + 100
+                        array(),
                     array_slice($types, $needle + 1)
                 );
 
@@ -157,9 +159,9 @@ class SQLParserUtils
                 $pos         += $queryOffset;
                 $queryOffset -= ($paramLen - 1);
                 $paramsOrd[]  = $value;
-                $typesOrd[]   = $types[$paramName];
+                $typesOrd[]   = isset($types[$paramName]) ? $types[$paramName] : \PDO::PARAM_STR;
                 $query        = substr($query, 0, $pos) . '?' . substr($query, ($pos + $paramLen));
-            
+
                 continue;
             }
 
