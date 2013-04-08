@@ -39,4 +39,6 @@ interface Constraint
     public function getQuotedName(AbstractPlatform $platform);
 
     public function getColumns();
+
+    public function getQuotedColumns(AbstractPlatform $platform);
 }
