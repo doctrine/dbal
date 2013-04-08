@@ -49,6 +49,7 @@ final class DriverManager
             'mysqli' => 'Doctrine\DBAL\Driver\Mysqli\Driver',
             'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
             'sqlsrv' => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
+            'akibansrv' => 'Doctrine\DBAL\Driver\AkibanSrv\Driver',
             );
 
     /** Private constructor. This class cannot be instantiated. */
@@ -74,6 +75,7 @@ final class DriverManager
      *     sqlsrv
      *     ibm_db2 (unstable)
      *     drizzle_pdo_mysql
+     *     akibansrv
      *
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
