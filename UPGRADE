@@ -1,3 +1,13 @@
+# Upgrade to 2.4
+
+## Doctrine\DBAL\Schema\Constraint
+
+If you have custom classes that implement the constraint interface, you have to implement
+an additional method ``getQuotedColumns`` now. This method is used to build proper constraint
+SQL for columns that need to be quoted, like keywords reserved by the specific platform used.
+The method has to return the same values as ``getColumns`` only that those column names that
+need quotation have to be returned quoted for the given platform.
+
 # Upgrade to 2.3
 
 ## Oracle Session Init now sets Numeric Character
