@@ -91,16 +91,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * Returns the quoted representation of the column names
-     * the index is associated with.
-     *
-     * But only if they were defined with one or the column name
-     * is a keyword reserved by the platform.
-     * Otherwise the plain unquoted value as inserted is returned.
-     *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getQuotedColumns(AbstractPlatform $platform)
     {
