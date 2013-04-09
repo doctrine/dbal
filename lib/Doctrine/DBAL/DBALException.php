@@ -40,11 +40,33 @@ class DBALException extends \Exception
     {
         $msg = "An exception occurred while executing '".$sql."'";
         if ($params) {
-            $msg .= " with params ".json_encode($params);
+            $msg .= " with params " . self::formatParameters($params);
         }
         $msg .= ":\n\n".$driverEx->getMessage();
 
         return new self($msg, 0, $driverEx);
+    }
+
+    /**
+     * Returns a human-readable representation of an array of parameters.
+     * This properly handles binary data by returning a hex representation.
+     *
+     * @param array $params
+     *
+     * @return string
+     */
+    private static function formatParameters(array $params)
+    {
+        return '[' . implode(', ', array_map(function($param) {
+            $json = @json_encode($param);
+
+            if (! is_string($json) || $json == 'null' && is_string($param)) {
+                // JSON encoding failed, this is not a UTF-8 string.
+                return '"\x' . implode('\x', str_split(bin2hex($param), 2)) . '"';
+            }
+
+            return $json;
+        }, $params)) . ']';
     }
 
     public static function invalidWrapperClass($wrapperClass)
