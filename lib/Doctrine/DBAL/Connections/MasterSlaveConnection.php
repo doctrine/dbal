@@ -261,7 +261,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function delete($tableName, array $identifier)
+    public function delete($tableName, array $identifier, array $types = array())
     {
         $this->connect('master');
         return parent::delete($tableName, $identifier);
