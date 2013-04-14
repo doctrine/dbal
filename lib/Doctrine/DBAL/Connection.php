@@ -433,9 +433,10 @@ class Connection implements DriverConnection
      *
      * @param string $tableName The name of the table on which to delete.
      * @param array $identifier The deletion criteria. An associative array containing column-value pairs.
+     * @param array $types The types of identifiers
      * @return integer The number of affected rows.
      */
-    public function delete($tableName, array $identifier)
+    public function delete($tableName, array $identifier, array $types = array())
     {
         $this->connect();
 
@@ -445,9 +446,13 @@ class Connection implements DriverConnection
             $criteria[] = $columnName . ' = ?';
         }
 
+        if ( ! is_int(key($types))) {
+            $types = $this->extractTypeValues($identifier, $types);
+        }
+
         $query = 'DELETE FROM ' . $tableName . ' WHERE ' . implode(' AND ', $criteria);
 
-        return $this->executeUpdate($query, array_values($identifier));
+        return $this->executeUpdate($query, array_values($identifier), $types);
     }
 
     /**
@@ -498,8 +503,13 @@ class Connection implements DriverConnection
     {
         $this->connect();
         $set = array();
+
         foreach ($data as $columnName => $value) {
             $set[] = $columnName . ' = ?';
+        }
+
+        if ( ! is_int(key($types))) {
+            $types = $this->extractTypeValues(array_merge($data, $identifier), $types);
         }
 
         $params = array_merge(array_values($data), array_values($identifier));
@@ -532,11 +542,36 @@ class Connection implements DriverConnection
             $placeholders[] = '?';
         }
 
+        if ( ! is_int(key($types))) {
+            $types = $this->extractTypeValues($data, $types);
+        }
+
         $query = 'INSERT INTO ' . $tableName
                . ' (' . implode(', ', $cols) . ')'
                . ' VALUES (' . implode(', ', $placeholders) . ')';
 
         return $this->executeUpdate($query, array_values($data), $types);
+    }
+
+    /**
+     * Extract ordered type list from two associate key lists of data and types.
+     *
+     * @param array $data
+     * @param array $types
+     *
+     * @return array
+     */
+    private function extractTypeValues(array $data, array $types)
+    {
+        $typeValues = array();
+
+        foreach ($data as $k => $_) {
+            $typeValues[] = isset($types[$k])
+                ? $types[$k]
+                : \PDO::PARAM_STR;
+        }
+
+        return $typeValues;
     }
 
     /**

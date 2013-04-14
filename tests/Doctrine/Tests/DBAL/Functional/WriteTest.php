@@ -182,4 +182,62 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertFalse($this->_conn->lastInsertId( null ));
 
     }
+
+    /**
+     * @group DBAL-445
+     */
+    public function testInsertWithKeyValueTypes()
+    {
+        $this->_conn->insert(
+            'write_table',
+            array('test_int' => '30', 'test_string' => new \DateTime('2013-04-14 10:10:10')),
+            array('test_string' => 'datetime', 'test_int' => 'integer')
+        );
+
+        $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
+
+        $this->assertEquals('2013-04-14 10:10:10', $data);
+    }
+
+    /**
+     * @group DBAL-445
+     */
+    public function testUpdateWithKeyValueTypes()
+    {
+        $this->_conn->insert(
+            'write_table',
+            array('test_int' => '30', 'test_string' => new \DateTime('2013-04-14 10:10:10')),
+            array('test_string' => 'datetime', 'test_int' => 'integer')
+        );
+
+        $this->_conn->update(
+            'write_table',
+            array('test_string' => new \DateTime('2013-04-15 10:10:10')),
+            array('test_int' => '30'),
+            array('test_string' => 'datetime', 'test_int' => 'integer')
+        );
+
+        $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
+
+        $this->assertEquals('2013-04-15 10:10:10', $data);
+    }
+
+    /**
+     * @group DBAL-445
+     */
+    public function testDeleteWithKeyValueTypes()
+    {
+        $val = new \DateTime('2013-04-14 10:10:10');
+        $this->_conn->insert(
+            'write_table',
+            array('test_int' => '30', 'test_string' => $val),
+            array('test_string' => 'datetime', 'test_int' => 'integer')
+        );
+
+        $this->_conn->delete('write_table', array('test_int' => 30, 'test_string' => $val), array('test_string' => 'datetime', 'test_int' => 'integer'));
+
+        $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
+
+        $this->assertFalse($data);
+    }
 }
