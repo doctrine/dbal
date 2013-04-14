@@ -44,7 +44,8 @@ SQLDATA
             array('SELECT :foo_id', false, array(7 => 'foo_id')), // Ticket DBAL-231
             array('SELECT @rank := 1', false, array()), // Ticket DBAL-398
             array('SELECT @rank := 1 AS rank, :foo AS foo FROM :bar', false, array(27 => 'foo', 44 => 'bar')), // Ticket DBAL-398
-            array('SELECT * FROM Foo WHERE bar > :start_date AND baz > :start_date', false, array(30 => 'start_date', 52 =>  'start_date')) // Ticket GH-113
+            array('SELECT * FROM Foo WHERE bar > :start_date AND baz > :start_date', false, array(30 => 'start_date', 52 =>  'start_date')), // Ticket GH-113
+            array('SELECT foo::date as date FROM Foo WHERE bar > :start_date AND baz > :start_date', false, array(46 => 'start_date', 68 =>  'start_date')) // Ticket GH-259
         );
     }
 
