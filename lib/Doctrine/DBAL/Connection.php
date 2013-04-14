@@ -498,8 +498,15 @@ class Connection implements DriverConnection
     {
         $this->connect();
         $set = array();
+
+        $i = 0;
         foreach ($data as $columnName => $value) {
-            $set[] = $columnName . ' = ?';
+            $set[$i] = $columnName . ' = ?';
+            if (isset($types[$columnName])) {
+                $types[$i] = $types[$columnName];
+                unset($types[$columnName]);
+            }
+            ++$i;
         }
 
         $params = array_merge(array_values($data), array_values($identifier));
@@ -527,9 +534,15 @@ class Connection implements DriverConnection
         $cols = array();
         $placeholders = array();
 
+        $i = 0;
         foreach ($data as $columnName => $value) {
-            $cols[] = $columnName;
-            $placeholders[] = '?';
+            $cols[$i] = $columnName;
+            $placeholders[$i] = '?';
+            if (isset($types[$columnName])) {
+                $types[$i] = $types[$columnName];
+                unset($types[$columnName]);
+            }
+            ++$i;
         }
 
         $query = 'INSERT INTO ' . $tableName
