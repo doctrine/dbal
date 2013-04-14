@@ -111,6 +111,17 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     }
 
     /**
+     * Return the non-schema qualified foreign table name.
+     *
+     * @return string
+     */
+    public function getUnqualifiedForeignTableName()
+    {
+        $parts = explode(".", $this->_foreignTableName);
+        return strtolower(end($parts));
+    }
+
+    /**
      * Get the quoted representation of this asset but only if it was defined with one. Otherwise
      * return the plain unquoted value as inserted.
      *
