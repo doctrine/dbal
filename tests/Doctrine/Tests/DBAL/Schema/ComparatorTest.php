@@ -604,6 +604,18 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($c->diffForeignKey($fk1, $fk2));
     }
 
+    /**
+     * @group DBAL-492
+     */
+    public function testCompareForeignKeyNamesUnqualified_AsNoSchemaInformationIsAvailable()
+    {
+        $fk1 = new ForeignKeyConstraint(array("foo"), "foo.bar", array("baz"), "fk1");
+        $fk2 = new ForeignKeyConstraint(array("foo"), "baz.bar", array("baz"), "fk1");
+
+        $c = new Comparator();
+        $this->assertFalse($c->diffForeignKey($fk1, $fk2));
+    }
+
     public function testDetectRenameColumn()
     {
         $tableA = new Table("foo");
