@@ -240,4 +240,65 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             'CREATE INDEX IDX_22660D028A90ABA9 ON "quoted" ("key")',
         );
     }
+    
+    public function testGetListTableColumnsSQL() {
+      $this->assertEquals($this->_platform->getListTableColumnsSQL('test_table'),
+      "SELECT
+                    a.attnum,
+                    a.attname AS field,
+                    t.typname AS type,
+                    format_type(a.atttypid, a.atttypmod) AS complete_type,
+                    (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
+                    (SELECT format_type(t2.typbasetype, t2.typtypmod) FROM pg_catalog.pg_type t2
+                     WHERE t2.typtype = 'd' AND t2.typname = format_type(a.atttypid, a.atttypmod)) AS domain_complete_type,
+                    a.attnotnull AS isnotnull,
+                    (SELECT 't'
+                     FROM pg_index
+                     WHERE c.oid = pg_index.indrelid
+                        AND pg_index.indkey[0] = a.attnum
+                        AND pg_index.indisprimary = 't'
+                    ) AS pri,
+                    (SELECT pg_attrdef.adsrc
+                     FROM pg_attrdef
+                     WHERE c.oid = pg_attrdef.adrelid
+                        AND pg_attrdef.adnum=a.attnum
+                    ) AS default,
+                    (SELECT pg_description.description
+                        FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
+                    ) AS comment
+                    FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
+                    WHERE n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND c.relname = 'test_table' AND n.nspname = ANY(string_to_array((select replace(setting,'\"\$user\"',user) from pg_catalog.pg_settings where name = 'search_path'),','))
+                        AND a.attnum > 0
+                        AND a.attrelid = c.oid
+                        AND a.atttypid = t.oid
+                        AND n.oid = c.relnamespace
+                    ORDER BY a.attnum"
+      );
+    }
+    
+    public function testGetListTableForeignKeysSQL() {
+      $this->assertEquals($this->_platform->getListTableForeignKeysSQL('test_table'),
+        "SELECT r.conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
+                  FROM pg_catalog.pg_constraint r
+                  WHERE r.conrelid =
+                  (
+                      SELECT c.oid
+                      FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
+                      WHERE n.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND c.relname = 'test_table' AND n.nspname = ANY(string_to_array((select replace(setting,'\"\$user\"',user) from pg_catalog.pg_settings where name = 'search_path'),',')) AND n.oid = c.relnamespace
+                  )
+                  AND r.contype = 'f'"
+      );
+    }
+    
+    public function testGetListTableIndexesSQL() {
+      $this->assertEquals($this->_platform->getListTableIndexesSQL('test_table'), "SELECT relname, pg_index.indisunique, pg_index.indisprimary,
+                       pg_index.indkey, pg_index.indrelid
+                 FROM pg_class, pg_index
+                 WHERE oid IN (
+                    SELECT indexrelid
+                    FROM pg_index si, pg_class sc, pg_namespace sn
+                    WHERE sn.nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND sc.relname = 'test_table' AND sn.nspname = ANY(string_to_array((select replace(setting,'\"\$user\"',user) from pg_catalog.pg_settings where name = 'search_path'),',')) AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
+                 ) AND pg_index.indexrelid = oid"
+      );
+    }
 }
