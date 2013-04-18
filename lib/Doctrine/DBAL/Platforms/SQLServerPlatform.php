@@ -845,7 +845,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             //Replace only first occurrence of FROM with $over to prevent changing FROM also in subqueries.
-            $query = preg_replace('/\sFROM/i', ", ROW_NUMBER() OVER ($over) AS doctrine_rownum FROM", $query, 1);
+            $query = preg_replace('/\sFROM\s/i', ", ROW_NUMBER() OVER ($over) AS doctrine_rownum FROM ", $query, 1);
 
             $start = $offset + 1;
             $end = $offset + $limit;
