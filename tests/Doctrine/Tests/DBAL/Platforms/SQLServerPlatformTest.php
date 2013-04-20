@@ -216,6 +216,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY uname DESC, uid ASC) AS doctrine_rownum FROM (SELECT u.id uid, u.name uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15', $sql);
     }
 
+    public function testModifyLimitQueryWithFromColumnNames()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT a.fromFoo, fromBar FROM foo', 10);
+        $this->assertEquals('SELECT * FROM (SELECT a.fromFoo, fromBar, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM foo) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+    }
+
     /**
      * @group DDC-1360
      */
