@@ -24,6 +24,7 @@ use PDO, Closure, Exception,
     Doctrine\DBAL\Driver\Connection as DriverConnection,
     Doctrine\Common\EventManager,
     Doctrine\DBAL\DBALException,
+    Doctrine\DBAL\Driver\DriverException,
     Doctrine\DBAL\Cache\ResultCacheStatement,
     Doctrine\DBAL\Cache\QueryCacheProfile,
     Doctrine\DBAL\Cache\ArrayStatement,
@@ -633,7 +634,7 @@ class Connection implements DriverConnection
         try {
             $stmt = new Statement($statement, $this);
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $statement);
+            throw DriverException::driverExceptionDuringQuery($ex, $statement);
         }
 
         $stmt->setFetchMode($this->_defaultFetchMode);
@@ -682,7 +683,7 @@ class Connection implements DriverConnection
                 $stmt = $this->_conn->query($query);
             }
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $query, $this->resolveParams($params, $types));
+            throw DriverException::driverExceptionDuringQuery($ex, $query, $this->resolveParams($params, $types));
         }
 
         $stmt->setFetchMode($this->_defaultFetchMode);
@@ -777,7 +778,7 @@ class Connection implements DriverConnection
         try {
             $statement = call_user_func_array(array($this->_conn, 'query'), $args);
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, func_get_arg(0));
+            throw DriverException::driverExceptionDuringQuery($ex, func_get_arg(0));
         }
 
         $statement->setFetchMode($this->_defaultFetchMode);
@@ -826,7 +827,7 @@ class Connection implements DriverConnection
                 $result = $this->_conn->exec($query);
             }
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $query, $this->resolveParams($params, $types));
+            throw DriverException::driverExceptionDuringQuery($ex, $query, $this->resolveParams($params, $types));
         }
 
         if ($logger) {
@@ -854,7 +855,7 @@ class Connection implements DriverConnection
         try {
             $result = $this->_conn->exec($statement);
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $statement);
+            throw DriverException::driverExceptionDuringQuery($ex, $statement);
         }
 
         if ($logger) {
