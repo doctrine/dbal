@@ -66,9 +66,8 @@ class Driver implements \Doctrine\DBAL\Driver
     {
         $params = $conn->getParams();
         
-        if (isset($params['dbname'])) {
-            return $params['dbname'];
-        }
-        return $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
+        return (isset($params['dbname']))
+            ? $params['dbname']
+            : $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
     }
 }
