@@ -80,7 +80,8 @@ class SQLParserUtils
      * @param string    $query  The SQL query to execute.
      * @param array     $params The parameters to bind to the query.
      * @param array     $types  The types the previous parameters are in.
-     * 
+     *
+     * @throws SQLParserUtilsException
      * @return array
      */
     static public function expandListParameters($query, $params, $types)
@@ -103,7 +104,7 @@ class SQLParserUtils
             $arrayPositions[$name] = false;
         }
 
-        if (( ! $arrayPositions && $isPositional) || (count($params) != count($types))) {
+        if (( ! $arrayPositions && $isPositional)) {
             return array($query, $params, $types);
         }
 
@@ -130,7 +131,9 @@ class SQLParserUtils
 
                 $types = array_merge(
                     array_slice($types, 0, $needle),
-                    array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET), // array needles are at PDO::PARAM_* + 100
+                    $count ?
+                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) : // array needles are at PDO::PARAM_* + 100
+                        array(),
                     array_slice($types, $needle + 1)
                 );
 
@@ -150,16 +153,16 @@ class SQLParserUtils
         $paramsOrd   = array();
 
         foreach ($paramPos as $pos => $paramName) {
-            $paramLen   = strlen($paramName) + 1;
-            $value      = $params[$paramName];
+            $paramLen = strlen($paramName) + 1;
+            $value    = static::extractParam($paramName, $params, true);
 
-            if ( ! isset($arrayPositions[$paramName])) {
+            if ( ! isset($arrayPositions[$paramName]) && ! isset($arrayPositions[':' . $paramName])) {
                 $pos         += $queryOffset;
                 $queryOffset -= ($paramLen - 1);
                 $paramsOrd[]  = $value;
-                $typesOrd[]   = $types[$paramName];
+                $typesOrd[]   = static::extractParam($paramName, $types, false, \PDO::PARAM_STR);
                 $query        = substr($query, 0, $pos) . '?' . substr($query, ($pos + $paramLen));
-            
+
                 continue;
             }
 
@@ -168,7 +171,7 @@ class SQLParserUtils
 
             foreach ($value as $val) {
                 $paramsOrd[] = $val;
-                $typesOrd[]  = $types[$paramName] - Connection::ARRAY_PARAM_OFFSET;
+                $typesOrd[]  = static::extractParam($paramName, $types, false) - Connection::ARRAY_PARAM_OFFSET;
             }
 
             $pos         += $queryOffset;
@@ -196,5 +199,36 @@ class SQLParserUtils
         preg_match_all("/([^'\"]+)(?:$literal)?/s", $statement, $fragments, PREG_OFFSET_CAPTURE);
 
         return $fragments[1];
+    }
+
+    /**
+     * @param string    $paramName      The name of the parameter (without a colon in front)
+     * @param array     $paramsOrTypes  A hash of parameters or types
+     * @param bool      $isParam
+     * @param mixed     $defaultValue   An optional default value. If omitted, an exception is thrown
+     *
+     * @throws SQLParserUtilsException
+     * @return mixed
+     */
+    static private function extractParam($paramName, $paramsOrTypes, $isParam, $defaultValue = null)
+    {
+        if (isset($paramsOrTypes[$paramName])) {
+            return $paramsOrTypes[$paramName];
+        }
+
+        // Hash keys can be prefixed with a colon for compatibility
+        if (isset($paramsOrTypes[':' . $paramName])) {
+            return $paramsOrTypes[':' . $paramName];
+        }
+
+        if (null !== $defaultValue) {
+            return $defaultValue;
+        }
+
+        if ($isParam) {
+            throw SQLParserUtilsException::missingParam($paramName);
+        } else {
+            throw SQLParserUtilsException::missingType($paramName);
+        }
     }
 }
