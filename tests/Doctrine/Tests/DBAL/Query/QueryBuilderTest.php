@@ -495,9 +495,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('u.*')->from('users', 'u')->where('u.name = ?');
 
-        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string)$qb);
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
         $qb->resetQueryPart('where');
-        $this->assertEquals('SELECT u.* FROM users u', (string)$qb);
+        $this->assertEquals('SELECT u.* FROM users u', (string) $qb);
     }
 
     public function testResetQueryParts()
@@ -506,9 +506,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('u.*')->from('users', 'u')->where('u.name = ?')->orderBy('u.name');
 
-        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string)$qb);
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
         $qb->resetQueryParts(array('where', 'orderBy'));
-        $this->assertEquals('SELECT u.* FROM users u', (string)$qb);
+        $this->assertEquals('SELECT u.* FROM users u', (string) $qb);
     }
 
     public function testCreateNamedParameter()
@@ -519,7 +519,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             $qb->expr()->eq('u.name', $qb->createNamedParameter(10, \PDO::PARAM_INT))
         );
 
-        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = :dcValue1', (string)$qb);
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = :dcValue1', (string) $qb);
         $this->assertEquals(10, $qb->getParameter('dcValue1'));
     }
 
@@ -531,7 +531,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             $qb->expr()->eq('u.name', $qb->createNamedParameter(10, \PDO::PARAM_INT, ':test'))
         );
 
-        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = :test', (string)$qb);
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = :test', (string) $qb);
         $this->assertEquals(10, $qb->getParameter('test'));
     }
 
@@ -543,7 +543,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             $qb->expr()->eq('u.name', $qb->createPositionalParameter(10, \PDO::PARAM_INT))
         );
 
-        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string)$qb);
+        $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
         $this->assertEquals(10, $qb->getParameter(1));
     }
 

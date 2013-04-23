@@ -10,7 +10,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         parent::setUp();
 
-        if(!isset($GLOBALS['db_username'])) {
+        if (!isset($GLOBALS['db_username'])) {
             $this->markTestSkipped('Foo');
         }
 

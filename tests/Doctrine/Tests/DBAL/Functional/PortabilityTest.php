@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PDO;
@@ -12,7 +11,7 @@ use PDO;
  */
 class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    static private $hasTable = false;
+    private static $hasTable = false;
 
     private $portableConnection;
 
@@ -45,7 +44,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
                 $this->portableConnection->insert('portability_table', array('Test_Int' => 1, 'Test_String' => 'foo', 'Test_Null' => ''));
                 $this->portableConnection->insert('portability_table', array('Test_Int' => 2, 'Test_String' => 'foo  ', 'Test_Null' => null));
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
 
             }
         }

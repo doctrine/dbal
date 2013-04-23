@@ -18,7 +18,6 @@ class OracleSessionInitTest extends DbalTestCase
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
 
-
         $listener = new OracleSessionInit();
         $listener->postConnect($eventArgs);
     }

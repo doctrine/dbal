@@ -25,4 +25,3 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
         $this->assertFalse($sequence3->isAutoIncrementsFor($table));
     }
 }
-

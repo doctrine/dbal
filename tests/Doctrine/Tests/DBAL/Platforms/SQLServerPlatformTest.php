@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\SQLServer2008Platform;
-use Doctrine\DBAL\Types\Type;
 
 class SQLServerPlatformTest extends AbstractPlatformTestCase
 {

@@ -1,7 +1,6 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use PDO;
 
@@ -26,7 +25,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
         $this->_conn->executeUpdate('DELETE FROM caching');
@@ -190,6 +189,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
         $stmt->closeCursor();
+
         return $data;
     }
 
@@ -201,6 +201,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $data[] = is_array($row) ? array_change_key_case($row, CASE_LOWER) : $row;
         }
         $stmt->closeCursor();
+
         return $data;
     }
 }

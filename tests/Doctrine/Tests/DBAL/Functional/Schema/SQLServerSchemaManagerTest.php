@@ -10,10 +10,10 @@ use Doctrine\DBAL\Types\Type;
 
 class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-	protected function getPlatformName()
-	{
-		return "mssql";
-	}
+    protected function getPlatformName()
+    {
+        return "mssql";
+    }
 
     /**
      * @group DBAL-255

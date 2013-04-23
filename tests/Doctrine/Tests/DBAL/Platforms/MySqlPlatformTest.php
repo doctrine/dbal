@@ -3,12 +3,10 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Index;
-
 
 class MySqlPlatformTest extends AbstractPlatformTestCase
 {
@@ -78,7 +76,6 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
         );
     }
-
 
     public function testGeneratesDDLSnippets()
     {

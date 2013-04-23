@@ -5,7 +5,6 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Types\Type;
 
 class ReservedKeywordsValidatorTest extends \Doctrine\Tests\DbalTestCase
 {

@@ -27,8 +27,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
 
-
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
         }
 
         $this->_conn->executeUpdate('DELETE FROM master_slave_table');

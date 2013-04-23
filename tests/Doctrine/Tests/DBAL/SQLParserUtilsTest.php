@@ -11,7 +11,7 @@ use Doctrine\DBAL\SQLParserUtils;
  */
 class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
 {
-    static public function dataGetPlaceholderPositions()
+    public static function dataGetPlaceholderPositions()
     {
         return array(
             // none
@@ -59,7 +59,7 @@ SQLDATA
         $this->assertEquals($expectedParamPos, $actualParamPos);
     }
 
-    static public function dataExpandListParameters()
+    public static function dataExpandListParameters()
     {
         return array(
             // Positional: Very simple with one needle

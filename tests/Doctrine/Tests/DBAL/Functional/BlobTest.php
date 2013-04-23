@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Connection;
 use PDO;
 
 /**
@@ -25,7 +24,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
         $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('blob_table'));

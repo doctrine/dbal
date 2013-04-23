@@ -62,4 +62,3 @@ class MultiTenantVisitorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('created', 'tenant_id'), $foo->getIndex('idx')->getColumns());
     }
 }
-

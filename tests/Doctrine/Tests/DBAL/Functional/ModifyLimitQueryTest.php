@@ -2,10 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Connection;
-use PDO;
-
 class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     private static $tableCreated = false;

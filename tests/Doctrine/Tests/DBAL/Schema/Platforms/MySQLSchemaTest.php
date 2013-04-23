@@ -4,8 +4,6 @@ namespace Doctrine\Tests\DBAL\Schema\Platforms;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Types\Type;
 
 class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
 {

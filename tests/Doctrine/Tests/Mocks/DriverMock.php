@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\Mocks;
 
-
 class DriverMock implements \Doctrine\DBAL\Driver
 {
     private $_platformMock;
@@ -17,7 +16,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
     /**
      * Constructs the Sqlite PDO DSN.
      *
-     * @return string  The DSN.
+     * @return string The DSN.
      * @override
      */
     protected function _constructPdoDsn(array $params)
@@ -30,9 +29,10 @@ class DriverMock implements \Doctrine\DBAL\Driver
      */
     public function getDatabasePlatform()
     {
-        if ( ! $this->_platformMock) {
+        if (! $this->_platformMock) {
             $this->_platformMock = new DatabasePlatformMock;
         }
+
         return $this->_platformMock;
     }
 
@@ -41,7 +41,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
      */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
-        if($this->_schemaManagerMock == null) {
+        if ($this->_schemaManagerMock == null) {
             return new SchemaManagerMock($conn);
         } else {
             return $this->_schemaManagerMock;

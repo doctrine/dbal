@@ -18,7 +18,6 @@ class MysqlSessionInitTest extends DbalTestCase
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
 
-
         $listener = new MysqlSessionInit('foo', 'bar');
         $listener->postConnect($eventArgs);
     }

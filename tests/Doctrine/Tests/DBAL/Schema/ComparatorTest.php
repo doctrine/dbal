@@ -698,7 +698,6 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('id', $tableDiff->changedColumns);
     }
 
-
     /**
      * @group DBAL-105
      */
@@ -725,7 +724,6 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('logged_in_at'), array_keys($tableDiff->addedColumns));
         $this->assertEquals(0, count($tableDiff->removedColumns));
     }
-
 
     /**
      * @group DBAL-112
@@ -840,7 +838,6 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(0, $diff->removedSequences);
     }
 
-
     /**
      * You can get multiple drops for a FK when a table referenced by a foreign
      * key is deleted, as this FK is referenced twice, once on the orphanedForeignKeys
@@ -857,7 +854,6 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $table = $oldSchema->createTable('foo');
         $table->addColumn('fk', 'integer');
         $table->addForeignKeyConstraint($tableForeign, array('fk'), array('id'));
-
 
         $newSchema = new Schema();
         $table = $newSchema->createTable('foo');
@@ -893,9 +889,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param SchemaDiff $diff
-     * @param int $newTableCount
-     * @param int $changeTableCount
-     * @param int $removeTableCount
+     * @param int        $newTableCount
+     * @param int        $changeTableCount
+     * @param int        $removeTableCount
      */
     public function assertSchemaTableChangeCount($diff, $newTableCount=0, $changeTableCount=0, $removeTableCount=0)
     {
@@ -906,9 +902,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param SchemaDiff $diff
-     * @param int $newSequenceCount
-     * @param int $changeSequenceCount
-     * @param int $changeSequenceCount
+     * @param int        $newSequenceCount
+     * @param int        $changeSequenceCount
+     * @param int        $changeSequenceCount
      */
     public function assertSchemaSequenceChangeCount($diff, $newSequenceCount=0, $changeSequenceCount=0, $removeSequenceCount=0)
     {

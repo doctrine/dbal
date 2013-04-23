@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Type;
 
 class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    static private $typeCounter = 0;
+    private static $typeCounter = 0;
 
     public function setUp()
     {
@@ -36,12 +36,12 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
                 $this->_conn->executeQuery($sql);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
     }
 
-    static public function dataIdempotentDataConversion()
+    public static function dataIdempotentDataConversion()
     {
         $obj = new \stdClass();
         $obj->foo = "bar";
@@ -68,7 +68,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     /**
      * @dataProvider dataIdempotentDataConversion
      * @param string $type
-     * @param mixed $originalValue
+     * @param mixed  $originalValue
      * @param string $expectedPhpType
      */
     public function testIdempotentDataConversion($type, $originalValue, $expectedPhpType)

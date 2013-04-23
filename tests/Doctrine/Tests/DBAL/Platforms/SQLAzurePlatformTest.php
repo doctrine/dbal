@@ -26,4 +26,3 @@ class SQLAzurePlatformTest extends DbalTestCase
         $this->assertEquals(array('CREATE TABLE tbl (id INT NOT NULL) FEDERATED ON (TblId = id)'), $this->platform->getCreateTableSQL($table));
     }
 }
-

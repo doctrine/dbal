@@ -22,7 +22,6 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
         error_reporting(-1); // reactive all error levels
     }
 
-
     public function testArrayConvertsToDatabaseValue()
     {
         $this->assertTrue(

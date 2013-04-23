@@ -46,7 +46,7 @@ class DbalFunctionalTestCase extends DbalTestCase
             throw $e;
         }
 
-        if(isset($this->_sqlLoggerStack->queries) && count($this->_sqlLoggerStack->queries)) {
+        if (isset($this->_sqlLoggerStack->queries) && count($this->_sqlLoggerStack->queries)) {
             $queries = "";
             $i = count($this->_sqlLoggerStack->queries);
             foreach (array_reverse($this->_sqlLoggerStack->queries) AS $query) {
@@ -57,9 +57,9 @@ class DbalFunctionalTestCase extends DbalTestCase
 
             $trace = $e->getTrace();
             $traceMsg = "";
-            foreach($trace AS $part) {
-                if(isset($part['file'])) {
-                    if(strpos($part['file'], "PHPUnit/") !== false) {
+            foreach ($trace AS $part) {
+                if (isset($part['file'])) {
+                    if (strpos($part['file'], "PHPUnit/") !== false) {
                         // Beginning with PHPUnit files we don't print the trace anymore.
                         break;
                     }
@@ -70,7 +70,7 @@ class DbalFunctionalTestCase extends DbalTestCase
 
             $message = "[".get_class($e)."] ".$e->getMessage().PHP_EOL.PHP_EOL."With queries:".PHP_EOL.$queries.PHP_EOL."Trace:".PHP_EOL.$traceMsg;
 
-            throw new \Exception($message, (int)$e->getCode(), $e);
+            throw new \Exception($message, (int) $e->getCode(), $e);
         }
         throw $e;
     }

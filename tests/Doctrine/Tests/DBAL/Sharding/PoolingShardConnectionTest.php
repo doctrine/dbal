@@ -179,4 +179,3 @@ class PoolingShardConnectionTest extends \PHPUnit_Framework_TestCase
         $conn->connect(1);
     }
 }
-
