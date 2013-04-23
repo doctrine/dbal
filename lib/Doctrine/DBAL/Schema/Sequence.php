@@ -41,6 +41,11 @@ class Sequence extends AbstractAsset
      * @var int
      */
     protected $_initialValue = 1;
+    
+    /**
+     * @var string
+     */
+    protected $_cacheSize = 20;
 
     /**
      *
@@ -48,11 +53,12 @@ class Sequence extends AbstractAsset
      * @param int $allocationSize
      * @param int $initialValue
      */
-    public function __construct($name, $allocationSize=1, $initialValue=1)
+    public function __construct($name, $allocationSize=1, $initialValue=1, $cacheSize = 20)
     {
         $this->_setName($name);
         $this->_allocationSize = (is_numeric($allocationSize))?$allocationSize:1;
         $this->_initialValue = (is_numeric($initialValue))?$initialValue:1;
+        $this->setCacheSize($cacheSize);
     }
 
     public function getAllocationSize()
@@ -74,7 +80,24 @@ class Sequence extends AbstractAsset
     {
         $this->_initialValue = (is_numeric($initialValue))?$initialValue:1;
     }
-
+	
+    public function getCacheSize()
+    {
+    	return $this->_cacheSize;
+    }
+    
+    public function setCacheSize($cacheSize)
+    {
+    	switch($cacheSize){
+    		case 0: $this->_cacheSize = 'NOCACHE';
+    		break;
+    		case 1: $this->_cacheSize = 'CACHE 20';
+    		break;
+    		default:
+    			$this->_cacheSize = 'CACHE '.((is_numeric($cacheSize))?($cacheSize >(ceil(pow(10,27) - $this->_initialValue))/abs($this->_allocationSize)?20:$cacheSize):20);
+    
+    	}
+    }
     /**
      * Check if this sequence is an autoincrement sequence for a given table.
      *

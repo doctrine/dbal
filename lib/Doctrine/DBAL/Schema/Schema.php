@@ -271,11 +271,12 @@ class Schema extends AbstractAsset
      * @param  string $sequenceName
      * @param  int $allocationSize
      * @param  int $initialValue
+     * @param  int $cacheSize
      * @return Sequence
      */
-    public function createSequence($sequenceName, $allocationSize=1, $initialValue=1)
+    public function createSequence($sequenceName, $allocationSize=1, $initialValue=1, $cacheSize=20)
     {
-        $seq = new Sequence($sequenceName, $allocationSize, $initialValue);
+        $seq = new Sequence($sequenceName, $allocationSize, $initialValue, $cacheSize);
         $this->_addSequence($seq);
         return $seq;
     }
