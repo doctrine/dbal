@@ -25,7 +25,8 @@ use Doctrine\DBAL\Connection,
     Doctrine\DBAL\Configuration,
     Doctrine\Common\EventManager,
     Doctrine\DBAL\Event\ConnectionEventArgs,
-    Doctrine\DBAL\Events;
+    Doctrine\DBAL\Events,
+    Doctrine\DBAL\Cache\QueryCacheProfile;
 
 /**
  * Master-Slave Connection
@@ -35,13 +36,14 @@ use Doctrine\DBAL\Connection,
  * Important for the understanding of this connection should be how and when
  * it picks the slave or master.
  *
- * 1. Slave if master was never picked before and ONLY if 'getWrappedConnection'
- *    or 'executeQuery' is used.
+ * 1. Slave if master was never picked before and ONLY if 'getWrappedConnection', 'query', 'prepare',
+ *    or 'executeQuery' is used and the query begins with 'SELECT' (case insensitive) string.
  * 2. Master picked when 'exec', 'executeUpdate', 'insert', 'delete', 'update', 'createSavepoint',
- *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit', 'query' or
- *    'prepare' is called.
- * 3. If master was picked once during the lifetime of the connection it will always get picked afterwards.
- * 4. One slave connection is randomly picked ONCE during a request.
+ *    'releaseSavepoint', 'beginTransaction', 'rollback', 'commit' is called.
+ * 3. Master picked when 'query', 'prepare' or 'executeQuery' is called and the query doesn`t begin with
+ *    'SELECT' (case insensitive) string.
+ * 4. If master was picked once during the lifetime of the connection it will always get picked afterwards.
+ * 5. One slave connection is randomly picked ONCE during a request.
  *
  * ATTENTION: You can write to the slave with this connection if you execute a write query without
  * opening up a transaction. For example:
@@ -51,12 +53,6 @@ use Doctrine\DBAL\Connection,
  *
  * Be aware that Connection#executeQuery is a method specifically for READ
  * operations only.
- *
- * This connection is limited to slave operations using the
- * Connection#executeQuery operation only, because it wouldn't be compatible
- * with the ORM or SchemaManager code otherwise. Both use all the other
- * operations in a context where writes could happen to a slave, which makes
- * this restricted approach necessary.
  *
  * You can manually connect to the master at any time by calling:
  *
@@ -80,6 +76,7 @@ use Doctrine\DBAL\Connection,
  *
  * @author Lars Strojny <lstrojny@php.net>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Andrej Hudec <pulzarraider@gmail.com>
  */
 class MasterSlaveConnection extends Connection
 {
@@ -222,12 +219,19 @@ class MasterSlaveConnection extends Connection
         return $params['slaves'][array_rand($params['slaves'])];
     }
 
+    protected function getConnectionTypeByStatement($statement)
+    {
+        return (preg_match('/^\s*SELECT\s+/i', $statement)) ? 'slave' : 'master';
+    }
+
     /**
      * {@inheritDoc}
      */
     public function executeUpdate($query, array $params = array(), array $types = array())
     {
-        $this->connect('master');
+        $connectionName = 'master';
+
+        $this->connect($connectionName);
         return parent::executeUpdate($query, $params, $types);
     }
 
@@ -326,14 +330,14 @@ class MasterSlaveConnection extends Connection
 
     public function query()
     {
-        $this->connect('master');
-
         $args = func_get_args();
 
         $logger = $this->getConfiguration()->getSQLLogger();
         if ($logger) {
             $logger->startQuery($args[0]);
         }
+
+        $this->connect($this->getConnectionTypeByStatement($args[0]));
 
         $statement = call_user_func_array(array($this->_conn, 'query'), $args);
 
@@ -346,8 +350,15 @@ class MasterSlaveConnection extends Connection
 
     public function prepare($statement)
     {
-        $this->connect('master');
+        $this->connect($this->getConnectionTypeByStatement($statement));
 
         return parent::prepare($statement);
+    }
+
+    public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
+    {
+        $this->connect($this->getConnectionTypeByStatement($query));
+
+        return parent::executeQuery($query, $params, $types, $qcp);
     }
 }
