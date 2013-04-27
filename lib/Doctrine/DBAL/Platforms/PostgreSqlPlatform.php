@@ -669,6 +669,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getGuidExpression()
+    {
+        return 'UUID_GENERATE_V4()';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
         return '';
