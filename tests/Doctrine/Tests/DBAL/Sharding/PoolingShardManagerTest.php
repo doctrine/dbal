@@ -33,6 +33,7 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
         $mock->expects($this->any())
              ->method('pickShard')
              ->will($this->returnCallback(function($value) { return $value; }));
+
         return $mock;
     }
 
@@ -105,4 +106,3 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(array('id' => 1), array('id' => 2)), $result);
     }
 }
-

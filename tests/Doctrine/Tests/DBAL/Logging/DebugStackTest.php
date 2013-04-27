@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Logging;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class DebugStackTest extends \Doctrine\Tests\DbalTestCase
 {
     public function setUp()

@@ -6,8 +6,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 
 use Doctrine\DBAL\Schema;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     /**

@@ -3,13 +3,10 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Types\Type;
-
-require_once __DIR__ . '/../../TestInit.php';
 
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
-    static public function dataValidIdentifiers()
+    public static function dataValidIdentifiers()
     {
         return array(
             array('a'),
@@ -33,7 +30,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $platform->assertValidIdentifier($identifier);
     }
 
-    static public function dataInvalidIdentifiers()
+    public static function dataInvalidIdentifiers()
     {
         return array(
             array('1'),
@@ -242,7 +239,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         array_walk($statements, function(&$value){
           $value = preg_replace('/\s+/', ' ',$value);
         });
-        foreach($targets as $key => $sql){
+        foreach ($targets as $key => $sql) {
           $this->assertArrayHasKey($key,$statements);
           $this->assertEquals($sql, $statements[$key]);
         }

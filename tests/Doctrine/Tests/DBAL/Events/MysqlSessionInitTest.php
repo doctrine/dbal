@@ -7,8 +7,6 @@ use Doctrine\DBAL\Event\Listeners\MysqlSessionInit;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class MysqlSessionInitTest extends DbalTestCase
 {
     public function testPostConnect()
@@ -19,7 +17,6 @@ class MysqlSessionInitTest extends DbalTestCase
                        ->with($this->equalTo("SET NAMES foo COLLATE bar"));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
-
 
         $listener = new MysqlSessionInit('foo', 'bar');
         $listener->postConnect($eventArgs);

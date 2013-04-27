@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 use Doctrine\DBAL\Schema\Schema,
     Doctrine\DBAL\Schema\Table,
     Doctrine\DBAL\Schema\Column,
@@ -87,6 +85,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
         $platform->expects($this->exactly(2))
                 ->method('supportsForeignKeyConstraints')
                 ->will($this->returnValue(true));
+
         return $platform;
     }
 
@@ -104,6 +103,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('id'), 'foreign_table', array('id'));
         $fk->setLocalTable(new Table('local_table'));
         $diff->orphanedForeignKeys[] = $fk;
+
         return $diff;
     }
 }

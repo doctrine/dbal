@@ -21,7 +21,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
             foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
                 $this->_conn->executeQuery($sql);
             }
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
         $this->_conn->executeUpdate('DELETE FROM write_table');
@@ -36,7 +36,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->executeUpdate($sql, array("text", 1111), array(null, PDO::PARAM_INT));
 
         $sql = "SELECT * FROM write_table WHERE test_string = ? AND test_int = ?";
-        $this->assertTrue((bool)$this->_conn->fetchColumn($sql, array("text", 1111)));
+        $this->assertTrue((bool) $this->_conn->fetchColumn($sql, array("text", 1111)));
     }
 
     public function testExecuteUpdate()
@@ -156,7 +156,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sequence = new \Doctrine\DBAL\Schema\Sequence('write_table_id_seq');
         try {
             $this->_conn->getSchemaManager()->createSequence($sequence);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
         }
 
         $sequences = $this->_conn->getSchemaManager()->listSequences();

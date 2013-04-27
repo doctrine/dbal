@@ -305,4 +305,3 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('0', $platform->convertBooleans(false));
     }
 }
-

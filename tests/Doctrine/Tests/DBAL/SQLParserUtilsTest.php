@@ -5,15 +5,13 @@ namespace Doctrine\Tests\DBAL;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\SQLParserUtils;
 
-require_once __DIR__ . '/../TestInit.php';
-
 /**
  * @group DBAL-78
  * @group DDC-1372
  */
 class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
 {
-    static public function dataGetPlaceholderPositions()
+    public static function dataGetPlaceholderPositions()
     {
         return array(
             // none
@@ -61,7 +59,7 @@ SQLDATA
         $this->assertEquals($expectedParamPos, $actualParamPos);
     }
 
-    static public function dataExpandListParameters()
+    public static function dataExpandListParameters()
     {
         return array(
             // Positional: Very simple with one needle

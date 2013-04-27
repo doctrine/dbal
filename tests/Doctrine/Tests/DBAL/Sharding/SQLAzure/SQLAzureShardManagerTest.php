@@ -87,7 +87,7 @@ class SQLAzureShardManagerTest extends \PHPUnit_Framework_TestCase
     {
         $conn = $this->getMock('Doctrine\DBAL\Connection', array('getParams', 'exec', 'isTransactionActive'), array(), '', false);
         $conn->expects($this->at(0))->method('getParams')->will($this->returnValue($params));
+
         return $conn;
     }
 }
-

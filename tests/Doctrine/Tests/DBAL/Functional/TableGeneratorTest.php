@@ -29,7 +29,7 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $this->_conn->exec($sql);
             }
 
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
         }
         $this->generator = new TableGenerator($this->_conn);
     }
@@ -56,4 +56,3 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
     }
 }
-

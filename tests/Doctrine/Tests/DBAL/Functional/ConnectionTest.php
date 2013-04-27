@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function setUp()
@@ -110,7 +108,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         try {
             $this->_conn->setNestTransactionsWithSavepoints(true);
             $this->fail('An exception should have been thrown by chaning the nesting transaction behavior within an transaction.');
-        } catch(ConnectionException $e) {
+        } catch (ConnectionException $e) {
             $this->_conn->rollBack();
         }
     }

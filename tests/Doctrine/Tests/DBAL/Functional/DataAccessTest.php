@@ -6,11 +6,9 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Connection;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    static private $generated = false;
+    private static $generated = false;
 
     public function setUp()
     {
@@ -203,9 +201,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $row = array_change_key_case($row, \CASE_LOWER);
         $this->assertEquals(1, $row['test_int']);
-        $this->assertEquals($datetimeString, $row['test_datetime']);        
+        $this->assertEquals($datetimeString, $row['test_datetime']);
     }
-    
+
     /**
      * @group DBAL-209
      * @expectedException \Doctrine\DBAL\DBALException
@@ -358,7 +356,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $row = array_change_key_case($row, CASE_LOWER);
 
         $diff = floor( (strtotime('2010-01-01')-time()) / 3600 / 24);
-        $this->assertEquals($diff, (int)$row['diff'], "Date difference should be approx. ".$diff." days.", 1);
+        $this->assertEquals($diff, (int) $row['diff'], "Date difference should be approx. ".$diff." days.", 1);
         $this->assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])), "Adding date should end up on 2010-01-11");
         $this->assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])), "Subtracting date should end up on 2009-12-22");
         $this->assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");
@@ -403,7 +401,6 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $stmt   = $this->_conn->executeQuery(implode(PHP_EOL, $sql));
         $data   = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 
         $this->assertEquals(4, count($data));
         $this->assertEquals(count($bitmap), count($data));
@@ -572,7 +569,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     private function skipOci8AndMysqli()
     {
-        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] == "oci8")  {
+        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] == "oci8") {
             $this->markTestSkipped("Not supported by OCI8");
         }
         if ('mysqli' == $this->_conn->getDriver()->getName()) {

@@ -30,6 +30,6 @@ class DBAL461Test extends \PHPUnit_Framework_TestCase
             'collation' => 'foo',
         ));
 
-        $this->assertEquals('Decimal', (string)$column->getType());
+        $this->assertEquals('Decimal', (string) $column->getType());
     }
 }

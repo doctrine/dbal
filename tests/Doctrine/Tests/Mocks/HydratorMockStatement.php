@@ -15,7 +15,7 @@ class HydratorMockStatement implements \Doctrine\DBAL\Driver\Statement
     /**
      * Creates a new mock statement that will serve the provided fake result set to clients.
      *
-     * @param array $resultSet  The faked SQL result set.
+     * @param array $resultSet The faked SQL result set.
      */
     public function __construct(array $resultSet)
     {
@@ -37,6 +37,7 @@ class HydratorMockStatement implements \Doctrine\DBAL\Driver\Statement
         $row = current($this->_resultSet);
         if ( ! is_array($row)) return false;
         $val = array_shift($row);
+
         return $val !== null ? $val : false;
     }
 
@@ -48,6 +49,7 @@ class HydratorMockStatement implements \Doctrine\DBAL\Driver\Statement
     {
         $current = current($this->_resultSet);
         next($this->_resultSet);
+
         return $current;
     }
 

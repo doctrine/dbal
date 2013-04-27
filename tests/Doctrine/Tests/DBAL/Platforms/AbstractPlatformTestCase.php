@@ -186,7 +186,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals($this->getBitAndComparisonExpressionSql(2, 4), $sql);
     }
 
-    protected  function getBitOrComparisonExpressionSql($value1, $value2)
+    protected function getBitOrComparisonExpressionSql($value1, $value2)
     {
         return '(' . $value1 . ' | ' . $value2 . ')';
     }

@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use \Doctrine\DBAL\Schema\Table;
-use \Doctrine\DBAL\Schema\Column;
 use \Doctrine\DBAL\Types\Type;
 
 class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
@@ -13,7 +12,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         parent::setUp();
         try {
             $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTableSQL("nontemporary"));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
     }
@@ -24,7 +23,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
             try {
                 $tempTable = $this->_conn->getDatabasePlatform()->getTemporaryTableName("temporary");
                 $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
-            } catch(\Exception $e) { }
+            } catch (\Exception $e) { }
         }
     }
 
@@ -92,7 +91,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         try {
             $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
 

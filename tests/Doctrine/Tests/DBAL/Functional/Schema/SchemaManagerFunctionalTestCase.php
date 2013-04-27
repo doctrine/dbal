@@ -4,11 +4,8 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Types\Type,
     Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
-
-require_once __DIR__ . '/../../../TestInit.php';
 
 class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTestCase
 {
@@ -23,6 +20,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $e = explode('\\', $class);
         $testClass = end($e);
         $dbms = strtolower(str_replace('SchemaManagerTest', null, $testClass));
+
         return $dbms;
     }
 
@@ -44,7 +42,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     public function testDropAndCreateSequence()
     {
-        if(!$this->_conn->getDatabasePlatform()->supportsSequences()) {
+        if (!$this->_conn->getDatabasePlatform()->supportsSequences()) {
             $this->markTestSkipped($this->_conn->getDriver()->getName().' does not support sequences.');
         }
 
@@ -54,7 +52,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     public function testListSequences()
     {
-        if(!$this->_conn->getDatabasePlatform()->supportsSequences()) {
+        if (!$this->_conn->getDatabasePlatform()->supportsSequences()) {
             $this->markTestSkipped($this->_conn->getDriver()->getName().' does not support sequences.');
         }
 
@@ -66,9 +64,9 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInternalType('array', $sequences, 'listSequences() should return an array.');
 
         $foundSequence = null;
-        foreach($sequences AS $sequence) {
+        foreach ($sequences AS $sequence) {
             $this->assertInstanceOf('Doctrine\DBAL\Schema\Sequence', $sequence, 'Array elements of listSequences() should be Sequence instances.');
-            if(strtolower($sequence->getName()) == 'list_sequences_test_seq') {
+            if (strtolower($sequence->getName()) == 'list_sequences_test_seq') {
                 $foundSequence = $sequence;
             }
         }
@@ -302,7 +300,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     public function testCreateTableWithForeignKeys()
     {
-        if(!$this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        if (!$this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Platform does not support foreign keys.');
         }
 
@@ -330,7 +328,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     public function testListForeignKeys()
     {
-        if(!$this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        if (!$this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Does not support foreign key constraints.');
         }
 
@@ -352,7 +350,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(array('id'),                array_map('strtolower', $fkeys[0]->getForeignColumns()));
         $this->assertEquals('test_create_fk2',          strtolower($fkeys[0]->getForeignTableName()));
 
-        if($fkeys[0]->hasOption('onDelete')) {
+        if ($fkeys[0]->hasOption('onDelete')) {
             $this->assertEquals('CASCADE', $fkeys[0]->getOption('onDelete'));
         }
     }
@@ -372,7 +370,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     public function testAlterTableScenario()
     {
-        if(!$this->_sm->getDatabasePlatform()->supportsAlterTable()) {
+        if (!$this->_sm->getDatabasePlatform()->supportsAlterTable()) {
             $this->markTestSkipped('Alter Table is not supported by this platform.');
         }
 
@@ -593,7 +591,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     /**
      * @param string $name
-     * @param array $data
+     * @param array  $data
      */
     protected function createTestTable($name = 'test_table', $data = array())
     {
@@ -617,6 +615,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table->setPrimaryKey(array('id'));
         $table->addColumn('test', 'string', array('length' => 255));
         $table->addColumn('foreign_key_test', 'integer');
+
         return $table;
     }
 
@@ -628,6 +627,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table->addColumn('other_id', 'integer', array('notnull' => true));
         $table->setPrimaryKey(array('id', 'other_id'));
         $table->addColumn('test', 'string', array('length' => 255));
+
         return $table;
     }
 
@@ -645,7 +645,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     public function testListForeignKeysComposite()
     {
-        if(!$this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+        if (!$this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped('Does not support foreign key constraints.');
         }
 

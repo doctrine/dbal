@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Query\Expression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder,
     Doctrine\DBAL\Query\Expression\CompositeExpression;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 /**
  * @group DBAL-12
  */

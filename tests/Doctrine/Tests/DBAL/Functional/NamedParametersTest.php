@@ -5,9 +5,6 @@ namespace Doctrine\Tests\DBAL\Functional\Ticket;
 use Doctrine\DBAL\Connection;
 use\PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
-
 /**
  * @group DDC-1372
  */
@@ -116,7 +113,6 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $table->addColumn('bar','string');
                 $table->setPrimaryKey(array('id'));
 
-
                 $sm = $this->_conn->getSchemaManager();
                 $sm->createTable($table);
 
@@ -138,7 +134,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $this->_conn->insert('ddc1372_foobar', array(
                         'id'    => 6, 'foo'   => 2,  'bar'   => 2
                 ));
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->fail($e->getMessage());
             }
         }
@@ -147,9 +143,9 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     /**
      * @dataProvider ticketProvider
      * @param string $query
-     * @param array $params
-     * @param array $types
-     * @param array $expected
+     * @param array  $params
+     * @param array  $types
+     * @param array  $expected
      */
     public function testTicket($query,$params,$types,$expected)
     {

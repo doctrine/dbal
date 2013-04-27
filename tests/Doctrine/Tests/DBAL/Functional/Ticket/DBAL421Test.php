@@ -32,8 +32,7 @@ class DBAL421Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $statement = $this->_conn->prepare($this->getSelectGuidSql());
         $guids = array();
-        for ($i = 0; $i < 99; $i++)
-        {
+        for ($i = 0; $i < 99; $i++) {
             $statement->execute();
             $guid = $statement->fetchColumn();
             $this->assertNotContains($guid, $guids, "Duplicate GUID detected");

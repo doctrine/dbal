@@ -4,15 +4,13 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     public function setUp()
     {
         parent::setUp();
 
-        if(!isset($GLOBALS['db_username'])) {
+        if (!isset($GLOBALS['db_username'])) {
             $this->markTestSkipped('Foo');
         }
 
