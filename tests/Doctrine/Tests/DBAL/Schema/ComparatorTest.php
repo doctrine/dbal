@@ -210,6 +210,26 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $c->diffColumn($column1, $column1));
     }
 
+    public function testCompareChangeColumns_MultipleNewColumnsRename()
+    {
+        $tableA = new Table("foo");
+        $tableA->addColumn('datefield1', 'datetime');
+
+        $tableB = new Table("foo");
+        $tableB->addColumn('new_datefield1', 'datetime');
+        $tableB->addColumn('new_datefield2', 'datetime');
+
+        $c = new Comparator();
+        $tableDiff = $c->diffTable($tableA, $tableB);
+
+        $this->assertCount(1, $tableDiff->renamedColumns, "we should have one rename datefield1 => new_datefield1.");
+        $this->assertArrayHasKey('datefield1', $tableDiff->renamedColumns, "'datefield1' should be set to be renamed to new_datefield1");
+        $this->assertCount(1, $tableDiff->addedColumns, "'new_datefield2' should be added");
+        $this->assertArrayHasKey('new_datefield2', $tableDiff->addedColumns, "'new_datefield2' should be added, not created through renaming!");
+        $this->assertCount(0, $tableDiff->removedColumns, "Nothing should be removed.");
+        $this->assertCount(0, $tableDiff->changedColumns, "Nothing should be changed as all fields old & new have diff names.");
+    }
+
     public function testCompareRemovedIndex()
     {
         $schema1 = new Schema( array(
