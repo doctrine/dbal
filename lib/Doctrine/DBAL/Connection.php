@@ -775,9 +775,19 @@ class Connection implements DriverConnection
         }
 
         try {
-            $statement = call_user_func_array(array($this->_conn, 'query'), $args);
+            switch (func_num_args()) {
+                case 1:
+                    $statement = $this->_conn->query($args[0]);
+                    break;
+                case 2:
+                    $statement = $this->_conn->query($args[0], $args[1]);
+                    break;
+                default:
+                    $statement = call_user_func_array(array($this->_conn, 'query'), $args);
+                    break;
+            }
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, func_get_arg(0));
+            throw DBALException::driverExceptionDuringQuery($ex, $args[0]);
         }
 
         $statement->setFetchMode($this->_defaultFetchMode);
