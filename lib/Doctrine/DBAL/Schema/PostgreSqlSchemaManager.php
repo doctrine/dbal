@@ -262,6 +262,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $autoincrement = true;
         }
 
+        if (preg_match("/^'(.*)'::.*$/", $tableColumn['default'], $matches)) {
+            $tableColumn['default'] = $matches[1];
+        }
+
         if (stripos($tableColumn['default'], 'NULL') === 0) {
             $tableColumn['default'] = null;
         }
