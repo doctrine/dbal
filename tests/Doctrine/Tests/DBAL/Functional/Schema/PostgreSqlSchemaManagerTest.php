@@ -259,7 +259,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $databaseTable = $this->_sm->listTableDetails($testTable->getName());
 
-        print_r($databaseTable);
+        $this->assertEquals('foo', $databaseTable->getColumn('def')->getDefault());
     }
 }
 
