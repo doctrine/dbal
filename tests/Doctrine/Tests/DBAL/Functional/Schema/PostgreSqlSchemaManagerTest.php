@@ -244,6 +244,23 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             }
         }
     }
+
+    /**
+     * @group DBAL-511
+     */
+    public function testDefaultValueCharacterVarying()
+    {
+        $testTable = new \Doctrine\DBAL\Schema\Table('dbal511_default');
+        $testTable->addColumn('id', 'integer');
+        $testTable->addColumn('def', 'string', array('default' => 'foo'));
+        $testTable->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($testTable);
+
+        $databaseTable = $this->_sm->listTableDetails($testTable->getName());
+
+        print_r($databaseTable);
+    }
 }
 
 class MoneyType extends Type
