@@ -110,8 +110,12 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $precision = null;
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
-        $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
+
+        // In cases where not connected to a database DESCRIBE $table does not return 'Comment'
+        if (isset($tableColumn['comment'])) {
+            $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+            $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
+        }
 
         switch ($dbType) {
             case 'char':
