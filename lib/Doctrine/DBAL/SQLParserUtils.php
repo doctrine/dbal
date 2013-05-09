@@ -227,8 +227,8 @@ class SQLParserUtils
 
         if ($isParam) {
             throw SQLParserUtilsException::missingParam($paramName);
-        } else {
-            throw SQLParserUtilsException::missingType($paramName);
         }
+
+        throw SQLParserUtilsException::missingType($paramName);
     }
 }
