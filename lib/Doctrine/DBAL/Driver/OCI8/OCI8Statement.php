@@ -112,7 +112,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null,$length = null)
+    public function bindParam($column, &$variable, $type = null, $length = null)
     {
         $column = isset($this->_paramMap[$column]) ? $this->_paramMap[$column] : $column;
 
