@@ -533,22 +533,13 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
-        // column names are specified as array keys
-        $cols = array();
-        $placeholders = array();
-
-        foreach ($data as $columnName => $value) {
-            $cols[] = $columnName;
-            $placeholders[] = '?';
-        }
-
         if ( ! is_int(key($types))) {
             $types = $this->extractTypeValues($data, $types);
         }
 
         $query = 'INSERT INTO ' . $tableName
-               . ' (' . implode(', ', $cols) . ')'
-               . ' VALUES (' . implode(', ', $placeholders) . ')';
+               . ' (' . implode(', ', array_keys($data)) . ')'
+               . ' VALUES (' . implode(', ', array_fill(0, count($data), '?')) . ')';
 
         return $this->executeUpdate($query, array_values($data), $types);
     }
