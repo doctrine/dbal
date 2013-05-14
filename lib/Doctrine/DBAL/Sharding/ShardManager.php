@@ -72,8 +72,8 @@ interface ShardManager
     /**
      * Get information about the amount of shards and other details.
      *
-     * Format is implementation specific, each shard is one element and has a
-     * 'name' attribute at least.
+     * Format is implementation specific, each shard is one element and has an
+     * 'id' attribute at least.
      *
      * @return array
      */
