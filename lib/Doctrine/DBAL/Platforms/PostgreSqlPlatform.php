@@ -57,10 +57,10 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getSubstringExpression($value, $from, $length = null)
     {
         if ($length === null) {
-            return 'SUBSTR(' . $value . ', ' . $from . ')';
+            return 'SUBSTRING(' . $value . ' FROM ' . $from . ')';
         }
 
-        return 'SUBSTR(' . $value . ', ' . $from . ', ' . $length . ')';
+        return 'SUBSTRING(' . $value . ' FROM ' . $from . ' FOR ' . $length . ')';
     }
 
     /**
