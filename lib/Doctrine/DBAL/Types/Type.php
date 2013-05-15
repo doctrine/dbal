@@ -101,7 +101,7 @@ abstract class Type
      * @param AbstractPlatform $platform The currently used database platform.
      * @return mixed The PHP representation of the value.
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPhpValue($value, AbstractPlatform $platform)
     {
         return $value;
     }
@@ -122,7 +122,7 @@ abstract class Type
      * @param array $fieldDeclaration The field declaration.
      * @param AbstractPlatform $platform The currently used database platform.
      */
-    abstract public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform);
+    abstract public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform);
 
     /**
      * Gets the name of this type.
@@ -249,7 +249,7 @@ abstract class Type
      *
      * @return bool
      */
-    public function canRequireSQLConversion()
+    public function canRequireSqlConversion()
     {
         return false;
     }
@@ -261,7 +261,7 @@ abstract class Type
      * @param AbstractPlatform $platform
      * @return string
      */
-    public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform)
+    public function convertToDatabaseValueSql($sqlExpr, AbstractPlatform $platform)
     {
         return $sqlExpr;
     }
@@ -273,7 +273,7 @@ abstract class Type
      * @param AbstractPlatform $platform
      * @return string
      */
-    public function convertToPHPValueSQL($sqlExpr, $platform)
+    public function convertToPhpValueSql($sqlExpr, $platform)
     {
         return $sqlExpr;
     }
@@ -298,7 +298,7 @@ abstract class Type
      * @param AbstractPlatform $platform
      * @return bool
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSqlCommentHint(AbstractPlatform $platform)
     {
         return false;
     }
