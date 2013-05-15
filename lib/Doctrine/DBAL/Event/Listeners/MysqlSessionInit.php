@@ -66,11 +66,13 @@ class MysqlSessionInit implements EventSubscriber
         $collation = $this->_collation ? ' COLLATE ' . $this->_collation : ' ';
         $sql = 'SET NAMES ' . $this->_charset . $collation;
 
-        $mb4 = str_replace('utf8 ', 'utf8mb4 ', $sql);
-        $mb4 = str_replace('utf8_', 'utf8mb4_', $mb4);
+        $mb4 = str_replace(
+            array('utf8 ', 'utf8mb4 '),
+            array('utf8_', 'utf8mb4_'),
+            $sql
+        );
 
-        if ($mb4 !== $sql)
-        {
+        if ($mb4 !== $sql) {
             $sql .= '/*!50503,' . $mb4 . '*/';
         }
 
