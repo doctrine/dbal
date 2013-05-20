@@ -52,12 +52,12 @@ class QueryBuilder
     /**
      * @var \Doctrine\DBAL\Connection DBAL Connection
      */
-    private $connection = null;
+    protected $connection = null;
 
     /**
      * @var array The array of SQL parts collected.
      */
-    private $sqlParts = array(
+    protected $sqlParts = array(
         'select'  => array(),
         'from'    => array(),
         'join'    => array(),
@@ -71,44 +71,44 @@ class QueryBuilder
     /**
      * @var string The complete SQL string for this query.
      */
-    private $sql;
+    protected $sql;
 
     /**
      * @var array The query parameters.
      */
-    private $params = array();
+    protected $params = array();
 
     /**
      * @var array The parameter type map of this query.
      */
-    private $paramTypes = array();
+    protected $paramTypes = array();
 
     /**
      * @var integer The type of query this is. Can be select, update or delete.
      */
-    private $type = self::SELECT;
+    protected $type = self::SELECT;
 
     /**
      * @var integer The state of the query object. Can be dirty or clean.
      */
-    private $state = self::STATE_CLEAN;
+    protected $state = self::STATE_CLEAN;
 
     /**
      * @var integer The index of the first result to retrieve.
      */
-    private $firstResult = null;
+    protected $firstResult = null;
 
     /**
      * @var integer The maximum number of results to retrieve.
      */
-    private $maxResults = null;
+    protected $maxResults = null;
 
     /**
      * The counter of bound parameters used with {@see bindValue)
      *
      * @var int
      */
-    private $boundCounter = 0;
+    protected $boundCounter = 0;
 
     /**
      * Initializes a new <tt>QueryBuilder</tt>.
