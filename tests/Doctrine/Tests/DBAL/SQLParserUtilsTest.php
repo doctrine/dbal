@@ -287,6 +287,23 @@ SQLDATA
                 array(1, 2, 'bar'),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
             ),
+            // DBAL-522 - null valued parameters are not considered
+            array(
+                'INSERT INTO Foo (foo, bar) values (:foo, :bar)',
+                array('foo' => 1, 'bar' => null),
+                array(':foo' => \PDO::PARAM_INT, ':bar' => \PDO::PARAM_NULL),
+                'INSERT INTO Foo (foo, bar) values (?, ?)',
+                array(1, null),
+                array(\PDO::PARAM_INT, \PDO::PARAM_NULL)
+            ),
+            array(
+                'INSERT INTO Foo (foo, bar) values (?, ?)',
+                array(1, null),
+                array(\PDO::PARAM_INT, \PDO::PARAM_NULL),
+                'INSERT INTO Foo (foo, bar) values (?, ?)',
+                array(1, null),
+                array(\PDO::PARAM_INT, \PDO::PARAM_NULL)
+            ),
         );
     }
 

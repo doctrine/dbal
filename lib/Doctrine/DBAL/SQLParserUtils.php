@@ -212,12 +212,12 @@ class SQLParserUtils
      */
     static private function extractParam($paramName, $paramsOrTypes, $isParam, $defaultValue = null)
     {
-        if (isset($paramsOrTypes[$paramName])) {
+        if (array_key_exists($paramName, $paramsOrTypes)) {
             return $paramsOrTypes[$paramName];
         }
 
         // Hash keys can be prefixed with a colon for compatibility
-        if (isset($paramsOrTypes[':' . $paramName])) {
+        if (array_key_exists(':' . $paramName, $paramsOrTypes)) {
             return $paramsOrTypes[':' . $paramName];
         }
 
