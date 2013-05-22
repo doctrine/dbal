@@ -39,6 +39,23 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
+        if (isset($params['charset']) && 0 === strcasecmp($params['charset'], 'utf8')) {
+            try {
+                $conn = new \Doctrine\DBAL\Driver\PDOConnection(
+                    $this->_constructPdoDsn(array('charset' => 'utf8mb4') + $params),
+                    $username,
+                    $password,
+                    $driverOptions
+                );
+                return $conn;
+
+            } catch(\PDOException $e) {
+                if (2019 !== $e->getCode()) {
+                    throw $e;
+                }
+            }
+        }
+
         $conn = new \Doctrine\DBAL\Driver\PDOConnection(
             $this->_constructPdoDsn($params),
             $username,
