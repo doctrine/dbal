@@ -67,8 +67,8 @@ class MysqlSessionInit implements EventSubscriber
         $sql = 'SET NAMES ' . $this->_charset . $collation;
 
         $mb4 = str_replace(
-            array('utf8 ', 'utf8mb4 '),
-            array('utf8_', 'utf8mb4_'),
+            array('utf8 ', 'utf8_'),
+            array('utf8mb4 ', 'utf8mb4_'),
             $sql
         );
 
