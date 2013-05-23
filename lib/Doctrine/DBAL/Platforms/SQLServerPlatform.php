@@ -957,7 +957,6 @@ class SQLServerPlatform extends AbstractPlatform
             'real' => 'float',
             'double' => 'float',
             'double precision' => 'float',
-            'datetimeoffset' => 'datetimetz',
             'smalldatetime' => 'datetime',
             'datetime' => 'datetime',
             'char' => 'string',
