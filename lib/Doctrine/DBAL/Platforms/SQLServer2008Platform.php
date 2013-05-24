@@ -58,7 +58,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
      */
     public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'datetimeoffset(6)';
+        return 'DATETIMEOFFSET(6)';
     }
 
     /**
