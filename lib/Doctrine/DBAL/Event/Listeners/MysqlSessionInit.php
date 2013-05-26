@@ -51,10 +51,10 @@ class MysqlSessionInit implements EventSubscriber
      * @param string $charset
      * @param string $collation
      */
-    public function __construct($charset = 'utf8', $collation = false)
+    public function __construct($charset = 'utf8', $collation = '')
     {
-        $this->_charset = $charset;
-        $this->_collation = $collation;
+        $this->_charset   = strtolower($charset);
+        $this->_collation = strtolower($collation);
     }
 
     /**
@@ -63,8 +63,20 @@ class MysqlSessionInit implements EventSubscriber
      */
     public function postConnect(ConnectionEventArgs $args)
     {
-        $collation = ($this->_collation) ? " COLLATE ".$this->_collation : "";
-        $args->getConnection()->executeUpdate("SET NAMES ".$this->_charset . $collation);
+        $collation = $this->_collation ? ' COLLATE ' . $this->_collation : ' ';
+        $sql = 'SET NAMES ' . $this->_charset . $collation;
+
+        $mb4 = str_replace(
+            array('utf8 ', 'utf8_'),
+            array('utf8mb4 ', 'utf8mb4_'),
+            $sql
+        );
+
+        if ($mb4 !== $sql) {
+            $sql .= '/*!50503,' . $mb4 . '*/';
+        }
+
+        $args->getConnection()->executeUpdate($sql);
     }
 
     public function getSubscribedEvents()

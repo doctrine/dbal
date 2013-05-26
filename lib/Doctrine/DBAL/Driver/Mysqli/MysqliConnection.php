@@ -42,7 +42,12 @@ class MysqliConnection implements Connection
         }
 
         if (isset($params['charset'])) {
-            $this->_conn->set_charset($params['charset']);
+            if (50503 <= $this->_conn->server_version && 0 === strcasecmp($params['charset'], 'utf8')) {
+                $this->_conn->set_charset('utf8mb4');
+            }
+            else {
+                $this->_conn->set_charset($params['charset']);
+            }
         }
     }
 
