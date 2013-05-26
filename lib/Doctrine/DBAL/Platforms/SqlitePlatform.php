@@ -278,6 +278,20 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey)
+    {
+        return parent::getForeignKeyDeclarationSQL(new ForeignKeyConstraint(
+            $foreignKey->getLocalColumns(),
+            str_replace('.', '__', $foreignKey->getForeignTableName()),
+            $foreignKey->getForeignColumns(),
+            $foreignKey->getName(),
+            $foreignKey->getOptions()
+        ));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function _getCreateTableSQL($name, array $columns, array $options = array())
     {
         $name = str_replace('.', '__', $name);
