@@ -19,8 +19,6 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use PDO;
-
 /**
  * Interface for the reading part of a prepare statement only.
  *
