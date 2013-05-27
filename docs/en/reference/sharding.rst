@@ -468,7 +468,7 @@ You have to configure the following options:
 - 'wrapperClass' - Selecting the PoolingShardConnection as above.
 - 'global' - An array of database parameters that is used for connecting to the
   global database.
-- 'shards' - An array of of shard database parameters. You have to specifiy an
+- 'shards' - An array of shard database parameters. You have to specifiy an
   'id' parameter for each of the shard configurations.
 - 'shardChoser' - Implementation of the
   ``Doctrine\Shards\DBAL\ShardChoser\ShardChoser`` interface.
