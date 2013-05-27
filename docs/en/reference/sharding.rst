@@ -14,13 +14,13 @@ yet to dynamically pick a shard based on ID, query or database row yet. That
 means the sharding extension is primarily suited for:
 
 - multi-tenant applications or
-- applications with completly separated datasets (example: weather data).
+- applications with completely separated datasets (example: weather data).
 
 Both kind of application will work with both DBAL and ORM.
 
 .. note::
 
-    Horizontal sharding is an evasive archicture that will affect your application code and using this
+    Horizontal sharding is an evasive architecture that will affect your application code and using this
     extension to Doctrine will not make it work "magically".
 
 You have to understand and integrate the following drawbacks:
@@ -52,7 +52,7 @@ Take for example a multi-user blog application with the following tables:
 
 A sensible sharding architecture will split the application by blog. That means
 all the data for a particular blog will be on a single shard and scaling is
-done by putting the amound of blogs on many different database servers.
+done by putting the amount of blogs on many different database servers.
 
 Now users can post and comment on different blogs that reside on different
 shards. This makes the database schema above slightly tricky, because both
@@ -63,7 +63,7 @@ terms of the sharding architecture.
 To simplify working with this kind of multi-dimensional database schema, you
 can replace the author_ids with something more "meaningful", for example the
 e-mail address of the users if that is always known. The "user" table can then
-be seperated from the database schema above and put on a second horizontally
+be separated from the database schema above and put on a second horizontally
 scaled sharding architecture.
 
 As you can see, even with just the four tables above, sharding actually becomes
@@ -134,7 +134,7 @@ Table Generator
 
 In some scenarios there is no way around a numerical, automatically
 incrementing id. The way Auto incrementing IDs are implemented in MySQL and SQL
-Server however is completly unsuitable for sharding. Remember in a sharding
+Server however is completely unsuitable for sharding. Remember in a sharding
 architecture you have to know where the row for a specific ID is located and
 IDs have to be globally unique across all servers. Auto-Increment Primary Keys
 are missing both properties.
@@ -468,7 +468,7 @@ You have to configure the following options:
 - 'wrapperClass' - Selecting the PoolingShardConnection as above.
 - 'global' - An array of database parameters that is used for connecting to the
   global database.
-- 'shards' - An array of of shard database parameters. You have to specifiy an
+- 'shards' - An array of shard database parameters. You have to specify an
   'id' parameter for each of the shard configurations.
 - 'shardChoser' - Implementation of the
   ``Doctrine\Shards\DBAL\ShardChoser\ShardChoser`` interface.
