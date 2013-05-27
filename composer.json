@@ -1,6 +1,6 @@
 {
     "name": "doctrine/dbal",
-    "type": "library","version":"2.4.0-RC1",
+    "type": "library",
     "description": "Database Abstraction Layer",
     "keywords": ["dbal", "database", "persistence", "queryobject"],
     "homepage": "http://www.doctrine-project.org",
