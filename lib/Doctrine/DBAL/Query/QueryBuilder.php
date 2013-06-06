@@ -44,6 +44,7 @@ class QueryBuilder
     const SELECT = 0;
     const DELETE = 1;
     const UPDATE = 2;
+    const INSERT = 3;
 
     /** The builder states. */
     const STATE_DIRTY = 0;
@@ -209,6 +210,10 @@ class QueryBuilder
         $sql = '';
 
         switch ($this->type) {
+            case self::INSERT:
+                $sql = $this->getSQLForInsert();
+                break;
+
             case self::DELETE:
                 $sql = $this->getSQLForDelete();
                 break;
@@ -504,6 +509,33 @@ class QueryBuilder
         return $this->add('from', array(
             'table' => $update,
             'alias' => $alias
+        ));
+    }
+
+    /**
+     * Turns the query being built into an insert query that inserts into
+     * a certain table
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->insert('users')
+     *         ->set('name', 'username')
+     *         ->set('password', md5('password'));
+     * </code>
+     *
+     * @param string $insert The table into which the rows should be inserted.
+     * @return QueryBuilder This QueryBuilder instance.
+     */
+    public function insert($insert = null)
+    {
+        $this->type = self::INSERT;
+
+        if ( ! $insert) {
+            return $this;
+        }
+
+        return $this->add('from', array(
+            'table' => $insert
         ));
     }
 
@@ -985,6 +1017,20 @@ class QueryBuilder
         $query = 'UPDATE ' . $table
                . ' SET ' . implode(", ", $this->sqlParts['set'])
                . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
+
+        return $query;
+    }
+
+    /**
+     * Converts this instance into an INSERT string in SQL.
+     *
+     * @return string
+     */
+    private function getSQLForInsert()
+    {
+        $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $query = 'INSERT INTO ' . $table
+               . ' SET ' . implode(", ", $this->sqlParts['set']);
 
         return $query;
     }
