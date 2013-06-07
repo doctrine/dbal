@@ -802,58 +802,63 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        if ($limit > 0) {
-            $orderby = stristr($query, 'ORDER BY');
-            //Remove ORDER BY from $query
-            $query = preg_replace('/\s+ORDER\s+BY\s+([^\)]*)/', '', $query);
-            $over = 'ORDER BY';
-
-            if ( ! $orderby) {
-                $over .= ' (SELECT 0)';
-            } else {
-                //Clear ORDER BY
-                $orderby = preg_replace('/ORDER\s+BY\s+([^\)]*)(.*)/', '$1', $orderby);
-                $orderbyParts = explode(',', $orderby);
-                $orderbyColumns = array();
-
-                //Split ORDER BY into parts
-                foreach ($orderbyParts as &$part) {
-                    $part = trim($part);
-                    if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', $part, $matches)) {
-                        $orderbyColumns[] = array(
-                            'table' => empty($matches[2]) ? '[^\.\s]*' : $matches[2],
-                            'column' => $matches[3],
-                            'sort' => isset($matches[4]) ? $matches[4] : null
-                        );
-                    }
-                }
-
-                //Find alias for each colum used in ORDER BY
-                if (count($orderbyColumns)) {
-                    foreach ($orderbyColumns as $column) {
-                        if (preg_match('/' . $column['table'] . '\.(' . $column['column'] . ')\s*(AS)?\s*([^,\s\)]*)/i', $query, $matches)) {
-                            $over .= ' ' . $matches[3];
-                            $over .= isset($column['sort']) ? ' ' . $column['sort'] . ',' : ',';
-                        } else {
-                            $over .= ' ' . $column['column'];
-                            $over .= isset($column['sort']) ? ' ' . $column['sort'] . ',' : ',';
-                        }
-                    }
-
-                    $over = rtrim($over, ',');
-                }
-            }
-
-            //Replace only first occurrence of FROM with $over to prevent changing FROM also in subqueries.
-            $query = preg_replace('/\sFROM\s/i', ", ROW_NUMBER() OVER ($over) AS doctrine_rownum FROM ", $query, 1);
-
-            $start = $offset + 1;
-            $end = $offset + $limit;
-
-            $query = "SELECT * FROM ($query) AS doctrine_tbl WHERE doctrine_rownum BETWEEN $start AND $end";
+        if ($limit === null) {
+            return $query;
         }
 
-        return $query;
+        $start   = $offset + 1;
+        $end     = $offset + $limit;
+        $orderBy = stristr($query, 'ORDER BY');
+        $query   = preg_replace('/\s+ORDER\s+BY\s+([^\)]*)/', '', $query); //Remove ORDER BY from $query
+        $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d';
+
+        if ( ! $orderBy) {
+            //Replace only first occurrence of FROM with OVER to prevent changing FROM also in subqueries.
+            $query = preg_replace('/\sFROM\s/i', ', ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM ', $query, 1);
+
+            return sprintf($format, $query, $start, $end);
+        }
+
+        //Clear ORDER BY
+        $orderBy        = preg_replace('/ORDER\s+BY\s+([^\)]*)(.*)/', '$1', $orderBy);
+        $orderByParts   = explode(',', $orderBy);
+        $orderbyColumns = array();
+
+        //Split ORDER BY into parts
+        foreach ($orderByParts as &$part) {
+
+            if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', trim($part), $matches)) {
+                $orderbyColumns[] = array(
+                    'column'    => $matches[3],
+                    'hasTable'  => ( ! empty($matches[2])),
+                    'sort'      => isset($matches[4]) ? $matches[4] : null,
+                    'table'     => empty($matches[2]) ? '[^\.\s]*' : $matches[2]
+                );
+            }
+        }
+
+        //Find alias for each colum used in ORDER BY
+        if ( ! empty($orderbyColumns)) {
+            foreach ($orderbyColumns as $column) {
+
+                $pattern    = sprintf('/%s\.(%s)\s*(AS)?\s*([^,\s\)]*)/i', $column['table'], $column['column']);
+                $overColumn = preg_match($pattern, $query, $matches)
+                    ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column'] 
+                    : $column['column'];
+
+                if (isset($column['sort'])) {
+                    $overColumn .= ' ' . $column['sort'];
+                }
+
+                $overColumns[] = $overColumn;
+            }
+        }
+
+        //Replace only first occurrence of FROM with $over to prevent changing FROM also in subqueries.
+        $over  = 'ORDER BY ' . implode(', ', $overColumns);
+        $query = preg_replace('/\sFROM\s/i', ", ROW_NUMBER() OVER ($over) AS doctrine_rownum FROM ", $query, 1);
+
+        return sprintf($format, $query, $start, $end);
     }
 
     /**
