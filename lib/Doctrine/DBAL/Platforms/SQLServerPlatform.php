@@ -802,7 +802,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        if ( ! $limit > 0) {
+        if ($limit === null) {
             return $query;
         }
 
@@ -826,8 +826,8 @@ class SQLServerPlatform extends AbstractPlatform
 
         //Split ORDER BY into parts
         foreach ($orderByParts as &$part) {
-            $part = trim($part);
-            if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', $part, $matches)) {
+
+            if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', trim($part), $matches)) {
                 $orderbyColumns[] = array(
                     'column'    => $matches[3],
                     'hasTable'  => ( ! empty($matches[2])),
