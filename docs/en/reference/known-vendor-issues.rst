@@ -49,9 +49,9 @@ that detects the format automatically:
 
     use Doctrine\DBAL\Types\Type;
     
-    Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTime');
-    Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTime');
-    Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTime');
+    Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTimeType');
+    Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTimeType');
+    Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTimeType');
 
 Timezones and DateTimeTz
 ~~~~~~~~~~~~~~~~~~~~~~~~
