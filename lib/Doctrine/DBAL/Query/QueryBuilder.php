@@ -951,7 +951,7 @@ class QueryBuilder
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
             $knownAliases[$from['alias']] = true;
-            $fromClause = $from['table'] . ' ' . $from['alias']
+            $fromClause = "`{$from['table']}`" . ' ' . $from['alias']
                 . $this->getSQLForJoins($from['alias'], $knownAliases);
 
             $fromClauses[$from['alias']] = $fromClause;
@@ -982,7 +982,7 @@ class QueryBuilder
     private function getSQLForUpdate()
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
-        $query = 'UPDATE ' . $table
+        $query = 'UPDATE ' . "`{$table}`"
                . ' SET ' . implode(", ", $this->sqlParts['set'])
                . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
 
@@ -997,7 +997,7 @@ class QueryBuilder
     private function getSQLForDelete()
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
-        $query = 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
+        $query = 'DELETE FROM ' . "`{$table}`" . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
 
         return $query;
     }
@@ -1086,7 +1086,7 @@ class QueryBuilder
         if (isset($this->sqlParts['join'][$fromAlias])) {
             foreach ($this->sqlParts['join'][$fromAlias] as $join) {
                 $sql .= ' ' . strtoupper($join['joinType'])
-                      . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
+                      . ' JOIN ' . "`{$join['joinTable']}`" . ' ' . $join['joinAlias']
                       . ' ON ' . ((string) $join['joinCondition']);
                 $knownAliases[$join['joinAlias']] = true;
 
