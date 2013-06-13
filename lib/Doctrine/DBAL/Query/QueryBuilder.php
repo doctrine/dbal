@@ -1116,16 +1116,10 @@ class QueryBuilder
             }
         }
 
-        $params = array();
-
-        foreach ($this->params as $param) {
+        foreach ($this->params as $name => $param) {
             if(is_object($param)){
-                $params[] = clone $param;
-            } else {
-                $params[] = $param;
+                $this->params[$name] = clone $param;
             }
         }
-
-        $this->params = $params;
     }
 }
