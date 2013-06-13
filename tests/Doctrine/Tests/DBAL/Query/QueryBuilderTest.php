@@ -451,6 +451,26 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertSame($qb2, $qb);
     }
 
+    public function testInsert()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb->insert('users')
+           ->set('foo', '?')
+           ->set('bar', '?');
+
+        $this->assertEquals(QueryBuilder::INSERT, $qb->getType());
+        $this->assertEquals('INSERT INTO users SET foo = ?, bar = ?', (string) $qb);
+    }
+
+    public function testEmptyInsert()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $qb2 = $qb->insert();
+
+        $this->assertEquals(QueryBuilder::INSERT, $qb->getType());
+        $this->assertSame($qb2, $qb);
+    }
+
     public function testGetConnection()
     {
         $qb   = new QueryBuilder($this->conn);
