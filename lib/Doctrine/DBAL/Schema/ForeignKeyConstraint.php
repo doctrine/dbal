@@ -74,13 +74,16 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     public function __construct(array $localColumnNames, $foreignTableName, array $foreignColumnNames, $name = null, array $options = array())
     {
         $this->_setName($name);
-        $this->_localColumnNames = $localColumnNames ? array_combine($localColumnNames, array_map(function($column) {
+        $identifierConstructorCallback = function ($column) {
             return new Identifier($column);
-        }, $localColumnNames)) : array();
+        };
+        $this->_localColumnNames = $localColumnNames
+            ? array_combine($localColumnNames, array_map($identifierConstructorCallback, $localColumnNames))
+            : array();
         $this->_foreignTableName = new Identifier($foreignTableName);
-        $this->_foreignColumnNames = $foreignColumnNames ? array_combine($foreignColumnNames, array_map(function($column) {
-            return new Identifier($column);
-        }, $foreignColumnNames)) : array();
+        $this->_foreignColumnNames = $foreignColumnNames
+            ? array_combine($foreignColumnNames, array_map($identifierConstructorCallback, $foreignColumnNames))
+            : array();
         $this->_options = $options;
     }
 

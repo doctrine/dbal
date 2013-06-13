@@ -158,14 +158,16 @@ class Index extends AbstractAsset implements Constraint
      */
     public function spansColumns(array $columnNames)
     {
-        $columns = $this->getColumns();
+        $columns         = $this->getColumns();
         $numberOfColumns = count($columns);
-        $sameColumns = true;
+        $sameColumns     = true;
+
         for ($i = 0; $i < $numberOfColumns; $i++) {
-            if (!isset($columnNames[$i]) || $this->trimQuotes(strtolower($columns[$i])) !== $this->trimQuotes(strtolower($columnNames[$i]))) {
+            if ( ! isset($columnNames[$i]) || $this->trimQuotes(strtolower($columns[$i])) !== $this->trimQuotes(strtolower($columnNames[$i]))) {
                 $sameColumns = false;
             }
         }
+
         return $sameColumns;
     }
 

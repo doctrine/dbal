@@ -1166,7 +1166,7 @@ abstract class AbstractPlatform
                 /* @var $index Index */
                 if ($index->isPrimary()) {
                     $platform = $this;
-                    $options['primary'] = $index->getQuotedColumns($this);
+                    $options['primary']       = $index->getQuotedColumns($this);
                     $options['primary_index'] = $index;
                 } else {
                     $options['indexes'][$index->getName()] = $index;
