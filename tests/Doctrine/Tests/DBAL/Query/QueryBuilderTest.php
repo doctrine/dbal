@@ -602,4 +602,24 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertEquals('SELECT DISTINCT u.id FROM users u INNER JOIN permissions p ON p.user_id = u.id, articles a INNER JOIN comments c ON c.article_id = a.id WHERE (u.id = a.user_id) AND (p.read = 1)', $qb->getSQL());
     }
+
+    public function testClone()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->where('u.id = :test');
+
+        $qb->setParameter(':test', (object) 1);
+
+        $qb_clone = clone $qb;
+
+        $this->assertEquals((string) $qb, (string) $qb_clone);
+
+        $qb->andWhere('u.id = 1');
+
+        $this->assertFalse($qb->getQueryParts() === $qb_clone->getQueryParts());
+        $this->assertFalse($qb->getParameters() === $qb_clone->getParameters());
+    }
 }
