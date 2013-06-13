@@ -962,7 +962,7 @@ class QueryBuilder
                 throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
             }
         }
-        
+
         $query .= implode(', ', $fromClauses)
                 . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
                 . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
@@ -1095,5 +1095,31 @@ class QueryBuilder
         }
 
         return $sql;
+    }
+
+    /**
+     * Deep clone of all expression objects in the SQL parts.
+     *
+     * @return void
+     */
+    public function __clone()
+    {
+        foreach ($this->sqlParts as $part => $elements) {
+            if (is_array($this->sqlParts[$part])) {
+                foreach ($this->sqlParts[$part] as $idx => $element) {
+                    if (is_object($element)) {
+                        $this->sqlParts[$part][$idx] = clone $element;
+                    }
+                }
+            } else if (is_object($elements)) {
+                $this->sqlParts[$part] = clone $elements;
+            }
+        }
+
+        foreach ($this->params as $name => $param) {
+            if(is_object($param)){
+                $this->params[$name] = clone $param;
+            }
+        }
     }
 }
