@@ -562,7 +562,6 @@ class MySqlPlatform extends AbstractPlatform
             foreach ($diff->addedIndexes as $addKey => $addIndex) {
                 if ($remIndex->getColumns() == $addIndex->getColumns()) {
 
-                    $columns = $addIndex->getColumns();
                     $type = '';
                     if ($addIndex->isUnique()) {
                         $type = 'UNIQUE ';
@@ -570,7 +569,7 @@ class MySqlPlatform extends AbstractPlatform
 
                     $query = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
                     $query .= 'ADD ' . $type . 'INDEX ' . $addIndex->getName();
-                    $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
+                    $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex->getQuotedColumns($this)) . ')';
 
                     $sql[] = $query;
 
