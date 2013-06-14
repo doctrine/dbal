@@ -1166,9 +1166,7 @@ abstract class AbstractPlatform
                 /* @var $index Index */
                 if ($index->isPrimary()) {
                     $platform = $this;
-                    $options['primary'] = array_map(function ($columnName) use ($table, $platform) {
-                        return $table->getColumn($columnName)->getQuotedName($platform);
-                    }, $index->getColumns());
+                    $options['primary']       = $index->getQuotedColumns($this);
                     $options['primary_index'] = $index;
                 } else {
                     $options['indexes'][$index->getName()] = $index;
@@ -1337,11 +1335,7 @@ abstract class AbstractPlatform
 
         $query = 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $constraint->getQuotedName($this);
 
-        $columns = array();
-        foreach ($constraint->getColumns() as $column) {
-            $columns[] = $column;
-        }
-        $columnList = '('. implode(', ', $columns) . ')';
+        $columnList = '('. implode(', ', $constraint->getQuotedColumns($this)) . ')';
 
         $referencesClause = '';
         if ($constraint instanceof Index) {
@@ -1357,13 +1351,8 @@ abstract class AbstractPlatform
         } else if ($constraint instanceof ForeignKeyConstraint) {
             $query .= ' FOREIGN KEY';
 
-            $foreignColumns = array();
-            foreach ($constraint->getForeignColumns() as $column) {
-                $foreignColumns[] = $column;
-            }
-
             $referencesClause = ' REFERENCES ' . $constraint->getQuotedForeignTableName($this) .
-                ' (' . implode(', ', $foreignColumns) . ')';
+                ' (' . implode(', ', $constraint->getQuotedForeignColumns($this)) . ')';
         }
         $query .= ' '.$columnList.$referencesClause;
 
@@ -1384,7 +1373,7 @@ abstract class AbstractPlatform
             $table = $table->getQuotedName($this);
         }
         $name = $index->getQuotedName($this);
-        $columns = $index->getColumns();
+        $columns = $index->getQuotedColumns($this);
 
         if (count($columns) == 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
@@ -1422,7 +1411,7 @@ abstract class AbstractPlatform
      */
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index->getColumns()) . ')';
+        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index->getQuotedColumns($this)) . ')';
     }
 
     /**
@@ -1874,12 +1863,14 @@ abstract class AbstractPlatform
      */
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
-        if (count($index->getColumns()) === 0) {
+        $columns = $index->getQuotedColumns($this);
+
+        if (count($columns) === 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
         return 'CONSTRAINT ' . $name . ' UNIQUE ('
-             . $this->getIndexFieldDeclarationListSQL($index->getColumns())
+             . $this->getIndexFieldDeclarationListSQL($columns)
              . ')';
     }
 
@@ -1894,12 +1885,14 @@ abstract class AbstractPlatform
      */
     public function getIndexDeclarationSQL($name, Index $index)
     {
-        if (count($index->getColumns()) === 0) {
+        $columns = $index->getQuotedColumns($this);
+
+        if (count($columns) === 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ('
-             . $this->getIndexFieldDeclarationListSQL($index->getColumns())
+             . $this->getIndexFieldDeclarationListSQL($columns)
              . ')';
     }
 
@@ -2061,10 +2054,10 @@ abstract class AbstractPlatform
             throw new \InvalidArgumentException("Incomplete definition. 'foreignTable' required.");
         }
 
-        $sql .= implode(', ', $foreignKey->getLocalColumns())
+        $sql .= implode(', ', $foreignKey->getQuotedLocalColumns($this))
               . ') REFERENCES '
               . $foreignKey->getQuotedForeignTableName($this) . ' ('
-              . implode(', ', $foreignKey->getForeignColumns()) . ')';
+              . implode(', ', $foreignKey->getQuotedForeignColumns($this)) . ')';
 
         return $sql;
     }

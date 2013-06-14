@@ -262,7 +262,7 @@ class SQLServerPlatform extends AbstractPlatform
         if ($index->hasFlag('nonclustered')) {
             $flags = ' NONCLUSTERED';
         }
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index->getColumns()) . ')';
+        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index->getQuotedColumns($this)) . ')';
     }
 
     /**
@@ -344,11 +344,8 @@ class SQLServerPlatform extends AbstractPlatform
     private function _appendUniqueConstraintDefinition($sql, Index $index)
     {
         $fields = array();
-        foreach ($index->getColumns() as $field => $definition) {
-            if (!is_array($definition)) {
-                $field = $definition;
-            }
 
+        foreach ($index->getQuotedColumns($this) as $field) {
             $fields[] = $field . ' IS NOT NULL';
         }
 

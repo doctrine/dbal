@@ -237,14 +237,22 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     protected function getQuotedColumnInPrimaryKeySQL()
     {
         return array(
-            'CREATE TABLE `quoted` (`key` VARCHAR(255) NOT NULL, PRIMARY KEY(`key`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
+            'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, PRIMARY KEY(`create`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
         );
     }
 
     protected function getQuotedColumnInIndexSQL()
     {
         return array(
-            'CREATE TABLE `quoted` (`key` VARCHAR(255) NOT NULL, INDEX IDX_22660D028A90ABA9 (`key`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
+            'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, INDEX IDX_22660D028FD6E0FB (`create`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
+        );
+    }
+
+    protected function getQuotedColumnInForeignKeySQL()
+    {
+        return array(
+            'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB',
+            'ALTER TABLE `quoted` ADD CONSTRAINT FK_22660D028FD6E0FB8C736521 FOREIGN KEY (`create`, foo) REFERENCES `foreign` (`create`, bar)',
         );
     }
 

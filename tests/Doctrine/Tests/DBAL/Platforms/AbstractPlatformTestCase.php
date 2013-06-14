@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -432,8 +433,8 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testQuotedColumnInPrimaryKeyPropagation()
     {
         $table = new Table('`quoted`');
-        $table->addColumn('`key`', 'string');
-        $table->setPrimaryKey(array('key'));
+        $table->addColumn('create', 'string');
+        $table->setPrimaryKey(array('create'));
 
         $sql = $this->_platform->getCreateTableSQL($table);
         $this->assertEquals($this->getQuotedColumnInPrimaryKeySQL(), $sql);
@@ -441,19 +442,37 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract protected function getQuotedColumnInPrimaryKeySQL();
     abstract protected function getQuotedColumnInIndexSQL();
+    abstract protected function getQuotedColumnInForeignKeySQL();
 
     /**
      * @group DBAL-374
      */
     public function testQuotedColumnInIndexPropagation()
     {
-        $this->markTestSkipped('requires big refactoring of Platforms');
-
         $table = new Table('`quoted`');
-        $table->addColumn('`key`', 'string');
-        $table->addIndex(array('key'));
+        $table->addColumn('create', 'string');
+        $table->addIndex(array('create'));
 
         $sql = $this->_platform->getCreateTableSQL($table);
         $this->assertEquals($this->getQuotedColumnInIndexSQL(), $sql);
+    }
+
+    /**
+     * @group DBAL-374
+     */
+    public function testQuotedColumnInForeignKeyPropagation()
+    {
+        $table = new Table('`quoted`');
+        $table->addColumn('create', 'string');
+        $table->addColumn('foo', 'string');
+
+        $foreignTable = new Table('foreign');
+        $foreignTable->addColumn('create', 'string');
+        $foreignTable->addColumn('bar', 'string');
+
+        $table->addForeignKeyConstraint($foreignTable, array('create', 'foo'), array('create', 'bar'));
+
+        $sql = $this->_platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS);
+        $this->assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
     }
 }
