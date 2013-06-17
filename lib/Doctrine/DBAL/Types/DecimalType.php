@@ -42,4 +42,9 @@ class DecimalType extends Type
     {
         return (null === $value) ? null : $value;
     }
+
+    public function getBindingType()
+    {
+        return \PDO::PARAM_INT;
+    }
 }
