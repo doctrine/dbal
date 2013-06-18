@@ -28,7 +28,7 @@ use Doctrine\DBAL\DBALException;
 /**
  * Object Representation of a table
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @version $Revision$
@@ -355,15 +355,11 @@ class Table extends AbstractAsset
     public function addNamedForeignKeyConstraint($name, $foreignTable, array $localColumnNames, array $foreignColumnNames, array $options=array())
     {
         if ($foreignTable instanceof Table) {
-            $foreignTableName = $foreignTable->getName();
-
             foreach ($foreignColumnNames as $columnName) {
                 if ( ! $foreignTable->hasColumn($columnName)) {
                     throw SchemaException::columnDoesNotExist($columnName, $foreignTable->getName());
                 }
             }
-        } else {
-            $foreignTableName = $foreignTable;
         }
 
         foreach ($localColumnNames as $columnName) {
@@ -373,7 +369,7 @@ class Table extends AbstractAsset
         }
 
         $constraint = new ForeignKeyConstraint(
-            $localColumnNames, $foreignTableName, $foreignColumnNames, $name, $options
+            $localColumnNames, $foreignTable, $foreignColumnNames, $name, $options
         );
         $this->_addForeignKeyConstraint($constraint);
 
