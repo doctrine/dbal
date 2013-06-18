@@ -45,7 +45,9 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     protected $_localColumnNames;
 
     /**
-     * @var Identifier Asset identifier instance of the referenced table name the foreign key constraint is associated with.
+     * Table or asset identifier instance of the referenced table name the foreign key constraint is associated with.
+     *
+     * @var Table|Identifier
      */
     protected $_foreignTableName;
 
@@ -65,11 +67,11 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     /**
      * Initializes the foreign key constraint.
      *
-     * @param array       $localColumnNames   Names of the referencing table columns.
-     * @param string      $foreignTableName   Name of the referenced table.
-     * @param array       $foreignColumnNames Names of the referenced table columns.
-     * @param string|null $name               Name of the foreign key constraint.
-     * @param array       $options            Options associated with the foreign key constraint.
+     * @param array        $localColumnNames   Names of the referencing table columns.
+     * @param Table|string $foreignTableName   Referenced table.
+     * @param array        $foreignColumnNames Names of the referenced table columns.
+     * @param string|null  $name               Name of the foreign key constraint.
+     * @param array        $options            Options associated with the foreign key constraint.
      */
     public function __construct(array $localColumnNames, $foreignTableName, array $foreignColumnNames, $name = null, array $options = array())
     {
@@ -80,7 +82,13 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         $this->_localColumnNames = $localColumnNames
             ? array_combine($localColumnNames, array_map($identifierConstructorCallback, $localColumnNames))
             : array();
-        $this->_foreignTableName = new Identifier($foreignTableName);
+
+        if ($foreignTableName instanceof Table) {
+            $this->_foreignTableName = $foreignTableName;
+        } else {
+            $this->_foreignTableName = new Identifier($foreignTableName);
+        }
+
         $this->_foreignColumnNames = $foreignColumnNames
             ? array_combine($foreignColumnNames, array_map($identifierConstructorCallback, $foreignColumnNames))
             : array();

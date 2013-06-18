@@ -281,9 +281,9 @@ class SqlitePlatform extends AbstractPlatform
     public function getForeignKeyDeclarationSQL(ForeignKeyConstraint $foreignKey)
     {
         return parent::getForeignKeyDeclarationSQL(new ForeignKeyConstraint(
-            $foreignKey->getLocalColumns(),
-            str_replace('.', '__', $foreignKey->getForeignTableName()),
-            $foreignKey->getForeignColumns(),
+            $foreignKey->getQuotedLocalColumns($this),
+            str_replace('.', '__', $foreignKey->getQuotedForeignTableName($this)),
+            $foreignKey->getQuotedForeignColumns($this),
             $foreignKey->getName(),
             $foreignKey->getOptions()
         ));
