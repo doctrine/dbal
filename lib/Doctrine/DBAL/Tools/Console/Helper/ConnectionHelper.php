@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -21,33 +19,32 @@
 
 namespace Doctrine\DBAL\Tools\Console\Helper;
 
-use Symfony\Component\Console\Helper\Helper,
-    Doctrine\DBAL\Connection;
+use Symfony\Component\Console\Helper\Helper;
+use Doctrine\DBAL\Connection;
 
 /**
  * Doctrine CLI Connection Helper.
  *
- * 
- * @link    www.doctrine-project.org
- * @since   2.0
- * @version $Revision$
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
- * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author  Jonathan Wage <jonwage@gmail.com>
- * @author  Roman Borschel <roman@code-factory.org>
+ * @link   www.doctrine-project.org
+ * @since  2.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author Jonathan Wage <jonwage@gmail.com>
+ * @author Roman Borschel <roman@code-factory.org>
  */
 class ConnectionHelper extends Helper
 {
     /**
-     * Doctrine Database Connection
-     * @var Connection
+     * The Doctrine database Connection.
+     *
+     * @var \Doctrine\DBAL\Connection
      */
     protected $_connection;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param Connection $connection Doctrine Database Connection
+     * @param \Doctrine\DBAL\Connection $connection The Doctrine database Connection.
      */
     public function __construct(Connection $connection)
     {
@@ -55,9 +52,9 @@ class ConnectionHelper extends Helper
     }
 
     /**
-     * Retrieves Doctrine Database Connection
+     * Retrieves the Doctrine database Connection.
      *
-     * @return Connection
+     * @return \Doctrine\DBAL\Connection
      */
     public function getConnection()
     {
@@ -65,7 +62,7 @@ class ConnectionHelper extends Helper
     }
 
     /**
-     * @see Helper
+     * {@inheritdoc}
      */
     public function getName()
     {

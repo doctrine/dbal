@@ -1,7 +1,6 @@
 <?php
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
  * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
@@ -27,16 +26,22 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  *
  * Only use this type if you are sure that your values cannot contain a ",".
  *
- * @since 2.3
+ * @since  2.3
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
 class SimpleArrayType extends Type
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         if (!$value) {
@@ -46,6 +51,9 @@ class SimpleArrayType extends Type
         return implode(',', $value);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === null) {
@@ -57,11 +65,17 @@ class SimpleArrayType extends Type
         return explode(',', $value);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return Type::SIMPLE_ARRAY;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {
         return true;

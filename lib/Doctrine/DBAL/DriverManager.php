@@ -51,8 +51,12 @@ final class DriverManager
             'sqlsrv' => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
             );
 
-    /** Private constructor. This class cannot be instantiated. */
-    private function __construct() { }
+    /**
+     * Private constructor. This class cannot be instantiated.
+     */
+    private function __construct()
+    {
+    }
 
     /**
      * Creates a connection object based on the specified parameters.
@@ -101,10 +105,13 @@ final class DriverManager
      * <b>driverClass</b>:
      * The driver class to use.
      *
-     * @param array $params The parameters.
-     * @param \Doctrine\DBAL\Configuration The configuration to use.
-     * @param \Doctrine\Common\EventManager The event manager to use.
+     * @param array                              $params       The parameters.
+     * @param \Doctrine\DBAL\Configuration|null  $config       The configuration to use.
+     * @param \Doctrine\Common\EventManager|null $eventManager The event manager to use.
+     *
      * @return \Doctrine\DBAL\Connection
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public static function getConnection(
             array $params,
@@ -151,7 +158,11 @@ final class DriverManager
     /**
      * Checks the list of parameters.
      *
-     * @param array $params
+     * @param array $params The list of parameters.
+     *
+     * @return void
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     private static function _checkParams(array $params)
     {

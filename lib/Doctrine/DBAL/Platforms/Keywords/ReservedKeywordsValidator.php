@@ -17,7 +17,6 @@
  * <http://www.doctrine-project.org>.
  */
 
-
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 use Doctrine\DBAL\Schema\Visitor\Visitor;
@@ -40,11 +39,17 @@ class ReservedKeywordsValidator implements Visitor
      */
     private $violations = array();
 
+    /**
+     * @param \Doctrine\DBAL\Platforms\Keywords\KeywordList[] $keywordLists
+     */
     public function __construct(array $keywordLists)
     {
         $this->keywordLists = $keywordLists;
     }
 
+    /**
+     * @return array
+     */
     public function getViolations()
     {
         return $this->violations;
@@ -52,6 +57,7 @@ class ReservedKeywordsValidator implements Visitor
 
     /**
      * @param string $word
+     *
      * @return array
      */
     private function isReservedWord($word)
@@ -69,6 +75,12 @@ class ReservedKeywordsValidator implements Visitor
         return $keywordLists;
     }
 
+    /**
+     * @param string $asset
+     * @param array  $violatedPlatforms
+     *
+     * @return void
+     */
     private function addViolation($asset, $violatedPlatforms)
     {
         if ( ! $violatedPlatforms) {
@@ -78,6 +90,9 @@ class ReservedKeywordsValidator implements Visitor
         $this->violations[] = $asset . ' keyword violations: ' . implode(', ', $violatedPlatforms);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function acceptColumn(Table $table, Column $column)
     {
         $this->addViolation(
@@ -86,26 +101,37 @@ class ReservedKeywordsValidator implements Visitor
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
-
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function acceptIndex(Table $table, Index $index)
     {
-
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function acceptSchema(Schema $schema)
     {
-
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function acceptSequence(Sequence $sequence)
     {
-
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function acceptTable(Table $table)
     {
         $this->addViolation(

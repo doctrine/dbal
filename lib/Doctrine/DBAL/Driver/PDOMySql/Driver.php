@@ -29,13 +29,7 @@ use Doctrine\DBAL\Connection;
 class Driver implements \Doctrine\DBAL\Driver
 {
     /**
-     * Attempts to establish a connection with the underlying driver.
-     *
-     * @param array $params
-     * @param string $username
-     * @param string $password
-     * @param array $driverOptions
-     * @return \Doctrine\DBAL\Driver\Connection
+     * {@inheritdoc}
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
@@ -45,13 +39,16 @@ class Driver implements \Doctrine\DBAL\Driver
             $password,
             $driverOptions
         );
+
         return $conn;
     }
 
     /**
      * Constructs the MySql PDO DSN.
      *
-     * @return string  The DSN.
+     * @param array $params
+     *
+     * @return string The DSN.
      */
     private function _constructPdoDsn(array $params)
     {
@@ -75,21 +72,33 @@ class Driver implements \Doctrine\DBAL\Driver
         return $dsn;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDatabasePlatform()
     {
         return new \Doctrine\DBAL\Platforms\MySqlPlatform();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
         return new \Doctrine\DBAL\Schema\MySqlSchemaManager($conn);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'pdo_mysql';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {
         $params = $conn->getParams();

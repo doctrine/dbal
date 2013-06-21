@@ -19,15 +19,12 @@
 
 namespace Doctrine\DBAL\Schema\Visitor;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\Table,
-    Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Schema,
-    Doctrine\DBAL\Schema\ForeignKeyConstraint,
-    Doctrine\DBAL\Schema\Constraint,
-    Doctrine\DBAL\Schema\Sequence,
-    Doctrine\DBAL\Schema\SchemaException,
-    Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\SchemaException;
 
 /**
  * Visit a SchemaDiff.
@@ -41,28 +38,47 @@ interface SchemaDiffVisitor
     /**
      * Visit an orphaned foreign key whose table was deleted.
      *
-     * @param ForeignKeyConstraint $foreignKey
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey
      */
     function visitOrphanedForeignKey(ForeignKeyConstraint $foreignKey);
 
     /**
      * Visit a sequence that has changed.
      *
-     * @param Sequence $sequence
+     * @param \Doctrine\DBAL\Schema\Sequence $sequence
      */
     function visitChangedSequence(Sequence $sequence);
 
     /**
      * Visit a sequence that has been removed.
      *
-     * @param Sequence $sequence
+     * @param \Doctrine\DBAL\Schema\Sequence $sequence
      */
     function visitRemovedSequence(Sequence $sequence);
 
+    /**
+     * @param \Doctrine\DBAL\Schema\Sequence $sequence
+     */
     function visitNewSequence(Sequence $sequence);
 
+    /**
+     * @param \Doctrine\DBAL\Schema\Table $table
+     */
     function visitNewTable(Table $table);
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Table                $table
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey
+     */
     function visitNewTableForeignKey(Table $table, ForeignKeyConstraint $foreignKey);
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Table $table
+     */
     function visitRemovedTable(Table $table);
+
+    /**
+     * @param \Doctrine\DBAL\Schema\TableDiff $tableDiff
+     */
     function visitChangedTable(TableDiff $tableDiff);
 }

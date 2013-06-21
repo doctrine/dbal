@@ -1,5 +1,4 @@
 <?php
-
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -336,8 +335,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Extend unique key constraint with required filters
      *
-     * @param string $sql
-     * @param Index $index
+     * @param string                      $sql
+     * @param \Doctrine\DBAL\Schema\Index $index
      *
      * @return string
      */
@@ -673,6 +672,9 @@ class SQLServerPlatform extends AbstractPlatform
         return '(' . implode(' + ', $args) . ')';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListDatabasesSQL()
     {
         return 'SELECT * FROM SYS.DATABASES';

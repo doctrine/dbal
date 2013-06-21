@@ -32,12 +32,12 @@ class Index extends AbstractAsset implements Constraint
     protected $_columns;
 
     /**
-     * @var bool
+     * @var boolean
      */
     protected $_isUnique = false;
 
     /**
-     * @var bool
+     * @var boolean
      */
     protected $_isPrimary = false;
 
@@ -49,10 +49,11 @@ class Index extends AbstractAsset implements Constraint
     protected $_flags = array();
 
     /**
-     * @param string $indexName
-     * @param array $column
-     * @param bool $isUnique
-     * @param bool $isPrimary
+     * @param string  $indexName
+     * @param array   $columns
+     * @param boolean $isUnique
+     * @param boolean $isPrimary
+     * @param array   $flags
      */
     public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
     {
@@ -72,6 +73,10 @@ class Index extends AbstractAsset implements Constraint
 
     /**
      * @param string $column
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException
      */
     protected function _addColumn($column)
     {
@@ -83,7 +88,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function getColumns()
     {
@@ -115,7 +120,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Is the index neither unique nor primary key?
      *
-     * @return bool
+     * @return boolean
      */
     public function isSimpleIndex()
     {
@@ -123,7 +128,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @return bool
+     * @return boolean
      */
     public function isUnique()
     {
@@ -131,7 +136,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @return bool
+     * @return boolean
      */
     public function isPrimary()
     {
@@ -139,21 +144,24 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @param  string $columnName
-     * @param  int $pos
-     * @return bool
+     * @param string  $columnName
+     * @param integer $pos
+     *
+     * @return boolean
      */
     public function hasColumnAtPosition($columnName, $pos = 0)
     {
         $columnName   = $this->trimQuotes(strtolower($columnName));
         $indexColumns = array_map('strtolower', $this->getUnquotedColumns());
+
         return array_search($columnName, $indexColumns) === $pos;
     }
 
     /**
-     * Check if this index exactly spans the given column names in the correct order.
+     * Checks if this index exactly spans the given column names in the correct order.
      *
      * @param array $columnNames
+     *
      * @return boolean
      */
     public function spansColumns(array $columnNames)
@@ -172,10 +180,11 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * Check if the other index already fulfills all the indexing and constraint needs of the current one.
+     * Checks if the other index already fulfills all the indexing and constraint needs of the current one.
      *
-     * @param Index $other
-     * @return bool
+     * @param \Doctrine\DBAL\Schema\Index $other
+     *
+     * @return boolean
      */
     public function isFullfilledBy(Index $other)
     {
@@ -200,16 +209,19 @@ class Index extends AbstractAsset implements Constraint
             } else if ($other->isUnique() != $this->isUnique()) {
                 return false;
             }
+
             return true;
         }
+
         return false;
     }
 
     /**
-     * Detect if the other index is a non-unique, non primary index that can be overwritten by this one.
+     * Detects if the other index is a non-unique, non primary index that can be overwritten by this one.
      *
-     * @param Index $other
-     * @return bool
+     * @param \Doctrine\DBAL\Schema\Index $other
+     *
+     * @return boolean
      */
     public function overrules(Index $other)
     {
@@ -222,6 +234,7 @@ class Index extends AbstractAsset implements Constraint
         if ($this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique())) {
             return true;
         }
+
         return false;
     }
 
@@ -236,15 +249,18 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * Add Flag for an index that translates to platform specific handling.
+     * Adds Flag for an index that translates to platform specific handling.
      *
      * @example $index->addFlag('CLUSTERED')
+     *
      * @param string $flag
-     * @return Index
+     *
+     * @return \Doctrine\DBAL\Schema\Index
      */
     public function addFlag($flag)
     {
         $this->flags[strtolower($flag)] = true;
+
         return $this;
     }
 
@@ -252,7 +268,8 @@ class Index extends AbstractAsset implements Constraint
      * Does this index have a specific flag?
      *
      * @param string $flag
-     * @return bool
+     *
+     * @return boolean
      */
     public function hasFlag($flag)
     {
@@ -260,9 +277,10 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * Remove a flag
+     * Removes a flag.
      *
      * @param string $flag
+     *
      * @return void
      */
     public function removeFlag($flag)
@@ -270,4 +288,3 @@ class Index extends AbstractAsset implements Constraint
         unset($this->flags[strtolower($flag)]);
     }
 }
-

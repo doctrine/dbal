@@ -29,63 +29,60 @@ interface ResultStatement extends \Traversable
     /**
      * Closes the cursor, enabling the statement to be executed again.
      *
-     * @return boolean              Returns TRUE on success or FALSE on failure.
+     * @return boolean TRUE on success or FALSE on failure.
      */
-    function closeCursor();
-
+    public function closeCursor();
 
     /**
-     * columnCount
      * Returns the number of columns in the result set
      *
-     * @return integer              Returns the number of columns in the result set represented
-     *                              by the PDOStatement object. If there is no result set,
-     *                              this method should return 0.
+     * @return integer The number of columns in the result set represented
+     *                 by the PDOStatement object. If there is no result set,
+     *                 this method should return 0.
      */
-    function columnCount();
+    public function columnCount();
 
     /**
-     * setFetchMode
-     * Set the fetch mode to use while iterating this statement.
+     * Sets the fetch mode to use while iterating this statement.
      *
      * @param integer $fetchMode
+     * @param mixed   $arg2
+     * @param mixed   $arg3
+     *
+     * @return boolean
      */
-    function setFetchMode($fetchMode, $arg2 = null, $arg3 = null);
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null);
 
     /**
-     * fetch
-     *
      * @see Query::HYDRATE_* constants
-     * @param integer $fetchMode            Controls how the next row will be returned to the caller.
-     *                                      This value must be one of the Query::HYDRATE_* constants,
-     *                                      defaulting to Query::HYDRATE_BOTH
+     *
+     * @param integer|null $fetchMode Controls how the next row will be returned to the caller.
+     *                                This value must be one of the Query::HYDRATE_* constants,
+     *                                defaulting to Query::HYDRATE_BOTH
      *
      * @return mixed
      */
-    function fetch($fetchMode = null);
+    public function fetch($fetchMode = null);
 
     /**
-     * Returns an array containing all of the result set rows
+     * Returns an array containing all of the result set rows.
      *
-     * @param integer $fetchMode            Controls how the next row will be returned to the caller.
-     *                                      This value must be one of the Query::HYDRATE_* constants,
-     *                                      defaulting to Query::HYDRATE_BOTH
+     * @param integer|null $fetchMode Controls how the next row will be returned to the caller.
+     *                                This value must be one of the Query::HYDRATE_* constants,
+     *                                defaulting to Query::HYDRATE_BOTH
      *
      * @return array
      */
-    function fetchAll($fetchMode = null);
+    public function fetchAll($fetchMode = null);
 
     /**
-     * fetchColumn
-     * Returns a single column from the next row of a
-     * result set or FALSE if there are no more rows.
+     * Returns a single column from the next row of a result set or FALSE if there are no more rows.
      *
-     * @param integer $columnIndex          0-indexed number of the column you wish to retrieve from the row. If no
-     *                                      value is supplied, PDOStatement->fetchColumn()
-     *                                      fetches the first column.
+     * @param integer $columnIndex 0-indexed number of the column you wish to retrieve from the row.
+     *                             If no value is supplied, PDOStatement->fetchColumn()
+     *                             fetches the first column.
      *
-     * @return string                       returns a single column in the next row of a result set.
+     * @return string|boolean A single column in the next row of a result set, or FALSE if there are no more rows.
      */
-    function fetchColumn($columnIndex = 0);
+    public function fetchColumn($columnIndex = 0);
 }
-

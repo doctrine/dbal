@@ -37,11 +37,11 @@ use Doctrine\DBAL\DBALException;
 class OraclePlatform extends AbstractPlatform
 {
     /**
-     * Assertion for Oracle identifiers
+     * Assertion for Oracle identifiers.
      *
      * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
      *
-     * @param string
+     * @param string $identifier
      *
      * @throws DBALException
      */
@@ -307,11 +307,17 @@ class OraclePlatform extends AbstractPlatform
         return 'CLOB';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListDatabasesSQL()
     {
         return 'SELECT username FROM all_users';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListSequencesSQL($database)
     {
         return "SELECT sequence_name, min_value, increment_by FROM sys.all_sequences ".
@@ -367,6 +373,9 @@ class OraclePlatform extends AbstractPlatform
              "WHERE uind.index_name = uind_col.index_name AND uind_col.table_name = '$table' ORDER BY uind_col.column_position ASC";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTablesSQL()
     {
         return 'SELECT * FROM sys.user_tables';
@@ -380,16 +389,29 @@ class OraclePlatform extends AbstractPlatform
         return 'SELECT view_name, text FROM sys.user_views';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getCreateViewSQL($name, $sql)
     {
         return 'CREATE VIEW ' . $name . ' AS ' . $sql;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getDropViewSQL($name)
     {
         return 'DROP VIEW '. $name;
     }
 
+    /**
+     * @param string  $name
+     * @param string  $table
+     * @param integer $start
+     *
+     * @return array
+     */
     public function getCreateAutoincrementSql($name, $table, $start = 1)
     {
         $table = strtoupper($table);
@@ -440,6 +462,11 @@ END;';
         return $sql;
     }
 
+    /**
+     * @param string $table
+     *
+     * @return array
+     */
     public function getDropAutoincrementSql($table)
     {
         $table = strtoupper($table);
@@ -454,6 +481,9 @@ END;';
         return $sql;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableForeignKeysSQL($table)
     {
         $table = strtoupper($table);
@@ -478,12 +508,18 @@ LEFT JOIN user_cons_columns r_cols
       AND alc.table_name = '".$table."'";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableConstraintsSQL($table)
     {
         $table = strtoupper($table);
         return 'SELECT * FROM user_constraints WHERE table_name = \'' . $table . '\'';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableColumnsSQL($table, $database = null)
     {
         $table = strtoupper($table);
@@ -690,6 +726,9 @@ LEFT JOIN user_cons_columns r_cols
         return strtoupper($column);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getCreateTemporaryTableSnippetSQL()
     {
         return "CREATE GLOBAL TEMPORARY TABLE";

@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -24,20 +22,32 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
- * Marker interface for contraints
+ * Marker interface for contraints.
  *
- *
- * @link    www.doctrine-project.org
- * @since   2.0
- * @version $Revision$
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
+ * @link   www.doctrine-project.org
+ * @since  2.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 interface Constraint
 {
+    /**
+     * @return string
+     */
     public function getName();
 
+    /**
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     *
+     * @return string
+     */
     public function getQuotedName(AbstractPlatform $platform);
 
+    /**
+     * Returns the names of the referencing table columns
+     * the constraint is associated with.
+     *
+     * @return array
+     */
     public function getColumns();
 
     /**

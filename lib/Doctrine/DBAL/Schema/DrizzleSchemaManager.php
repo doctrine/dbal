@@ -26,6 +26,9 @@ namespace Doctrine\DBAL\Schema;
  */
 class DrizzleSchemaManager extends AbstractSchemaManager
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
         $tableName = $tableColumn['COLUMN_NAME'];
@@ -48,16 +51,25 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         return new Column($tableName, \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableDatabaseDefinition($database)
     {
         return $database['SCHEMA_NAME'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableDefinition($table)
     {
         return $table['TABLE_NAME'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         $columns = array();
@@ -82,6 +94,9 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
         $indexes = array();
@@ -93,4 +108,3 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         return parent::_getPortableTableIndexesList($indexes, $tableName);
     }
 }
-
