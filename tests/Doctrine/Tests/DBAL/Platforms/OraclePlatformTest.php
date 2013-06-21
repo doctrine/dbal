@@ -308,4 +308,26 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar")',
         );
     }
+
+    public function testAlterTableNotNULL()
+    {
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'foo', new \Doctrine\DBAL\Schema\Column(
+                'foo', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'bla', 'notnull' => true)
+            ),
+            array('type')
+        );
+        $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'bar', new \Doctrine\DBAL\Schema\Column(
+                'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'bla', 'notnull' => true)
+            ),
+            array('type', 'notnull')
+        );
+
+        $expectedSql = array(
+            "ALTER TABLE mytable MODIFY (foo  VARCHAR2(255) DEFAULT 'bla', baz  VARCHAR2(255) DEFAULT 'bla' NOT NULL)",
+	);
+        $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+    }
 }
