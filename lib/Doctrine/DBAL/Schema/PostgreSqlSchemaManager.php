@@ -1,5 +1,4 @@
 <?php
-
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -21,13 +20,12 @@
 namespace Doctrine\DBAL\Schema;
 
 /**
- * PostgreSQL Schema Manager
+ * PostgreSQL Schema Manager.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
- * @since       2.0
+ * @author Konsta Vesterinen <kvesteri@cc.hut.fi>
+ * @author Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @since  2.0
  */
 class PostgreSqlSchemaManager extends AbstractSchemaManager
 {
@@ -37,18 +35,19 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     private $existingSchemaPaths;
 
     /**
-     * Get all the existing schema names.
+     * Gets all the existing schema names.
      *
      * @return array
      */
     public function getSchemaNames()
     {
         $rows = $this->_conn->fetchAll("SELECT nspname as schema_name FROM pg_namespace WHERE nspname !~ '^pg_.*' and nspname != 'information_schema'");
+
         return array_map(function($v) { return $v['schema_name']; }, $rows);
     }
 
     /**
-     * Return an array of schema search paths
+     * Returns an array of schema search paths.
      *
      * This is a PostgreSQL only function.
      *
@@ -67,7 +66,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * Get names of all existing schemas in the current users search path.
+     * Gets names of all existing schemas in the current users search path.
      *
      * This is a PostgreSQL only function.
      *
@@ -78,11 +77,12 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         if ($this->existingSchemaPaths === null) {
             $this->determineExistingSchemaSearchPaths();
         }
+
         return $this->existingSchemaPaths;
     }
 
     /**
-     * Use this to set or reset the order of the existing schemas in the current search path of the user
+     * Sets or resets the order of the existing schemas in the current search path of the user.
      *
      * This is a PostgreSQL only function.
      *
@@ -98,6 +98,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         });
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         $onUpdate = null;
@@ -124,6 +127,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function dropDatabase($database)
     {
         $params = $this->_conn->getParams();
@@ -142,6 +148,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $this->_conn = $tmpConn;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function createDatabase($database)
     {
         $params = $this->_conn->getParams();
@@ -160,16 +169,25 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $this->_conn = $tmpConn;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTriggerDefinition($trigger)
     {
         return $trigger['trigger_name'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableViewDefinition($view)
     {
         return new View($view['viewname'], $view['definition']);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableUserDefinition($user)
     {
         return array(
@@ -178,6 +196,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableDefinition($table)
     {
         $schemas = $this->getExistingSchemaSearchPaths();
@@ -191,11 +212,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
-     * @param  array $tableIndexes
-     * @param  string $tableName
-     * @return array
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
@@ -223,14 +243,21 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 }
             }
         }
+
         return parent::_getPortableTableIndexesList($buffer, $tableName);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableDatabaseDefinition($database)
     {
         return $database['datname'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableSequenceDefinition($sequence)
     {
         if ($sequence['schemaname'] != 'public') {
@@ -240,9 +267,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
 
         $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+
         return new Sequence($sequenceName, $data[0]['increment_by'], $data[0]['min_value']);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
@@ -365,5 +396,4 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         return new Column($tableColumn['field'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
-
 }

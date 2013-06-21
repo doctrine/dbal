@@ -30,67 +30,72 @@ use Doctrine\DBAL\Schema\Schema;
 interface SchemaSynchronizer
 {
     /**
-     * Get the SQL statements that can be executed to create the schema.
+     * Gets the SQL statements that can be executed to create the schema.
      *
-     * @param Schema $createSchema
+     * @param \Doctrine\DBAL\Schema\Schema $createSchema
+     *
      * @return array
      */
     function getCreateSchema(Schema $createSchema);
 
     /**
-     * Get the SQL Statements to update given schema with the underlying db.
+     * Gets the SQL Statements to update given schema with the underlying db.
      *
-     * @param Schema $toSchema
-     * @param bool $noDrops
+     * @param \Doctrine\DBAL\Schema\Schema $toSchema
+     * @param boolean                      $noDrops
+     *
      * @return array
      */
     function getUpdateSchema(Schema $toSchema, $noDrops = false);
 
     /**
-     * Get the SQL Statements to drop the given schema from underlying db.
+     * Gets the SQL Statements to drop the given schema from underlying db.
      *
-     * @param Schema $dropSchema
+     * @param \Doctrine\DBAL\Schema\Schema $dropSchema
+     *
      * @return array
      */
     function getDropSchema(Schema $dropSchema);
 
     /**
-     * Get the SQL statements to drop all schema assets from underlying db.
+     * Gets the SQL statements to drop all schema assets from underlying db.
      *
      * @return array
      */
     function getDropAllSchema();
 
     /**
-     * Create the Schema
+     * Creates the Schema.
      *
-     * @param Schema $createSchema
+     * @param \Doctrine\DBAL\Schema\Schema $createSchema
+     *
      * @return void
      */
     function createSchema(Schema $createSchema);
 
     /**
-     * Update the Schema to new schema version.
+     * Updates the Schema to new schema version.
      *
-     * @param Schema $toSchema
-     * @param bool $noDrops
+     * @param \Doctrine\DBAL\Schema\Schema $toSchema
+     * @param boolean                      $noDrops
+     *
      * @return void
      */
     function updateSchema(Schema $toSchema, $noDrops = false);
 
     /**
-     * Drop the given database schema from the underlying db.
+     * Drops the given database schema from the underlying db.
      *
-     * @param Schema $dropSchema
+     * @param \Doctrine\DBAL\Schema\Schema $dropSchema
+     *
      * @return void
      */
     function dropSchema(Schema $dropSchema);
 
     /**
-     * Drop all assets from the underlying db.
+     * Drops all assets from the underlying db.
      *
      * @return void
      */
     function dropAllSchema();
 }
-

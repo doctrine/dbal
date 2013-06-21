@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -17,7 +15,7 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
 namespace Doctrine\DBAL\Schema;
 
@@ -25,23 +23,19 @@ use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Events;
 
 /**
- * IBM Db2 Schema Manager
+ * IBM Db2 Schema Manager.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.com
- * @since       1.0
- * @version     $Revision$
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ * @link   www.doctrine-project.org
+ * @since  1.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class DB2SchemaManager extends AbstractSchemaManager
 {
     /**
-     * Return a list of all tables in the current database
+     * {@inheritdoc}
      *
      * Apparently creator is the schema not the user who created it:
      * {@link http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/index.jsp?topic=/com.ibm.db29.doc.sqlref/db2z_sysibmsystablestable.htm}
-     *
-     * @return array
      */
     public function listTableNames()
     {
@@ -53,12 +47,8 @@ class DB2SchemaManager extends AbstractSchemaManager
         return $this->_getPortableTablesList($tables);
     }
 
-
     /**
-     * Get Table Column Definition
-     *
-     * @param array $tableColumn
-     * @return Column
+     * {@inheritdoc}
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
@@ -111,6 +101,9 @@ class DB2SchemaManager extends AbstractSchemaManager
         return new Column($tableColumn['colname'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTablesList($tables)
     {
         $tableNames = array();
@@ -118,9 +111,13 @@ class DB2SchemaManager extends AbstractSchemaManager
             $tableRow = array_change_key_case($tableRow, \CASE_LOWER);
             $tableNames[] = $tableRow['name'];
         }
+
         return $tableNames;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
         $eventManager = $this->_platform->getEventManager();
@@ -132,11 +129,6 @@ class DB2SchemaManager extends AbstractSchemaManager
             $primary = ($data['uniquerule'] == "P");
 
             $indexName = strtolower($data['name']);
-            if ($primary) {
-                $keyName = 'primary';
-            } else {
-                $keyName = $indexName;
-            }
 
             $data = array(
                 'name' => $indexName,
@@ -168,6 +160,9 @@ class DB2SchemaManager extends AbstractSchemaManager
         return $indexes;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         $tableForeignKey = array_change_key_case($tableForeignKey, CASE_LOWER);
@@ -187,6 +182,9 @@ class DB2SchemaManager extends AbstractSchemaManager
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableForeignKeyRuleDef($def)
     {
         if ($def == "C") {
@@ -194,9 +192,13 @@ class DB2SchemaManager extends AbstractSchemaManager
         } else if ($def == "N") {
             return "SET NULL";
         }
+
         return null;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableViewDefinition($view)
     {
         $view = array_change_key_case($view, \CASE_LOWER);

@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -17,19 +15,17 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
 namespace Doctrine\DBAL;
 
 /**
- * Contains all DBAL LockModes
+ * Contains all DBAL LockModes.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.com
- * @since       1.0
- * @version     $Revision$
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
- * @author      Roman Borschel <roman@code-factory.org>
+ * @link   www.doctrine-project.org
+ * @since  1.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Roman Borschel <roman@code-factory.org>
  */
 class LockMode
 {
@@ -38,5 +34,10 @@ class LockMode
     const PESSIMISTIC_READ = 2;
     const PESSIMISTIC_WRITE = 4;
 
-    final private function __construct() { }
+    /**
+     * Private constructor. This class cannot be instantiated.
+     */
+    final private function __construct()
+    {
+    }
 }

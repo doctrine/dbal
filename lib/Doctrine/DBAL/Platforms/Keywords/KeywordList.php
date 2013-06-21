@@ -17,26 +17,28 @@
  * <http://www.doctrine-project.org>.
  */
 
-
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
  * Abstract interface for a SQL reserved keyword dictionary.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.com
- * @since       2.0
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ * @link    www.doctrine-project.org
+ * @since   2.0
+ * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 abstract class KeywordList
 {
+    /**
+     * @var array|null
+     */
     private $keywords = null;
 
     /**
-     * Check if the given word is a keyword of this dialect/vendor platform.
+     * Checks if the given word is a keyword of this dialect/vendor platform.
      *
-     * @param  string $word
-     * @return bool
+     * @param string $word
+     *
+     * @return boolean
      */
     public function isKeyword($word)
     {
@@ -47,15 +49,23 @@ abstract class KeywordList
         return isset($this->keywords[strtoupper($word)]);
     }
 
+    /**
+     * @return void
+     */
     protected function initializeKeywords()
     {
         $this->keywords = array_flip(array_map('strtoupper', $this->getKeywords()));
     }
 
+    /**
+     * Returns the list of keywords.
+     *
+     * @return array
+     */
     abstract protected function getKeywords();
 
     /**
-     * Name of this keyword list.
+     * Returns the name of this keyword list.
      *
      * @return string
      */

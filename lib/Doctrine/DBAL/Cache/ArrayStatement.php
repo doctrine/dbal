@@ -24,11 +24,29 @@ use PDO;
 
 class ArrayStatement implements \IteratorAggregate, ResultStatement
 {
+    /**
+     * @var array
+     */
     private $data;
+
+    /**
+     * @var integer
+     */
     private $columnCount = 0;
+
+    /**
+     * @var integer
+     */
     private $num = 0;
+
+    /**
+     * @var integer
+     */
     private $defaultFetchMode = PDO::FETCH_BOTH;
 
+    /**
+     * @param array $data
+     */
     public function __construct(array $data)
     {
         $this->data = $data;
@@ -37,16 +55,25 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function closeCursor()
     {
         unset ($this->data);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function columnCount()
     {
         return $this->columnCount;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         if ($arg2 !== null || $arg3 !== null) {
@@ -54,14 +81,23 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
         }
 
         $this->defaultFetchMode = $fetchMode;
+
+        return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getIterator()
     {
         $data = $this->fetchAll();
+
         return new \ArrayIterator($data);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function fetch($fetchMode = null)
     {
         if (isset($this->data[$this->num])) {
@@ -79,18 +115,26 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
                 throw new \InvalidArgumentException("Invalid fetch-style given for fetching result.");
             }
         }
+
         return false;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function fetchAll($fetchMode = null)
     {
         $rows = array();
         while ($row = $this->fetch($fetchMode)) {
             $rows[] = $row;
         }
+
         return $rows;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function fetchColumn($columnIndex = 0)
     {
         $row = $this->fetch(PDO::FETCH_NUM);
@@ -98,6 +142,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
             // TODO: verify this is correct behavior
             return false;
         }
+
         return $row[$columnIndex];
     }
 }

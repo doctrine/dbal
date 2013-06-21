@@ -30,11 +30,11 @@ use Doctrine\DBAL\Schema\Constraint;
  * The SqlitePlatform class describes the specifics and dialects of the SQLite
  * database platform.
  *
- * @since 2.0
+ * @since  2.0
  * @author Roman Borschel <roman@code-factory.org>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  * @author Martin Hasoň <martin.hason@gmail.com>
- * @todo Rename: SQLitePlatform
+ * @todo   Rename: SQLitePlatform
  */
 class SqlitePlatform extends AbstractPlatform
 {
@@ -321,13 +321,13 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
-            foreach ($options['indexes'] as $index => $indexDef) {
+            foreach ($options['indexes'] as $indexDef) {
                 $query[] = $this->getCreateIndexSQL($indexDef, $name);
             }
         }
 
         if (isset($options['unique']) && ! empty($options['unique'])) {
-            foreach ($options['unique'] as $index => $indexDef) {
+            foreach ($options['unique'] as $indexDef) {
                 $query[] = $this->getCreateIndexSQL($indexDef, $name);
             }
         }
@@ -456,9 +456,9 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction()
+     * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction().
      *
-     * @param  int|float $value
+     * @param integer|float $value
      *
      * @return float
      */
@@ -468,7 +468,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * User-defined function for Sqlite that implements MOD(a, b)
+     * User-defined function for Sqlite that implements MOD(a, b).
      *
      * @param integer $a
      * @param integer $b
@@ -481,8 +481,8 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * @param string $str
-     * @param string $substr
+     * @param string  $str
+     * @param string  $substr
      * @param integer $offset
      *
      * @return integer
@@ -585,7 +585,7 @@ class SqlitePlatform extends AbstractPlatform
 
         $sql = array();
         $tableName = $diff->newName ?: $diff->name;
-        foreach ($this->getIndexesInAlteredTable($diff) as $indexName => $index) {
+        foreach ($this->getIndexesInAlteredTable($diff) as $index) {
             if ($index->isPrimary()) {
                 continue;
             }
@@ -773,8 +773,6 @@ class SqlitePlatform extends AbstractPlatform
         $sql = array();
         $tableSql = array();
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
-            $newTableName = $diff->newName ?: $diff->name;
-
             $dataTable = new Table('__temp__'.$table->getName());
 
             $newTable = new Table($table->getName(), $columns, $this->getPrimaryIndexInAlteredTable($diff), $this->getForeignKeysInAlteredTable($diff), 0, $table->getOptions());
@@ -800,6 +798,11 @@ class SqlitePlatform extends AbstractPlatform
         return array_merge($sql, $tableSql, $columnSql);
     }
 
+    /**
+     * @param \Doctrine\DBAL\Schema\TableDiff $diff
+     *
+     * @return array|bool
+     */
     private function getSimpleAlterTableSQL(TableDiff $diff)
     {
         if ( ! empty($diff->renamedColumns) || ! empty($diff->addedForeignKeys) || ! empty($diff->addedIndexes)
@@ -815,7 +818,7 @@ class SqlitePlatform extends AbstractPlatform
         $tableSql = array();
         $columnSql = array();
 
-        foreach ($diff->addedColumns as $columnName => $column) {
+        foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -848,6 +851,11 @@ class SqlitePlatform extends AbstractPlatform
         return array_merge($sql, $tableSql, $columnSql);
     }
 
+    /**
+     * @param \Doctrine\DBAL\Schema\TableDiff $diff
+     *
+     * @return array
+     */
     private function getColumnNamesInAlteredTable(TableDiff $diff)
     {
         $columns = array();
@@ -882,6 +890,11 @@ class SqlitePlatform extends AbstractPlatform
         return $columns;
     }
 
+    /**
+     * @param \Doctrine\DBAL\Schema\TableDiff $diff
+     *
+     * @return \Doctrine\DBAL\Schema\Index[]
+     */
     private function getIndexesInAlteredTable(TableDiff $diff)
     {
         $indexes = $diff->fromTable->getIndexes();
@@ -927,6 +940,11 @@ class SqlitePlatform extends AbstractPlatform
         return $indexes;
     }
 
+    /**
+     * @param \Doctrine\DBAL\Schema\TableDiff $diff
+     *
+     * @return array
+     */
     private function getForeignKeysInAlteredTable(TableDiff $diff)
     {
         $foreignKeys = $diff->fromTable->getForeignKeys();
@@ -972,6 +990,11 @@ class SqlitePlatform extends AbstractPlatform
         return $foreignKeys;
     }
 
+    /**
+     * @param \Doctrine\DBAL\Schema\TableDiff $diff
+     *
+     * @return array
+     */
     private function getPrimaryIndexInAlteredTable(TableDiff $diff)
     {
         $primaryIndex = array();
@@ -985,3 +1008,4 @@ class SqlitePlatform extends AbstractPlatform
         return $primaryIndex;
     }
 }
+

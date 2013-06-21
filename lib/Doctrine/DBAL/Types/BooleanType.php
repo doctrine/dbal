@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -30,26 +28,41 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class BooleanType extends Type
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return $platform->getBooleanTypeDeclarationSQL($fieldDeclaration);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         return $platform->convertBooleans($value);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         return (null === $value) ? null : (bool) $value;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return Type::BOOLEAN;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getBindingType()
     {
         return \PDO::PARAM_BOOL;

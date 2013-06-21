@@ -15,43 +15,42 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\Column,
-    Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * Event Arguments used when SQL queries for renaming table columns are generated inside Doctrine\DBAL\Platform\*Platform.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.com
- * @since       2.2
- * @author      Jan Sorgalla <jsorgalla@googlemail.com>
+ * @link   www.doctrine-project.org
+ * @since  2.2
+ * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
 {
     /**
      * @var string
      */
-    private $_oldColumnName = null;
+    private $_oldColumnName;
 
     /**
      * @var \Doctrine\DBAL\Schema\Column
      */
-    private $_column = null;
+    private $_column;
 
     /**
      * @var \Doctrine\DBAL\Schema\TableDiff
      */
-    private $_tableDiff = null;
+    private $_tableDiff;
 
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    private $_platform = null;
+    private $_platform;
 
     /**
      * @var array
@@ -59,9 +58,9 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     private $_sql = array();
 
     /**
-     * @param string $oldColumnName
-     * @param \Doctrine\DBAL\Schema\Column $column
-     * @param \Doctrine\DBAL\Schema\TableDiff $tableDiff
+     * @param string                                    $oldColumnName
+     * @param \Doctrine\DBAL\Schema\Column              $column
+     * @param \Doctrine\DBAL\Schema\TableDiff           $tableDiff
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
     public function __construct($oldColumnName, Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
@@ -106,6 +105,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
 
     /**
      * @param string|array $sql
+     *
      * @return \Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs
      */
     public function addSql($sql)

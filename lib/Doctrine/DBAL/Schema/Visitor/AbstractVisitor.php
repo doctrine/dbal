@@ -24,7 +24,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
 
@@ -34,47 +33,47 @@ use Doctrine\DBAL\Schema\Index;
 class AbstractVisitor implements Visitor
 {
     /**
-     * @param Schema $schema
+     * @param \Doctrine\DBAL\Schema\Schema $schema
      */
     public function acceptSchema(Schema $schema)
     {
     }
 
     /**
-     * @param Table $table
+     * @param \Doctrine\DBAL\Schema\Table $table
      */
     public function acceptTable(Table $table)
     {
     }
 
     /**
-     * @param Column $column
+     * @param \Doctrine\DBAL\Schema\Table  $table
+     * @param \Doctrine\DBAL\Schema\Column $column
      */
     public function acceptColumn(Table $table, Column $column)
     {
     }
 
     /**
-     * @param Table $localTable
-     * @param ForeignKeyConstraint $fkConstraint
+     * @param \Doctrine\DBAL\Schema\Table                $localTable
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $fkConstraint
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
     }
 
     /**
-     * @param Table $table
-     * @param Index $index
+     * @param \Doctrine\DBAL\Schema\Table $table
+     * @param \Doctrine\DBAL\Schema\Index $index
      */
     public function acceptIndex(Table $table, Index $index)
     {
     }
 
     /**
-     * @param Sequence $sequence
+     * @param \Doctrine\DBAL\Schema\Sequence $sequence
      */
     public function acceptSequence(Sequence $sequence)
     {
     }
 }
-

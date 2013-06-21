@@ -19,17 +19,15 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use \Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 
 /**
- * Object representation of a database column
+ * Object representation of a database column.
  *
- * 
- * @link    www.doctrine-project.org
- * @since   2.0
- * @version $Revision$
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
+ * @link   www.doctrine-project.org
+ * @since  2.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class Column extends AbstractAsset
 {
@@ -39,42 +37,42 @@ class Column extends AbstractAsset
     protected $_type;
 
     /**
-     * @var int
+     * @var integer|null
      */
     protected $_length = null;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $_precision = 10;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $_scale = 0;
 
     /**
-     * @var bool
+     * @var boolean
      */
     protected $_unsigned = false;
 
     /**
-     * @var bool
+     * @var boolean
      */
     protected $_fixed = false;
 
     /**
-     * @var bool
+     * @var boolean
      */
     protected $_notnull = true;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $_default = null;
 
     /**
-     * @var bool
+     * @var boolean
      */
     protected $_autoincrement = false;
 
@@ -84,12 +82,12 @@ class Column extends AbstractAsset
     protected $_platformOptions = array();
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $_columnDefinition = null;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $_comment = null;
 
@@ -99,18 +97,11 @@ class Column extends AbstractAsset
     protected $_customSchemaOptions = array();
 
     /**
-     * Create a new Column
+     * Creates a new Column.
      *
-     * @param string $columnName
+     * @param string                    $columnName
      * @param \Doctrine\DBAL\Types\Type $type
-     * @param int $length
-     * @param bool $notNull
-     * @param mixed $default
-     * @param bool $unsigned
-     * @param bool $fixed
-     * @param int $precision
-     * @param int $scale
-     * @param array $platformOptions
+     * @param array                     $options
      */
     public function __construct($columnName, Type $type, array $options=array())
     {
@@ -121,7 +112,8 @@ class Column extends AbstractAsset
 
     /**
      * @param array $options
-     * @return Column
+     *
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setOptions(array $options)
     {
@@ -131,12 +123,14 @@ class Column extends AbstractAsset
                 $this->$method($value);
             }
         }
+
         return $this;
     }
 
     /**
-     * @param Type $type
-     * @return Column
+     * @param \Doctrine\DBAL\Types\Type $type
+     *
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setType(Type $type)
     {
@@ -145,8 +139,9 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param int $length
-     * @return Column
+     * @param integer|null $length
+     *
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setLength($length)
     {
@@ -155,12 +150,14 @@ class Column extends AbstractAsset
         } else {
             $this->_length = null;
         }
+
         return $this;
     }
 
     /**
-     * @param int $precision
-     * @return Column
+     * @param integer $precision
+     *
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setPrecision($precision)
     {
@@ -169,12 +166,14 @@ class Column extends AbstractAsset
         }
 
         $this->_precision = (int)$precision;
+
         return $this;
     }
 
     /**
-     * @param  int $scale
-     * @return Column
+     * @param integer $scale
+     *
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setScale($scale)
     {
@@ -183,181 +182,250 @@ class Column extends AbstractAsset
         }
 
         $this->_scale = (int)$scale;
+
         return $this;
     }
 
     /**
+     * @param boolean $unsigned
      *
-     * @param  bool $unsigned
-     * @return Column
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setUnsigned($unsigned)
     {
         $this->_unsigned = (bool)$unsigned;
+
         return $this;
     }
 
     /**
+     * @param boolean $fixed
      *
-     * @param  bool $fixed
-     * @return Column
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setFixed($fixed)
     {
         $this->_fixed = (bool)$fixed;
+
         return $this;
     }
 
     /**
-     * @param  bool $notnull
-     * @return Column
+     * @param boolean $notnull
+     *
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setNotnull($notnull)
     {
         $this->_notnull = (bool)$notnull;
+
         return $this;
     }
 
     /**
+     * @param mixed $default
      *
-     * @param  mixed $default
-     * @return Column
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setDefault($default)
     {
         $this->_default = $default;
+
         return $this;
     }
 
     /**
-     *
      * @param array $platformOptions
-     * @return Column
+     *
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setPlatformOptions(array $platformOptions)
     {
         $this->_platformOptions = $platformOptions;
+
         return $this;
     }
 
     /**
+     * @param string $name
+     * @param mixed  $value
      *
-     * @param  string $name
-     * @param  mixed $value
-     * @return Column
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setPlatformOption($name, $value)
     {
         $this->_platformOptions[$name] = $value;
+
         return $this;
     }
 
     /**
+     * @param string $value
      *
-     * @param  string
-     * @return Column
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setColumnDefinition($value)
     {
         $this->_columnDefinition = $value;
+
         return $this;
     }
 
+    /**
+     * @return \Doctrine\DBAL\Types\Type
+     */
     public function getType()
     {
         return $this->_type;
     }
 
+    /**
+     * @return integer|null
+     */
     public function getLength()
     {
         return $this->_length;
     }
 
+    /**
+     * @return integer
+     */
     public function getPrecision()
     {
         return $this->_precision;
     }
 
+    /**
+     * @return integer
+     */
     public function getScale()
     {
         return $this->_scale;
     }
 
+    /**
+     * @return boolean
+     */
     public function getUnsigned()
     {
         return $this->_unsigned;
     }
 
+    /**
+     * @return boolean
+     */
     public function getFixed()
     {
         return $this->_fixed;
     }
 
+    /**
+     * @return boolean
+     */
     public function getNotnull()
     {
         return $this->_notnull;
     }
 
+    /**
+     * @return string|null
+     */
     public function getDefault()
     {
         return $this->_default;
     }
 
+    /**
+     * @return array
+     */
     public function getPlatformOptions()
     {
         return $this->_platformOptions;
     }
 
+    /**
+     * @param string $name
+     *
+     * @return boolean
+     */
     public function hasPlatformOption($name)
     {
         return isset($this->_platformOptions[$name]);
     }
 
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
     public function getPlatformOption($name)
     {
         return $this->_platformOptions[$name];
     }
 
+    /**
+     * @return string|null
+     */
     public function getColumnDefinition()
     {
         return $this->_columnDefinition;
     }
 
+    /**
+     * @return boolean
+     */
     public function getAutoincrement()
     {
         return $this->_autoincrement;
     }
 
+    /**
+     * @param boolean $flag
+     *
+     * @return \Doctrine\DBAL\Schema\Column
+     */
     public function setAutoincrement($flag)
     {
         $this->_autoincrement = $flag;
         return $this;
     }
 
+    /**
+     * @param string $comment
+     *
+     * @return \Doctrine\DBAL\Schema\Column
+     */
     public function setComment($comment)
     {
         $this->_comment = $comment;
+
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getComment()
     {
         return $this->_comment;
     }
 
     /**
-     * @param  string $name
-     * @param  mixed $value
-     * @return Column
+     * @param string $name
+     * @param mixed  $value
+     *
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setCustomSchemaOption($name, $value)
     {
         $this->_customSchemaOptions[$name] = $value;
+
         return $this;
     }
 
     /**
-     * @param  string $name
+     * @param string $name
+     *
      * @return boolean
      */
     public function hasCustomSchemaOption($name)
@@ -366,7 +434,8 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param  string $name
+     * @param string $name
+     *
      * @return mixed
      */
     public function getCustomSchemaOption($name)
@@ -376,11 +445,13 @@ class Column extends AbstractAsset
 
     /**
      * @param array $customSchemaOptions
-     * @return Column
+     *
+     * @return \Doctrine\DBAL\Schema\Column
      */
     public function setCustomSchemaOptions(array $customSchemaOptions)
     {
         $this->_customSchemaOptions = $customSchemaOptions;
+
         return $this;
     }
 
@@ -393,9 +464,9 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param Visitor $visitor
+     * @param \Doctrine\DBAL\Schema\Visitor\Visitor $visitor
      */
-    public function visit(\Doctrine\DBAL\Schema\Visitor $visitor)
+    public function visit(Visitor $visitor)
     {
         $visitor->accept($this);
     }

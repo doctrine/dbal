@@ -31,11 +31,29 @@ use Doctrine\DBAL\Driver\Statement;
  */
 class OCI8Statement implements \IteratorAggregate, Statement
 {
-    /** Statement handle. */
+    /**
+     * @var resource
+     */
     protected $_dbh;
+
+    /**
+     * @var resource
+     */
     protected $_sth;
+
+    /**
+     * @var \Doctrine\DBAL\Driver\OCI8\OCI8Connection
+     */
     protected $_conn;
+
+    /**
+     * @var string
+     */
     protected static $_PARAM = ':param';
+
+    /**
+     * @var array
+     */
     protected static $fetchModeMap = array(
         PDO::FETCH_BOTH => OCI_BOTH,
         PDO::FETCH_ASSOC => OCI_ASSOC,
@@ -43,14 +61,23 @@ class OCI8Statement implements \IteratorAggregate, Statement
         PDO::PARAM_LOB => OCI_B_BLOB,
         PDO::FETCH_COLUMN => OCI_NUM,
     );
+
+    /**
+     * @var integer
+     */
     protected $_defaultFetchMode = PDO::FETCH_BOTH;
+
+    /**
+     * @var array
+     */
     protected $_paramMap = array();
 
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
-     * @param resource $dbh The connection handle.
-     * @param string $statement The SQL statement.
+     * @param resource                                  $dbh       The connection handle.
+     * @param string                                    $statement The SQL statement.
+     * @param \Doctrine\DBAL\Driver\OCI8\OCI8Connection $conn
      */
     public function __construct($dbh, $statement, OCI8Connection $conn)
     {
@@ -62,7 +89,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     }
 
     /**
-     * Convert positional (?) into named placeholders (:param<num>)
+     * Converts positional (?) into named placeholders (:param<num>).
      *
      * Oracle does not support positional parameters, hence this method converts all
      * positional parameters into artificially named parameters. Note that this conversion
@@ -75,7 +102,9 @@ class OCI8Statement implements \IteratorAggregate, Statement
      *
      * @todo extract into utility class in Doctrine\DBAL\Util namespace
      * @todo review and test for lost spaces. we experienced missing spaces with oci8 in some sql statements.
+     *
      * @param string $statement The SQL statement to convert.
+     *
      * @return string
      */
     static public function convertPositionalToNamedPlaceholders($statement)
@@ -129,9 +158,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     }
 
     /**
-     * Closes the cursor, enabling the statement to be executed again.
-     *
-     * @return boolean              Returns TRUE on success or FALSE on failure.
+     * {@inheritdoc}
      */
     public function closeCursor()
     {
@@ -155,6 +182,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
         if ($error !== false) {
             $error = $error['code'];
         }
+
         return $error;
     }
 
@@ -186,6 +214,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
         if ( ! $ret) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
+
         return $ret;
     }
 
@@ -195,6 +224,8 @@ class OCI8Statement implements \IteratorAggregate, Statement
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         $this->_defaultFetchMode = $fetchMode;
+
+        return true;
     }
 
     /**
@@ -203,6 +234,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     public function getIterator()
     {
         $data = $this->fetchAll();
+
         return new \ArrayIterator($data);
     }
 
@@ -257,6 +289,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     public function fetchColumn($columnIndex = 0)
     {
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
+
         return isset($row[$columnIndex]) ? $row[$columnIndex] : false;
     }
 

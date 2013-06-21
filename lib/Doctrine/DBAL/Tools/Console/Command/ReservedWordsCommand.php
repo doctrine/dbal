@@ -17,18 +17,20 @@
  * <http://www.doctrine-project.org>.
  */
 
-
 namespace Doctrine\DBAL\Tools\Console\Command;
 
-use Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption,
-    Symfony\Component\Console\Command\Command,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 
 class ReservedWordsCommand extends Command
 {
+    /**
+     * @var array
+     */
     private $keywordListClasses = array(
         'mysql'         => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
         'sqlserver'     => 'Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords',
@@ -42,10 +44,12 @@ class ReservedWordsCommand extends Command
     );
 
     /**
-     * If you want to add or replace a keywords list use this command
+     * If you want to add or replace a keywords list use this command.
      *
      * @param string $name
      * @param string $class
+     *
+     * @return void
      */
     public function setKeywordListClass($name, $class)
     {
@@ -53,7 +57,7 @@ class ReservedWordsCommand extends Command
     }
 
     /**
-     * @see Console\Command\Command
+     * {@inheritdoc}
      */
     protected function configure()
     {
@@ -95,7 +99,7 @@ EOT
     }
 
     /**
-     * @see Console\Command\Command
+     * {@inheritdoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

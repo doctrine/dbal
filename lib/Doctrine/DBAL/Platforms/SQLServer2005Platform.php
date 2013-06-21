@@ -61,4 +61,3 @@ class SQLServer2005Platform extends SQLServerPlatform
         return 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords';
     }
 }
-

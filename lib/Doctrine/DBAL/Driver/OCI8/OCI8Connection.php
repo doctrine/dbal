@@ -34,16 +34,21 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     protected $dbh;
 
     /**
-     * @var int
+     * @var integer
      */
     protected $executeMode = OCI_COMMIT_ON_SUCCESS;
 
     /**
-     * Create a Connection to an Oracle Database using oci8 extension.
+     * Creates a Connection to an Oracle Database using oci8 extension.
      *
-     * @param string $username
-     * @param string $password
-     * @param string $db
+     * @param string      $username
+     * @param string      $password
+     * @param string      $db
+     * @param string|null $charset
+     * @param integer     $sessionMode
+     * @param boolean     $persistent
+     *
+     * @throws OCI8Exception
      */
     public function __construct($username, $password, $db, $charset = null, $sessionMode = OCI_DEFAULT, $persistent = false)
     {
@@ -61,10 +66,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     }
 
     /**
-     * Create a non-executed prepared statement.
-     *
-     * @param  string $prepareString
-     * @return OCI8Statement
+     * {@inheritdoc}
      */
     public function prepare($prepareString)
     {
@@ -72,8 +74,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     }
 
     /**
-     * @param string $sql
-     * @return OCI8Statement
+     * {@inheritdoc}
      */
     public function query()
     {
@@ -82,15 +83,12 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         //$fetchMode = $args[1];
         $stmt = $this->prepare($sql);
         $stmt->execute();
+
         return $stmt;
     }
 
     /**
-     * Quote input value.
-     *
-     * @param mixed $input
-     * @param int $type PDO::PARAM*
-     * @return mixed
+     * {@inheritdoc}
      */
     public function quote($value, $type=\PDO::PARAM_STR)
     {
@@ -98,23 +96,23 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
             return $value;
         }
         $value = str_replace("'", "''", $value);
+
         return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
     }
 
     /**
-     *
-     * @param  string $statement
-     * @return int
+     * {@inheritdoc}
      */
     public function exec($statement)
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
+
         return $stmt->rowCount();
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function lastInsertId($name = null)
     {
@@ -136,7 +134,9 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     }
 
     /**
-     * Return the current execution mode.
+     * Returns the current execution mode.
+     *
+     * @return integer
      */
     public function getExecuteMode()
     {
@@ -144,23 +144,17 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
     }
 
     /**
-     * Start a transactiom
-     *
-     * Oracle has to explicitly set the autocommit mode off. That means
-     * after connection, a commit or rollback there is always automatically
-     * opened a new transaction.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function beginTransaction()
     {
         $this->executeMode = OCI_NO_AUTO_COMMIT;
+
         return true;
     }
 
     /**
-     * @throws OCI8Exception
-     * @return bool
+     * {@inheritdoc}
      */
     public function commit()
     {
@@ -168,12 +162,12 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
+
         return true;
     }
 
     /**
-     * @throws OCI8Exception
-     * @return bool
+     * {@inheritdoc}
      */
     public function rollBack()
     {
@@ -181,18 +175,26 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
+
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function errorCode()
     {
         $error = oci_error($this->dbh);
         if ($error !== false) {
             $error = $error['code'];
         }
+
         return $error;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function errorInfo()
     {
         return oci_error($this->dbh);

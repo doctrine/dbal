@@ -15,7 +15,7 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
 namespace Doctrine\DBAL\Platforms;
 
@@ -153,16 +153,25 @@ class DB2Platform extends AbstractPlatform
         return 'TIME';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListDatabasesSQL()
     {
         throw DBALException::notSupported(__METHOD__);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListSequencesSQL($database)
     {
         throw DBALException::notSupported(__METHOD__);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableConstraintsSQL($table)
     {
         throw DBALException::notSupported(__METHOD__);
@@ -172,8 +181,10 @@ class DB2Platform extends AbstractPlatform
      * This code fragment is originally from the Zend_Db_Adapter_Db2 class.
      *
      * @license New BSD License
-     * @param  string $table
+     *
+     * @param string $table
      * @param string $database
+     *
      * @return string
      */
     public function getListTableColumnsSQL($table, $database = null)
@@ -192,11 +203,17 @@ class DB2Platform extends AbstractPlatform
                 WHERE UPPER(c.tabname) = UPPER('" . $table . "') ORDER BY c.colno";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTablesSQL()
     {
         return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = 'T'";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListUsersSQL()
     {
         throw DBALException::notSupported(__METHOD__);
@@ -218,17 +235,26 @@ class DB2Platform extends AbstractPlatform
         return "SELECT NAME, COLNAMES, UNIQUERULE FROM SYSIBM.SYSINDEXES WHERE TBNAME = UPPER('" . $table . "')";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableForeignKeysSQL($table)
     {
         return "SELECT TBNAME, RELNAME, REFTBNAME, DELETERULE, UPDATERULE, FKCOLNAMES, PKCOLNAMES ".
                "FROM SYSIBM.SYSRELS WHERE TBNAME = UPPER('".$table."')";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getCreateViewSQL($name, $sql)
     {
         return "CREATE VIEW ".$name." AS ".$sql;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getDropViewSQL($name)
     {
         return "DROP VIEW ".$name;
@@ -242,6 +268,9 @@ class DB2Platform extends AbstractPlatform
         throw DBALException::notSupported(__METHOD__);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getSequenceNextValSQL($sequenceName)
     {
         throw DBALException::notSupported(__METHOD__);
@@ -428,6 +457,9 @@ class DB2Platform extends AbstractPlatform
         return 'INSERT INTO ' . $tableName . ' (' . $identifierColumnName . ') VALUES (DEFAULT)';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getCreateTemporaryTableSnippetSQL()
     {
         return "DECLARE GLOBAL TEMPORARY TABLE";
@@ -510,6 +542,9 @@ class DB2Platform extends AbstractPlatform
         return strtoupper($column);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getForUpdateSQL()
     {
         return ' WITH RR USE AND KEEP UPDATE LOCKS';

@@ -24,7 +24,7 @@ class SQLSrvException extends \Doctrine\DBAL\DBALException
     /**
      * Helper method to turn sql server errors into exception.
      *
-     * @return SQLSrvException
+     * @return \Doctrine\DBAL\Driver\SQLSrv\SQLSrvException
      */
     static public function fromSqlSrvErrors()
     {
@@ -40,4 +40,3 @@ class SQLSrvException extends \Doctrine\DBAL\DBALException
         return new self(rtrim($message));
     }
 }
-

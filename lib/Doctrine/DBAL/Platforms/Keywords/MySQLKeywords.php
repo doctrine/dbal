@@ -17,25 +17,29 @@
  * <http://www.doctrine-project.org>.
  */
 
-
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
- * MySQL Keywordlist
+ * MySQL Keywordlist.
  *
- * @license  BSD http://www.opensource.org/licenses/bsd-license.php
- * @link        www.doctrine-project.com
- * @since       2.0
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
- * @author      David Coallier <davidc@php.net>
+ * @link   www.doctrine-project.org
+ * @since  2.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author David Coallier <davidc@php.net>
  */
 class MySQLKeywords extends KeywordList
 {
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'MySQL';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getKeywords()
     {
         return array(

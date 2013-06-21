@@ -15,49 +15,48 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\DBAL\Connection,
-    Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Index;
 
 /**
  * Event Arguments used when the portable index definition is generated inside Doctrine\DBAL\Schema\AbstractSchemaManager.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.com
- * @since       2.2
- * @author      Jan Sorgalla <jsorgalla@googlemail.com>
+ * @link   www.doctrine-project.org
+ * @since  2.2
+ * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
 {
     /**
-     * @var \Doctrine\DBAL\Schema\Index
+     * @var \Doctrine\DBAL\Schema\Index|null
      */
     private $_index = null;
 
     /**
-     * Raw index data as fetched from the database
+     * Raw index data as fetched from the database.
      *
      * @var array
      */
-    private $_tableIndex = null;
+    private $_tableIndex;
 
     /**
      * @var string
      */
-    private $_table = null;
+    private $_table;
 
     /**
      * @var \Doctrine\DBAL\Connection
      */
-    private $_connection = null;
+    private $_connection;
 
     /**
-     * @param array  $tableIndex
-     * @param string $table
-     * @param \Doctrine\DBAL\Connection $conn
+     * @param array                     $tableIndex
+     * @param string                    $table
+     * @param \Doctrine\DBAL\Connection $connection
      */
     public function __construct(array $tableIndex, $table, Connection $connection)
     {
@@ -67,10 +66,10 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * Allows to clear the index which means the index will be excluded from
-     * tables index list.
+     * Allows to clear the index which means the index will be excluded from tables index list.
      *
      * @param null|\Doctrine\DBAL\Schema\Index $index
+     *
      * @return SchemaIndexDefinitionEventArgs
      */
     public function setIndex(Index $index = null)
@@ -81,7 +80,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Index
+     * @return \Doctrine\DBAL\Schema\Index|null
      */
     public function getIndex()
     {

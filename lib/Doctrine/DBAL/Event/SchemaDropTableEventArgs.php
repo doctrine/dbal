@@ -15,41 +15,42 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
 namespace Doctrine\DBAL\Event;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform,
-    Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Event Arguments used when the SQL query for dropping tables are generated inside Doctrine\DBAL\Platform\AbstractPlatform.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.com
- * @since       2.2
- * @author      Jan Sorgalla <jsorgalla@googlemail.com>
+ * @link   www.doctrine-project.org
+ * @since  2.2
+ * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaDropTableEventArgs extends SchemaEventArgs
 {
     /**
      * @var string|\Doctrine\DBAL\Schema\Table
      */
-    private $_table = null;
+    private $_table;
 
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    private $_platform = null;
+    private $_platform;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $_sql = null;
 
     /**
-     * @param string|\Doctrine\DBAL\Schema\Table $table
+     * @param string|\Doctrine\DBAL\Schema\Table        $table
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct($table, AbstractPlatform $platform)
     {
@@ -79,6 +80,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
 
     /**
      * @param string $sql
+     *
      * @return \Doctrine\DBAL\Event\SchemaDropTableEventArgs
      */
     public function setSql($sql)
@@ -89,7 +91,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getSql()
     {

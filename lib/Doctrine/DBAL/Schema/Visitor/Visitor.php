@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -26,50 +24,60 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
 
 /**
  * Schema Visitor used for Validation or Generation purposes.
  *
- * 
- * @link    www.doctrine-project.org
- * @since   2.0
- * @version $Revision$
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
+ * @link   www.doctrine-project.org
+ * @since  2.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 interface Visitor
 {
     /**
-     * @param Schema $schema
+     * @param \Doctrine\DBAL\Schema\Schema $schema
+     *
+     * @return void
      */
     public function acceptSchema(Schema $schema);
 
     /**
-     * @param Table $table
+     * @param \Doctrine\DBAL\Schema\Table $table
+     *
+     * @return void
      */
     public function acceptTable(Table $table);
 
     /**
-     * @param Column $column
+     * @param \Doctrine\DBAL\Schema\Table  $table
+     * @param \Doctrine\DBAL\Schema\Column $column
+     *
+     * @return void
      */
     public function acceptColumn(Table $table, Column $column);
 
     /**
-     * @param Table $localTable
-     * @param ForeignKeyConstraint $fkConstraint
+     * @param \Doctrine\DBAL\Schema\Table                $localTable
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $fkConstraint
+     *
+     * @return void
      */
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint);
 
     /**
-     * @param Table $table
-     * @param Index $index
+     * @param \Doctrine\DBAL\Schema\Table $table
+     * @param \Doctrine\DBAL\Schema\Index $index
+     *
+     * @return void
      */
     public function acceptIndex(Table $table, Index $index);
 
     /**
-     * @param Sequence $sequence
+     * @param \Doctrine\DBAL\Schema\Sequence $sequence
+     *
+     * @return void
      */
     public function acceptSequence(Sequence $sequence);
 }

@@ -19,8 +19,6 @@
 
 namespace Doctrine\DBAL\Sharding;
 
-use Doctrine\DBAL\Connection;
-
 /**
  * Sharding Manager gives access to APIs to implementing sharding on top of
  * Doctrine\DBAL\Connection instances.
@@ -42,7 +40,7 @@ use Doctrine\DBAL\Connection;
 interface ShardManager
 {
     /**
-     * Select global database with global data.
+     * Selects global database with global data.
      *
      * This is the default database that is connected when no shard is
      * selected.
@@ -52,25 +50,25 @@ interface ShardManager
     function selectGlobal();
 
     /**
-     * SELECT queries after this statement will be issued against the selected
-     * shard.
+     * Selects the shard against which the queries after this statement will be issued.
      *
-     * @throws ShardingException If no value is passed as shard identifier.
-     * @param mixed $distributionValue
-     * @param array $options
+     * @param string $distributionValue
+     *
      * @return void
+     *
+     * @throws \Doctrine\DBAL\Sharding\ShardingException If no value is passed as shard identifier.
      */
     function selectShard($distributionValue);
 
     /**
-     * Get the distribution value currently used for sharding.
+     * Gets the distribution value currently used for sharding.
      *
      * @return string
      */
     function getCurrentDistributionValue();
 
     /**
-     * Get information about the amount of shards and other details.
+     * Gets information about the amount of shards and other details.
      *
      * Format is implementation specific, each shard is one element and has an
      * 'id' attribute at least.
@@ -80,16 +78,16 @@ interface ShardManager
     function getShards();
 
     /**
-     * Query all shards in undefined order and return the results appended to
+     * Queries all shards in undefined order and return the results appended to
      * each other. Restore the previous distribution value after execution.
      *
-     * Using {@link Connection::fetchAll} to retrieve rows internally.
+     * Using {@link \Doctrine\DBAL\Connection::fetchAll} to retrieve rows internally.
      *
      * @param string $sql
-     * @param array $params
-     * @param array $types
+     * @param array  $params
+     * @param array  $types
+     *
      * @return array
      */
     function queryAll($sql, array $params, array $types);
 }
-

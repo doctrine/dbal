@@ -15,7 +15,7 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
-*/
+ */
 
 namespace Doctrine\DBAL\Event\Listeners;
 
@@ -26,10 +26,9 @@ use Doctrine\Common\EventSubscriber;
 /**
  * Session init listener for executing a single SQL statement right after a connection is opened.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @link        www.doctrine-project.com
- * @since       2.2
- * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ * @link    www.doctrine-project.org
+ * @since   2.2
+ * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 class SQLSessionInit implements EventSubscriber
 {
@@ -47,7 +46,8 @@ class SQLSessionInit implements EventSubscriber
     }
 
     /**
-     * @param ConnectionEventArgs $args
+     * @param \Doctrine\DBAL\Event\ConnectionEventArgs $args
+     *
      * @return void
      */
     public function postConnect(ConnectionEventArgs $args)
@@ -56,6 +56,9 @@ class SQLSessionInit implements EventSubscriber
         $conn->exec($this->sql);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSubscribedEvents()
     {
         return array(Events::postConnect);

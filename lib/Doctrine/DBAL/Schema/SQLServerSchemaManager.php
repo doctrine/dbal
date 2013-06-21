@@ -14,7 +14,7 @@
  *
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license. For more information, see
- * <http://www.phpdoctrine.org>.
+ * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\DBAL\Schema;
@@ -23,14 +23,14 @@ use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
 use Doctrine\DBAL\Types\Type;
 
 /**
- * SQL Server Schema Manager
+ * SQL Server Schema Manager.
  *
- * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
- * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author      Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
- * @author      Juozas Kaziukenas <juozas@juokaz.com>
- * @author      Steve Müller <st.mueller@dzh-online.de>
- * @since       2.0
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @author  Konsta Vesterinen <kvesteri@cc.hut.fi>
+ * @author  Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
+ * @author  Juozas Kaziukenas <juozas@juokaz.com>
+ * @author  Steve Müller <st.mueller@dzh-online.de>
+ * @since   2.0
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
@@ -168,7 +168,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     protected function _getPortableTableDefinition($table)
     {
@@ -176,7 +176,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     protected function _getPortableDatabaseDefinition($database)
     {
@@ -184,7 +184,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     protected function _getPortableViewDefinition($view)
     {
@@ -193,12 +193,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * List the indexes for a given table returning an array of Index instances.
-     *
-     * Keys of the portable indexes list are all lower-cased.
-     *
-     * @param string $table The name of the table
-     * @return Index[] $tableIndexes
+     * {@inheritdoc}
      */
     public function listTableIndexes($table)
     {
@@ -224,7 +219,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
     public function alterTable(TableDiff $tableDiff)
     {
@@ -237,11 +232,16 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             }
         }
 
-        return parent::alterTable($tableDiff);
+        parent::alterTable($tableDiff);
     }
 
     /**
-     * This function retrieves the constraints for a given column.
+     * Returns the SQL to retrieve the constraints for a given column.
+     *
+     * @param string $table
+     * @param string $column
+     *
+     * @return string
      */
     private function getColumnConstraintSQL($table, $column)
     {
