@@ -2567,6 +2567,10 @@ abstract class AbstractPlatform
         return false;
     }
 
+    /**
+     * @deprecated
+     * @todo Remove in 3.0
+     */
     public function getIdentityColumnNullInsertSQL()
     {
         return "";
