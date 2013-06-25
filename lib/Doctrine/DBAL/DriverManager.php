@@ -156,6 +156,16 @@ final class DriverManager
     }
 
     /**
+     * Returns the list of supported drivers and their mappings to the driver classes.
+     *
+     * @return array
+     */
+    public static function getDriverMap()
+    {
+        return self::$_driverMap;
+    }
+
+    /**
      * Checks the list of parameters.
      *
      * @param array $params The list of parameters.
