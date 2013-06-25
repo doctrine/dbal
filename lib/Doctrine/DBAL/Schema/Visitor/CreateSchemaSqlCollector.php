@@ -136,7 +136,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
 
         foreach (array_keys($this->createTableQueries) as $namespace) {
             if ($this->platform->getName() === 'postgresql' ) {
-                if ($namespace !== 'default') {
+                if ($namespace !== 'default' and $namespace !== "public") {
                     $query = 'CREATE SCHEMA ' . $namespace;
 
                     array_push($sql, $query);
