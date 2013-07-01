@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\SQLServer2008Platform;
-use Doctrine\DBAL\Schema\Sequence;
 
 class SQLServer2008PlatformTest extends SQLServerPlatformTest
 {
