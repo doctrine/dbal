@@ -61,6 +61,26 @@ class Driver implements \Doctrine\DBAL\Driver
             $dsn .= 'dbname=' . $params['dbname'] . ' ';
         }
 
+        if (isset($params['driverOptions'])) {
+            $knownOptions = array('search_path', 'default_tablespace', 'temp_tablespaces',
+                'default_transaction_isolation', 'default_transaction_read_only',
+                'default_transaction_deferrable', 'statement_timeout', 'bytea_output',
+                'xmlbinary', 'xmloption', 'datestyle', 'timezone', 'client_encoding',
+                'lc_messages', 'lc_monetary', 'lc_numeric', 'lc_time', 'default_text_search_config',
+                'application_name');
+            $setOptions = '';
+
+            foreach ($knownOptions as $option) {
+                if (isset($params['driverOptions'][$option])) {
+                    $setOptions .= '--' .$option . '=' . $params['driverOptions'][$option] . ' ';
+                }
+            }
+
+            if (!empty($setOptions)) {
+                $dsn .= 'options=\'' . $setOptions . '\' ';
+            }
+        }
+
         return $dsn;
     }
 
