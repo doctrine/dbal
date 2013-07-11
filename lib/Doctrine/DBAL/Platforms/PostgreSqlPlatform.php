@@ -230,7 +230,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT tablename AS table_name, schemaname AS schema_name
+        return "SELECT quote_ident(tablename) AS table_name, schemaname AS schema_name
                 FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname != 'information_schema' AND tablename != 'geometry_columns' AND tablename != 'spatial_ref_sys'";
     }
 
@@ -239,7 +239,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListViewsSQL($database)
     {
-        return 'SELECT viewname, schemaname, definition FROM pg_views';
+        return 'SELECT quote_ident(viewname) as viewname, schemaname, definition FROM pg_views';
     }
 
     /**
@@ -247,7 +247,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
-        return "SELECT r.conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
+        return "SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
                   FROM pg_catalog.pg_constraint r
                   WHERE r.conrelid =
                   (
@@ -280,7 +280,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getListTableConstraintsSQL($table)
     {
         return "SELECT
-                    relname
+                    quote_ident(relname) as relname
                 FROM
                     pg_class
                 WHERE oid IN (
@@ -300,7 +300,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        return "SELECT relname, pg_index.indisunique, pg_index.indisprimary,
+        return "SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
                        pg_index.indkey, pg_index.indrelid
                  FROM pg_class, pg_index
                  WHERE oid IN (
@@ -338,7 +338,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         return "SELECT
                     a.attnum,
-                    a.attname AS field,
+                    quote_ident(a.attname) AS field,
                     t.typname AS type,
                     format_type(a.atttypid, a.atttypmod) AS complete_type,
                     (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
