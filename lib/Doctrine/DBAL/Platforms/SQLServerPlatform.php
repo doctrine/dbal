@@ -818,7 +818,26 @@ class SQLServerPlatform extends AbstractPlatform
             return sprintf($format, $query, $start, $end);
         }
 
-        //Clear ORDER BY
+        //Clean and split SELECT into parts
+        $select        = str_replace('DISTINCT','',explode('FROM', stristr($query, 'SELECT')));
+        $selectParts   = explode(',', preg_replace('/SELECT\s+([^\)]*)(.*)/', '$1', $select[0]));
+        $selectColumns = array();
+
+        foreach ($selectParts as $part) {
+            $alias = explode("AS", $part);
+            $alias = (count($alias) > 1) ? trim($alias[1]) : false;
+
+            if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*?/i', trim($part), $matches)) {
+              $selectColumns[$matches[0]] = array(
+                  'column'    => $matches[3],
+                  'alias'     => $alias,
+                  'hasTable'  => (!empty($matches[2])),
+                  'table'     => empty($matches[2]) ? '[^\.\s]*' : $matches[2]
+              );
+            }
+        }
+
+	//Clear ORDER BY
         $orderBy        = preg_replace('/ORDER\s+BY\s+([^\)]*)(.*)/', '$1', $orderBy);
         $orderByParts   = explode(',', $orderBy);
         $orderbyColumns = array();
@@ -844,6 +863,10 @@ class SQLServerPlatform extends AbstractPlatform
                 $overColumn = preg_match($pattern, $query, $matches)
                     ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column'] 
                     : $column['column'];
+
+                if(!isset($selectColumns[$overColumn]) && isset($matches[3])) {
+                  $overColumn = $matches[3];
+                }
 
                 if (isset($column['sort'])) {
                     $overColumn .= ' ' . $column['sort'];
