@@ -572,6 +572,12 @@ class MySqlPlatform extends AbstractPlatform
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
+        if (isset($diff->addedIndexes['primary'])) {
+            $keyColumns = array_unique(array_values($diff->addedIndexes['primary']->getColumns()));
+            $queryParts[] = 'ADD PRIMARY KEY (' . implode(', ', $keyColumns) . ')';
+            unset($diff->addedIndexes['primary']);
+        }
+
         $sql = array();
         $tableSql = array();
 
