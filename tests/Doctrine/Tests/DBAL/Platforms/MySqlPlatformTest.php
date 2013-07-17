@@ -295,4 +295,24 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777216)));
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array()));
     }
+
+    public function testAddAutoIncrementPrimaryKey()
+    {
+        $keyTable = new Table("foo");
+        $keyTable->addColumn("id", "integer", array('autoincrement' => true));
+        $keyTable->addColumn("baz", "string");
+        $keyTable->setPrimaryKey(array("id"));
+
+        $oldTable = new Table("foo");
+        $oldTable->addColumn("baz", "string");
+
+        $c = new \Doctrine\DBAL\Schema\Comparator;
+        $diff = $c->diffTable($oldTable, $keyTable);
+
+        $sql = $this->_platform->getAlterTableSQL($diff);
+
+        $this->assertEquals(array(
+            "ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)",
+        ), $sql);
+    }
 }
