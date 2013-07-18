@@ -334,4 +334,17 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             $this->assertEquals($expected, $actual);
         }
     }
+
+    public function testAlterTableChangeIndexes()
+    {
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff->changedIndexes['foo'] = new \Doctrine\DBAL\Schema\Index('my_idx', array('user_name', 'last_login'));
+
+        $expectedSql = array(
+            'ALTER TABLE mytable DROP CONSTRAINT IF EXISTS my_idx',
+            'DROP INDEX IF EXISTS my_idx',
+            'CREATE INDEX my_idx ON mytable (user_name, last_login)',
+        );
+        $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+    }
 }
