@@ -366,4 +366,17 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
             "ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)",
         ), $sql);
     }
+
+    public function testNamedPrimaryKey()
+    {
+        $diff = new TableDiff('mytable');
+        $diff->changedIndexes['foo_index'] = new Index('foo_index', array('foo'), true, true);
+
+        $sql = $this->_platform->getAlterTableSQL($diff);
+
+        $this->assertEquals(array(
+	    "DROP INDEX foo_index ON mytable",
+            "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
+        ), $sql);
+    }
 }
