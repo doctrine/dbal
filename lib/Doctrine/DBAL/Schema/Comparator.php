@@ -112,7 +112,9 @@ class Comparator
         foreach ($toSchema->getSequences() as $sequence) {
             $sequenceName = $sequence->getShortestName($toSchema->getName());
             if ( ! $fromSchema->hasSequence($sequenceName)) {
-                $diff->newSequences[] = $sequence;
+                if ( ! $this->isAutoIncrementSequenceInSchema($fromSchema, $sequence)) {
+                    $diff->newSequences[] = $sequence;
+                }
             } else {
                 if ($this->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
                     $diff->changedSequences[] = $toSchema->getSequence($sequenceName);

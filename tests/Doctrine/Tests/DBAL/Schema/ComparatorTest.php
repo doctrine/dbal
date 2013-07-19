@@ -864,6 +864,28 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
 
     /**
+     * Check that added autoincrement sequence is not populated in newSequences
+     * @group DBAL-562
+     */
+    public function testAutoIncremenetNoSequences()
+    {
+        $oldSchema = new Schema();
+        $table = $oldSchema->createTable("foo");
+        $table->addColumn("id", "integer", array("autoincrement" => true));
+        $table->setPrimaryKey(array("id"));
+
+        $newSchema = new Schema();
+        $table = $newSchema->createTable("foo");
+        $table->addColumn("id", "integer", array("autoincrement" => true));
+        $table->setPrimaryKey(array("id"));
+        $newSchema->createSequence("foo_id_seq");
+
+        $c = new Comparator();
+        $diff = $c->compare($oldSchema, $newSchema);
+
+        $this->assertCount(0, $diff->newSequences);
+    }
+    /**
      * You can get multiple drops for a FK when a table referenced by a foreign
      * key is deleted, as this FK is referenced twice, once on the orphanedForeignKeys
      * array because of the dropped table, and once on changedTables array. We
