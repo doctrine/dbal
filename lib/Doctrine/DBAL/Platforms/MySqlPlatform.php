@@ -774,6 +774,7 @@ class MySqlPlatform extends AbstractPlatform
             'binary'        => 'blob',
             'varbinary'     => 'blob',
             'set'           => 'simple_array',
+            'bit'           => 'boolean',
         );
     }
 
