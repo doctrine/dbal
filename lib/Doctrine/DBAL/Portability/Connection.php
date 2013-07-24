@@ -113,7 +113,7 @@ class Connection extends \Doctrine\DBAL\Connection
     public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
     {
         $stmt = new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
-        $stmt->setFetchMode($this->_defaultFetchMode);
+        $stmt->setFetchMode($this->defaultFetchMode);
 
         return $stmt;
     }
@@ -124,7 +124,7 @@ class Connection extends \Doctrine\DBAL\Connection
     public function prepare($statement)
     {
         $stmt = new Statement(parent::prepare($statement), $this);
-        $stmt->setFetchMode($this->_defaultFetchMode);
+        $stmt->setFetchMode($this->defaultFetchMode);
 
         return $stmt;
     }
@@ -138,7 +138,7 @@ class Connection extends \Doctrine\DBAL\Connection
 
         $stmt = call_user_func_array(array($this->_conn, 'query'), func_get_args());
         $stmt = new Statement($stmt, $this);
-        $stmt->setFetchMode($this->_defaultFetchMode);
+        $stmt->setFetchMode($this->defaultFetchMode);
 
         return $stmt;
     }
