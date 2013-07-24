@@ -177,7 +177,7 @@ class Connection implements DriverConnection
     /**
      * @var integer
      */
-    private $_defaultFetchMode = PDO::FETCH_ASSOC;
+    protected $_defaultFetchMode = PDO::FETCH_ASSOC;
 
     /**
      * Initializes a new instance of the Connection class.
