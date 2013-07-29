@@ -22,7 +22,7 @@ require this instance, while the later has this instance as a required parameter
 
     <?php
     $stmt = $conn->executeQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
-    $stmt = $conn->executeCachedQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
+    $stmt = $conn->executeCacheQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
 
 It is also possible to pass in a the ``Doctrine\Common\Cache\Cache`` instance into the
 constructor of ``Doctrine\DBAL\Cache\QueryCacheProfile`` in which case it overrides
@@ -41,7 +41,7 @@ object is closed:
 ::
 
     <?php
-    $stmt = $conn->executeCachedQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
+    $stmt = $conn->executeCacheQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
     $data = $stmt->fetchAll();
     $stmt->closeCursor(); // at this point the result is cached
 
