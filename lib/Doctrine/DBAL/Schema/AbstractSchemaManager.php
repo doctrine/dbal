@@ -155,12 +155,6 @@ abstract class AbstractSchemaManager
             $database = $this->_conn->getDatabase();
         }
 
-        // If an entire DSN is passed extract db name from it
-        preg_match('/dbname=([^;]*)/', $database, $matches);
-        if (isset($matches[1])) {
-            $database = $matches[1];
-        }
-
         $sql = $this->_platform->getListTableColumnsSQL($table, $database);
 
         $tableColumns = $this->_conn->fetchAll($sql);
