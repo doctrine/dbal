@@ -314,5 +314,24 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('1', $platform->convertBooleans(true));
         $this->assertEquals('0', $platform->convertBooleans(false));
     }
-}
 
+    public function testGetCreateSchemaSQL()
+    {
+        $schemaName = 'schema';
+        $sql = $this->_platform->getCreateSchemaSQL($schemaName);
+        $this->assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
+    }
+
+    public function testSchemaNeedsCreation()
+    {
+        $schemaNames = array(
+            'default' => false,
+            'public' => false,
+            'schema' => true,
+        );
+        foreach ($schemaNames as $name => $expected) {
+            $actual = $this->_platform->schemaNeedsCreation($name);
+            $this->assertEquals($expected, $actual);
+        }
+    }
+}
