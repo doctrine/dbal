@@ -361,8 +361,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $diff = floor( (strtotime('2010-01-01')-time()) / 3600 / 24);
         $this->assertEquals($diff, (int)$row['diff'], "Date difference should be approx. ".$diff." days.", 1);
-        $this->assertEquals('2010-01-01 03:00', date('Y-m-d H:i', strtotime($row['add_hour'])), "Adding date should end up on 2010-01-01 03:00");
-        $this->assertEquals('2009-12-31 21:00', date('Y-m-d H:i', strtotime($row['sub_hour'])), "Subtracting date should end up on 2009-12-31 21:00");
+        $this->assertEquals('2010-01-01 13:10', date('Y-m-d H:i', strtotime($row['add_hour'])), "Adding date should end up on 2010-01-01 13:10");
+        $this->assertEquals('2010-01-01 07:10', date('Y-m-d H:i', strtotime($row['sub_hour'])), "Subtracting date should end up on 2010-01-01 07:10");
         $this->assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])), "Adding date should end up on 2010-01-11");
         $this->assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])), "Subtracting date should end up on 2009-12-22");
         $this->assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");
