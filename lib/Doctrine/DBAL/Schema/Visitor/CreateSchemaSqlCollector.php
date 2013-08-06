@@ -135,8 +135,9 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $sql = array();
 
         foreach (array_keys($this->createTableQueries) as $namespace) {
-            if ($this->platform->supportsSchemas()) {
-                // TODO: Create Schema here
+            if ($this->platform->supportsSchemas() && $this->platform->schemaNeedsCreation($namespace)) {
+                $query = $this->platform->getCreateSchemaSQL($namespace);
+                array_push($sql, $query);
             }
         }
 

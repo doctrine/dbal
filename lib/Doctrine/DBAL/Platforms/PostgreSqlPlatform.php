@@ -550,6 +550,22 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getCreateSchemaSQL($schemaName)
+    {
+        return 'CREATE SCHEMA ' . $schemaName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function schemaNeedsCreation($schemaName)
+    {
+        return !in_array($schemaName, array('default', 'public'));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         return $this->getDropConstraintSQL($foreignKey, $table);

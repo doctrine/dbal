@@ -494,4 +494,20 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $sql = $this->_platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS);
         $this->assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
     }
+
+    /**
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testGetCreateSchemaSQL()
+    {
+        $this->_platform->getCreateSchemaSQL('schema');
+    }
+
+    /**
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testSchemaNeedsCreation()
+    {
+        $this->_platform->schemaNeedsCreation('schema');
+    }
 }
