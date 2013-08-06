@@ -135,7 +135,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateAddHourExpression($date, $hours)
     {
-        return "DATE(" . $date . ",'+". $hours . " hour')";
+        return "DATETIME(" . $date . ",'+". $hours . " hour')";
     }
 
     /**
@@ -143,7 +143,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
-        return "DATE(" . $date . ",'-". $hours . " hour')";
+        return "DATETIME(" . $date . ",'-". $hours . " hour')";
     }
 
     /**
