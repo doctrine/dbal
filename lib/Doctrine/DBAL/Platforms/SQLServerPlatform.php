@@ -49,6 +49,22 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getDateAddHourExpression($date, $hours)
+    {
+        return 'DATEADD(hour, ' . $hours . ', ' . $date . ')';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDateSubHourExpression($date, $hours)
+    {
+        return 'DATEADD(hour, -1 * ' . $hours . ', ' . $date . ')';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return 'DATEADD(day, ' . $days . ', ' . $date . ')';
