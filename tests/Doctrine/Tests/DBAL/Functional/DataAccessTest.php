@@ -348,6 +348,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $p = $this->_conn->getDatabasePlatform();
         $sql = 'SELECT ';
         $sql .= $p->getDateDiffExpression('test_datetime', $p->getCurrentTimestampSQL()) .' AS diff, ';
+        $sql .= $p->getDateAddHourExpression('test_datetime', 3) .' AS add_hour, ';
+        $sql .= $p->getDateSubHourExpression('test_datetime', 3) .' AS sub_hour, ';
         $sql .= $p->getDateAddDaysExpression('test_datetime', 10) .' AS add_days, ';
         $sql .= $p->getDateSubDaysExpression('test_datetime', 10) .' AS sub_days, ';
         $sql .= $p->getDateAddMonthExpression('test_datetime', 2) .' AS add_month, ';
@@ -359,6 +361,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $diff = floor( (strtotime('2010-01-01')-time()) / 3600 / 24);
         $this->assertEquals($diff, (int)$row['diff'], "Date difference should be approx. ".$diff." days.", 1);
+        $this->assertEquals('2010-01-01 13:10', date('Y-m-d H:i', strtotime($row['add_hour'])), "Adding date should end up on 2010-01-01 13:10");
+        $this->assertEquals('2010-01-01 07:10', date('Y-m-d H:i', strtotime($row['sub_hour'])), "Subtracting date should end up on 2010-01-01 07:10");
         $this->assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])), "Adding date should end up on 2010-01-11");
         $this->assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])), "Subtracting date should end up on 2009-12-22");
         $this->assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");

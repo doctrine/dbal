@@ -118,6 +118,22 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getDateAddHourExpression($date, $hours)
+    {
+        return 'DATE_ADD(' . $date . ', INTERVAL ' . $hours . ' HOUR)';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDateSubHourExpression($date, $hours)
+    {
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $hours . ' HOUR)';    
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';

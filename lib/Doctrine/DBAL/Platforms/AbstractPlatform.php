@@ -940,6 +940,36 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL to add the number of given hours to a date.
+     *
+     * @param string  $date
+     * @param integer $hours
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getDateAddHourExpression($date, $hours)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL to subtract the number of given hours to a date.
+     *
+     * @param string  $date
+     * @param integer $hours
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getDateSubHourExpression($date, $hours)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Returns the SQL to add the number of given days to a date.
      *
      * @param string  $date
