@@ -96,23 +96,6 @@ abstract class AbstractAsset
     }
 
     /**
-     * Gets the quoted representation of this namespace asset but only if it was defined with one.
-     * Otherwise return the plain unquoted namespace value as inserted.
-     *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     *
-     * @return string
-     */
-    public function getQuotedNamespaceName(AbstractPlatform $platform)
-    {
-        $keywords = $platform->getReservedKeywordsList();
-
-        return ($this->_quoted || $keywords->isKeyword($this->_namespace))
-            ? $platform->quoteIdentifier($this->_namespace)
-            : $this->_namespace;
-    }
-
-    /**
      * The shortest name is stripped of the default namespace. All other
      * namespaced elements are returned as full-qualified names.
      *
