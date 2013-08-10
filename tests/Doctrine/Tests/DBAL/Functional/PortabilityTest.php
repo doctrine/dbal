@@ -25,6 +25,11 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
+    /**
+     * @param   integer     $portabilityMode
+     * @param   integer     $case
+     * @return  Connection
+     */
     private function getPortableConnection($portabilityMode = \Doctrine\DBAL\Portability\Connection::PORTABILITY_ALL, $case = \PDO::CASE_LOWER)
     {
         if (!$this->portableConnection) {
@@ -67,15 +72,39 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $stmt = $this->getPortableConnection()->query('SELECT * FROM portability_table');
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        while (($row = $stmt->fetch(\PDO::FETCH_ASSOC))) {
             $this->assertFetchResultRow($row);
         }
 
         $stmt = $this->getPortableConnection()->prepare('SELECT * FROM portability_table');
         $stmt->execute();
-
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        while (($row = $stmt->fetch(\PDO::FETCH_ASSOC))) {
             $this->assertFetchResultRow($row);
+        }
+    }
+
+    public function testConnFetchMode()
+    {
+        $conn = $this->getPortableConnection();
+        $conn->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $rows = $conn->fetchAll('SELECT * FROM portability_table');
+        $this->assertFetchResultRows($rows);
+
+        $stmt = $conn->query('SELECT * FROM portability_table');
+        foreach ($stmt as $row) {
+          $this->assertFetchResultRow($row);
+        }
+
+        $stmt = $conn->query('SELECT * FROM portability_table');
+        while (($row = $stmt->fetch())) {
+          $this->assertFetchResultRow($row);
+        }
+
+        $stmt = $conn->prepare('SELECT * FROM portability_table');
+        $stmt->execute();
+        while (($row = $stmt->fetch())) {
+          $this->assertFetchResultRow($row);
         }
     }
 
@@ -93,5 +122,6 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertArrayHasKey('test_string', $row, "Case should be lowered.");
         $this->assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
         $this->assertNull($row['test_null']);
+        $this->assertArrayNotHasKey(0, $row, "PDO::FETCH_ASSOC should not return numerical keys.");
     }
 }
