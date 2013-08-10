@@ -22,6 +22,13 @@ namespace Doctrine\DBAL\Portability;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 
+/**
+ * Portability wrapper for a Connection.
+ *
+ * @link   www.doctrine-project.org
+ * @since  2.0
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ */
 class Connection extends \Doctrine\DBAL\Connection
 {
     const PORTABILITY_ALL               = 255;
@@ -105,7 +112,10 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
     {
-        return new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
+        $stmt = new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
+        $stmt->setFetchMode($this->defaultFetchMode);
+
+        return $stmt;
     }
 
     /**
@@ -113,7 +123,10 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function prepare($statement)
     {
-        return new Statement(parent::prepare($statement), $this);
+        $stmt = new Statement(parent::prepare($statement), $this);
+        $stmt->setFetchMode($this->defaultFetchMode);
+
+        return $stmt;
     }
 
     /**
@@ -124,7 +137,9 @@ class Connection extends \Doctrine\DBAL\Connection
         $this->connect();
 
         $stmt = call_user_func_array(array($this->_conn, 'query'), func_get_args());
+        $stmt = new Statement($stmt, $this);
+        $stmt->setFetchMode($this->defaultFetchMode);
 
-        return new Statement($stmt, $this);
+        return $stmt;
     }
 }
