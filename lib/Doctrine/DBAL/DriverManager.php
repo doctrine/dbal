@@ -156,6 +156,16 @@ final class DriverManager
     }
 
     /**
+     * Returns the list of supported drivers.
+     *
+     * @return array
+     */
+    public static function getAvailableDrivers()
+    {
+        return array_keys(self::$_driverMap);
+    }
+
+    /**
      * Checks the list of parameters.
      *
      * @param array $params The list of parameters.
