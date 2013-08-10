@@ -16,6 +16,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('id', 'integer', array('autoincrement' => true));
             $table->addColumn('test_int', 'integer');
             $table->addColumn('test_string', 'string', array('notnull' => false));
+            $table->addColumn('test_bool', 'boolean', array('notnull' => false, 'default' => true));
             $table->setPrimaryKey(array('id'));
 
             foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
@@ -53,6 +54,17 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $affected = $this->_conn->executeUpdate($sql, array(1, 'foo'), array(\PDO::PARAM_INT, \PDO::PARAM_STR));
 
         $this->assertEquals(1, $affected, "executeUpdate() should return the number of affected rows!");
+    }
+
+    public function testExecuteUpdateBooleanType()
+    {
+        $this->_conn->insert('write_table', array('test_int' => 1));
+        $data = $this->_conn->fetchColumn('SELECT test_bool FROM write_table WHERE test_int = 1');
+        $this->assertTrue((bool) $data);
+
+        $this->_conn->update('write_table', array('test_bool' => false), array('test_int' => 1));
+        $data = $this->_conn->fetchColumn('SELECT test_bool FROM write_table WHERE test_int = 1');
+        $this->assertFalse((bool) $data);
     }
 
     public function testPrepareRowCountReturnsAffectedRows()
