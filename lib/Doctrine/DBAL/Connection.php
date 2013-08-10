@@ -571,10 +571,16 @@ class Connection implements DriverConnection
     {
         $typeValues = array();
 
-        foreach ($data as $k => $_) {
-            $typeValues[] = isset($types[$k])
-                ? $types[$k]
-                : \PDO::PARAM_STR;
+        foreach ($data as $k => $v) {
+            if (isset($types[$k])) {
+                $type = $types[$k];
+            } elseif (is_bool($v)) {
+                $type = \PDO::PARAM_BOOL;
+            } else {
+                $type = \PDO::PARAM_STR;
+            }
+
+            $typeValues[] = $type;
         }
 
         return $typeValues;
