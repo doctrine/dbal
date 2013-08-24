@@ -629,7 +629,13 @@ LEFT JOIN user_cons_columns r_cols
              * Do not add query part if only comment has changed
              */
             if ( ! ($columnHasChangedComment && count($columnDiff->changedProperties) === 1)) {
-                $fields[] = $column->getQuotedName($this). ' ' . $this->getColumnDeclarationSQL('', $column->toArray());
+                $columnInfo = $column->toArray();
+
+                if ( ! $columnDiff->hasChanged('notnull')) {
+                    $columnInfo['notnull'] = false;
+                }
+
+                $fields[] = $column->getQuotedName($this) . ' ' . $this->getColumnDeclarationSQL('', $columnInfo);
             }
 
             if ($columnHasChangedComment) {
