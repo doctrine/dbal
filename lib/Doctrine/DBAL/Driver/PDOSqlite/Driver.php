@@ -126,6 +126,10 @@ class Driver implements \Doctrine\DBAL\Driver
                 if (strpos($exception->getMessage(), 'no such table:') !== false) {
                     return DBALException::ERROR_UNKNOWN_TABLE;
                 }
+
+                if (strpos($exception->getMessage(), 'already exists') !== false) {
+                    return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+                }
         }
 
         return 0;

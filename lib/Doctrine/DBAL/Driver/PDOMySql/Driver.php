@@ -120,6 +120,8 @@ class Driver implements \Doctrine\DBAL\Driver
                 return DBALException::ERROR_DUPLICATE_KEY;
             case '42S02':
                 return DBALException::ERROR_UNKNOWN_TABLE;
+            case '42S01':
+                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
         }
 
         return 0;
