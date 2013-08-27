@@ -118,6 +118,8 @@ class Driver implements \Doctrine\DBAL\Driver
         switch ($exception->getCode()) {
             case 23000:
                 return DBALException::ERROR_DUPLICATE_KEY;
+            case '42S02':
+                return DBALException::ERROR_UNKNOWN_TABLE;
         }
 
         return 0;
