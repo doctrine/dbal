@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 
 /**
  * PDO MySql driver.
@@ -114,6 +115,11 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function convertExceptionCode(\Exception $exception)
     {
+        switch ($exception->getCode()) {
+            case 23000:
+                return DBALException::ERROR_DUPLICATE_KEY;
+        }
+
         return 0;
     }
 }
