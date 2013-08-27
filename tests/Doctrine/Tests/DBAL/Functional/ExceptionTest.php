@@ -73,7 +73,12 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_FOREIGN_KEY_CONSTRAINT);
         $this->_conn->delete('constraint_error_table', array('id' => 1));
+    }
 
+    protected function onNotSuccessfulTest(\Exception $e)
+    {
+        var_dump($e);
+        parent::onNotSuccessfulTest($e);
     }
 }
  
