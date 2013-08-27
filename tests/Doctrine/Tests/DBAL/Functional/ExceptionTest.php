@@ -34,7 +34,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTableAlreadyExists()
     {
-        $table = new \Doctrine\DBAL\Schema\Table("duplicatekey_table");
+        $table = new \Doctrine\DBAL\Schema\Table("alreadyexist_table");
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
@@ -45,6 +45,35 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
             $this->_conn->executeQuery($sql);
         }
+    }
+
+    public function testForeignKeyContraintException()
+    {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped("Only fails on platforms with foreign key constraints.");
+        }
+
+        $schema = new \Doctrine\DBAL\Schema\Schema();
+        $table = $schema->createTable("constraint_error_table");
+        $table->addColumn('id', 'integer', array());
+        $table->setPrimaryKey(array('id'));
+
+        $owningTable = $schema->createTable("owning_table");
+        $owningTable->addColumn('id', 'integer', array());
+        $owningTable->addColumn('constraint_id', 'integer', array());
+        $owningTable->setPrimaryKey(array('id'));
+        $owningTable->addForeignKeyConstraint($table, array('constraint_id'), array('id'));
+
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
+
+        $this->_conn->insert("constraint_error_table", array('id' => 1));
+        $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_FOREIGN_KEY_CONSTRAINT);
+        $this->_conn->delete('constraint_error_table', array('id' => 1));
+
     }
 }
  
