@@ -18,6 +18,7 @@
  */
 
 namespace Doctrine\DBAL\Driver\PDOSqlite;
+use Doctrine\DBAL\DBALException;
 
 /**
  * The PDO Sqlite driver.
@@ -118,6 +119,11 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function convertExceptionCode(\Exception $exception)
     {
+        switch ($exception->getCode()) {
+            case 23000:
+                return DBALException::ERROR_DUPLICATE_KEY;
+        }
+
         return 0;
     }
 }

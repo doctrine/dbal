@@ -91,7 +91,7 @@ class DBALException extends \Exception
         }
         $msg .= ":\n\n".$driverEx->getMessage();
 
-        return new self($msg, 0, $driverEx);
+        return new self($msg, $driver->convertExceptionCode($driverEx), $driverEx);
     }
 
     /**
