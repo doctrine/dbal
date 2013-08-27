@@ -120,8 +120,9 @@ class Driver implements \Doctrine\DBAL\Driver
                 if (strpos($exception->getMessage(), 'Cannot delete or update a parent row: a foreign key constraint fails') !== false) {
                     return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
                 }
-
-                return DBALException::ERROR_DUPLICATE_KEY;
+                if (strpos($exception->getMessage(), 'Duplicate entry') !== false) {
+                    return DBALException::ERROR_DUPLICATE_KEY;
+                }
             case '42S02':
                 return DBALException::ERROR_UNKNOWN_TABLE;
             case '42S01':
