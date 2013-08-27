@@ -5,3 +5,4 @@ dist/
 download/
 lib/Doctrine/Common/
 vendor/
+*.phpunit.xml

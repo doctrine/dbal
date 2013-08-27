@@ -67,4 +67,12 @@ class Driver implements DriverInterface
 
         return $params['dbname'];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        return 0;
+    }
 }

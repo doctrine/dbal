@@ -108,4 +108,12 @@ class Driver implements \Doctrine\DBAL\Driver
         }
         return $conn->query('SELECT DATABASE()')->fetchColumn();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        return 0;
+    }
 }
