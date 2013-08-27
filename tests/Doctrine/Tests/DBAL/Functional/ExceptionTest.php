@@ -23,5 +23,13 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_DUPLICATE_KEY);
         $this->_conn->insert("duplicatekey_table", array('id' => 1));
     }
+
+    public function testUnknownTableException()
+    {
+        $sql = "SELECT * FROM unknown_table";
+
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_UNKNOWN_TABLE);
+        $this->_conn->executeQuery($sql);
+    }
 }
  

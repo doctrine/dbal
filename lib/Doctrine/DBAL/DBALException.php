@@ -22,6 +22,7 @@ namespace Doctrine\DBAL;
 class DBALException extends \Exception
 {
     const ERROR_DUPLICATE_KEY = 1;
+    const ERROR_UNKNOWN_TABLE = 2;
 
     /**
      * @param string $method
