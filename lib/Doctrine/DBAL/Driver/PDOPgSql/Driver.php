@@ -99,5 +99,13 @@ class Driver implements \Doctrine\DBAL\Driver
             ? $params['dbname']
             : $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        return 0;
+    }
 }
 

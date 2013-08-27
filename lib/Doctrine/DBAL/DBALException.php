@@ -21,6 +21,8 @@ namespace Doctrine\DBAL;
 
 class DBALException extends \Exception
 {
+    const ERROR_DUPLICATE_KEY = 1;
+
     /**
      * @param string $method
      *
@@ -74,13 +76,14 @@ class DBALException extends \Exception
     }
 
     /**
+     * @param \Doctrine\DBAL\Driver     $driver
      * @param \Exception $driverEx
      * @param string     $sql
      * @param array      $params
      *
      * @return \Doctrine\DBAL\DBALException
      */
-    public static function driverExceptionDuringQuery(\Exception $driverEx, $sql, array $params = array())
+    public static function driverExceptionDuringQuery(Driver $driver, \Exception $driverEx, $sql, array $params = array())
     {
         $msg = "An exception occurred while executing '".$sql."'";
         if ($params) {

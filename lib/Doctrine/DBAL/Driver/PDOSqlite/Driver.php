@@ -112,4 +112,12 @@ class Driver implements \Doctrine\DBAL\Driver
 
         return isset($params['path']) ? $params['path'] : null;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        return 0;
+    }
 }
