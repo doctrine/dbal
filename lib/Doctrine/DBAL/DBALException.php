@@ -23,6 +23,7 @@ class DBALException extends \Exception
 {
     const ERROR_DUPLICATE_KEY = 1;
     const ERROR_UNKNOWN_TABLE = 2;
+    const ERROR_TABLE_ALREADY_EXISTS = 3;
 
     /**
      * @param string $method

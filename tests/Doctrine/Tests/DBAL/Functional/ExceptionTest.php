@@ -31,5 +31,20 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_UNKNOWN_TABLE);
         $this->_conn->executeQuery($sql);
     }
+
+    public function testTableAlreadyExists()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table("duplicatekey_table");
+        $table->addColumn('id', 'integer', array());
+        $table->setPrimaryKey(array('id'));
+
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_TABLE_ALREADY_EXISTS);
+        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
+        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
+    }
 }
  
