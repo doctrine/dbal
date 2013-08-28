@@ -113,7 +113,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
-        return "(" . $date ." - (" . $hours . " || ' hour')::interval)";    
+        return "(" . $date ." - (" . $hours . " || ' hour')::interval)";
     }
 
     /**
@@ -545,6 +545,26 @@ class PostgreSqlPlatform extends AbstractPlatform
             $sequence = $sequence->getQuotedName($this);
         }
         return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDropIndexSQL($index, $table = null)
+    {
+        $sql = parent::getDropIndexSQL($index, $table);
+
+        return str_replace('DROP INDEX', 'DROP INDEX IF EXISTS', $sql);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDropConstraintSQL($constraint, $table)
+    {
+        $sql = parent::getDropConstraintSQL($constraint, $table);
+
+        return str_replace('DROP CONSTRAINT', 'DROP CONSTRAINT IF EXISTS', $sql);
     }
 
     /**
