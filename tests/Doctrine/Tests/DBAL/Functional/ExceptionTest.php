@@ -9,7 +9,6 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function testDuplicateKeyException()
     {
-        /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
         $table = new \Doctrine\DBAL\Schema\Table("duplicatekey_table");
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
@@ -54,6 +53,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $schema = new \Doctrine\DBAL\Schema\Schema();
+        
         $table = $schema->createTable("constraint_error_table");
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
@@ -73,6 +73,23 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_FOREIGN_KEY_CONSTRAINT);
         $this->_conn->delete('constraint_error_table', array('id' => 1));
+    }
+    
+    public function testNotNullException()
+    {
+        $schema = new \Doctrine\DBAL\Schema\Schema();
+
+        $table = $schema->createTable("notnull_table");
+        $table->addColumn('id', 'integer', array());
+        $table->addColumn('value', 'integer', array('notnull' => true));
+        $table->setPrimaryKey(array('id'));
+
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
+
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_NOT_NULL);
+        $this->_conn->insert("notnull_table", array('id' => 1));
     }
 
     protected function onNotSuccessfulTest(\Exception $e)
