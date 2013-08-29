@@ -3,8 +3,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\DBALException;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function testDuplicateKeyException()
@@ -94,8 +92,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     protected function onNotSuccessfulTest(\Exception $e)
     {
-        var_dump($e);
         parent::onNotSuccessfulTest($e);
+        if ("PHPUnit_Framework_SkippedTestError" == get_class($e)) {
+            return;
+        }
+        var_dump($e);
     }
 }
  
