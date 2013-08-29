@@ -25,6 +25,7 @@ class DBALException extends \Exception
     const ERROR_UNKNOWN_TABLE = 2;
     const ERROR_TABLE_ALREADY_EXISTS = 3;
     const ERROR_FOREIGN_KEY_CONSTRAINT = 4;
+    const ERROR_NOT_NULL = 5;
 
     /**
      * @param string $method
