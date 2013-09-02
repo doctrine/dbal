@@ -124,8 +124,13 @@ class Driver implements \Doctrine\DBAL\Driver
                 if (strpos($exception->getMessage(), 'must be unique') !== false) {
                     return DBALException::ERROR_DUPLICATE_KEY;
                 }
+
                 if (strpos($exception->getMessage(), 'may not be NULL') !== false) {
                     return DBALException::ERROR_NOT_NULL;
+                }
+
+                if (strpos($exception->getMessage(), 'is not unique') !== false) {
+                    return DBALException::ERROR_NOT_UNIQUE;
                 }
             case 'HY000':
                 if (strpos($exception->getMessage(), 'no such table:') !== false) {

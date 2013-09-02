@@ -115,7 +115,6 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table2 = $schema->createTable("ambiguous_list_table_2");
         $table2->addColumn('id', 'integer');
 
-
         foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
             $this->_conn->executeQuery($sql);
         }
@@ -123,7 +122,23 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_NON_UNIQUE_FIELD_NAME);
         $this->_conn->executeQuery($sql);
+    }
 
+    public function testNotUniqueException()
+    {
+        $schema = new \Doctrine\DBAL\Schema\Schema();
+
+        $table = $schema->createTable("unique_field_table");
+        $table->addColumn('id', 'integer');
+        $table->addUniqueIndex(array('id'));
+
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
+
+        $this->_conn->insert("unique_field_table", array('id' => 5));
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_NOT_UNIQUE);
+        $this->_conn->insert("unique_field_table", array('id' => 5));
     }
 
     protected function onNotSuccessfulTest(\Exception $e)
