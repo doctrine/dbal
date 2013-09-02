@@ -135,6 +135,10 @@ class Driver implements \Doctrine\DBAL\Driver
                 if (strpos($exception->getMessage(), 'already exists') !== false) {
                     return DBALException::ERROR_TABLE_ALREADY_EXISTS;
                 }
+
+                if (strpos($exception->getMessage(), 'has no column named') !== false) {
+                    return DBALException::ERROR_BAD_FIELD_NAME;
+                }
         }
 
         return 0;
