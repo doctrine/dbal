@@ -29,7 +29,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->executeQuery($sql);
     }
 
-    public function testTableAlreadyExists()
+    public function testTableAlreadyExistsException()
     {
         $table = new \Doctrine\DBAL\Schema\Table("alreadyexist_table");
         $table->addColumn('id', 'integer', array());
@@ -88,6 +88,21 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_NOT_NULL);
         $this->_conn->insert("notnull_table", array('id' => 1));
+    }
+
+    public function testBadFieldNameException()
+    {
+        $schema = new \Doctrine\DBAL\Schema\Schema();
+
+        $table = $schema->createTable("non_unique_table");
+        $table->addColumn('id', 'integer', array('unique' => true));
+
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
+
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_BAD_FIELD_NAME);
+        $this->_conn->insert("non_unique_table", array('name' => 5));
     }
 
     protected function onNotSuccessfulTest(\Exception $e)
