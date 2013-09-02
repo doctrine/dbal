@@ -94,15 +94,36 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $schema = new \Doctrine\DBAL\Schema\Schema();
 
-        $table = $schema->createTable("non_unique_table");
-        $table->addColumn('id', 'integer', array('unique' => true));
+        $table = $schema->createTable("bad_fieldname_table");
+        $table->addColumn('id', 'integer', array());
 
         foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
             $this->_conn->executeQuery($sql);
         }
 
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_BAD_FIELD_NAME);
-        $this->_conn->insert("non_unique_table", array('name' => 5));
+        $this->_conn->insert("bad_fieldname_table", array('name' => 5));
+    }
+
+    public function testNonUniqueFieldNameException()
+    {
+        $schema = new \Doctrine\DBAL\Schema\Schema();
+
+        $table = $schema->createTable("ambiguous_list_table");
+        $table->addColumn('id', 'integer');
+
+        $table2 = $schema->createTable("ambiguous_list_table_2");
+        $table2->addColumn('id', 'integer');
+
+
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
+
+        $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_NON_UNIQUE_FIELD_NAME);
+        $this->_conn->executeQuery($sql);
+
     }
 
     protected function onNotSuccessfulTest(\Exception $e)

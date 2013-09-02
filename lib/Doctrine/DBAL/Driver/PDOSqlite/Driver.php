@@ -139,6 +139,10 @@ class Driver implements \Doctrine\DBAL\Driver
                 if (strpos($exception->getMessage(), 'has no column named') !== false) {
                     return DBALException::ERROR_BAD_FIELD_NAME;
                 }
+
+                if (strpos($exception->getMessage(), 'ambiguous column name') !== false) {
+                    return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+                }
         }
 
         return 0;
