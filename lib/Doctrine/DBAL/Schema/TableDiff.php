@@ -22,7 +22,7 @@ namespace Doctrine\DBAL\Schema;
 /**
  * Table Diff
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @copyright Copyright (C) 2005-2009 eZ Systems AS. All rights reserved.
  * @license http://ez.no/licenses/new_bsd New BSD License
@@ -35,6 +35,11 @@ class TableDiff
      * @var string
      */
     public $name = null;
+
+    /**
+     * @var Table
+     */
+    public $table = null;
 
     /**
      * @var string
@@ -132,5 +137,35 @@ class TableDiff
         $this->addedIndexes = $addedIndexes;
         $this->changedIndexes = $changedIndexes;
         $this->removedIndexes = $removedIndexes;
+    }
+
+    /**
+     * Set table object
+     *
+     * @param Table $table
+     */
+    public function setTable($table)
+    {
+        $this->table = $table;
+    }
+
+    /**
+     * Check if diff has a table object
+     *
+     * @return boolean
+     */
+    public function hasTable()
+    {
+        return $this->table !== null;
+    }
+
+    /**
+     * Get table object
+     *
+     * @return Table
+     */
+    public function getTable()
+    {
+        return $this->table;
     }
 }

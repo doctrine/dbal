@@ -1658,7 +1658,11 @@ abstract class AbstractPlatform
 
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $tableName = false !== $diff->newName ? $diff->newName : $diff->name;
+        if (false !== $diff->newName) {
+            $tableName = $diff->newName;
+        } else {
+            $tableName = $diff->hasTable() ? $diff->getTable() : $diff->name;
+        }
 
         $sql = array();
         if ($this->supportsForeignKeyConstraints()) {
