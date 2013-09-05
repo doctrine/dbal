@@ -410,13 +410,13 @@ class Connection implements DriverConnection
      *
      * @param string  $statement The SQL query to be executed.
      * @param array   $params    The prepared statement params.
-     * @param integer $colnum    The 0-indexed column number to retrieve.
+     * @param integer $column    The 0-indexed column number to retrieve.
      *
      * @return mixed
      */
-    public function fetchColumn($statement, array $params = array(), $colnum = 0)
+    public function fetchColumn($statement, array $params = array(), $column = 0)
     {
-        return $this->executeQuery($statement, $params)->fetchColumn($colnum);
+        return $this->executeQuery($statement, $params)->fetchColumn($column);
     }
 
     /**
