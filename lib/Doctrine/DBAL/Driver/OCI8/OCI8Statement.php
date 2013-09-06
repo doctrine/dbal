@@ -40,7 +40,6 @@ class OCI8Statement implements \IteratorAggregate, Statement
         PDO::FETCH_BOTH => OCI_BOTH,
         PDO::FETCH_ASSOC => OCI_ASSOC,
         PDO::FETCH_NUM => OCI_NUM,
-        PDO::PARAM_LOB => OCI_B_BLOB,
         PDO::FETCH_COLUMN => OCI_NUM,
     );
     protected $_defaultFetchMode = PDO::FETCH_BOTH;
