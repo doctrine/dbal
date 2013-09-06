@@ -161,7 +161,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sequences = $this->_conn->getSchemaManager()->listSequences();
         $this->assertEquals(1, count(array_filter($sequences, function($sequence) {
-            return $sequence->getName() === 'write_table_id_seq';
+            return strtolower($sequence->getName()) === 'write_table_id_seq';
         })));
 
         $stmt = $this->_conn->query($this->_conn->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
