@@ -434,7 +434,11 @@ class PostgreSqlPlatform extends AbstractPlatform
                 continue;
             }
 
-            $oldColumnName = $columnDiff->fromColumn->getQuotedName($this);
+            if ($columnDiff->fromColumn) {
+                $oldColumnName = $columnDiff->fromColumn->getQuotedName($this);
+            } else {
+                $oldColumnName = $columnDiff->oldColumnName;
+            }
             $column = $columnDiff->column;
 
             if ($columnDiff->hasChanged('type')) {
