@@ -141,6 +141,21 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->insert("unique_field_table", array('id' => 5));
     }
 
+    public function testSyntaxErrorException()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table("syntax_error_table");
+        $table->addColumn('id', 'integer', array());
+        $table->setPrimaryKey(array('id'));
+
+        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+            $this->_conn->executeQuery($sql);
+        }
+
+        $sql = 'SELECT id FRO syntax_error_table';
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_SYNTAX);
+        $this->_conn->executeQuery($sql);
+    }
+
     protected function onNotSuccessfulTest(\Exception $e)
     {
         parent::onNotSuccessfulTest($e);
