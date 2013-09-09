@@ -2246,7 +2246,7 @@ abstract class AbstractPlatform
             throw new \InvalidArgumentException("Incomplete definition. 'foreignTable' required.");
         }
 
-        $sql .= implode(', ', $foreignKey->getQuotedLocalColumns($this))
+        $sql .= 'FOREIGN KEY (' . implode(', ', $foreignKey->getQuotedLocalColumns($this))
               . ') REFERENCES '
               . $foreignKey->getQuotedForeignTableName($this) . ' ('
               . implode(', ', $foreignKey->getQuotedForeignColumns($this)) . ')';
