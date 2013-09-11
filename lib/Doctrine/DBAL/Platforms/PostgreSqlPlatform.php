@@ -231,7 +231,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListViewsSQL($database)
     {
-        return 'SELECT viewname, definition FROM pg_views';
+	return 'SELECT schemaname || \'.\' || viewname as viewname, definition FROM pg_views';
     }
 
     /**
