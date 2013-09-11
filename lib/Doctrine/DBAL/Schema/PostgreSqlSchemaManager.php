@@ -182,7 +182,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableViewDefinition($view)
     {
-        return new View($view['viewname'], $view['definition']);
+        return new View($view['schemaname'].'.'.$view['viewname'], $view['definition']);
     }
 
     /**
