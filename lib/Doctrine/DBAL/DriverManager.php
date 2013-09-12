@@ -186,7 +186,7 @@ final class DriverManager
         // check validity of parameters
 
         // driver
-        if ( isset($params['driver']) && ! isset(self::$_driverMap[$params['driver']])) {
+        if (isset($params['driver']) && ! isset(self::$_driverMap[$params['driver']])) {
             throw DBALException::unknownDriver($params['driver'], array_keys(self::$_driverMap));
         }
 
