@@ -220,14 +220,14 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null)
     {
+        $args = func_get_args();
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
         if (isset(self::$fetchMap[$fetchMode])) {
             return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]);
         } else if ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
             $className = null;
             $ctorArgs = null;
-            if (func_num_args() >= 2) {
-                $args = func_get_args();
+            if (count($args) >= 2) {
                 $className = $args[1];
                 $ctorArgs = (isset($args[2])) ? $args[2] : array();
             }
