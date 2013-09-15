@@ -41,4 +41,39 @@ class PDOConnection extends PDO implements Connection
         $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('Doctrine\DBAL\Driver\PDOStatement', array()));
         $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function prepare($prepareString)
+    {
+        return parent::prepare($prepareString);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function query()
+    {
+        $args = func_get_args();
+        $sql = $args[0];
+
+        return parent::query($sql);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function quote($input, $type=\PDO::PARAM_STR)
+    {
+        return parent::quote($input, $type);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function lastInsertId($name = null)
+    {
+        return parent::lastInsertId($name);
+    }
 }

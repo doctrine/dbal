@@ -28,9 +28,9 @@ namespace Doctrine\DBAL\Driver;
 class PDOStatement extends \PDOStatement implements Statement
 {
     /**
-     * Private constructor.
+     * Protected constructor.
      */
-    private function __construct()
+    protected function __construct()
     {
     }
 
@@ -52,5 +52,53 @@ class PDOStatement extends \PDOStatement implements Statement
         }
 
         return parent::setFetchMode($fetchMode, $arg2, $arg3);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bindValue($param, $value, $type = null)
+    {
+        return parent::bindValue($param, $value, $type);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bindParam($column, &$variable, $type = null, $length = null)
+    {
+        return parent::bindParam($column, $variable, $type, $length);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function execute($params = null)
+    {
+        return parent::execute($params);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetch($fetchMode = null)
+    {
+        return parent::fetch($fetchMode);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAll($fetchMode = null)
+    {
+        return parent::fetchAll($fetchMode);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchColumn($columnIndex = 0)
+    {
+        return parent::fetchColumn($columnIndex);
     }
 }
