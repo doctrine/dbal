@@ -852,21 +852,11 @@ class SQLServerPlatform extends AbstractPlatform
             }
         }
 
+        $overColumns = array();
+
         //Find alias for each colum used in ORDER BY
-        if ( ! empty($orderbyColumns)) {
-            foreach ($orderbyColumns as $column) {
-
-                $pattern    = sprintf('/%s\.(%s)\s*(AS)?\s*([^,\s\)]*)/i', $column['table'], $column['column']);
-                $overColumn = preg_match($pattern, $query, $matches)
-                    ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column'] 
-                    : $column['column'];
-
-                if (isset($column['sort'])) {
-                    $overColumn .= ' ' . $column['sort'];
-                }
-
-                $overColumns[] = $overColumn;
-            }
+        foreach ($orderbyColumns as $column) {
+            $overColumns[] = isset($column['sort']) ? $column['column'] . ' ' . $column['sort'] : $column['column'];
         }
 
         //Replace only first occurrence of FROM with $over to prevent changing FROM also in subqueries.
