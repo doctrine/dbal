@@ -83,11 +83,11 @@ class PDOStatement extends \PDOStatement implements Statement
      */
     public function fetch($fetchMode = null, $cursorOrientation = null, $cursorOffset = null)
     {
-        if ($fetchMode == null && $cursorOrientation == null && $cursorOffset === null) {
+        if ($fetchMode === null && $cursorOrientation === null && $cursorOffset === null) {
             return parent::fetch();
         }
 
-        if ($cursorOrientation == null && $cursorOffset === null) {
+        if ($cursorOrientation === null && $cursorOffset === null) {
             return parent::fetch($fetchMode);
         }
 
@@ -103,15 +103,15 @@ class PDOStatement extends \PDOStatement implements Statement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        if ($fetchMode == null && $fetchArgument == null && $ctorArgs == null) {
+        if ($fetchMode === null && $fetchArgument === null && $ctorArgs === null) {
             return parent::fetchAll();
         }
 
-        if ($fetchArgument == null && $ctorArgs == null) {
+        if ($fetchArgument === null && $ctorArgs === null) {
             return parent::fetchAll($fetchMode);
         }
 
-        if ($ctorArgs == null) {
+        if ($ctorArgs === null) {
             return parent::fetchAll($fetchMode, $fetchArgument);
         }
 
