@@ -57,7 +57,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = null)
+    public function bindValue($param, $value, $type = \PDO::PARAM_STR)
     {
         return parent::bindValue($param, $value, $type);
     }
@@ -65,9 +65,9 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null, $length = null)
+    public function bindParam($column, &$variable, $type = \PDO::PARAM_STR, $length = null, $driverOptions = array())
     {
-        return parent::bindParam($column, $variable, $type, $length);
+        return parent::bindParam($column, $variable, $type, $length, $driverOptions);
     }
 
     /**
@@ -81,17 +81,41 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = null, $cursorOffset = null)
     {
-        return parent::fetch($fetchMode);
+        if ($fetchMode == null && $cursorOrientation == null && $cursorOffset === null) {
+            return parent::fetch();
+        }
+
+        if ($cursorOrientation == null && $cursorOffset === null) {
+            return parent::fetch($fetchMode);
+        }
+
+        if ($cursorOffset === null) {
+            return parent::fetch($fetchMode, $cursorOrientation);
+        }
+
+        return parent::fetch($fetchMode, $cursorOrientation, $cursorOffset);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        return parent::fetchAll($fetchMode);
+        if ($fetchMode == null && $fetchArgument == null && $ctorArgs == null) {
+            return parent::fetchAll();
+        }
+
+        if ($fetchArgument == null && $ctorArgs == null) {
+            return parent::fetchAll($fetchMode);
+        }
+
+        if ($ctorArgs == null) {
+            return parent::fetchAll($fetchMode, $fetchArgument);
+        }
+
+        return parent::fetchAll($fetchMode, $fetchArgument, $ctorArgs);
     }
 
     /**

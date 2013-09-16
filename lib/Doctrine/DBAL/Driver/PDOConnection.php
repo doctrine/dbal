@@ -45,9 +45,9 @@ class PDOConnection extends PDO implements Connection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($prepareString, $driverOptions = array())
     {
-        return parent::prepare($prepareString);
+        return parent::prepare($prepareString, $driverOptions);
     }
 
     /**
@@ -56,15 +56,27 @@ class PDOConnection extends PDO implements Connection
     public function query()
     {
         $args = func_get_args();
-        $sql = $args[0];
+        $argsCount = count($args);
 
-        return parent::query($sql);
+        if ($argsCount == 4) {
+            return parent::query($args[0], $args[1], $args[2], $args[3]);
+        }
+
+        if ($argsCount == 3) {
+            return parent::query($args[0], $args[1], $args[2]);
+        }
+
+        if ($argsCount == 2) {
+            return parent::query($args[0], $args[1]);
+        }
+
+        return parent::query($args[0]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type=\PDO::PARAM_STR)
+    public function quote($input, $type = \PDO::PARAM_STR)
     {
         return parent::quote($input, $type);
     }
