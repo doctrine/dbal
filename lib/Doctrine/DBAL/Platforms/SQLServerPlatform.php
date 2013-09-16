@@ -856,7 +856,15 @@ class SQLServerPlatform extends AbstractPlatform
 
         //Find alias for each colum used in ORDER BY
         foreach ($orderbyColumns as $column) {
-            $overColumns[] = isset($column['sort']) ? $column['column'] . ' ' . $column['sort'] : $column['column'];
+            // is an alias defined?
+            $pattern    = sprintf('/%s\.%s\s+(AS\s+)?([^,\s\)]+)/i', $column['table'], $column['column']);
+            $overColumn = preg_match($pattern, $query, $matches) ? $matches[2] : $column['column'];
+
+            if (isset($column['sort'])) {
+                $overColumn .= ' ' . $column['sort'];
+            }
+
+            $overColumns[] = $overColumn;
         }
 
         //Replace only first occurrence of FROM with $over to prevent changing FROM also in subqueries.
