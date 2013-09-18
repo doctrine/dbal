@@ -105,7 +105,15 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      */
     private function getNamespace($asset)
     {
-        $namespace = $asset->getNamespaceName() ?: 'default';
+        $namespace = $asset->getNamespaceName();
+
+        if ($namespace === null) {
+            if ($this->platform instanceof \Doctrine\DBAL\Platforms\SQLServerPlatform) {
+                $namespace = 'dbo';
+            } else {
+                $namespace = 'default';
+            }
+        }
 
         if ( !isset($this->createTableQueries[$namespace])) {
             $this->createTableQueries[$namespace] = array();
