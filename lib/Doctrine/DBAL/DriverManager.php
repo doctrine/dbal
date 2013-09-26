@@ -49,6 +49,7 @@ final class DriverManager
             'mysqli' => 'Doctrine\DBAL\Driver\Mysqli\Driver',
             'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
             'sqlsrv' => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
+			'pdo_sqlsrv2000' => 'Doctrine\DBAL\Driver\PDOSqlsrv2000\Driver',
             );
 
     /**
@@ -78,6 +79,7 @@ final class DriverManager
      *     sqlsrv
      *     ibm_db2 (unstable)
      *     drizzle_pdo_mysql
+	 *     pdo_sqlsrv2000
      *
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
