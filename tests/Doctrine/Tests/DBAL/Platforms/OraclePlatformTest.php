@@ -75,10 +75,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            'ALTER TABLE mytable ADD (quota NUMBER(10) DEFAULT NULL)',
-            "ALTER TABLE mytable MODIFY (baz  VARCHAR2(255) DEFAULT 'def' NOT NULL, bloo  NUMBER(1) DEFAULT '0' NOT NULL)",
-            "ALTER TABLE mytable DROP (foo)",
-            "ALTER TABLE mytable RENAME TO userlist",
+            'ALTER TABLE "mytable" ADD (quota NUMBER(10) DEFAULT NULL)',
+            "ALTER TABLE \"mytable\" MODIFY (baz  VARCHAR2(255) DEFAULT 'def' NOT NULL, bloo  NUMBER(1) DEFAULT '0' NOT NULL)",
+            'ALTER TABLE "mytable" DROP (foo)',
+            'ALTER TABLE "mytable" RENAME TO "userlist"',
         );
     }
 
@@ -267,7 +267,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)",
+            'ALTER TABLE "mytable" ADD (quota NUMBER(10) NOT NULL)',
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS ''",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
@@ -289,6 +289,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     protected function getQuotedColumnInPrimaryKeySQL()
     {
         return array('CREATE TABLE "quoted" ("create" VARCHAR2(255) NOT NULL, PRIMARY KEY("create"))');
+    }
+
+    protected function getQuotedIdentifiersInAlterSQL()
+    {
+        return array(
+            'ALTER TABLE "quoted" ADD ("order" VARCHAR2(255) NOT NULL)',
+            'ALTER TABLE "quoted" DROP ("create")'
+        );
     }
 
     protected function getQuotedColumnInIndexSQL()
@@ -326,7 +334,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
 
         $expectedSql = array(
-            "ALTER TABLE mytable MODIFY (foo  VARCHAR2(255) DEFAULT 'bla', baz  VARCHAR2(255) DEFAULT 'bla' NOT NULL)",
+            "ALTER TABLE \"mytable\" MODIFY (foo  VARCHAR2(255) DEFAULT 'bla', baz  VARCHAR2(255) DEFAULT 'bla' NOT NULL)",
 	);
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }

@@ -47,7 +47,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            "ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE bloo bloo TINYINT(1) DEFAULT '0' NOT NULL"
+            "ALTER TABLE `mytable` RENAME TO `userlist`, ADD quota INT DEFAULT NULL, DROP foo, CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE bloo bloo TINYINT(1) DEFAULT '0' NOT NULL"
         );
     }
 
@@ -209,7 +209,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
 
     public function getAlterTableColumnCommentsSQL()
     {
-        return array("ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', CHANGE foo foo VARCHAR(255) NOT NULL, CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'");
+        return array("ALTER TABLE `mytable` ADD quota INT NOT NULL COMMENT 'A comment', CHANGE foo foo VARCHAR(255) NOT NULL, CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'");
     }
 
     public function getCreateTableColumnTypeCommentsSQL()
@@ -245,6 +245,13 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, INDEX IDX_22660D028FD6E0FB (`create`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
+        );
+    }
+
+    protected function getQuotedIdentifiersInAlterSQL()
+    {
+        return array(
+            'ALTER TABLE `quoted` ADD `order` VARCHAR(255) NOT NULL, DROP `create`'
         );
     }
 

@@ -467,7 +467,7 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($queryParts as $query) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' ' . $query;
         }
 
         $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));

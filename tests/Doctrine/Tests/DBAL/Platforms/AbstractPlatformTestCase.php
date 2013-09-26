@@ -220,6 +220,9 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract public function getGenerateAlterTableSql();
 
+    /**
+     * @group DBAL-374
+     */
     public function testGeneratesTableAlterationSql()
     {
         $expectedSql = $this->getGenerateAlterTableSql();
@@ -370,6 +373,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     /**
      * @group DBAL-42
+     * @group DBAL-374
      */
     public function testAlterTableColumnComments()
     {
@@ -443,6 +447,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     abstract protected function getQuotedColumnInPrimaryKeySQL();
     abstract protected function getQuotedColumnInIndexSQL();
     abstract protected function getQuotedColumnInForeignKeySQL();
+    abstract protected function getQuotedIdentifiersInAlterSQL();
 
     /**
      * @group DBAL-374
@@ -493,6 +498,30 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $sql = $this->_platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS);
         $this->assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
+    }
+
+    /**
+     * @group DBAL-615
+     */
+    public function testQuotedIdentifiersInAlterQueries()
+    {
+        $table1 = new Table('`quoted`');
+        $table1->addColumn('create', 'string');
+
+        $table2 = new Table('`quoted`');
+        $table2->addColumn('order', 'string');
+
+        $diff = new TableDiff('quoted');
+        $diff->removedColumns = array(
+            $table1->getColumn('create')
+        );
+        $diff->addedColumns = array(
+            $table2->getColumn('order')
+        );
+        $diff->fromTable = $table1;
+
+        $sql = $this->_platform->getAlterTableSQL($diff);
+        $this->assertEquals($this->getQuotedIdentifiersInAlterSQL(), $sql);
     }
 
     /**
