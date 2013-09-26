@@ -164,6 +164,26 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     }
 
     /**
+     * Returns unquoted representation of local table column names for comparison with other FK
+     *
+     * @return array
+     */
+    public function getUnquotedLocalColumns()
+    {
+        return array_map(array($this, 'trimQuotes'), $this->getLocalColumns());
+    }
+
+    /**
+     * Returns unquoted representation of foreign table column names for comparison with other FK
+     *
+     * @return array
+     */
+    public function getUnquotedForeignColumns()
+    {
+        return array_map(array($this, 'trimQuotes'), $this->getForeignColumns());
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @see getLocalColumns
