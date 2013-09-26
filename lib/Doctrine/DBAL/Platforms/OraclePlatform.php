@@ -613,7 +613,8 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ADD (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) .
+                     ' ADD (' . implode(', ', $fields) . ')';
         }
 
         $fields = array();
@@ -648,7 +649,8 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' MODIFY (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) .
+                     ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -656,7 +658,8 @@ LEFT JOIN user_cons_columns r_cols
                 continue;
             }
 
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
+            $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) .
+                     ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
         }
 
         $fields = array();
@@ -669,14 +672,16 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' DROP (' . implode(', ', $fields).')';
+            $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) .
+                     ' DROP (' . implode(', ', $fields).')';
         }
 
         $tableSql = array();
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
+                $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) .
+                         ' RENAME TO ' . $this->quoteSingleIdentifier($diff->newName);
             }
 
             $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);

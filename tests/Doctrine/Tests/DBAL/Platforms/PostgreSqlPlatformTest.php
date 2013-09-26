@@ -28,15 +28,15 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
-            'ALTER TABLE mytable DROP foo',
-            'ALTER TABLE mytable ALTER bar TYPE VARCHAR(255)',
-            "ALTER TABLE mytable ALTER bar SET  DEFAULT 'def'",
-            'ALTER TABLE mytable ALTER bar SET NOT NULL',
-            'ALTER TABLE mytable ALTER bloo TYPE BOOLEAN',
-            "ALTER TABLE mytable ALTER bloo SET  DEFAULT 'false'",
-            'ALTER TABLE mytable ALTER bloo SET NOT NULL',
-            'ALTER TABLE mytable RENAME TO userlist',
+            'ALTER TABLE "mytable" ADD quota INT DEFAULT NULL',
+            'ALTER TABLE "mytable" DROP foo',
+            'ALTER TABLE "mytable" ALTER bar TYPE VARCHAR(255)',
+            "ALTER TABLE \"mytable\" ALTER bar SET  DEFAULT 'def'",
+            'ALTER TABLE "mytable" ALTER bar SET NOT NULL',
+            'ALTER TABLE "mytable" ALTER bloo TYPE BOOLEAN',
+            "ALTER TABLE \"mytable\" ALTER bloo SET  DEFAULT 'false'",
+            'ALTER TABLE "mytable" ALTER bloo SET NOT NULL',
+            'ALTER TABLE "mytable" RENAME TO userlist',
         );
     }
 
@@ -252,7 +252,7 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable ADD quota INT NOT NULL",
+            'ALTER TABLE "mytable" ADD quota INT NOT NULL',
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS NULL",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
@@ -289,6 +289,14 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES "foreign" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
+        );
+    }
+
+    protected function getQuotedIdentifiersInAlterSQL()
+    {
+        return array(
+            'ALTER TABLE "quoted" ADD "order" VARCHAR(255) NOT NULL',
+            'ALTER TABLE "quoted" DROP "create"'
         );
     }
 

@@ -28,11 +28,11 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            'ALTER TABLE mytable ADD quota INT',
-            'ALTER TABLE mytable DROP COLUMN foo',
-            'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) NOT NULL',
-            "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_78240498 DEFAULT 'def' FOR baz",
-            'ALTER TABLE mytable ALTER COLUMN bloo BIT NOT NULL',
+            'ALTER TABLE [mytable] ADD quota INT',
+            'ALTER TABLE [mytable] DROP COLUMN foo',
+            'ALTER TABLE [mytable] ALTER COLUMN baz NVARCHAR(255) NOT NULL',
+            "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_78240498 DEFAULT 'def' FOR baz",
+            'ALTER TABLE [mytable] ALTER COLUMN bloo BIT NOT NULL',
             "sp_RENAME 'mytable', 'userlist'",
             "DECLARE @sql NVARCHAR(MAX) = N''; " .
             "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
@@ -317,4 +317,13 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ([create], foo, [bar]) REFERENCES [foo-bar] ([create], bar, [foo-bar])',
         );
     }
+
+    protected function getQuotedIdentifiersInAlterSQL()
+    {
+        return array(
+            'ALTER TABLE [quoted] ADD [order] NVARCHAR(255) NOT NULL',
+            'ALTER TABLE [quoted] DROP COLUMN [create]'
+        );
+    }
+
 }

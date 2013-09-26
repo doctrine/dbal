@@ -413,7 +413,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             }
 
             $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' ' . $query;
             if ($comment = $this->getColumnComment($column)) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
@@ -425,7 +425,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             }
 
             $query = 'DROP ' . $column->getQuotedName($this);
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' ' . $query;
         }
 
         foreach ($diff->changedColumns as $columnDiff) {
@@ -442,17 +442,17 @@ class PostgreSqlPlatform extends AbstractPlatform
 
                 // here was a server version check before, but DBAL API does not support this anymore.
                 $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSqlDeclaration($column->toArray(), $this);
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' ' . $query;
             }
 
             if ($columnDiff->hasChanged('default')) {
                 $query = 'ALTER ' . $oldColumnName . ' SET ' . $this->getDefaultValueDeclarationSQL($column->toArray());
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' ' . $query;
             }
 
             if ($columnDiff->hasChanged('notnull')) {
                 $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotNull() ? 'SET' : 'DROP') . ' NOT NULL';
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' ' . $query;
             }
 
             if ($columnDiff->hasChanged('autoincrement')) {
@@ -463,11 +463,11 @@ class PostgreSqlPlatform extends AbstractPlatform
                     $sql[] = "CREATE SEQUENCE " . $seqName;
                     $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->name . "))";
                     $query = "ALTER " . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
-                    $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+                    $sql[] = "ALTER TABLE " . $this->quoteSingleIdentifier($diff->name) . " " . $query;
                 } else {
                     // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
                     $query = "ALTER " . $oldColumnName . " " . "DROP DEFAULT";
-                    $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+                    $sql[] = "ALTER TABLE " . $this->quoteSingleIdentifier($diff->name) . " " . $query;
                 }
             }
 
@@ -481,7 +481,7 @@ class PostgreSqlPlatform extends AbstractPlatform
 
             if ($columnDiff->hasChanged('length')) {
                 $query = 'ALTER ' . $column->getName() . ' TYPE ' . $column->getType()->getSqlDeclaration($column->toArray(), $this);
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' ' . $query;
             }
         }
 
@@ -490,14 +490,15 @@ class PostgreSqlPlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
+            $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) .
+                     ' RENAME COLUMN ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
         }
 
         $tableSql = array();
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
+                $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' RENAME TO ' . $diff->newName;
             }
 
             $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);

@@ -396,7 +396,7 @@ class DrizzlePlatform extends AbstractPlatform
         $queryParts = array();
 
         if ($diff->newName !== false) {
-            $queryParts[] =  'RENAME TO ' . $diff->newName;
+            $queryParts[] =  'RENAME TO ' . $this->quoteSingleIdentifier($diff->newName);
         }
 
         foreach ($diff->addedColumns as $column) {
@@ -446,7 +446,7 @@ class DrizzlePlatform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
+                $sql[] = 'ALTER TABLE ' . $this->quoteSingleIdentifier($diff->name) . ' ' . implode(", ", $queryParts);
             }
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
