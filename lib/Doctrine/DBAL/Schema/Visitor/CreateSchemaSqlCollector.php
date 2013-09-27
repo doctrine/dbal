@@ -23,7 +23,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
 
 class CreateSchemaSqlCollector extends AbstractVisitor
 {
@@ -108,12 +107,8 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     {
         $namespace = $asset->getNamespaceName();
 
-        if ($namespace === null) {
-            if ($this->platform instanceof SQLServerPlatform) {
-                $namespace = 'dbo';
-            } else {
-                $namespace = 'default';
-            }
+        if ( !isset($namespace)) {
+            $namespace = $this->platform->getDefaultSchemaName();
         }
 
         if ( !isset($this->createTableQueries[$namespace])) {
