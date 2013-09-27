@@ -2758,7 +2758,7 @@ abstract class AbstractPlatform
      *
      * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
      */
-    protected function getDefaultSchemaName()
+    public function getDefaultSchemaName()
     {
         throw DBALException::notSupported(__METHOD__);
     }
