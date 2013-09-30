@@ -30,6 +30,8 @@ class DBALException extends \Exception
     const ERROR_NON_UNIQUE_FIELD_NAME = 7;
     const ERROR_NOT_UNIQUE = 8;
     const ERROR_SYNTAX = 9;
+    const ERROR_UNABLE_TO_OPEN = 10;
+    const ERROR_WRITE_READONLY = 11;
 
     /**
      * @param string $method
