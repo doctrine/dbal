@@ -156,15 +156,6 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->executeQuery($sql);
     }
 
-    protected function onNotSuccessfulTest(\Exception $e)
-    {
-        parent::onNotSuccessfulTest($e);
-        if ("PHPUnit_Framework_SkippedTestError" == get_class($e)) {
-            return;
-        }
-        var_dump($e);
-    }
-
     /**
      * @dataProvider getSqLiteOpenConnection
      */
@@ -206,5 +197,46 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 );
     }
 
+    /**
+     * @dataProvider getConnectionParams
+     */
+    public function testConnectionException($params, $exceptionCode)
+    {
+        if ($this->_conn->getDatabasePlatform()->getName() == 'sqlite') {
+            $this->markTestSkipped("Only skipped if platform is not sqlite");
+        }
+
+        $defaultParams = $this->_conn->getParams();
+        $params = array_merge($defaultParams, $params);
+
+        $conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+
+        $schema = new \Doctrine\DBAL\Schema\Schema();
+        $table = $schema->createTable("no_connection");
+        $table->addColumn('id', 'integer');
+
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, $exceptionCode);
+        foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
+                $conn->executeQuery($sql);
+            }
+    }
+
+    public function getConnectionParams()
+    {
+            return array(
+                    array(array('user' => 'not_existing'), DBALException::ERROR_ACCESS_DENIED),
+                    array(array('password' => 'really_not'), DBALException::ERROR_ACCESS_DENIED),
+                    array(array('host' => 'localnope'), DBALException::ERROR_ACCESS_DENIED),
+                );
+    }
+
+    protected function onNotSuccessfulTest(\Exception $e)
+    {
+        parent::onNotSuccessfulTest($e);
+        if ("PHPUnit_Framework_SkippedTestError" == get_class($e)) {
+            return;
+        }
+        var_dump($e);
+    }
 }
  
