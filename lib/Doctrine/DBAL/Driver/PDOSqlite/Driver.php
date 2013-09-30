@@ -152,6 +152,14 @@ class Driver implements \Doctrine\DBAL\Driver
                 if (strpos($exception->getMessage(), 'syntax error') !== false) {
                     return DBALException::ERROR_SYNTAX;
                 }
+
+                if (strpos($exception->getMessage(), 'unable to open database file') !== false) {
+                    return DBALException::ERROR_UNABLE_TO_OPEN;
+                }
+
+                if (strpos($exception->getMessage(), 'attempt to write a readonly database') !== false) {
+                    return DBALException::ERROR_WRITE_READONLY;
+                }
         }
 
         return 0;

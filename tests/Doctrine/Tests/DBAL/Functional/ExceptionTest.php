@@ -164,5 +164,47 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
         var_dump($e);
     }
+
+    /**
+     * @dataProvider getSqLiteOpenConnection
+     */
+    public function testConnectionExceptionSqLite($mode, $exceptionCode)
+    {
+        if ($this->_conn->getDatabasePlatform()->getName() != 'sqlite') {
+            $this->markTestSkipped("Only fails this way on sqlite");
+        }
+
+        $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection.db');
+
+        if (file_exists($filename)) {
+                unlink($filename);
+            }
+
+        touch($filename);
+        chmod($filename, $mode);
+
+        $params = array(
+                'driver' => 'pdo_sqlite',
+                'path'   => $filename,
+            );
+        $conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+
+        $schema = new \Doctrine\DBAL\Schema\Schema();
+        $table = $schema->createTable("no_connection");
+        $table->addColumn('id', 'integer');
+
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, $exceptionCode);
+        foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
+                $conn->executeQuery($sql);
+            }
+    }
+
+    public function getSqLiteOpenConnection(){
+            return array(
+                    array(0000, DBALException::ERROR_UNABLE_TO_OPEN),
+                    array(0444, DBALException::ERROR_WRITE_READONLY),
+                );
+    }
+
 }
  
