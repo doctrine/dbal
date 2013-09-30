@@ -32,6 +32,7 @@ class DBALException extends \Exception
     const ERROR_SYNTAX = 9;
     const ERROR_UNABLE_TO_OPEN = 10;
     const ERROR_WRITE_READONLY = 11;
+    const ERROR_ACCESS_DENIED = 12;
 
     /**
      * @param string $method
