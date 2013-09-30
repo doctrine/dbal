@@ -317,4 +317,23 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ([create], foo, [bar]) REFERENCES [foo-bar] ([create], bar, [foo-bar])',
         );
     }
+
+    public function testGetCreateSchemaSQL()
+    {
+        $schemaName = 'schema';
+        $sql = $this->_platform->getCreateSchemaSQL($schemaName);
+        $this->assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
+    }
+
+    public function testSchemaNeedsCreation()
+    {
+        $schemaNames = array(
+            'dbo' => false,
+            'schema' => true,
+        );
+        foreach ($schemaNames as $name => $expected) {
+            $actual = $this->_platform->schemaNeedsCreation($name);
+            $this->assertEquals($expected, $actual);
+        }
+    }
 }
