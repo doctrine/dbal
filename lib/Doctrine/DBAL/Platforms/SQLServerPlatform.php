@@ -852,24 +852,20 @@ class SQLServerPlatform extends AbstractPlatform
             }
         }
 
-        if (preg_match('/SELECT DISTINCT .* FROM \(.*\) dctrn_result/', $query)) {
-            $isWrapped = true;
-        } else {
-            $isWrapped = false;
-        }
+        $isWrapped = (preg_match('/SELECT DISTINCT .* FROM \(.*\) dctrn_result/', $query)) ? true : false; 
 
         //Find alias for each colum used in ORDER BY
         if ( ! empty($orderbyColumns)) {
             foreach ($orderbyColumns as $column) {
 
+                $pattern    = sprintf('/%s\.%s\s+(?:AS\s+)?([^,\s)]+)/i', $column['table'], $column['column']);
+
                 if ($isWrapped) {
-                    $pattern    = sprintf('/%s\.%s\s+(AS\s+)?([^,\s\)]+)/i', $column['table'], $column['column']);
-                    $overColumn = preg_match($pattern, $query, $matches) ? $matches[2] : $column['column'];
-                } else {
-                    $pattern    = sprintf('/%s\.(%s)\s*(AS)?\s*([^,\s\)]*)/i', $column['table'], $column['column']);
                     $overColumn = preg_match($pattern, $query, $matches)
-                        ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column']
-                        : $column['column'];
+                        ? $matches[1] : '';
+                } else {
+                    $overColumn = preg_match($pattern, $query, $matches)
+                        ? $column['table'] . '.' . $column['column'] : '';
                 }
 
                 if (isset($column['sort'])) {
