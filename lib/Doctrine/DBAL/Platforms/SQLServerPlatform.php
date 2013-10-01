@@ -865,7 +865,8 @@ class SQLServerPlatform extends AbstractPlatform
                         ? $matches[1] : '';
                 } else {
                     $overColumn = preg_match($pattern, $query, $matches)
-                        ? $column['table'] . '.' . $column['column'] : '';
+                        ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column']
+                        : $column['column'];
                 }
 
                 if (isset($column['sort'])) {
