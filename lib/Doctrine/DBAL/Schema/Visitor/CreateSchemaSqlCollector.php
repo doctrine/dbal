@@ -107,7 +107,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     {
         $namespace = $asset->getNamespaceName();
 
-        if ( !isset($namespace)) {
+        if ( !isset($namespace)) {var_dump(get_class($this->platform));
             $namespace = $this->platform->getDefaultSchemaName();
         }
 
