@@ -852,7 +852,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
         }
 
-        $isWrapped = (preg_match('/SELECT DISTINCT .* FROM \(.*\) dctrn_result/', $query)) ? true : false; 
+        $isWrapped = (preg_match('/SELECT DISTINCT .* FROM \(.*\) dctrn_result/', $query)) ? true : false;
 
         //Find alias for each colum used in ORDER BY
         if ( ! empty($orderbyColumns)) {
