@@ -25,7 +25,7 @@ use Doctrine\DBAL\Types\Type;
 /**
  * SQL Server Schema Manager.
  *
- * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license http://www.opensource.org/licenses/mit-license.php MIT
  * @author  Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author  Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author  Juozas Kaziukenas <juozas@juokaz.com>
