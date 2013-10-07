@@ -165,6 +165,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getDefaultSchemaName()
+    {
+        return 'public';
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function supportsIdentityColumns()

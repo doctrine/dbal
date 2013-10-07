@@ -132,6 +132,14 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getDefaultSchemaName()
+    {
+        return 'dbo';
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function hasNativeGuidType()
