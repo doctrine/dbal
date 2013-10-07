@@ -13,7 +13,7 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
             array('supportsSchemas', 'schemaNeedsCreation', 'getCreateTableSQL')
         );
 
-        $platformMock->expects($this->exactly(1))
+        $platformMock->expects($this->any())
                      ->method('supportsSchemas')
                      ->will($this->returnValue(true));
 
@@ -32,6 +32,6 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
         $sqlCollector = new CreateSchemaSqlCollector($platformMock);
         $sqlCollector->acceptTable($tableMock);
         $sql = $sqlCollector->getQueries();
-        $this->assertEquals('CREATE SCHEMA default', $sql[0]);
+        $this->assertEquals('CREATE SCHEMA public', $sql[0]);
     }
 }

@@ -2752,6 +2752,18 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the default schema name.
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getDefaultSchemaName()
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Whether this platform supports create database.
      *
      * Some databases don't allow to create and drop databases at all or only with certain tools.
