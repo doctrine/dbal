@@ -10,10 +10,10 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
     {
         $platformMock = $this->getMock(
             'Doctrine\DBAL\Platforms\PostgreSqlPlatform',
-            array('supportsSchemas', 'schemaNeedsCreation', 'getCreateTableSQL', 'supportsSchemas')
+            array('supportsSchemas', 'schemaNeedsCreation', 'getCreateTableSQL')
         );
 
-        $platformMock->expects($this->exactly(1))
+        $platformMock->expects($this->any())
                      ->method('supportsSchemas')
                      ->will($this->returnValue(true));
 
