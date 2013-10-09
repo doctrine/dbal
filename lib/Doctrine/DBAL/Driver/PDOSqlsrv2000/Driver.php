@@ -62,7 +62,7 @@ class Driver implements \Doctrine\DBAL\Driver
         }
 
         if (isset($params['dbname'])) {
-            $dsn .= ';DATABASE=' .  $params['dbname'];
+            $dsn .= ';DATABASE=' . $params['dbname'];
         }
 
         if (isset($params['MultipleActiveResultSets'])) {
