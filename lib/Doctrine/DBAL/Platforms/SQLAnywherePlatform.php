@@ -496,9 +496,9 @@ class SQLAnywherePlatform extends AbstractPlatform
     {
         $sql = '';
         $foreignKeyName = $foreignKey->getName();
-        $localColumns = $foreignKey->getLocalColumns();
-        $foreignColumns = $foreignKey->getForeignColumns();
-        $foreignTableName = $foreignKey->getForeignTableName();
+        $localColumns = $foreignKey->getQuotedLocalColumns($this);
+        $foreignColumns = $foreignKey->getQuotedForeignColumns($this);
+        $foreignTableName = $foreignKey->getQuotedForeignTableName($this);
 
         if ( ! empty($foreignKeyName)) {
             $sql .= 'CONSTRAINT ' . $foreignKey->getQuotedName($this) . ' ';
@@ -864,7 +864,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getPrimaryKeyDeclarationSQL(Index $index, $name = null)
     {
-        $indexColumns = $index->getColumns();
+        $indexColumns = $index->getQuotedColumns($this);
 
         if (empty($indexColumns)) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
@@ -1016,7 +1016,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
-        $indexColumns = $index->getColumns();
+        $indexColumns = $index->getQuotedColumns($this);
 
         if (empty($indexColumns)) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
