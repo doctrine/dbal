@@ -43,7 +43,8 @@ class ReservedWordsCommand extends Command
         'db2'           => 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords',
         'sqlanywhere'   => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords',
         'sqlanywhere11' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords',
-        'sqlanywhere12' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords'
+        'sqlanywhere12' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords',
+        'sqlanywhere16' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords',
     );
 
     /**
@@ -99,6 +100,7 @@ The following keyword lists are currently shipped with Doctrine:
     * sqlanywhere
     * sqlanywhere11
     * sqlanywhere12
+    * sqlanywhere16
     * db2 (Not checked by default)
 EOT
         );
@@ -126,6 +128,7 @@ EOT
                 'sqlanywhere',
                 'sqlanywhere11',
                 'sqlanywhere12',
+                'sqlanywhere16',
             );
         }
 
