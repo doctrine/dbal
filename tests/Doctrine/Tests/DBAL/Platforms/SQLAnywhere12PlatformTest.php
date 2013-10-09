@@ -109,5 +109,35 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
                 'footable'
             )
         );
+
+        // WITH NULLS NOT DISTINCT clause not available on primary indexes.
+        $this->assertEquals(
+            'ALTER TABLE footable ADD PRIMARY KEY (a, b)',
+            $this->_platform->getCreateIndexSQL(
+                new Index(
+                    'fooindex',
+                    array('a', 'b'),
+                    false,
+                    true,
+                    array('with_nulls_not_distinct')
+                ),
+                'footable'
+            )
+        );
+
+        // WITH NULLS NOT DISTINCT clause not available on non-unique indexes.
+        $this->assertEquals(
+            'CREATE INDEX fooindex ON footable (a, b)',
+            $this->_platform->getCreateIndexSQL(
+                new Index(
+                    'fooindex',
+                    array('a', 'b'),
+                    false,
+                    false,
+                    array('with_nulls_not_distinct')
+                ),
+                'footable'
+            )
+        );
     }
 }
