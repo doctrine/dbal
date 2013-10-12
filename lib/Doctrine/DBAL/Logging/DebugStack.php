@@ -36,33 +36,35 @@ class DebugStack implements SQLLogger
      *
      * @var array
      */
-    public $queries = array();
+    protected $queries = array();
 
     /**
      * If Debug Stack is enabled (log queries) or not.
      *
      * @var boolean
      */
-    public $enabled = true;
+    protected $enabled = true;
 
     /**
      * @var float|null
      */
-    public $start = null;
+    protected $start = null;
 
     /**
      * @var integer
      */
-    public $currentQuery = 0;
+    protected $currentQuery = 0;
 
     /**
      * {@inheritdoc}
      */
     public function startQuery($sql, array $params = null, array $types = null)
     {
-        if ($this->enabled) {
-            $this->start = microtime(true);
-            $this->queries[++$this->currentQuery] = array('sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0);
+        if ($this->getEnabled()) {
+            $this->setStart(microtime(true));
+            $queries = $this->getQueries();
+            $queries[++$this->currentQuery] = array('sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0);
+            $this->setQueries($queries);
         }
     }
 
@@ -71,8 +73,74 @@ class DebugStack implements SQLLogger
      */
     public function stopQuery()
     {
-        if ($this->enabled) {
-            $this->queries[$this->currentQuery]['executionMS'] = microtime(true) - $this->start;
+        if ($this->getEnabled()) {
+            $queries = $this->getQueries();
+            $queries[$this->currentQuery]['executionMS'] = microtime(true) - $this->getStart();
+            $this->setQueries($queries);
         }
+    }
+
+    /**
+     * @param int $currentQuery
+     */
+    public function setCurrentQuery($currentQuery)
+    {
+        $this->currentQuery = $currentQuery;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCurrentQuery()
+    {
+        return $this->currentQuery;
+    }
+
+    /**
+     * @param boolean $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param array $queries
+     */
+    public function setQueries($queries)
+    {
+        $this->queries = $queries;
+    }
+
+    /**
+     * @return array
+     */
+    public function getQueries()
+    {
+        return $this->queries;
+    }
+
+    /**
+     * @param float|null $start
+     */
+    public function setStart($start)
+    {
+        $this->start = $start;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getStart()
+    {
+        return $this->start;
     }
 }

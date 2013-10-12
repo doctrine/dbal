@@ -35,48 +35,48 @@ class SchemaDiff
     /**
      * @var \Doctrine\DBAL\Schema\Schema
      */
-    public $fromSchema;
+    protected $fromSchema;
 
     /**
      * All added tables.
      *
      * @var \Doctrine\DBAL\Schema\Table[]
      */
-    public $newTables = array();
+    protected $newTables = array();
 
     /**
      * All changed tables.
      *
      * @var \Doctrine\DBAL\Schema\TableDiff[]
      */
-    public $changedTables = array();
+    protected $changedTables = array();
 
     /**
      * All removed tables.
      *
      * @var \Doctrine\DBAL\Schema\Table[]
      */
-    public $removedTables = array();
+    protected $removedTables = array();
 
     /**
      * @var \Doctrine\DBAL\Schema\Sequence[]
      */
-    public $newSequences = array();
+    protected $newSequences = array();
 
     /**
      * @var \Doctrine\DBAL\Schema\Sequence[]
      */
-    public $changedSequences = array();
+    protected $changedSequences = array();
 
     /**
      * @var \Doctrine\DBAL\Schema\Sequence[]
      */
-    public $removedSequences = array();
+    protected $removedSequences = array();
 
     /**
      * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
      */
-    public $orphanedForeignKeys = array();
+    protected $orphanedForeignKeys = array();
 
     /**
      * Constructs an SchemaDiff object.
@@ -88,10 +88,10 @@ class SchemaDiff
      */
     public function __construct($newTables = array(), $changedTables = array(), $removedTables = array(), Schema $fromSchema = null)
     {
-        $this->newTables     = $newTables;
-        $this->changedTables = $changedTables;
-        $this->removedTables = $removedTables;
-        $this->fromSchema    = $fromSchema;
+        $this->setNewTables($newTables);
+        $this->setChangedTables($changedTables);
+        $this->setRemovedTables($removedTables);
+        $this->setFromSchema($fromSchema);
     }
 
     /**
@@ -133,29 +133,29 @@ class SchemaDiff
         $sql = array();
 
         if ($platform->supportsForeignKeyConstraints() && $saveMode == false) {
-            foreach ($this->orphanedForeignKeys as $orphanedForeignKey) {
+            foreach ($this->getOrphanedForeignKeys() as $orphanedForeignKey) {
                 $sql[] = $platform->getDropForeignKeySQL($orphanedForeignKey, $orphanedForeignKey->getLocalTableName());
             }
         }
 
         if ($platform->supportsSequences() == true) {
-            foreach ($this->changedSequences as $sequence) {
+            foreach ($this->getChangedSequences() as $sequence) {
                 $sql[] = $platform->getAlterSequenceSQL($sequence);
             }
 
             if ($saveMode === false) {
-                foreach ($this->removedSequences as $sequence) {
+                foreach ($this->getRemovedSequences() as $sequence) {
                     $sql[] = $platform->getDropSequenceSQL($sequence);
                 }
             }
 
-            foreach ($this->newSequences as $sequence) {
+            foreach ($this->getNewSequences() as $sequence) {
                 $sql[] = $platform->getCreateSequenceSQL($sequence);
             }
         }
 
         $foreignKeySql = array();
-        foreach ($this->newTables as $table) {
+        foreach ($this->getNewTables() as $table) {
             $sql = array_merge(
                 $sql,
                 $platform->getCreateTableSQL($table, AbstractPlatform::CREATE_INDEXES)
@@ -170,15 +170,143 @@ class SchemaDiff
         $sql = array_merge($sql, $foreignKeySql);
 
         if ($saveMode === false) {
-            foreach ($this->removedTables as $table) {
+            foreach ($this->getRemovedTables() as $table) {
                 $sql[] = $platform->getDropTableSQL($table);
             }
         }
 
-        foreach ($this->changedTables as $tableDiff) {
+        foreach ($this->getChangedTables() as $tableDiff) {
             $sql = array_merge($sql, $platform->getAlterTableSQL($tableDiff));
         }
 
         return $sql;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Sequence[] $changedSequences
+     */
+    public function setChangedSequences($changedSequences)
+    {
+        $this->changedSequences = $changedSequences;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Sequence[]
+     */
+    public function getChangedSequences()
+    {
+        return $this->changedSequences;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\TableDiff[] $changedTables
+     */
+    public function setChangedTables($changedTables)
+    {
+        $this->changedTables = $changedTables;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\TableDiff[]
+     */
+    public function getChangedTables()
+    {
+        return $this->changedTables;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Schema $fromSchema
+     */
+    public function setFromSchema($fromSchema)
+    {
+        $this->fromSchema = $fromSchema;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Schema
+     */
+    public function getFromSchema()
+    {
+        return $this->fromSchema;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Sequence[] $newSequences
+     */
+    public function setNewSequences($newSequences)
+    {
+        $this->newSequences = $newSequences;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Sequence[]
+     */
+    public function getNewSequences()
+    {
+        return $this->newSequences;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Table[] $newTables
+     */
+    public function setNewTables($newTables)
+    {
+        $this->newTables = $newTables;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Table[]
+     */
+    public function getNewTables()
+    {
+        return $this->newTables;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint[] $orphanedForeignKeys
+     */
+    public function setOrphanedForeignKeys($orphanedForeignKeys)
+    {
+        $this->orphanedForeignKeys = $orphanedForeignKeys;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     */
+    public function getOrphanedForeignKeys()
+    {
+        return $this->orphanedForeignKeys;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Sequence[] $removedSequences
+     */
+    public function setRemovedSequences($removedSequences)
+    {
+        $this->removedSequences = $removedSequences;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Sequence[]
+     */
+    public function getRemovedSequences()
+    {
+        return $this->removedSequences;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Table[] $removedTables
+     */
+    public function setRemovedTables($removedTables)
+    {
+        $this->removedTables = $removedTables;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Table[]
+     */
+    public function getRemovedTables()
+    {
+        return $this->removedTables;
     }
 }
