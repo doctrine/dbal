@@ -34,7 +34,9 @@ class DebugStackTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $this->logger->stopQuery();
-        $this->assertGreaterThan(0, $this->logger->getQueries()[1]['executionMS']);
+
+        $queries = $this->logger->getQueries();
+        $this->assertGreaterThan(0, $queries[1]['executionMS']);
     }
 
     public function testLoggedQueryDisabled()

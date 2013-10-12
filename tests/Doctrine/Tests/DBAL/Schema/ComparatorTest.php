@@ -462,8 +462,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new Comparator();
         $diffSchema = $c->compare($schema1, $schema2);
 
-        $this->assertEquals(1, count($diffSchema->getRemovedSequences()));
-        $this->assertSame($seq, $diffSchema->getRemovedSequences()[0]);
+        $sequences = $diffSchema->getRemovedSequences();
+        $this->assertEquals(1, count($sequences));
+        $this->assertSame($seq, $sequences[0]);
     }
 
     public function testAddedSequence()
@@ -476,8 +477,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new Comparator();
         $diffSchema = $c->compare($schema1, $schema2);
 
-        $this->assertEquals(1, count($diffSchema->getNewSequences()));
-        $this->assertSame($seq, $diffSchema->getNewSequences()[0]);
+        $sequences = $diffSchema->getNewSequences();
+        $this->assertEquals(1, count($sequences));
+        $this->assertSame($seq, $sequences[0]);
     }
 
     public function testTableAddForeignKey()
