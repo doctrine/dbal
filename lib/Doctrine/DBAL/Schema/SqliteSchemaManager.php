@@ -64,8 +64,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
     public function renameTable($name, $newName)
     {
         $tableDiff = new TableDiff($name);
-        $tableDiff->fromTable = $this->listTableDetails($name);
-        $tableDiff->newName = $newName;
+        $tableDiff->setFromTable($this->listTableDetails($name));
+        $tableDiff->setNewName($newName);
         $this->alterTable($tableDiff);
     }
 
@@ -75,7 +75,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
     public function createForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
         $tableDiff = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
-        $tableDiff->addedForeignKeys[] = $foreignKey;
+        $addedForeignKeys   = $tableDiff->getAddedForeignKeys();
+        $addedForeignKeys[] = $foreignKey;
 
         $this->alterTable($tableDiff);
     }
@@ -86,7 +87,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
     public function dropAndCreateForeignKey(ForeignKeyConstraint $foreignKey, $table)
     {
         $tableDiff = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
-        $tableDiff->changedForeignKeys[] = $foreignKey;
+        $changedForeignKeys   = $tableDiff->getChangedForeignKeys();
+        $changedForeignKeys[] = $foreignKey;
 
         $this->alterTable($tableDiff);
     }
@@ -97,7 +99,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
     public function dropForeignKey($foreignKey, $table)
     {
         $tableDiff = $this->getTableDiffForAlterForeignKey($foreignKey, $table);
-        $tableDiff->removedForeignKeys[] = $foreignKey;
+        $removedForeignKeys   = $tableDiff->getRemovedForeignKeys();
+        $removedForeignKeys[] = $foreignKey;
 
         $this->alterTable($tableDiff);
     }
@@ -383,7 +386,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         $tableDiff = new TableDiff($table->getName());
-        $tableDiff->fromTable = $table;
+        $tableDiff->setFromTable($table);
 
         return $tableDiff;
     }

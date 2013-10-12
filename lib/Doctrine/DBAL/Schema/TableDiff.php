@@ -31,87 +31,87 @@ class TableDiff
     /**
      * @var string
      */
-    public $name = null;
+    protected $name = null;
 
     /**
      * @var string|boolean
      */
-    public $newName = false;
+    protected $newName = false;
 
     /**
      * All added fields.
      *
      * @var \Doctrine\DBAL\Schema\Column[]
      */
-    public $addedColumns;
+    protected $addedColumns;
 
     /**
      * All changed fields.
      *
      * @var \Doctrine\DBAL\Schema\Column[]
      */
-    public $changedColumns = array();
+    protected $changedColumns = array();
 
     /**
      * All removed fields.
      *
      * @var \Doctrine\DBAL\Schema\Column[]
      */
-    public $removedColumns = array();
+    protected $removedColumns = array();
 
     /**
      * Columns that are only renamed from key to column instance name.
      *
      * @var \Doctrine\DBAL\Schema\Column[]
      */
-    public $renamedColumns = array();
+    protected $renamedColumns = array();
 
     /**
      * All added indexes.
      *
      * @var \Doctrine\DBAL\Schema\Index[]
      */
-    public $addedIndexes = array();
+    protected $addedIndexes = array();
 
     /**
      * All changed indexes.
      *
      * @var \Doctrine\DBAL\Schema\Index[]
      */
-    public $changedIndexes = array();
+    protected $changedIndexes = array();
 
     /**
      * All removed indexes
      *
      * @var \Doctrine\DBAL\Schema\Index[]
      */
-    public $removedIndexes = array();
+    protected $removedIndexes = array();
 
     /**
      * All added foreign key definitions
      *
      * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
      */
-    public $addedForeignKeys = array();
+    protected $addedForeignKeys = array();
 
     /**
      * All changed foreign keys
      *
      * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
      */
-    public $changedForeignKeys = array();
+    protected $changedForeignKeys = array();
 
     /**
      * All removed foreign keys
      *
      * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
      */
-    public $removedForeignKeys = array();
+    protected $removedForeignKeys = array();
 
     /**
      * @var \Doctrine\DBAL\Schema\Table
      */
-    public $fromTable;
+    protected $fromTable;
 
     /**
      * Constructs an TableDiff object.
@@ -129,13 +129,221 @@ class TableDiff
         $changedColumns = array(), $removedColumns = array(), $addedIndexes = array(),
         $changedIndexes = array(), $removedIndexes = array(), Table $fromTable = null)
     {
-        $this->name = $tableName;
+        $this->setName($tableName);
+        $this->setAddedColumns($addedColumns);
+        $this->setChangedColumns($changedColumns);
+        $this->setRemovedColumns($removedColumns);
+        $this->setAddedIndexes($addedIndexes);
+        $this->setChangedIndexes($changedIndexes);
+        $this->setRemovedIndexes($removedIndexes);
+        $this->setFromTable($fromTable);
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Column[] $addedColumns
+     */
+    public function setAddedColumns($addedColumns)
+    {
         $this->addedColumns = $addedColumns;
-        $this->changedColumns = $changedColumns;
-        $this->removedColumns = $removedColumns;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Column[]
+     */
+    public function getAddedColumns()
+    {
+        return $this->addedColumns;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint[] $addedForeignKeys
+     */
+    public function setAddedForeignKeys($addedForeignKeys)
+    {
+        $this->addedForeignKeys = $addedForeignKeys;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     */
+    public function getAddedForeignKeys()
+    {
+        return $this->addedForeignKeys;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Index[] $addedIndexes
+     */
+    public function setAddedIndexes($addedIndexes)
+    {
         $this->addedIndexes = $addedIndexes;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Index[]
+     */
+    public function getAddedIndexes()
+    {
+        return $this->addedIndexes;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\ColumnDiff[] $changedColumns
+     */
+    public function setChangedColumns($changedColumns)
+    {
+        $this->changedColumns = $changedColumns;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\ColumnDiff[]
+     */
+    public function getChangedColumns()
+    {
+        return $this->changedColumns;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint[] $changedForeignKeys
+     */
+    public function setChangedForeignKeys($changedForeignKeys)
+    {
+        $this->changedForeignKeys = $changedForeignKeys;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     */
+    public function getChangedForeignKeys()
+    {
+        return $this->changedForeignKeys;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Index[] $changedIndexes
+     */
+    public function setChangedIndexes($changedIndexes)
+    {
         $this->changedIndexes = $changedIndexes;
-        $this->removedIndexes = $removedIndexes;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Index[]
+     */
+    public function getChangedIndexes()
+    {
+        return $this->changedIndexes;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Table $fromTable
+     */
+    public function setFromTable($fromTable)
+    {
         $this->fromTable = $fromTable;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Table
+     */
+    public function getFromTable()
+    {
+        return $this->fromTable;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param bool|string $newName
+     */
+    public function setNewName($newName)
+    {
+        $this->newName = $newName;
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function getNewName()
+    {
+        return $this->newName;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Column[] $removedColumns
+     */
+    public function setRemovedColumns($removedColumns)
+    {
+        $this->removedColumns = $removedColumns;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Column[]
+     */
+    public function getRemovedColumns()
+    {
+        return $this->removedColumns;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint[] $removedForeignKeys
+     */
+    public function setRemovedForeignKeys($removedForeignKeys)
+    {
+        $this->removedForeignKeys = $removedForeignKeys;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     */
+    public function getRemovedForeignKeys()
+    {
+        return $this->removedForeignKeys;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Index[] $removedIndexes
+     */
+    public function setRemovedIndexes($removedIndexes)
+    {
+        $this->removedIndexes = $removedIndexes;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Index[]
+     */
+    public function getRemovedIndexes()
+    {
+        return $this->removedIndexes;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Column[] $renamedColumns
+     */
+    public function setRenamedColumns($renamedColumns)
+    {
+        $this->renamedColumns = $renamedColumns;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Column[]
+     */
+    public function getRenamedColumns()
+    {
+        return $this->renamedColumns;
     }
 }

@@ -387,9 +387,15 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(1, count($table->getIndexes()));
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
-        $tableDiff->fromTable = $alterTable;
-        $tableDiff->addedColumns['foo'] = new \Doctrine\DBAL\Schema\Column('foo', Type::getType('integer'));
-        $tableDiff->removedColumns['test'] = $table->getColumn('test');
+        $tableDiff->setFromTable($alterTable);
+
+        $addedColumns        = $tableDiff->getAddedColumns();
+        $addedColumns['foo'] = new \Doctrine\DBAL\Schema\Column('foo', Type::getType('integer'));
+        $tableDiff->setAddedColumns($addedColumns);
+
+        $removedColumns = $tableDiff->getRemovedColumns();
+        $removedColumns['test'] = $table->getColumn('test');
+        $tableDiff->setRemovedColumns($removedColumns);
 
         $this->_sm->alterTable($tableDiff);
 
@@ -398,8 +404,10 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertTrue($table->hasColumn('foo'));
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
-        $tableDiff->fromTable = $table;
-        $tableDiff->addedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo'));
+        $tableDiff->setFromTable($table);
+        $addedIndexes   = $tableDiff->getAddedIndexes();
+        $addedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo'));
+        $tableDiff->setAddedIndexes($addedIndexes);
 
         $this->_sm->alterTable($tableDiff);
 
@@ -411,8 +419,10 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertFalse($table->getIndex('foo_idx')->isUnique());
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
-        $tableDiff->fromTable = $table;
-        $tableDiff->changedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo', 'foreign_key_test'));
+        $tableDiff->setFromTable($table);
+        $changedIndexes   = $tableDiff->getChangedIndexes();
+        $changedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo', 'foreign_key_test'));
+        $tableDiff->setChangedIndexes($changedIndexes);
 
         $this->_sm->alterTable($tableDiff);
 
@@ -422,10 +432,15 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals(array('foo', 'foreign_key_test'), array_map('strtolower', $table->getIndex('foo_idx')->getColumns()));
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
-        $tableDiff->fromTable = $table;
-        $tableDiff->removedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo', 'foreign_key_test'));
+        $tableDiff->setFromTable($table);
+        $removedIndexes   = $tableDiff->getRemovedIndexes();
+        $removedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo', 'foreign_key_test'));
+        $tableDiff->setRemovedIndexes($removedIndexes);
+
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('foreign_key_test'), 'alter_table_foreign', array('id'));
-        $tableDiff->addedForeignKeys[] = $fk;
+        $addedForeignKeys = $tableDiff->getAddedForeignKeys();
+        $addedForeignKeys[] = $fk;
+        $tableDiff->setAddedForeignKeys($addedForeignKeys);
 
         $this->_sm->alterTable($tableDiff);
         $table = $this->_sm->listTableDetails('alter_table');
@@ -537,7 +552,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals('This is a comment', $columns['id']->getComment());
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('column_comment_test');
-        $tableDiff->changedColumns['id'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+        $changedColumns       = $tableDiff->getChangedColumns();
+        $changedColumns['id'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'id', new \Doctrine\DBAL\Schema\Column(
                 'id', \Doctrine\DBAL\Types\Type::getType('integer'), array('primary' => true)
             ),

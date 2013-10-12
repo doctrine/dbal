@@ -63,7 +63,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         ) );
 
         $expected = new SchemaDiff();
-        $expected->fromSchema = $schema1;
+        $expected->setFromSchema($schema1);
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ) );
     }
 
@@ -87,7 +87,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         ) );
 
         $expected = new SchemaDiff();
-        $expected->fromSchema = $schema1;
+        $expected->setFromSchema($schema1);
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ) );
     }
 
@@ -158,8 +158,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
                 )
             )
         );
-        $expected->fromSchema = $schema1;
-        $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->setFromSchema($schema1);
+        $changedTables                     = $expected->getChangedTables();
+        $changedTables['bugdb']->setFromTable($schema1->getTable('bugdb'));
 
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ) );
     }
@@ -191,8 +192,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
                 ),
             )
         );
-        $expected->fromSchema = $schema1;
-        $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->setFromSchema($schema1);
+        $changedTables                     = $expected->getChangedTables();
+        $changedTables['bugdb']->setFromTable($schema1->getTable('bugdb'));
 
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ) );
     }
@@ -235,12 +237,12 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        $this->assertCount(1, $tableDiff->renamedColumns, "we should have one rename datefield1 => new_datefield1.");
-        $this->assertArrayHasKey('datefield1', $tableDiff->renamedColumns, "'datefield1' should be set to be renamed to new_datefield1");
-        $this->assertCount(1, $tableDiff->addedColumns, "'new_datefield2' should be added");
-        $this->assertArrayHasKey('new_datefield2', $tableDiff->addedColumns, "'new_datefield2' should be added, not created through renaming!");
-        $this->assertCount(0, $tableDiff->removedColumns, "Nothing should be removed.");
-        $this->assertCount(0, $tableDiff->changedColumns, "Nothing should be changed as all fields old & new have diff names.");
+        $this->assertCount(1, $tableDiff->getRenamedColumns(), "we should have one rename datefield1 => new_datefield1.");
+        $this->assertArrayHasKey('datefield1', $tableDiff->getRenamedColumns(), "'datefield1' should be set to be renamed to new_datefield1");
+        $this->assertCount(1, $tableDiff->getAddedColumns(), "'new_datefield2' should be added");
+        $this->assertArrayHasKey('new_datefield2', $tableDiff->getAddedColumns(), "'new_datefield2' should be added, not created through renaming!");
+        $this->assertCount(0, $tableDiff->getRemovedColumns(), "Nothing should be removed.");
+        $this->assertCount(0, $tableDiff->getChangedColumns(), "Nothing should be changed as all fields old & new have diff names.");
     }
 
     public function testCompareRemovedIndex()
@@ -284,8 +286,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
                 ),
             )
         );
-        $expected->fromSchema = $schema1;
-        $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->setFromSchema($schema1);
+        $changedTables                     = $expected->getChangedTables();
+        $changedTables['bugdb']->setFromTable($schema1->getTable('bugdb'));
 
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ) );
     }
@@ -331,8 +334,10 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
                 ),
             )
         );
-        $expected->fromSchema = $schema1;
-        $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->setFromSchema($schema1);
+        $changedTables                     = $expected->getChangedTables();
+        $changedTables['bugdb']->setFromTable($schema1->getTable('bugdb'));
+        $expected->setChangedTables($changedTables);
 
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ) );
     }
@@ -385,8 +390,10 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
                 ),
             )
         );
-        $expected->fromSchema = $schema1;
-        $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->setFromSchema($schema1);
+        $changedTables                     = $expected->getChangedTables();
+        $changedTables['bugdb']->setFromTable($schema1->getTable('bugdb'));
+        $expected->setChangedTables($changedTables);
 
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ));
     }
@@ -425,8 +432,10 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
                 ),
             )
         );
-        $expected->fromSchema = $schema1;
-        $expected->changedTables['bugdb']->fromTable = $schema1->getTable('bugdb');
+        $expected->setFromSchema($schema1);
+        $changedTables                     = $expected->getChangedTables();
+        $changedTables['bugdb']->setFromTable($schema1->getTable('bugdb'));
+        $expected->setChangedTables($changedTables);
 
         $this->assertEquals($expected, Comparator::compareSchemas( $schema1, $schema2 ));
     }
@@ -453,8 +462,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new Comparator();
         $diffSchema = $c->compare($schema1, $schema2);
 
-        $this->assertEquals(1, count($diffSchema->removedSequences));
-        $this->assertSame($seq, $diffSchema->removedSequences[0]);
+        $sequences = $diffSchema->getRemovedSequences();
+        $this->assertEquals(1, count($sequences));
+        $this->assertSame($seq, $sequences[0]);
     }
 
     public function testAddedSequence()
@@ -467,8 +477,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new Comparator();
         $diffSchema = $c->compare($schema1, $schema2);
 
-        $this->assertEquals(1, count($diffSchema->newSequences));
-        $this->assertSame($seq, $diffSchema->newSequences[0]);
+        $sequences = $diffSchema->getNewSequences();
+        $this->assertEquals(1, count($sequences));
+        $this->assertSame($seq, $sequences[0]);
     }
 
     public function testTableAddForeignKey()
@@ -487,7 +498,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $tableDiff = $c->diffTable($table1, $table2);
 
         $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        $this->assertEquals(1, count($tableDiff->addedForeignKeys));
+        $this->assertEquals(1, count($tableDiff->getAddedForeignKeys()));
     }
 
     public function testTableRemoveForeignKey()
@@ -506,7 +517,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $tableDiff = $c->diffTable($table2, $table1);
 
         $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        $this->assertEquals(1, count($tableDiff->removedForeignKeys));
+        $this->assertEquals(1, count($tableDiff->getRemovedForeignKeys()));
     }
 
     public function testTableUpdateForeignKey()
@@ -526,7 +537,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $tableDiff = $c->diffTable($table1, $table2);
 
         $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        $this->assertEquals(1, count($tableDiff->changedForeignKeys));
+        $this->assertEquals(1, count($tableDiff->getChangedForeignKeys()));
     }
 
     public function testMovedForeignKeyForeignTable()
@@ -549,7 +560,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $tableDiff = $c->diffTable($table1, $table2);
 
         $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        $this->assertEquals(1, count($tableDiff->changedForeignKeys));
+        $this->assertEquals(1, count($tableDiff->getChangedForeignKeys()));
     }
 
     public function testTablesCaseInsensitive()
@@ -670,10 +681,11 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        $this->assertEquals(0, count($tableDiff->addedColumns));
-        $this->assertEquals(0, count($tableDiff->removedColumns));
-        $this->assertArrayHasKey('foo', $tableDiff->renamedColumns);
-        $this->assertEquals('bar', $tableDiff->renamedColumns['foo']->getName());
+        $this->assertEquals(0, count($tableDiff->getAddedColumns()));
+        $this->assertEquals(0, count($tableDiff->getRemovedColumns()));
+        $renamedColumns = $tableDiff->getRenamedColumns();
+        $this->assertArrayHasKey('foo', $renamedColumns);
+        $this->assertEquals('bar', $renamedColumns['foo']->getName());
     }
 
     /**
@@ -695,12 +707,12 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        $this->assertEquals(1, count($tableDiff->addedColumns), "'baz' should be added, not created through renaming!");
-        $this->assertArrayHasKey('baz', $tableDiff->addedColumns, "'baz' should be added, not created through renaming!");
-        $this->assertEquals(2, count($tableDiff->removedColumns), "'foo' and 'bar' should both be dropped, an ambigouty exists which one could be renamed to 'baz'.");
-        $this->assertArrayHasKey('foo', $tableDiff->removedColumns, "'foo' should be removed.");
-        $this->assertArrayHasKey('bar', $tableDiff->removedColumns, "'bar' should be removed.");
-        $this->assertEquals(0, count($tableDiff->renamedColumns), "no renamings should take place.");
+        $this->assertEquals(1, count($tableDiff->getAddedColumns()), "'baz' should be added, not created through renaming!");
+        $this->assertArrayHasKey('baz', $tableDiff->getAddedColumns(), "'baz' should be added, not created through renaming!");
+        $this->assertEquals(2, count($tableDiff->getRemovedColumns()), "'foo' and 'bar' should both be dropped, an ambigouty exists which one could be renamed to 'baz'.");
+        $this->assertArrayHasKey('foo', $tableDiff->getRemovedColumns(), "'foo' should be removed.");
+        $this->assertArrayHasKey('bar', $tableDiff->getRemovedColumns(), "'bar' should be removed.");
+        $this->assertEquals(0, count($tableDiff->getRenamedColumns()), "no renamings should take place.");
     }
 
     public function testDetectChangeIdentifierType()
@@ -717,7 +729,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $tableDiff = $c->diffTable($tableA, $tableB);
 
         $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        $this->assertArrayHasKey('id', $tableDiff->changedColumns);
+        $this->assertArrayHasKey('id', $tableDiff->getChangedColumns());
     }
 
 
@@ -743,9 +755,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $tableDiff = $c->diffTable($table, $newtable);
 
         $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        $this->assertEquals(array('twitterid', 'displayname'), array_keys($tableDiff->renamedColumns));
-        $this->assertEquals(array('logged_in_at'), array_keys($tableDiff->addedColumns));
-        $this->assertEquals(0, count($tableDiff->removedColumns));
+        $this->assertEquals(array('twitterid', 'displayname'), array_keys($tableDiff->getRenamedColumns()));
+        $this->assertEquals(array('logged_in_at'), array_keys($tableDiff->getAddedColumns()));
+        $this->assertEquals(0, count($tableDiff->getRemovedColumns()));
     }
 
 
@@ -764,7 +776,8 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new \Doctrine\DBAL\Schema\Comparator;
         $diff = $c->compare($schema, $schemaNew);
 
-        $this->assertSame($diff->changedSequences[0] , $schemaNew->getSequence('baz'));
+        $changedSequences = $diff->getChangedSequences();
+        $this->assertSame($changedSequences[0] , $schemaNew->getSequence('baz'));
     }
 
     /**
@@ -796,7 +809,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $newSchema->createTable('foo.bar');
 
         $expected = new SchemaDiff();
-        $expected->fromSchema = $oldSchema;
+        $expected->setFromSchema($oldSchema);
 
         $this->assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
@@ -816,7 +829,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $newSchema->createTable('bar');
 
         $expected = new SchemaDiff();
-        $expected->fromSchema = $oldSchema;
+        $expected->setFromSchema($oldSchema);
 
         $this->assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
@@ -835,7 +848,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $newSchema->createTable('bar');
 
         $expected = new SchemaDiff();
-        $expected->fromSchema = $oldSchema;
+        $expected->setFromSchema($oldSchema);
 
         $this->assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
@@ -859,7 +872,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new Comparator();
         $diff = $c->compare($oldSchema, $newSchema);
 
-        $this->assertCount(0, $diff->removedSequences);
+        $this->assertCount(0, $diff->getRemovedSequences());
     }
 
 
@@ -887,8 +900,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $c = new Comparator();
         $diff = $c->compare($oldSchema, $newSchema);
 
-        $this->assertCount(0, $diff->changedTables['foo']->removedForeignKeys);
-        $this->assertCount(1, $diff->orphanedForeignKeys);
+        $changedTables = $diff->getChangedTables();
+        $this->assertCount(0, $changedTables['foo']->getRemovedForeignKeys());
+        $this->assertCount(1, $diff->getOrphanedForeignKeys());
     }
 
     public function testCompareChangedColumn()
@@ -903,12 +917,17 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $table->addColumn('id', 'string');
 
         $expected = new SchemaDiff();
-        $expected->fromSchema = $oldSchema;
-        $tableDiff = $expected->changedTables['foo'] = new TableDiff('foo');
-        $tableDiff->fromTable = $tableFoo;
-        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
-        $columnDiff->fromColumn = $tableFoo->getColumn('id');
-        $columnDiff->changedProperties = array('type');
+        $expected->setFromSchema($oldSchema);
+        $changedTables                     = $expected->getChangedTables();
+        $tableDiff = $changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->setFromTable($tableFoo);
+        $expected->setChangedTables($changedTables);
+
+        $changedColumns                     = $tableDiff->getChangedColumns();
+        $columnDiff = $changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+        $columnDiff->setFromColumn($tableFoo->getColumn('id'));
+        $columnDiff->setChangedProperties(array('type'));
+        $tableDiff->setChangedColumns($changedColumns);
 
         $this->assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
@@ -921,21 +940,21 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
      */
     public function assertSchemaTableChangeCount($diff, $newTableCount=0, $changeTableCount=0, $removeTableCount=0)
     {
-        $this->assertEquals($newTableCount, count($diff->newTables));
-        $this->assertEquals($changeTableCount, count($diff->changedTables));
-        $this->assertEquals($removeTableCount, count($diff->removedTables));
+        $this->assertEquals($newTableCount, count($diff->getNewTables()));
+        $this->assertEquals($changeTableCount, count($diff->getChangedTables()));
+        $this->assertEquals($removeTableCount, count($diff->getRemovedTables()));
     }
 
     /**
      * @param SchemaDiff $diff
      * @param int $newSequenceCount
      * @param int $changeSequenceCount
-     * @param int $changeSequenceCount
+     * @param int $removeSequenceCount
      */
     public function assertSchemaSequenceChangeCount($diff, $newSequenceCount=0, $changeSequenceCount=0, $removeSequenceCount=0)
     {
-        $this->assertEquals($newSequenceCount, count($diff->newSequences), "Expected number of new sequences is wrong.");
-        $this->assertEquals($changeSequenceCount, count($diff->changedSequences), "Expected number of changed sequences is wrong.");
-        $this->assertEquals($removeSequenceCount, count($diff->removedSequences), "Expected number of removed sequences is wrong.");
+        $this->assertEquals($newSequenceCount, count($diff->getNewSequences()), "Expected number of new sequences is wrong.");
+        $this->assertEquals($changeSequenceCount, count($diff->getChangedSequences()), "Expected number of changed sequences is wrong.");
+        $this->assertEquals($removeSequenceCount, count($diff->getRemovedSequences()), "Expected number of removed sequences is wrong.");
     }
 }

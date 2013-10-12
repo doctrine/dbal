@@ -401,7 +401,7 @@ class SQLServerPlatform extends AbstractPlatform
         $columnSql = array();
 
         /** @var \Doctrine\DBAL\Schema\Column $column */
-        foreach ($diff->addedColumns as $column) {
+        foreach ($diff->getAddedColumns() as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -411,11 +411,11 @@ class SQLServerPlatform extends AbstractPlatform
 
             if ( ! empty($columnDef['default']) || is_numeric($columnDef['default'])) {
                 $columnDef['name'] = $column->getQuotedName($this);
-                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->getName(), $columnDef);
             }
         }
 
-        foreach ($diff->removedColumns as $column) {
+        foreach ($diff->getRemovedColumns() as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -424,14 +424,14 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
-        foreach ($diff->changedColumns as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
 
-            $fromColumn = $columnDiff->fromColumn;
+            $fromColumn = $columnDiff->getFromColumn();
             $fromColumnDefault = isset($fromColumn) ? $fromColumn->getDefault() : null;
-            $column = $columnDiff->column;
+            $column = $columnDiff->getColumn();
             $columnDef = $column->toArray();
             $columnDefaultHasChanged = $columnDiff->hasChanged('default');
 
@@ -442,7 +442,7 @@ class SQLServerPlatform extends AbstractPlatform
              */
             if ($columnDefaultHasChanged && ( ! empty($fromColumnDefault) || is_numeric($fromColumnDefault))) {
                 $queryParts[] = 'DROP CONSTRAINT ' .
-                    $this->generateDefaultConstraintName($diff->name, $columnDiff->oldColumnName);
+                    $this->generateDefaultConstraintName($diff->getName(), $columnDiff->getOldColumnName());
             }
 
             $queryParts[] = 'ALTER COLUMN ' .
@@ -450,16 +450,16 @@ class SQLServerPlatform extends AbstractPlatform
 
             if ($columnDefaultHasChanged && (! empty($columnDef['default']) || is_numeric($columnDef['default']))) {
                 $columnDef['name'] = $column->getQuotedName($this);
-                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->getName(), $columnDef);
             }
         }
 
-        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
 
-            $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "' , '".$column->getQuotedName($this)."', 'COLUMN'";
+            $sql[] = "sp_RENAME '". $diff->getName(). ".". $oldColumnName . "' , '".$column->getQuotedName($this)."', 'COLUMN'";
 
             $columnDef = $column->toArray();
 
@@ -469,7 +469,7 @@ class SQLServerPlatform extends AbstractPlatform
              */
             if ( ! empty($columnDef['default']) || is_numeric($columnDef['default'])) {
                 $queryParts[] = 'DROP CONSTRAINT ' .
-                    $this->generateDefaultConstraintName($diff->name, $oldColumnName);
+                    $this->generateDefaultConstraintName($diff->getName(), $oldColumnName);
             }
 
             $queryParts[] = 'ALTER COLUMN ' .
@@ -480,7 +480,7 @@ class SQLServerPlatform extends AbstractPlatform
              */
             if ( ! empty($columnDef['default']) || is_numeric($columnDef['default'])) {
                 $columnDef['name'] = $column->getQuotedName($this);
-                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->getName(), $columnDef);
             }
         }
 
@@ -491,13 +491,13 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($queryParts as $query) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $diff->getName() . ' ' . $query;
         }
 
         $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
 
-        if ($diff->newName !== false) {
-            $sql[] = "sp_RENAME '" . $diff->name . "', '" . $diff->newName . "'";
+        if ($diff->getNewName() !== false) {
+            $sql[] = "sp_RENAME '" . $diff->getName() . "', '" . $diff->getNewName() . "'";
 
             /**
              * Rename table's default constraints names
@@ -509,11 +509,11 @@ class SQLServerPlatform extends AbstractPlatform
              */
             $sql[] = "DECLARE @sql NVARCHAR(MAX) = N''; " .
                 "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
-                "+ REPLACE(dc.name, '" . $this->generateIdentifierName($diff->name) . "', " .
-                "'" . $this->generateIdentifierName($diff->newName) . "') + ''', ''OBJECT'';' " .
+                "+ REPLACE(dc.name, '" . $this->generateIdentifierName($diff->getName()) . "', " .
+                "'" . $this->generateIdentifierName($diff->getNewName()) . "') + ''', ''OBJECT'';' " .
                 "FROM sys.default_constraints dc " .
                 "JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
-                "WHERE tbl.name = '" . $diff->newName . "';" .
+                "WHERE tbl.name = '" . $diff->getNewName() . "';" .
                 "EXEC sp_executesql @sql";
         }
 

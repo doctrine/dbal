@@ -128,7 +128,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $data[] = $row;
         }
 
-        $this->assertEquals(2, count($this->sqlLogger->queries));
+        $this->assertEquals(2, count($this->sqlLogger->getQueries()));
     }
 
     public function testDontFinishNoCache()
@@ -142,7 +142,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $data = $this->hydrateStmt($stmt, \PDO::FETCH_NUM);
 
-        $this->assertEquals(2, count($this->sqlLogger->queries));
+        $this->assertEquals(2, count($this->sqlLogger->getQueries()));
     }
 
     public function assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, $fetchMode)
@@ -158,7 +158,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(2, $stmt->columnCount());
         $data = $this->hydrateStmt($stmt, $fetchMode);
         $this->assertEquals($expectedResult, $data);
-        $this->assertEquals(1, count($this->sqlLogger->queries), "just one dbal hit");
+        $this->assertEquals(1, count($this->sqlLogger->getQueries()), "just one dbal hit");
     }
 
     public function testEmptyResultCache()
@@ -169,7 +169,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey"));
         $data = $this->hydrateStmt($stmt);
 
-        $this->assertEquals(1, count($this->sqlLogger->queries), "just one dbal hit");
+        $this->assertEquals(1, count($this->sqlLogger->getQueries()), "just one dbal hit");
     }
 
     public function testChangeCacheImpl()
@@ -181,7 +181,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey", $secondCache));
         $data = $this->hydrateStmt($stmt);
 
-        $this->assertEquals(2, count($this->sqlLogger->queries), "two hits");
+        $this->assertEquals(2, count($this->sqlLogger->getQueries()), "two hits");
         $this->assertEquals(1, count($secondCache->fetch("emptycachekey")));
     }
 

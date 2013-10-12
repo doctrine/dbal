@@ -173,8 +173,10 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testAlterTableAddColumns()
     {
         $diff = new TableDiff('user');
-        $diff->addedColumns['foo'] = new Column('foo', Type::getType('string'));
-        $diff->addedColumns['count'] = new Column('count', Type::getType('integer'), array('notnull' => false, 'default' => 1));
+        $addedColumns          = $diff->getAddedColumns();
+        $addedColumns['foo'] = new Column('foo', Type::getType('string'));
+        $addedColumns['count'] = new Column('count', Type::getType('integer'), array('notnull' => false, 'default' => 1));
+        $diff->setAddedColumns($addedColumns);
 
         $expected = array(
             'ALTER TABLE user ADD COLUMN foo VARCHAR(255) NOT NULL',
@@ -187,7 +189,9 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testAlterTableAddComplexColumns()
     {
         $diff = new TableDiff('user');
-        $diff->addedColumns['time'] = new Column('time', Type::getType('date'), array('default' => 'CURRENT_DATE'));
+        $addedColumns         = $diff->getAddedColumns();
+        $addedColumns['time'] = new Column('time', Type::getType('date'), array('default' => 'CURRENT_DATE'));
+        $diff->setAddedColumns($addedColumns);
 
         try {
             $this->_platform->getAlterTableSQL($diff);
@@ -196,7 +200,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         }
 
         $diff = new TableDiff('user');
-        $diff->addedColumns['id'] = new Column('id', Type::getType('integer'), array('autoincrement' => true));
+        $addedColumns['id'] = new Column('id', Type::getType('integer'), array('autoincrement' => true));
+        $diff->setAddedColumns($addedColumns);
 
         try {
             $this->_platform->getAlterTableSQL($diff);
@@ -247,12 +252,20 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $table->addIndex(array('article', 'post'), 'index1');
 
         $diff = new TableDiff('user');
-        $diff->fromTable = $table;
-        $diff->newName = 'client';
-        $diff->renamedColumns['id'] = new \Doctrine\DBAL\Schema\Column('key', \Doctrine\DBAL\Types\Type::getType('integer'), array());
-        $diff->renamedColumns['post'] = new \Doctrine\DBAL\Schema\Column('comment', \Doctrine\DBAL\Types\Type::getType('integer'), array());
-        $diff->removedColumns['parent'] = new \Doctrine\DBAL\Schema\Column('comment', \Doctrine\DBAL\Types\Type::getType('integer'), array());
-        $diff->removedIndexes['index1'] = $table->getIndex('index1');
+        $diff->setFromTable($table);
+        $diff->setNewName('client');
+
+        $renamedColumns = $diff->getRenamedColumns();
+        $renamedColumns['id'] = new \Doctrine\DBAL\Schema\Column('key', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $renamedColumns['post'] = new \Doctrine\DBAL\Schema\Column('comment', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $diff->setRenamedColumns($renamedColumns);
+
+        $removedColumns = $diff->getRemovedColumns();
+        $removedColumns['parent'] = new \Doctrine\DBAL\Schema\Column('comment', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $diff->setRemovedColumns($removedColumns);
+        $removedIndexes = $diff->getRemovedIndexes();
+        $removedIndexes['index1'] = $table->getIndex('index1');
+        $diff->setRemovedIndexes($removedIndexes);
 
         $sql = array(
             'DROP INDEX IDX_8D93D64923A0E66',

@@ -31,22 +31,22 @@ class ColumnDiff
     /**
      * @var string
      */
-    public $oldColumnName;
+    protected $oldColumnName;
 
     /**
      * @var \Doctrine\DBAL\Schema\Column
      */
-    public $column;
+    protected $column;
 
     /**
      * @var array
      */
-    public $changedProperties = array();
+    protected $changedProperties = array();
 
     /**
      * @var \Doctrine\DBAL\Schema\Column
      */
-    public $fromColumn;
+    protected $fromColumn;
 
     /**
      * @param string                       $oldColumnName
@@ -56,10 +56,10 @@ class ColumnDiff
      */
     public function __construct($oldColumnName, Column $column, array $changedProperties = array(), Column $fromColumn = null)
     {
-        $this->oldColumnName = $oldColumnName;
-        $this->column = $column;
-        $this->changedProperties = $changedProperties;
-        $this->fromColumn = $fromColumn;
+        $this->setOldColumnName($oldColumnName);
+        $this->setColumn($column);
+        $this->setChangedProperties($changedProperties);
+        $this->setFromColumn($fromColumn);
     }
 
     /**
@@ -69,6 +69,70 @@ class ColumnDiff
      */
     public function hasChanged($propertyName)
     {
-        return in_array($propertyName, $this->changedProperties);
+        return in_array($propertyName, $this->getChangedProperties());
+    }
+
+    /**
+     * @param array $changedProperties
+     */
+    public function setChangedProperties($changedProperties)
+    {
+        $this->changedProperties = $changedProperties;
+    }
+
+    /**
+     * @return array
+     */
+    public function getChangedProperties()
+    {
+        return $this->changedProperties;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Column $column
+     */
+    public function setColumn($column)
+    {
+        $this->column = $column;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Column
+     */
+    public function getColumn()
+    {
+        return $this->column;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Column $fromColumn
+     */
+    public function setFromColumn($fromColumn)
+    {
+        $this->fromColumn = $fromColumn;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Column
+     */
+    public function getFromColumn()
+    {
+        return $this->fromColumn;
+    }
+
+    /**
+     * @param string $oldColumnName
+     */
+    public function setOldColumnName($oldColumnName)
+    {
+        $this->oldColumnName = $oldColumnName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOldColumnName()
+    {
+        return $this->oldColumnName;
     }
 }

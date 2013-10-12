@@ -601,34 +601,34 @@ LEFT JOIN user_cons_columns r_cols
 
         $fields = array();
 
-        foreach ($diff->addedColumns as $column) {
+        foreach ($diff->getAddedColumns() as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             if ($comment = $this->getColumnComment($column)) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->getName(), $column->getName(), $comment);
             }
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ADD (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName() . ' ADD (' . implode(', ', $fields) . ')';
         }
 
         $fields = array();
-        foreach ($diff->changedColumns as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
 
-            $column = $columnDiff->column;
+            $column = $columnDiff->getColumn();
             $columnHasChangedComment = $columnDiff->hasChanged('comment');
 
             /**
              * Do not add query part if only comment has changed
              */
-            if ( ! ($columnHasChangedComment && count($columnDiff->changedProperties) === 1)) {
+            if ( ! ($columnHasChangedComment && count($columnDiff->getChangedProperties()) === 1)) {
                 $columnInfo = $column->toArray();
 
                 if ( ! $columnDiff->hasChanged('notnull')) {
@@ -640,7 +640,7 @@ LEFT JOIN user_cons_columns r_cols
 
             if ($columnHasChangedComment) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
-                    $diff->name,
+                    $diff->getName(),
                     $column->getName(),
                     $this->getColumnComment($column)
                 );
@@ -648,19 +648,19 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' MODIFY (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName() . ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
-        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
 
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
+            $sql[] = 'ALTER TABLE ' . $diff->getName() . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
         }
 
         $fields = array();
-        foreach ($diff->removedColumns as $column) {
+        foreach ($diff->getRemovedColumns() as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -669,14 +669,14 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' DROP (' . implode(', ', $fields).')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName() . ' DROP (' . implode(', ', $fields).')';
         }
 
         $tableSql = array();
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
-            if ($diff->newName !== false) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
+            if ($diff->getNewName() !== false) {
+                $sql[] = 'ALTER TABLE ' . $diff->getName() . ' RENAME TO ' . $diff->getNewName();
             }
 
             $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
