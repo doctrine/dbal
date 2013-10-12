@@ -1748,22 +1748,22 @@ abstract class AbstractPlatform
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $tableName = $diff->name;
+        $tableName = $diff->getName();
 
         $sql = array();
         if ($this->supportsForeignKeyConstraints()) {
-            foreach ($diff->removedForeignKeys as $foreignKey) {
+            foreach ($diff->getRemovedForeignKeys() as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
             }
-            foreach ($diff->changedForeignKeys as $foreignKey) {
+            foreach ($diff->getChangedForeignKeys() as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
             }
         }
 
-        foreach ($diff->removedIndexes as $index) {
+        foreach ($diff->getRemovedIndexes() as $index) {
             $sql[] = $this->getDropIndexSQL($index, $tableName);
         }
-        foreach ($diff->changedIndexes as $index) {
+        foreach ($diff->getChangedIndexes() as $index) {
             $sql[] = $this->getDropIndexSQL($index, $tableName);
         }
 
@@ -1777,22 +1777,22 @@ abstract class AbstractPlatform
      */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $tableName = false !== $diff->newName ? $diff->newName : $diff->name;
+        $tableName = false !== $diff->getNewName() ? $diff->getNewName() : $diff->getName();
 
         $sql = array();
         if ($this->supportsForeignKeyConstraints()) {
-            foreach ($diff->addedForeignKeys as $foreignKey) {
+            foreach ($diff->getAddedForeignKeys() as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
-            foreach ($diff->changedForeignKeys as $foreignKey) {
+            foreach ($diff->getChangedForeignKeys() as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
         }
 
-        foreach ($diff->addedIndexes as $index) {
+        foreach ($diff->getAddedIndexes() as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
-        foreach ($diff->changedIndexes as $index) {
+        foreach ($diff->getChangedIndexes() as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
 

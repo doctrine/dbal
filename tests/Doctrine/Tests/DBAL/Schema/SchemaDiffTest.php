@@ -92,18 +92,34 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
     public function createSchemaDiff()
     {
-        $diff = new SchemaDiff();
-        $diff->changedSequences['foo_seq'] = new Sequence('foo_seq');
-        $diff->newSequences['bar_seq'] = new Sequence('bar_seq');
-        $diff->removedSequences['baz_seq'] = new Sequence('baz_seq');
-        $diff->newTables['foo_table'] = new Table('foo_table');
-        $diff->removedTables['bar_table'] = new Table('bar_table');
-        $diff->changedTables['baz_table'] = new TableDiff('baz_table');
-        $diff->newTables['foo_table']->addColumn('foreign_id', 'integer');
-        $diff->newTables['foo_table']->addForeignKeyConstraint('foreign_table', array('foreign_id'), array('id'));
+        $diff                        = new SchemaDiff();
+        $changedSequences            = $diff->getChangedSequences();
+        $newSequences                = $diff->getNewSequences();
+        $removedSequences            = $diff->getRemovedSequences();
+        $newTables                   = $diff->getNewTables();
+        $removedTables               = $diff->getRemovedTables();
+        $changedTables               = $diff->getChangedTables();
+        $orphanedForeignKeys         = $diff->getOrphanedForeignKeys();
+        $changedSequences['foo_seq'] = new Sequence('foo_seq');
+        $newSequences['bar_seq']     = new Sequence('bar_seq');
+        $removedSequences['baz_seq'] = new Sequence('baz_seq');
+        $newTables['foo_table']      = new Table('foo_table');
+        $removedTables['bar_table']  = new Table('bar_table');
+        $changedTables['baz_table']  = new TableDiff('baz_table');
+        $newTables['foo_table']->addColumn('foreign_id', 'integer');
+        $newTables['foo_table']->addForeignKeyConstraint('foreign_table', array('foreign_id'), array('id'));
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('id'), 'foreign_table', array('id'));
         $fk->setLocalTable(new Table('local_table'));
-        $diff->orphanedForeignKeys[] = $fk;
+        $orphanedForeignKeys[] = $fk;
+
+        $diff->setChangedSequences($changedSequences);
+        $diff->setNewSequences($newSequences);
+        $diff->setRemovedSequences($removedSequences);
+        $diff->setNewTables($newTables);
+        $diff->setRemovedTables($removedTables);
+        $diff->setChangedTables($changedTables);
+        $diff->setOrphanedForeignKeys($orphanedForeignKeys);
+
         return $diff;
     }
 }

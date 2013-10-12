@@ -232,22 +232,31 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $table->setPrimaryKey(array('id'));
 
         $tableDiff = new TableDiff('mytable');
-        $tableDiff->fromTable = $table;
-        $tableDiff->newName = 'userlist';
-        $tableDiff->addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('notnull' => false));
-        $tableDiff->removedColumns['foo'] = new \Doctrine\DBAL\Schema\Column('foo', \Doctrine\DBAL\Types\Type::getType('integer'));
-        $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+        $tableDiff->setFromTable($table);
+        $tableDiff->setNewName('userlist');
+
+        $addedColumns          = $tableDiff->getAddedColumns();
+        $addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('notnull' => false));
+        $tableDiff->setAddedColumns($addedColumns);
+
+        $removedColumns = $tableDiff->getRemovedColumns();
+        $removedColumns['foo'] = new \Doctrine\DBAL\Schema\Column('foo', \Doctrine\DBAL\Types\Type::getType('integer'));
+        $tableDiff->setRemovedColumns($removedColumns);
+
+        $changedColumns = $tableDiff->getChangedColumns();
+        $changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'bar', new \Doctrine\DBAL\Schema\Column(
                 'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'def')
             ),
             array('type', 'notnull', 'default')
         );
-        $tableDiff->changedColumns['bloo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+        $changedColumns['bloo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'bloo', new \Doctrine\DBAL\Schema\Column(
                 'bloo', \Doctrine\DBAL\Types\Type::getType('boolean'), array('default' => false)
             ),
             array('type', 'notnull', 'default')
         );
+        $tableDiff->setChangedColumns($changedColumns);
 
         $sql = $this->_platform->getAlterTableSQL($tableDiff);
 
@@ -342,16 +351,28 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $table->addColumn('renamed', 'integer');
 
         $tableDiff = new TableDiff('mytable');
-        $tableDiff->fromTable = $table;
-        $tableDiff->addedColumns['added'] = new \Doctrine\DBAL\Schema\Column('added', \Doctrine\DBAL\Types\Type::getType('integer'), array());
-        $tableDiff->removedColumns['removed'] = new \Doctrine\DBAL\Schema\Column('removed', \Doctrine\DBAL\Types\Type::getType('integer'), array());
-        $tableDiff->changedColumns['changed'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+        $tableDiff->setFromTable($table);
+
+        $addedColumns          = $tableDiff->getAddedColumns();
+        $addedColumns['added'] = new \Doctrine\DBAL\Schema\Column('added', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $tableDiff->setAddedColumns($addedColumns);
+
+        $removedColumns = $tableDiff->getRemovedColumns();
+        $removedColumns['removed'] = new \Doctrine\DBAL\Schema\Column('removed', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $tableDiff->setRemovedColumns($removedColumns);
+
+        $changedColumns = $tableDiff->getChangedColumns();
+        $changedColumns['changed'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'changed', new \Doctrine\DBAL\Schema\Column(
                 'changed2', \Doctrine\DBAL\Types\Type::getType('string'), array()
             ),
             array()
         );
-        $tableDiff->renamedColumns['renamed'] = new \Doctrine\DBAL\Schema\Column('renamed2', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $tableDiff->setChangedColumns($changedColumns);
+
+        $renamedColumns = $tableDiff->getRenamedColumns();
+        $renamedColumns['renamed'] = new \Doctrine\DBAL\Schema\Column('renamed2', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $tableDiff->setRenamedColumns($removedColumns);
 
         $this->_platform->getAlterTableSQL($tableDiff);
     }
@@ -374,19 +395,24 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testAlterTableColumnComments()
     {
         $tableDiff = new TableDiff('mytable');
-        $tableDiff->addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('comment' => 'A comment'));
-        $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+        $addedColumns          = $tableDiff->getAddedColumns();
+        $addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('comment' => 'A comment'));
+        $tableDiff->setAddedColumns($addedColumns);
+
+        $changedColumns = $tableDiff->getChangedColumns();
+        $changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'foo', new \Doctrine\DBAL\Schema\Column(
                 'foo', \Doctrine\DBAL\Types\Type::getType('string')
             ),
             array('comment')
         );
-        $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+        $changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'bar', new \Doctrine\DBAL\Schema\Column(
                 'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('comment' => 'B comment')
             ),
             array('comment')
         );
+        $tableDiff->setChangedColumns($changedColumns);
 
         $this->assertEquals($this->getAlterTableColumnCommentsSQL(), $this->_platform->getAlterTableSQL($tableDiff));
     }

@@ -113,8 +113,9 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             array(),
             $table
         );
-        $diff->newName = 'sqlsrv_default_constraints';
-        $diff->renamedColumns['df_string_4'] = new Column(
+        $diff->setNewName('sqlsrv_default_constraints');
+        $renamedColumns                = $diff->getRenamedColumns();
+        $renamedColumns['df_string_4'] = new Column(
             'df_string_renamed',
             Type::getType('string'),
             array('default' => 'column to rename')

@@ -83,7 +83,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @expectedException Doctrine\DBAL\DBALException
+     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testRLike()
     {
@@ -117,7 +117,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @expectedException Doctrine\DBAL\DBALException
+     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testCreateDatabaseThrowsException()
     {
@@ -312,18 +312,20 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function testAlterTableNotNULL()
     {
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
-        $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+        $changedColumns        = $tableDiff->getChangedColumns();
+        $changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'foo', new \Doctrine\DBAL\Schema\Column(
                 'foo', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'bla', 'notnull' => true)
             ),
             array('type')
         );
-        $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+        $changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'bar', new \Doctrine\DBAL\Schema\Column(
                 'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'bla', 'notnull' => true)
             ),
             array('type', 'notnull')
         );
+        $tableDiff->setChangedColumns($changedColumns);
 
         $expectedSql = array(
             "ALTER TABLE mytable MODIFY (foo  VARCHAR2(255) DEFAULT 'bla', baz  VARCHAR2(255) DEFAULT 'bla' NOT NULL)",

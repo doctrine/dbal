@@ -395,11 +395,11 @@ class DrizzlePlatform extends AbstractPlatform
         $columnSql = array();
         $queryParts = array();
 
-        if ($diff->newName !== false) {
-            $queryParts[] =  'RENAME TO ' . $diff->newName;
+        if ($diff->getNewName() !== false) {
+            $queryParts[] =  'RENAME TO ' . $diff->getNewName();
         }
 
-        foreach ($diff->addedColumns as $column) {
+        foreach ($diff->getAddedColumns() as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -409,7 +409,7 @@ class DrizzlePlatform extends AbstractPlatform
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
-        foreach ($diff->removedColumns as $column) {
+        foreach ($diff->getRemovedColumns() as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -417,20 +417,20 @@ class DrizzlePlatform extends AbstractPlatform
             $queryParts[] =  'DROP ' . $column->getQuotedName($this);
         }
 
-        foreach ($diff->changedColumns as $columnDiff) {
+        foreach ($diff->getChangedColumns() as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
 
             /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
-            $column = $columnDiff->column;
+            $column = $columnDiff->getColumn();
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[] =  'CHANGE ' . ($columnDiff->oldColumnName) . ' '
+            $queryParts[] =  'CHANGE ' . ($columnDiff->getOldColumnName()) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
-        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+        foreach ($diff->getRenamedColumns() as $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
@@ -446,7 +446,7 @@ class DrizzlePlatform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->getName() . ' ' . implode(", ", $queryParts);
             }
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),

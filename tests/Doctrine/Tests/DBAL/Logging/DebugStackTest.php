@@ -6,6 +6,8 @@ require_once __DIR__ . '/../../TestInit.php';
 
 class DebugStackTest extends \Doctrine\Tests\DbalTestCase
 {
+    private $logger;
+
     public function setUp()
     {
         $this->logger = new \Doctrine\DBAL\Logging\DebugStack();
@@ -28,20 +30,20 @@ class DebugStackTest extends \Doctrine\Tests\DbalTestCase
                     'executionMS' => 0,
                 ),
             ),
-            $this->logger->queries
+            $this->logger->getQueries()
         );
 
         $this->logger->stopQuery();
-        $this->assertGreaterThan(0, $this->logger->queries[1]['executionMS']);
+        $this->assertGreaterThan(0, $this->logger->getQueries()[1]['executionMS']);
     }
 
     public function testLoggedQueryDisabled()
     {
-        $this->logger->enabled = false;
+        $this->logger->setEnabled(false);
         $this->logger->startQuery('SELECT column FROM table');
-        $this->assertEquals(array(), $this->logger->queries);
+        $this->assertEquals(array(), $this->logger->getQueries());
 
         $this->logger->stopQuery();
-        $this->assertEquals(array(), $this->logger->queries);
+        $this->assertEquals(array(), $this->logger->getQueries());
     }
 }
