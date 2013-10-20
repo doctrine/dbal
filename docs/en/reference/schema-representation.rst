@@ -30,10 +30,11 @@ example shows:
     $myTable->addUniqueIndex(array("username"));
     $schema->createTable($myTable);
     
-    $myForeign = $schema->createTable("my_foreign");
+    $myForeign = new \Doctrine\DBAL\Schema\Table("my_foreign");
     $myForeign->addColumn("id", "integer");
     $myForeign->addColumn("user_id", "integer");
     $myForeign->addForeignKeyConstraint($myTable, array("user_id"), array("id"), array("onUpdate" => "CASCADE"));
+    $schema->createTable($myForeign);
     
     $queries = $schema->toSql($myPlatform); // get queries to create this schema.
     $dropSchema = $schema->toDropSql($myPlatform); // get queries to safely delete this schema.
