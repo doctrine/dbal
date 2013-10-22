@@ -53,7 +53,7 @@ class Driver implements \Doctrine\DBAL\Driver
 
         return
             'LINKS=tcpip(HOST=' . $host . ';PORT=' . $port . ';DoBroadcast=Direct)' .
-            ';SERVER=' . $server .
+            ';ServerName=' . $server .
             ';DBN=' . $dbname .
             ';UID=' . $username .
             ';PWD=' . $password .
