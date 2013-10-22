@@ -534,9 +534,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('CURRENT TIME', $this->_platform->getCurrentTimeSQL());
         $this->assertEquals('CURRENT TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
         $this->assertEquals("DATEADD(day, 4, '1987/05/02')", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("DATEADD(hour, 12, '1987/05/02')", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
         $this->assertEquals("DATEADD(month, 102, '1987/05/02')", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
         $this->assertEquals("DATEDIFF(day, '1987/04/01', '1987/05/02')", $this->_platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
         $this->assertEquals("DATEADD(day, -1 * 4, '1987/05/02')", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("DATEADD(hour, -1 * 12, '1987/05/02')", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
         $this->assertEquals("DATEADD(month, -1 * 102, '1987/05/02')", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
         $this->assertEquals("Y-m-d H:i:s.u", $this->_platform->getDateTimeFormatString());
         $this->assertEquals("H:i:s.u", $this->_platform->getTimeFormatString());

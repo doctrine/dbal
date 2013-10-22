@@ -390,6 +390,14 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function getDateAddHourExpression($date, $hours)
+    {
+        return 'DATEADD(hour, ' . $hours . ', ' . $date . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getDateAddMonthExpression($date, $months)
     {
         return 'DATEADD(month, ' . $months . ', ' . $date . ')';
@@ -409,6 +417,14 @@ class SQLAnywherePlatform extends AbstractPlatform
     public function getDateSubDaysExpression($date, $days)
     {
         return 'DATEADD(day, -1 * ' . $days . ', ' . $date . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDateSubHourExpression($date, $hours)
+    {
+        return 'DATEADD(hour, -1 * ' . $hours . ', ' . $date . ')';
     }
 
     /**
