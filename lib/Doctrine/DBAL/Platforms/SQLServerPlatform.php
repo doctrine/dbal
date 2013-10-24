@@ -542,6 +542,22 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
+        return $this->getListColumnsSQL($table, 'U');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getListViewColumnsSQL($table, $database = null)
+    {
+        return $this->getListColumnsSQL($table, 'V');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getListColumnsSQL($table, $type)
+    {
         return "SELECT    col.name,
                           type.name AS type,
                           col.max_length AS length,
@@ -559,7 +575,7 @@ class SQLServerPlatform extends AbstractPlatform
                 LEFT JOIN sys.default_constraints def
                 ON        col.default_object_id = def.object_id
                 AND       col.object_id = def.parent_object_id
-                WHERE     obj.type = 'U'
+                WHERE     obj.type = '$type'
                 AND       obj.name = '$table'";
     }
 
