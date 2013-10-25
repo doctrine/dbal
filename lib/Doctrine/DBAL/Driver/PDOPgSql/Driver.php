@@ -99,5 +99,13 @@ class Driver implements \Doctrine\DBAL\Driver
             ? $params['dbname']
             : $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDeadlockException(\Doctrine\DBAL\DBALException $e)
+    {
+        return false;
+    }
 }
 

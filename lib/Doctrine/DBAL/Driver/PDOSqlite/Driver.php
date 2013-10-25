@@ -112,4 +112,12 @@ class Driver implements \Doctrine\DBAL\Driver
 
         return isset($params['path']) ? $params['path'] : null;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDeadlockException(\Doctrine\DBAL\DBALException $e)
+    {
+        return false;
+    }
 }

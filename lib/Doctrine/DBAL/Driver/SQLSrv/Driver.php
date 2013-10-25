@@ -83,4 +83,12 @@ class Driver implements \Doctrine\DBAL\Driver
         $params = $conn->getParams();
         return $params['dbname'];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDeadlockException(\Doctrine\DBAL\DBALException $e)
+    {
+        return false;
+    }
 }

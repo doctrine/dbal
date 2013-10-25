@@ -113,4 +113,12 @@ class Driver implements \Doctrine\DBAL\Driver
 
         return $params['user'];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDeadlockException(\Doctrine\DBAL\DBALException $e)
+    {
+        return false;
+    }
 }

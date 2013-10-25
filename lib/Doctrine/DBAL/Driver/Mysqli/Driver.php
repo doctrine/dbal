@@ -67,4 +67,16 @@ class Driver implements DriverInterface
 
         return $params['dbname'];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDeadlockException(\Doctrine\DBAL\DBALException $e)
+    {
+        if (strstr($e->getMessage(), 'Deadlock found when trying to get lock; try restarting transaction') && $e->getCode() == 1213) {
+            return true;
+        }
+
+        return false;
+    }
 }

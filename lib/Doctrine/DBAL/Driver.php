@@ -72,4 +72,14 @@ interface Driver
      * @return string The name of the database.
      */
     public function getDatabase(Connection $conn);
+
+    /**
+     * Checks if the exception provided is a deadlock
+     * and can be safely retryied
+     *
+     * @param \Doctrine\DBAL\DBALException $e
+     *
+     * @return boolean
+     */
+    public function isDeadlockException(DBALException $e);
 }
