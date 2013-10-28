@@ -186,11 +186,17 @@ class MysqliConnection implements Connection
                 );
             }
 
-            if (!mysqli_options($this->_conn, $option, $value)) {
-                throw new MysqliException(
-                    sprintf($exceptionMsg, 'Failed to set', $option, $value)
-                );
+            if (@mysqli_options($this->_conn, $option, $value)) {
+                continue;
             }
+
+            $msg  = sprintf($exceptionMsg, 'Failed to set', $option, $value);
+            $msg .= sprintf(', error: %s (%d)', mysqli_error($this->_conn), mysqli_errno($this->_conn));
+
+            throw new MysqliException(
+                $msg,
+                mysqli_errno($this->_conn)
+            );
         }
     }
 }
