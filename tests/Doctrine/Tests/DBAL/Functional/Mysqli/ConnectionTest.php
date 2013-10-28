@@ -1,8 +1,6 @@
 <?php
 namespace Doctrine\Tests\DBAL\Functional\Mysqli;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function setUp()
