@@ -32,20 +32,6 @@ class MysqliConnection implements Connection
     private $_conn;
 
     /**
-     * @var array
-     */
-    private $driverOptions;
-
-    private $supportedDriverOptions = array(
-        \MYSQLI_OPT_CONNECT_TIMEOUT,
-        \MYSQLI_OPT_LOCAL_INFILE,
-        \MYSQLI_INIT_COMMAND,
-        \MYSQLI_READ_DEFAULT_FILE,
-        \MYSQLI_READ_DEFAULT_GROUP,
-        //\MYSQLI_SERVER_PUBLIC_KEY,
-    );
-
-    /**
      * @param array  $params
      * @param string $username
      * @param string $password
@@ -176,15 +162,25 @@ class MysqliConnection implements Connection
      * @throws MysqliException When one of of the options is not supported.
      * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
      */
-    public function setDriverOptions(array $driverOptions = array())
+    private function setDriverOptions(array $driverOptions = array())
     {
-        $this->driverOptions = $driverOptions;
+        $supportedDriverOptions = array(
+            \MYSQLI_OPT_CONNECT_TIMEOUT,
+            \MYSQLI_OPT_LOCAL_INFILE,
+            \MYSQLI_INIT_COMMAND,
+            \MYSQLI_READ_DEFAULT_FILE,
+            \MYSQLI_READ_DEFAULT_GROUP,
+        );
+
+        if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
+            $supportedDriverOptions[] = \MYSQLI_SERVER_PUBLIC_KEY;
+        }
 
         static $exceptionMsg = "%s option '%s' with value '%s'";
 
         foreach ($driverOptions as $option => $value) {
 
-            if (!in_array($option, $this->supportedDriverOptions)) {
+            if (!in_array($option, $supportedDriverOptions, true)) {
                 throw new MysqliException(
                     sprintf($exceptionMsg, 'Unsupported', $option, $value)
                 );
