@@ -36,7 +36,7 @@ class MysqliConnection implements Connection
      */
     private $_driverOptions;
 
-    private $_supportedDriverOpions = array(
+    private $_supportedDriverOptions = array(
         \MYSQLI_OPT_CONNECT_TIMEOUT,
         \MYSQLI_OPT_LOCAL_INFILE,
         \MYSQLI_INIT_COMMAND,
@@ -173,8 +173,6 @@ class MysqliConnection implements Connection
      *
      * @param array $driverOptions
      *
-     * @return MysqliConnection
-     *
      * @throws MysqliException When one of of the options is not supported.
      * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
      */
@@ -186,7 +184,7 @@ class MysqliConnection implements Connection
 
         foreach ($driverOptions as $option => $value) {
 
-            if (!in_array($option, $this->_supportedDriverOpions)) {
+            if (!in_array($option, $this->_supportedDriverOptions)) {
                 throw new MysqliException(
                     sprintf($exceptionMsg, 'Unsupported', $option, $value)
                 );
@@ -198,7 +196,5 @@ class MysqliConnection implements Connection
                 );
             }
         }
-
-        return $this;
     }
 }
