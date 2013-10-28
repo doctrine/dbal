@@ -176,7 +176,7 @@ class MysqliConnection implements Connection
             $supportedDriverOptions[] = \MYSQLI_SERVER_PUBLIC_KEY;
         }
 
-        static $exceptionMsg = "%s option '%s' with value '%s'";
+        $exceptionMsg = "%s option '%s' with value '%s'";
 
         foreach ($driverOptions as $option => $value) {
 
