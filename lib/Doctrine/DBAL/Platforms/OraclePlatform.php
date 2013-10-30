@@ -541,16 +541,18 @@ LEFT JOIN user_cons_columns r_cols
         $table = strtoupper($table);
 
         $tabColumnsTableName = "user_tab_columns";
+        $colCommentsTableName = "user_col_comments";
         $ownerCondition = '';
 
         if (null !== $database){
             $database = strtoupper($database);
             $tabColumnsTableName = "all_tab_columns";
+            $colCommentsTableName = "all_col_comments";
             $ownerCondition = "AND c.owner = '".$database."'";
         }
 
         return "SELECT c.*, d.comments FROM $tabColumnsTableName c ".
-               "INNER JOIN user_col_comments d ON d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME ".
+               "INNER JOIN " . $colCommentsTableName . " d ON d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME ".
                "WHERE c.table_name = '" . $table . "' ".$ownerCondition." ORDER BY c.column_name";
     }
 
