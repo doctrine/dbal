@@ -14,8 +14,11 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->_conn->getDatabasePlatform()->getName() == "sqlite") {
-            $this->markTestSkipped('Test does not work on sqlite.');
+        $platformName = $this->_conn->getDatabasePlatform()->getName();
+
+        // This is a MySQL specific test, skip other vendors.
+        if ($platformName != 'mysql') {
+            $this->markTestSkipped(sprintf('Test does not work on %s.', $platformName));
         }
 
         try {
