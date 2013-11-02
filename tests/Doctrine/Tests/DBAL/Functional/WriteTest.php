@@ -188,15 +188,17 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testInsertWithKeyValueTypes()
     {
+        $testString = new \DateTime('2013-04-14 10:10:10');
+
         $this->_conn->insert(
             'write_table',
-            array('test_int' => '30', 'test_string' => new \DateTime('2013-04-14 10:10:10')),
+            array('test_int' => '30', 'test_string' => $testString),
             array('test_string' => 'datetime', 'test_int' => 'integer')
         );
 
         $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
 
-        $this->assertEquals('2013-04-14 10:10:10', $data);
+        $this->assertEquals($testString->format($this->_conn->getDatabasePlatform()->getDateTimeFormatString()), $data);
     }
 
     /**
@@ -204,22 +206,26 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testUpdateWithKeyValueTypes()
     {
+        $testString = new \DateTime('2013-04-14 10:10:10');
+
         $this->_conn->insert(
             'write_table',
-            array('test_int' => '30', 'test_string' => new \DateTime('2013-04-14 10:10:10')),
+            array('test_int' => '30', 'test_string' => $testString),
             array('test_string' => 'datetime', 'test_int' => 'integer')
         );
 
+        $testString = new \DateTime('2013-04-15 10:10:10');
+
         $this->_conn->update(
             'write_table',
-            array('test_string' => new \DateTime('2013-04-15 10:10:10')),
+            array('test_string' => $testString),
             array('test_int' => '30'),
             array('test_string' => 'datetime', 'test_int' => 'integer')
         );
 
         $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
 
-        $this->assertEquals('2013-04-15 10:10:10', $data);
+        $this->assertEquals($testString->format($this->_conn->getDatabasePlatform()->getDateTimeFormatString()), $data);
     }
 
     /**
