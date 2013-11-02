@@ -203,9 +203,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $row = array_change_key_case($row, \CASE_LOWER);
         $this->assertEquals(1, $row['test_int']);
-        $this->assertEquals($datetimeString, $row['test_datetime']);        
+        $this->assertStringStartsWith($datetimeString, $row['test_datetime']);
     }
-    
+
     /**
      * @group DBAL-209
      * @expectedException \Doctrine\DBAL\DBALException
