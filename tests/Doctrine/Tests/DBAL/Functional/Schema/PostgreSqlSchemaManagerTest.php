@@ -271,7 +271,7 @@ class MoneyType extends Type
         return "MyMoney";
     }
 
-    public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
         return 'MyMoney';
     }
