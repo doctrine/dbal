@@ -13,7 +13,7 @@ the ``getSchemaManager()`` method:
     <?php
     $sm = $conn->getSchemaManager();
 
-Now with the ``SchemaManager`` instance in ``$em`` you can use the
+Now with the ``SchemaManager`` instance in ``$sm`` you can use the
 available methods to learn about your database schema:
 
 .. note::
