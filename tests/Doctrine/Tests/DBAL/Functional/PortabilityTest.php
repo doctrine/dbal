@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PDO;
+use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -123,5 +124,25 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
         $this->assertNull($row['test_null']);
         $this->assertArrayNotHasKey(0, $row, "PDO::FETCH_ASSOC should not return numerical keys.");
+    }
+
+    public function testPortabilitySqlServer()
+    {
+        $portability = ConnectionPortability::PORTABILITY_SQLSRV;
+        $params = array(
+            'portability' => $portability
+        );
+
+        $driverMock = $this->getMock('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver', array('connect'));
+
+        $driverMock->expects($this->once())
+                   ->method('connect')
+                   ->will($this->returnValue(null));
+
+        $connection = new ConnectionPortability($params, $driverMock);
+
+        $connection->connect($params);
+
+        $this->assertEquals($portability, $connection->getPortability());
     }
 }
