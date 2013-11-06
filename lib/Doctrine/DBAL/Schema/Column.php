@@ -25,7 +25,7 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 /**
  * Object representation of a database column
  *
- * 
+ *
  * @link    www.doctrine-project.org
  * @since   2.0
  * @version $Revision$
@@ -395,7 +395,7 @@ class Column extends AbstractAsset
     /**
      * @param Visitor $visitor
      */
-    public function visit(\Doctrine\DBAL\Schema\Visitor $visitor)
+    public function visit(Visitor $visitor)
     {
         $visitor->accept($this);
     }
