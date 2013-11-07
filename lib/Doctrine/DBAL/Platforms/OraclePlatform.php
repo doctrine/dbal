@@ -862,6 +862,8 @@ LEFT JOIN user_cons_columns r_cols
             'timestamp'         => 'datetime',
             'timestamptz'       => 'datetimetz',
             'float'             => 'float',
+            'binary_float'      => 'float',
+            'binary_double'     => 'float',
             'long'              => 'string',
             'clob'              => 'text',
             'nclob'             => 'text',

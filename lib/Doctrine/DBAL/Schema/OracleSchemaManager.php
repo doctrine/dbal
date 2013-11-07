@@ -165,6 +165,8 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $length = null;
                 break;
             case 'float':
+            case 'binary_float':
+            case 'binary_double':
                 $precision = $tableColumn['data_precision'];
                 $scale = $tableColumn['data_scale'];
                 $length = null;
