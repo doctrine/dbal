@@ -52,6 +52,8 @@ class MysqliConnection implements Connection
         if (isset($params['charset'])) {
             $this->_conn->set_charset($params['charset']);
         }
+
+        $this->setDriverOptions($driverOptions);
     }
 
     /**
@@ -150,5 +152,51 @@ class MysqliConnection implements Connection
     public function errorInfo()
     {
         return $this->_conn->error;
+    }
+
+    /**
+     * Apply the driver options to the connection.
+     *
+     * @param array $driverOptions
+     *
+     * @throws MysqliException When one of of the options is not supported.
+     * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
+     */
+    private function setDriverOptions(array $driverOptions = array())
+    {
+        $supportedDriverOptions = array(
+            \MYSQLI_OPT_CONNECT_TIMEOUT,
+            \MYSQLI_OPT_LOCAL_INFILE,
+            \MYSQLI_INIT_COMMAND,
+            \MYSQLI_READ_DEFAULT_FILE,
+            \MYSQLI_READ_DEFAULT_GROUP,
+        );
+
+        if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
+            $supportedDriverOptions[] = \MYSQLI_SERVER_PUBLIC_KEY;
+        }
+
+        $exceptionMsg = "%s option '%s' with value '%s'";
+
+        foreach ($driverOptions as $option => $value) {
+
+            if (!in_array($option, $supportedDriverOptions, true)) {
+                throw new MysqliException(
+                    sprintf($exceptionMsg, 'Unsupported', $option, $value)
+                );
+            }
+
+            if (@mysqli_options($this->_conn, $option, $value)) {
+                continue;
+            }
+
+            $msg  = sprintf($exceptionMsg, 'Failed to set', $option, $value);
+            $msg .= sprintf(', error: %s (%d)', mysqli_error($this->_conn), mysqli_errno($this->_conn));
+
+            throw new MysqliException(
+                $msg,
+                mysqli_errno($this->_conn)
+            );
+        }
     }
 }
