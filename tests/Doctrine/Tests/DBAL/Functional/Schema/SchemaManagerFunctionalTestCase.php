@@ -578,6 +578,44 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
+     * @group DBAL-232
+     */
+    public function testFallsBackToNativeTypeOnUnregisteredCustomType()
+    {
+        if (!$this->_conn->getDatabasePlatform()->supportsInlineColumnComments() && !$this->_conn->getDatabasePlatform()->supportsCommentOnStatement()) {
+            $this->markTestSkipped('Database does not support column comments.');
+        }
+
+        $table = new \Doctrine\DBAL\Schema\Table('column_comment_type_test');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('obj', 'object');
+        $table->addColumn('arr', 'array');
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns("column_comment_test2");
+
+        // Assert custom type mapping.
+        $this->assertEquals(3, count($columns));
+        $this->assertInstanceOf('Doctrine\DBAL\Types\ObjectType', $columns['obj']->getType());
+        $this->assertInstanceOf('Doctrine\DBAL\Types\ArrayType', $columns['arr']->getType());
+
+        // Simulate a case where a custom type is not registered anymore.
+        Type::overrideType(Type::OBJECT, null);
+
+        $columns = $this->_sm->listTableColumns("column_comment_test2");
+
+        // Assert custom type mapping fallback.
+        $this->assertEquals(3, count($columns));
+        $this->assertInstanceOf('Doctrine\DBAL\Types\TextType', $columns['obj']->getType());
+        $this->assertInstanceOf('Doctrine\DBAL\Types\ArrayType', $columns['arr']->getType());
+
+        // Reset Doctrine types to default.
+        Type::addType(Type::OBJECT, 'Doctrine\DBAL\Types\ObjectType');
+    }
+
+    /**
      * @group DBAL-197
      */
     public function testListTableWithBlob()
