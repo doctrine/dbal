@@ -1284,7 +1284,7 @@ abstract class AbstractPlatform
         if ($this->supportsCommentOnStatement()) {
             foreach ($table->getColumns() as $column) {
                 if ($this->getColumnComment($column)) {
-                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getName(), $this->getColumnComment($column));
+                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getQuotedName($this), $this->getColumnComment($column));
                 }
             }
         }
