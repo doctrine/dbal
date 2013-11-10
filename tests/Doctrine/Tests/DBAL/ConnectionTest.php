@@ -179,50 +179,6 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
     /**
      * @group DBAL-81
      */
-    public function testCommitAll()
-    {
-        $driverConnectionMock = $this->getMock('Doctrine\DBAL\Driver\Connection');
-        $driverConnectionMock->expects($this->once())
-            ->method('commit');
-        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->will($this->returnValue($driverConnectionMock));
-        $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
-
-        $conn->connect();
-        $conn->beginTransaction();
-        $conn->beginTransaction();
-        $conn->commitAll();
-
-        $this->assertFalse($conn->isTransactionActive());
-    }
-
-    /**
-     * @group DBAL-81
-     */
-    public function testRollBackAll()
-    {
-        $driverConnectionMock = $this->getMock('Doctrine\DBAL\Driver\Connection');
-        $driverConnectionMock->expects($this->once())
-            ->method('rollback');
-        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->will($this->returnValue($driverConnectionMock));
-        $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
-
-        $conn->connect();
-        $conn->beginTransaction();
-        $conn->beginTransaction();
-        $conn->rollBackAll();
-
-        $this->assertFalse($conn->isTransactionActive());
-    }
-
-    /**
-     * @group DBAL-81
-     */
     public function testIsAutoCommit()
     {
         $this->assertTrue($this->_conn->isAutoCommit());

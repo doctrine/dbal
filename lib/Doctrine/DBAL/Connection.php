@@ -1159,7 +1159,7 @@ class Connection implements DriverConnection
     /**
      * Commits all current nesting transactions.
      */
-    public function commitAll()
+    private function commitAll()
     {
         while (0 !== $this->_transactionNestingLevel) {
             if (false === $this->autoCommit && 1 === $this->_transactionNestingLevel) {
@@ -1218,24 +1218,6 @@ class Connection implements DriverConnection
         } else {
             $this->_isRollbackOnly = true;
             --$this->_transactionNestingLevel;
-        }
-    }
-
-    /**
-     * Cancel any database changes done during all current nesting transactions.
-     */
-    public function rollBackAll()
-    {
-        while (0 !== $this->_transactionNestingLevel) {
-            if (false === $this->autoCommit && 1 === $this->_transactionNestingLevel) {
-                // When in no auto-commit mode, the last nesting commit immediately starts a new transaction.
-                // Therefore we need to do the final commit here and then leave to avoid an infinite loop.
-                $this->rollBack();
-
-                return;
-            }
-
-            $this->rollBack();
         }
     }
 
