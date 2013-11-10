@@ -232,6 +232,7 @@ class Connection implements DriverConnection
         $this->_platform->setEventManager($eventManager);
 
         $this->_transactionIsolationLevel = $this->_platform->getDefaultTransactionIsolationLevel();
+        $this->autoCommit = $config->getAutoCommit();
     }
 
     /**
