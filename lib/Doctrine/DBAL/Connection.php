@@ -118,7 +118,7 @@ class Connection implements DriverConnection
     private $_isConnected = false;
 
     /**
-     * Whether to automatically commit DML and DDL statements.
+     * The current auto-commit mode of this connection.
      *
      * @var boolean
      */
