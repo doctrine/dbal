@@ -1,21 +1,18 @@
 <?php
 namespace Doctrine\Tests\DBAL\Functional\Mysqli;
 
+use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
+
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function setUp()
     {
-        if (!extension_loaded('mysqli')) {
-            $this->markTestSkipped('mysqli is not installed.');
-        }
-
-        $driver = getenv('DB');
-        if (false !== $driver && $driver !== 'mysqli') {
-            $this->markTestSkipped('this test case is for mysqli only');
-        }
-
         $this->resetSharedConn();
         parent::setUp();
+
+        if (!$this->_conn->getWrappedConnection() instanceof MysqliConnection) {
+            $this->markTestSkipped('this test case is for mysqli only');
+        }
     }
 
     public function tearDown()
@@ -44,7 +41,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     private function getConnection(array $driverOptions)
     {
-        return new \Doctrine\DBAL\Driver\Mysqli\MysqliConnection(
+        return new MysqliConnection(
             array(
                  'host' => $GLOBALS['db_host'],
                  'dbname' => $GLOBALS['db_name'],
