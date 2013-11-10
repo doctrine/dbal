@@ -223,9 +223,9 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
     /**
      * @group DBAL-81
      */
-    public function testGetAutoCommit()
+    public function testIsAutoCommit()
     {
-        $this->assertTrue($this->_conn->getAutoCommit());
+        $this->assertTrue($this->_conn->isAutoCommit());
     }
 
     /**
@@ -234,9 +234,9 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
     public function testSetAutoCommit()
     {
         $this->_conn->setAutoCommit(false);
-        $this->assertFalse($this->_conn->getAutoCommit());
+        $this->assertFalse($this->_conn->isAutoCommit());
         $this->_conn->setAutoCommit(0);
-        $this->assertFalse($this->_conn->getAutoCommit());
+        $this->assertFalse($this->_conn->isAutoCommit());
     }
 
     /**

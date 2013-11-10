@@ -382,9 +382,9 @@ class Connection implements DriverConnection
      *
      * @see    setAutoCommit
      */
-    public function getAutoCommit()
+    public function isAutoCommit()
     {
-        return $this->autoCommit;
+        return true === $this->autoCommit;
     }
 
     /**
@@ -399,7 +399,7 @@ class Connection implements DriverConnection
      *
      * @param boolean $autoCommit True to enable auto-commit mode; false to disable it.
      *
-     * @see   getAutoCommit
+     * @see   isAutoCommit
      */
     public function setAutoCommit($autoCommit)
     {
