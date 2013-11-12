@@ -101,18 +101,16 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $type = $this->_platform->getDoctrineTypeMapping($tableColumn['type']);
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+        $type                   = $this->_platform->getDoctrineTypeMapping($tableColumn['type']);
+        $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
-        $precision = null;
-        $scale = null;
-        $fixed = false;
-        $default = null;
+        $precision              = null;
+        $scale                  = null;
+        $fixed                  = false;
+        $default                = null;
 
         if ($tableColumn['default']) {
-            /**
-             * Strip quotes from default value
-             */
+            // Strip quotes from default value.
             $default = preg_replace(array("/^'(.*)'$/", "/''/"), array("$1", "'"), $tableColumn['default']);
         }
 
@@ -134,15 +132,15 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
             $tableColumn['column_name'],
             Type::getType($type),
             array(
-                'length' => $type == 'string' ? $tableColumn['length'] : null,
-                'precision' => $precision,
-                'scale' => $scale,
-                'unsigned' => (bool) $tableColumn['unsigned'],
-                'fixed' => $fixed,
-                'notnull' => (bool) $tableColumn['notnull'],
-                'default' => $default,
+                'length'        => $type == 'string' ? $tableColumn['length'] : null,
+                'precision'     => $precision,
+                'scale'         => $scale,
+                'unsigned'      => (bool) $tableColumn['unsigned'],
+                'fixed'         => $fixed,
+                'notnull'       => (bool) $tableColumn['notnull'],
+                'default'       => $default,
                 'autoincrement' => (bool) $tableColumn['autoincrement'],
-                'comment' => $tableColumn['comment']
+                'comment'       => $tableColumn['comment']
         ));
     }
 
@@ -178,17 +176,17 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
         foreach ($tableForeignKeys as $tableForeignKey) {
             if (!isset($foreignKeys[$tableForeignKey['index_name']])) {
                 $foreignKeys[$tableForeignKey['index_name']] = array(
-                    'local_columns' => array($tableForeignKey['local_column']),
-                    'foreign_table' => $tableForeignKey['foreign_table'],
+                    'local_columns'   => array($tableForeignKey['local_column']),
+                    'foreign_table'   => $tableForeignKey['foreign_table'],
                     'foreign_columns' => array($tableForeignKey['foreign_column']),
-                    'name' => $tableForeignKey['index_name'],
-                    'options' => array(
-                        'notnull' => $tableForeignKey['notnull'],
-                        'match' => $tableForeignKey['match'],
-                        'onUpdate' => $tableForeignKey['on_update'],
-                        'onDelete' => $tableForeignKey['on_delete'],
-                        'check_on_commit' => $tableForeignKey['check_on_commit'],
-                        'clustered' => $tableForeignKey['clustered'],
+                    'name'            => $tableForeignKey['index_name'],
+                    'options'         => array(
+                        'notnull'           => $tableForeignKey['notnull'],
+                        'match'             => $tableForeignKey['match'],
+                        'onUpdate'          => $tableForeignKey['on_update'],
+                        'onDelete'          => $tableForeignKey['on_delete'],
+                        'check_on_commit'   => $tableForeignKey['check_on_commit'],
+                        'clustered'         => $tableForeignKey['clustered'],
                         'for_olap_workload' => $tableForeignKey['for_olap_workload']
                     )
                 );

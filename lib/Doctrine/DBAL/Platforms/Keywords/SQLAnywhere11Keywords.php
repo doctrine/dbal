@@ -41,9 +41,15 @@ class SQLAnywhere11Keywords extends SQLAnywhereKeywords
      */
     protected function getKeywords()
     {
-        return array_merge(array_diff(parent::getKeywords(), array('IQ')), array(
-            'MERGE',
-            'OPENSTRING'
-        ));
+        return array_merge(
+            array_diff(
+                parent::getKeywords(),
+                array('IQ')
+            ),
+            array(
+                'MERGE',
+                'OPENSTRING'
+            )
+        );
     }
 }

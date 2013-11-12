@@ -129,11 +129,11 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql = array();
-        $columnSql = array();
+        $sql         = array();
+        $columnSql   = array();
         $commentsSQL = array();
-        $tableSql = array();
-        $queryParts = array();
+        $tableSql    = array();
+        $queryParts  = array();
 
         /** @var \Doctrine\DBAL\Schema\Column $column */
         foreach ($diff->addedColumns as $column) {
@@ -262,7 +262,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getConcatExpression()
     {
-        return 'STRING(' . join(', ', (array) func_get_args()) . ')';
+        return 'STRING(' . implode(', ', (array) func_get_args()) . ')';
     }
 
     /**
@@ -278,25 +278,24 @@ class SQLAnywherePlatform extends AbstractPlatform
             $table = $table->getQuotedName($this);
         }
 
-        /** @var string $table */
-
         $query = 'ALTER TABLE ' . $table . ' ADD ';
 
         if ($constraint instanceof Index) {
             if ($constraint->isPrimary()) {
-                $query .= $this->getPrimaryKeyDeclarationSQL($constraint, $constraint->getQuotedName($this));
-            } elseif ($constraint->isUnique()) {
-                $query .= $this->getUniqueConstraintDeclarationSQL($constraint->getQuotedName($this), $constraint);
-            } else {
-                throw new \InvalidArgumentException(
-                    'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
-                );
+                return $query . $this->getPrimaryKeyDeclarationSQL($constraint, $constraint->getQuotedName($this));
             }
-        } else {
-            throw new \InvalidArgumentException('Unsupported constraint type: ' . get_class($constraint));
+
+            if ($constraint->isUnique()) {
+                return $query .
+                    $this->getUniqueConstraintDeclarationSQL($constraint->getQuotedName($this), $constraint);
+            }
+
+            throw new \InvalidArgumentException(
+                'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
+            );
         }
 
-        return $query;
+        throw new \InvalidArgumentException('Unsupported constraint type: ' . get_class($constraint));
     }
 
     /**
@@ -325,8 +324,6 @@ class SQLAnywherePlatform extends AbstractPlatform
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         }
-
-        /** @var string $table */
 
         return 'ALTER TABLE ' . $table . ' ADD ' . $this->getPrimaryKeyDeclarationSQL($index);
     }
@@ -490,7 +487,9 @@ class SQLAnywherePlatform extends AbstractPlatform
     {
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
-        } elseif ( ! is_string($index)) {
+        }
+
+        if ( ! is_string($index)) {
             throw new \InvalidArgumentException(
                 'SQLAnywherePlatform::getDropIndexSQL() expects $index parameter to be string or ' .
                 '\Doctrine\DBAL\Schema\Index.'
@@ -503,7 +502,9 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } elseif ( ! is_string($table)) {
+        }
+
+        if ( ! is_string($table)) {
             throw new \InvalidArgumentException(
                 'SQLAnywherePlatform::getDropIndexSQL() expects $table parameter to be string or ' .
                 '\Doctrine\DBAL\Schema\Table.'
@@ -526,10 +527,10 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getForeignKeyBaseDeclarationSQL(ForeignKeyConstraint $foreignKey)
     {
-        $sql = '';
-        $foreignKeyName = $foreignKey->getName();
-        $localColumns = $foreignKey->getQuotedLocalColumns($this);
-        $foreignColumns = $foreignKey->getQuotedForeignColumns($this);
+        $sql              = '';
+        $foreignKeyName   = $foreignKey->getName();
+        $localColumns     = $foreignKey->getQuotedLocalColumns($this);
+        $foreignColumns   = $foreignKey->getQuotedForeignColumns($this);
         $foreignTableName = $foreignKey->getQuotedForeignTableName($this);
 
         if ( ! empty($foreignKeyName)) {
@@ -633,9 +634,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getIndexDeclarationSQL($name, Index $index)
     {
-        /**
-         * Index declaration in statements like CREATE TABLE is not supported
-         */
+        // Index declaration in statements like CREATE TABLE is not supported.
         throw DBALException::notSupported(__METHOD__);
     }
 
@@ -902,7 +901,7 @@ class SQLAnywherePlatform extends AbstractPlatform
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        $sql = '';
+        $sql   = '';
         $flags = '';
 
         if ( ! empty($name)) {
@@ -974,7 +973,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getSubstringExpression($value, $from, $length = null)
     {
-        if ($length === null) {
+        if (null === $length) {
             return 'SUBSTRING(' . $value . ', ' . $from . ')';
         }
 
@@ -1054,7 +1053,7 @@ class SQLAnywherePlatform extends AbstractPlatform
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        $sql = '';
+        $sql   = '';
         $flags = '';
 
         if ( ! empty($name)) {
@@ -1138,7 +1137,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
-        $unsigned = ! empty($columnDef['unsigned']) ? 'UNSIGNED ' : '';
+        $unsigned      = ! empty($columnDef['unsigned']) ? 'UNSIGNED ' : '';
         $autoincrement = ! empty($columnDef['autoincrement']) ? ' IDENTITY' : '';
 
         return $unsigned . $columnDef['integer_type'] . $autoincrement;
@@ -1231,11 +1230,12 @@ class SQLAnywherePlatform extends AbstractPlatform
             if ($limit == 0) {
                 $limitOffsetClause = 'TOP ALL ';
             }
+
             $limitOffsetClause .= 'START AT ' . ($offset + 1) . ' ';
         }
 
         if ($limitOffsetClause) {
-            $query = preg_replace('/^\s*(SELECT\s+(DISTINCT\s+)?)/i', '\1' . $limitOffsetClause, $query);
+            return preg_replace('/^\s*(SELECT\s+(DISTINCT\s+)?)/i', '\1' . $limitOffsetClause, $query);
         }
 
         return $query;

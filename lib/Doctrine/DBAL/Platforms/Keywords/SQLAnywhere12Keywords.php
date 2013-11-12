@@ -41,18 +41,24 @@ class SQLAnywhere12Keywords extends SQLAnywhere11Keywords
      */
     protected function getKeywords()
     {
-        return array_merge(array_diff(parent::getKeywords(), array(
-            'INDEX_LPAREN',
-            'SYNTAX_ERROR',
-            'WITH_CUBE',
-            'WITH_LPAREN',
-            'WITH_ROLLUP'
-        )), array(
-            'DATETIMEOFFSET',
-            'LIMIT',
-            'OPENXML',
-            'SPATIAL',
-            'TREAT'
-        ));
+        return array_merge(
+            array_diff(
+                parent::getKeywords(),
+                array(
+                    'INDEX_LPAREN',
+                    'SYNTAX_ERROR',
+                    'WITH_CUBE',
+                    'WITH_LPAREN',
+                    'WITH_ROLLUP'
+                )
+            ),
+            array(
+                'DATETIMEOFFSET',
+                'LIMIT',
+                'OPENXML',
+                'SPATIAL',
+                'TREAT'
+            )
+        );
     }
 }

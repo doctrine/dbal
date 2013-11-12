@@ -42,24 +42,23 @@ class SQLAnywhereException extends DBALException
      */
     public static function fromSQLAnywhereError($conn = null, $stmt = null)
     {
-        if ($conn !== null && ! (is_resource($conn) && get_resource_type($conn) == 'SQLAnywhere connection')) {
+        if (null !== $conn && ! (is_resource($conn) && get_resource_type($conn) === 'SQLAnywhere connection')) {
             throw new \InvalidArgumentException('Invalid SQL Anywhere connection resource given: ' . $conn);
         }
 
-        if ($stmt !== null && ! (is_resource($stmt) && get_resource_type($stmt) == 'SQLAnywhere statement')) {
+        if (null !== $stmt && ! (is_resource($stmt) && get_resource_type($stmt) === 'SQLAnywhere statement')) {
             throw new \InvalidArgumentException('Invalid SQL Anywhere statement resource given: ' . $stmt);
         }
 
-        $state = $conn ? sasql_sqlstate($conn) : sasql_sqlstate();
-
-        $code = null;
+        $state   = $conn ? sasql_sqlstate($conn) : sasql_sqlstate();
+        $code    = null;
         $message = null;
 
         /**
          * Try retrieving the last error from statement resource if given
          */
         if ($stmt) {
-            $code = sasql_stmt_errno($stmt);
+            $code    = sasql_stmt_errno($stmt);
             $message = sasql_stmt_error($stmt);
         }
 
@@ -72,7 +71,7 @@ class SQLAnywhereException extends DBALException
          * a prepared statement.
          */
         if ($conn && ! $code) {
-            $code = sasql_errorcode($conn);
+            $code    = sasql_errorcode($conn);
             $message = sasql_error($conn);
         }
 
@@ -82,17 +81,15 @@ class SQLAnywhereException extends DBALException
          * connection / statement resource.
          */
         if ( ! $conn || ! $code) {
-            $code = sasql_errorcode();
+            $code    = sasql_errorcode();
             $message = sasql_error();
         }
 
         if ($message) {
-            $message = 'SQLSTATE [' . $state . '] [' . $code . '] ' . $message;
-        } else {
-            $message = 'SQL Anywhere error occurred but no error message was retrieved from driver.';
+            return new self('SQLSTATE [' . $state . '] [' . $code . '] ' . $message, $code);
         }
 
-        return new self($message, $code);
+        return new self('SQL Anywhere error occurred but no error message was retrieved from driver.', $code);
     }
 }
 

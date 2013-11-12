@@ -41,13 +41,16 @@ class SQLAnywhere16Keywords extends SQLAnywhere12Keywords
      */
     protected function getKeywords()
     {
-        return array_merge(parent::getKeywords(), array(
-            'ARRAY',
-            'JSON',
-            'ROW',
-            'ROWTYPE',
-            'UNNEST',
-            'VARRAY'
-        ));
+        return array_merge(
+            parent::getKeywords(),
+            array(
+                'ARRAY',
+                'JSON',
+                'ROW',
+                'ROWTYPE',
+                'UNNEST',
+                'VARRAY'
+            )
+        );
     }
 }

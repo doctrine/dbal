@@ -36,22 +36,27 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      * @var resource The connection resource.
      */
     private $conn;
+
     /**
      * @var string Name of the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
      */
     private $defaultFetchClass = '\stdClass';
+
     /**
      * @var string Constructor arguments for the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
      */
     private $defaultFetchClassCtorArgs = array();
+
     /**
      * @var int Default fetch mode to use.
      */
     private $defaultFetchMode = PDO::FETCH_BOTH;
+
     /**
      * @var resource The result set resource to fetch.
      */
     private $result;
+
     /**
      * @var resource The prepared SQL statement to execute.
      */
@@ -69,14 +74,14 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function __construct($conn, $sql)
     {
-        if ( ! is_resource($conn) || get_resource_type($conn) != 'SQLAnywhere connection') {
+        if ( ! is_resource($conn) || get_resource_type($conn) !== 'SQLAnywhere connection') {
             throw new SQLAnywhereException('Invalid SQL Anywhere connection resource: ' . $conn);
         }
 
         $this->conn = $conn;
         $this->stmt = sasql_prepare($conn, $sql);
 
-        if ( ! is_resource($this->stmt) || get_resource_type($this->stmt) != 'SQLAnywhere statement') {
+        if ( ! is_resource($this->stmt) || get_resource_type($this->stmt) !== 'SQLAnywhere statement') {
             throw SQLAnywhereException::fromSQLAnywhereError($conn);
         }
     }
@@ -164,10 +169,12 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if ($params) {
+        if (is_array($params)) {
             $hasZeroIndex = array_key_exists(0, $params);
+
             foreach ($params as $key => $val) {
                 $key = ($hasZeroIndex && is_numeric($key)) ? $key + 1 : $key;
+
                 $this->bindValue($key, $val);
             }
         }
@@ -188,7 +195,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null)
     {
-        if ( ! is_resource($this->result) || get_resource_type($this->result) != 'SQLAnywhere result') {
+        if ( ! is_resource($this->result) || get_resource_type($this->result) !== 'SQLAnywhere result') {
             return false;
         }
 
@@ -201,12 +208,12 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 return sasql_fetch_array($this->result, SASQL_BOTH);
             case PDO::FETCH_CLASS:
                 $className = $this->defaultFetchClass;
-                $ctorArgs = $this->defaultFetchClassCtorArgs;
+                $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
                 if (func_num_args() >= 2) {
-                    $args = func_get_args();
+                    $args      = func_get_args();
                     $className = $args[1];
-                    $ctorArgs = isset($args[2]) ? $args[2] : array();
+                    $ctorArgs  = isset($args[2]) ? $args[2] : array();
                 }
 
                 $result = sasql_fetch_object($this->result);
@@ -287,8 +294,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        $this->defaultFetchMode = $fetchMode;
-        $this->defaultFetchClass = $arg2 ? $arg2 : $this->defaultFetchClass;
+        $this->defaultFetchMode          = $fetchMode;
+        $this->defaultFetchClass         = $arg2 ? $arg2 : $this->defaultFetchClass;
         $this->defaultFetchClassCtorArgs = $arg3 ? (array) $arg3 : $this->defaultFetchClassCtorArgs;
     }
 
@@ -316,16 +323,18 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
             $destinationClass = $destinationClass->newInstanceArgs($ctorArgs);
         }
 
-        $sourceReflection = new \ReflectionObject($sourceObject);
+        $sourceReflection           = new \ReflectionObject($sourceObject);
         $destinationClassReflection = new \ReflectionObject($destinationClass);
 
         foreach ($sourceReflection->getProperties() as $sourceProperty) {
             $sourceProperty->setAccessible(true);
-            $name = $sourceProperty->getName();
+
+            $name  = $sourceProperty->getName();
             $value = $sourceProperty->getValue($sourceObject);
 
             if ($destinationClassReflection->hasProperty($name)) {
                 $destinationProperty = $destinationClassReflection->getProperty($name);
+
                 $destinationProperty->setAccessible(true);
                 $destinationProperty->setValue($destinationClass, $value);
             } else {
@@ -336,4 +345,3 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         return $destinationClass;
     }
 }
-

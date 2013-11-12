@@ -77,8 +77,6 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
             $sequence = $sequence->getQuotedName($this);
         }
 
-        /** @var string $sequence */
-
         return 'DROP SEQUENCE ' . $sequence;
     }
 
@@ -111,13 +109,11 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
      */
     protected function getAdvancedIndexOptionsSQL(Index $index)
     {
-        $sql = '';
-
         if (!$index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_not_distinct')) {
-            $sql .= ' WITH NULLS NOT DISTINCT';
+            return ' WITH NULLS NOT DISTINCT' . parent::getAdvancedIndexOptionsSQL($index);
         }
 
-        return $sql . parent::getAdvancedIndexOptionsSQL($index);
+        return parent::getAdvancedIndexOptionsSQL($index);
     }
 
     /**

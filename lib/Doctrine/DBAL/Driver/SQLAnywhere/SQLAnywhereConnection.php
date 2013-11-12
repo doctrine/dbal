@@ -33,7 +33,7 @@ class SQLAnywhereConnection implements Connection
     /**
      * @var resource The SQL Anywhere connection resource.
      */
-    private $conn;
+    private $connection;
 
     /**
      * Constructor.
@@ -47,31 +47,25 @@ class SQLAnywhereConnection implements Connection
      */
     public function __construct($dsn, $persistent = false)
     {
-        $this->conn = $persistent ? @sasql_pconnect($dsn) : @sasql_connect($dsn);
+        $this->connection = $persistent ? @sasql_pconnect($dsn) : @sasql_connect($dsn);
 
-        if ( ! is_resource($this->conn) || get_resource_type($this->conn) != 'SQLAnywhere connection') {
+        if ( ! is_resource($this->connection) || get_resource_type($this->connection) !== 'SQLAnywhere connection') {
             throw SQLAnywhereException::fromSQLAnywhereError();
         }
 
-        /**
-         * Disable PHP warnings on error
-         */
-        if ( ! sasql_set_option($this->conn, 'verbose_errors', false)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn);
+        // Disable PHP warnings on error.
+        if ( ! sasql_set_option($this->connection, 'verbose_errors', false)) {
+            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
-        /**
-         * Enable auto committing by default
-         */
-        if ( ! sasql_set_option($this->conn, 'auto_commit', 'on')) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn);
+        // Enable auto committing by default.
+        if ( ! sasql_set_option($this->connection, 'auto_commit', 'on')) {
+            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
-        /**
-         * Enable exact, non-approximated row count retrieval
-         */
-        if ( ! sasql_set_option($this->conn, 'row_counts', true)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn);
+        // Enable exact, non-approximated row count retrieval.
+        if ( ! sasql_set_option($this->connection, 'row_counts', true)) {
+            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
     }
 
@@ -82,8 +76,8 @@ class SQLAnywhereConnection implements Connection
      */
     public function beginTransaction()
     {
-        if ( ! sasql_set_option($this->conn, 'auto_commit', 'off')) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn);
+        if ( ! sasql_set_option($this->connection, 'auto_commit', 'off')) {
+            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
         return true;
@@ -96,8 +90,8 @@ class SQLAnywhereConnection implements Connection
      */
     public function commit()
     {
-        if ( ! sasql_commit($this->conn)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn);
+        if ( ! sasql_commit($this->connection)) {
+            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
         $this->endTransaction();
@@ -110,7 +104,7 @@ class SQLAnywhereConnection implements Connection
      */
     public function errorCode()
     {
-        return sasql_errorcode($this->conn);
+        return sasql_errorcode($this->connection);
     }
 
     /**
@@ -118,7 +112,7 @@ class SQLAnywhereConnection implements Connection
      */
     public function errorInfo()
     {
-        return sasql_error($this->conn);
+        return sasql_error($this->connection);
     }
 
     /**
@@ -127,6 +121,7 @@ class SQLAnywhereConnection implements Connection
     public function exec($statement)
     {
         $stmt = $this->prepare($statement);
+
         $stmt->execute();
 
         return $stmt->rowCount();
@@ -137,8 +132,8 @@ class SQLAnywhereConnection implements Connection
      */
     public function lastInsertId($name = null)
     {
-        if ($name === null) {
-            return sasql_insert_id($this->conn);
+        if (null === $name) {
+            return sasql_insert_id($this->connection);
         }
 
         return $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();
@@ -149,7 +144,7 @@ class SQLAnywhereConnection implements Connection
      */
     public function prepare($prepareString)
     {
-        return new SQLAnywhereStatement($this->conn, $prepareString);
+        return new SQLAnywhereStatement($this->connection, $prepareString);
     }
 
     /**
@@ -159,6 +154,7 @@ class SQLAnywhereConnection implements Connection
     {
         $args = func_get_args();
         $stmt = $this->prepare($args[0]);
+
         $stmt->execute();
 
         return $stmt;
@@ -173,7 +169,7 @@ class SQLAnywhereConnection implements Connection
             return $input;
         }
 
-        return "'" . sasql_escape_string($this->conn, $input) . "'";
+        return "'" . sasql_escape_string($this->connection, $input) . "'";
     }
 
     /**
@@ -183,8 +179,8 @@ class SQLAnywhereConnection implements Connection
      */
     public function rollBack()
     {
-        if ( ! sasql_rollback($this->conn)) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn);
+        if ( ! sasql_rollback($this->connection)) {
+            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
         $this->endTransaction();
@@ -201,8 +197,8 @@ class SQLAnywhereConnection implements Connection
      */
     private function endTransaction()
     {
-        if ( ! sasql_set_option($this->conn, 'auto_commit', 'on')) {
-            throw SQLAnywhereException::fromSQLAnywhereError($this->conn);
+        if ( ! sasql_set_option($this->connection, 'auto_commit', 'on')) {
+            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
         }
 
         return true;
