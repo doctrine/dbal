@@ -23,6 +23,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -129,11 +131,11 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql         = array();
-        $columnSql   = array();
-        $commentsSQL = array();
-        $tableSql    = array();
-        $queryParts  = array();
+        $sql          = array();
+        $columnSql    = array();
+        $commentsSQL  = array();
+        $tableSql     = array();
+        $alterClauses = array();
 
         /** @var \Doctrine\DBAL\Schema\Column $column */
         foreach ($diff->addedColumns as $column) {
@@ -141,10 +143,12 @@ class SQLAnywherePlatform extends AbstractPlatform
                 continue;
             }
 
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $alterClauses[] = $this->getAlterTableAddColumnClause($column);
 
-            if ($comment = $this->getColumnComment($column)) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
+            $comment = $this->getColumnComment($column);
+
+            if ($comment) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getQuotedName($this), $comment);
             }
         }
 
@@ -154,7 +158,7 @@ class SQLAnywherePlatform extends AbstractPlatform
                 continue;
             }
 
-            $queryParts[] = 'DROP ' . $column->getQuotedName($this);
+            $alterClauses[] = $this->getAlterTableRemoveColumnClause($column);
         }
 
         /** @var \Doctrine\DBAL\Schema\ColumnDiff $columnDiff */
@@ -163,21 +167,18 @@ class SQLAnywherePlatform extends AbstractPlatform
                 continue;
             }
 
-            $column = $columnDiff->column;
-            $columnHasChangedComment = $columnDiff->hasChanged('comment');
+            $alterClause = $this->getAlterTableChangeColumnClause($columnDiff);
 
-            /**
-             * Do not add query part if only comment has changed
-             */
-            if ( ! ($columnHasChangedComment && count($columnDiff->changedProperties) === 1)) {
-                $queryParts[] = 'ALTER ' .
-                        $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            if (null !== $alterClause) {
+                $alterClauses[] = $alterClause;
             }
 
-            if ($columnHasChangedComment) {
+            if ($columnDiff->hasChanged('comment')) {
+                $column = $columnDiff->column;
+
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->name,
-                    $column->getName(),
+                    $column->getQuotedName($this),
                     $this->getColumnComment($column)
                 );
             }
@@ -188,22 +189,105 @@ class SQLAnywherePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
+            $sql[] = $this->getAlterTableClause($diff->name) . ' ' .
+                $this->getAlterTableRenameColumnClause($oldColumnName, $column);
         }
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
-            if ( ! empty($queryParts)) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
+            if ( ! empty($alterClauses)) {
+                $sql[] = $this->getAlterTableClause($diff->name) . ' ' . implode(", ", $alterClauses);
             }
 
             if ($diff->newName !== false) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME ' . $diff->newName;
+                $sql[] = $this->getAlterTableClause($diff->name) . ' ' .
+                    $this->getAlterTableRenameTableClause($diff->newName);
             }
 
             $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * Returns the SQL clause for creating a column in a table alteration.
+     *
+     * @param Column $column The column to add.
+     *
+     * @return string
+     */
+    protected function getAlterTableAddColumnClause(Column $column)
+    {
+        return 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+    }
+
+    /**
+     * Returns the SQL clause for altering a table.
+     *
+     * @param string $tableName The quoted name of the table to alter.
+     *
+     * @return string
+     */
+    protected function getAlterTableClause($tableName)
+    {
+        return 'ALTER TABLE ' . $tableName;
+    }
+
+    /**
+     * Returns the SQL clause for dropping a column in a table alteration.
+     *
+     * @param Column $column The column to drop.
+     *
+     * @return string
+     */
+    protected function getAlterTableRemoveColumnClause(Column $column)
+    {
+        return 'DROP ' . $column->getQuotedName($this);
+    }
+
+    /**
+     * Returns the SQL clause for renaming a column in a table alteration.
+     *
+     * @param string $oldColumnName The quoted name of the column to rename.
+     * @param Column $column        The column to rename to.
+     *
+     * @return string
+     */
+    protected function getAlterTableRenameColumnClause($oldColumnName, Column $column)
+    {
+        return 'RENAME ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
+    }
+
+    /**
+     * Returns the SQL clause for renaming a table in a table alteration.
+     *
+     * @param string $newTableName The quoted name of the table to rename to.
+     *
+     * @return string
+     */
+    protected function getAlterTableRenameTableClause($newTableName)
+    {
+        return 'RENAME ' . $newTableName;
+    }
+
+    /**
+     * Returns the SQL clause for altering a column in a table alteration.
+     *
+     * This method returns null in case that only the column comment has changed.
+     * Changes in column comments have to be handled differently.
+     *
+     * @param ColumnDiff $columnDiff The diff of the column to alter.
+     *
+     * @return string|null
+     */
+    protected function getAlterTableChangeColumnClause(ColumnDiff $columnDiff)
+    {
+        $column = $columnDiff->column;
+
+        // Do not return alter clause if only comment has changed.
+        if ( ! ($columnDiff->hasChanged('comment') && count($columnDiff->changedProperties) === 1)) {
+            return 'ALTER ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+        }
     }
 
     /**
@@ -278,24 +362,8 @@ class SQLAnywherePlatform extends AbstractPlatform
             $table = $table->getQuotedName($this);
         }
 
-        $query = 'ALTER TABLE ' . $table . ' ADD ';
-
-        if ($constraint instanceof Index) {
-            if ($constraint->isPrimary()) {
-                return $query . $this->getPrimaryKeyDeclarationSQL($constraint, $constraint->getQuotedName($this));
-            }
-
-            if ($constraint->isUnique()) {
-                return $query .
-                    $this->getUniqueConstraintDeclarationSQL($constraint->getQuotedName($this), $constraint);
-            }
-
-            throw new \InvalidArgumentException(
-                'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
-            );
-        }
-
-        throw new \InvalidArgumentException('Unsupported constraint type: ' . get_class($constraint));
+        return 'ALTER TABLE ' . $table .
+               ' ADD ' . $this->getTableConstraintDeclarationSQL($constraint, $constraint->getQuotedName($this));
     }
 
     /**
@@ -891,28 +959,17 @@ class SQLAnywherePlatform extends AbstractPlatform
      *
      * @return string DBMS specific SQL code portion needed to set a primary key
      *
-     * @throws \InvalidArgumentException
+     * @throws \InvalidArgumentException if the given index is not a primary key.
      */
     public function getPrimaryKeyDeclarationSQL(Index $index, $name = null)
     {
-        $indexColumns = $index->getQuotedColumns($this);
-
-        if (empty($indexColumns)) {
-            throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
+        if ( ! $index->isPrimary()) {
+            throw new \InvalidArgumentException(
+                'Can only create primary key declarations with getPrimaryKeyDeclarationSQL()'
+            );
         }
 
-        $sql   = '';
-        $flags = '';
-
-        if ( ! empty($name)) {
-            $sql .= 'CONSTRAINT ' . $name . ' ';
-        }
-
-        if ($index->hasFlag('clustered')) {
-            $flags = 'CLUSTERED ';
-        }
-
-        return $sql . 'PRIMARY KEY ' . $flags . '('. $this->getIndexFieldDeclarationListSQL($indexColumns) . ')';
+        return $this->getTableConstraintDeclarationSQL($index, $name);
     }
 
     /**
@@ -1047,25 +1104,20 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
-        $indexColumns = $index->getQuotedColumns($this);
-
-        if (empty($indexColumns)) {
-            throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
+        if ($index->isPrimary()) {
+            throw new \InvalidArgumentException(
+                'Cannot create primary key constraint declarations with getUniqueConstraintDeclarationSQL().'
+            );
         }
 
-        $sql   = '';
-        $flags = '';
-
-        if ( ! empty($name)) {
-            $sql .= 'CONSTRAINT ' . $name . ' ';
+        if ( ! $index->isUnique()) {
+            throw new \InvalidArgumentException(
+                'Can only create unique constraint declarations, no common index declarations with ' .
+                'getUniqueConstraintDeclarationSQL().'
+            );
         }
 
-        if ($index->hasFlag('clustered')) {
-            $flags = 'CLUSTERED ';
-        }
-
-        return $sql . $this->getUniqueFieldDeclarationSQL() . ' ' . $flags .
-            '(' . $this->getIndexFieldDeclarationListSQL($indexColumns) . ')';
+        return $this->getTableConstraintDeclarationSQL($index, $name);
     }
 
     /**
@@ -1258,6 +1310,57 @@ class SQLAnywherePlatform extends AbstractPlatform
         }
 
         return $sql;
+    }
+
+    /**
+     * Returns the SQL snippet for creating a table constraint.
+     *
+     * @param Constraint  $constraint The table constraint to create the SQL snippet for.
+     * @param string|null $name       The table constraint name to use if any.
+     *
+     * @return string
+     *
+     * @throws \InvalidArgumentException if the given table constraint type is not supported by this method.
+     */
+    protected function getTableConstraintDeclarationSQL(Constraint $constraint, $name = null)
+    {
+        if ($constraint instanceof ForeignKeyConstraint) {
+            return $this->getForeignKeyDeclarationSQL($constraint);
+        }
+
+        if ( ! $constraint instanceof Index) {
+            throw new \InvalidArgumentException('Unsupported constraint type: ' . get_class($constraint));
+        }
+
+        if ( ! $constraint->isPrimary() && ! $constraint->isUnique()) {
+            throw new \InvalidArgumentException(
+                'Can only create primary, unique or foreign key constraint declarations, no common index declarations ' .
+                'with getTableConstraintDeclarationSQL().'
+            );
+        }
+
+        $constraintColumns = $constraint->getQuotedColumns($this);
+
+        if (empty($constraintColumns)) {
+            throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
+        }
+
+        $sql   = '';
+        $flags = '';
+
+        if ( ! empty($name)) {
+            $sql .= 'CONSTRAINT ' . $name . ' ';
+        }
+
+        if ($constraint->hasFlag('clustered')) {
+            $flags = 'CLUSTERED ';
+        }
+
+        if ($constraint->isPrimary()) {
+            return $sql . 'PRIMARY KEY ' . $flags . '('. $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
+        }
+
+        return $sql . 'UNIQUE ' . $flags . '('. $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
     }
 
     /**
