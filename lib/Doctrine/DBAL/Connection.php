@@ -118,6 +118,13 @@ class Connection implements DriverConnection
     private $_isConnected = false;
 
     /**
+     * The current auto-commit mode of this connection.
+     *
+     * @var boolean
+     */
+    private $autoCommit = true;
+
+    /**
      * The transaction nesting level.
      *
      * @var integer
@@ -225,6 +232,7 @@ class Connection implements DriverConnection
         $this->_platform->setEventManager($eventManager);
 
         $this->_transactionIsolationLevel = $this->_platform->getDefaultTransactionIsolationLevel();
+        $this->autoCommit = $config->getAutoCommit();
     }
 
     /**
@@ -356,12 +364,59 @@ class Connection implements DriverConnection
         $this->_conn = $this->_driver->connect($this->_params, $user, $password, $driverOptions);
         $this->_isConnected = true;
 
+        if (false === $this->autoCommit) {
+            $this->beginTransaction();
+        }
+
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
             $eventArgs = new Event\ConnectionEventArgs($this);
             $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 
         return true;
+    }
+
+    /**
+     * Returns the current auto-commit mode for this connection.
+     *
+     * @return boolean True if auto-commit mode is currently enabled for this connection, false otherwise.
+     *
+     * @see    setAutoCommit
+     */
+    public function isAutoCommit()
+    {
+        return true === $this->autoCommit;
+    }
+
+    /**
+     * Sets auto-commit mode for this connection.
+     *
+     * If a connection is in auto-commit mode, then all its SQL statements will be executed and committed as individual
+     * transactions. Otherwise, its SQL statements are grouped into transactions that are terminated by a call to either
+     * the method commit or the method rollback. By default, new connections are in auto-commit mode.
+     *
+     * NOTE: If this method is called during a transaction and the auto-commit mode is changed, the transaction is
+     * committed. If this method is called and the auto-commit mode is not changed, the call is a no-op.
+     *
+     * @param boolean $autoCommit True to enable auto-commit mode; false to disable it.
+     *
+     * @see   isAutoCommit
+     */
+    public function setAutoCommit($autoCommit)
+    {
+        $autoCommit = (boolean) $autoCommit;
+
+        // Mode not changed, no-op.
+        if ($autoCommit === $this->autoCommit) {
+            return;
+        }
+
+        $this->autoCommit = $autoCommit;
+
+        // Commit all currently active transactions if any when switching auto-commit mode.
+        if (true === $this->_isConnected && 0 !== $this->_transactionNestingLevel) {
+            $this->commitAll();
+        }
     }
 
     /**
@@ -1095,6 +1150,28 @@ class Connection implements DriverConnection
         }
 
         --$this->_transactionNestingLevel;
+
+        if (false === $this->autoCommit && 0 === $this->_transactionNestingLevel) {
+            $this->beginTransaction();
+        }
+    }
+
+    /**
+     * Commits all current nesting transactions.
+     */
+    private function commitAll()
+    {
+        while (0 !== $this->_transactionNestingLevel) {
+            if (false === $this->autoCommit && 1 === $this->_transactionNestingLevel) {
+                // When in no auto-commit mode, the last nesting commit immediately starts a new transaction.
+                // Therefore we need to do the final commit here and then leave to avoid an infinite loop.
+                $this->commit();
+
+                return;
+            }
+
+            $this->commit();
+        }
     }
 
     /**
@@ -1124,6 +1201,10 @@ class Connection implements DriverConnection
             $this->_isRollbackOnly = false;
             if ($logger) {
                 $logger->stopQuery();
+            }
+
+            if (false === $this->autoCommit) {
+                $this->beginTransaction();
             }
         } else if ($this->_nestTransactionsWithSavepoints) {
             if ($logger) {
