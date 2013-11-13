@@ -9,13 +9,12 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('mysqli is not installed.');
         }
 
-        $driver = getenv('DB');
-        if (false !== $driver && $driver !== 'mysqli') {
-            $this->markTestSkipped('this test case is for mysqli only');
-        }
-
         $this->resetSharedConn();
         parent::setUp();
+
+        if ( !($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver)) {
+            $this->markTestSkipped('MySQLi only test.');
+        }
     }
 
     public function tearDown()
