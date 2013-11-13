@@ -19,9 +19,11 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\DBALException;
+
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
-class MysqliException extends \Exception
+class MysqliException extends DBALException
 {
 }

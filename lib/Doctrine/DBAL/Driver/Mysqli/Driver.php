@@ -20,6 +20,8 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver as DriverInterface;
+use Doctrine\DBAL\Driver\Mysqli\MysqliException;
+use Doctrine\DBAL\DBALException;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
@@ -31,7 +33,11 @@ class Driver implements DriverInterface
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return new MysqliConnection($params, $username, $password, $driverOptions);
+        try {
+            return new MysqliConnection($params, $username, $password, $driverOptions);
+        } catch (MysqliException $e) {
+            throw DBALException::driverException($this, $e);
+        }
     }
 
     /**
@@ -66,5 +72,61 @@ class Driver implements DriverInterface
         $params = $conn->getParams();
 
         return $params['dbname'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        if (strpos($exception->getMessage(), 'Table') === 0) {
+            if (strpos($exception->getMessage(), 'doesn\'t exist') !== false) {
+                return DBALException::ERROR_UNKNOWN_TABLE;
+            }
+
+            if (strpos($exception->getMessage(), 'already exists') !== false) {
+                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+            }
+        }
+
+        if (strpos($exception->getMessage(), 'Unknown column') === 0) {
+            return DBALException::ERROR_BAD_FIELD_NAME;
+        }
+
+        if (strpos($exception->getMessage(), 'Cannot delete or update a parent row: a foreign key constraint fails') !== false) {
+            return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+        }
+
+        if (strpos($exception->getMessage(), 'Duplicate entry') !== false) {
+            return DBALException::ERROR_DUPLICATE_KEY;
+        }
+
+        if (strpos($exception->getMessage(), 'Column not found: 1054 Unknown column') !== false) {
+            return DBALException::ERROR_BAD_FIELD_NAME;
+        }
+
+        if (strpos($exception->getMessage(), 'in field list is ambiguous') !== falsE) {
+            return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+        }
+
+        if (strpos($exception->getMessage(), 'You have an error in your SQL syntax; check the manual') !== false) {
+            return DBALException::ERROR_SYNTAX;
+        }
+
+        if (strpos($exception->getMessage(), 'Access denied for user') !== false) {
+            return DBALException::ERROR_ACCESS_DENIED;
+        }
+
+        if (strpos($exception->getMessage(), 'getaddrinfo failed: Name or service not known') !== false) {
+            return DBALException::ERROR_ACCESS_DENIED;
+        }
+
+        if (strpos($exception->getMessage(), ' cannot be null')) {
+            return DBALException::ERROR_NOT_NULL;
+        }
+
+        var_dump($exception->geTcode());
+        var_dump($exception->getMEssage());
+        return 0;
     }
 }

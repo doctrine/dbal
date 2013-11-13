@@ -83,4 +83,12 @@ class Driver implements \Doctrine\DBAL\Driver
         $params = $conn->getParams();
         return $params['dbname'];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        return 0;
+    }
 }
