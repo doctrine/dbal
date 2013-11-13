@@ -17,6 +17,8 @@ class TestUtil
      * 'db_username' : The username to use for connecting.
      * 'db_password' : The password to use for connecting.
      * 'db_host' : The hostname of the database to connect to.
+     * 'db_server' : The server name of the database to connect to
+     *               (optional, some vendors allow multiple server instances with different names on the same host).
      * 'db_name' : The name of the database to connect to.
      * 'db_port' : The port of the database to connect to.
      *
@@ -53,8 +55,16 @@ class TestUtil
                 'port' => $GLOBALS['tmpdb_port']
             );
 
+            if (isset($GLOBALS['db_server'])) {
+                $realDbParams['server'] = $GLOBALS['db_server'];
+            }
+
             if (isset($GLOBALS['db_unix_socket'])) {
                 $realDbParams['unix_socket'] = $GLOBALS['db_unix_socket'];
+            }
+
+            if (isset($GLOBALS['tmpdb_server'])) {
+                $tmpDbParams['server'] = $GLOBALS['tmpdb_server'];
             }
 
             if (isset($GLOBALS['tmpdb_unix_socket'])) {
@@ -123,6 +133,10 @@ class TestUtil
             'dbname' => $GLOBALS['tmpdb_name'],
             'port' => $GLOBALS['tmpdb_port']
         );
+
+        if (isset($GLOBALS['tmpdb_server'])) {
+            $tmpDbParams['server'] = $GLOBALS['tmpdb_server'];
+        }
 
         // Connect to tmpdb in order to drop and create the real test db.
         return \Doctrine\DBAL\DriverManager::getConnection($tmpDbParams);

@@ -38,18 +38,19 @@ final class DriverManager
      * @var array
      */
      private static $_driverMap = array(
-            'pdo_mysql'  => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
-            'pdo_sqlite' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver',
-            'pdo_pgsql'  => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
-            'pdo_oci' => 'Doctrine\DBAL\Driver\PDOOracle\Driver',
-            'oci8' => 'Doctrine\DBAL\Driver\OCI8\Driver',
-            'ibm_db2' => 'Doctrine\DBAL\Driver\IBMDB2\DB2Driver',
-            'pdo_ibm' => 'Doctrine\DBAL\Driver\PDOIbm\Driver',
-            'pdo_sqlsrv' => 'Doctrine\DBAL\Driver\PDOSqlsrv\Driver',
-            'mysqli' => 'Doctrine\DBAL\Driver\Mysqli\Driver',
-            'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
-            'sqlsrv' => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
-            );
+         'pdo_mysql'          => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
+         'pdo_sqlite'         => 'Doctrine\DBAL\Driver\PDOSqlite\Driver',
+         'pdo_pgsql'          => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
+         'pdo_oci'            => 'Doctrine\DBAL\Driver\PDOOracle\Driver',
+         'oci8'               => 'Doctrine\DBAL\Driver\OCI8\Driver',
+         'ibm_db2'            => 'Doctrine\DBAL\Driver\IBMDB2\DB2Driver',
+         'pdo_ibm'            => 'Doctrine\DBAL\Driver\PDOIbm\Driver',
+         'pdo_sqlsrv'         => 'Doctrine\DBAL\Driver\PDOSqlsrv\Driver',
+         'mysqli'             => 'Doctrine\DBAL\Driver\Mysqli\Driver',
+         'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
+         'sqlanywhere'        => 'Doctrine\DBAL\Driver\SQLAnywhere\Driver',
+         'sqlsrv'             => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
+    );
 
     /**
      * Private constructor. This class cannot be instantiated.
@@ -75,6 +76,7 @@ final class DriverManager
      *     pdo_ibm (unstable)
      *     pdo_sqlsrv
      *     mysqli
+     *     sqlanywhere
      *     sqlsrv
      *     ibm_db2 (unstable)
      *     drizzle_pdo_mysql

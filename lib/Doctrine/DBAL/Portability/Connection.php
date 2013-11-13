@@ -42,6 +42,7 @@ class Connection extends \Doctrine\DBAL\Connection
     const PORTABILITY_SQLITE            = 13;
     const PORTABILITY_OTHERVENDORS      = 12;
     const PORTABILITY_DRIZZLE           = 13;
+    const PORTABILITY_SQLANYWHERE       = 13;
     const PORTABILITY_SQLSRV            = 13;
 
     /**
@@ -71,6 +72,8 @@ class Connection extends \Doctrine\DBAL\Connection
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLITE;
                 } else if ($this->_platform->getName() === "drizzle") {
                     $params['portability'] = self::PORTABILITY_DRIZZLE;
+                } else if ($this->_platform->getName() === 'sqlanywhere') {
+                    $params['portability'] = self::PORTABILITY_SQLANYWHERE;
                 } else if ($this->_platform->getName() === 'sqlsrv') {
                     $params['portability'] = $params['portabililty'] & self::PORTABILITY_SQLSRV;
                 } else {
