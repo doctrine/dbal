@@ -109,7 +109,7 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
      */
     protected function getAdvancedIndexOptionsSQL(Index $index)
     {
-        if (!$index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_not_distinct')) {
+        if ( ! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_not_distinct')) {
             return ' WITH NULLS NOT DISTINCT' . parent::getAdvancedIndexOptionsSQL($index);
         }
 
