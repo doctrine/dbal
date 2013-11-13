@@ -18,7 +18,9 @@
  */
 
 namespace Doctrine\DBAL\Driver\PDOSqlite;
+
 use Doctrine\DBAL\DBALException;
+use PDOException;
 
 /**
  * The PDO Sqlite driver.
@@ -47,12 +49,16 @@ class Driver implements \Doctrine\DBAL\Driver
             unset($driverOptions['userDefinedFunctions']);
         }
 
-        $pdo = new \Doctrine\DBAL\Driver\PDOConnection(
-            $this->_constructPdoDsn($params),
-            $username,
-            $password,
-            $driverOptions
-        );
+        try {
+            $pdo = new \Doctrine\DBAL\Driver\PDOConnection(
+                $this->_constructPdoDsn($params),
+                $username,
+                $password,
+                $driverOptions
+            );
+        } catch (PDOException $ex) {
+            throw DBALException::driverException($this, $ex);
+        }
 
         foreach ($this->_userDefinedFunctions as $fn => $data) {
             $pdo->sqliteCreateFunction($fn, $data['callback'], $data['numArgs']);
@@ -119,47 +125,44 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function convertExceptionCode(\Exception $exception)
     {
-        switch ($exception->getCode()) {
-            case 23000:
-                if (strpos($exception->getMessage(), 'must be unique') !== false) {
-                    return DBALException::ERROR_DUPLICATE_KEY;
-                }
+        if (strpos($exception->getMessage(), 'must be unique') !== false) {
+            return DBALException::ERROR_DUPLICATE_KEY;
+        }
 
-                if (strpos($exception->getMessage(), 'may not be NULL') !== false) {
-                    return DBALException::ERROR_NOT_NULL;
-                }
+        if (strpos($exception->getMessage(), 'may not be NULL') !== false) {
+            return DBALException::ERROR_NOT_NULL;
+        }
 
-                if (strpos($exception->getMessage(), 'is not unique') !== false) {
-                    return DBALException::ERROR_NOT_UNIQUE;
-                }
-            case 'HY000':
-                if (strpos($exception->getMessage(), 'no such table:') !== false) {
-                    return DBALException::ERROR_UNKNOWN_TABLE;
-                }
+        if (strpos($exception->getMessage(), 'is not unique') !== false) {
+            return DBALException::ERROR_NOT_UNIQUE;
+        }
 
-                if (strpos($exception->getMessage(), 'already exists') !== false) {
-                    return DBALException::ERROR_TABLE_ALREADY_EXISTS;
-                }
+        if (strpos($exception->getMessage(), 'no such table:') !== false) {
+            return DBALException::ERROR_UNKNOWN_TABLE;
+        }
 
-                if (strpos($exception->getMessage(), 'has no column named') !== false) {
-                    return DBALException::ERROR_BAD_FIELD_NAME;
-                }
+        if (strpos($exception->getMessage(), 'already exists') !== false) {
+            return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+        }
 
-                if (strpos($exception->getMessage(), 'ambiguous column name') !== false) {
-                    return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
-                }
+        if (strpos($exception->getMessage(), 'has no column named') !== false) {
+            return DBALException::ERROR_BAD_FIELD_NAME;
+        }
 
-                if (strpos($exception->getMessage(), 'syntax error') !== false) {
-                    return DBALException::ERROR_SYNTAX;
-                }
+        if (strpos($exception->getMessage(), 'ambiguous column name') !== false) {
+            return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+        }
 
-                if (strpos($exception->getMessage(), 'unable to open database file') !== false) {
-                    return DBALException::ERROR_UNABLE_TO_OPEN;
-                }
+        if (strpos($exception->getMessage(), 'syntax error') !== false) {
+            return DBALException::ERROR_SYNTAX;
+        }
 
-                if (strpos($exception->getMessage(), 'attempt to write a readonly database') !== false) {
-                    return DBALException::ERROR_WRITE_READONLY;
-                }
+        if (strpos($exception->getMessage(), 'attempt to write a readonly database') !== false) {
+            return DBALException::ERROR_WRITE_READONLY;
+        }
+
+        if (strpos($exception->getMessage(), 'unable to open database file') !== false) {
+            return DBALException::ERROR_UNABLE_TO_OPEN;
         }
 
         return 0;

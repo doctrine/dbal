@@ -106,6 +106,19 @@ class DBALException extends \Exception
     }
 
     /**
+     * @param \Doctrine\DBAL\Driver     $driver
+     * @param \Exception $driverEx
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
+    public static function driverException(Driver $driver, \Exception $driverEx)
+    {
+        $msg = "An exception occured in driver: " . $driverEx->getMessage();
+
+        return new self($msg, $driver->convertExceptionCode($driverEx), $driverEx);
+    }
+
+    /**
      * Returns a human-readable representation of an array of parameters.
      * This properly handles binary data by returning a hex representation.
      *

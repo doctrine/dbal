@@ -51,7 +51,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $schema = new \Doctrine\DBAL\Schema\Schema();
-        
+
         $table = $schema->createTable("constraint_error_table");
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
@@ -72,7 +72,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_FOREIGN_KEY_CONSTRAINT);
         $this->_conn->delete('constraint_error_table', array('id' => 1));
     }
-    
+
     public function testNotNullException()
     {
         $schema = new \Doctrine\DBAL\Schema\Schema();
@@ -168,16 +168,16 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection.db');
 
         if (file_exists($filename)) {
-                unlink($filename);
-            }
+            unlink($filename);
+        }
 
         touch($filename);
         chmod($filename, $mode);
 
         $params = array(
-                'driver' => 'pdo_sqlite',
-                'path'   => $filename,
-            );
+            'driver' => 'pdo_sqlite',
+            'path'   => $filename,
+        );
         $conn = \Doctrine\DBAL\DriverManager::getConnection($params);
 
         $schema = new \Doctrine\DBAL\Schema\Schema();
@@ -186,15 +186,16 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, $exceptionCode);
         foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
-                $conn->executeQuery($sql);
-            }
+            $conn->executeQuery($sql);
+        }
     }
 
-    public function getSqLiteOpenConnection(){
-            return array(
-                    array(0000, DBALException::ERROR_UNABLE_TO_OPEN),
-                    array(0444, DBALException::ERROR_WRITE_READONLY),
-                );
+    public function getSqLiteOpenConnection()
+    {
+        return array(
+            array(0000, DBALException::ERROR_UNABLE_TO_OPEN),
+            array(0444, DBALException::ERROR_WRITE_READONLY),
+        );
     }
 
     /**
@@ -216,27 +217,19 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer');
 
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, $exceptionCode);
+
         foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
-                $conn->executeQuery($sql);
-            }
+            $conn->executeQuery($sql);
+        }
     }
 
     public function getConnectionParams()
     {
-            return array(
-                    array(array('user' => 'not_existing'), DBALException::ERROR_ACCESS_DENIED),
-                    array(array('password' => 'really_not'), DBALException::ERROR_ACCESS_DENIED),
-                    array(array('host' => 'localnope'), DBALException::ERROR_ACCESS_DENIED),
-                );
-    }
-
-    protected function onNotSuccessfulTest(\Exception $e)
-    {
-        parent::onNotSuccessfulTest($e);
-        if ("PHPUnit_Framework_SkippedTestError" == get_class($e)) {
-            return;
-        }
-        var_dump($e);
+        return array(
+            array(array('user' => 'not_existing'), DBALException::ERROR_ACCESS_DENIED),
+            array(array('password' => 'really_not'), DBALException::ERROR_ACCESS_DENIED),
+            array(array('host' => 'localnope'), DBALException::ERROR_ACCESS_DENIED),
+        );
     }
 }
- 
+
