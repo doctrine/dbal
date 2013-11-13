@@ -39,11 +39,11 @@ class SQLAnywhere16Platform extends SQLAnywhere12Platform
     {
         if ($index->hasFlag('with_nulls_distinct') && $index->hasFlag('with_nulls_not_distinct')) {
             throw new UnexpectedValueException(
-                'An Index can have either have a "with_nulls_distinct" or "with_nulls_not_distinct" flag but not both.'
+                'An Index can either have a "with_nulls_distinct" or "with_nulls_not_distinct" flag but not both.'
             );
         }
 
-        if (!$index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_distinct')) {
+        if ( ! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_distinct')) {
             return ' WITH NULLS DISTINCT' . parent::getAdvancedIndexOptionsSQL($index);
         }
 
