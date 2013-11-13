@@ -1,3 +1,35 @@
+# Upgrade to 2.5
+
+A new method was added to `Doctrine\DBAL\Driver` interface that you need to implement
+if your project contains custom drivers.
+
+```php
+/**
+ * @param \Exception $exception
+ *
+ * @return int
+ */
+public function convertExceptionCode(\Exception $exception);
+```
+
+The most basic implementation for this method just returns 0:
+
+```php
+/**
+ * @param \Exception $exception
+ *
+ * @return int
+ */
+public function convertExceptionCode(\Exception $exception)
+{
+    return 0;
+}
+```
+
+You can see the MySQL, SQLite and PostgreSQL drivers for sample implementations with
+the new feature and take a look at `tests/Doctrine/Tests/DBAL/Functional/ExceptionTest.php`
+for testing this functionality.
+
 # Upgrade to 2.4
 
 ## Doctrine\DBAL\Schema\Constraint
