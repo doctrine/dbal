@@ -20,6 +20,8 @@
 namespace Doctrine\DBAL\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Platforms;
+use Doctrine\DBAL\DBALException;
+use PDOException;
 
 /**
  * Driver that connects through pdo_pgsql.
@@ -33,12 +35,16 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return new \Doctrine\DBAL\Driver\PDOConnection(
-            $this->_constructPdoDsn($params),
-            $username,
-            $password,
-            $driverOptions
-        );
+        try {
+            return new \Doctrine\DBAL\Driver\PDOConnection(
+                $this->_constructPdoDsn($params),
+                $username,
+                $password,
+                $driverOptions
+            );
+        } catch(PDOException $e) {
+            throw DBALException::driverException($this, $e);
+        }
     }
 
     /**
@@ -105,6 +111,46 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function convertExceptionCode(\Exception $exception)
     {
+        if (strpos($exception->getMessage(), 'duplicate key value violates unique constraint') !== false) {
+            return DBALException::ERROR_DUPLICATE_KEY;
+        }
+
+        if ($exception->getCode() === "42P01") {
+            return DBALException::ERROR_UNKNOWN_TABLE;
+        }
+
+        if ($exception->getCode() === "42P07") {
+            return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+        }
+
+        if ($exception->getCode() === "23503") {
+            return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+        }
+
+        if ($exception->getCode() === "23502") {
+            return DBALException::ERROR_NOT_NULL;
+        }
+
+        if ($exception->getCode() === "42703") {
+            return DBALException::ERROR_BAD_FIELD_NAME;
+        }
+
+        if ($exception->getCode() === "42702") {
+            return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+        }
+
+        if ($exception->getCode() === "42601") {
+            return DBALException::ERROR_SYNTAX;
+        }
+
+        if (stripos($exception->getMessage(), 'password authentication failed for user') !== false) {
+            return DBALException::ERROR_ACCESS_DENIED;
+        }
+
+        if (stripos($exception->getMessage(), 'Name or service not known') !== false) {
+            return DBALException::ERROR_ACCESS_DENIED;
+        }
+
         return 0;
     }
 }
