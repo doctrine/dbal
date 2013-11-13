@@ -203,15 +203,19 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $row = array_change_key_case($row, \CASE_LOWER);
         $this->assertEquals(1, $row['test_int']);
-        $this->assertEquals($datetimeString, $row['test_datetime']);        
+        $this->assertEquals($datetimeString, $row['test_datetime']);
     }
-    
+
     /**
      * @group DBAL-209
      * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testFetchAllWithMissingTypes()
     {
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver) {
+            $this->markTestSkipped('mysqli actually supports this');
+        }
+
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
         $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
