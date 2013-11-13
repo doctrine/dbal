@@ -102,4 +102,12 @@ class Driver implements \Doctrine\DBAL\Driver
 
         return $params['dbname'];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        return 0;
+    }
 }

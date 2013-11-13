@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 
 /**
  * PDO MySql driver.
@@ -107,5 +108,27 @@ class Driver implements \Doctrine\DBAL\Driver
             return $params['dbname'];
         }
         return $conn->query('SELECT DATABASE()')->fetchColumn();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        switch ($exception->getCode()) {
+            case 23000:
+                if (strpos($exception->getMessage(), 'Cannot delete or update a parent row: a foreign key constraint fails') !== false) {
+                    return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+                }
+                if (strpos($exception->getMessage(), 'Duplicate entry') !== false) {
+                    return DBALException::ERROR_DUPLICATE_KEY;
+                }
+            case '42S02':
+                return DBALException::ERROR_UNKNOWN_TABLE;
+            case '42S01':
+                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+        }
+
+        return 0;
     }
 }

@@ -91,4 +91,12 @@ class DB2Driver implements Driver
 
         return $params['dbname'];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        return 0;
+    }
 }

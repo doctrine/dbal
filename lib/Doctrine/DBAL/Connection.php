@@ -700,7 +700,7 @@ class Connection implements DriverConnection
         try {
             $stmt = new Statement($statement, $this);
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $statement);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -753,7 +753,7 @@ class Connection implements DriverConnection
                 $stmt = $this->_conn->query($query);
             }
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $query, $this->resolveParams($params, $types));
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -862,7 +862,7 @@ class Connection implements DriverConnection
                     break;
             }
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $args[0]);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
         }
 
         $statement->setFetchMode($this->defaultFetchMode);
@@ -915,7 +915,7 @@ class Connection implements DriverConnection
                 $result = $this->_conn->exec($query);
             }
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $query, $this->resolveParams($params, $types));
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
         if ($logger) {
@@ -946,7 +946,7 @@ class Connection implements DriverConnection
         try {
             $result = $this->_conn->exec($statement);
         } catch (\Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($ex, $statement);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
         }
 
         if ($logger) {

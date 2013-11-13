@@ -69,4 +69,9 @@ class DriverMock implements \Doctrine\DBAL\Driver
     {
         return;
     }
+
+    public function convertExceptionCode(\Exception $exception)
+    {
+        return 0;
+    }
 }
