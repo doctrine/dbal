@@ -5,6 +5,18 @@ use Doctrine\DBAL\DBALException;
 
 class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+
+        $supportExceptions = array('pdo_sqlite', 'pdo_mysql', 'pdo_pgsql');
+        $params = $this->_conn->getParams();
+
+        if (!in_array($params['driver'], $supportExceptions)) {
+            $this->markTestSkipped('Driver does not support special exception handling.');
+        }
+    }
+
     public function testDuplicateKeyException()
     {
         $table = new \Doctrine\DBAL\Schema\Table("duplicatekey_table");
