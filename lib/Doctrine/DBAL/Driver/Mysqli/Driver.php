@@ -125,8 +125,6 @@ class Driver implements DriverInterface
             return DBALException::ERROR_NOT_NULL;
         }
 
-        var_dump($exception->geTcode());
-        var_dump($exception->getMEssage());
         return 0;
     }
 }
