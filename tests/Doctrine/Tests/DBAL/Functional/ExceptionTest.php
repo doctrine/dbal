@@ -87,7 +87,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_NOT_NULL);
-        $this->_conn->insert("notnull_table", array('id' => 1));
+        $this->_conn->insert("notnull_table", array('id' => 1, 'value' => null));
     }
 
     public function testBadFieldNameException()
@@ -137,7 +137,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->_conn->insert("unique_field_table", array('id' => 5));
-        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_NOT_UNIQUE);
+        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_DUPLICATE_KEY);
         $this->_conn->insert("unique_field_table", array('id' => 5));
     }
 
