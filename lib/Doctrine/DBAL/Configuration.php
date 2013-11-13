@@ -117,4 +117,36 @@ class Configuration
 
         return null;
     }
+
+    /**
+     * Sets the default auto-commit mode for connections.
+     *
+     * If a connection is in auto-commit mode, then all its SQL statements will be executed and committed as individual
+     * transactions. Otherwise, its SQL statements are grouped into transactions that are terminated by a call to either
+     * the method commit or the method rollback. By default, new connections are in auto-commit mode.
+     *
+     * @param boolean $autoCommit True to enable auto-commit mode; false to disable it.
+     *
+     * @see   getAutoCommit
+     */
+    public function setAutoCommit($autoCommit)
+    {
+        $this->_attributes['autoCommit'] = (boolean) $autoCommit;
+    }
+
+    /**
+     * Returns the default auto-commit mode for connections.
+     *
+     * @return boolean True if auto-commit mode is enabled by default for connections, false otherwise.
+     *
+     * @see    setAutoCommit
+     */
+    public function getAutoCommit()
+    {
+        if (isset($this->_attributes['autoCommit'])) {
+            return $this->_attributes['autoCommit'];
+        }
+
+        return true;
+    }
 }

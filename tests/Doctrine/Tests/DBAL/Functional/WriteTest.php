@@ -175,8 +175,8 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testLastInsertIdNoSequenceGiven()
     {
-        if ( ! $this->_conn->getDatabasePlatform()->supportsSequences()) {
-            $this->markTestSkipped('Test only works on platforms with sequences.');
+        if ( ! $this->_conn->getDatabasePlatform()->supportsSequences() || $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
+            $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
         }
 
         $this->assertFalse($this->_conn->lastInsertId( null ));

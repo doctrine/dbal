@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Events;
+use Doctrine\Tests\Mocks\DriverConnectionMock;
 
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -173,5 +174,105 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $logger = new \Doctrine\DBAL\Logging\DebugStack();
         $this->_conn->getConfiguration()->setSQLLogger($logger);
         $this->assertSame($logger, $this->_conn->getConfiguration()->getSQLLogger());
+    }
+
+    /**
+     * @group DBAL-81
+     */
+    public function testIsAutoCommit()
+    {
+        $this->assertTrue($this->_conn->isAutoCommit());
+    }
+
+    /**
+     * @group DBAL-81
+     */
+    public function testSetAutoCommit()
+    {
+        $this->_conn->setAutoCommit(false);
+        $this->assertFalse($this->_conn->isAutoCommit());
+        $this->_conn->setAutoCommit(0);
+        $this->assertFalse($this->_conn->isAutoCommit());
+    }
+
+    /**
+     * @group DBAL-81
+     */
+    public function testConnectStartsTransactionInNoAutoCommitMode()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+        $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
+
+        $conn->setAutoCommit(false);
+
+        $this->assertFalse($conn->isTransactionActive());
+
+        $conn->connect();
+
+        $this->assertTrue($conn->isTransactionActive());
+    }
+
+    /**
+     * @group DBAL-81
+     */
+    public function testCommitStartsTransactionInNoAutoCommitMode()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+        $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
+
+        $conn->setAutoCommit(false);
+        $conn->connect();
+        $conn->commit();
+
+        $this->assertTrue($conn->isTransactionActive());
+    }
+
+    /**
+     * @group DBAL-81
+     */
+    public function testRollBackStartsTransactionInNoAutoCommitMode()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+        $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
+
+        $conn->setAutoCommit(false);
+        $conn->connect();
+        $conn->rollBack();
+
+        $this->assertTrue($conn->isTransactionActive());
+    }
+
+    /**
+     * @group DBAL-81
+     */
+    public function testSwitchingAutoCommitModeCommitsAllCurrentTransactions()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+        $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
+
+        $conn->connect();
+        $conn->beginTransaction();
+        $conn->beginTransaction();
+        $conn->setAutoCommit(false);
+
+        $this->assertSame(1, $conn->getTransactionNestingLevel());
+
+        $conn->beginTransaction();
+        $conn->beginTransaction();
+        $conn->setAutoCommit(true);
+
+        $this->assertFalse($conn->isTransactionActive());
     }
 }
