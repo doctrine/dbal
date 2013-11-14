@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+
 class DBALException extends \Exception
 {
     const ERROR_DUPLICATE_KEY = 1;
@@ -101,7 +103,11 @@ class DBALException extends \Exception
         }
         $msg .= ":\n\n".$driverEx->getMessage();
 
-        return new self($msg, $driver->convertExceptionCode($driverEx), $driverEx);
+        $code = ($driver instanceof ExceptionConverterDriver)
+            ? $driver->convertExceptionCode($driverEx)
+            : 0;
+
+        return new self($msg, $code, $driverEx);
     }
 
     /**

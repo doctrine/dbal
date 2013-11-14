@@ -2,6 +2,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 
 class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
@@ -9,10 +10,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        $supportExceptions = array('pdo_sqlite', 'pdo_mysql', 'pdo_pgsql', 'mysqli');
-        $params = $this->_conn->getParams();
-
-        if (!in_array($params['driver'], $supportExceptions)) {
+        if ( !($this->_conn->getDriver() instanceof ExceptionConverterDriver)) {
             $this->markTestSkipped('Driver does not support special exception handling.');
         }
     }

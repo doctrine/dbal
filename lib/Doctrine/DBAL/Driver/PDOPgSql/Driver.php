@@ -22,13 +22,14 @@ namespace Doctrine\DBAL\Driver\PDOPgSql;
 use Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\DBALException;
 use PDOException;
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 
 /**
  * Driver that connects through pdo_pgsql.
  *
  * @since 2.0
  */
-class Driver implements \Doctrine\DBAL\Driver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 {
     /**
      * {@inheritdoc}

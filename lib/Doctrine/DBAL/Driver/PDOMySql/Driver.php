@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use PDOException;
 
 /**
@@ -28,7 +29,7 @@ use PDOException;
  *
  * @since 2.0
  */
-class Driver implements \Doctrine\DBAL\Driver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 {
     /**
      * {@inheritdoc}

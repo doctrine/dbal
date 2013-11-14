@@ -73,7 +73,6 @@ interface Driver
      */
     public function getDatabase(Connection $conn);
 
-
     /**
      * @param \Exception $exception
      *
