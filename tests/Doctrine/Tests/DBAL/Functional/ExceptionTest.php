@@ -219,6 +219,10 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped("Only skipped if platform is not sqlite");
         }
 
+        if ($this->_conn->getDatabasePlatform()->getName() == 'pgsql' && isset($params['password'])) {
+            $this->markTestSkipped("Does not work on Travis");
+        }
+
         $defaultParams = $this->_conn->getParams();
         $params = array_merge($defaultParams, $params);
 
