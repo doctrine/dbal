@@ -39,6 +39,12 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->getConnection(array('hello' => 'world')); // use local infile
     }
 
+    public function testPing()
+    {
+        $conn = $this->getConnection(array());
+        $conn->ping();
+    }
+
     private function getConnection(array $driverOptions)
     {
         return new \Doctrine\DBAL\Driver\Mysqli\MysqliConnection(

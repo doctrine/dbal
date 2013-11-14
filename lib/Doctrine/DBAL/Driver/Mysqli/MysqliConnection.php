@@ -20,11 +20,12 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection as Connection;
+use \Doctrine\DBAL\Driver\PingableConnection;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
-class MysqliConnection implements Connection
+class MysqliConnection implements Connection, PingableConnection
 {
     /**
      * @var \mysqli
@@ -206,5 +207,15 @@ class MysqliConnection implements Connection
                 mysqli_errno($this->_conn)
             );
         }
+    }
+
+    /**
+     * Pings the server and re-connects when `mysqli.reconnect = 1`
+     *
+     * @return bool
+     */
+    public function ping()
+    {
+        return $this->_conn->ping();
     }
 }

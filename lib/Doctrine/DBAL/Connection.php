@@ -30,6 +30,7 @@ use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
+use Doctrine\DBAL\Driver\PingableConnection;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
@@ -1487,5 +1488,18 @@ class Connection implements DriverConnection
     public function createQueryBuilder()
     {
         return new Query\QueryBuilder($this);
+    }
+
+    /**
+     * Ping the server!
+     *
+     * @return bool
+     */
+    public function ping()
+    {
+        if (!($this->_conn instanceof PingableConnection)) {
+            throw ConnectionException::unsupportedFeature('ping');
+        }
+        return $this->_conn->ping();
     }
 }
