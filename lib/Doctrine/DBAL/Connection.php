@@ -1497,9 +1497,10 @@ class Connection implements DriverConnection
      */
     public function ping()
     {
-        if (!($this->_conn instanceof PingableConnection)) {
+        if ( ! ($this->_conn instanceof PingableConnection)) {
             throw ConnectionException::unsupportedFeature('ping');
         }
+
         return $this->_conn->ping();
     }
 }

@@ -42,7 +42,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testPing()
     {
         $conn = $this->getConnection(array());
-        $conn->ping();
+        $this->assertTrue($conn->ping());
     }
 
     private function getConnection(array $driverOptions)
