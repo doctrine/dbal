@@ -34,6 +34,10 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testDropTemporaryTableNotAutoCommitTransaction()
     {
+        if ($this->_conn->getDatabasePlatform()->getName() == 'sqlanywhere') {
+            $this->markTestSkipped("Test does not work on SQL Anywhere.");
+        }
+
         $platform = $this->_conn->getDatabasePlatform();
         $columnDefinitions = array("id" => array("type" => Type::getType("integer"), "notnull" => true));
         $tempTable = $platform->getTemporaryTableName("my_temporary");
@@ -67,6 +71,10 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testCreateTemporaryTableNotAutoCommitTransaction()
     {
+        if ($this->_conn->getDatabasePlatform()->getName() == 'sqlanywhere') {
+            $this->markTestSkipped("Test does not work on SQL Anywhere.");
+        }
+
         $platform = $this->_conn->getDatabasePlatform();
         $columnDefinitions = array("id" => array("type" => Type::getType("integer"), "notnull" => true));
         $tempTable = $platform->getTemporaryTableName("my_temporary");
