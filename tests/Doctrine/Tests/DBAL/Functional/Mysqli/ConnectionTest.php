@@ -9,7 +9,6 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('mysqli is not installed.');
         }
 
-        $this->resetSharedConn();
         parent::setUp();
 
         if ( !($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver)) {
@@ -20,7 +19,6 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function tearDown()
     {
         parent::tearDown();
-        $this->resetSharedConn();
     }
 
     public function testDriverOptions()
