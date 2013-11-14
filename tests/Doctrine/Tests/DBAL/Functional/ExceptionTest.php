@@ -230,8 +230,13 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setExpectedException('\Doctrine\DBAL\DBALException', null, $exceptionCode);
 
-        foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
-            $conn->executeQuery($sql);
+        try {
+            foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
+                $conn->executeQuery($sql);
+            }
+            $this->fail("Did not trigger DBALException with code " . $exceptionCode);
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            $this->assertEquals($exceptionCode, $e->getCode(), "Got exception " . $e->getMessage());
         }
     }
 
