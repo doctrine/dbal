@@ -130,7 +130,7 @@ class Driver implements \Doctrine\DBAL\Driver
                 return DBALException::ERROR_UNKNOWN_TABLE;
         }
 
-        return $exception->getCode();
+        return 0;
     }
 
     /**
