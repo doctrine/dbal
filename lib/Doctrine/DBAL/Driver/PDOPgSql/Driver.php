@@ -151,6 +151,10 @@ class Driver implements \Doctrine\DBAL\Driver
             return DBALException::ERROR_ACCESS_DENIED;
         }
 
+        if (stripos($exception->getMessage(), 'does not exist') !== false) {
+            return DBALException::ERROR_ACCESS_DENIED;
+        }
+
         return 0;
     }
 }
