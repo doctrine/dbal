@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 
@@ -96,6 +97,40 @@ class Driver implements \Doctrine\DBAL\Driver
             ),
             isset($params['persistent']) ? $params['persistent'] : false
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        switch ($exception->getCode()) {
+            case '-100':
+            case '-103':
+            case '-832':
+                return DBALException::ERROR_ACCESS_DENIED;
+            case '-143':
+                return DBALException::ERROR_BAD_FIELD_NAME;
+            case '-193':
+            case '-196':
+                return DBALException::ERROR_DUPLICATE_KEY;
+            case '-198':
+                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+            case '-144':
+                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+            case '-184':
+            case '-195':
+                return DBALException::ERROR_NOT_NULL;
+            case '-131':
+                return DBALException::ERROR_SYNTAX;
+            case '-110':
+                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+            case '-141':
+            case '-1041':
+                return DBALException::ERROR_UNKNOWN_TABLE;
+        }
+
+        return $exception->getCode();
     }
 
     /**

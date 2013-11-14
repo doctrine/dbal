@@ -2,7 +2,6 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 
 class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
