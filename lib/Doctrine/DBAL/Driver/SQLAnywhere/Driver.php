@@ -36,7 +36,8 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * {@inheritdoc}
      *
-     * @throws SQLAnywhereException
+     * @throws \Doctrine\DBAL\DBALException if there was a problem establishing the connection.
+     * @throws SQLAnywhereException         if a mandatory connection parameter is missing.
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
@@ -52,18 +53,22 @@ class Driver implements \Doctrine\DBAL\Driver
             throw new SQLAnywhereException("Missing 'dbname' in configuration for sqlanywhere driver.");
         }
 
-        return new SQLAnywhereConnection(
-            $this->buildDsn(
-                $params['host'],
-                isset($params['port']) ? $params['port'] : null,
-                $params['server'],
-                $params['dbname'],
-                $username,
-                $password,
-                $driverOptions
-            ),
-            isset($params['persistent']) ? $params['persistent'] : false
-        );
+        try {
+            return new SQLAnywhereConnection(
+                $this->buildDsn(
+                    $params['host'],
+                    isset($params['port']) ? $params['port'] : null,
+                    $params['server'],
+                    $params['dbname'],
+                    $username,
+                    $password,
+                    $driverOptions
+                ),
+                isset($params['persistent']) ? $params['persistent'] : false
+            );
+        } catch (SQLAnywhereException $e) {
+            throw DBALException::driverException($this, $e);
+        }
     }
 
     /**
