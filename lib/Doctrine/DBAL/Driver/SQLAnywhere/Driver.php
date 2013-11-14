@@ -32,7 +32,7 @@ use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class Driver implements ExceptionConverterDriver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 {
     /**
      * {@inheritdoc}
