@@ -49,6 +49,7 @@ interfaces to use. It can be configured in one of three ways:
       **Note that this driver caused problems in our tests. Prefer the oci8 driver if possible.**
    -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo\_sqlsrv PDO
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
+   -  ``sqlanywhere``: A SAP Sybase SQL Anywhere driver that uses the sqlanywhere PHP extension.
 
 -  ``driverClass``: Specifies a custom driver implementation if no
    'driver' is specified. This allows the use of custom drivers that
@@ -149,6 +150,33 @@ pdo\_sqlsrv
 -  ``host`` (string): Hostname of the database to connect to.
 -  ``port`` (integer): Port of the database to connect to.
 -  ``dbname`` (string): Name of the database/schema to connect to.
+
+sqlanywhere
+^^^^^^^^^^
+
+
+-  ``user`` (string): Username to use when connecting to the
+   database.
+-  ``password`` (string): Password to use when connecting to the
+   database.
+-  ``server`` (string): Name of a running database server to connect to.
+-  ``host`` (string): Hostname of the database to connect to.
+-  ``port`` (integer): Port of the database to connect to.
+-  ``dbname`` (string): Name of the database/schema to connect to.
+-  ``persistent`` (boolean): Whether to establish a persistent connection.
+
+Depending on the used underlying platform version, you can specify
+any other connection parameter that is supported by the particular
+platform version via the ``driverOptions`` option.
+You can find a list of supported connection parameters for each
+platform version here:
+
+- `SQL Anywhere 10.0.1 <http://dcx.sybase.com/index.html#1001/en/dbdaen10/da-conmean.html>`_
+- `SQL Anywhere 11.0.0 <http://dcx.sybase.com/index.html#1100/en/dbadmin_en11/conmean.html>`_
+- `SQL Anywhere 11.0.1 <http://dcx.sybase.com/index.html#1101/en/dbadmin_en11/conmean.html>`_
+- `SQL Anywhere 12.0.0 <http://dcx.sybase.com/index.html#1200/en/dbadmin/da-conparm.html>`_
+- `SQL Anywhere 12.0.1 <http://dcx.sybase.com/index.html#1201/en/dbadmin/da-conparm.html>`_
+- `SAP Sybase SQL Anywhere 16.0 <http://dcx.sybase.com/index.html#sa160/en/dbadmin/da-conparm.html>`_
 
 Custom Platform
 ~~~~~~~~~~~~~~~
