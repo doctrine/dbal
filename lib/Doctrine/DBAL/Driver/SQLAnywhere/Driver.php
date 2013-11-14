@@ -20,6 +20,8 @@
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 
@@ -30,45 +32,13 @@ use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class Driver implements \Doctrine\DBAL\Driver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 {
-    /**
-     * Build the connection string for given connection parameters and driver options.
-     *
-     * @param string  $host          Host address to connect to.
-     * @param integer $port          Port to use for the connection (default to SQL Anywhere standard port 2683).
-     * @param string  $server        Database server name on the host to connect to.
-     *                               SQL Anywhere allows multiple database server instances on the same host,
-     *                               therefore specifying the server instance name to use is mandatory.
-     * @param string  $dbname        Name of the database on the server instance to connect to.
-     * @param string  $username      User name to use for connection authentication.
-     * @param string  $password      Password to use for connection authentication.
-     * @param array   $driverOptions Additional parameters to use for the connection.
-     *
-     * @return string
-     */
-    public function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = array())
-    {
-        $port = $port ?: 2683;
-
-        return
-            'LINKS=tcpip(HOST=' . $host . ';PORT=' . $port . ';DoBroadcast=Direct)' .
-            ';ServerName=' . $server .
-            ';DBN=' . $dbname .
-            ';UID=' . $username .
-            ';PWD=' . $password .
-            ';' . implode(
-                ';',
-                array_map(function ($key, $value) {
-                    return $key . '=' . $value;
-                }, array_keys($driverOptions), $driverOptions)
-            );
-    }
-
     /**
      * {@inheritdoc}
      *
-     * @throws SQLAnywhereException
+     * @throws \Doctrine\DBAL\DBALException if there was a problem establishing the connection.
+     * @throws SQLAnywhereException         if a mandatory connection parameter is missing.
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
@@ -84,18 +54,56 @@ class Driver implements \Doctrine\DBAL\Driver
             throw new SQLAnywhereException("Missing 'dbname' in configuration for sqlanywhere driver.");
         }
 
-        return new SQLAnywhereConnection(
-            $this->buildDsn(
-                $params['host'],
-                isset($params['port']) ? $params['port'] : null,
-                $params['server'],
-                $params['dbname'],
-                $username,
-                $password,
-                $driverOptions
-            ),
-            isset($params['persistent']) ? $params['persistent'] : false
-        );
+        try {
+            return new SQLAnywhereConnection(
+                $this->buildDsn(
+                    $params['host'],
+                    isset($params['port']) ? $params['port'] : null,
+                    $params['server'],
+                    $params['dbname'],
+                    $username,
+                    $password,
+                    $driverOptions
+                ),
+                isset($params['persistent']) ? $params['persistent'] : false
+            );
+        } catch (SQLAnywhereException $e) {
+            throw DBALException::driverException($this, $e);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertExceptionCode(\Exception $exception)
+    {
+        switch ($exception->getCode()) {
+            case '-100':
+            case '-103':
+            case '-832':
+                return DBALException::ERROR_ACCESS_DENIED;
+            case '-143':
+                return DBALException::ERROR_BAD_FIELD_NAME;
+            case '-193':
+            case '-196':
+                return DBALException::ERROR_DUPLICATE_KEY;
+            case '-198':
+                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+            case '-144':
+                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+            case '-184':
+            case '-195':
+                return DBALException::ERROR_NOT_NULL;
+            case '-131':
+                return DBALException::ERROR_SYNTAX;
+            case '-110':
+                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+            case '-141':
+            case '-1041':
+                return DBALException::ERROR_UNKNOWN_TABLE;
+        }
+
+        return 0;
     }
 
     /**
@@ -130,5 +138,38 @@ class Driver implements \Doctrine\DBAL\Driver
     public function getSchemaManager(Connection $conn)
     {
         return new SQLAnywhereSchemaManager($conn);
+    }
+
+    /**
+     * Build the connection string for given connection parameters and driver options.
+     *
+     * @param string  $host          Host address to connect to.
+     * @param integer $port          Port to use for the connection (default to SQL Anywhere standard port 2683).
+     * @param string  $server        Database server name on the host to connect to.
+     *                               SQL Anywhere allows multiple database server instances on the same host,
+     *                               therefore specifying the server instance name to use is mandatory.
+     * @param string  $dbname        Name of the database on the server instance to connect to.
+     * @param string  $username      User name to use for connection authentication.
+     * @param string  $password      Password to use for connection authentication.
+     * @param array   $driverOptions Additional parameters to use for the connection.
+     *
+     * @return string
+     */
+    private function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = array())
+    {
+        $port = $port ?: 2683;
+
+        return
+            'LINKS=tcpip(HOST=' . $host . ';PORT=' . $port . ';DoBroadcast=Direct)' .
+            ';ServerName=' . $server .
+            ';DBN=' . $dbname .
+            ';UID=' . $username .
+            ';PWD=' . $password .
+            ';' . implode(
+                ';',
+                array_map(function ($key, $value) {
+                    return $key . '=' . $value;
+                }, array_keys($driverOptions), $driverOptions)
+            );
     }
 }
