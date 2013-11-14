@@ -80,23 +80,23 @@ example:
     // $conn instanceof Doctrine\DBAL\Connection
     $conn->beginTransaction(); // 0 => 1, "real" transaction started
     try {
-    
+
         ...
-    
+
         // nested transaction block, this might be in some other API/library code that is
         // unaware of the outer transaction.
         $conn->beginTransaction(); // 1 => 2
         try {
             ...
-    
+
             $conn->commit(); // 2 => 1
         } catch (Exception $e) {
             $conn->rollback(); // 2 => 1, transaction marked for rollback only
             throw $e;
         }
-    
+
         ...
-    
+
         $conn->commit(); // 1 => 0, "real" transaction committed
     } catch (Exception $e) {
         $conn->rollback(); // 1 => 0, "real" transaction rollback
@@ -143,5 +143,96 @@ wider scope and the control is handed to the outer scope.
     nesting level, causing errors with broken transaction boundaries
     that may be hard to debug.
 
+Auto-commit mode
+----------------
 
+A ``Doctrine\DBAL\Connection`` supports setting the auto-commit mode
+to control whether queries should be automatically wrapped into a
+transaction or directly be committed to the database.
+By default a connection runs in auto-commit mode which means
+that it is non-transactional unless you start a transaction explicitly
+via ``beginTransaction()``. To have a connection automatically open up
+a new transaction on ``connect()`` and after ``commit()`` or ``rollback()``,
+you can disable auto-commit mode with ``setAutoCommit(false)``.
+
+::
+
+    <?php
+    // define connection parameters $params and initialize driver $driver
+
+    $conn = new \Doctrine\DBAL\Connection($params, $driver);
+
+    $conn->setAutoCommit(false); // disables auto-commit
+    $conn->connect(); // connects and immediately starts a new transaction
+
+    try {
+        // do stuff
+        $conn->commit(); // commits transaction and immediately starts a new one
+    } catch (\Exception $e) {
+        $conn->rollback(); // rolls back transaction and immediately starts a new one
+    }
+
+    // still transactional
+
+
+.. note::
+
+    Changing auto-commit mode during an active transaction, implicitly
+    commits active transactions for that particular connection.
+
+::
+
+    <?php
+    // define connection parameters $params and initialize driver $driver
+
+    $conn = new \Doctrine\DBAL\Connection($params, $driver);
+
+    // we are in auto-commit mode
+    $conn->beginTransaction();
+
+    // disable auto-commit, commits currently active transaction
+    $conn->setAutoCommit(false); // also causes a new transaction to be started
+
+    // no-op as auto-commit is already disabled
+    $conn->setAutoCommit(false);
+
+    // enable auto-commit again, commits currently active transaction
+    $conn->setAutoCommit(true); // does not start a new transaction automatically
+
+
+Committing or rolling back an active transaction will of course only
+open up a new transaction automatically if the particular action causes
+the transaction context of a connection to terminate.
+That means committing or rolling back nested transactions are not affected
+by this behaviour.
+
+::
+
+    <?php
+    // we are not in auto-commit mode, transaction is active
+
+    try {
+        // do stuff
+
+        $conn->beginTransaction(); // start inner transaction, nesting level 2
+
+        try {
+            // do stuff
+            $conn->commit(); // commits inner transaction, does not start a new one
+        } catch (\Exception $e) {
+            $conn->rollback(); // rolls back inner transaction, does not start a new one
+        }
+
+        // do stuff
+
+        $conn->commit(); // commits outer transaction, and immediately starts a new one
+    } catch (\Exception $e) {
+        $conn->rollback(); // rolls back outer transaction, and immediately starts a new one
+    }
+
+
+To initialize a ``Doctrine\DBAL\Connection`` with auto-commit disabled,
+you can also use the ``Doctrine\DBAL\Configuration`` container to modfiy the
+default auto-commit mode via ``Doctrine\DBAL\Configuration::setAutoCommit(false)``
+and pass it to a ``Doctrine\DBAL\Connection`` when instantiating.
 
