@@ -34,39 +34,6 @@ use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 class Driver implements \Doctrine\DBAL\Driver
 {
     /**
-     * Build the connection string for given connection parameters and driver options.
-     *
-     * @param string  $host          Host address to connect to.
-     * @param integer $port          Port to use for the connection (default to SQL Anywhere standard port 2683).
-     * @param string  $server        Database server name on the host to connect to.
-     *                               SQL Anywhere allows multiple database server instances on the same host,
-     *                               therefore specifying the server instance name to use is mandatory.
-     * @param string  $dbname        Name of the database on the server instance to connect to.
-     * @param string  $username      User name to use for connection authentication.
-     * @param string  $password      Password to use for connection authentication.
-     * @param array   $driverOptions Additional parameters to use for the connection.
-     *
-     * @return string
-     */
-    public function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = array())
-    {
-        $port = $port ?: 2683;
-
-        return
-            'LINKS=tcpip(HOST=' . $host . ';PORT=' . $port . ';DoBroadcast=Direct)' .
-            ';ServerName=' . $server .
-            ';DBN=' . $dbname .
-            ';UID=' . $username .
-            ';PWD=' . $password .
-            ';' . implode(
-                ';',
-                array_map(function ($key, $value) {
-                    return $key . '=' . $value;
-                }, array_keys($driverOptions), $driverOptions)
-            );
-    }
-
-    /**
      * {@inheritdoc}
      *
      * @throws SQLAnywhereException
@@ -165,5 +132,38 @@ class Driver implements \Doctrine\DBAL\Driver
     public function getSchemaManager(Connection $conn)
     {
         return new SQLAnywhereSchemaManager($conn);
+    }
+
+    /**
+     * Build the connection string for given connection parameters and driver options.
+     *
+     * @param string  $host          Host address to connect to.
+     * @param integer $port          Port to use for the connection (default to SQL Anywhere standard port 2683).
+     * @param string  $server        Database server name on the host to connect to.
+     *                               SQL Anywhere allows multiple database server instances on the same host,
+     *                               therefore specifying the server instance name to use is mandatory.
+     * @param string  $dbname        Name of the database on the server instance to connect to.
+     * @param string  $username      User name to use for connection authentication.
+     * @param string  $password      Password to use for connection authentication.
+     * @param array   $driverOptions Additional parameters to use for the connection.
+     *
+     * @return string
+     */
+    private function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = array())
+    {
+        $port = $port ?: 2683;
+
+        return
+            'LINKS=tcpip(HOST=' . $host . ';PORT=' . $port . ';DoBroadcast=Direct)' .
+            ';ServerName=' . $server .
+            ';DBN=' . $dbname .
+            ';UID=' . $username .
+            ';PWD=' . $password .
+            ';' . implode(
+                ';',
+                array_map(function ($key, $value) {
+                    return $key . '=' . $value;
+                }, array_keys($driverOptions), $driverOptions)
+            );
     }
 }
