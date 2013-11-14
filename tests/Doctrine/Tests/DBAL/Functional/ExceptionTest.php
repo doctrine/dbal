@@ -228,8 +228,6 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table = $schema->createTable("no_connection");
         $table->addColumn('id', 'integer');
 
-        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, $exceptionCode);
-
         try {
             foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
                 $conn->executeQuery($sql);
