@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 
@@ -31,7 +32,7 @@ use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class Driver implements \Doctrine\DBAL\Driver
+class Driver implements ExceptionConverterDriver
 {
     /**
      * {@inheritdoc}
