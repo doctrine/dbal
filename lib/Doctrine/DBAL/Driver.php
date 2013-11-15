@@ -72,11 +72,4 @@ interface Driver
      * @return string The name of the database.
      */
     public function getDatabase(Connection $conn);
-
-    /**
-     * @param \Exception $exception
-     *
-     * @return int
-     */
-    public function convertExceptionCode(\Exception $exception);
 }

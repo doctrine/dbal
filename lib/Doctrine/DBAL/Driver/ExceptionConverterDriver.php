@@ -29,6 +29,12 @@ use Exception;
 interface ExceptionConverterDriver
 {
     /**
+     * Method converts driver exceptions to standard error codes from
+     * {@see Doctrine\DBAL\DBALException}.
+     *
+     * The DBALException error codes are returned from this method
+     * and the DBAL decides how to convert them into a common exception.
+     *
      * @param \Exception $exception
      *
      * @return int
