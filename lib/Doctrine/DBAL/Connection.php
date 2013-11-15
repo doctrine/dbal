@@ -1497,10 +1497,22 @@ class Connection implements DriverConnection
      */
     public function ping()
     {
-        if ( ! ($this->_conn instanceof PingableConnection)) {
-            throw ConnectionException::unsupportedFeature('ping');
+        if ( ! $this->_isConnected) {
+            return false; // Don't connect if not done yet. It will be lazy on first use
         }
 
-        return $this->_conn->ping();
+        if ($this->_conn instanceof PingableConnection) {
+            return $this->_conn->ping();
+        }
+
+        try {
+            $this->query($this->_platform->getDummySelectSQL());
+            return true;
+        } catch (DBALException $e) {
+            // As the underlying connection is unset, the next query will connect again thanks to the lazyness
+            $this->close();
+        }
+
+        return false;
     }
 }

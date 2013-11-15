@@ -57,12 +57,4 @@ class ConnectionException extends DBALException
     {
         return new self("May not alter the nested transaction with savepoints behavior while a transaction is open.");
     }
-
-    /**
-     * @return \Doctrine\DBAL\ConnectionException
-     */
-    public static function unsupportedFeature($feature)
-    {
-        return new self(sprintf("The '%' feature is not supported by this connection/driver.", $feature));
-    }
 }
