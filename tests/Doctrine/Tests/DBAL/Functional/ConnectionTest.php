@@ -193,6 +193,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         try {
             $this->_conn->transactional(function($conn) {
+                /* @var $conn \Doctrine\DBAL\Connection */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new \RuntimeException("Ooops!");
             });
@@ -204,7 +205,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testTransactional()
     {
         $this->_conn->transactional(function($conn) {
-            /* @var $conn Connection */
+            /* @var $conn \Doctrine\DBAL\Connection */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
     }
@@ -215,5 +216,16 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testQuote()
     {
         $this->assertEquals($this->_conn->quote("foo", Type::STRING), $this->_conn->quote("foo", \PDO::PARAM_STR));
+    }
+
+    public function testPingDoesNotTriggerConnect()
+    {
+        $this->assertFalse($this->_conn->ping());
+    }
+
+    public function testPingReturnsTrueWhenConnectionIsPingedOrOpen()
+    {
+        $this->_conn->connect();
+        $this->assertTrue($this->_conn->ping());
     }
 }
