@@ -225,7 +225,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testPingReturnsTrueWhenConnectionIsPingedOrOpen()
     {
-        $this->_conn->executeQuery($this->_conn->getDatabasePlatform()->getDummySelectSQL());
+        $this->_conn->connect();
         $this->assertTrue($this->_conn->ping());
     }
 }
