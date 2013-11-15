@@ -64,6 +64,11 @@ class MysqliStatement implements \IteratorAggregate, Statement
     protected $_bindedValues;
 
     /**
+     * @var string
+     */
+    protected $types;
+
+    /**
      * Contains ref values for bindValue().
      *
      * @var array
@@ -91,14 +96,8 @@ class MysqliStatement implements \IteratorAggregate, Statement
 
         $paramCount = $this->_stmt->param_count;
         if (0 < $paramCount) {
-            // Index 0 is types
-            // Need to init the string else php think we are trying to access it as a array.
-            $bindedValues = array(0 => str_repeat('s', $paramCount));
-            $null = null;
-            for ($i = 1; $i < $paramCount; $i++) {
-                $bindedValues[] =& $null;
-            }
-            $this->_bindedValues = $bindedValues;
+            $this->types = str_repeat('s', $paramCount);
+            $this->_bindedValues = array_fill(1 , $paramCount, null);
         }
     }
 
@@ -118,7 +117,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         }
 
         $this->_bindedValues[$column] =& $variable;
-        $this->_bindedValues[0][$column - 1] = $type;
+        $this->types[$column - 1] = $type;
 
         return true;
     }
@@ -140,7 +139,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
 
         $this->_values[$param] = $value;
         $this->_bindedValues[$param] =& $this->_values[$param];
-        $this->_bindedValues[0][$param - 1] = $type;
+        $this->types[$param - 1] = $type;
 
         return true;
     }
@@ -156,7 +155,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
                     throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             } else {
-                if (!call_user_func_array(array($this->_stmt, 'bind_param'), $this->_bindedValues)) {
+                if (!call_user_func_array(array($this->_stmt, 'bind_param'), array($this->types) + $this->_bindedValues)) {
                     throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             }
@@ -229,8 +228,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         if (true === $ret) {
             $values = array();
             foreach ($this->_rowBindedValues as $v) {
-                // Mysqli converts them to a scalar type it can fit in.
-                $values[] = null === $v ? null : (string)$v;
+                $values[] = $v;
             }
             return $values;
         }
