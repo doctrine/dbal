@@ -193,6 +193,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         try {
             $this->_conn->transactional(function($conn) {
+                /* @var $conn \Doctrine\DBAL\Connection */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new \RuntimeException("Ooops!");
             });
@@ -204,7 +205,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testTransactional()
     {
         $this->_conn->transactional(function($conn) {
-            /* @var $conn Connection */
+            /* @var $conn \Doctrine\DBAL\Connection */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
     }

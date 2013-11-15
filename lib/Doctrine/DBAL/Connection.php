@@ -1507,6 +1507,7 @@ class Connection implements DriverConnection
 
         try {
             $this->query($this->_platform->getDummySelectSQL());
+
             return true;
         } catch (DBALException $e) {
             // As the underlying connection is unset, the next query will connect again thanks to the lazyness

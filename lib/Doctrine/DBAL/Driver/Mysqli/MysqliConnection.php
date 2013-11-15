@@ -24,6 +24,7 @@ use \Doctrine\DBAL\Driver\PingableConnection;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
+ * @author Till Klampaeckel <till@php.net>
  */
 class MysqliConnection implements Connection, PingableConnection
 {
