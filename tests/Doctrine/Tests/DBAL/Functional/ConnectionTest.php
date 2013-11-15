@@ -218,14 +218,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals($this->_conn->quote("foo", Type::STRING), $this->_conn->quote("foo", \PDO::PARAM_STR));
     }
 
-    public function testPingDoesNotTriggerConnect()
+    public function testPingDoesTriggersConnect()
     {
-        $this->assertFalse($this->_conn->ping());
-    }
-
-    public function testPingReturnsTrueWhenConnectionIsPingedOrOpen()
-    {
-        $this->_conn->connect();
         $this->assertTrue($this->_conn->ping());
+        $this->assertTrue($this->_conn->isConnected());
     }
 }
