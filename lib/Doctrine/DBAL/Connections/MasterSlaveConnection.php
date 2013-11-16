@@ -163,7 +163,7 @@ class MasterSlaveConnection extends Connection
         }
 
         if ($this->connections[$connectionName]) {
-            if ($forceMasterAsSlave) {
+            if ($forceMasterAsSlave && ! $this->keepSlave) {
                 $this->connections['slave'] = $this->_conn = $this->connections['master'];
             } else {
                 $this->_conn = $this->connections[$connectionName];
