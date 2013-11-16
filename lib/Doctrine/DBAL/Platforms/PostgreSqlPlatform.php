@@ -515,6 +515,25 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritDoc}
+     */
+    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
+    {
+        $sql = array();
+        $table = $diff->name;
+        foreach ($diff->changedIndexes as $changedKey => $changedIndex) {
+            $sql[] = $this->getDropConstraintSQL('IF EXISTS ' . $changedIndex->getName(), $table);
+            $sql[] = $this->getDropIndexSQL('IF EXISTS ' . $changedIndex->getName(), $table);
+            $diff->addedIndexes[$changedKey] = $diff->changedIndexes[$changedKey];
+            unset($diff->changedIndexes[$changedKey]);
+        }
+
+        $sql = array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
+
+        return $sql;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
