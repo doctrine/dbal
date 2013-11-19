@@ -109,6 +109,16 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
     }
 
+    public function getGenerateSizedIndexSql()
+    {
+        return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
+    }
+
+    public function getGenerateUniqueSizedIndexSql()
+    {
+        return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
+    }
+
     /**
      * @expectedException \Doctrine\DBAL\DBALException
      */
