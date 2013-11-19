@@ -550,8 +550,8 @@ class QueryBuilder
      *         ->insert('users')
      *         ->values(
      *             array(
-     *                 'name' => 'username',
-     *                 'password' => md5('password')
+     *                 'name' => '?',
+     *                 'password' => '?'
      *             )
      *         );
      * </code>
