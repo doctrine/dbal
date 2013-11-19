@@ -137,3 +137,24 @@ by passing the driver option "charset" to Doctrine PDO MySQL driver. Using SET N
         'driver' => 'pdo_mysql',
         'charset' => 'UTF8',
     ));
+
+SQL Injection: Safe and Unsafe APIs for User Input
+--------------------------------------------------
+
+In general you should assume that APIs in Doctrine are not safe for user input.
+There are hoewver some exceptions.
+
+The following APIs are designed to be **SAFE** from SQL injections:
+
+- ``Doctrine\DBAL\Connection#insert($table, $values, $types)``
+- ``Doctrine\DBAL\Connection#update($table, $values, $where, $types)``
+- ``Doctrine\DBAL\Connection#delete($table, $where, $types)``
+- ``Doctrine\DBAL\Query\QueryBuilder#setFirstResult($offset)``
+- ``Doctrine\DBAL\Query\QueryBuilder#setMaxResults($limit)``
+- ``Doctrine\DBAL\Platforms\AbstractPlatform#modifyLimitQuery($sql, $limit, $offset)`` for the ``$limit`` and ``$offset`` parameters.
+
+Consider **ALL** other APIs to be not safe for user-input:
+
+- Query methods on the Connection
+- The QueryBuilder API
+- The Platforms and SchemaManager APIs to generate and execute DML/DDL SQL statements
