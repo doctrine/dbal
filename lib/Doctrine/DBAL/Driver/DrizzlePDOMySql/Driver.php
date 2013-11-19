@@ -137,6 +137,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
                 if (strpos($exception->getMessage(), 'in field list is ambiguous') !== false) {
                     return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
                 }
+                break;
         }
 
         return 0;
