@@ -4,6 +4,8 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 
 class PostgreSqlPlatformTest extends AbstractPlatformTestCase
 {
