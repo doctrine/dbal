@@ -31,7 +31,7 @@ class MysqliConnection implements Connection, PingableConnection
     /**
      * @var \mysqli
      */
-    private $_conn;
+    private $conn;
 
     /**
      * @param array  $params
@@ -46,21 +46,21 @@ class MysqliConnection implements Connection, PingableConnection
         $port = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
         $socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
 
-        $this->_conn = mysqli_init();
+        $this->conn = mysqli_init();
 
         $previousHandler = set_error_handler(function () {
         });
 
-        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket)) {
+        if ( ! $this->conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket)) {
             set_error_handler($previousHandler);
 
-            throw new MysqliException($this->_conn->connect_error, $this->_conn->connect_errno);
+            throw new MysqliException($this->conn->connect_error, $this->conn->connect_errno);
         }
 
         set_error_handler($previousHandler);
 
         if (isset($params['charset'])) {
-            $this->_conn->set_charset($params['charset']);
+            $this->conn->set_charset($params['charset']);
         }
 
         $this->setDriverOptions($driverOptions);
@@ -75,7 +75,7 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function getWrappedResourceHandle()
     {
-        return $this->_conn;
+        return $this->conn;
     }
 
     /**
@@ -83,7 +83,7 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function prepare($prepareString)
     {
-        return new MysqliStatement($this->_conn, $prepareString);
+        return new MysqliStatement($this->conn, $prepareString);
     }
 
     /**
@@ -103,7 +103,7 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function quote($input, $type=\PDO::PARAM_STR)
     {
-        return "'". $this->_conn->escape_string($input) ."'";
+        return "'". $this->conn->escape_string($input) ."'";
     }
 
     /**
@@ -111,8 +111,8 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function exec($statement)
     {
-        $this->_conn->query($statement);
-        return $this->_conn->affected_rows;
+        $this->conn->query($statement);
+        return $this->conn->affected_rows;
     }
 
     /**
@@ -120,7 +120,7 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function lastInsertId($name = null)
     {
-        return $this->_conn->insert_id;
+        return $this->conn->insert_id;
     }
 
     /**
@@ -128,7 +128,7 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function beginTransaction()
     {
-        $this->_conn->query('START TRANSACTION');
+        $this->conn->query('START TRANSACTION');
         return true;
     }
 
@@ -137,7 +137,7 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function commit()
     {
-        return $this->_conn->commit();
+        return $this->conn->commit();
     }
 
     /**
@@ -145,7 +145,7 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function rollBack()
     {
-        return $this->_conn->rollback();
+        return $this->conn->rollback();
     }
 
     /**
@@ -153,7 +153,7 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function errorCode()
     {
-        return $this->_conn->errno;
+        return $this->conn->errno;
     }
 
     /**
@@ -161,7 +161,7 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function errorInfo()
     {
-        return $this->_conn->error;
+        return $this->conn->error;
     }
 
     /**
@@ -196,16 +196,16 @@ class MysqliConnection implements Connection, PingableConnection
                 );
             }
 
-            if (@mysqli_options($this->_conn, $option, $value)) {
+            if (@mysqli_options($this->conn, $option, $value)) {
                 continue;
             }
 
             $msg  = sprintf($exceptionMsg, 'Failed to set', $option, $value);
-            $msg .= sprintf(', error: %s (%d)', mysqli_error($this->_conn), mysqli_errno($this->_conn));
+            $msg .= sprintf(', error: %s (%d)', mysqli_error($this->conn), mysqli_errno($this->conn));
 
             throw new MysqliException(
                 $msg,
-                mysqli_errno($this->_conn)
+                mysqli_errno($this->conn)
             );
         }
     }
@@ -217,6 +217,6 @@ class MysqliConnection implements Connection, PingableConnection
      */
     public function ping()
     {
-        return $this->_conn->ping();
+        return $this->conn->ping();
     }
 }
