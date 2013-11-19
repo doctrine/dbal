@@ -119,9 +119,16 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             $this->getGenerateIndexSql(),
             $this->_platform->getCreateIndexSQL($indexDef, 'mytable')
         );
+        $indexSized = new \Doctrine\DBAL\Schema\Index('my_idx', array('user_name(12)', 'last_login(34)'));
+        $this->assertEquals(
+            $this->getGenerateSizedIndexSql(),
+            $this->_platform->getCreateIndexSQL($indexSized, 'mytable')
+        );
     }
 
     abstract public function getGenerateIndexSql();
+
+    abstract public function getGenerateSizedIndexSql();
 
     public function testGeneratesUniqueIndexCreationSql()
     {
@@ -129,9 +136,15 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $sql = $this->_platform->getCreateIndexSQL($indexDef, 'test');
         $this->assertEquals($this->getGenerateUniqueIndexSql(), $sql);
+
+        $indexSized = new \Doctrine\DBAL\Schema\Index('index_name', array('test(12)', 'test2(34)'), true);
+        $sql = $this->_platform->getCreateIndexSQL($indexSized, 'test');
+        $this->assertEquals($this->getGenerateUniqueSizedIndexSql(), $sql);
     }
 
     abstract public function getGenerateUniqueIndexSql();
+
+    abstract public function getGenerateUniqueSizedIndexSql();
 
     public function testGeneratesForeignKeyCreationSql()
     {

@@ -23,6 +23,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class Index extends AbstractAsset implements Constraint
 {
+
     /**
      * Asset identifier instances of the column names the index is associated with.
      * array($columnName => Identifier)
@@ -30,6 +31,12 @@ class Index extends AbstractAsset implements Constraint
      * @var Identifier[]
      */
     protected $_columns = array();
+
+    /**
+     * Index sizes map for every involved column, keys are column names
+     * @var array
+     */
+    protected $_columnSizes = array();
 
     /**
      * @var boolean
@@ -80,8 +87,11 @@ class Index extends AbstractAsset implements Constraint
      */
     protected function _addColumn($column)
     {
-        if(is_string($column)) {
-            $this->_columns[$column] = new Identifier($column);
+        if (is_string($column)) {
+            list($name, $size) = $this->parseColumnDefinition($column);
+            $columnIdentifier = new Identifier($name);
+            $this->_columns[$name] = $columnIdentifier;
+            $this->_columnSizes[$name] = $size;
         } else {
             throw new \InvalidArgumentException("Expecting a string as Index Column");
         }
@@ -98,12 +108,27 @@ class Index extends AbstractAsset implements Constraint
     /**
      * {@inheritdoc}
      */
-    public function getQuotedColumns(AbstractPlatform $platform)
+    public function getColumnSize($column)
+    {
+        return $this->_columnSizes[$column];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getQuotedColumns(AbstractPlatform $platform, $includeSizes = false)
     {
         $columns = array();
 
-        foreach ($this->_columns as $column) {
-            $columns[] = $column->getQuotedName($platform);
+        foreach ($this->_columns as $rawName => $column) {
+            $quotedName = $column->getQuotedName($platform);
+            if($includeSizes){
+                $size = $this->_columnSizes[$rawName];
+                if($size !== false){
+                    $quotedName = $platform->getIndexPartDeclarationSQL($quotedName, $size);
+                }
+            }
+            $columns[] = $quotedName;
         }
 
         return $columns;
@@ -286,5 +311,21 @@ class Index extends AbstractAsset implements Constraint
     public function removeFlag($flag)
     {
         unset($this->flags[strtolower($flag)]);
+    }
+
+    /**
+     * Splits column definition on name & size parts
+     *
+     * @param string $columnDefinition
+     *
+     * @return array List with name & size like ['email', 16] or ['email', false] if no size detected
+     */
+    private function parseColumnDefinition($columnDefinition)
+    {
+        $parts = array();
+        preg_match('/(\w+)(\((\d+)\))?/',$columnDefinition,$parts);
+        $size = isset($parts[3]) ? (int)$parts[3] : false;
+
+        return array($parts[1], $size);
     }
 }

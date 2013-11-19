@@ -41,6 +41,7 @@ use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
+use Doctrine\Tests\DBAL\Types\IntegerTest;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -1476,7 +1477,7 @@ abstract class AbstractPlatform
             $table = $table->getQuotedName($this);
         }
         $name = $index->getQuotedName($this);
-        $columns = $index->getQuotedColumns($this);
+        $columns = $index->getQuotedColumns($this, true);
 
         if (count($columns) == 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
@@ -1490,6 +1491,20 @@ abstract class AbstractPlatform
         $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
 
         return $query;
+    }
+
+    /**
+     * Concatenates index column name with index size definition.
+     *
+     * @param string $quotedName
+     *
+     * @param integer $size
+     *
+     * @return string
+     */
+    public function getIndexPartDeclarationSQL($quotedName, $size)
+    {
+        return $quotedName."($size)";
     }
 
     /**
