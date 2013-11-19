@@ -23,7 +23,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class Index extends AbstractAsset implements Constraint
 {
-
     /**
      * Asset identifier instances of the column names the index is associated with.
      * array($columnName => Identifier)
@@ -36,7 +35,7 @@ class Index extends AbstractAsset implements Constraint
      * Index sizes map for every involved column, keys are column names
      * @var array
      */
-    protected $_columnSizes = array();
+    private $columnSizes = array();
 
     /**
      * @var boolean
@@ -91,7 +90,7 @@ class Index extends AbstractAsset implements Constraint
             list($name, $size) = $this->parseColumnDefinition($column);
             $columnIdentifier = new Identifier($name);
             $this->_columns[$name] = $columnIdentifier;
-            $this->_columnSizes[$name] = $size;
+            $this->columnSizes[$name] = $size;
         } else {
             throw new \InvalidArgumentException("Expecting a string as Index Column");
         }
@@ -110,7 +109,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getColumnSize($column)
     {
-        return $this->_columnSizes[$column];
+        return $this->columnSizes[$column];
     }
 
     /**
@@ -123,7 +122,7 @@ class Index extends AbstractAsset implements Constraint
         foreach ($this->_columns as $rawName => $column) {
             $quotedName = $column->getQuotedName($platform);
             if($includeSizes){
-                $size = $this->_columnSizes[$rawName];
+                $size = $this->columnSizes[$rawName];
                 if($size !== false){
                     $quotedName = $platform->getIndexPartDeclarationSQL($quotedName, $size);
                 }

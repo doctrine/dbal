@@ -41,7 +41,6 @@ use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
-use Doctrine\Tests\DBAL\Types\IntegerTest;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
