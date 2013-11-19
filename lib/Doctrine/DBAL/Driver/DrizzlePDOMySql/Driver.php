@@ -108,38 +108,35 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
      */
     public function convertExceptionCode(\Exception $exception)
     {
-        if ($exception->getCode() === "42000") {
-            return DBALException::ERROR_SYNTAX;
-        }
+        switch ($exception->getCode()) {
+            case "42000":
+                return DBALException::ERROR_SYNTAX;
 
-        if ($exception->getCode() === "42S02") {
-            return DBALException::ERROR_UNKNOWN_TABLE;
-        }
+            case "42S02":
+                return DBALException::ERROR_UNKNOWN_TABLE;
 
-        if ($exception->getCode() === "42S01") {
-            return DBALException::ERROR_TABLE_ALREADY_EXISTS;
-        }
+            case "42S01":
+                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
 
-        if ($exception->getCode() === "42S22") {
-            return DBALException::ERROR_BAD_FIELD_NAME;
-        }
+            case "42S22":
+                return DBALException::ERROR_BAD_FIELD_NAME;
 
-        if ($exception->getCode() === "23000") {
-            if (strpos($exception->getMessage(), 'Duplicate entry') !== false) {
-                return DBALException::ERROR_DUPLICATE_KEY;
-            }
+            case "23000":
+                if (strpos($exception->getMessage(), 'Duplicate entry') !== false) {
+                    return DBALException::ERROR_DUPLICATE_KEY;
+                }
 
-            if (strpos($exception->getMessage(), 'Cannot delete or update a parent row: a foreign key constraint fails') !== false) {
-                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
-            }
+                if (strpos($exception->getMessage(), 'Cannot delete or update a parent row: a foreign key constraint fails') !== false) {
+                    return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+                }
 
-            if (strpos($exception->getMessage(), ' cannot be null')) {
-                return DBALException::ERROR_NOT_NULL;
-            }
+                if (strpos($exception->getMessage(), ' cannot be null')) {
+                    return DBALException::ERROR_NOT_NULL;
+                }
 
-            if (strpos($exception->getMessage(), 'in field list is ambiguous') !== false) {
-                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
-            }
+                if (strpos($exception->getMessage(), 'in field list is ambiguous') !== false) {
+                    return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+                }
         }
 
         return 0;
