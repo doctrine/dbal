@@ -661,14 +661,6 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function getIndexPartDeclarationSQL($quotedName, $size)
-    {
-        return $quotedName;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getCreateForeignKeySQL(ForeignKeyConstraint $foreignKey, $table)

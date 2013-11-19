@@ -642,6 +642,14 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getIndexPartDeclarationSQL($quotedName, $size)
+    {
+        return $quotedName."($size)";
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getIntegerTypeDeclarationSQL(array $field)

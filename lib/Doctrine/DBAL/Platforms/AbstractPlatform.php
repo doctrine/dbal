@@ -1504,7 +1504,7 @@ abstract class AbstractPlatform
      */
     public function getIndexPartDeclarationSQL($quotedName, $size)
     {
-        return $quotedName."($size)";
+        return $quotedName;
     }
 
     /**

@@ -128,7 +128,10 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract public function getGenerateIndexSql();
 
-    abstract public function getGenerateSizedIndexSql();
+    public function getGenerateSizedIndexSql()
+    {
+        return $this->getGenerateIndexSql();
+    }
 
     public function testGeneratesUniqueIndexCreationSql()
     {
@@ -144,7 +147,10 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract public function getGenerateUniqueIndexSql();
 
-    abstract public function getGenerateUniqueSizedIndexSql();
+    public function getGenerateUniqueSizedIndexSql()
+    {
+        return $this->getGenerateUniqueIndexSql();
+    }
 
     public function testGeneratesForeignKeyCreationSql()
     {
