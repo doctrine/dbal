@@ -887,10 +887,10 @@ class QueryBuilder
      *         ->insert('users')
      *         ->values(
      *             array(
-     *                 'name' => 'username'
+     *                 'name' => '?'
      *             )
      *         )
-     *         ->setValue('password', md5('password'));
+     *         ->setValue('password', '?');
      * </code>
      *
      * @param string $column The column into which the value should be inserted.
@@ -914,8 +914,8 @@ class QueryBuilder
      *         ->insert('users')
      *         ->values(
      *             array(
-     *                 'name' => 'username',
-     *                 'password' => md5('password')
+     *                 'name' => '?',
+     *                 'password' => '?'
      *             )
      *         );
      * </code>
