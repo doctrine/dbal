@@ -1,17 +1,45 @@
 Security
 ========
 
-Allowing users of your website to communicate with a database can possibly have security implications
-that you should be aware of. Databases allow very powerful commands that not every user of your website
-should be able to execute. Additionally the data in your database probably contains information that
-should not be visible to everyone with access to the website.
+Allowing users of your website to communicate with a database can possibly have
+security implications that you should be aware of. Databases allow very
+powerful commands that not every user of your website should be able to
+execute. Additionally the data in your database probably contains information
+that should not be visible to everyone with access to the website.
 
-The most dangerous security problem with regard to databases is the possibility of SQL injections.
-An SQL injection security hole allows an attacker to execute new or modify existing SQL statements to
-access information that he is not allowed to access.
+The most dangerous security problem with regard to databases is the possibility
+of SQL injections.  An SQL injection security hole allows an attacker to
+execute new or modify existing SQL statements to access information that he is
+not allowed to access.
 
-Neither Doctrine DBAL nor ORM can prevent such attacks if you are careless as a developer. This section
-explains to you the problems of SQL injection and how to prevent them.
+Neither Doctrine DBAL nor ORM can prevent such attacks if you are careless as a
+developer. This section explains to you the problems of SQL injection and how
+to prevent them.
+
+SQL Injection: Safe and Unsafe APIs for User Input
+--------------------------------------------------
+
+A database library naturally falls touches the class of SQL injection security
+vulnerabilities. You should read the following information carefully to
+understand how Doctrine can and cannot help you to prevent SQL injection.
+
+In general you should assume that APIs in Doctrine are not safe for user input.
+There are hoewver some exceptions.
+
+The following APIs are designed to be **SAFE** from SQL injections:
+
+- ``Doctrine\DBAL\Connection#insert($table, $values, $types)``
+- ``Doctrine\DBAL\Connection#update($table, $values, $where, $types)``
+- ``Doctrine\DBAL\Connection#delete($table, $where, $types)``
+- ``Doctrine\DBAL\Query\QueryBuilder#setFirstResult($offset)``
+- ``Doctrine\DBAL\Query\QueryBuilder#setMaxResults($limit)``
+- ``Doctrine\DBAL\Platforms\AbstractPlatform#modifyLimitQuery($sql, $limit, $offset)`` for the ``$limit`` and ``$offset`` parameters.
+
+Consider **ALL** other APIs to be not safe for user-input:
+
+- Query methods on the Connection
+- The QueryBuilder API
+- The Platforms and SchemaManager APIs to generate and execute DML/DDL SQL statements
 
 User input in your queries
 --------------------------
@@ -138,23 +166,3 @@ by passing the driver option "charset" to Doctrine PDO MySQL driver. Using SET N
         'charset' => 'UTF8',
     ));
 
-SQL Injection: Safe and Unsafe APIs for User Input
---------------------------------------------------
-
-In general you should assume that APIs in Doctrine are not safe for user input.
-There are hoewver some exceptions.
-
-The following APIs are designed to be **SAFE** from SQL injections:
-
-- ``Doctrine\DBAL\Connection#insert($table, $values, $types)``
-- ``Doctrine\DBAL\Connection#update($table, $values, $where, $types)``
-- ``Doctrine\DBAL\Connection#delete($table, $where, $types)``
-- ``Doctrine\DBAL\Query\QueryBuilder#setFirstResult($offset)``
-- ``Doctrine\DBAL\Query\QueryBuilder#setMaxResults($limit)``
-- ``Doctrine\DBAL\Platforms\AbstractPlatform#modifyLimitQuery($sql, $limit, $offset)`` for the ``$limit`` and ``$offset`` parameters.
-
-Consider **ALL** other APIs to be not safe for user-input:
-
-- Query methods on the Connection
-- The QueryBuilder API
-- The Platforms and SchemaManager APIs to generate and execute DML/DDL SQL statements
