@@ -32,6 +32,12 @@ class Index extends AbstractAsset implements Constraint
     protected $_columns = array();
 
     /**
+     * Options for index columns, keys are unquoted column names
+     * @var array
+     */
+    private $options = array();
+
+    /**
      * @var boolean
      */
     protected $_isUnique = false;
@@ -55,13 +61,14 @@ class Index extends AbstractAsset implements Constraint
      * @param boolean $isPrimary
      * @param array   $flags
      */
-    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
+    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array(), array $options = array())
     {
         $isUnique = ($isPrimary)?true:$isUnique;
 
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
         $this->_isPrimary = $isPrimary;
+        $this->options = $options;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -102,8 +109,12 @@ class Index extends AbstractAsset implements Constraint
     {
         $columns = array();
 
-        foreach ($this->_columns as $column) {
-            $columns[] = $column->getQuotedName($platform);
+        foreach ($this->_columns as $rawName => $column) {
+            $quotedName = $column->getQuotedName($platform);
+            if (isset($this->options[$rawName])) {
+                $quotedName = $platform->getIndexColumnDeclarationSQL($quotedName, $this->options[$rawName]);
+            }
+            $columns[] = $quotedName;
         }
 
         return $columns;

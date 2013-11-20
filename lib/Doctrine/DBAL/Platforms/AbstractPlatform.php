@@ -1493,6 +1493,20 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Modifies index column name using  vendor-specific options, if present
+     *
+     * @param string $quotedName
+     *
+     * @param array $options Vendor-specific index column options, like index size in MySQL
+     *
+     * @return string
+     */
+    public function getIndexColumnDeclarationSQL($quotedName, array $options = array())
+    {
+        return $quotedName;
+    }
+
+    /**
      * Adds additional flags for index generation.
      *
      * @param \Doctrine\DBAL\Schema\Index $index
