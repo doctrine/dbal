@@ -183,8 +183,6 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
      *
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
      *
-     * @internal param bool $includeSizes Always ignored for constraints
-     *
      * @see getQuotedLocalColumns
      *
      * @return array

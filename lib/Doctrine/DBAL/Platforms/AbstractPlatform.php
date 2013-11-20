@@ -1493,7 +1493,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Concatenates index column name with index size definition.
+     * Modifies index column name using  vendor-specific options, if present
      *
      * @param string $quotedName
      *
