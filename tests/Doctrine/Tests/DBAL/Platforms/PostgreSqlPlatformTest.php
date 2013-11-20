@@ -332,25 +332,25 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             'dloo1', new \Doctrine\DBAL\Schema\Column(
                 'dloo1', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 16, 'scale' => 6)
             ),
-            array('type')
+            array('precision')
         );
         $tableDiff->changedColumns['dloo2'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'dloo2', new \Doctrine\DBAL\Schema\Column(
                 'dloo2', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 10, 'scale' => 4)
             ),
-            array('type')
+            array('scale')
         );
         $tableDiff->changedColumns['dloo3'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'dloo3', new \Doctrine\DBAL\Schema\Column(
                 'dloo3', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 10, 'scale' => 6)
             ),
-            array('type')
+            array()
         );
         $tableDiff->changedColumns['dloo4'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'dloo4', new \Doctrine\DBAL\Schema\Column(
                 'dloo4', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 16, 'scale' => 8)
             ),
-            array('type')
+            array('precision', 'scale')
         );
 
         $sql = $this->_platform->getAlterTableSQL($tableDiff);
