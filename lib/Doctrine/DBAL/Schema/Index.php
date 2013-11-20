@@ -32,10 +32,10 @@ class Index extends AbstractAsset implements Constraint
     protected $_columns = array();
 
     /**
-     * Index sizes map for every involved column, keys are column names
+     * Options for index columns, keys are unquoted column names
      * @var array
      */
-    private $columnSizes = array();
+    private $options = array();
 
     /**
      * @var boolean
@@ -61,13 +61,14 @@ class Index extends AbstractAsset implements Constraint
      * @param boolean $isPrimary
      * @param array   $flags
      */
-    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
+    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array(), array $options = array())
     {
         $isUnique = ($isPrimary)?true:$isUnique;
 
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
         $this->_isPrimary = $isPrimary;
+        $this->options = $options;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -86,11 +87,8 @@ class Index extends AbstractAsset implements Constraint
      */
     protected function _addColumn($column)
     {
-        if (is_string($column)) {
-            list($name, $size) = $this->parseColumnDefinition($column);
-            $columnIdentifier = new Identifier($name);
-            $this->_columns[$name] = $columnIdentifier;
-            $this->columnSizes[$name] = $size;
+        if(is_string($column)) {
+            $this->_columns[$column] = new Identifier($column);
         } else {
             throw new \InvalidArgumentException("Expecting a string as Index Column");
         }
@@ -107,25 +105,14 @@ class Index extends AbstractAsset implements Constraint
     /**
      * {@inheritdoc}
      */
-    public function getColumnSize($column)
-    {
-        return $this->columnSizes[$column];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getQuotedColumns(AbstractPlatform $platform, $includeSizes = false)
+    public function getQuotedColumns(AbstractPlatform $platform)
     {
         $columns = array();
 
         foreach ($this->_columns as $rawName => $column) {
             $quotedName = $column->getQuotedName($platform);
-            if($includeSizes){
-                $size = $this->columnSizes[$rawName];
-                if($size !== false){
-                    $quotedName = $platform->getIndexPartDeclarationSQL($quotedName, $size);
-                }
+            if (isset($this->options[$rawName])) {
+                $quotedName = $platform->getIndexColumnDeclarationSQL($quotedName, $this->options[$rawName]);
             }
             $columns[] = $quotedName;
         }
@@ -310,21 +297,5 @@ class Index extends AbstractAsset implements Constraint
     public function removeFlag($flag)
     {
         unset($this->flags[strtolower($flag)]);
-    }
-
-    /**
-     * Splits column definition on name & size parts
-     *
-     * @param string $columnDefinition
-     *
-     * @return array List with name & size like ['email', 16] or ['email', false] if no size detected
-     */
-    private function parseColumnDefinition($columnDefinition)
-    {
-        $parts = array();
-        preg_match('/(\w+)(\((\d+)\))?/',$columnDefinition,$parts);
-        $size = isset($parts[3]) ? (int)$parts[3] : false;
-
-        return array($parts[1], $size);
     }
 }

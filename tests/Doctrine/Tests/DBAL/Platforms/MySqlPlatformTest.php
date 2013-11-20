@@ -138,14 +138,29 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $this->assertTrue($this->_platform->supportsSavepoints());
     }
 
+    public function testGenerateSizedIndexSql()
+    {
+        $indexSized = new \Doctrine\DBAL\Schema\Index('my_idx', array('user_name', 'last_login'), false, false, array(), array(
+            'user_name'=>array('size'=>12),
+            'last_login'=>array('size'=>34),
+        ));
+        $sql = $this->_platform->getCreateIndexSQL($indexSized, 'test');
+        $this->assertEquals($this->getGenerateSizedIndexSql(), $sql);
+    }
+
+    public function testGenerateSizedUniqueIndexSql()
+    {
+        $indexSized = new \Doctrine\DBAL\Schema\Index('my_idx', array('test', 'test2'), true, false, array(), array(
+            'test'=>array('size'=>12),
+            'test2'=>array('size'=>34),
+        ));
+        $sql = $this->_platform->getCreateIndexSQL($indexSized, 'test');
+        $this->assertEquals($this->getGenerateUniqueSizedIndexSql(), $sql);
+    }
+
     public function getGenerateIndexSql()
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
-    }
-
-    public function getGenerateSizedIndexSql()
-    {
-        return 'CREATE INDEX my_idx ON mytable (user_name(12), last_login(34))';
     }
 
     public function getGenerateUniqueIndexSql()
@@ -153,9 +168,14 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
     }
 
-    public function getGenerateUniqueSizedIndexSql()
+    private function getGenerateSizedIndexSql()
     {
-        return 'CREATE UNIQUE INDEX index_name ON test (test(12), test2(34))';
+        return 'CREATE INDEX my_idx ON test (user_name(12), last_login(34))';
+    }
+
+    private function getGenerateUniqueSizedIndexSql()
+    {
+        return 'CREATE UNIQUE INDEX my_idx ON test (test(12), test2(34))';
     }
 
     public function getGenerateForeignKeySql()

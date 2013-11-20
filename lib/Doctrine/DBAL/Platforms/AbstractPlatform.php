@@ -1476,7 +1476,7 @@ abstract class AbstractPlatform
             $table = $table->getQuotedName($this);
         }
         $name = $index->getQuotedName($this);
-        $columns = $index->getQuotedColumns($this, true);
+        $columns = $index->getQuotedColumns($this);
 
         if (count($columns) == 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
@@ -1497,11 +1497,11 @@ abstract class AbstractPlatform
      *
      * @param string $quotedName
      *
-     * @param integer $size
+     * @param array $options Vendor-specific index column options, like index size in MySQL
      *
      * @return string
      */
-    public function getIndexPartDeclarationSQL($quotedName, $size)
+    public function getIndexColumnDeclarationSQL($quotedName, array $options = array())
     {
         return $quotedName;
     }

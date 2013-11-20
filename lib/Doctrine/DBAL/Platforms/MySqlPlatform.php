@@ -644,9 +644,15 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getIndexPartDeclarationSQL($quotedName, $size)
+    public function getIndexColumnDeclarationSQL($quotedName, array $options = array())
     {
-        return $quotedName."($size)";
+        $declaration = $quotedName;
+
+        // index column size can be set explicitly
+        if (isset($options['size'])) {
+            $declaration .= "(" . (int) $options['size'] . ")";
+        }
+        return $declaration;
     }
 
     /**
