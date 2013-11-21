@@ -123,6 +123,8 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @link http://www.sqlite.org/c3ref/c_abort.html
      */
     public function convertExceptionCode(\Exception $exception)
     {

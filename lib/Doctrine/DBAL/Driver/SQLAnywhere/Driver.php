@@ -74,6 +74,8 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @link http://dcx.sybase.com/index.html#sa160/en/saerrors/sqlerror.html
      */
     public function convertExceptionCode(\Exception $exception)
     {

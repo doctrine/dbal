@@ -76,6 +76,9 @@ class Driver implements DriverInterface, ExceptionConverterDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-client.html
+     * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html
      */
     public function convertExceptionCode(\Exception $exception)
     {

@@ -109,6 +109,8 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @link http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
      */
     public function convertExceptionCode(\Exception $exception)
     {
