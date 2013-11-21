@@ -118,7 +118,8 @@ class Driver implements DriverInterface, ExceptionConverterDriver
             return DBALException::ERROR_ACCESS_DENIED;
         }
 
-        if (strpos($exception->getMessage(), 'getaddrinfo failed: Name or service not known') !== false) {
+        if ((strpos($exception->getMessage(), 'getaddrinfo failed: Name or service not known') !== false) || // GNU
+            (strpos($exception->getMessage(), 'getaddrinfo failed: nodename nor servname provided, or not known') !== false)) { // FreeBSD
             return DBALException::ERROR_ACCESS_DENIED;
         }
 
