@@ -442,7 +442,11 @@ class PostgreSqlPlatform extends AbstractPlatform
                 continue;
             }
 
-            $oldColumnName = $columnDiff->oldColumnName;
+            if ($columnDiff->fromColumn) {
+                $oldColumnName = $columnDiff->fromColumn->getQuotedName($this);
+            } else {
+                $oldColumnName = $columnDiff->oldColumnName;
+            }
             $column = $columnDiff->column;
 
             if ($columnDiff->hasChanged('type')) {
@@ -466,7 +470,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             if ($columnDiff->hasChanged('autoincrement')) {
                 if ($column->getAutoincrement()) {
                     // add autoincrement
-                    $seqName = $diff->name . '_' . $oldColumnName . '_seq';
+                    $seqName = $diff->name . '_' . $columnDiff->oldColumnName . '_seq';
 
                     $sql[] = "CREATE SEQUENCE " . $seqName;
                     $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->name . "))";

@@ -334,4 +334,21 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             $this->assertEquals($expected, $actual);
         }
     }
+
+    public function testAlterTableChangeQuotedColumn()
+    {
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'foo', new \Doctrine\DBAL\Schema\Column(
+                'foo', \Doctrine\DBAL\Types\Type::getType('string')
+            ),
+            array('type')
+        );
+        $tableDiff->changedColumns['foo']->fromColumn = new \Doctrine\DBAL\Schema\Column('"foo"', \Doctrine\DBAL\Types\Type::getType('string'));
+
+        $expectedSql = array(
+            'ALTER TABLE mytable ALTER "foo" TYPE VARCHAR(255)',
+        );
+        $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+    }
 }

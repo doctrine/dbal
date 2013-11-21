@@ -242,12 +242,14 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             ),
             array('type', 'notnull', 'default')
         );
+        $tableDiff->changedColumns['bar']->fromColumn = new \Doctrine\DBAL\Schema\Column('bar', \Doctrine\DBAL\Types\Type::getType('boolean'));
         $tableDiff->changedColumns['bloo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'bloo', new \Doctrine\DBAL\Schema\Column(
                 'bloo', \Doctrine\DBAL\Types\Type::getType('boolean'), array('default' => false)
             ),
             array('type', 'notnull', 'default')
         );
+        $tableDiff->changedColumns['bloo']->fromColumn = new \Doctrine\DBAL\Schema\Column('bloo', \Doctrine\DBAL\Types\Type::getType('string'));
 
         $sql = $this->_platform->getAlterTableSQL($tableDiff);
 
@@ -351,6 +353,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             ),
             array()
         );
+        $tableDiff->changedColumns['changed']->fromColumn = new \Doctrine\DBAL\Schema\Column('changed', \Doctrine\DBAL\Types\Type::getType('string'));
         $tableDiff->renamedColumns['renamed'] = new \Doctrine\DBAL\Schema\Column('renamed2', \Doctrine\DBAL\Types\Type::getType('integer'), array());
 
         $this->_platform->getAlterTableSQL($tableDiff);
@@ -381,12 +384,14 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             ),
             array('comment')
         );
+        $tableDiff->changedColumns['foo']->fromColumn = new \Doctrine\DBAL\Schema\Column('foo', \Doctrine\DBAL\Types\Type::getType('string'));
         $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'bar', new \Doctrine\DBAL\Schema\Column(
                 'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('comment' => 'B comment')
             ),
             array('comment')
         );
+        $tableDiff->changedColumns['bar']->fromColumn = new \Doctrine\DBAL\Schema\Column('bar', \Doctrine\DBAL\Types\Type::getType('string'));
 
         $this->assertEquals($this->getAlterTableColumnCommentsSQL(), $this->_platform->getAlterTableSQL($tableDiff));
     }
