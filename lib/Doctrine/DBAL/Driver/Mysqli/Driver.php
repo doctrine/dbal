@@ -132,6 +132,7 @@ class Driver implements DriverInterface, ExceptionConverterDriver
             case '1143':
             case '1227':
             case '1370':
+            case '2002':
             case '2005':
                 return DBALException::ERROR_ACCESS_DENIED;
 
