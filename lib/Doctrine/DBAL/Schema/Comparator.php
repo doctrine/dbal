@@ -190,30 +190,30 @@ class Comparator
         $table1Columns = $table1->getColumns();
         $table2Columns = $table2->getColumns();
 
-        /* See if all the fields in table 1 exist in table 2 */
-        foreach ( $table2Columns as $columnName => $column ) {
-            if ( !$table1->hasColumn($columnName) ) {
+        // See if all the fields in table 1 exist in table 2.
+        foreach ($table2Columns as $columnName => $column) {
+            if ( ! $table1->hasColumn($columnName)) {
                 $tableDifferences->addedColumns[$columnName] = $column;
                 $changes++;
             }
         }
         /* See if there are any removed fields in table 2 */
-        foreach ( $table1Columns as $columnName => $column ) {
-            if ( !$table2->hasColumn($columnName) ) {
+        foreach ($table1Columns as $columnName => $column) {
+            // See if column is removed in table 2.
+            if ( ! $table2->hasColumn($columnName)) {
                 $tableDifferences->removedColumns[$columnName] = $column;
                 $changes++;
+                continue;
             }
-        }
 
-        foreach ( $table1Columns as $columnName => $column ) {
-            if ( $table2->hasColumn($columnName) ) {
-                $changedProperties = $this->diffColumn( $column, $table2->getColumn($columnName) );
-                if (count($changedProperties) ) {
-                    $columnDiff = new ColumnDiff($column->getName(), $table2->getColumn($columnName), $changedProperties);
-                    $columnDiff->fromColumn = $column;
-                    $tableDifferences->changedColumns[$column->getName()] = $columnDiff;
-                    $changes++;
-                }
+            // See if column has changed properties in table 2.
+            $changedProperties = $this->diffColumn($column, $table2->getColumn($columnName));
+
+            if ( ! empty($changedProperties)) {
+                $columnDiff = new ColumnDiff($column->getName(), $table2->getColumn($columnName), $changedProperties);
+                $columnDiff->fromColumn = $column;
+                $tableDifferences->changedColumns[$column->getName()] = $columnDiff;
+                $changes++;
             }
         }
 
