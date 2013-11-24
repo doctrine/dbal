@@ -3,6 +3,10 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\SQLServer2008Platform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 
 class SQLServerPlatformTest extends AbstractPlatformTestCase
@@ -341,5 +345,248 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             $actual = $this->_platform->schemaNeedsCreation($name);
             $this->assertEquals($expected, $actual);
         }
+    }
+
+    /**
+     * @group DBAL-543
+     */
+    public function getCreateTableColumnCommentsSQL()
+    {
+        return array(
+            "CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))",
+            "EXEC sp_addextendedproperty N'MS_Description', N'This is a comment', N'SCHEMA', dbo, N'TABLE', test, N'COLUMN', id",
+        );
+    }
+
+    /**
+     * @group DBAL-543
+     */
+    public function getAlterTableColumnCommentsSQL()
+    {
+        return array(
+            "ALTER TABLE mytable ADD quota INT NOT NULL",
+            "EXEC sp_addextendedproperty N'MS_Description', N'A comment', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', quota",
+            // todo
+            //"EXEC sp_addextendedproperty N'MS_Description', N'B comment', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', baz",
+        );
+    }
+
+    /**
+     * @group DBAL-543
+     */
+    public function getCreateTableColumnTypeCommentsSQL()
+    {
+        return array(
+            "CREATE TABLE test (id INT NOT NULL, data VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))",
+            "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', test, N'COLUMN', data",
+        );
+    }
+
+    /**
+     * @group DBAL-543
+     */
+    public function testGeneratesCreateTableSQLWithColumnComments()
+    {
+        $table = new Table('mytable');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('comment_null', 'integer', array('comment' => null));
+        $table->addColumn('comment_false', 'integer', array('comment' => false));
+        $table->addColumn('comment_empty_string', 'integer', array('comment' => ''));
+        $table->addColumn('comment_integer_0', 'integer', array('comment' => 0));
+        $table->addColumn('comment_float_0', 'integer', array('comment' => 0.0));
+        $table->addColumn('comment_string_0', 'integer', array('comment' => '0'));
+        $table->addColumn('comment', 'integer', array('comment' => 'Doctrine 0wnz you!'));
+        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitely quoted columns!'));
+        $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
+        $table->addColumn('commented_type', 'object');
+        $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
+        $table->setPrimaryKey(array('id'));
+
+        $this->assertEquals(
+            array(
+                "CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))",
+                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_integer_0",
+                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_float_0",
+                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_string_0",
+                "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz you!', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment",
+                "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz comments for explicitely quoted columns!', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [comment_quoted]",
+                "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz comments for reserved keyword columns!', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [create]",
+                "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type",
+                "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine array type.(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type_with_comment",
+            ),
+            $this->_platform->getCreateTableSQL($table)
+        );
+    }
+
+    /**
+     * @group DBAL-543
+     */
+    public function testGeneratesAlterTableSQLWithColumnComments()
+    {
+        $table = new Table('mytable');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('comment_null', 'integer', array('comment' => null));
+        $table->addColumn('comment_false', 'integer', array('comment' => false));
+        $table->addColumn('comment_empty_string', 'integer', array('comment' => ''));
+        $table->addColumn('comment_integer_0', 'integer', array('comment' => 0));
+        $table->addColumn('comment_float_0', 'integer', array('comment' => 0.0));
+        $table->addColumn('comment_string_0', 'integer', array('comment' => '0'));
+        $table->addColumn('comment', 'integer', array('comment' => 'Doctrine 0wnz you!'));
+        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitely quoted columns!'));
+        $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
+        $table->addColumn('commented_type', 'object');
+        $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
+        $table->setPrimaryKey(array('id'));
+
+        $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = $table;
+        $tableDiff->addedColumns['added_comment_none'] = new Column('added_comment_none', Type::getType('integer'));
+        $tableDiff->addedColumns['added_comment_null'] = new Column('added_comment_null', Type::getType('integer'), array('comment' => null));
+        $tableDiff->addedColumns['added_comment_false'] = new Column('added_comment_false', Type::getType('integer'), array('comment' => false));
+        $tableDiff->addedColumns['added_comment_empty_string'] = new Column('added_comment_empty_string', Type::getType('integer'), array('comment' => ''));
+        $tableDiff->addedColumns['added_comment_integer_0'] = new Column('added_comment_integer_0', Type::getType('integer'), array('comment' => 0));
+        $tableDiff->addedColumns['added_comment_float_0'] = new Column('added_comment_float_0', Type::getType('integer'), array('comment' => 0.0));
+        $tableDiff->addedColumns['added_comment_string_0'] = new Column('added_comment_string_0', Type::getType('integer'), array('comment' => '0'));
+        $tableDiff->addedColumns['added_comment'] = new Column('added_comment', Type::getType('integer'), array('comment' => 'Doctrine'));
+        $tableDiff->addedColumns['`added_comment_quoted`'] = new Column('`added_comment_quoted`', Type::getType('integer'), array('comment' => 'rulez'));
+        $tableDiff->addedColumns['select'] = new Column('select', Type::getType('integer'), array('comment' => '666'));
+        $tableDiff->addedColumns['added_commented_type'] = new Column('added_commented_type', Type::getType('object'));
+        $tableDiff->addedColumns['added_commented_type_with_comment'] = new Column('added_commented_type_with_comment', Type::getType('array'), array('comment' => '666'));
+
+        $tableDiff->renamedColumns['comment_float_0'] = new Column('comment_double_0', Type::getType('decimal'), array('comment' => 'Double for real!'));
+
+        // Add comment to non-commented column.
+        $tableDiff->changedColumns['id'] = new ColumnDiff(
+            'id',
+            new Column('id', Type::getType('integer'), array('autoincrement' => true, 'comment' => 'primary')),
+            array('comment'),
+            new Column('id', Type::getType('integer'), array('autoincrement' => true))
+        );
+
+        // Remove comment from null-commented column.
+        $tableDiff->changedColumns['comment_null'] = new ColumnDiff(
+            'comment_null',
+            new Column('comment_null', Type::getType('string')),
+            array('type'),
+            new Column('comment_null', Type::getType('integer'), array('comment' => null))
+        );
+
+        // Add comment to false-commented column.
+        $tableDiff->changedColumns['comment_false'] = new ColumnDiff(
+            'comment_false',
+            new Column('comment_false', Type::getType('integer'), array('comment' => 'false')),
+            array('comment'),
+            new Column('comment_false', Type::getType('integer'), array('comment' => false))
+        );
+
+        // Change type to custom type from empty string commented column.
+        $tableDiff->changedColumns['comment_empty_string'] = new ColumnDiff(
+            'comment_empty_string',
+            new Column('comment_empty_string', Type::getType('object')),
+            array('type'),
+            new Column('comment_empty_string', Type::getType('integer'), array('comment' => ''))
+        );
+
+        // Change comment to false-comment from zero-string commented column.
+        $tableDiff->changedColumns['comment_string_0'] = new ColumnDiff(
+            'comment_string_0',
+            new Column('comment_string_0', Type::getType('integer'), array('comment' => false)),
+            array('comment'),
+            new Column('comment_string_0', Type::getType('integer'), array('comment' => '0'))
+        );
+
+        // Remove comment from regular commented column.
+        $tableDiff->changedColumns['comment'] = new ColumnDiff(
+            'comment',
+            new Column('comment', Type::getType('integer')),
+            array('comment'),
+            new Column('comment', Type::getType('integer'), array('comment' => 'Doctrine 0wnz you!'))
+        );
+
+        // Change comment and change type to custom type from regular commented column.
+        $tableDiff->changedColumns['`comment_quoted`'] = new ColumnDiff(
+            '`comment_quoted`',
+            new Column('`comment_quoted`', Type::getType('array'), array('comment' => 'Doctrine array.')),
+            array('comment', 'type'),
+            new Column('`comment_quoted`', Type::getType('integer'), array('comment' => 'Doctrine 0wnz you!'))
+        );
+
+        // Remove comment and change type to custom type from regular commented column.
+        $tableDiff->changedColumns['create'] = new ColumnDiff(
+            'create',
+            new Column('create', Type::getType('object')),
+            array('comment', 'type'),
+            new Column('create', Type::getType('integer'), array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'))
+        );
+
+        // Add comment and change custom type to regular type from non-commented column.
+        $tableDiff->changedColumns['commented_type'] = new ColumnDiff(
+            'commented_type',
+            new Column('commented_type', Type::getType('integer'), array('comment' => 'foo')),
+            array('comment', 'type'),
+            new Column('commented_type', Type::getType('object'))
+        );
+
+        // Remove comment from commented custom type column.
+        $tableDiff->changedColumns['commented_type_with_comment'] = new ColumnDiff(
+            'commented_type_with_comment',
+            new Column('commented_type_with_comment', Type::getType('array')),
+            array('comment'),
+            new Column('commented_type_with_comment', Type::getType('array'), array('comment' => 'Doctrine array type.'))
+        );
+
+        $tableDiff->removedColumns['comment_integer_0'] = new Column('comment_integer_0', Type::getType('integer'), array('comment' => 0));
+
+        $this->assertEquals(
+            array(
+                // Renamed columns.
+                "sp_RENAME 'mytable.comment_float_0', 'comment_double_0', 'COLUMN'",
+
+                // Added columns.
+                "ALTER TABLE mytable ADD added_comment_none INT NOT NULL",
+                "ALTER TABLE mytable ADD added_comment_null INT NOT NULL",
+                "ALTER TABLE mytable ADD added_comment_false INT NOT NULL",
+                "ALTER TABLE mytable ADD added_comment_empty_string INT NOT NULL",
+                "ALTER TABLE mytable ADD added_comment_integer_0 INT NOT NULL",
+                "ALTER TABLE mytable ADD added_comment_float_0 INT NOT NULL",
+                "ALTER TABLE mytable ADD added_comment_string_0 INT NOT NULL",
+                "ALTER TABLE mytable ADD added_comment INT NOT NULL",
+                "ALTER TABLE mytable ADD [added_comment_quoted] INT NOT NULL",
+                "ALTER TABLE mytable ADD [select] INT NOT NULL",
+                "ALTER TABLE mytable ADD added_commented_type VARCHAR(MAX) NOT NULL",
+                "ALTER TABLE mytable ADD added_commented_type_with_comment VARCHAR(MAX) NOT NULL",
+                "ALTER TABLE mytable DROP COLUMN comment_integer_0",
+                "ALTER TABLE mytable ALTER COLUMN comment_null NVARCHAR(255) NOT NULL",
+                "ALTER TABLE mytable ALTER COLUMN comment_empty_string VARCHAR(MAX) NOT NULL",
+                "ALTER TABLE mytable ALTER COLUMN [comment_quoted] VARCHAR(MAX) NOT NULL",
+                "ALTER TABLE mytable ALTER COLUMN [create] VARCHAR(MAX) NOT NULL",
+                "ALTER TABLE mytable ALTER COLUMN commented_type INT NOT NULL",
+
+                // Renamed columns.
+                "ALTER TABLE mytable ALTER COLUMN comment_double_0 NUMERIC(10, 0) NOT NULL",
+
+                // Added columns.
+                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_comment_integer_0",
+                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_comment_float_0",
+                "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_comment_string_0",
+                "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_comment",
+                "EXEC sp_addextendedproperty N'MS_Description', N'rulez', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [added_comment_quoted]",
+                "EXEC sp_addextendedproperty N'MS_Description', N'666', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [select]",
+                "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_commented_type",
+                "EXEC sp_addextendedproperty N'MS_Description', N'666(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_commented_type_with_comment",
+
+                // Changed columns.
+                "EXEC sp_addextendedproperty N'MS_Description', N'primary', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', id",
+                "EXEC sp_addextendedproperty N'MS_Description', N'false', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_false",
+                "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_empty_string",
+                "EXEC sp_dropextendedproperty N'MS_Description', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_string_0",
+                "EXEC sp_dropextendedproperty N'MS_Description', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment",
+                "EXEC sp_updateextendedproperty N'MS_Description', N'Doctrine array.(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [comment_quoted]",
+                "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [create]",
+                "EXEC sp_updateextendedproperty N'MS_Description', N'foo', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type",
+                "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type_with_comment",
+            ),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
     }
 }

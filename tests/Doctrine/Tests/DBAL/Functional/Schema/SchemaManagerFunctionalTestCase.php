@@ -522,7 +522,9 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     public function testGetColumnComment()
     {
-        if (!$this->_conn->getDatabasePlatform()->supportsInlineColumnComments() && !$this->_conn->getDatabasePlatform()->supportsCommentOnStatement()) {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsInlineColumnComments() &&
+             ! $this->_conn->getDatabasePlatform()->supportsCommentOnStatement() &&
+             ! $this->_conn->getDatabasePlatform()->getName() == 'mssql') {
             $this->markTestSkipped('Database does not support column comments.');
         }
 
@@ -556,7 +558,9 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     public function testAutomaticallyAppendCommentOnMarkedColumns()
     {
-        if (!$this->_conn->getDatabasePlatform()->supportsInlineColumnComments() && !$this->_conn->getDatabasePlatform()->supportsCommentOnStatement()) {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsInlineColumnComments() &&
+             ! $this->_conn->getDatabasePlatform()->supportsCommentOnStatement() &&
+             ! $this->_conn->getDatabasePlatform()->getName() == 'mssql') {
             $this->markTestSkipped('Database does not support column comments.');
         }
 
