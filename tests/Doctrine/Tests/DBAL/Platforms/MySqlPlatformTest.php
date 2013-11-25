@@ -295,4 +295,29 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777216)));
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array()));
     }
+
+    /**
+     * @group 464
+     */
+    public function testDropPrimaryKeyWithAutoincrementColumn()
+    {
+        $table = new Table("drop_primary_key");
+        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
+        $table->addColumn('foo', 'integer', array('primary' => true));
+        $table->addColumn('bar', 'integer');
+        $table->setPrimaryKey(array('id', 'foo'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+
+        $diffTable->dropPrimaryKey();
+
+        $this->assertEquals(
+            array(
+                'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
+                'ALTER TABLE drop_primary_key DROP PRIMARY KEY'
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
+    }
 }
