@@ -91,4 +91,25 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertFalse($table->hasIndex('idx_id'));
         $this->assertTrue($table->hasPrimaryKey());
     }
+
+    /**
+     * @group 464
+     */
+    public function testDropPrimaryKeyWithAutoincrementColumn()
+    {
+        $table = new Table("drop_primary_key");
+        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
+        $table->addColumn('foo', 'integer', array('primary' => true));
+        $table->setPrimaryKey(array('id', 'foo'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $diffTable = clone $table;
+
+        $diffTable->dropPrimaryKey();
+
+        $comparator = new Comparator();
+
+        $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
+    }
 }
