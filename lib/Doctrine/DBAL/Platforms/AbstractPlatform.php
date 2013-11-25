@@ -2619,6 +2619,37 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Whether the platform emulates identity columns through sequences.
+     *
+     * Some platforms that do not support identity columns natively
+     * but support sequences can emulate identity columns by using
+     * sequences.
+     *
+     * @return boolean
+     */
+    public function usesSequenceEmulatedIdentityColumns()
+    {
+        return false;
+    }
+
+    /**
+     * Returns the name of the sequence for a particular identity column in a particular table.
+     *
+     * @param string $tableName  The name of the table to return the sequence name for.
+     * @param string $columnName The name of the identity column in the table to return the sequence name for.
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     *
+     * @see    usesSequenceEmulatedIdentityColumns
+     */
+    public function getIdentitySequenceName($tableName, $columnName)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Whether the platform supports indexes.
      *
      * @return boolean

@@ -113,7 +113,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
-        return "(" . $date ." - (" . $hours . " || ' hour')::interval)";    
+        return "(" . $date ." - (" . $hours . " || ' hour')::interval)";
     }
 
     /**
@@ -178,6 +178,22 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function supportsIdentityColumns()
     {
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function usesSequenceEmulatedIdentityColumns()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIdentitySequenceName($tableName, $columnName)
+    {
+        return $tableName . '_' . $columnName . '_seq';
     }
 
     /**
@@ -466,7 +482,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             if ($columnDiff->hasChanged('autoincrement')) {
                 if ($column->getAutoincrement()) {
                     // add autoincrement
-                    $seqName = $diff->name . '_' . $oldColumnName . '_seq';
+                    $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
 
                     $sql[] = "CREATE SEQUENCE " . $seqName;
                     $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->getName()->getQuotedName($this) . "))";

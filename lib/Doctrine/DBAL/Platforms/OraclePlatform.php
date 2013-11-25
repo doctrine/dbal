@@ -448,7 +448,7 @@ BEGIN
   END IF;
 END;';
 
-        $sequenceName = $table . '_' . $name . '_SEQ';
+        $sequenceName = $this->getIdentitySequenceName($table, $name);
         $sequence = new Sequence($sequenceName, $start);
         $sql[] = $this->getCreateSequenceSQL($sequence);
 
@@ -693,6 +693,22 @@ LEFT JOIN user_cons_columns r_cols
     public function prefersSequences()
     {
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function usesSequenceEmulatedIdentityColumns()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIdentitySequenceName($tableName, $columnName)
+    {
+        return $tableName . '_' . $columnName . '_SEQ';
     }
 
     /**
