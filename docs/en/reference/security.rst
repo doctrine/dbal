@@ -24,7 +24,7 @@ vulnerabilities. You should read the following information carefully to
 understand how Doctrine can and cannot help you to prevent SQL injection.
 
 In general you should assume that APIs in Doctrine are not safe for user input.
-There are hoewver some exceptions.
+There are however some exceptions.
 
 The following APIs are designed to be **SAFE** from SQL injections:
 
