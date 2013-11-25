@@ -19,8 +19,10 @@
 
 namespace Doctrine\DBAL\Driver\DrizzlePDOMySql;
 
-use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Platforms\DrizzlePlatform;
+use Doctrine\DBAL\Schema\DrizzleSchemaManager;
 
 /**
  * Drizzle driver using PDO MySql.
@@ -74,7 +76,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
      */
     public function getDatabasePlatform()
     {
-        return new \Doctrine\DBAL\Platforms\DrizzlePlatform();
+        return new DrizzlePlatform();
     }
 
     /**
@@ -82,7 +84,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
      */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
-        return new \Doctrine\DBAL\Schema\DrizzleSchemaManager($conn);
+        return new DrizzleSchemaManager($conn);
     }
 
     /**

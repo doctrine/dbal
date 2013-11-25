@@ -19,13 +19,15 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
+use Doctrine\DBAL\Driver\Connection;
+
 /**
  * SQL Server implementation for the Connection interface.
  *
  * @since 2.3
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class SQLSrvConnection implements \Doctrine\DBAL\Driver\Connection
+class SQLSrvConnection implements Connection
 {
     /**
      * @var resource
@@ -81,7 +83,7 @@ class SQLSrvConnection implements \Doctrine\DBAL\Driver\Connection
     {
         if (is_int($value)) {
             return $value;
-        } else if (is_float($value)) {
+        } elseif (is_float($value)) {
             return sprintf('%F', $value);
         }
 

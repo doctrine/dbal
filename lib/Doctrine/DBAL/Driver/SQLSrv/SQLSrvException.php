@@ -19,7 +19,9 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-class SQLSrvException extends \Doctrine\DBAL\DBALException
+use Doctrine\DBAL\DBALException;
+
+class SQLSrvException extends DBALException
 {
     /**
      * Helper method to turn sql server errors into exception.

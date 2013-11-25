@@ -345,7 +345,7 @@ abstract class AbstractSchemaManager
      */
     public function dropIndex($index, $table)
     {
-        if($index instanceof Index) {
+        if ($index instanceof Index) {
             $index = $index->getQuotedName($this->_platform);
         }
 
@@ -805,14 +805,14 @@ abstract class AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
     {
         $result = array();
-        foreach($tableIndexRows as $tableIndex) {
+        foreach ($tableIndexRows as $tableIndex) {
             $indexName = $keyName = $tableIndex['key_name'];
-            if($tableIndex['primary']) {
+            if ($tableIndex['primary']) {
                 $keyName = 'primary';
             }
             $keyName = strtolower($keyName);
 
-            if(!isset($result[$keyName])) {
+            if (!isset($result[$keyName])) {
                 $result[$keyName] = array(
                     'name' => $indexName,
                     'columns' => array($tableIndex['column_name']),
@@ -828,7 +828,7 @@ abstract class AbstractSchemaManager
         $eventManager = $this->_platform->getEventManager();
 
         $indexes = array();
-        foreach($result as $indexKey => $data) {
+        foreach ($result as $indexKey => $data) {
             $index = null;
             $defaultPrevented = false;
 
@@ -980,7 +980,7 @@ abstract class AbstractSchemaManager
     public function createSchema()
     {
         $sequences = array();
-        if($this->_platform->supportsSequences()) {
+        if ($this->_platform->supportsSequences()) {
             $sequences = $this->listSequences();
         }
         $tables = $this->listTables();

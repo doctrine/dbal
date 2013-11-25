@@ -92,4 +92,3 @@ class SQLAnywhereException extends DBALException
         return new self('SQL Anywhere error occurred but no error message was retrieved from driver.', $code);
     }
 }
-

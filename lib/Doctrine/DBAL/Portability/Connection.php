@@ -67,17 +67,17 @@ class Connection extends \Doctrine\DBAL\Connection
             if (isset($params['portability'])) {
                 if ($this->_platform->getName() === "oracle") {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_ORACLE;
-                } else if ($this->_platform->getName() === "postgresql") {
+                } elseif ($this->_platform->getName() === "postgresql") {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_POSTGRESQL;
-                } else if ($this->_platform->getName() === "sqlite") {
+                } elseif ($this->_platform->getName() === "sqlite") {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLITE;
-                } else if ($this->_platform->getName() === "drizzle") {
+                } elseif ($this->_platform->getName() === "drizzle") {
                     $params['portability'] = self::PORTABILITY_DRIZZLE;
-                } else if ($this->_platform->getName() === 'sqlanywhere') {
+                } elseif ($this->_platform->getName() === 'sqlanywhere') {
                     $params['portability'] = self::PORTABILITY_SQLANYWHERE;
                 } elseif ($this->_platform->getName() === 'db2') {
                     $params['portability'] = self::PORTABILITY_DB2;
-                } else if ($this->_platform->getName() === 'mssql') {
+                } elseif ($this->_platform->getName() === 'mssql') {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLSRV;
                 } else {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_OTHERVENDORS;

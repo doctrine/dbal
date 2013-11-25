@@ -1025,4 +1025,3 @@ class SqlitePlatform extends AbstractPlatform
         return $primaryIndex;
     }
 }
-

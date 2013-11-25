@@ -62,9 +62,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
-        foreach($tableIndexes as $k => $v) {
+        foreach ($tableIndexes as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
-            if($v['key_name'] == 'PRIMARY') {
+            if ($v['key_name'] == 'PRIMARY') {
                 $v['primary'] = true;
             } else {
                 $v['primary'] = false;
@@ -135,7 +135,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'real':
             case 'numeric':
             case 'decimal':
-                if(preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['type'], $match)) {
+                if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['type'], $match)) {
                     $precision = $match[1];
                     $scale = $match[2];
                     $length = null;
@@ -208,7 +208,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
 
         $result = array();
-        foreach($list as $constraint) {
+        foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
                 array_values($constraint['local']), $constraint['foreignTable'],
                 array_values($constraint['foreign']), $constraint['name'],

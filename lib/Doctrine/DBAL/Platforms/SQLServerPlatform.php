@@ -211,7 +211,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
-        } else if (!is_string($index)) {
+        } elseif (!is_string($index)) {
             throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
         }
 
@@ -401,7 +401,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         if ($index->hasFlag('clustered')) {
             $type .= 'CLUSTERED ';
-        } else if ($index->hasFlag('nonclustered')) {
+        } elseif ($index->hasFlag('nonclustered')) {
             $type .= 'NONCLUSTERED ';
         }
 
@@ -832,8 +832,8 @@ class SQLServerPlatform extends AbstractPlatform
     {
         return "SELECT idx.name AS key_name,
                        col.name AS column_name,
-	                   ~idx.is_unique AS non_unique,
-	                   idx.is_primary_key AS [primary],
+                       ~idx.is_unique AS non_unique,
+                       idx.is_primary_key AS [primary],
                        CASE idx.type
                            WHEN '1' THEN 'clustered'
                            WHEN '2' THEN 'nonclustered'
@@ -1168,7 +1168,7 @@ class SQLServerPlatform extends AbstractPlatform
                     $item[$key] = ($value) ? 1 : 0;
                 }
             }
-        } else if (is_bool($item) || is_numeric($item)) {
+        } elseif (is_bool($item) || is_numeric($item)) {
             $item = ($item) ? 1 : 0;
         }
 

@@ -183,7 +183,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         if ($def == "C") {
             return "CASCADE";
-        } else if ($def == "N") {
+        } elseif ($def == "N") {
             return "SET NULL";
         }
 

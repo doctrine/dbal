@@ -70,18 +70,18 @@ class OracleSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
         $indexBuffer = array();
-        foreach ( $tableIndexes as $tableIndex ) {
+        foreach ($tableIndexes as $tableIndex) {
             $tableIndex = \array_change_key_case($tableIndex, CASE_LOWER);
 
             $keyName = strtolower($tableIndex['name']);
 
-            if ( strtolower($tableIndex['is_primary']) == "p" ) {
+            if (strtolower($tableIndex['is_primary']) == "p") {
                 $keyName = 'primary';
                 $buffer['primary'] = true;
                 $buffer['non_unique'] = false;
             } else {
                 $buffer['primary'] = false;
-                $buffer['non_unique'] = ( $tableIndex['is_unique'] == 0 ) ? true : false;
+                $buffer['non_unique'] = ($tableIndex['is_unique'] == 0) ? true : false;
             }
             $buffer['key_name'] = $keyName;
             $buffer['column_name'] = $tableIndex['column_name'];
@@ -99,7 +99,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $tableColumn = \array_change_key_case($tableColumn, CASE_LOWER);
 
         $dbType = strtolower($tableColumn['data_type']);
-        if(strpos($dbType, "timestamp(") === 0) {
+        if (strpos($dbType, "timestamp(") === 0) {
             if (strpos($dbType, "WITH TIME ZONE")) {
                 $dbType = "timestamptz";
             } else {
@@ -228,7 +228,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         $result = array();
-        foreach($list as $constraint) {
+        foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
                 array_values($constraint['local']), $constraint['foreignTable'],
                 array_values($constraint['foreign']),  $constraint['name'],

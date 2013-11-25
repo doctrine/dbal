@@ -19,8 +19,12 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlite;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use PDOException;
 
 /**
@@ -51,7 +55,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
         }
 
         try {
-            $pdo = new \Doctrine\DBAL\Driver\PDOConnection(
+            $pdo = new PDOConnection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,
@@ -80,7 +84,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
         $dsn = 'sqlite:';
         if (isset($params['path'])) {
             $dsn .= $params['path'];
-        } else if (isset($params['memory'])) {
+        } elseif (isset($params['memory'])) {
             $dsn .= ':memory:';
         }
 
@@ -92,15 +96,15 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
      */
     public function getDatabasePlatform()
     {
-        return new \Doctrine\DBAL\Platforms\SqlitePlatform();
+        return new SqlitePlatform();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
-        return new \Doctrine\DBAL\Schema\SqliteSchemaManager($conn);
+        return new SqliteSchemaManager($conn);
     }
 
     /**
@@ -114,7 +118,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 

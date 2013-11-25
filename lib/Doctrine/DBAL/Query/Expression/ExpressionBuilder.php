@@ -258,7 +258,7 @@ class ExpressionBuilder
     {
         return $this->comparison($x, 'LIKE', $y);
     }
-    
+
     /**
      * Creates a NOT LIKE() comparison expression with the given arguments.
      *

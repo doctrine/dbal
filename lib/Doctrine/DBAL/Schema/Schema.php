@@ -109,7 +109,7 @@ class Schema extends AbstractAsset
     protected function _addTable(Table $table)
     {
         $tableName = $table->getFullQualifiedName($this->getName());
-        if(isset($this->_tables[$tableName])) {
+        if (isset($this->_tables[$tableName])) {
             throw SchemaException::tableAlreadyExists($tableName);
         }
 
@@ -223,7 +223,7 @@ class Schema extends AbstractAsset
     public function getSequence($sequenceName)
     {
         $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
-        if(!$this->hasSequence($sequenceName)) {
+        if (!$this->hasSequence($sequenceName)) {
             throw SchemaException::sequenceDoesNotExist($sequenceName);
         }
 

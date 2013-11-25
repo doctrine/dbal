@@ -21,6 +21,8 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Schema\DB2SchemaManager;
 
 /**
  * IBM DB2 Driver.
@@ -63,7 +65,7 @@ class DB2Driver implements Driver
      */
     public function getDatabasePlatform()
     {
-        return new \Doctrine\DBAL\Platforms\DB2Platform;
+        return new DB2Platform();
     }
 
     /**
@@ -71,7 +73,7 @@ class DB2Driver implements Driver
      */
     public function getSchemaManager(Connection $conn)
     {
-        return new \Doctrine\DBAL\Schema\DB2SchemaManager($conn);
+        return new DB2SchemaManager($conn);
     }
 
     /**
@@ -85,7 +87,7 @@ class DB2Driver implements Driver
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 

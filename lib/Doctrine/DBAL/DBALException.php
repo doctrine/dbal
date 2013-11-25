@@ -133,7 +133,7 @@ class DBALException extends \Exception
      */
     private static function formatParameters(array $params)
     {
-        return '[' . implode(', ', array_map(function($param) {
+        return '[' . implode(', ', array_map(function ($param) {
             $json = @json_encode($param);
 
             if (! is_string($json) || $json == 'null' && is_string($param)) {

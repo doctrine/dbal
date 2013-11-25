@@ -544,7 +544,7 @@ LEFT JOIN user_cons_columns r_cols
         $colCommentsTableName = "user_col_comments";
         $ownerCondition = '';
 
-        if (null !== $database){
+        if (null !== $database) {
             $database = strtoupper($database);
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";

@@ -98,7 +98,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
      */
     public function getUpdateSchema(Schema $toSchema, $noDrops = false)
     {
-        return $this->work($toSchema, function($synchronizer, $schema) use ($noDrops) {
+        return $this->work($toSchema, function ($synchronizer, $schema) use ($noDrops) {
             return $synchronizer->getUpdateSchema($schema, $noDrops);
         });
     }
@@ -108,7 +108,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
      */
     public function getDropSchema(Schema $dropSchema)
     {
-        return $this->work($dropSchema, function($synchronizer, $schema) {
+        return $this->work($dropSchema, function ($synchronizer, $schema) {
             return $synchronizer->getDropSchema($schema);
         });
     }
@@ -206,7 +206,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
                 $table->addOption(self::FEDERATION_DISTRIBUTION_NAME, $this->shardManager->getDistributionKey());
             }
 
-            if ( $table->hasOption(self::FEDERATION_TABLE_FEDERATED) !== $isFederation) {
+            if ($table->hasOption(self::FEDERATION_TABLE_FEDERATED) !== $isFederation) {
                 $partitionedSchema->dropTable($table->getName());
             } else {
                 foreach ($table->getForeignKeys() as $fk) {

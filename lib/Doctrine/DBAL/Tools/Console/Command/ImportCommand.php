@@ -65,19 +65,18 @@ EOT
 
         if (($fileNames = $input->getArgument('file')) !== null)  {
             foreach ((array) $fileNames as $fileName) {
-                
                 $filePath = realpath($fileName);
-                
+
                 // Phar compatibility.
                 if (false === $filePath) {
                     $filePath = $fileName;
                 }
-                
+
                 if ( ! file_exists($filePath)) {
                     throw new \InvalidArgumentException(
                         sprintf("SQL file '<info>%s</info>' does not exist.", $filePath)
                     );
-                } else if ( ! is_readable($filePath)) {
+                } elseif ( ! is_readable($filePath)) {
                     throw new \InvalidArgumentException(
                         sprintf("SQL file '<info>%s</info>' does not have read permissions.", $filePath)
                     );

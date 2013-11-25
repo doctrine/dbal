@@ -19,8 +19,11 @@
 
 namespace Doctrine\DBAL\Driver\PDOPgSql;
 
-use Doctrine\DBAL\Platforms;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use PDOException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 
@@ -37,7 +40,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         try {
-            return new \Doctrine\DBAL\Driver\PDOConnection(
+            return new PDOConnection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,
@@ -87,15 +90,15 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
      */
     public function getDatabasePlatform()
     {
-        return new \Doctrine\DBAL\Platforms\PostgreSqlPlatform();
+        return new PostgreSqlPlatform();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
-        return new \Doctrine\DBAL\Schema\PostgreSqlSchemaManager($conn);
+        return new PostgreSqlSchemaManager($conn);
     }
 
     /**
@@ -109,7 +112,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 

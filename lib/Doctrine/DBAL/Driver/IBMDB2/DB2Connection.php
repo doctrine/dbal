@@ -19,7 +19,9 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
-class DB2Connection implements \Doctrine\DBAL\Driver\Connection
+use Doctrine\DBAL\Driver\Connection;
+
+class DB2Connection implements Connection
 {
     /**
      * @var resource
@@ -78,7 +80,7 @@ class DB2Connection implements \Doctrine\DBAL\Driver\Connection
     public function quote($input, $type=\PDO::PARAM_STR)
     {
         $input = db2_escape_string($input);
-        if ($type == \PDO::PARAM_INT ) {
+        if ($type == \PDO::PARAM_INT) {
             return $input;
         } else {
             return "'".$input."'";

@@ -417,7 +417,7 @@ class MySqlPlatform extends AbstractPlatform
 
         // add all indexes
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
-            foreach($options['indexes'] as $index => $definition) {
+            foreach ($options['indexes'] as $index => $definition) {
                 $queryFields .= ', ' . $this->getIndexDeclarationSQL($index, $definition);
             }
         }
@@ -656,7 +656,7 @@ class MySqlPlatform extends AbstractPlatform
         $type = '';
         if ($index->isUnique()) {
             $type .= 'UNIQUE ';
-        } else if ($index->hasFlag('fulltext')) {
+        } elseif ($index->hasFlag('fulltext')) {
             $type .= 'FULLTEXT ';
         }
 
@@ -721,7 +721,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         if ($index instanceof Index) {
             $indexName = $index->getQuotedName($this);
-        } else if(is_string($index)) {
+        } elseif (is_string($index)) {
             $indexName = $index;
         } else {
             throw new \InvalidArgumentException('MysqlPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
@@ -729,7 +729,7 @@ class MySqlPlatform extends AbstractPlatform
 
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } else if(!is_string($table)) {
+        } elseif (!is_string($table)) {
             throw new \InvalidArgumentException('MysqlPlatform::getDropIndexSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
@@ -841,7 +841,7 @@ class MySqlPlatform extends AbstractPlatform
     {
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } else if(!is_string($table)) {
+        } elseif (!is_string($table)) {
             throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 

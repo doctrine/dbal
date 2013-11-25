@@ -52,7 +52,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     {
         return 'TIME(0)';
     }
-    
+
     /**
      * {@inheritDoc}
      */

@@ -60,7 +60,7 @@ class Comparator
 
         $foreignKeysToTable = array();
 
-        foreach ( $toSchema->getTables() as $table ) {
+        foreach ($toSchema->getTables() as $table) {
             $tableName = $table->getShortestName($toSchema->getName());
             if ( ! $fromSchema->hasTable($tableName)) {
                 $diff->newTables[$tableName] = $toSchema->getTable($tableName);
@@ -77,7 +77,7 @@ class Comparator
             $tableName = $table->getShortestName($fromSchema->getName());
 
             $table = $fromSchema->getTable($tableName);
-            if ( ! $toSchema->hasTable($tableName) ) {
+            if ( ! $toSchema->hasTable($tableName)) {
                 $diff->removedTables[$tableName] = $table;
             }
 
@@ -162,11 +162,11 @@ class Comparator
      */
     public function diffSequence(Sequence $sequence1, Sequence $sequence2)
     {
-        if($sequence1->getAllocationSize() != $sequence2->getAllocationSize()) {
+        if ($sequence1->getAllocationSize() != $sequence2->getAllocationSize()) {
             return true;
         }
 
-        if($sequence1->getInitialValue() != $sequence2->getInitialValue()) {
+        if ($sequence1->getInitialValue() != $sequence2->getInitialValue()) {
             return true;
         }
 
@@ -192,9 +192,9 @@ class Comparator
         $table1Columns = $table1->getColumns();
         $table2Columns = $table2->getColumns();
 
-        // See if all the fields in table 1 exist in table 2.
+        /* See if all the fields in table 1 exist in table 2 */
         foreach ($table2Columns as $columnName => $column) {
-            if ( ! $table1->hasColumn($columnName)) {
+            if ( !$table1->hasColumn($columnName)) {
                 $tableDifferences->addedColumns[$columnName] = $column;
                 $changes++;
             }
@@ -255,7 +255,7 @@ class Comparator
 
         foreach ($fromFkeys as $key1 => $constraint1) {
             foreach ($toFkeys as $key2 => $constraint2) {
-                if($this->diffForeignKey($constraint1, $constraint2) === false) {
+                if ($this->diffForeignKey($constraint1, $constraint2) === false) {
                     unset($fromFkeys[$key1]);
                     unset($toFkeys[$key2]);
                 } else {
@@ -361,7 +361,7 @@ class Comparator
     public function diffColumn(Column $column1, Column $column2)
     {
         $changedProperties = array();
-        if ( $column1->getType() != $column2->getType() ) {
+        if ($column1->getType() != $column2->getType()) {
             $changedProperties[] = 'type';
         }
 

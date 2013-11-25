@@ -113,7 +113,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
-        return "(" . $date ." - (" . $hours . " || ' hour')::interval)";    
+        return "(" . $date ." - (" . $hours . " || ' hour')::interval)";
     }
 
     /**
