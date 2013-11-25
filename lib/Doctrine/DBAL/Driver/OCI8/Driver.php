@@ -20,7 +20,7 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 /**
@@ -90,7 +90,7 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function getDatabasePlatform()
     {
-        return new Platforms\OraclePlatform();
+        return new OraclePlatform();
     }
 
     /**
