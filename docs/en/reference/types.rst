@@ -38,7 +38,7 @@ instances is abstracted through a static get method
 
 .. note::
 
-    See the `Known Vendor Issue <./../known-vendor-issues>`_ section
+    See the `Known Vendor Issue <./known-vendor-issues>`_ section
     for details about the different handling of microseconds and
     timezones across all the different vendors.
 
@@ -100,39 +100,39 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
 
     <?php
     namespace My\Project\Types;
-    
+
     use Doctrine\DBAL\Types\Type;
     use Doctrine\DBAL\Platforms\AbstractPlatform;
-    
+
     /**
      * My custom datatype.
      */
     class MoneyType extends Type
     {
         const MONEY = 'money'; // modify to match your type name
-    
+
         public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
         {
             return 'MyMoney';
         }
-    
+
         public function convertToPHPValue($value, AbstractPlatform $platform)
         {
             return new Money($value);
         }
-    
+
         public function convertToDatabaseValue($value, AbstractPlatform $platform)
         {
             return $value->toDecimal();
         }
-    
+
         public function getName()
         {
             return self::MONEY;
         }
     }
 
-The job of Doctrine-DBAL is to transform your type into SQL declaration. You can modify the SQL declaration Doctrine will produce. At first, you must to enable this feature by overriding the canRequireSQLConversion method: 
+The job of Doctrine-DBAL is to transform your type into SQL declaration. You can modify the SQL declaration Doctrine will produce. At first, you must to enable this feature by overriding the canRequireSQLConversion method:
 
 ::
 
@@ -142,7 +142,7 @@ The job of Doctrine-DBAL is to transform your type into SQL declaration. You can
         return true;
     }
 
-Then you override the methods convertToPhpValueSQL and convertToDatabaseValueSQL : 
+Then you override the methods convertToPhpValueSQL and convertToDatabaseValueSQL :
 
 ::
 
@@ -151,7 +151,7 @@ Then you override the methods convertToPhpValueSQL and convertToDatabaseValueSQL
     {
         return 'MyMoneyFunction(\''.$sqlExpr.'\') ';
     }
-    
+
     public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform)
     {
         return 'MyFunction('.$sqlExpr.')';
