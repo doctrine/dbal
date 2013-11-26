@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Events;
-use Doctrine\Tests\Mocks\ConnectionMock;
 use Doctrine\Tests\Mocks\DriverConnectionMock;
 
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
