@@ -272,6 +272,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('foo', $testString);
     }
 
+    public function testRowCount()
+    {
+        $sql = 'SELECT * FROM fetch_table';
+        $stmt = $this->_conn->prepare($sql);
+        $stmt->execute();
+
+        $this->assertEquals(1, $stmt->rowCount());
+    }
+
     /**
      * @group DDC-697
      */

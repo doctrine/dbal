@@ -185,6 +185,10 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
         $this->result = sasql_stmt_result_metadata($this->stmt);
 
+        if ($this->result &&  ! sasql_stmt_store_result($this->stmt)) {
+            throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
+        }
+
         return true;
     }
 
@@ -286,6 +290,10 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function rowCount()
     {
+        if ($this->result) {
+            return sasql_stmt_num_rows($this->stmt);
+        }
+
         return sasql_stmt_affected_rows($this->stmt);
     }
 
