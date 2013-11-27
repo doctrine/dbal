@@ -166,14 +166,12 @@ class MysqliStatement implements \IteratorAggregate, Statement
             throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
         }
 
-        // We have a result.
-        if (false !== $this->_columnNames) {
-            $this->_stmt->store_result();
-        }
-
         if (null === $this->_columnNames) {
             $meta = $this->_stmt->result_metadata();
             if (false !== $meta) {
+                // We have a result.
+                $this->_stmt->store_result();
+
                 $columnNames = array();
                 foreach ($meta->fetch_fields() as $col) {
                     $columnNames[] = $col->name;
