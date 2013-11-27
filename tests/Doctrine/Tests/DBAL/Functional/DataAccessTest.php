@@ -274,6 +274,10 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testRowCount()
     {
+        if ($this->_conn->getDatabasePlatform()->getName() == 'sqlite') {
+            $this->markTestSkipped('Test does not work on sqlite as sqlite does not return the number of results.');
+        }
+
         $sql = 'SELECT * FROM fetch_table';
         $stmt = $this->_conn->prepare($sql);
         $stmt->execute();
