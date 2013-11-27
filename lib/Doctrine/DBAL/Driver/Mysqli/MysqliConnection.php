@@ -48,6 +48,8 @@ class MysqliConnection implements Connection, PingableConnection
 
         $this->_conn = mysqli_init();
 
+        $this->setDriverOptions($driverOptions);
+
         $previousHandler = set_error_handler(function () {
         });
 
@@ -62,8 +64,6 @@ class MysqliConnection implements Connection, PingableConnection
         if (isset($params['charset'])) {
             $this->_conn->set_charset($params['charset']);
         }
-
-        $this->setDriverOptions($driverOptions);
     }
 
     /**
