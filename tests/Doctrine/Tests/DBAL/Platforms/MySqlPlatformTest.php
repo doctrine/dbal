@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -294,5 +295,27 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777215)));
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777216)));
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * @group DBAL-400
+     */
+    public function testAlterTableAddPrimaryKey()
+    {
+        $table = new Table('alter_table_add_pk');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('foo', 'integer');
+        $table->addIndex(array('id'), 'idx_id');
+
+        $comparator = new Comparator();
+        $diffTable  = clone $table;
+
+        $diffTable->dropIndex('idx_id');
+        $diffTable->setPrimaryKey(array('id'));
+
+        $this->assertEquals(
+            array('ALTER TABLE alter_table_add_pk DROP INDEX idx_id, ADD PRIMARY KEY (id)'),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
     }
 }

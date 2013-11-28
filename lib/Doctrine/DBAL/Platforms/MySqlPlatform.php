@@ -128,7 +128,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $hours . ' HOUR)';    
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $hours . ' HOUR)';
     }
 
     /**
@@ -602,13 +602,16 @@ class MySqlPlatform extends AbstractPlatform
             foreach ($diff->addedIndexes as $addKey => $addIndex) {
                 if ($remIndex->getColumns() == $addIndex->getColumns()) {
 
-                    $type = '';
-                    if ($addIndex->isUnique()) {
-                        $type = 'UNIQUE ';
+                    $indexClause = 'INDEX ' . $addIndex->getName();
+
+                    if ($addIndex->isPrimary()) {
+                        $indexClause = 'PRIMARY KEY';
+                    } elseif ($addIndex->isUnique()) {
+                        $indexClause = 'UNIQUE INDEX ' . $addIndex->getName();
                     }
 
                     $query = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $remIndex->getName() . ', ';
-                    $query .= 'ADD ' . $type . 'INDEX ' . $addIndex->getName();
+                    $query .= 'ADD ' . $indexClause;
                     $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex->getQuotedColumns($this)) . ')';
 
                     $sql[] = $query;
