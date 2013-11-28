@@ -297,7 +297,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @group 464
+     * @group DBAL-464
      */
     public function testDropPrimaryKeyWithAutoincrementColumn()
     {
