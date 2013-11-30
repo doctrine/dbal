@@ -10,7 +10,6 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Index;
 
-
 class MySqlPlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()
@@ -317,5 +316,14 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
             array('ALTER TABLE alter_table_add_pk DROP INDEX idx_id, ADD PRIMARY KEY (id)'),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
+    }
+
+    public function testSupportsForeignKeyConstraintBetween()
+    {
+        $tableInnoDB = new Table('innodb_table', array(), array(), array(), 0, array('engine' => 'InnoDB'));
+        $tableMemory = new Table('innodb_memory', array(), array(), array(), 0, array('engine' => 'memory'));
+
+        $this->assertTrue($this->_platform->supportsForeignKeyConstraintBetween($tableInnoDB, $tableInnoDB));
+        $this->assertFalse($this->_platform->supportsForeignKeyConstraintBetween($tableInnoDB, $tableMemory));
     }
 }
