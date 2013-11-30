@@ -54,6 +54,7 @@ use Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
  * @author Roman Borschel <roman@code-factory.org>
  * @author Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Kévin Dunglas <dunglas@gmail.com>
  * @todo   Remove any unnecessary methods.
  */
 abstract class AbstractPlatform
@@ -2715,6 +2716,18 @@ abstract class AbstractPlatform
     public function supportsForeignKeyConstraints()
     {
         return true;
+    }
+
+    /**
+     * Whether the platform supports foreign key constraints between given tables.
+     *
+     * @param \Doctrine\DBAL\Schema\Table $localTable
+     * @param \Doctrine\DBAL\Schema\Table $referencedTable
+     * @return boolean
+     */
+    public function supportsForeignKeyConstraintBetween(Table $localTable, Table $referencedTable)
+    {
+        return $this->supportsForeignKeyConstraints();
     }
 
     /**

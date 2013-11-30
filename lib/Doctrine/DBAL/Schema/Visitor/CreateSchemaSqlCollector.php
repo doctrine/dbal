@@ -24,6 +24,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 
+/**
+ * @author Kévin Dunglas <dunglas@gmail.com>
+ */
 class CreateSchemaSqlCollector extends AbstractVisitor
 {
     /**
@@ -75,7 +78,13 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     {
         $namespace = $this->getNamespace($localTable);
 
-        if ($this->platform->supportsForeignKeyConstraints()) {
+        if ($fkConstraint->getForeignTable() instanceof Table) {
+            $supportsForeignKeys = $this->platform->supportsForeignKeyConstraintBetween($localTable, $fkConstraint->getForeignTable());
+        } else {
+            $supportsForeignKeys = $this->platform->supportsForeignKeyConstraints();
+        }
+
+        if ($supportsForeignKeys) {
             $this->createFkConstraintQueries[$namespace] = array_merge(
                 $this->createFkConstraintQueries[$namespace],
                 (array) $this->platform->getCreateForeignKeySQL(

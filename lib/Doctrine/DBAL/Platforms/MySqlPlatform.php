@@ -32,6 +32,7 @@ use Doctrine\DBAL\Schema\Table;
  * @since  2.0
  * @author Roman Borschel <roman@code-factory.org>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Kévin Dunglas <dunglas@gmail.com>
  * @todo   Rename: MySQLPlatform
  */
 class MySqlPlatform extends AbstractPlatform
@@ -361,6 +362,21 @@ class MySqlPlatform extends AbstractPlatform
     public function supportsInlineColumnComments()
     {
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function supportsForeignKeyConstraintBetween(Table $localTable, Table $referencedTable)
+    {
+        // Foreign key are supported only between InnoDB tables
+        $localTableOptions = $localTable->getOptions();
+        $referencedTableOptions = $referencedTable->getOptions();
+
+        return (!isset ($localTableOptions['engine'])
+                || strtoupper($localTableOptions['engine']) === 'INNODB')
+            && (!isset ($referencedTableOptions['engine'])
+                || strtoupper($referencedTableOptions['engine']) === 'INNODB');
     }
 
     /**
