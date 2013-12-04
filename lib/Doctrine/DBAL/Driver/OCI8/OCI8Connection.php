@@ -97,7 +97,7 @@ class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
         }
         $value = str_replace("'", "''", $value);
 
-        return "'" . addcslashes($value, "\000\n\r\\\032") . "'";
+        return "'" . addcslashes($value, "\000\n\r\032") . "'";
     }
 
     /**
