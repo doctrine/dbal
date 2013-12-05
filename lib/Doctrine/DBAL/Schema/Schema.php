@@ -165,7 +165,7 @@ class Schema extends AbstractAsset
      *
      * @return string
      */
-    private function getFullQualifiedAssetName($name)
+    protected function getFullQualifiedAssetName($name)
     {
         if ($this->isIdentifierQuoted($name)) {
             $name = $this->trimQuotes($name);
