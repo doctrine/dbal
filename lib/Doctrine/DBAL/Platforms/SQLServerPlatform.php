@@ -542,6 +542,15 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
+
+        if (strpos($table, ".") !== false) {
+            $parts = explode(".", $table);
+            $namespace = $parts[0];
+            $table = $parts[1];
+        }else{
+            $namespace = "dbo";
+        }
+
         return "SELECT    col.name,
                           type.name AS type,
                           col.max_length AS length,
@@ -556,11 +565,14 @@ class SQLServerPlatform extends AbstractPlatform
                 ON        col.user_type_id = type.user_type_id
                 JOIN      sys.objects AS obj
                 ON        col.object_id = obj.object_id
+                JOIN      sys.schemas
+                ON        obj.schema_id = schemas.schema_id
                 LEFT JOIN sys.default_constraints def
                 ON        col.default_object_id = def.object_id
                 AND       col.object_id = def.parent_object_id
                 WHERE     obj.type = 'U'
-                AND       obj.name = '$table'";
+                AND       obj.name = '$table'
+                AND       schemas.name = '$namespace'";
     }
 
     /**
