@@ -542,13 +542,11 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-
-        if (strpos($table, ".") !== false) {
-            $parts = explode(".", $table);
-            $namespace = $parts[0];
-            $table = $parts[1];
-        }else{
-            $namespace = "dbo";
+        if (strpos($table, ".") !== false){
+            list($schema, $table) = explode(".", $table);
+            $schema = "'" . $schema . "'";
+        } else {
+            $schema = "SCHEMA_NAME()";
         }
 
         return "SELECT    col.name,
@@ -572,7 +570,7 @@ class SQLServerPlatform extends AbstractPlatform
                 AND       col.object_id = def.parent_object_id
                 WHERE     obj.type = 'U'
                 AND       obj.name = '$table'
-                AND       schemas.name = '$namespace'";
+                AND       schemas.name = $schema";
     }
 
     /**
@@ -580,6 +578,13 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
+        if (strpos($table, ".") !== false){
+            list($schema, $table) = explode(".", $table);
+            $schema = "'" . $schema . "'";
+        } else {
+            $schema = "SCHEMA_NAME()";
+        }
+
         return "SELECT f.name AS ForeignKey,
                 SCHEMA_NAME (f.SCHEMA_ID) AS SchemaName,
                 OBJECT_NAME (f.parent_object_id) AS TableName,
@@ -593,7 +598,8 @@ class SQLServerPlatform extends AbstractPlatform
                 INNER JOIN sys.foreign_key_columns AS fc
                 INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
                 ON f.OBJECT_ID = fc.constraint_object_id
-                WHERE OBJECT_NAME (f.parent_object_id) = '" . $table . "'";
+                WHERE OBJECT_NAME (f.parent_object_id) = '$table'
+                AND SCHEMA_NAME (f.schema_id) = $schema";
     }
 
     /**
@@ -601,6 +607,13 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
+        if (strpos($table, ".") !== false){
+            list($schema, $table) = explode(".", $table);
+            $schema = "'" . $schema . "'";
+        } else {
+            $schema = "SCHEMA_NAME()";
+        }
+
         return "SELECT idx.name AS key_name,
                        col.name AS column_name,
 	                   ~idx.is_unique AS non_unique,
@@ -615,6 +628,7 @@ class SQLServerPlatform extends AbstractPlatform
                 JOIN sys.index_columns AS idxcol ON idx.object_id = idxcol.object_id AND idx.index_id = idxcol.index_id
                 JOIN sys.columns AS col ON idxcol.object_id = col.object_id AND idxcol.column_id = col.column_id
                 WHERE tbl.name = '$table'
+                AND SCHEMA_NAME (tbl.schema_id) = $schema
                 ORDER BY idx.index_id ASC, idxcol.index_column_id ASC";
     }
 
