@@ -40,6 +40,8 @@ interfaces to use. It can be configured in one of three ways:
 
    -  ``pdo_mysql``: A MySQL driver that uses the pdo\_mysql PDO
       extension.
+   -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo\_mysql PDO
+      extension.
    -  ``pdo_sqlite``: An SQLite driver that uses the pdo\_sqlite PDO
       extension.
    -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo\_pgsql PDO
@@ -108,6 +110,23 @@ pdo\_mysql
 -  ``charset`` (string): The charset used when connecting to the
    database.
 
+drizzle\_pdo\_mysql
+^^^^^^^^^^^^^^^^^^^
+
+**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to enabled.
+On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
+or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled daemon.
+
+-  ``user`` (string): Username to use when connecting to the
+   database. Only needed if authentication is configured for drizzled.
+-  ``password`` (string): Password to use when connecting to the
+   database. Only needed if authentication is configured for drizzled.
+-  ``host`` (string): Hostname of the database to connect to.
+-  ``port`` (integer): Port of the database to connect to.
+-  ``dbname`` (string): Name of the database/schema to connect to.
+-  ``unix_socket`` (string): Name of the socket used to connect to
+   the database.
+
 pdo\_pgsql
 ^^^^^^^^^^
 
@@ -140,7 +159,7 @@ pdo\_oci / oci8
    database.
 
 pdo\_sqlsrv
-^^^^^^^^^^
+^^^^^^^^^^^
 
 
 -  ``user`` (string): Username to use when connecting to the
@@ -152,7 +171,7 @@ pdo\_sqlsrv
 -  ``dbname`` (string): Name of the database/schema to connect to.
 
 sqlanywhere
-^^^^^^^^^^
+^^^^^^^^^^^
 
 
 -  ``user`` (string): Username to use when connecting to the
