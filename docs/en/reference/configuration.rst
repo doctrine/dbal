@@ -40,6 +40,8 @@ interfaces to use. It can be configured in one of three ways:
 
    -  ``pdo_mysql``: A MySQL driver that uses the pdo\_mysql PDO
       extension.
+   -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo\_mysql PDO
+      extension.
    -  ``pdo_sqlite``: An SQLite driver that uses the pdo\_sqlite PDO
       extension.
    -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo\_pgsql PDO
@@ -50,8 +52,6 @@ interfaces to use. It can be configured in one of three ways:
    -  ``pdo_sqlsrv``: A Microsoft SQL Server driver that uses pdo\_sqlsrv PDO
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
    -  ``sqlanywhere``: A SAP Sybase SQL Anywhere driver that uses the sqlanywhere PHP extension.
-   -  ``drizzle_pdo_mysql``: A drizzle driver that uses pdo\_mysql PDO
-      extension.
 
 -  ``driverClass``: Specifies a custom driver implementation if no
    'driver' is specified. This allows the use of custom drivers that
@@ -109,6 +109,23 @@ pdo\_mysql
    the database.
 -  ``charset`` (string): The charset used when connecting to the
    database.
+
+drizzle_pdo_mysql
+^^^^^^^^^^^^^^^^^
+
+**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol``.
+On Ubuntu this can be be done by uncomment the configuration ``plugin-add=`` in
+``/etc/drizzle/conf.d/mysql-protocol.cnf`` or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf``
+
+-  ``user`` (string): Username to use when connecting to the
+   database. Only needed if authentication is configured for drizzled.
+-  ``password`` (string): Password to use when connecting to the
+   database. Only needed if authentication is configured for drizzled.
+-  ``host`` (string): Hostname of the database to connect to.
+-  ``port`` (integer): Port of the database to connect to.
+-  ``dbname`` (string): Name of the database/schema to connect to.
+-  ``unix_socket`` (string): Name of the socket used to connect to
+   the database.
 
 pdo\_pgsql
 ^^^^^^^^^^
@@ -179,22 +196,6 @@ platform version here:
 - `SQL Anywhere 12.0.0 <http://dcx.sybase.com/index.html#1200/en/dbadmin/da-conparm.html>`_
 - `SQL Anywhere 12.0.1 <http://dcx.sybase.com/index.html#1201/en/dbadmin/da-conparm.html>`_
 - `SAP Sybase SQL Anywhere 16.0 <http://dcx.sybase.com/index.html#sa160/en/dbadmin/da-conparm.html>`_
-
-drizzle_pdo_mysql
-^^^^^^^^^^^^^^^^^
-**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol``.
-On Ubuntu this can be be done by uncomment the configuration ``plugin-add=`` in
-``/etc/drizzle/conf.d/mysql-protocol.cnf`` or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf``
-
--  ``user`` (string): Username to use when connecting to the
-   database. Only needed if authentication is configured for drizzled.
--  ``password`` (string): Password to use when connecting to the
-   database. Only needed if authentication is configured for drizzled.
--  ``host`` (string): Hostname of the database to connect to.
--  ``port`` (integer): Port of the database to connect to.
--  ``dbname`` (string): Name of the database/schema to connect to.
--  ``unix_socket`` (string): Name of the socket used to connect to
-   the database.
 
 Custom Platform
 ~~~~~~~~~~~~~~~
