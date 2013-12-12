@@ -110,12 +110,12 @@ pdo\_mysql
 -  ``charset`` (string): The charset used when connecting to the
    database.
 
-drizzle_pdo_mysql
-^^^^^^^^^^^^^^^^^
+drizzle\_pdo\_mysql
+^^^^^^^^^^^^^^^^^^^
 
-**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol``.
-On Ubuntu this can be be done by uncomment the configuration ``plugin-add=`` in
-``/etc/drizzle/conf.d/mysql-protocol.cnf`` or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf``
+**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to enabled.
+On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
+or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled daemon.
 
 -  ``user`` (string): Username to use when connecting to the
    database. Only needed if authentication is configured for drizzled.
