@@ -113,7 +113,7 @@ pdo\_mysql
 drizzle\_pdo\_mysql
 ^^^^^^^^^^^^^^^^^^^
 
-**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to enabled.
+**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to be enabled.
 On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
 or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled daemon.
 
