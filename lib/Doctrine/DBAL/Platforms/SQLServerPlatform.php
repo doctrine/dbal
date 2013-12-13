@@ -537,18 +537,33 @@ class SQLServerPlatform extends AbstractPlatform
         return "SELECT name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' ORDER BY name";
     }
 
+
     /**
-     * {@inheritDoc}
+     * Get the where clause for schema.table
+     * 
+     * @param string $table        The [schema.]table name of the table
+     * @param string $tableColumn  The column to compare the table to in the where clause
+     * @param string $schemaColumn The column to compare the schema to in the where clause
+     * 
+     * @return string               
      */
-    public function getListTableColumnsSQL($table, $database = null)
+    private function _getTableWhereClause($table, $tableColumn, $schemaColumn)
     {
-        if (strpos($table, ".") !== false){
+        if (strpos($table, ".") !== false) {
             list($schema, $table) = explode(".", $table);
             $schema = "'" . $schema . "'";
         } else {
             $schema = "SCHEMA_NAME()";
         }
 
+        return "({$tableColumn} = '{$table}' AND {$schemaColumn} = {$schema})";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getListTableColumnsSQL($table, $database = null)
+    {
         return "SELECT    col.name,
                           type.name AS type,
                           col.max_length AS length,
@@ -569,8 +584,7 @@ class SQLServerPlatform extends AbstractPlatform
                 ON        col.default_object_id = def.object_id
                 AND       col.object_id = def.parent_object_id
                 WHERE     obj.type = 'U'
-                AND       obj.name = '$table'
-                AND       schemas.name = $schema";
+                AND       " . $this->_getTableWhereClause($table, 'obj.name', 'schemas.name');
     }
 
     /**
@@ -578,13 +592,6 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
-        if (strpos($table, ".") !== false){
-            list($schema, $table) = explode(".", $table);
-            $schema = "'" . $schema . "'";
-        } else {
-            $schema = "SCHEMA_NAME()";
-        }
-
         return "SELECT f.name AS ForeignKey,
                 SCHEMA_NAME (f.SCHEMA_ID) AS SchemaName,
                 OBJECT_NAME (f.parent_object_id) AS TableName,
@@ -598,8 +605,7 @@ class SQLServerPlatform extends AbstractPlatform
                 INNER JOIN sys.foreign_key_columns AS fc
                 INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
                 ON f.OBJECT_ID = fc.constraint_object_id
-                WHERE OBJECT_NAME (f.parent_object_id) = '$table'
-                AND SCHEMA_NAME (f.schema_id) = $schema";
+                WHERE " . $this->_getTableWhereClause($table, 'OBJECT_NAME (f.parent_object_id)', 'SCHEMA_NAME (f.schema_id)');
     }
 
     /**
@@ -607,17 +613,10 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        if (strpos($table, ".") !== false){
-            list($schema, $table) = explode(".", $table);
-            $schema = "'" . $schema . "'";
-        } else {
-            $schema = "SCHEMA_NAME()";
-        }
-
         return "SELECT idx.name AS key_name,
                        col.name AS column_name,
-	                   ~idx.is_unique AS non_unique,
-	                   idx.is_primary_key AS [primary],
+                      ~idx.is_unique AS non_unique,
+                       idx.is_primary_key AS [primary],
                        CASE idx.type
                            WHEN '1' THEN 'clustered'
                            WHEN '2' THEN 'nonclustered'
@@ -627,8 +626,7 @@ class SQLServerPlatform extends AbstractPlatform
                 JOIN sys.indexes AS idx ON tbl.object_id = idx.object_id
                 JOIN sys.index_columns AS idxcol ON idx.object_id = idxcol.object_id AND idx.index_id = idxcol.index_id
                 JOIN sys.columns AS col ON idxcol.object_id = col.object_id AND idxcol.column_id = col.column_id
-                WHERE tbl.name = '$table'
-                AND SCHEMA_NAME (tbl.schema_id) = $schema
+                WHERE " . $this->_getTableWhereClause($table, 'tbl.name', 'SCHEMA_NAME (tbl.schema_id)')."
                 ORDER BY idx.index_id ASC, idxcol.index_column_id ASC";
     }
 
