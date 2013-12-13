@@ -3,11 +3,11 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Schema\Index;
-
+use Doctrine\DBAL\Types\Type;
 
 class MySqlPlatformTest extends AbstractPlatformTestCase
 {
@@ -140,22 +140,42 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
 
     public function testGenerateSizedIndexSql()
     {
-        $indexSized = new \Doctrine\DBAL\Schema\Index('my_idx', array('user_name', 'last_login'), false, false, array(), array(
-            'user_name'=>array('size'=>12),
-            'last_login'=>array('size'=>34),
-        ));
+        $indexSized = new Index(
+            'my_idx',
+            array('user_name', 'last_login'),
+            false,
+            false,
+            array(),
+            array('user_name' => array('size' => 12), 'last_login' => array('size' => 34))
+        );
         $sql = $this->_platform->getCreateIndexSQL($indexSized, 'test');
         $this->assertEquals($this->getGenerateSizedIndexSql(), $sql);
     }
 
     public function testGenerateSizedUniqueIndexSql()
     {
-        $indexSized = new \Doctrine\DBAL\Schema\Index('my_idx', array('test', 'test2'), true, false, array(), array(
+        $indexSized = new Index('my_idx', array('test', 'test2'), true, false, array(), array(
             'test'=>array('size'=>12),
             'test2'=>array('size'=>34),
         ));
         $sql = $this->_platform->getCreateIndexSQL($indexSized, 'test');
         $this->assertEquals($this->getGenerateUniqueSizedIndexSql(), $sql);
+    }
+
+    public function testGenerateTableWithSizedIndexSql()
+    {
+        $table = new Table('sizedindex_table');
+        $table->addColumn('text', Type::TEXT);
+        $table->addIndex(
+            array('text'),
+            'sized_index',
+            array(),
+            array('text' => array('size' => 12))
+        );
+        $this->assertEquals(
+            $this->getGenerateTableWithSizedIndexSql(),
+            $this->_platform->getCreateTableSQL($table)
+        );
     }
 
     public function getGenerateIndexSql()
@@ -176,6 +196,13 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     private function getGenerateUniqueSizedIndexSql()
     {
         return 'CREATE UNIQUE INDEX my_idx ON test (test(12), test2(34))';
+    }
+    private function getGenerateTableWithSizedIndexSql()
+    {
+        return array(
+            "CREATE TABLE sizedindex_table (text LONGTEXT NOT NULL, INDEX sized_index (text(12)))"
+            ." DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB"
+        );
     }
 
     public function getGenerateForeignKeySql()

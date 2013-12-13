@@ -149,7 +149,7 @@ class Table extends AbstractAsset
      *
      * @return \Doctrine\DBAL\Schema\Table
      */
-    public function addIndex(array $columnNames, $indexName = null, array $flags = array())
+    public function addIndex(array $columnNames, $indexName = null, array $flags = array(), array $options = array())
     {
         if($indexName == null) {
             $indexName = $this->_generateIdentifierName(
@@ -157,7 +157,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_createIndex($columnNames, $indexName, false, false, $flags);
+        return $this->_createIndex($columnNames, $indexName, false, false, $flags, $options);
     }
 
     /**
@@ -236,7 +236,7 @@ class Table extends AbstractAsset
      *
      * @throws \Doctrine\DBAL\Schema\SchemaException
      */
-    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = array())
+    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = array(), array $options = array())
     {
         if (preg_match('(([^a-zA-Z0-9_]+))', $indexName)) {
             throw SchemaException::indexNameInvalid($indexName);
@@ -252,7 +252,7 @@ class Table extends AbstractAsset
             }
         }
 
-        $this->_addIndex(new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags));
+        $this->_addIndex(new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags, $options));
 
         return $this;
     }
