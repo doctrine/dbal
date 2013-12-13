@@ -42,6 +42,7 @@ interfaces to use. It can be configured in one of three ways:
       extension.
    -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo\_mysql PDO
       extension.
+   -  ``mysqli``: A MySQL driver that uses the mysqli extension.
    -  ``pdo_sqlite``: An SQLite driver that uses the pdo\_sqlite PDO
       extension.
    -  ``pdo_pgsql``: A PostgreSQL driver that uses the pdo\_pgsql PDO
@@ -126,6 +127,23 @@ or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled d
 -  ``dbname`` (string): Name of the database/schema to connect to.
 -  ``unix_socket`` (string): Name of the socket used to connect to
    the database.
+
+mysqli
+^^^^^^
+
+
+-  ``user`` (string): Username to use when connecting to the
+   database.
+-  ``password`` (string): Password to use when connecting to the
+   database.
+-  ``host`` (string): Hostname of the database to connect to.
+-  ``port`` (integer): Port of the database to connect to.
+-  ``dbname`` (string): Name of the database/schema to connect to.
+-  ``unix_socket`` (string): Name of the socket used to connect to
+   the database.
+-  ``charset`` (string): The charset used when connecting to the
+   database.
+-  ``driverOptions`` Any supported flags for mysqli found on `http://www.php.net/manual/en/mysqli.real-connect.php`
 
 pdo\_pgsql
 ^^^^^^^^^^
