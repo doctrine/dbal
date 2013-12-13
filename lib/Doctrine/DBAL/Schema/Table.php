@@ -326,11 +326,11 @@ class Table extends AbstractAsset
      *
      * Name is inferred from the local columns.
      *
-     * @param \Doctrine\DBAL\Schema\Table $foreignTable
-     * @param array                       $localColumnNames
-     * @param array                       $foreignColumnNames
-     * @param array                       $options
-     * @param string|null                 $constraintName
+     * @param \Doctrine\DBAL\Schema\Table|string  $foreignTable Table schema instance or table name
+     * @param array                               $localColumnNames
+     * @param array                               $foreignColumnNames
+     * @param array                               $options
+     * @param string|null                         $constraintName
      *
      * @return \Doctrine\DBAL\Schema\Table
      */
@@ -348,10 +348,10 @@ class Table extends AbstractAsset
      *
      * @deprecated Use {@link addForeignKeyConstraint}
      *
-     * @param \Doctrine\DBAL\Schema\Table $foreignTable
-     * @param array                       $localColumnNames
-     * @param array                       $foreignColumnNames
-     * @param array                       $options
+     * @param \Doctrine\DBAL\Schema\Table|string    $foreignTable Table schema instance or table name
+     * @param array                                 $localColumnNames
+     * @param array                                 $foreignColumnNames
+     * @param array                                 $options
      *
      * @return \Doctrine\DBAL\Schema\Table
      */
@@ -365,11 +365,11 @@ class Table extends AbstractAsset
      *
      * @deprecated Use {@link addForeignKeyConstraint}
      *
-     * @param string                      $name
-     * @param \Doctrine\DBAL\Schema\Table $foreignTable
-     * @param array                       $localColumnNames
-     * @param array                       $foreignColumnNames
-     * @param array                       $options
+     * @param string                                $name
+     * @param \Doctrine\DBAL\Schema\Table|string    $foreignTable Table schema instance or table name
+     * @param array                                 $localColumnNames
+     * @param array                                 $foreignColumnNames
+     * @param array                                 $options
      *
      * @return \Doctrine\DBAL\Schema\Table
      *
