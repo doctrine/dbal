@@ -802,8 +802,36 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $expected = new SchemaDiff();
         $expected->fromSchema = $oldSchema;
+        $expected->newNamespaces['foo'] = 'foo';
 
         $this->assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testNamespacesComparison()
+    {
+        $config = new SchemaConfig();
+        $config->setName("schemaName");
+
+        $oldSchema = new Schema(array(), array(), $config);
+        $oldSchema->createTable('taz');
+        $oldSchema->createTable('war.tab');
+
+        $newSchema= new Schema(array(), array(), $config);
+        $newSchema->createTable('bar.tab');
+        $newSchema->createTable('baz.tab');
+        $newSchema->createTable('war.tab');
+
+        $expected = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+        $expected->newNamespaces = array('bar' => 'bar', 'baz' => 'baz');
+
+        $diff = Comparator::compareSchemas($oldSchema, $newSchema);
+
+        $this->assertEquals(array('bar' => 'bar', 'baz' => 'baz'), $diff->newNamespaces);
+        $this->assertCount(2, $diff->newTables);
     }
 
     /**

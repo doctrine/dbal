@@ -63,6 +63,12 @@ class Comparator
         $foreignKeysToTable = array();
 
         foreach ($toSchema->getTables() as $table) {
+            $namespace = $table->getNamespaceName();
+
+            if ($namespace && ! $fromSchema->hasNamespace($namespace)) {
+                $diff->newNamespaces[$namespace] = $namespace;
+            }
+
             $tableName = $table->getShortestName($toSchema->getName());
             if ( ! $fromSchema->hasTable($tableName)) {
                 $diff->newTables[$tableName] = $toSchema->getTable($tableName);

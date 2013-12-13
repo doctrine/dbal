@@ -221,4 +221,28 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($schema->hasTable('`foo`'));
     }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testHasNamespace()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createTable('foo');
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createTable('bar.baz');
+
+        $this->assertFalse($schema->hasNamespace('baz'));
+        $this->assertTrue($schema->hasNamespace('bar'));
+        $this->assertFalse($schema->hasNamespace('tab'));
+
+        $schema->createTable('tab.taz');
+
+        $this->assertTrue($schema->hasNamespace('tab'));
+    }
 }

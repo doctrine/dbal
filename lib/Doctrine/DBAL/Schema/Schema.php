@@ -178,6 +178,24 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * Does this schema have a namespace with the given name?
+     *
+     * @param string $namespaceName
+     *
+     * @return boolean
+     */
+    public function hasNamespace($namespaceName)
+    {
+        foreach ($this->_tables as $table) {
+            if ($table->getNamespaceName() === $namespaceName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Does this schema have a table with the given name?
      *
      * @param string $tableName
