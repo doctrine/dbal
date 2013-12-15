@@ -342,4 +342,159 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             $this->assertEquals($expected, $actual);
         }
     }
+     /**
+     * @group DBAL-701
+     */
+    public function testListTableColumnsDefaultSchema()
+    {
+        $expected = "SELECT    col.name,
+                          type.name AS type,
+                          col.max_length AS length,
+                          ~col.is_nullable AS notnull,
+                          def.definition AS [default],
+                          col.scale,
+                          col.precision,
+                          col.is_identity AS autoincrement,
+                          col.collation_name AS collation
+                FROM      sys.columns AS col
+                JOIN      sys.types AS type
+                ON        col.user_type_id = type.user_type_id
+                JOIN      sys.objects AS obj
+                ON        col.object_id = obj.object_id
+                JOIN      sys.schemas
+                ON        obj.schema_id = schemas.schema_id
+                LEFT JOIN sys.default_constraints def
+                ON        col.default_object_id = def.object_id
+                AND       col.object_id = def.parent_object_id
+                WHERE     obj.type = 'U'
+                AND       (obj.name = 'tableName' AND schemas.name = SCHEMA_NAME())";
+
+        $this->assertEquals($expected, $this->_platform->getListTableColumnsSQL('tableName'));
+    }
+
+     /**
+     * @group DBAL-701
+     */
+    public function testListTableColumnsNamedSchema()
+    {
+        $expected = "SELECT    col.name,
+                          type.name AS type,
+                          col.max_length AS length,
+                          ~col.is_nullable AS notnull,
+                          def.definition AS [default],
+                          col.scale,
+                          col.precision,
+                          col.is_identity AS autoincrement,
+                          col.collation_name AS collation
+                FROM      sys.columns AS col
+                JOIN      sys.types AS type
+                ON        col.user_type_id = type.user_type_id
+                JOIN      sys.objects AS obj
+                ON        col.object_id = obj.object_id
+                JOIN      sys.schemas
+                ON        obj.schema_id = schemas.schema_id
+                LEFT JOIN sys.default_constraints def
+                ON        col.default_object_id = def.object_id
+                AND       col.object_id = def.parent_object_id
+                WHERE     obj.type = 'U'
+                AND       (obj.name = 'tableName' AND schemas.name = 'schema')";
+
+        $this->assertEquals($expected, $this->_platform->getListTableColumnsSQL('schema.tableName'));
+    }
+
+    /**
+    * @group DBAL-701
+    */
+    public function testListTableForeignKeysDefaultSchema()
+    {
+        $expected = "SELECT f.name AS ForeignKey,
+                SCHEMA_NAME (f.SCHEMA_ID) AS SchemaName,
+                OBJECT_NAME (f.parent_object_id) AS TableName,
+                COL_NAME (fc.parent_object_id,fc.parent_column_id) AS ColumnName,
+                SCHEMA_NAME (o.SCHEMA_ID) ReferenceSchemaName,
+                OBJECT_NAME (f.referenced_object_id) AS ReferenceTableName,
+                COL_NAME(fc.referenced_object_id,fc.referenced_column_id) AS ReferenceColumnName,
+                f.delete_referential_action_desc,
+                f.update_referential_action_desc
+                FROM sys.foreign_keys AS f
+                INNER JOIN sys.foreign_key_columns AS fc
+                INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
+                ON f.OBJECT_ID = fc.constraint_object_id
+                WHERE (OBJECT_NAME (f.parent_object_id) = 'tableName' AND SCHEMA_NAME (f.schema_id) = SCHEMA_NAME())";
+
+        $this->assertEquals($expected, $this->_platform->getListTableForeignKeysSQL('tableName'));
+    }
+
+    /**
+    * @group DBAL-701
+    */
+    public function testListTableForeignKeysNamedSchema()
+    {
+        $expected = "SELECT f.name AS ForeignKey,
+                SCHEMA_NAME (f.SCHEMA_ID) AS SchemaName,
+                OBJECT_NAME (f.parent_object_id) AS TableName,
+                COL_NAME (fc.parent_object_id,fc.parent_column_id) AS ColumnName,
+                SCHEMA_NAME (o.SCHEMA_ID) ReferenceSchemaName,
+                OBJECT_NAME (f.referenced_object_id) AS ReferenceTableName,
+                COL_NAME(fc.referenced_object_id,fc.referenced_column_id) AS ReferenceColumnName,
+                f.delete_referential_action_desc,
+                f.update_referential_action_desc
+                FROM sys.foreign_keys AS f
+                INNER JOIN sys.foreign_key_columns AS fc
+                INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
+                ON f.OBJECT_ID = fc.constraint_object_id
+                WHERE (OBJECT_NAME (f.parent_object_id) = 'tableName' AND SCHEMA_NAME (f.schema_id) = 'schema')";
+
+        $this->assertEquals($expected, $this->_platform->getListTableForeignKeysSQL('schema.tableName'));
+    }
+
+    /**
+    * @group DBAL-701
+    */
+    public function testListTableIndexesDefaultSchema()
+    {
+        $expected = "SELECT idx.name AS key_name,
+                       col.name AS column_name,
+                      ~idx.is_unique AS non_unique,
+                       idx.is_primary_key AS [primary],
+                       CASE idx.type
+                           WHEN '1' THEN 'clustered'
+                           WHEN '2' THEN 'nonclustered'
+                           ELSE NULL
+                       END AS flags
+                FROM sys.tables AS tbl
+                JOIN sys.indexes AS idx ON tbl.object_id = idx.object_id
+                JOIN sys.index_columns AS idxcol ON idx.object_id = idxcol.object_id AND idx.index_id = idxcol.index_id
+                JOIN sys.columns AS col ON idxcol.object_id = col.object_id AND idxcol.column_id = col.column_id
+                WHERE (tbl.name = 'tableName' AND SCHEMA_NAME (tbl.schema_id) = SCHEMA_NAME())
+                ORDER BY idx.index_id ASC, idxcol.index_column_id ASC";
+
+        $this->assertEquals($expected, $this->_platform->getListTableIndexesSQL('tableName'));
+    }
+
+    /**
+    * @group DBAL-701
+    */
+    public function testListTableIndexesNamedSchema()
+    {
+        $expected = "SELECT idx.name AS key_name,
+                       col.name AS column_name,
+                      ~idx.is_unique AS non_unique,
+                       idx.is_primary_key AS [primary],
+                       CASE idx.type
+                           WHEN '1' THEN 'clustered'
+                           WHEN '2' THEN 'nonclustered'
+                           ELSE NULL
+                       END AS flags
+                FROM sys.tables AS tbl
+                JOIN sys.indexes AS idx ON tbl.object_id = idx.object_id
+                JOIN sys.index_columns AS idxcol ON idx.object_id = idxcol.object_id AND idx.index_id = idxcol.index_id
+                JOIN sys.columns AS col ON idxcol.object_id = col.object_id AND idxcol.column_id = col.column_id
+                WHERE (tbl.name = 'tableName' AND SCHEMA_NAME (tbl.schema_id) = 'schema')
+                ORDER BY idx.index_id ASC, idxcol.index_column_id ASC";
+
+        $this->assertEquals($expected, $this->_platform->getListTableIndexesSQL('schema.tableName'));
+    }
+
+
 }
