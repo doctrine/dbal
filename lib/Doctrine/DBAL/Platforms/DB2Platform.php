@@ -254,8 +254,31 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table)
     {
-        return "SELECT TBNAME, RELNAME, REFTBNAME, DELETERULE, UPDATERULE, FKCOLNAMES, PKCOLNAMES ".
-               "FROM SYSIBM.SYSRELS WHERE TBNAME = UPPER('".$table."')";
+        return "SELECT   fkcol.COLNAME AS local_column,
+                         fk.REFTABNAME AS foreign_table,
+                         pkcol.COLNAME AS foreign_column,
+                         fk.CONSTNAME AS index_name,
+                         CASE
+                             WHEN fk.UPDATERULE = 'R' THEN 'RESTRICT'
+                             ELSE NULL
+                         END AS on_update,
+                         CASE
+                             WHEN fk.DELETERULE = 'C' THEN 'CASCADE'
+                             WHEN fk.DELETERULE = 'N' THEN 'SET NULL'
+                             WHEN fk.DELETERULE = 'R' THEN 'RESTRICT'
+                             ELSE NULL
+                         END AS on_delete
+                FROM     SYSCAT.REFERENCES AS fk
+                JOIN     SYSCAT.KEYCOLUSE AS fkcol
+                ON       fk.CONSTNAME = fkcol.CONSTNAME
+                AND      fk.TABSCHEMA = fkcol.TABSCHEMA
+                AND      fk.TABNAME = fkcol.TABNAME
+                JOIN     SYSCAT.KEYCOLUSE AS pkcol
+                ON       fk.REFKEYNAME = pkcol.CONSTNAME
+                AND      fk.REFTABSCHEMA = pkcol.TABSCHEMA
+                AND      fk.REFTABNAME = pkcol.TABNAME
+                WHERE    fk.TABNAME = UPPER('" . $table . "')
+                ORDER BY fkcol.COLSEQ ASC";
     }
 
     /**

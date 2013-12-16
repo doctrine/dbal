@@ -133,21 +133,43 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
-        $tableForeignKey = array_change_key_case($tableForeignKey, CASE_LOWER);
-
-        $tableForeignKey['deleterule'] = $this->_getPortableForeignKeyRuleDef($tableForeignKey['deleterule']);
-        $tableForeignKey['updaterule'] = $this->_getPortableForeignKeyRuleDef($tableForeignKey['updaterule']);
-
         return new ForeignKeyConstraint(
-            array_map('trim', (array)$tableForeignKey['fkcolnames']),
-            $tableForeignKey['reftbname'],
-            array_map('trim', (array)$tableForeignKey['pkcolnames']),
-            $tableForeignKey['relname'],
-            array(
-                'onUpdate' => $tableForeignKey['updaterule'],
-                'onDelete' => $tableForeignKey['deleterule'],
-            )
+            $tableForeignKey['local_columns'],
+            $tableForeignKey['foreign_table'],
+            $tableForeignKey['foreign_columns'],
+            $tableForeignKey['name'],
+            $tableForeignKey['options']
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    {
+        $foreignKeys = array();
+
+        foreach ($tableForeignKeys as $tableForeignKey) {
+            $tableForeignKey = array_change_key_case($tableForeignKey, \CASE_LOWER);
+
+            if (!isset($foreignKeys[$tableForeignKey['index_name']])) {
+                $foreignKeys[$tableForeignKey['index_name']] = array(
+                    'local_columns'   => array($tableForeignKey['local_column']),
+                    'foreign_table'   => $tableForeignKey['foreign_table'],
+                    'foreign_columns' => array($tableForeignKey['foreign_column']),
+                    'name'            => $tableForeignKey['index_name'],
+                    'options'         => array(
+                        'onUpdate' => $tableForeignKey['on_update'],
+                        'onDelete' => $tableForeignKey['on_delete'],
+                    )
+                );
+            } else {
+                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][] = $tableForeignKey['local_column'];
+                $foreignKeys[$tableForeignKey['index_name']]['foreign_columns'][] = $tableForeignKey['foreign_column'];
+            }
+        }
+
+        return parent::_getPortableTableForeignKeysList($foreignKeys);
     }
 
     /**
