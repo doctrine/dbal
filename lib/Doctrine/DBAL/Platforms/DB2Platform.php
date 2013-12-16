@@ -544,6 +544,11 @@ class DB2Platform extends AbstractPlatform
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(" ", $queryParts);
             }
 
+            // Some table alteration operations require a table reorganization.
+            if ( ! empty($diff->removedColumns) || ! empty($diff->changedColumns)) {
+                $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $diff->name . "')";
+            }
+
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
                 $sql,
