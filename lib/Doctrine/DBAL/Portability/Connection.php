@@ -37,7 +37,7 @@ class Connection extends \Doctrine\DBAL\Connection
     const PORTABILITY_EMPTY_TO_NULL     = 4;
     const PORTABILITY_FIX_CASE          = 8;
 
-    const PORTABILITY_DB2               = 9;
+    const PORTABILITY_DB2               = 13;
     const PORTABILITY_ORACLE            = 9;
     const PORTABILITY_POSTGRESQL        = 13;
     const PORTABILITY_SQLITE            = 13;
