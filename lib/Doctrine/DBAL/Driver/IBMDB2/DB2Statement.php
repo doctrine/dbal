@@ -303,6 +303,8 @@ class DB2Statement implements \IteratorAggregate, Statement
 
         $sourceReflection           = new \ReflectionObject($sourceObject);
         $destinationClassReflection = new \ReflectionObject($destinationClass);
+        /** @var \ReflectionProperty[] $destinationProperties */
+        $destinationProperties      = array_change_key_case($destinationClassReflection->getProperties(), \CASE_LOWER);
 
         foreach ($sourceReflection->getProperties() as $sourceProperty) {
             $sourceProperty->setAccessible(true);
@@ -310,14 +312,30 @@ class DB2Statement implements \IteratorAggregate, Statement
             $name  = $sourceProperty->getName();
             $value = $sourceProperty->getValue($sourceObject);
 
+            // Try to find a case-matching property.
             if ($destinationClassReflection->hasProperty($name)) {
                 $destinationProperty = $destinationClassReflection->getProperty($name);
 
                 $destinationProperty->setAccessible(true);
                 $destinationProperty->setValue($destinationClass, $value);
-            } else {
-                $destinationClass->$name = $value;
+
+                continue;
             }
+
+            $name = strtolower($name);
+
+            // Try to find a property without matching case.
+            // Fallback for the driver returning either all uppercase or all lowercase column names.
+            if (isset($destinationProperties[$name])) {
+                $destinationProperty = $destinationProperties[$name];
+
+                $destinationProperty->setAccessible(true);
+                $destinationProperty->setValue($destinationClass, $value);
+
+                continue;
+            }
+
+            $destinationClass->$name = $value;
         }
 
         return $destinationClass;
