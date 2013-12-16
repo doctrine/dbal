@@ -492,7 +492,18 @@ class DB2Platform extends AbstractPlatform
                 continue;
             }
 
-            $queryParts[] = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $columnDef = $column->toArray();
+            $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
+
+            // Adding non-nullable columns to a table requires a default value to be specified.
+            if ( ! empty($columnDef['notnull']) &&
+                ! isset($columnDef['default']) &&
+                empty($columnDef['autoincrement'])
+            ) {
+                $queryPart .= ' WITH DEFAULT';
+            }
+
+            $queryParts[] = $queryPart;
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -544,21 +555,10 @@ class DB2Platform extends AbstractPlatform
      */
     public function getDefaultValueDeclarationSQL($field)
     {
-        if (isset($field['notnull']) && $field['notnull'] && !isset($field['default'])) {
-            if (in_array((string)$field['type'], array("Integer", "BigInteger", "SmallInteger"))) {
-                $field['default'] = 0;
-            } else if((string)$field['type'] == "DateTime") {
-                $field['default'] = "00-00-00 00:00:00";
-            } else if ((string)$field['type'] == "Date") {
-                $field['default'] = "00-00-00";
-            } else if((string)$field['type'] == "Time") {
-                $field['default'] = "00:00:00";
-            } else {
-                $field['default'] = '';
-            }
+        if ( ! empty($field['autoincrement'])) {
+            return '';
         }
 
-        unset($field['default']); // @todo this needs fixing
         if (isset($field['version']) && $field['version']) {
             if ((string)$field['type'] != "DateTime") {
                 $field['default'] = "1";

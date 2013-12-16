@@ -60,6 +60,12 @@ class DB2SchemaManager extends AbstractSchemaManager
         $scale = false;
         $precision = false;
 
+        $default = null;
+
+        if (null !== $tableColumn['default'] && 'NULL' != $tableColumn['default']) {
+            $default = trim($tableColumn['default'], "'");
+        }
+
         $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
 
         switch (strtolower($tableColumn['typename'])) {
@@ -86,7 +92,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             'length'        => $length,
             'unsigned'      => (bool)$unsigned,
             'fixed'         => (bool)$fixed,
-            'default'       => ($tableColumn['default'] == "NULL") ? null : $tableColumn['default'],
+            'default'       => $default,
             'notnull'       => (bool) ($tableColumn['nulls'] == 'N'),
             'scale'         => null,
             'precision'     => null,
