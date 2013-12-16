@@ -530,7 +530,7 @@ class DB2Platform extends AbstractPlatform
                 continue;
             }
 
-            $queryParts[] =  'RENAME ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
+            $queryParts[] =  'RENAME COLUMN ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
         }
 
         $tableSql = array();
@@ -540,7 +540,11 @@ class DB2Platform extends AbstractPlatform
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(" ", $queryParts);
             }
 
-            $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
+            $sql = array_merge(
+                $this->getPreAlterTableIndexForeignKeySQL($diff),
+                $sql,
+                $this->getPostAlterTableIndexForeignKeySQL($diff)
+            );
 
             if ($diff->newName !== false) {
                 $sql[] =  'RENAME TABLE TO ' . $diff->newName;
@@ -548,6 +552,40 @@ class DB2Platform extends AbstractPlatform
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
+    {
+        $sql = array();
+        $table = $diff->name;
+
+        foreach ($diff->removedIndexes as $remKey => $remIndex) {
+            foreach ($diff->addedIndexes as $addKey => $addIndex) {
+                if ($remIndex->getColumns() == $addIndex->getColumns()) {
+                    if ($remIndex->isPrimary()) {
+                        $sql[] = 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
+                    } elseif ($remIndex->isUnique()) {
+                        $sql[] = 'ALTER TABLE ' . $table . ' DROP UNIQUE ' . $remIndex->getQuotedName($this);
+                    } else {
+                        $sql[] = $this->getDropIndexSQL($remIndex, $table);
+                    }
+
+                    $sql[] = $this->getCreateIndexSQL($addIndex, $table);
+
+                    unset($diff->removedIndexes[$remKey]);
+                    unset($diff->addedIndexes[$addKey]);
+
+                    break;
+                }
+            }
+        }
+
+        $sql = array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
+
+        return $sql;
     }
 
     /**
