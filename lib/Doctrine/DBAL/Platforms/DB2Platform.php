@@ -30,7 +30,8 @@ class DB2Platform extends AbstractPlatform
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
-        throw DBALException::notSupported(__METHOD__);
+        // todo blob(n) with $field['length'];
+        return 'BLOB(1M)';
     }
 
     /**
@@ -47,6 +48,7 @@ class DB2Platform extends AbstractPlatform
             'varchar'       => 'string',
             'character'     => 'string',
             'clob'          => 'text',
+            'blob'          => 'blob',
             'decimal'       => 'decimal',
             'double'        => 'float',
             'real'          => 'float',
