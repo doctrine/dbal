@@ -156,6 +156,14 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getTruncateTableSQL($tableName, $cascade = false)
+    {
+        return 'TRUNCATE ' . $tableName . ' IMMEDIATE';
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getListDatabasesSQL()
