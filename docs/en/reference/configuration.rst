@@ -156,6 +156,10 @@ pdo\_pgsql
 -  ``host`` (string): Hostname of the database to connect to.
 -  ``port`` (integer): Port of the database to connect to.
 -  ``dbname`` (string): Name of the database/schema to connect to.
+-  ``sslmode`` (string): Determines whether or with what priority
+   a SSL TCP/IP connection will be negotiated with the server.
+   See the list of available modes:
+   `http://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLMODE`
 
 PostgreSQL behaves differently with regard to booleans when you use
 ``PDO::ATTR_EMULATE_PREPARES`` or not. To switch from using ``'true'``
