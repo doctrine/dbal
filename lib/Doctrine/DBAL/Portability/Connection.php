@@ -77,7 +77,7 @@ class Connection extends \Doctrine\DBAL\Connection
                     $params['portability'] = self::PORTABILITY_SQLANYWHERE;
                 } else if ($this->_platform->getName() === 'sqlsrv') {
                     $params['portability'] = $params['portabililty'] & self::PORTABILITY_SQLSRV;
-                } else if ($this->_platform->getName() === 'db2') {
+                } elseif ($this->_platform->getName() === 'db2') {
                     $params['portability'] = self::PORTABILITY_DB2;
                 } else {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_OTHERVENDORS;
