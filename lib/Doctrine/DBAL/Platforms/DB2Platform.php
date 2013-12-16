@@ -273,7 +273,11 @@ class DB2Platform extends AbstractPlatform
     {
         return "SELECT DISTINCT c.tabschema, c.tabname, c.colname, c.colno,
                 c.typename, c.default, c.nulls, c.length, c.scale,
-                c.identity, tc.type AS tabconsttype, k.colseq
+                c.identity, tc.type AS tabconsttype, k.colseq,
+                CASE
+                    WHEN c.generated = 'D' THEN 1
+                    ELSE 0
+                END AS autoincrement
                 FROM syscat.columns c
                 LEFT JOIN (syscat.keycoluse k JOIN syscat.tabconst tc
                 ON (k.tabschema = tc.tabschema

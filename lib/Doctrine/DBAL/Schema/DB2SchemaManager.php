@@ -93,6 +93,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             'unsigned'      => (bool)$unsigned,
             'fixed'         => (bool)$fixed,
             'default'       => $default,
+            'autoincrement' => (boolean) $tableColumn['autoincrement'],
             'notnull'       => (bool) ($tableColumn['nulls'] == 'N'),
             'scale'         => null,
             'precision'     => null,
