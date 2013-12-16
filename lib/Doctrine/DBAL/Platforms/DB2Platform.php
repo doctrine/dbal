@@ -128,6 +128,62 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getDateAddDaysExpression($date, $days)
+    {
+        return $date . ' + ' . $days . ' days';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDateAddHourExpression($date, $hours)
+    {
+        return $date . ' + ' . $hours . ' hours';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDateAddMonthExpression($date, $months)
+    {
+        return $date . ' + ' . $months . ' months';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDateDiffExpression($date1, $date2)
+    {
+        return 'DAYS(' . $date1 . ') - DAYS(' . $date2 . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDateSubDaysExpression($date, $days)
+    {
+        return $date . ' - ' . $days . ' days';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDateSubHourExpression($date, $hours)
+    {
+        return $date . ' - ' . $hours . ' hours';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDateSubMonthExpression($date, $months)
+    {
+        return $date . ' - ' . $months . ' months';
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
