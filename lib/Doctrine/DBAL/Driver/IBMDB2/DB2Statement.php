@@ -34,6 +34,16 @@ class DB2Statement implements \IteratorAggregate, Statement
     private $_bindParam = array();
 
     /**
+     * @var string Name of the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
+     */
+    private $defaultFetchClass = '\stdClass';
+
+    /**
+     * @var string Constructor arguments for the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
+     */
+    private $defaultFetchClassCtorArgs = array();
+
+    /**
      * @var integer
      */
     private $_defaultFetchMode = \PDO::FETCH_BOTH;
@@ -165,7 +175,9 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        $this->_defaultFetchMode = $fetchMode;
+        $this->_defaultFetchMode         = $fetchMode;
+        $this->defaultFetchClass         = $arg2 ? $arg2 : $this->defaultFetchClass;
+        $this->defaultFetchClassCtorArgs = $arg3 ? (array) $arg3 : $this->defaultFetchClassCtorArgs;
 
         return true;
     }
@@ -191,8 +203,27 @@ class DB2Statement implements \IteratorAggregate, Statement
                 return db2_fetch_both($this->_stmt);
             case \PDO::FETCH_ASSOC:
                 return db2_fetch_assoc($this->_stmt);
+            case \PDO::FETCH_CLASS:
+                $className = $this->defaultFetchClass;
+                $ctorArgs  = $this->defaultFetchClassCtorArgs;
+
+                if (func_num_args() >= 2) {
+                    $args      = func_get_args();
+                    $className = $args[1];
+                    $ctorArgs  = isset($args[2]) ? $args[2] : array();
+                }
+
+                $result = db2_fetch_object($this->_stmt);
+
+                if ($result instanceof \stdClass) {
+                    $result = $this->castObject($result, $className, $ctorArgs);
+                }
+
+                return $result;
             case \PDO::FETCH_NUM:
                 return db2_fetch_array($this->_stmt);
+            case PDO::FETCH_OBJ:
+                return db2_fetch_object($this->_stmt);
             default:
                 throw new DB2Exception("Given Fetch-Style " . $fetchMode . " is not supported.");
         }
@@ -204,8 +235,22 @@ class DB2Statement implements \IteratorAggregate, Statement
     public function fetchAll($fetchMode = null)
     {
         $rows = array();
-        while ($row = $this->fetch($fetchMode)) {
-            $rows[] = $row;
+
+        switch ($fetchMode) {
+            case \PDO::FETCH_CLASS:
+                while ($row = call_user_func_array(array($this, 'fetch'), func_get_args())) {
+                    $rows[] = $row;
+                }
+                break;
+            case \PDO::FETCH_COLUMN:
+                while ($row = $this->fetchColumn()) {
+                    $rows[] = $row;
+                }
+                break;
+            default:
+                while ($row = $this->fetch($fetchMode)) {
+                    $rows[] = $row;
+                }
         }
 
         return $rows;
@@ -230,5 +275,51 @@ class DB2Statement implements \IteratorAggregate, Statement
     public function rowCount()
     {
         return (@db2_num_rows($this->_stmt))?:0;
+    }
+
+    /**
+     * Casts a stdClass object to the given class name mapping its' properties.
+     *
+     * @param \stdClass     $sourceObject     Object to cast from.
+     * @param string|object $destinationClass Name of the class or class instance to cast to.
+     * @param array         $ctorArgs         Arguments to use for constructing the destination class instance.
+     *
+     * @return object
+     *
+     * @throws DB2Exception
+     */
+    private function castObject(\stdClass $sourceObject, $destinationClass, array $ctorArgs = array())
+    {
+        if ( ! is_string($destinationClass)) {
+            if ( ! is_object($destinationClass)) {
+                throw new DB2Exception(sprintf(
+                    'Destination class has to be of type string or object, %s given.', gettype($destinationClass)
+                ));
+            }
+        } else {
+            $destinationClass = new \ReflectionClass($destinationClass);
+            $destinationClass = $destinationClass->newInstanceArgs($ctorArgs);
+        }
+
+        $sourceReflection           = new \ReflectionObject($sourceObject);
+        $destinationClassReflection = new \ReflectionObject($destinationClass);
+
+        foreach ($sourceReflection->getProperties() as $sourceProperty) {
+            $sourceProperty->setAccessible(true);
+
+            $name  = $sourceProperty->getName();
+            $value = $sourceProperty->getValue($sourceObject);
+
+            if ($destinationClassReflection->hasProperty($name)) {
+                $destinationProperty = $destinationClassReflection->getProperty($name);
+
+                $destinationProperty->setAccessible(true);
+                $destinationProperty->setValue($destinationClass, $value);
+            } else {
+                $destinationClass->$name = $value;
+            }
+        }
+
+        return $destinationClass;
     }
 }
