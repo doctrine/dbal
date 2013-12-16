@@ -232,7 +232,21 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        return "SELECT NAME, COLNAMES, UNIQUERULE FROM SYSIBM.SYSINDEXES WHERE TBNAME = UPPER('" . $table . "')";
+        return "SELECT   idx.INDNAME AS key_name,
+                         idxcol.COLNAME AS column_name,
+                         CASE
+                             WHEN idx.UNIQUERULE = 'P' THEN 1
+                             ELSE 0
+                         END AS primary,
+                         CASE
+                             WHEN idx.UNIQUERULE = 'D' THEN 1
+                             ELSE 0
+                         END AS non_unique
+                FROM     SYSCAT.INDEXES AS idx
+                JOIN     SYSCAT.INDEXCOLUSE AS idxcol
+                ON       idx.INDSCHEMA = idxcol.INDSCHEMA AND idx.INDNAME = idxcol.INDNAME
+                WHERE    idx.TABNAME = UPPER('" . $table . "')
+                ORDER BY idxcol.COLSEQ ASC";
     }
 
     /**

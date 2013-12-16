@@ -118,46 +118,14 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
-        $eventManager = $this->_platform->getEventManager();
-
-        $indexes = array();
-        foreach($tableIndexes as $indexKey => $data) {
-            $data = array_change_key_case($data, \CASE_LOWER);
-            $unique = ($data['uniquerule'] == "D") ? false : true;
-            $primary = ($data['uniquerule'] == "P");
-
-            $indexName = strtolower($data['name']);
-
-            $data = array(
-                'name' => $indexName,
-                'columns' => explode("+", ltrim($data['colnames'], '+')),
-                'unique' => $unique,
-                'primary' => $primary
-            );
-
-            $index = null;
-            $defaultPrevented = false;
-
-            if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
-                $eventArgs = new SchemaIndexDefinitionEventArgs($data, $tableName, $this->_conn);
-                $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
-
-                $defaultPrevented = $eventArgs->isDefaultPrevented();
-                $index = $eventArgs->getIndex();
-            }
-
-            if ( ! $defaultPrevented) {
-                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary']);
-            }
-
-            if ($index) {
-                $indexes[$indexKey] = $index;
-            }
+        foreach ($tableIndexRows as &$tableIndexRow) {
+            $tableIndexRow = array_change_key_case($tableIndexRow, \CASE_LOWER);
+            $tableIndexRow['primary'] = (boolean) $tableIndexRow['primary'];
         }
 
-        return $indexes;
+        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
     }
 
     /**
