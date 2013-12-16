@@ -360,7 +360,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getCurrentDateSQL()
     {
-        return 'VALUES CURRENT DATE';
+        return 'CURRENT DATE';
     }
 
     /**
@@ -368,7 +368,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getCurrentTimeSQL()
     {
-        return 'VALUES CURRENT TIME';
+        return 'CURRENT TIME';
     }
 
     /**
@@ -376,7 +376,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getCurrentTimestampSQL()
     {
-        return "VALUES CURRENT TIMESTAMP";
+        return "CURRENT TIMESTAMP";
     }
 
     /**
