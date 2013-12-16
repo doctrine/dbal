@@ -130,6 +130,22 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function getBitAndComparisonExpression($value1, $value2)
+    {
+        return 'BITAND(' . $value1 . ', ' . $value2 . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBitOrComparisonExpression($value1, $value2)
+    {
+        return 'BITOR(' . $value1 . ', ' . $value2 . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return $date . ' + ' . $days . ' days';
