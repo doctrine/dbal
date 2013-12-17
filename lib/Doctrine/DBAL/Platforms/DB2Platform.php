@@ -236,30 +236,6 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function getListDatabasesSQL()
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getListSequencesSQL($database)
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getListTableConstraintsSQL($table)
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
      * This code fragment is originally from the Zend_Db_Adapter_Db2 class.
      *
      * @license New BSD License
@@ -295,14 +271,6 @@ class DB2Platform extends AbstractPlatform
     public function getListTablesSQL()
     {
         return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = 'T'";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getListUsersSQL()
-    {
-        throw DBALException::notSupported(__METHOD__);
     }
 
     /**
@@ -381,22 +349,6 @@ class DB2Platform extends AbstractPlatform
     public function getDropViewSQL($name)
     {
         return "DROP VIEW ".$name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDropSequenceSQL($sequence)
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getSequenceNextValSQL($sequenceName)
-    {
-        throw DBALException::notSupported(__METHOD__);
     }
 
     /**
