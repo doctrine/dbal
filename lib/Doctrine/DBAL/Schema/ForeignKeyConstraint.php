@@ -26,6 +26,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  * @author Steve Müller <st.mueller@dzh-online.de>
+ * @author Kévin Dunglas <dunglas@gmail.com>
  * @link   www.doctrine-project.org
  * @since  2.0
  */
@@ -201,6 +202,17 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     public function getForeignTableName()
     {
         return $this->_foreignTableName->getName();
+    }
+
+    /**
+     * Returns the referenced table
+     * the foreign key constraint is associated with.
+     *
+     * @return Table|Identifier
+     */
+    public function getForeignTable()
+    {
+        return $this->_foreignTableName;
     }
 
     /**

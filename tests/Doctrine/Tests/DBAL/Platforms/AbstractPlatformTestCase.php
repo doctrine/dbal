@@ -510,4 +510,12 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $this->_platform->schemaNeedsCreation('schema');
     }
+
+    public function testSupportsForeignKeyConstraintBetween()
+    {
+        $table1 = new Table('table1');
+        $table2 = new Table('table2');
+
+        $this->assertEquals($this->_platform->supportsForeignKeyConstraints(), $this->_platform->supportsForeignKeyConstraintBetween($table1, $table2));
+    }
 }
