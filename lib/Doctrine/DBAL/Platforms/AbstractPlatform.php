@@ -802,37 +802,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL to check if a value is one in a set of given values.
-     *
-     * Accepts an arbitrary number of parameters. The first parameter
-     * must always specify the value that should be matched against. Successive
-     * must contain a logical expression or an array with logical expressions.
-     * These expressions will be matched against the first parameter.
-     *
-     * @param string          $column The value that should be matched against.
-     * @param string|string[] $values The values that will be matched against $column.
-     *
-     * @return string The logical expression.
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function getInExpression($column, $values)
-    {
-        if ( ! is_array($values)) {
-            $values = array($values);
-        }
-
-        // TODO: fix this code: the method does not exist
-        $values = $this->getIdentifiers($values);
-
-        if (count($values) == 0) {
-            throw new \InvalidArgumentException('Values must not be empty.');
-        }
-
-        return $column . ' IN (' . implode(', ', $values) . ')';
-    }
-
-    /**
      * Returns the SQL that checks if an expression is null.
      *
      * @param string $expression The expression that should be compared to null.
@@ -1057,7 +1026,7 @@ abstract class AbstractPlatform
 
     /**
      * Returns the FOR UPDATE expression.
-     * 
+     *
      * @return string
      */
     public function getForUpdateSQL()
@@ -1202,7 +1171,7 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to drop a foreign key.
-     * 
+     *
      * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint|string $foreignKey
      * @param \Doctrine\DBAL\Schema\Table|string                $table
      *
