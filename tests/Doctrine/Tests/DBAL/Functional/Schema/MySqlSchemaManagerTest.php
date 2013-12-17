@@ -111,5 +111,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
+
+        $table = $this->_sm->listTableDetails("drop_primary_key");
+
+        $this->assertFalse($table->hasPrimaryKey());
+        $this->assertFalse($table->getColumn('id')->getAutoincrement());
     }
 }
