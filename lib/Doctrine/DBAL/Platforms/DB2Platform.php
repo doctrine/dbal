@@ -412,7 +412,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($database)
     {
-        return "DROP DATABASE ".$database.";";
+        return "DROP DATABASE " . $database;
     }
 
     /**
