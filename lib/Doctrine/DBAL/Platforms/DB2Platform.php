@@ -556,7 +556,7 @@ class DB2Platform extends AbstractPlatform
             );
 
             if ($diff->newName !== false) {
-                $sql[] =  'RENAME TABLE TO ' . $diff->newName;
+                $sql[] =  'RENAME TABLE ' . $diff->name . ' TO ' . $diff->newName;
             }
         }
 
