@@ -28,6 +28,7 @@ class DBAL461Test extends \PHPUnit_Framework_TestCase
             'precision' => 0,
             'autoincrement' => false,
             'collation' => 'foo',
+            'comment' => null,
         ));
 
         $this->assertEquals('Decimal', (string)$column->getType());

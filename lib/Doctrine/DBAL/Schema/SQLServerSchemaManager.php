@@ -79,7 +79,9 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type                   = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+        $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 
         switch ($type) {
             case 'char':
@@ -91,14 +93,15 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         }
 
         $options = array(
-            'length' => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
-            'unsigned' => false,
-            'fixed' => (bool) $fixed,
-            'default' => $default !== 'NULL' ? $default : null,
-            'notnull' => (bool) $tableColumn['notnull'],
-            'scale' => $tableColumn['scale'],
-            'precision' => $tableColumn['precision'],
+            'length'        => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
+            'unsigned'      => false,
+            'fixed'         => (bool) $fixed,
+            'default'       => $default !== 'NULL' ? $default : null,
+            'notnull'       => (bool) $tableColumn['notnull'],
+            'scale'         => $tableColumn['scale'],
+            'precision'     => $tableColumn['precision'],
             'autoincrement' => (bool) $tableColumn['autoincrement'],
+            'comment'       => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
         );
 
         $platformOptions = array(

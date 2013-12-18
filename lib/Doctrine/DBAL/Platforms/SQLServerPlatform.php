@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -234,20 +235,24 @@ class SQLServerPlatform extends AbstractPlatform
     protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
         $defaultConstraintsSql = array();
+        $commentsSql           = array();
 
         // @todo does other code breaks because of this?
         // force primary keys to be not null
         foreach ($columns as &$column) {
+            /** @var $column \Doctrine\DBAL\Schema\Column */
             if (isset($column['primary']) && $column['primary']) {
                 $column['notnull'] = true;
             }
 
-            /**
-             * Build default constraints SQL statements
-             */
+            // Build default constraints SQL statements.
             if ( ! empty($column['default']) || is_numeric($column['default'])) {
                 $defaultConstraintsSql[] = 'ALTER TABLE ' . $tableName .
                     ' ADD' . $this->getDefaultConstraintDeclarationSQL($tableName, $column);
+            }
+
+            if ( ! empty($column['comment']) || is_numeric($column['comment'])) {
+                $commentsSql[] = $this->getCreateColumnCommentSQL($tableName, $column['name'], $column['comment']);
             }
         }
 
@@ -289,7 +294,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
         }
 
-        return array_merge($sql, $defaultConstraintsSql);
+        return array_merge($sql, $commentsSql, $defaultConstraintsSql);
     }
 
     /**
@@ -302,6 +307,37 @@ class SQLServerPlatform extends AbstractPlatform
             $flags = ' NONCLUSTERED';
         }
         return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index->getQuotedColumns($this)) . ')';
+    }
+
+    /**
+     * Returns the SQL statement for creating a column comment.
+     *
+     * SQL Server does not support native column comments,
+     * therefore the extended properties functionality is used
+     * as a workaround to store them.
+     * The property name used to store column comments is "MS_Description"
+     * which provides compatibility with SQL Server Management Studio,
+     * as column comments are stored in the same property there when
+     * specifying a column's "Description" attribute.
+     *
+     * @param string $tableName  The quoted table name to which the column belongs.
+     * @param string $columnName The quoted column name to create the comment for.
+     * @param string $comment    The column's comment.
+     *
+     * @return string
+     */
+    protected function getCreateColumnCommentSQL($tableName, $columnName, $comment)
+    {
+        return $this->getAddExtendedPropertySQL(
+            'MS_Description',
+            $comment,
+            'SCHEMA',
+            'dbo',
+            'TABLE',
+            $tableName,
+            'COLUMN',
+            $columnName
+        );
     }
 
     /**
@@ -396,9 +432,10 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $queryParts = array();
-        $sql = array();
-        $columnSql = array();
+        $queryParts  = array();
+        $sql         = array();
+        $columnSql   = array();
+        $commentsSql = array();
 
         /** @var \Doctrine\DBAL\Schema\Column $column */
         foreach ($diff->addedColumns as $column) {
@@ -412,6 +449,16 @@ class SQLServerPlatform extends AbstractPlatform
             if ( ! empty($columnDef['default']) || is_numeric($columnDef['default'])) {
                 $columnDef['name'] = $column->getQuotedName($this);
                 $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+            }
+
+            $comment = $this->getColumnComment($column);
+
+            if ( ! empty($comment) || is_numeric($comment)) {
+                $commentsSql[] = $this->getCreateColumnCommentSQL(
+                    $diff->name,
+                    $column->getQuotedName($this),
+                    $comment
+                );
             }
         }
 
@@ -429,9 +476,39 @@ class SQLServerPlatform extends AbstractPlatform
                 continue;
             }
 
-            $fromColumn = $columnDiff->fromColumn;
-            $fromColumnDefault = isset($fromColumn) ? $fromColumn->getDefault() : null;
-            $column = $columnDiff->column;
+            $column     = $columnDiff->column;
+            $comment    = $this->getColumnComment($column);
+            $hasComment = ! empty ($comment) || is_numeric($comment);
+
+            if ($columnDiff->fromColumn instanceof Column) {
+                $fromComment    = $this->getColumnComment($columnDiff->fromColumn);
+                $hasFromComment = ! empty ($fromComment) || is_numeric($fromComment);
+
+                if ($hasFromComment && $hasComment && $fromComment != $comment) {
+                    $commentsSql[] = $this->getAlterColumnCommentSQL(
+                        $diff->name,
+                        $column->getQuotedName($this),
+                        $comment
+                    );
+                } elseif ($hasFromComment && ! $hasComment) {
+                    $commentsSql[] = $this->getDropColumnCommentSQL($diff->name, $column->getQuotedName($this));
+                } elseif ($hasComment) {
+                    $commentsSql[] = $this->getCreateColumnCommentSQL(
+                        $diff->name,
+                        $column->getQuotedName($this),
+                        $comment
+                    );
+                }
+            } else {
+                // todo: Original comment cannot be determined. What to do? Add, update, drop or skip?
+            }
+
+            // Do not add query part if only comment has changed.
+            if ($columnDiff->hasChanged('comment') && count($columnDiff->changedProperties) === 1) {
+                continue;
+            }
+
+            $fromColumnDefault = isset($columnDiff->fromColumn) ? $columnDiff->fromColumn->getDefault() : null;
             $columnDef = $column->toArray();
             $columnDefaultHasChanged = $columnDiff->hasChanged('default');
 
@@ -459,7 +536,9 @@ class SQLServerPlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "' , '".$column->getQuotedName($this)."', 'COLUMN'";
+            $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "', '".$column->getQuotedName($this)."', 'COLUMN'";
+
+            // todo: Find a way how to implement column comment alteration statements for renamed columns.
 
             $columnDef = $column->toArray();
 
@@ -494,7 +573,7 @@ class SQLServerPlatform extends AbstractPlatform
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
         }
 
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
+        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSql);
 
         if ($diff->newName !== false) {
             $sql[] = "sp_RENAME '" . $diff->name . "', '" . $diff->newName . "'";
@@ -518,6 +597,163 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * Returns the SQL statement for altering a column comment.
+     *
+     * SQL Server does not support native column comments,
+     * therefore the extended properties functionality is used
+     * as a workaround to store them.
+     * The property name used to store column comments is "MS_Description"
+     * which provides compatibility with SQL Server Management Studio,
+     * as column comments are stored in the same property there when
+     * specifying a column's "Description" attribute.
+     *
+     * @param string $tableName  The quoted table name to which the column belongs.
+     * @param string $columnName The quoted column name to alter the comment for.
+     * @param string $comment    The column's comment.
+     *
+     * @return string
+     */
+    protected function getAlterColumnCommentSQL($tableName, $columnName, $comment)
+    {
+        return $this->getUpdateExtendedPropertySQL(
+            'MS_Description',
+            $comment,
+            'SCHEMA',
+            'dbo',
+            'TABLE',
+            $tableName,
+            'COLUMN',
+            $columnName
+        );
+    }
+
+    /**
+     * Returns the SQL statement for dropping a column comment.
+     *
+     * SQL Server does not support native column comments,
+     * therefore the extended properties functionality is used
+     * as a workaround to store them.
+     * The property name used to store column comments is "MS_Description"
+     * which provides compatibility with SQL Server Management Studio,
+     * as column comments are stored in the same property there when
+     * specifying a column's "Description" attribute.
+     *
+     * @param string $tableName  The quoted table name to which the column belongs.
+     * @param string $columnName The quoted column name to drop the comment for.
+     *
+     * @return string
+     */
+    protected function getDropColumnCommentSQL($tableName, $columnName)
+    {
+        return $this->getDropExtendedPropertySQL(
+            'MS_Description',
+            'SCHEMA',
+            'dbo',
+            'TABLE',
+            $tableName,
+            'COLUMN',
+            $columnName
+        );
+    }
+
+    /**
+     * Returns the SQL statement for adding an extended property to a database object.
+     *
+     * @param string      $name       The name of the property to add.
+     * @param string|null $value      The value of the property to add.
+     * @param string|null $level0Type The type of the object at level 0 the property belongs to.
+     * @param string|null $level0Name The name of the object at level 0 the property belongs to.
+     * @param string|null $level1Type The type of the object at level 1 the property belongs to.
+     * @param string|null $level1Name The name of the object at level 1 the property belongs to.
+     * @param string|null $level2Type The type of the object at level 2 the property belongs to.
+     * @param string|null $level2Name The name of the object at level 2 the property belongs to.
+     *
+     * @return string
+     *
+     * @link http://msdn.microsoft.com/en-us/library/ms180047%28v=sql.90%29.aspx
+     */
+    public function getAddExtendedPropertySQL(
+        $name,
+        $value = null,
+        $level0Type = null,
+        $level0Name = null,
+        $level1Type = null,
+        $level1Name = null,
+        $level2Type = null,
+        $level2Name = null
+    ) {
+        return "EXEC sp_addextendedproperty " .
+            "N'" . $name . "', N'" . $value . "', " .
+            "N'" . $level0Type . "', " . $level0Name . ', ' .
+            "N'" . $level1Type . "', " . $level1Name . ', ' .
+            "N'" . $level2Type . "', " . $level2Name;
+    }
+
+    /**
+     * Returns the SQL statement for dropping an extended property from a database object.
+     *
+     * @param string      $name       The name of the property to drop.
+     * @param string|null $level0Type The type of the object at level 0 the property belongs to.
+     * @param string|null $level0Name The name of the object at level 0 the property belongs to.
+     * @param string|null $level1Type The type of the object at level 1 the property belongs to.
+     * @param string|null $level1Name The name of the object at level 1 the property belongs to.
+     * @param string|null $level2Type The type of the object at level 2 the property belongs to.
+     * @param string|null $level2Name The name of the object at level 2 the property belongs to.
+     *
+     * @return string
+     *
+     * @link http://technet.microsoft.com/en-gb/library/ms178595%28v=sql.90%29.aspx
+     */
+    public function getDropExtendedPropertySQL(
+        $name,
+        $level0Type = null,
+        $level0Name = null,
+        $level1Type = null,
+        $level1Name = null,
+        $level2Type = null,
+        $level2Name = null
+    ) {
+        return "EXEC sp_dropextendedproperty " .
+        "N'" . $name . "', " .
+        "N'" . $level0Type . "', " . $level0Name . ', ' .
+        "N'" . $level1Type . "', " . $level1Name . ', ' .
+        "N'" . $level2Type . "', " . $level2Name;
+    }
+
+    /**
+     * Returns the SQL statement for updating an extended property of a database object.
+     *
+     * @param string      $name       The name of the property to update.
+     * @param string|null $value      The value of the property to update.
+     * @param string|null $level0Type The type of the object at level 0 the property belongs to.
+     * @param string|null $level0Name The name of the object at level 0 the property belongs to.
+     * @param string|null $level1Type The type of the object at level 1 the property belongs to.
+     * @param string|null $level1Name The name of the object at level 1 the property belongs to.
+     * @param string|null $level2Type The type of the object at level 2 the property belongs to.
+     * @param string|null $level2Name The name of the object at level 2 the property belongs to.
+     *
+     * @return string
+     *
+     * @link http://msdn.microsoft.com/en-us/library/ms186885%28v=sql.90%29.aspx
+     */
+    public function getUpdateExtendedPropertySQL(
+        $name,
+        $value = null,
+        $level0Type = null,
+        $level0Name = null,
+        $level1Type = null,
+        $level1Name = null,
+        $level2Type = null,
+        $level2Name = null
+    ) {
+        return "EXEC sp_updateextendedproperty " .
+        "N'" . $name . "', N'" . $value . "', " .
+        "N'" . $level0Type . "', " . $level0Name . ', ' .
+        "N'" . $level1Type . "', " . $level1Name . ', ' .
+        "N'" . $level2Type . "', " . $level2Name;
     }
 
     /**
@@ -550,7 +786,8 @@ class SQLServerPlatform extends AbstractPlatform
                           col.scale,
                           col.precision,
                           col.is_identity AS autoincrement,
-                          col.collation_name AS collation
+                          col.collation_name AS collation,
+                          CAST(prop.value AS NVARCHAR(MAX)) AS comment -- CAST avoids driver error for sql_variant type
                 FROM      sys.columns AS col
                 JOIN      sys.types AS type
                 ON        col.user_type_id = type.user_type_id
@@ -559,6 +796,10 @@ class SQLServerPlatform extends AbstractPlatform
                 LEFT JOIN sys.default_constraints def
                 ON        col.default_object_id = def.object_id
                 AND       col.object_id = def.parent_object_id
+                LEFT JOIN sys.extended_properties AS prop
+                ON        obj.object_id = prop.major_id
+                AND       col.column_id = prop.minor_id
+                AND       prop.name = 'MS_Description'
                 WHERE     obj.type = 'U'
                 AND       obj.name = '$table'";
     }
