@@ -73,6 +73,22 @@ type therefore behave like the DateTime type.
 Sqlite
 ------
 
+DateTime
+~~~~~~~~~~
+
+Unlike most database management systems, Sqlite does not convert supplied
+datetime strings to an internal storage format before storage. Instead, Sqlite
+stores them as verbatim strings (i.e. as they are entered) and expects the user
+to use the ``DATETIME()`` function when reading data which then converts the
+stored values to datetime strings.
+Because Doctrine is not using the ``DATETIME()`` function, you may end up with
+"Could not convert database value ... to Doctrine Type datetime." exceptions
+when trying to convert database values to ``\DateTime`` objects using
+
+.. code-block:: php
+
+    \Doctrine\DBAL\Types\Type::getType('datetime')->convertToPhpValue(...)
+
 DateTimeTz
 ~~~~~~~~~~
 
