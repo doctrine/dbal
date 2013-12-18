@@ -421,7 +421,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             $oldColumnName = $columnDiff->oldColumnName;
             $column = $columnDiff->column;
 
-            if ($columnDiff->hasChanged('type')) {
+            if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('precision') || $columnDiff->hasChanged('scale')) {
                 $type = $column->getType();
 
                 // here was a server version check before, but DBAL API does not support this anymore.
