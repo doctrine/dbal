@@ -116,54 +116,46 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @link http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
      */
     public function convertExceptionCode(\Exception $exception)
     {
-        if (strpos($exception->getMessage(), 'duplicate key value violates unique constraint') !== false) {
-            return DBALException::ERROR_DUPLICATE_KEY;
-        }
+        switch ($exception->getCode()) {
+            case '23502':
+                return DBALException::ERROR_NOT_NULL;
 
-        if ($exception->getCode() === "42P01") {
-            return DBALException::ERROR_UNKNOWN_TABLE;
-        }
+            case '23503':
+                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
 
-        if ($exception->getCode() === "42P07") {
-            return DBALException::ERROR_TABLE_ALREADY_EXISTS;
-        }
+            case '23505':
+                return DBALException::ERROR_DUPLICATE_KEY;
 
-        if ($exception->getCode() === "23503") {
-            return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
-        }
+            case '42601':
+                return DBALException::ERROR_SYNTAX;
 
-        if ($exception->getCode() === "23502") {
-            return DBALException::ERROR_NOT_NULL;
-        }
+            case '42702':
+                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
 
-        if ($exception->getCode() === "42703") {
-            return DBALException::ERROR_BAD_FIELD_NAME;
-        }
+            case '42703':
+                return DBALException::ERROR_BAD_FIELD_NAME;
 
-        if ($exception->getCode() === "42702") {
-            return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
-        }
+            case '42P01':
+                return DBALException::ERROR_UNKNOWN_TABLE;
 
-        if ($exception->getCode() === "42601") {
-            return DBALException::ERROR_SYNTAX;
-        }
+            case '42P07':
+                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
 
-        if (stripos($exception->getMessage(), 'password authentication failed for user') !== false) {
-            return DBALException::ERROR_ACCESS_DENIED;
-        }
-
-        if (stripos($exception->getMessage(), 'Name or service not known') !== false) {
-            return DBALException::ERROR_ACCESS_DENIED;
-        }
-
-        if (stripos($exception->getMessage(), 'does not exist') !== false) {
-            return DBALException::ERROR_ACCESS_DENIED;
+            case '7':
+                // In some case (mainly connection errors) the PDO exception does not provide a SQLSTATE via its code.
+                // The exception code is always set to 7 here.
+                // We have to match against the SQLSTATE in the error message in these cases.
+                if (strpos($exception->getMessage(), 'SQLSTATE[08006]') !== false) {
+                    return DBALException::ERROR_ACCESS_DENIED;
+                }
+                break;
         }
 
         return 0;
     }
 }
-

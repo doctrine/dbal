@@ -118,48 +118,84 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-client.html
+     * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html
      */
     public function convertExceptionCode(\Exception $exception)
     {
-        switch ($exception->getCode()) {
-            case '42S02':
-                return DBALException::ERROR_UNKNOWN_TABLE;
+        $errorCode = $exception->getCode();
 
-            case '42S01':
+        // Use driver-specific error code instead of SQLSTATE for PDO exceptions if available.
+        if ($exception instanceof \PDOException && null !== $exception->errorInfo[1]) {
+            $errorCode = $exception->errorInfo[1];
+        }
+
+        switch ($errorCode) {
+            case '1050':
                 return DBALException::ERROR_TABLE_ALREADY_EXISTS;
 
-            default:
-                if (strpos($exception->getMessage(), 'Cannot delete or update a parent row: a foreign key constraint fails') !== false) {
-                    return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
-                }
+            case '1051':
+            case '1146':
+                return DBALException::ERROR_UNKNOWN_TABLE;
 
-                if (strpos($exception->getMessage(), 'Duplicate entry') !== false) {
-                    return DBALException::ERROR_DUPLICATE_KEY;
-                }
+            case '1216':
+            case '1217':
+            case '1451':
+            case '1452':
+                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
 
-                if (strpos($exception->getMessage(), 'Column not found: 1054 Unknown column') !== false) {
-                    return DBALException::ERROR_BAD_FIELD_NAME;
-                }
+            case '1062':
+            case '1557':
+            case '1569':
+            case '1586':
+                return DBALException::ERROR_DUPLICATE_KEY;
 
-                if (strpos($exception->getMessage(), 'in field list is ambiguous') !== falsE) {
-                    return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
-                }
+            case '1054':
+            case '1166':
+            case '1611':
+                return DBALException::ERROR_BAD_FIELD_NAME;
 
-                if (strpos($exception->getMessage(), 'You have an error in your SQL syntax; check the manual') !== false) {
-                    return DBALException::ERROR_SYNTAX;
-                }
+            case '1052':
+            case '1060':
+            case '1110':
+                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
 
-                if (strpos($exception->getMessage(), 'Access denied for user') !== false) {
-                    return DBALException::ERROR_ACCESS_DENIED;
-                }
+            case '1064':
+            case '1149':
+            case '1287':
+            case '1341':
+            case '1342':
+            case '1343':
+            case '1344':
+            case '1382':
+            case '1479':
+            case '1541':
+            case '1554':
+            case '1626':
+                return DBALException::ERROR_SYNTAX;
 
-                if (strpos($exception->getMessage(), 'getaddrinfo failed: Name or service not known') !== false) {
-                    return DBALException::ERROR_ACCESS_DENIED;
-                }
+            case '1044':
+            case '1045':
+            case '1046':
+            case '1049':
+            case '1095':
+            case '1142':
+            case '1143':
+            case '1227':
+            case '1370':
+            case '2002':
+            case '2005':
+                return DBALException::ERROR_ACCESS_DENIED;
 
-                if (strpos($exception->getMessage(), ' cannot be null')) {
-                    return DBALException::ERROR_NOT_NULL;
-                }
+            case '1048':
+            case '1121':
+            case '1138':
+            case '1171':
+            case '1252':
+            case '1263':
+            case '1566':
+                return DBALException::ERROR_NOT_NULL;
         }
 
         return 0;
