@@ -126,6 +126,11 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
                 $this->_platform->getVarcharTypeDeclarationSQL(array()),
                 'Long string declaration is not correct'
         );
+        $this->assertSame('VARCHAR(MAX)', $this->_platform->getClobTypeDeclarationSQL(array()));
+        $this->assertSame(
+            'VARCHAR(MAX)',
+            $this->_platform->getClobTypeDeclarationSQL(array('length' => 5, 'fixed' => true))
+        );
     }
 
     public function testPrefersIdentityColumns()
