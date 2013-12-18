@@ -71,6 +71,10 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
             $dsn .= 'dbname=' . $params['dbname'] . ' ';
         }
 
+        if (isset($params['charset'])) {
+            $dsn .= "options='--client_encoding=" . $params['charset'] . "'";
+        }
+
         if (isset($params['sslmode'])) {
             $dsn .= 'sslmode=' . $params['sslmode'] . ' ';
         }
