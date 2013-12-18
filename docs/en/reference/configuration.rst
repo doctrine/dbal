@@ -135,6 +135,8 @@ pdo\_oci / oci8
 -  ``host`` (string): Hostname of the database to connect to.
 -  ``port`` (integer): Port of the database to connect to.
 -  ``dbname`` (string): Name of the database/schema to connect to.
+-  ``pooled`` (boolean): Whether to enable database resident
+   connection pooling.
 -  ``charset`` (string): The charset used when connecting to the
    database.
 
