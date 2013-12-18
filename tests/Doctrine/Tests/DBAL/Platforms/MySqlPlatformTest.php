@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Index;
-
+use Doctrine\DBAL\Schema\Comparator;
 
 class MySqlPlatformTest extends AbstractPlatformTestCase
 {
@@ -294,5 +294,30 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777215)));
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777216)));
         $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * @group DBAL-464
+     */
+    public function testDropPrimaryKeyWithAutoincrementColumn()
+    {
+        $table = new Table("drop_primary_key");
+        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
+        $table->addColumn('foo', 'integer', array('primary' => true));
+        $table->addColumn('bar', 'integer');
+        $table->setPrimaryKey(array('id', 'foo'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+
+        $diffTable->dropPrimaryKey();
+
+        $this->assertEquals(
+            array(
+                'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
+                'ALTER TABLE drop_primary_key DROP PRIMARY KEY'
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
     }
 }

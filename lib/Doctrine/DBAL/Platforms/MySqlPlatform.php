@@ -582,6 +582,19 @@ class MySqlPlatform extends AbstractPlatform
         $table = $diff->name;
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
+            // Dropping primary keys requires to unset autoincrement attribute on the particular column first.
+            if ($remIndex->isPrimary() && $diff->fromTable instanceof Table) {
+                foreach ($remIndex->getColumns() as $columnName) {
+                    $column = $diff->fromTable->getColumn($columnName);
+
+                    if ($column->getAutoincrement() === true) {
+                        $column->setAutoincrement(false);
+
+                        $sql[] = 'ALTER TABLE ' . $table . ' MODIFY ' .
+                            $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                    }
+                }
+            }
 
             foreach ($diff->addedIndexes as $addKey => $addIndex) {
                 if ($remIndex->getColumns() == $addIndex->getColumns()) {

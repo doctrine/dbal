@@ -64,4 +64,30 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertArrayHasKey('f_index', $indexes);
         $this->assertTrue($indexes['f_index']->hasFlag('fulltext'));
     }
+
+    /**
+     * @group DBAL-464
+     */
+    public function testDropPrimaryKeyWithAutoincrementColumn()
+    {
+        $table = new Table("drop_primary_key");
+        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
+        $table->addColumn('foo', 'integer', array('primary' => true));
+        $table->setPrimaryKey(array('id', 'foo'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $diffTable = clone $table;
+
+        $diffTable->dropPrimaryKey();
+
+        $comparator = new Comparator();
+
+        $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
+
+        $table = $this->_sm->listTableDetails("drop_primary_key");
+
+        $this->assertFalse($table->hasPrimaryKey());
+        $this->assertFalse($table->getColumn('id')->getAutoincrement());
+    }
 }
