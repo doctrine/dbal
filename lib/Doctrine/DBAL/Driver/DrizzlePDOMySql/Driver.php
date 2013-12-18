@@ -19,12 +19,15 @@
 
 namespace Doctrine\DBAL\Driver\DrizzlePDOMySql;
 
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\DBALException;
+
 /**
  * Drizzle driver using PDO MySql.
  *
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
-class Driver implements \Doctrine\DBAL\Driver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 {
     /**
      * {@inheritdoc}
@@ -105,6 +108,38 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function convertExceptionCode(\Exception $exception)
     {
+        switch ($exception->getCode()) {
+            case "42000":
+                return DBALException::ERROR_SYNTAX;
+
+            case "42S02":
+                return DBALException::ERROR_UNKNOWN_TABLE;
+
+            case "42S01":
+                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+
+            case "42S22":
+                return DBALException::ERROR_BAD_FIELD_NAME;
+
+            case "23000":
+                if (strpos($exception->getMessage(), 'Duplicate entry') !== false) {
+                    return DBALException::ERROR_DUPLICATE_KEY;
+                }
+
+                if (strpos($exception->getMessage(), 'Cannot delete or update a parent row: a foreign key constraint fails') !== false) {
+                    return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+                }
+
+                if (strpos($exception->getMessage(), ' cannot be null')) {
+                    return DBALException::ERROR_NOT_NULL;
+                }
+
+                if (strpos($exception->getMessage(), 'in field list is ambiguous') !== false) {
+                    return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+                }
+                break;
+        }
+
         return 0;
     }
 }
