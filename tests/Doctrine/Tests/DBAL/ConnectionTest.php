@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Events;
+use Doctrine\Tests\Mocks\DriverConnectionMock;
 
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -173,5 +174,25 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $logger = new \Doctrine\DBAL\Logging\DebugStack();
         $this->_conn->getConfiguration()->setSQLLogger($logger);
         $this->assertSame($logger, $this->_conn->getConfiguration()->getSQLLogger());
+    }
+
+    public function testEmptyInsert()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeUpdate'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeUpdate')
+            ->with('INSERT INTO footable () VALUES ()');
+
+        $conn->insert('footable', array());
     }
 }
