@@ -1258,9 +1258,9 @@ class SQLServerPlatform extends AbstractPlatform
             'nchar' => 'string',
             'nvarchar' => 'string',
             'ntext' => 'text',
-            'binary' => 'text',
+            'binary' => 'blob',
             'varbinary' => 'blob',
-            'image' => 'text',
+            'image' => 'blob',
             'uniqueidentifier' => 'guid',
         );
     }

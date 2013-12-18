@@ -589,4 +589,85 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             $this->_platform->getAlterTableSQL($tableDiff)
         );
     }
+
+    /**
+     * @group DBAL-122
+     */
+    public function testInitializesDoctrineTypeMappings()
+    {
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('bigint'));
+        $this->assertSame('bigint', $this->_platform->getDoctrineTypeMapping('bigint'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('numeric'));
+        $this->assertSame('decimal', $this->_platform->getDoctrineTypeMapping('numeric'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('bit'));
+        $this->assertSame('boolean', $this->_platform->getDoctrineTypeMapping('bit'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('smallint'));
+        $this->assertSame('smallint', $this->_platform->getDoctrineTypeMapping('smallint'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('decimal'));
+        $this->assertSame('decimal', $this->_platform->getDoctrineTypeMapping('decimal'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('smallmoney'));
+        $this->assertSame('integer', $this->_platform->getDoctrineTypeMapping('smallmoney'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('int'));
+        $this->assertSame('integer', $this->_platform->getDoctrineTypeMapping('int'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('tinyint'));
+        $this->assertSame('smallint', $this->_platform->getDoctrineTypeMapping('tinyint'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('money'));
+        $this->assertSame('integer', $this->_platform->getDoctrineTypeMapping('money'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('float'));
+        $this->assertSame('float', $this->_platform->getDoctrineTypeMapping('float'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('real'));
+        $this->assertSame('float', $this->_platform->getDoctrineTypeMapping('real'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('double'));
+        $this->assertSame('float', $this->_platform->getDoctrineTypeMapping('double'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('double precision'));
+        $this->assertSame('float', $this->_platform->getDoctrineTypeMapping('double precision'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('smalldatetime'));
+        $this->assertSame('datetime', $this->_platform->getDoctrineTypeMapping('smalldatetime'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('datetime'));
+        $this->assertSame('datetime', $this->_platform->getDoctrineTypeMapping('datetime'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('char'));
+        $this->assertSame('string', $this->_platform->getDoctrineTypeMapping('char'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('varchar'));
+        $this->assertSame('string', $this->_platform->getDoctrineTypeMapping('varchar'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('text'));
+        $this->assertSame('text', $this->_platform->getDoctrineTypeMapping('text'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('nchar'));
+        $this->assertSame('string', $this->_platform->getDoctrineTypeMapping('nchar'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('nvarchar'));
+        $this->assertSame('string', $this->_platform->getDoctrineTypeMapping('nvarchar'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('ntext'));
+        $this->assertSame('text', $this->_platform->getDoctrineTypeMapping('ntext'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
+        $this->assertSame('blob', $this->_platform->getDoctrineTypeMapping('binary'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('varbinary'));
+        $this->assertSame('blob', $this->_platform->getDoctrineTypeMapping('varbinary'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('image'));
+        $this->assertSame('blob', $this->_platform->getDoctrineTypeMapping('image'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('uniqueidentifier'));
+        $this->assertSame('guid', $this->_platform->getDoctrineTypeMapping('uniqueidentifier'));
+    }
 }
