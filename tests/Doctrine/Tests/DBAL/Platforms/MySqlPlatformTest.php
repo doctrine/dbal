@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Index;
-
+use Doctrine\DBAL\Schema\Comparator;
 
 class MySqlPlatformTest extends AbstractPlatformTestCase
 {
