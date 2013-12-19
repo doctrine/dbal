@@ -1004,15 +1004,9 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
     public function testDiffColumnPlatformOptions()
     {
-        $column1 = new Column('foo', Type::getType('string'));
-        $column1->setPlatformOptions(array('foo' => 'foo', 'bar' => 'bar'));
-
-        $column2 = new Column('foo', Type::getType('string'));
-        $column2->setPlatformOptions(array('foo' => 'foo', 'foobar' => 'foobar'));
-
-        $column3 = new Column('foo', Type::getType('string'));
-        $column3->setPlatformOptions(array('foo' => 'foo', 'bar' => 'rab'));
-
+        $column1 = new Column('foo', Type::getType('string'), array('platformOptions' => array('foo' => 'foo', 'bar' => 'bar')));
+        $column2 = new Column('foo', Type::getType('string'), array('platformOptions' => array('foo' => 'foo', 'foobar' => 'foobar')));
+        $column3 = new Column('foo', Type::getType('string'), array('platformOptions' => array('foo' => 'foo', 'bar' => 'rab')));
         $column4 = new Column('foo', Type::getType('string'));
 
         $comparator = new Comparator();
@@ -1023,5 +1017,22 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('bar'), $comparator->diffColumn($column3, $column1));
         $this->assertEquals(array(), $comparator->diffColumn($column1, $column4));
         $this->assertEquals(array(), $comparator->diffColumn($column4, $column1));
+    }
+
+    public function testComplexDiffColumn()
+    {
+        $column1 = new Column('foo', Type::getType('string'), array(
+            'platformOptions' => array('foo' => 'foo'),
+            'customSchemaOptions' => array('foo' => 'bar'),
+        ));
+
+        $column2 = new Column('foo', Type::getType('string'), array(
+            'platformOptions' => array('foo' => 'bar'),
+        ));
+
+        $comparator = new Comparator();
+
+        $this->assertEquals(array(), $comparator->diffColumn($column1, $column2));
+        $this->assertEquals(array(), $comparator->diffColumn($column2, $column1));
     }
 }
