@@ -547,7 +547,7 @@ class SQLServerPlatform extends AbstractPlatform
      * 
      * @return string               
      */
-    private function _getTableWhereClause($table, $tableColumn, $schemaColumn)
+    private function getTableWhereClause($table, $tableColumn, $schemaColumn)
     {
         if (strpos($table, ".") !== false) {
             list($schema, $table) = explode(".", $table);
@@ -584,7 +584,7 @@ class SQLServerPlatform extends AbstractPlatform
                 ON        col.default_object_id = def.object_id
                 AND       col.object_id = def.parent_object_id
                 WHERE     obj.type = 'U'
-                AND       " . $this->_getTableWhereClause($table, 'obj.name', 'schemas.name');
+                AND       " . $this->getTableWhereClause($table, 'obj.name', 'schemas.name');
     }
 
     /**
@@ -605,7 +605,7 @@ class SQLServerPlatform extends AbstractPlatform
                 INNER JOIN sys.foreign_key_columns AS fc
                 INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
                 ON f.OBJECT_ID = fc.constraint_object_id
-                WHERE " . $this->_getTableWhereClause($table, 'OBJECT_NAME (f.parent_object_id)', 'SCHEMA_NAME (f.schema_id)');
+                WHERE " . $this->getTableWhereClause($table, 'OBJECT_NAME (f.parent_object_id)', 'SCHEMA_NAME (f.schema_id)');
     }
 
     /**
@@ -626,7 +626,7 @@ class SQLServerPlatform extends AbstractPlatform
                 JOIN sys.indexes AS idx ON tbl.object_id = idx.object_id
                 JOIN sys.index_columns AS idxcol ON idx.object_id = idxcol.object_id AND idx.index_id = idxcol.index_id
                 JOIN sys.columns AS col ON idxcol.object_id = col.object_id AND idxcol.column_id = col.column_id
-                WHERE " . $this->_getTableWhereClause($table, 'tbl.name', 'SCHEMA_NAME (tbl.schema_id)')."
+                WHERE " . $this->getTableWhereClause($table, 'tbl.name', 'SCHEMA_NAME (tbl.schema_id)')."
                 ORDER BY idx.index_id ASC, idxcol.index_column_id ASC";
     }
 
