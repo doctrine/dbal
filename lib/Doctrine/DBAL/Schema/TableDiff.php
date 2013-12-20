@@ -34,6 +34,11 @@ class TableDiff
     public $name = null;
 
     /**
+     * @var Table
+     */
+    public $table = null;
+
+    /**
      * @var string|boolean
      */
     public $newName = false;
@@ -137,5 +142,35 @@ class TableDiff
         $this->changedIndexes = $changedIndexes;
         $this->removedIndexes = $removedIndexes;
         $this->fromTable = $fromTable;
+    }
+
+    /**
+     * Set table object
+     *
+     * @param Table $table
+     */
+    public function setTable($table)
+    {
+        $this->table = $table;
+    }
+
+    /**
+     * Check if diff has a table object
+     *
+     * @return boolean
+     */
+    public function hasTable()
+    {
+        return $this->table !== null;
+    }
+
+    /**
+     * Get table object
+     *
+     * @return Table
+     */
+    public function getTable()
+    {
+        return $this->table;
     }
 }

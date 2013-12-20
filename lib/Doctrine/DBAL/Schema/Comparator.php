@@ -67,6 +67,7 @@ class Comparator
             } else {
                 $tableDifferences = $this->diffTable($fromSchema->getTable($tableName), $toSchema->getTable($tableName));
                 if ($tableDifferences !== false) {
+                    $tableDifferences->setTable($table);
                     $diff->changedTables[$tableName] = $tableDifferences;
                 }
             }
