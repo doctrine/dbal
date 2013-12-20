@@ -273,12 +273,12 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertTrue($tableIndexes['primary']->isUnique());
         $this->assertTrue($tableIndexes['primary']->isPrimary());
 
-        $this->assertEquals('test_index_name', $tableIndexes['test_index_name']->getName());
+        $this->assertEquals('test_index_name', strtolower($tableIndexes['test_index_name']->getName()));
         $this->assertEquals(array('test'), array_map('strtolower', $tableIndexes['test_index_name']->getColumns()));
         $this->assertTrue($tableIndexes['test_index_name']->isUnique());
         $this->assertFalse($tableIndexes['test_index_name']->isPrimary());
 
-        $this->assertEquals('test_composite_idx', $tableIndexes['test_composite_idx']->getName());
+        $this->assertEquals('test_composite_idx', strtolower($tableIndexes['test_composite_idx']->getName()));
         $this->assertEquals(array('id', 'test'), array_map('strtolower', $tableIndexes['test_composite_idx']->getColumns()));
         $this->assertFalse($tableIndexes['test_composite_idx']->isUnique());
         $this->assertFalse($tableIndexes['test_composite_idx']->isPrimary());

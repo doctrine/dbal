@@ -37,6 +37,7 @@ class Connection extends \Doctrine\DBAL\Connection
     const PORTABILITY_EMPTY_TO_NULL     = 4;
     const PORTABILITY_FIX_CASE          = 8;
 
+    const PORTABILITY_DB2               = 13;
     const PORTABILITY_ORACLE            = 9;
     const PORTABILITY_POSTGRESQL        = 13;
     const PORTABILITY_SQLITE            = 13;
@@ -76,6 +77,8 @@ class Connection extends \Doctrine\DBAL\Connection
                     $params['portability'] = self::PORTABILITY_SQLANYWHERE;
                 } else if ($this->_platform->getName() === 'sqlsrv') {
                     $params['portability'] = $params['portabililty'] & self::PORTABILITY_SQLSRV;
+                } elseif ($this->_platform->getName() === 'db2') {
+                    $params['portability'] = self::PORTABILITY_DB2;
                 } else {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_OTHERVENDORS;
                 }

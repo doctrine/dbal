@@ -1,6 +1,16 @@
 # Upgrade to 2.5
 
-No BC breaks yet.
+## Support for pdo_ibm driver removed
+
+The ``pdo_ibm`` driver is buggy and does not work well with Doctrine. Therefore it will no
+longer be supported and has been removed from the ``Doctrine\DBAL\DriverManager`` drivers
+map. It is highly encouraged to to use `ibm_db2` driver instead if you want to connect
+to an IBM DB2 database as it is much more stable and secure.
+
+If for some reason you have to utilize the ``pdo_ibm`` driver you can still use the `driverClass`
+connection parameter to explicitly specify the ``Doctrine\DBAL\Driver\PDOIbm\Driver`` class.
+However be aware that you are doing this at your own risk and it will not be guaranteed that
+Doctrine will work as expected.
 
 # Upgrade to 2.4
 
