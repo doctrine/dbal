@@ -297,6 +297,28 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
+     * @group DBAL-400
+     */
+    public function testAlterTableAddPrimaryKey()
+    {
+        $table = new Table('alter_table_add_pk');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('foo', 'integer');
+        $table->addIndex(array('id'), 'idx_id');
+
+        $comparator = new Comparator();
+        $diffTable  = clone $table;
+
+        $diffTable->dropIndex('idx_id');
+        $diffTable->setPrimaryKey(array('id'));
+
+        $this->assertEquals(
+            array('DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
+    }
+
+    /**
      * @group DBAL-464
      */
     public function testDropPrimaryKeyWithAutoincrementColumn()
@@ -352,7 +374,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $sql = $this->_platform->getAlterTableSQL($diff);
 
         $this->assertEquals(array(
-	    "DROP INDEX foo_index ON mytable",
+	        "ALTER TABLE mytable DROP PRIMARY KEY",
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
