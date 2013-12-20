@@ -314,7 +314,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $diffTable->setPrimaryKey(array('id'));
 
         $this->assertEquals(
-            array('ALTER TABLE alter_table_add_pk DROP INDEX idx_id, ADD PRIMARY KEY (id)'),
+            array('DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
     }
@@ -342,5 +342,41 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
             ),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
+    }
+
+    /**
+     * @group DBAL-586
+     */
+    public function testAddAutoIncrementPrimaryKey()
+    {
+        $keyTable = new Table("foo");
+        $keyTable->addColumn("id", "integer", array('autoincrement' => true));
+        $keyTable->addColumn("baz", "string");
+        $keyTable->setPrimaryKey(array("id"));
+
+        $oldTable = new Table("foo");
+        $oldTable->addColumn("baz", "string");
+
+        $c = new \Doctrine\DBAL\Schema\Comparator;
+        $diff = $c->diffTable($oldTable, $keyTable);
+
+        $sql = $this->_platform->getAlterTableSQL($diff);
+
+        $this->assertEquals(array(
+            "ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)",
+        ), $sql);
+    }
+
+    public function testNamedPrimaryKey()
+    {
+        $diff = new TableDiff('mytable');
+        $diff->changedIndexes['foo_index'] = new Index('foo_index', array('foo'), true, true);
+
+        $sql = $this->_platform->getAlterTableSQL($diff);
+
+        $this->assertEquals(array(
+	        "ALTER TABLE mytable DROP PRIMARY KEY",
+            "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
+        ), $sql);
     }
 }
