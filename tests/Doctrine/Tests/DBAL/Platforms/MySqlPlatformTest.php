@@ -297,6 +297,28 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
+     * @group DBAL-400
+     */
+    public function testAlterTableAddPrimaryKey()
+    {
+        $table = new Table('alter_table_add_pk');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('foo', 'integer');
+        $table->addIndex(array('id'), 'idx_id');
+
+        $comparator = new Comparator();
+        $diffTable  = clone $table;
+
+        $diffTable->dropIndex('idx_id');
+        $diffTable->setPrimaryKey(array('id'));
+
+        $this->assertEquals(
+            array('DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
+    }
+
+    /**
      * @group DBAL-464
      */
     public function testDropPrimaryKeyWithAutoincrementColumn()
@@ -319,5 +341,41 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
             ),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
+    }
+
+    /**
+     * @group DBAL-586
+     */
+    public function testAddAutoIncrementPrimaryKey()
+    {
+        $keyTable = new Table("foo");
+        $keyTable->addColumn("id", "integer", array('autoincrement' => true));
+        $keyTable->addColumn("baz", "string");
+        $keyTable->setPrimaryKey(array("id"));
+
+        $oldTable = new Table("foo");
+        $oldTable->addColumn("baz", "string");
+
+        $c = new \Doctrine\DBAL\Schema\Comparator;
+        $diff = $c->diffTable($oldTable, $keyTable);
+
+        $sql = $this->_platform->getAlterTableSQL($diff);
+
+        $this->assertEquals(array(
+            "ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)",
+        ), $sql);
+    }
+
+    public function testNamedPrimaryKey()
+    {
+        $diff = new TableDiff('mytable');
+        $diff->changedIndexes['foo_index'] = new Index('foo_index', array('foo'), true, true);
+
+        $sql = $this->_platform->getAlterTableSQL($diff);
+
+        $this->assertEquals(array(
+	        "ALTER TABLE mytable DROP PRIMARY KEY",
+            "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
+        ), $sql);
     }
 }
