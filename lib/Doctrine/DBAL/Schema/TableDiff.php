@@ -138,4 +138,14 @@ class TableDiff
         $this->removedIndexes = $removedIndexes;
         $this->fromTable = $fromTable;
     }
+
+    public function getName()
+    {
+        return new Identifier($this->name);
+    }
+
+    public function getNewName()
+    {
+        return new Identifier($this->newName);
+    }
 }
