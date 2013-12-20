@@ -7,7 +7,6 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Index;
 
 
@@ -18,7 +17,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         return new MysqlPlatform;
     }
 
-    public function testModifyLimitQueryWitoutLimit()
+    public function testModifyLimitQueryWithoutLimit()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT n FROM Foo', null , 10);
         $this->assertEquals('SELECT n FROM Foo LIMIT 18446744073709551615 OFFSET 10',$sql);
@@ -145,9 +144,19 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
     }
 
+    public function getGenerateSizedIndexSql()
+    {
+        return 'CREATE INDEX my_idx ON mytable (user_name(12), last_login(34))';
+    }
+
     public function getGenerateUniqueIndexSql()
     {
         return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
+    }
+
+    public function getGenerateUniqueSizedIndexSql()
+    {
+        return 'CREATE UNIQUE INDEX index_name ON test (test(12), test2(34))';
     }
 
     public function getGenerateForeignKeySql()

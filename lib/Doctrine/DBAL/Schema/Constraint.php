@@ -60,7 +60,9 @@ interface Constraint
      *
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
      *
+     * @param boolean $includeSizes Whether to add size definition, if present, to each column
+     *
      * @return array
      */
-    public function getQuotedColumns(AbstractPlatform $platform);
+    public function getQuotedColumns(AbstractPlatform $platform, $includeSizes = false);
 }
