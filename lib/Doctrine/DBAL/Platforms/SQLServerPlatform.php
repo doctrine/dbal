@@ -570,13 +570,13 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($queryParts as $query) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
         }
 
         $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSql);
 
         if ($diff->newName !== false) {
-            $sql[] = "sp_RENAME '" . $diff->name . "', '" . $diff->newName . "'";
+            $sql[] = "sp_RENAME '" . $diff->getName()->getQuotedName($this) . "', '" . $diff->getNewName()->getQuotedName($this) . "'";
 
             /**
              * Rename table's default constraints names
@@ -592,7 +592,7 @@ class SQLServerPlatform extends AbstractPlatform
                 "'" . $this->generateIdentifierName($diff->newName) . "') + ''', ''OBJECT'';' " .
                 "FROM sys.default_constraints dc " .
                 "JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
-                "WHERE tbl.name = '" . $diff->newName . "';" .
+                "WHERE tbl.name = '" . $diff->getNewName()->getQuotedName($this) . "';" .
                 "EXEC sp_executesql @sql";
         }
 
