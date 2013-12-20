@@ -642,15 +642,6 @@ class MySqlPlatform extends AbstractPlatform
                 }
             }
         }
-        foreach ($diff->changedIndexes as $changedKey => $changedIndex) {
-            if ($changedIndex->isPrimary() && $changedKey != 'PRIMARY') {
-                $index = $diff->changedIndexes[$changedKey];
-                $index = new Index($changedKey, $index->getColumns(), $index->isUnique(), false);
-                $diff->removedIndexes[$changedKey] = $index;
-                $diff->addedIndexes['PRIMARY'] = $diff->changedIndexes[$changedKey];
-                unset($diff->changedIndexes[$changedKey]);
-            }
-        }
 
         $sql = array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
 

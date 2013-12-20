@@ -314,7 +314,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $diffTable->setPrimaryKey(array('id'));
 
         $this->assertEquals(
-            array('ALTER TABLE alter_table_add_pk DROP INDEX idx_id, ADD PRIMARY KEY (id)'),
+            array('DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
     }
@@ -375,7 +375,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $sql = $this->_platform->getAlterTableSQL($diff);
 
         $this->assertEquals(array(
-	    "DROP INDEX foo_index ON mytable",
+	        "ALTER TABLE mytable DROP PRIMARY KEY",
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
