@@ -451,6 +451,78 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertSame($qb2, $qb);
     }
 
+    public function testInsertValues()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert('users')
+            ->values(
+                array(
+                    'foo' => '?',
+                    'bar' => '?'
+                )
+            );
+
+        $this->assertEquals(QueryBuilder::INSERT, $qb->getType());
+        $this->assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
+    }
+
+    public function testInsertReplaceValues()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert('users')
+            ->values(
+                array(
+                    'foo' => '?',
+                    'bar' => '?'
+                )
+            )
+            ->values(
+                array(
+                    'bar' => '?',
+                    'foo' => '?'
+                )
+            );
+
+        $this->assertEquals(QueryBuilder::INSERT, $qb->getType());
+        $this->assertEquals('INSERT INTO users (bar, foo) VALUES(?, ?)', (string) $qb);
+    }
+
+    public function testInsertSetValue()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert('users')
+            ->setValue('foo', 'bar')
+            ->setValue('bar', '?')
+            ->setValue('foo', '?');
+
+        $this->assertEquals(QueryBuilder::INSERT, $qb->getType());
+        $this->assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
+    }
+
+    public function testInsertValuesSetValue()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert('users')
+            ->values(
+                array(
+                    'foo' => '?'
+                )
+            )
+            ->setValue('bar', '?');
+
+        $this->assertEquals(QueryBuilder::INSERT, $qb->getType());
+        $this->assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
+    }
+
+    public function testEmptyInsert()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb2 = $qb->insert();
+
+        $this->assertEquals(QueryBuilder::INSERT, $qb->getType());
+        $this->assertSame($qb2, $qb);
+    }
+
     public function testGetConnection()
     {
         $qb   = new QueryBuilder($this->conn);
