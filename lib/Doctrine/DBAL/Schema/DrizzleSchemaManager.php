@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Types\Type;
+
 /**
  * Schema manager for the Drizzle RDBMS.
  *
@@ -31,7 +33,6 @@ class DrizzleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $tableName = $tableColumn['COLUMN_NAME'];
         $dbType = strtolower($tableColumn['DATA_TYPE']);
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
@@ -48,7 +49,13 @@ class DrizzleSchemaManager extends AbstractSchemaManager
             'comment' => (isset($tableColumn['COLUMN_COMMENT']) ? $tableColumn['COLUMN_COMMENT'] : null),
         );
 
-        return new Column($tableName, \Doctrine\DBAL\Types\Type::getType($type), $options);
+        $column = new Column($tableColumn['COLUMN_NAME'], Type::getType($type), $options);
+
+        if ( ! empty($tableColumn['COLLATION_NAME'])) {
+            $column->setPlatformOption('collation', $tableColumn['COLLATION_NAME']);
+        }
+
+        return $column;
     }
 
     /**
