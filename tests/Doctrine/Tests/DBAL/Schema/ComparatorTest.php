@@ -914,6 +914,20 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group DBAL-617
+     */
+    public function testCompareQuotedAndUnquotedForeignKeyColumns()
+    {
+        $fk1 = new ForeignKeyConstraint(array("foo"), "bar", array("baz"), "fk1", array('onDelete' => 'NO ACTION'));
+        $fk2 = new ForeignKeyConstraint(array("`foo`"), "bar", array("`baz`"), "fk1", array('onDelete' => 'NO ACTION'));
+
+        $comparator = new Comparator();
+        $diff = $comparator->diffForeignKey($fk1, $fk2);
+
+        $this->assertFalse($diff);
+    }
+
+    /**
      * @param SchemaDiff $diff
      * @param int $newTableCount
      * @param int $changeTableCount
