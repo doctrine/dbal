@@ -112,6 +112,10 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
         if ($tableColumn['default']) {
             // Strip quotes from default value.
             $default = preg_replace(array("/^'(.*)'$/", "/''/"), array("$1", "'"), $tableColumn['default']);
+
+            if ('autoincrement' == $default) {
+                $default = null;
+            }
         }
 
         switch ($tableColumn['type']) {
