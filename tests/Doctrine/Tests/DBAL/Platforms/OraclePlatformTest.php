@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
@@ -329,6 +331,50 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             "ALTER TABLE mytable MODIFY (foo  VARCHAR2(255) DEFAULT 'bla', baz  VARCHAR2(255) DEFAULT 'bla' NOT NULL)",
 	);
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+    }
+
+    public function testInitializesDoctrineTypeMappings()
+    {
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('long raw'));
+        $this->assertSame('blob', $this->_platform->getDoctrineTypeMapping('long raw'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('raw'));
+        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('raw'));
+    }
+
+    protected function getBinaryMaxLength()
+    {
+        return 2000;
+    }
+
+    public function testReturnsBinaryTypeDeclarationSQL()
+    {
+        $this->assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
+        $this->assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        $this->assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 2000)));
+        $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 2001)));
+
+        $this->assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        $this->assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        $this->assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2000)));
+        $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2001)));
+    }
+
+    public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType()
+    {
+        $table1 = new Table('mytable');
+        $table1->addColumn('column_varbinary', 'binary');
+        $table1->addColumn('column_binary', 'binary', array('fixed' => true));
+
+        $table2 = new Table('mytable');
+        $table2->addColumn('column_varbinary', 'binary', array('fixed' => true));
+        $table2->addColumn('column_binary', 'binary');
+
+        $comparator = new Comparator();
+
+        // VARBINARY -> BINARY
+        // BINARY    -> VARBINARY
+        $this->assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
     }
 
     /**

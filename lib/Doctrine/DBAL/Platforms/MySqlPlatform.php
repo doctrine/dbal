@@ -253,6 +253,14 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return $fixed ? 'BINARY(' . ($length ?: 255) . ')' : 'VARBINARY(' . ($length ?: 255) . ')';
+    }
+
+    /**
      * Gets the SQL snippet used to declare a CLOB column type.
      *     TINYTEXT   : 2 ^  8 - 1 = 255
      *     TEXT       : 2 ^ 16 - 1 = 65535
@@ -809,8 +817,8 @@ class MySqlPlatform extends AbstractPlatform
             'blob'          => 'blob',
             'mediumblob'    => 'blob',
             'tinyblob'      => 'blob',
-            'binary'        => 'blob',
-            'varbinary'     => 'blob',
+            'binary'        => 'binary',
+            'varbinary'     => 'binary',
             'set'           => 'simple_array',
         );
     }
@@ -819,6 +827,14 @@ class MySqlPlatform extends AbstractPlatform
      * {@inheritDoc}
      */
     public function getVarcharMaxLength()
+    {
+        return 65535;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
     {
         return 65535;
     }

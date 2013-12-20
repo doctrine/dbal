@@ -23,6 +23,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\BinaryType;
 
 /**
  * Drizzle platform
@@ -166,6 +167,14 @@ class DrizzlePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return 'VARBINARY(' . ($length ?: 255) . ')';
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function initializeDoctrineTypeMappings()
@@ -173,8 +182,9 @@ class DrizzlePlatform extends AbstractPlatform
         $this->doctrineTypeMapping = array(
             'boolean'       => 'boolean',
             'varchar'       => 'string',
+            'varbinary'     => 'binary',
             'integer'       => 'integer',
-            'blob'          => 'text',
+            'blob'          => 'blob',
             'decimal'       => 'decimal',
             'datetime'      => 'datetime',
             'date'          => 'date',
@@ -425,6 +435,17 @@ class DrizzlePlatform extends AbstractPlatform
             /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $columnArray = $column->toArray();
+
+            // Do not generate column alteration clause if type is binary and only fixed property has changed.
+            // Drizzle only supports binary type columns with variable length.
+            // Avoids unnecessary table alteration statements.
+            if ($column['type'] instanceof BinaryType &&
+                $columnDiff->hasChanged('fixed') &&
+                count($columnDiff->changedProperties) === 1
+            ) {
+                continue;
+            }
+
             $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[] =  'CHANGE ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);

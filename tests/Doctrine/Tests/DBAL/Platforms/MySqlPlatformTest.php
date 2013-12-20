@@ -379,4 +379,35 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
+
+    public function testInitializesDoctrineTypeMappings()
+    {
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
+        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('binary'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('varbinary'));
+        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('varbinary'));
+    }
+
+    protected function getBinaryMaxLength()
+    {
+        return 65535;
+    }
+
+    public function testReturnsBinaryTypeDeclarationSQL()
+    {
+        $this->assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
+        $this->assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        $this->assertSame('VARBINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65535)));
+        $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65536)));
+        $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777215)));
+        $this->assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777216)));
+
+        $this->assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        $this->assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        $this->assertSame('BINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65535)));
+        $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65536)));
+        $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777215)));
+        $this->assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777216)));
+    }
 }

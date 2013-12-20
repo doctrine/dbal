@@ -722,4 +722,25 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertSame('', $columns['column5']->getDefault());
         $this->assertSame('666', $columns['column6']->getDefault());
     }
+
+    public function testListTableWithBinary()
+    {
+        $tableName = 'test_binary_table';
+
+        $table = new \Doctrine\DBAL\Schema\Table($tableName);
+        $table->addColumn('id', 'integer');
+        $table->addColumn('column_varbinary', 'binary', array());
+        $table->addColumn('column_binary', 'binary', array('fixed' => true));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+
+        $table = $this->_sm->listTableDetails($tableName);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_varbinary')->getType());
+        $this->assertFalse($table->getColumn('column_varbinary')->getFixed());
+
+        $this->assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_binary')->getType());
+        $this->assertTrue($table->getColumn('column_binary')->getFixed());
+    }
 }

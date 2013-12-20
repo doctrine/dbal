@@ -79,18 +79,13 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                 break;
         }
 
+        if ('char' === $dbType || 'nchar' === $dbType || 'binary' === $dbType) {
+            $fixed = true;
+        }
+
         $type                   = $this->_platform->getDoctrineTypeMapping($dbType);
         $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
-
-        switch ($type) {
-            case 'char':
-                $fixed = true;
-                break;
-            case 'text':
-                $fixed = false;
-                break;
-        }
 
         $options = array(
             'length'        => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,

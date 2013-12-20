@@ -23,6 +23,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('id', 'integer');
             $table->addColumn('clobfield', 'text');
             $table->addColumn('blobfield', 'blob');
+            $table->addColumn('binaryfield', 'binary', array('length' => 50));
             $table->setPrimaryKey(array('id'));
 
             $sm = $this->_conn->getSchemaManager();
@@ -36,8 +37,8 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testInsert()
     {
         $ret = $this->_conn->insert('blob_table',
-            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test'),
-            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB)
+            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
+            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
         $this->assertEquals(1, $ret);
     }
@@ -45,8 +46,8 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testSelect()
     {
         $ret = $this->_conn->insert('blob_table',
-            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test'),
-            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB)
+            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
+            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
 
         $this->assertBlobContains('test');
@@ -55,17 +56,31 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testUpdate()
     {
         $ret = $this->_conn->insert('blob_table',
-            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test'),
-            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB)
+            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
+            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
 
         $this->_conn->update('blob_table',
-            array('blobfield' => 'test2'),
+            array('blobfield' => 'test2', 'binaryfield' => 'test2'),
             array('id' => 1),
-            array(\PDO::PARAM_LOB, \PDO::PARAM_INT)
+            array(\PDO::PARAM_LOB, \PDO::PARAM_LOB, \PDO::PARAM_INT)
         );
 
         $this->assertBlobContains('test2');
+        $this->assertBinaryContains('test2');
+    }
+
+    private function assertBinaryContains($text)
+    {
+        $rows = $this->_conn->fetchAll('SELECT * FROM blob_table');
+
+        $this->assertEquals(1, count($rows));
+        $row = array_change_key_case($rows[0], CASE_LOWER);
+
+        $blobValue = Type::getType('binary')->convertToPHPValue($row['binaryfield'], $this->_conn->getDatabasePlatform());
+
+        $this->assertInternalType('resource', $blobValue);
+        $this->assertEquals($text, stream_get_contents($blobValue));
     }
 
     private function assertBlobContains($text)

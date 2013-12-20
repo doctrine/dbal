@@ -31,6 +31,14 @@ class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
         return 'DUMMYCLOB';
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryTypeDeclarationSQL(array $field)
+    {
+        return 'DUMMYBINARY';
+    }
+
     public function getVarcharDefaultLength()
     {
         return 255;

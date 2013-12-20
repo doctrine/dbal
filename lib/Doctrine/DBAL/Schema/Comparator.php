@@ -385,7 +385,11 @@ class Comparator
             $changedProperties[] = 'unsigned';
         }
 
-        if ($column1->getType() instanceof \Doctrine\DBAL\Types\StringType) {
+        $column1Type = $column1->getType();
+
+        if ($column1Type instanceof \Doctrine\DBAL\Types\StringType ||
+            $column1Type instanceof \Doctrine\DBAL\Types\BinaryType
+        ) {
             // check if value of length is set at all, default value assumed otherwise.
             $length1 = $column1->getLength() ?: 255;
             $length2 = $column2->getLength() ?: 255;

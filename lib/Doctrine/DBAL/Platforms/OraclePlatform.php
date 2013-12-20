@@ -25,6 +25,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Types\BinaryType;
 
 /**
  * OraclePlatform.
@@ -336,6 +337,22 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return 'RAW(' . ($length ?: $this->getBinaryMaxLength()) . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
+    {
+        return 2000;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $field)
@@ -644,7 +661,19 @@ LEFT JOIN user_cons_columns r_cols
                 continue;
             }
 
+            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
+
+            // Do not generate column alteration clause if type is binary and only fixed property has changed.
+            // Oracle only supports binary type columns with variable length.
+            // Avoids unnecessary table alteration statements.
+            if ($column->getType() instanceof BinaryType &&
+                $columnDiff->hasChanged('fixed') &&
+                count($columnDiff->changedProperties) === 1
+            ) {
+                continue;
+            }
+
             $columnHasChangedComment = $columnDiff->hasChanged('comment');
 
             /**
@@ -903,8 +932,8 @@ LEFT JOIN user_cons_columns r_cols
             'long'              => 'string',
             'clob'              => 'text',
             'nclob'             => 'text',
-            'raw'               => 'text',
-            'long raw'          => 'text',
+            'raw'               => 'binary',
+            'long raw'          => 'blob',
             'rowid'             => 'string',
             'urowid'            => 'string',
             'blob'              => 'blob',

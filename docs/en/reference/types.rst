@@ -20,6 +20,7 @@ vendors:
 -  BigInt
 -  String (string with maximum length, for example 255)
 -  Text (strings without maximum length)
+-  Binary (binary string with maximum length, for example 255)
 -  Decimal (restricted floats, *NOTE* Only works with a setlocale()
    configuration that uses decimal points!)
 -  Boolean

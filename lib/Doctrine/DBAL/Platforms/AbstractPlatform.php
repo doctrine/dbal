@@ -232,6 +232,28 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
+     *
+     * @param array $field The column definition.
+     *
+     * @return string
+     */
+    public function getBinaryTypeDeclarationSQL(array $field)
+    {
+        if ( ! isset($field['length'])) {
+            $field['length'] = $this->getBinaryDefaultLength();
+        }
+
+        $fixed = isset($field['fixed']) ? $field['fixed'] : false;
+
+        if ($field['length'] > $this->getBinaryMaxLength()) {
+            return $this->getBlobTypeDeclarationSQL($field);
+        }
+
+        return $this->getBinaryTypeDeclarationSQLSnippet($field['length'], $fixed);
+    }
+
+    /**
      * Returns the SQL snippet to declare a GUID/UUID field.
      *
      * By default this maps directly to a VARCHAR and only maps to more
@@ -257,6 +279,21 @@ abstract class AbstractPlatform
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         throw DBALException::notSupported('VARCHARs not supported by Platform.');
+    }
+
+    /**
+     * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
+     *
+     * @param integer $length The length of the column.
+     * @param boolean $fixed  Whether the column length is fixed.
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        throw DBALException::notSupported('BINARY/VARBINARY column types are not supported by this platform.');
     }
 
     /**
@@ -474,6 +511,26 @@ abstract class AbstractPlatform
      * @return integer
      */
     public function getVarcharDefaultLength()
+    {
+        return 255;
+    }
+
+    /**
+     * Gets the maximum length of a binary field.
+     *
+     * @return integer
+     */
+    public function getBinaryMaxLength()
+    {
+        return 4000;
+    }
+
+    /**
+     * Gets the default length of a binary field.
+     *
+     * @return integer
+     */
+    public function getBinaryDefaultLength()
     {
         return 255;
     }
