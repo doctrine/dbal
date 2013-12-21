@@ -53,4 +53,13 @@ class DateTimeTest extends \Doctrine\Tests\DbalTestCase
         $date = new \DateTime("now");
         $this->assertSame($date, $this->_type->convertToPHPValue($date, $this->_platform));
     }
+
+    public function testConvertsNonMatchingFormatToPhpValueWithParser()
+    {
+        $date = '1985/09/01 10:10:10.12345';
+
+        $actual = $this->_type->convertToPHPValue($date, $this->_platform);
+
+        $this->assertEquals('1985-09-01 10:10:10', $actual->format('Y-m-d H:i:s'));
+    }
 }

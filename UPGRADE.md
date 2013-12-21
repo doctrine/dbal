@@ -1,5 +1,17 @@
 # Upgrade to 2.5
 
+## datetime Type uses date_create() as fallback
+
+Before 2.5 the DateTime type always required a specific format, defined in
+`$platform->getDateTimeFormatString()`, which could cause quite some troubles
+on platforms that had various microtime precision formats. Starting with 2.5
+whenever the parsing of a date fails with the predefined platform format,
+the `date_create()` function will be used to parse the date.
+
+This could cause some troubles when your date format is weird and not parsed
+correctly by `date_create`, however since databases are rather strict on dates
+there should be no problem.
+
 ## Support for pdo_ibm driver removed
 
 The ``pdo_ibm`` driver is buggy and does not work well with Doctrine. Therefore it will no
