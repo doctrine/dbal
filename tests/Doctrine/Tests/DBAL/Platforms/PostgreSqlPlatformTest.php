@@ -206,6 +206,22 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGeneratesDropConstraint()
+    {
+        $this->assertEquals(
+            'ALTER TABLE table_name DROP CONSTRAINT IF EXISTS constraint_name',
+            $this->_platform->getDropConstraintSQL('constraint_name', 'table_name')
+        );
+    }
+
+    public function testGeneratesDropIndex()
+    {
+        $this->assertEquals(
+            'DROP INDEX IF EXISTS index_name',
+            $this->_platform->getDropIndexSQL('index_name')
+        );
+    }
+
     public function testDoesNotPreferIdentityColumns()
     {
         $this->assertFalse($this->_platform->prefersIdentityColumns());
