@@ -336,19 +336,18 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             $this->assertEquals($expected, $actual);
         }
     }
-    
+
     public function testAlterDecimalPrecisionScale()
     {
-        
         $table = new Table('mytable');
         $table->addColumn('dfoo1', 'decimal');
         $table->addColumn('dfoo2', 'decimal', array('precision' => 10, 'scale' => 6));
         $table->addColumn('dfoo3', 'decimal', array('precision' => 10, 'scale' => 6));
         $table->addColumn('dfoo4', 'decimal', array('precision' => 10, 'scale' => 6));
-        
+
         $tableDiff = new TableDiff('mytable');
         $tableDiff->fromTable = $table;
-        
+
         $tableDiff->changedColumns['dloo1'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'dloo1', new \Doctrine\DBAL\Schema\Column(
                 'dloo1', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 16, 'scale' => 6)
@@ -373,13 +372,40 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
             ),
             array('precision', 'scale')
         );
-        
+
         $sql = $this->_platform->getAlterTableSQL($tableDiff);
-                
+
         $expectedSql = array(
             'ALTER TABLE mytable ALTER dloo1 TYPE NUMERIC(16, 6)',
             'ALTER TABLE mytable ALTER dloo2 TYPE NUMERIC(10, 4)',
             'ALTER TABLE mytable ALTER dloo4 TYPE NUMERIC(16, 8)',
+        );
+
+        $this->assertEquals($expectedSql, $sql);
+    }
+
+    /**
+     * @group DBAL-365
+     */
+    public function testDroppingConstraintsBeforeColumns()
+    {
+        $newTable = new Table('mytable');
+        $newTable->addColumn('id', 'integer');
+        $newTable->setPrimaryKey(array('id'));
+
+        $oldTable = clone $newTable;
+        $oldTable->addColumn('parent_id', 'integer');
+        $oldTable->addUnnamedForeignKeyConstraint('mytable', array('parent_id'), array('id'));
+
+        $comparator = new \Doctrine\DBAL\Schema\Comparator();
+        $tableDiff = $comparator->diffTable($oldTable, $newTable);
+
+        $sql = $this->_platform->getAlterTableSQL($tableDiff);
+
+        $expectedSql = array(
+            'ALTER TABLE mytable DROP CONSTRAINT FK_6B2BD609727ACA70',
+            'DROP INDEX IDX_6B2BD609727ACA70',
+            'ALTER TABLE mytable DROP parent_id',
         );
 
         $this->assertEquals($expectedSql, $sql);
