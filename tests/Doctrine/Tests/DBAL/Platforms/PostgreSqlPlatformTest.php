@@ -363,5 +363,32 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
 
         $this->assertEquals($expectedSql, $sql);
     }
+
+    /**
+     * @group DBAL-365
+     */
+    public function testDroppingConstraintsBeforeColumns()
+    {
+        $newTable = new Table('mytable');
+        $newTable->addColumn('id', 'integer');
+        $newTable->setPrimaryKey(array('id'));
+
+        $oldTable = clone $newTable;
+        $oldTable->addColumn('parent_id', 'integer');
+        $oldTable->addUnnamedForeignKeyConstraint('mytable', array('parent_id'), array('id'));
+
+        $comparator = new \Doctrine\DBAL\Schema\Comparator();
+        $tableDiff = $comparator->diffTable($oldTable, $newTable);
+
+        $sql = $this->_platform->getAlterTableSQL($tableDiff);
+
+        $expectedSql = array(
+            'ALTER TABLE mytable DROP CONSTRAINT FK_6B2BD609727ACA70',
+            'DROP INDEX IDX_6B2BD609727ACA70',
+            'ALTER TABLE mytable DROP parent_id',
+        );
+
+        $this->assertEquals($expectedSql, $sql);
+    }
 }
 
