@@ -28,6 +28,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
@@ -189,18 +190,18 @@ class SQLAnywherePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = $this->getAlterTableClause($diff->name) . ' ' .
+            $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' .
                 $this->getAlterTableRenameColumnClause($oldColumnName, $column);
         }
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ( ! empty($alterClauses)) {
-                $sql[] = $this->getAlterTableClause($diff->name) . ' ' . implode(", ", $alterClauses);
+                $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' . implode(", ", $alterClauses);
             }
 
             if ($diff->newName !== false) {
-                $sql[] = $this->getAlterTableClause($diff->name) . ' ' .
-                    $this->getAlterTableRenameTableClause($diff->newName);
+                $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' .
+                    $this->getAlterTableRenameTableClause($diff->getNewName());
             }
 
             $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
@@ -224,13 +225,13 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * Returns the SQL clause for altering a table.
      *
-     * @param string $tableName The quoted name of the table to alter.
+     * @param Identifier $tableName The quoted name of the table to alter.
      *
      * @return string
      */
-    protected function getAlterTableClause($tableName)
+    protected function getAlterTableClause(Identifier $tableName)
     {
-        return 'ALTER TABLE ' . $tableName;
+        return 'ALTER TABLE ' . $tableName->getQuotedName($this);
     }
 
     /**
@@ -261,13 +262,13 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * Returns the SQL clause for renaming a table in a table alteration.
      *
-     * @param string $newTableName The quoted name of the table to rename to.
+     * @param Identifier $newTableName The quoted name of the table to rename to.
      *
      * @return string
      */
-    protected function getAlterTableRenameTableClause($newTableName)
+    protected function getAlterTableRenameTableClause(Identifier $newTableName)
     {
-        return 'RENAME ' . $newTableName;
+        return 'RENAME ' . $newTableName->getQuotedName($this);
     }
 
     /**

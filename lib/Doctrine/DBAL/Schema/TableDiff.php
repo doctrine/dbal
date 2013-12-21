@@ -138,4 +138,20 @@ class TableDiff
         $this->removedIndexes = $removedIndexes;
         $this->fromTable = $fromTable;
     }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Identifier
+     */
+    public function getName()
+    {
+        return new Identifier($this->name);
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Identifier
+     */
+    public function getNewName()
+    {
+        return new Identifier($this->newName);
+    }
 }

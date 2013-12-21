@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Constraint;
 
 /**
@@ -804,7 +805,7 @@ class SqlitePlatform extends AbstractPlatform
             $sql[] = $this->getDropTableSQL($dataTable);
 
             if ($diff->newName && $diff->newName != $diff->name) {
-                $renamedTable = new Table($diff->newName);
+                $renamedTable = new Identifier($diff->newName);
                 $sql[] = 'ALTER TABLE '.$newTable->getQuotedName($this).' RENAME TO '.$renamedTable->getQuotedName($this);
             }
 
@@ -859,7 +860,7 @@ class SqlitePlatform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
-                $newTable = new Table($diff->newName);
+                $newTable = new Identifier($diff->newName);
                 $sql[] = 'ALTER TABLE '.$table->getQuotedName($this).' RENAME TO '.$newTable->getQuotedName($this);
             }
         }
