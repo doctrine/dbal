@@ -410,4 +410,20 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
 
         $this->assertEquals($expectedSql, $sql);
     }
+
+    /**
+     * @group DBAL-563
+     */
+    public function testUsesSequenceEmulatedIdentityColumns()
+    {
+        $this->assertTrue($this->_platform->usesSequenceEmulatedIdentityColumns());
+    }
+
+    /**
+     * @group DBAL-563
+     */
+    public function testReturnsIdentitySequenceName()
+    {
+        $this->assertSame('mytable_mycolumn_seq', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
+    }
 }

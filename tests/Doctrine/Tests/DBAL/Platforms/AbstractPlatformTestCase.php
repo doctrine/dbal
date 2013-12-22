@@ -530,4 +530,21 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             implode(';', $this->_platform->getAlterTableSQL($tableDiff))
         );
     }
+
+    /**
+     * @group DBAL-563
+     */
+    public function testUsesSequenceEmulatedIdentityColumns()
+    {
+        $this->assertFalse($this->_platform->usesSequenceEmulatedIdentityColumns());
+    }
+
+    /**
+     * @group DBAL-563
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testReturnsIdentitySequenceName()
+    {
+        $this->_platform->getIdentitySequenceName('mytable', 'mycolumn');
+    }
 }
