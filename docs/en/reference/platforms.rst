@@ -20,6 +20,62 @@ Each database driver has a platform associated with it by default.
 Several drivers also share the same platform, for example PDO\_OCI
 and OCI8 share the ``OraclePlatform``.
 
+Doctrine provides abstraction for different versions of platforms
+if necessary to represent their specific features and dialects.
+For example has Microsoft added support for sequences in their 2012
+version. Therefore Doctrine offers a separate platform class for this
+extending the previous 2008 version. The 2008 version adds support
+for additional data types which in turn don't exist in the previous
+2005 version and so on.
+A list of available platform classes that can be used for each vendor
+can be found as follows:
+
+MySQL
+^^^^^
+
+-  ``MySqlPlatform`` for version 5.0 and above.
+
+Oracle
+^^^^^^
+
+-  ``OraclePlatform`` for all versions.
+
+Microsoft SQL Server
+^^^^^^^^^^^^^^^^^^^^
+
+-  ``SQLServerPlatform`` for version 2000 and above.
+-  ``SQLServer2005Platform`` for version 2005 and above.
+-  ``SQLServer2008Platform`` for version 2008 and above.
+-  ``SQLServer2012Platform`` for version 2012 and above.
+
+PostgreSQL
+^^^^^^^^^^
+
+-  ``PostgreSqlPlatform`` for all versions.
+
+SAP Sybase SQL Anywhere
+^^^^^^^^^^^^^^^^^^^^^^^
+
+-  ``SQLAnywherePlatform`` for version 10 and above.
+-  ``SQLAnywhere11Platform`` for version 11 and above.
+-  ``SQLAnywhere12Platform`` for version 12 and above.
+-  ``SQLAnywhere16Platform`` for version 16 and above.
+
+SQLite
+^^^^^^
+
+-  ``SqlitePlatform`` for all versions.
+
+Drizzle
+^^^^^^
+
+-  ``DrizzlePlatform`` for all versions.
+
+It is highly encouraged to use the platform class that matches your
+database vendor and version best. Otherwise it is not guaranteed
+that the compatibility in terms of SQL dialect and feature support
+between Doctrine DBAL and the database server will always be given.
+
 If you want to overwrite parts of your platform you can do so when
 creating a connection. There is a ``platform`` option you can pass
 an instance of the platform you want the connection to use:
