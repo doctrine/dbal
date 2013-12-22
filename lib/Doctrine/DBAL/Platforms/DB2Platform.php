@@ -391,7 +391,7 @@ class DB2Platform extends AbstractPlatform
 
             /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
-            $queryParts[] =  'ALTER ' . ($columnDiff->oldColumnName) . ' '
+            $queryParts[] =  'ALTER ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
         }
 
