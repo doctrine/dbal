@@ -426,4 +426,21 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
     {
         $this->assertSame('mytable_mycolumn_seq', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
     }
+
+    /**
+     * @dataProvider dataCreateSequenceWithCache
+     * @group DBAL-139
+     */
+    public function testCreateSequenceWithCache($cacheSize, $expectedSql)
+    {
+        $sequence = new \Doctrine\DBAL\Schema\Sequence('foo', 1, 1, $cacheSize);
+        $this->assertContains($expectedSql, $this->_platform->getCreateSequenceSQL($sequence));
+    }
+
+    public function dataCreateSequenceWithCache()
+    {
+        return array(
+            array(3, 'CACHE 3')
+        );
+    }
 }

@@ -188,7 +188,8 @@ class OraclePlatform extends AbstractPlatform
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' START WITH ' . $sequence->getInitialValue() .
                ' MINVALUE ' . $sequence->getInitialValue() .
-               ' INCREMENT BY ' . $sequence->getAllocationSize();
+               ' INCREMENT BY ' . $sequence->getAllocationSize() .
+               $this->getSequenceCacheSQL($sequence);
     }
 
     /**
@@ -197,7 +198,26 @@ class OraclePlatform extends AbstractPlatform
     public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
-               ' INCREMENT BY ' . $sequence->getAllocationSize();
+               ' INCREMENT BY ' . $sequence->getAllocationSize()
+               . $this->getSequenceCacheSQL($sequence);
+    }
+
+    /**
+     * Cache definition for sequences
+     *
+     * @return string
+     */
+    private function getSequenceCacheSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    {
+        if ($sequence->getCache() === 0) {
+            return ' NOCACHE';
+        } else if ($sequence->getCache() === 1) {
+            return ' CACHE 20';
+        } else if ($sequence->getCache() > 1) {
+            return ' CACHE ' . $sequence->getCache();
+        }
+
+        return '';
     }
 
     /**

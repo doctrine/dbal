@@ -548,7 +548,8 @@ class PostgreSqlPlatform extends AbstractPlatform
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize() .
                ' MINVALUE ' . $sequence->getInitialValue() .
-               ' START ' . $sequence->getInitialValue();
+               ' START ' . $sequence->getInitialValue() .
+               $this->getSequenceCacheSQL($sequence);
     }
 
     /**
@@ -557,7 +558,22 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
-               ' INCREMENT BY ' . $sequence->getAllocationSize();
+               ' INCREMENT BY ' . $sequence->getAllocationSize() .
+               $this->getSequenceCacheSQL($sequence);
+    }
+
+    /**
+     * Cache definition for sequences
+     *
+     * @return string
+     */
+    private function getSequenceCacheSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    {
+        if ($sequence->getCache() > 1) {
+            return ' CACHE ' . $sequence->getCache();
+        }
+
+        return '';
     }
 
     /**
