@@ -20,6 +20,9 @@
 namespace Doctrine\DBAL\Driver\PDOIbm;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Schema\DB2SchemaManager;
 
 /**
  * Driver for the PDO IBM extension.
@@ -38,7 +41,7 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        $conn = new \Doctrine\DBAL\Driver\PDOConnection(
+        $conn = new PDOConnection(
             $this->_constructPdoDsn($params),
             $username,
             $password,
@@ -77,7 +80,7 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function getDatabasePlatform()
     {
-        return new \Doctrine\DBAL\Platforms\DB2Platform;
+        return new DB2Platform();
     }
 
     /**
@@ -85,7 +88,7 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function getSchemaManager(Connection $conn)
     {
-        return new \Doctrine\DBAL\Schema\DB2SchemaManager($conn);
+        return new DB2SchemaManager($conn);
     }
 
     /**
@@ -99,7 +102,7 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 

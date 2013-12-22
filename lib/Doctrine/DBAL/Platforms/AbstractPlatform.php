@@ -1099,7 +1099,7 @@ abstract class AbstractPlatform
 
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } else if(!is_string($table)) {
+        } elseif (!is_string($table)) {
             throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
@@ -1141,7 +1141,7 @@ abstract class AbstractPlatform
     {
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
-        } else if(!is_string($index)) {
+        } elseif (!is_string($index)) {
             throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
         }
 
@@ -1327,7 +1327,7 @@ abstract class AbstractPlatform
         }
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
-            foreach($options['indexes'] as $index => $definition) {
+            foreach ($options['indexes'] as $index => $definition) {
                 $columnListSql .= ', ' . $this->getIndexDeclarationSQL($index, $definition);
             }
         }
@@ -1409,7 +1409,7 @@ abstract class AbstractPlatform
 
         $referencesClause = '';
         if ($constraint instanceof Index) {
-            if($constraint->isPrimary()) {
+            if ($constraint->isPrimary()) {
                 $query .= ' PRIMARY KEY';
             } elseif ($constraint->isUnique()) {
                 $query .= ' UNIQUE';
@@ -1418,7 +1418,7 @@ abstract class AbstractPlatform
                     'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
                 );
             }
-        } else if ($constraint instanceof ForeignKeyConstraint) {
+        } elseif ($constraint instanceof ForeignKeyConstraint) {
             $query .= ' FOREIGN KEY';
 
             $referencesClause = ' REFERENCES ' . $constraint->getQuotedForeignTableName($this) .
@@ -1921,13 +1921,13 @@ abstract class AbstractPlatform
             if (isset($field['type'])) {
                 if (in_array((string)$field['type'], array("Integer", "BigInteger", "SmallInteger"))) {
                     $default = " DEFAULT ".$field['default'];
-                } else if ((string)$field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
+                } elseif ((string)$field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimestampSQL();
-                } else if ((string)$field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
+                } elseif ((string)$field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimeSQL();
-                } else if ((string)$field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
+                } elseif ((string)$field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
                     $default = " DEFAULT ".$this->getCurrentDateSQL();
-                } else if ((string) $field['type'] == 'Boolean') {
+                } elseif ((string) $field['type'] == 'Boolean') {
                     $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
                 }
             }
@@ -2257,7 +2257,7 @@ abstract class AbstractPlatform
                     $item[$k] = (int) $value;
                 }
             }
-        } else if (is_bool($item)) {
+        } elseif (is_bool($item)) {
             $item = (int) $item;
         }
 

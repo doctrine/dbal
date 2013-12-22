@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver\OCI8;
 
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 
 /**
@@ -26,7 +27,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
  *
  * @since 2.0
  */
-class OCI8Connection implements \Doctrine\DBAL\Driver\Connection
+class OCI8Connection implements Connection
 {
     /**
      * @var resource

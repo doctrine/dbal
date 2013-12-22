@@ -19,12 +19,14 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
+use Doctrine\DBAL\Driver\PDOConnection;
+
 /**
  * Sqlsrv Connection implementation.
  *
  * @since 2.0
  */
-class Connection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doctrine\DBAL\Driver\Connection
+class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
 {
     /**
      * @override
@@ -33,11 +35,11 @@ class Connection extends \Doctrine\DBAL\Driver\PDOConnection implements \Doctrin
     {
         $val = parent::quote($value, $type);
 
-		// Fix for a driver version terminating all values with null byte
-		if (strpos($val, "\0") !== false) {
-			$val = substr($val, 0, -1);
-		}
+        // Fix for a driver version terminating all values with null byte
+        if (strpos($val, "\0") !== false) {
+            $val = substr($val, 0, -1);
+        }
 
-		return $val;
+        return $val;
     }
 }

@@ -36,11 +36,11 @@ class EchoSQLLogger implements SQLLogger
      */
     public function startQuery($sql, array $params = null, array $types = null)
     {
-    	echo $sql . PHP_EOL;
+        echo $sql . PHP_EOL;
 
         if ($params) {
             var_dump($params);
-    	}
+        }
 
         if ($types) {
             var_dump($types);

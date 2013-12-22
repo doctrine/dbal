@@ -224,7 +224,7 @@ class Connection implements DriverConnection
 
         if ( ! isset($params['platform'])) {
             $this->_platform = $driver->getDatabasePlatform();
-        } else if ($params['platform'] instanceof Platforms\AbstractPlatform) {
+        } elseif ($params['platform'] instanceof Platforms\AbstractPlatform) {
             $this->_platform = $params['platform'];
         } else {
             throw DBALException::invalidPlatformSpecified();
@@ -793,7 +793,7 @@ class Connection implements DriverConnection
             // is the real key part of this row pointers map or is the cache only pointing to other cache keys?
             if (isset($data[$realKey])) {
                 $stmt = new ArrayStatement($data[$realKey]);
-            } else if (array_key_exists($realKey, $data)) {
+            } elseif (array_key_exists($realKey, $data)) {
                 $stmt = new ArrayStatement(array());
             }
         }
@@ -1101,7 +1101,7 @@ class Connection implements DriverConnection
             if ($logger) {
                 $logger->stopQuery();
             }
-        } else if ($this->_nestTransactionsWithSavepoints) {
+        } elseif ($this->_nestTransactionsWithSavepoints) {
             if ($logger) {
                 $logger->startQuery('"SAVEPOINT"');
             }
@@ -1141,7 +1141,7 @@ class Connection implements DriverConnection
             if ($logger) {
                 $logger->stopQuery();
             }
-        } else if ($this->_nestTransactionsWithSavepoints) {
+        } elseif ($this->_nestTransactionsWithSavepoints) {
             if ($logger) {
                 $logger->startQuery('"RELEASE SAVEPOINT"');
             }
@@ -1208,7 +1208,7 @@ class Connection implements DriverConnection
             if (false === $this->autoCommit) {
                 $this->beginTransaction();
             }
-        } else if ($this->_nestTransactionsWithSavepoints) {
+        } elseif ($this->_nestTransactionsWithSavepoints) {
             if ($logger) {
                 $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
             }

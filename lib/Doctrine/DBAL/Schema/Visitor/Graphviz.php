@@ -55,7 +55,7 @@ class Graphviz extends AbstractVisitor
      */
     public function acceptSchema(Schema $schema)
     {
-        $this->output  = 'digraph "' . sha1( mt_rand() ) . '" {' . "\n";
+        $this->output  = 'digraph "' . sha1(mt_rand()) . '" {' . "\n";
         $this->output .= 'splines = true;' . "\n";
         $this->output .= 'overlap = false;' . "\n";
         $this->output .= 'outputorder=edgesfirst;'."\n";
@@ -71,7 +71,7 @@ class Graphviz extends AbstractVisitor
         $this->output .= $this->createNode(
             $table->getName(),
             array(
-                'label' => $this->createTableLabel( $table ),
+                'label' => $this->createTableLabel($table),
                 'shape' => 'plaintext',
             )
         );
@@ -91,7 +91,7 @@ class Graphviz extends AbstractVisitor
         $label .= '<TR><TD BORDER="1" COLSPAN="3" ALIGN="CENTER" BGCOLOR="#fcaf3e"><FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $table->getName() . '</FONT></TD></TR>';
 
         // The attributes block
-        foreach( $table->getColumns() as $column ) {
+        foreach ($table->getColumns() as $column) {
             $columnLabel = $column->getName();
 
             $label .= '<TR>';
@@ -120,8 +120,7 @@ class Graphviz extends AbstractVisitor
     private function createNode($name, $options)
     {
         $node = $name . " [";
-        foreach( $options as $key => $value )
-        {
+        foreach ($options as $key => $value) {
             $node .= $key . '=' . $value . ' ';
         }
         $node .= "]\n";
@@ -139,8 +138,7 @@ class Graphviz extends AbstractVisitor
     private function createNodeRelation($node1, $node2, $options)
     {
         $relation = $node1 . ' -> ' . $node2 . ' [';
-        foreach( $options as $key => $value )
-        {
+        foreach ($options as $key => $value) {
             $relation .= $key . '=' . $value . ' ';
         }
         $relation .= "]\n";

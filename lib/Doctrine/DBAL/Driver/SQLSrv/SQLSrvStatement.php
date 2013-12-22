@@ -191,7 +191,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         if ($this->lastInsertId) {
             sqlsrv_next_result($this->stmt);
             sqlsrv_fetch($this->stmt);
-            $this->lastInsertId->setId( sqlsrv_get_field($this->stmt, 0) );
+            $this->lastInsertId->setId(sqlsrv_get_field($this->stmt, 0));
         }
     }
 
@@ -224,7 +224,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
         if (isset(self::$fetchMap[$fetchMode])) {
             return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]);
-        } else if ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
+        } elseif ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
             $className = null;
             $ctorArgs = null;
             if (count($args) >= 2) {

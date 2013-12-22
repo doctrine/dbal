@@ -20,7 +20,7 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection as Connection;
-use \Doctrine\DBAL\Driver\PingableConnection;
+use Doctrine\DBAL\Driver\PingableConnection;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>

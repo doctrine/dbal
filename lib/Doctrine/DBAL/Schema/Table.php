@@ -151,7 +151,7 @@ class Table extends AbstractAsset
      */
     public function addIndex(array $columnNames, $indexName = null, array $flags = array())
     {
-        if($indexName == null) {
+        if ($indexName == null) {
             $indexName = $this->_generateIdentifierName(
                 array_merge(array($this->getName()), $columnNames), "idx", $this->_getMaxIdentifierLength()
             );
@@ -481,7 +481,7 @@ class Table extends AbstractAsset
     {
         $constraint->setLocalTable($this);
 
-        if(strlen($constraint->getName())) {
+        if (strlen($constraint->getName())) {
             $name = $constraint->getName();
         } else {
             $name = $this->_generateIdentifierName(
@@ -523,7 +523,7 @@ class Table extends AbstractAsset
     public function getForeignKey($constraintName)
     {
         $constraintName = strtolower($constraintName);
-        if(!$this->hasForeignKey($constraintName)) {
+        if (!$this->hasForeignKey($constraintName)) {
             throw SchemaException::foreignKeyDoesNotExist($constraintName, $this->_name);
         }
 
@@ -542,7 +542,7 @@ class Table extends AbstractAsset
     public function removeForeignKey($constraintName)
     {
         $constraintName = strtolower($constraintName);
-        if(!$this->hasForeignKey($constraintName)) {
+        if (!$this->hasForeignKey($constraintName)) {
             throw SchemaException::foreignKeyDoesNotExist($constraintName, $this->_name);
         }
 
@@ -568,7 +568,7 @@ class Table extends AbstractAsset
         }
         $colNames = array_unique(array_merge($pkCols, $fkCols, array_keys($columns)));
 
-        uksort($columns, function($a, $b) use($colNames) {
+        uksort($columns, function ($a, $b) use ($colNames) {
             return (array_search($a, $colNames) >= array_search($b, $colNames));
         });
 

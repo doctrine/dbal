@@ -53,11 +53,11 @@ class BigIntType extends Type
         return \PDO::PARAM_STR;
     }
 
-    /** 
+    /**
      * {@inheritdoc}
-     */  
+     */
     public function convertToPHPValue($value, AbstractPlatform $platform)
-    {   
+    {
         return (null === $value) ? null : (string) $value;
     }
 }

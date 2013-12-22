@@ -83,7 +83,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         $fullSchema = $sm->createSchema();
 
         foreach ($fullSchema->getTables() as $table) {
-            if ( $dropSchema->hasTable($table->getName())) {
+            if ($dropSchema->hasTable($table->getName())) {
                 $visitor->acceptTable($table);
             }
 

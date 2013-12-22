@@ -125,7 +125,7 @@ class MultiTenantVisitor implements Visitor
         foreach ($table->getIndexes() as $index) {
             if ($index->isPrimary() && ! $index->hasFlag('nonclustered')) {
                 return $index;
-            } else if ($index->hasFlag('clustered')) {
+            } elseif ($index->hasFlag('clustered')) {
                 return $index;
             }
         }

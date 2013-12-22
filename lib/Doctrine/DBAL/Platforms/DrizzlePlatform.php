@@ -78,7 +78,7 @@ class DrizzlePlatform extends AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $hours . ' HOUR)';    
+        return 'DATE_SUB(' . $date . ', INTERVAL ' . $hours . ' HOUR)';
     }
 
     /**
@@ -330,7 +330,7 @@ class DrizzlePlatform extends AbstractPlatform
     {
         if ($index instanceof Index) {
             $indexName = $index->getQuotedName($this);
-        } else if (is_string($index)) {
+        } elseif (is_string($index)) {
             $indexName = $index;
         } else {
             throw new \InvalidArgumentException('DrizzlePlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
@@ -338,7 +338,7 @@ class DrizzlePlatform extends AbstractPlatform
 
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } else if(!is_string($table)) {
+        } elseif (!is_string($table)) {
             throw new \InvalidArgumentException('DrizzlePlatform::getDropIndexSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
@@ -465,7 +465,7 @@ class DrizzlePlatform extends AbstractPlatform
     {
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } else if(!is_string($table)) {
+        } elseif (!is_string($table)) {
             throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
@@ -483,7 +483,7 @@ class DrizzlePlatform extends AbstractPlatform
                     $item[$key] = ($value) ? 'true' : 'false';
                 }
             }
-        } else if (is_bool($item) || is_numeric($item)) {
+        } elseif (is_bool($item) || is_numeric($item)) {
            $item = ($item) ? 'true' : 'false';
         }
 

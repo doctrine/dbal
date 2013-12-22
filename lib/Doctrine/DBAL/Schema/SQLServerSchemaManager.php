@@ -226,8 +226,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     public function alterTable(TableDiff $tableDiff)
     {
-        if(count($tableDiff->removedColumns) > 0) {
-            foreach($tableDiff->removedColumns as $col){
+        if (count($tableDiff->removedColumns) > 0) {
+            foreach ($tableDiff->removedColumns as $col) {
                 $columnConstraintSql = $this->getColumnConstraintSQL($tableDiff->name, $col->getName());
                 foreach ($this->_conn->fetchAll($columnConstraintSql) as $constraint) {
                     $this->_conn->exec("ALTER TABLE $tableDiff->name DROP CONSTRAINT " . $constraint['Name']);

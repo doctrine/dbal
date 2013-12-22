@@ -228,7 +228,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     {
         if ($arg2 === null) {
             return $this->stmt->setFetchMode($fetchMode);
-        } else if ($arg3 === null) {
+        } elseif ($arg3 === null) {
             return $this->stmt->setFetchMode($fetchMode, $arg2);
         }
 

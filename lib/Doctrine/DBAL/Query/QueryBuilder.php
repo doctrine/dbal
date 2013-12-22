@@ -408,10 +408,10 @@ class QueryBuilder
                 foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
                 }
-            } else if ($isArray && is_array($sqlPart[key($sqlPart)])) {
+            } elseif ($isArray && is_array($sqlPart[key($sqlPart)])) {
                 $key = key($sqlPart);
                 $this->sqlParts[$sqlPartName][$key][] = $sqlPart[$key];
-            } else if ($isMultiple) {
+            } elseif ($isMultiple) {
                 $this->sqlParts[$sqlPartName][] = $sqlPart;
             } else {
                 $this->sqlParts[$sqlPartName] = $sqlPart;
@@ -753,7 +753,7 @@ class QueryBuilder
      */
     public function where($predicates)
     {
-        if ( ! (func_num_args() == 1 && $predicates instanceof CompositeExpression) ) {
+        if ( ! (func_num_args() == 1 && $predicates instanceof CompositeExpression)) {
             $predicates = new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
         }
 
@@ -1100,7 +1100,7 @@ class QueryBuilder
         }
 
         foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
-            if ( ! isset($knownAliases[$fromAlias]) ) {
+            if ( ! isset($knownAliases[$fromAlias])) {
                 throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
             }
         }
@@ -1196,9 +1196,9 @@ class QueryBuilder
      *
      * @return string the placeholder name used.
      */
-    public function createNamedParameter( $value, $type = \PDO::PARAM_STR, $placeHolder = null )
+    public function createNamedParameter($value, $type = \PDO::PARAM_STR, $placeHolder = null)
     {
-        if ( $placeHolder === null ) {
+        if ($placeHolder === null) {
             $this->boundCounter++;
             $placeHolder = ":dcValue" . $this->boundCounter;
         }
@@ -1274,13 +1274,13 @@ class QueryBuilder
                         $this->sqlParts[$part][$idx] = clone $element;
                     }
                 }
-            } else if (is_object($elements)) {
+            } elseif (is_object($elements)) {
                 $this->sqlParts[$part] = clone $elements;
             }
         }
 
         foreach ($this->params as $name => $param) {
-            if(is_object($param)){
+            if (is_object($param)) {
                 $this->params[$name] = clone $param;
             }
         }

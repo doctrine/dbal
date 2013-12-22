@@ -47,8 +47,8 @@ class BlobType extends Type
 
         if (is_string($value)) {
             $value = fopen('data://text/plain;base64,' . base64_encode($value), 'r');
-        } 
-        
+        }
+
         if ( ! is_resource($value)) {
             throw ConversionException::conversionFailed($value, self::BLOB);
         }

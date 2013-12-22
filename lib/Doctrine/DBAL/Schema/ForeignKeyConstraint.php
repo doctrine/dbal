@@ -363,4 +363,3 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         return false;
     }
 }
-

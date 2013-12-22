@@ -19,7 +19,10 @@
 
 namespace Doctrine\DBAL\Driver\PDOOracle;
 
-use Doctrine\DBAL\Platforms;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 /**
  * PDO Oracle driver.
@@ -36,7 +39,7 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return new \Doctrine\DBAL\Driver\PDOConnection(
+        return new PDOConnection(
             $this->_constructPdoDsn($params),
             $username,
             $password,
@@ -93,15 +96,15 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function getDatabasePlatform()
     {
-        return new \Doctrine\DBAL\Platforms\OraclePlatform();
+        return new OraclePlatform();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
-        return new \Doctrine\DBAL\Schema\OracleSchemaManager($conn);
+        return new OracleSchemaManager($conn);
     }
 
     /**
@@ -115,7 +118,7 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 

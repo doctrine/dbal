@@ -19,9 +19,11 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
@@ -51,7 +53,7 @@ class Driver implements DriverInterface, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
         return new \Doctrine\DBAL\Schema\MySqlSchemaManager($conn);
     }
@@ -61,13 +63,13 @@ class Driver implements DriverInterface, ExceptionConverterDriver
      */
     public function getDatabasePlatform()
     {
-        return new \Doctrine\DBAL\Platforms\MySqlPlatform();
+        return new MySqlPlatform();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 
