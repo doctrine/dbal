@@ -330,4 +330,20 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 	);
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }
+
+    /**
+     * @group DBAL-563
+     */
+    public function testUsesSequenceEmulatedIdentityColumns()
+    {
+        $this->assertTrue($this->_platform->usesSequenceEmulatedIdentityColumns());
+    }
+
+    /**
+     * @group DBAL-563
+     */
+    public function testReturnsIdentitySequenceName()
+    {
+        $this->assertSame('mytable_mycolumn_SEQ', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
+    }
 }

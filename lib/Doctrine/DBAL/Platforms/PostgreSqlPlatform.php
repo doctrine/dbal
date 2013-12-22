@@ -181,6 +181,22 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function usesSequenceEmulatedIdentityColumns()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIdentitySequenceName($tableName, $columnName)
+    {
+        return $tableName . '_' . $columnName . '_seq';
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function supportsCommentOnStatement()
@@ -466,7 +482,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             if ($columnDiff->hasChanged('autoincrement')) {
                 if ($column->getAutoincrement()) {
                     // add autoincrement
-                    $seqName = $diff->name . '_' . $oldColumnName . '_seq';
+                    $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
 
                     $sql[] = "CREATE SEQUENCE " . $seqName;
                     $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->getName()->getQuotedName($this) . "))";
