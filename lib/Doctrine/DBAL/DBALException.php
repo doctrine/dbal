@@ -107,7 +107,7 @@ class DBALException extends \Exception
             ? $driver->convertExceptionCode($driverEx)
             : 0;
 
-        return new self($msg, $code, $driverEx);
+        return self::createDriverException($msg, $code, $driverEx);
     }
 
     /**
@@ -120,7 +120,31 @@ class DBALException extends \Exception
     {
         $msg = "An exception occured in driver: " . $driverEx->getMessage();
 
-        return new self($msg, $driver->convertExceptionCode($driverEx), $driverEx);
+        $code = ($driver instanceof ExceptionConverterDriver)
+            ? $driver->convertExceptionCode($driverEx)
+            : 0;
+
+        return self::createDriverException($msg, $code, $driverEx);
+    }
+
+    /**
+     * Factory method for subclasses of DBALException based on exception code.
+     */
+    private static function createDriverException($msg, $code, $driverEx)
+    {
+        switch ($code) {
+            case self::ERROR_NOT_NULL:
+                return new Exception\NotNullableException($msg, $code, $driverEx);
+
+            case self::ERROR_DUPLICATE_KEY:
+                return new Exception\DuplicateKeyException($msg, $code, $driverEx);
+
+            case self::ERROR_FOREIGN_KEY_CONSTRAINT:
+                return new Exception\ForeignKeyConstraintViolationException($msg, $code, $driverEx);
+
+            default:
+                return new self($msg, $code, $driverEx);
+        }
     }
 
     /**
