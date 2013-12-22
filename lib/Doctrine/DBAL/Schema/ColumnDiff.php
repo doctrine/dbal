@@ -71,4 +71,12 @@ class ColumnDiff
     {
         return in_array($propertyName, $this->changedProperties);
     }
+
+    /**
+     * @return \Doctrine\DBAL\Schema\Identifier
+     */
+    public function getOldColumnName()
+    {
+        return new Identifier($this->oldColumnName);
+    }
 }
