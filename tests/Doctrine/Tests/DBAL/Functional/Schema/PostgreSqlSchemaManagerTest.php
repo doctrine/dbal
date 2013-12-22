@@ -261,6 +261,25 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertEquals('foo', $databaseTable->getColumn('def')->getDefault());
     }
+
+    /**
+     * @group DDC-2843
+     */
+    public function testBooleanDefault()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table('ddc2843_bools');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('checked', 'boolean', array('default' => false));
+
+        $this->_sm->createTable($table);
+
+        $databaseTable = $this->_sm->listTableDetails($table->getName());
+
+        $c = new \Doctrine\DBAL\Schema\Comparator();
+        $diff = $c->diffTable($table, $databaseTable);
+
+        $this->assertFalse($diff);
+    }
 }
 
 class MoneyType extends Type
