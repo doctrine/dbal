@@ -128,6 +128,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         switch ($dbType) {
             case 'char':
+            case 'binary':
                 $fixed = true;
                 break;
             case 'float':

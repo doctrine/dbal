@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -339,6 +340,7 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
 
     public function testAlterDecimalPrecisionScale()
     {
+
         $table = new Table('mytable');
         $table->addColumn('dfoo1', 'decimal');
         $table->addColumn('dfoo2', 'decimal', array('precision' => 10, 'scale' => 6));
@@ -442,5 +444,66 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
         return array(
             array(3, 'CACHE 3')
         );
+    }
+
+    protected function getBinaryDefaultLength()
+    {
+        return 0;
+    }
+
+    protected function getBinaryMaxLength()
+    {
+        return 0;
+    }
+
+    public function testReturnsBinaryTypeDeclarationSQL()
+    {
+        $this->assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array()));
+        $this->assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        $this->assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 9999999)));
+
+        $this->assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        $this->assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        $this->assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 9999999)));
+    }
+
+    public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType()
+    {
+        $table1 = new Table('mytable');
+        $table1->addColumn('column_varbinary', 'binary');
+        $table1->addColumn('column_binary', 'binary', array('fixed' => true));
+        $table1->addColumn('column_blob', 'blob');
+
+        $table2 = new Table('mytable');
+        $table2->addColumn('column_varbinary', 'binary', array('fixed' => true));
+        $table2->addColumn('column_binary', 'binary');
+        $table2->addColumn('column_blob', 'binary');
+
+        $comparator = new Comparator();
+
+        // VARBINARY -> BINARY
+        // BINARY    -> VARBINARY
+        // BLOB      -> VARBINARY
+        $this->assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
+
+        $table2 = new Table('mytable');
+        $table2->addColumn('column_varbinary', 'binary', array('length' => 42));
+        $table2->addColumn('column_binary', 'blob');
+        $table2->addColumn('column_blob', 'binary', array('length' => 11, 'fixed' => true));
+
+        // VARBINARY -> VARBINARY with changed length
+        // BINARY    -> BLOB
+        // BLOB      -> BINARY
+        $this->assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
+
+        $table2 = new Table('mytable');
+        $table2->addColumn('column_varbinary', 'blob');
+        $table2->addColumn('column_binary', 'binary', array('length' => 42, 'fixed' => true));
+        $table2->addColumn('column_blob', 'blob');
+
+        // VARBINARY -> BLOB
+        // BINARY    -> BINARY with changed length
+        // BLOB      -> BLOB
+        $this->assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
     }
 }

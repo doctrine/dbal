@@ -752,4 +752,36 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $this->assertFalse($this->_platform->canEmulateSchemas());
     }
+
+    public function testInitializesDoctrineTypeMappings()
+    {
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
+        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('binary'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('varbinary'));
+        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('varbinary'));
+    }
+
+    protected function getBinaryDefaultLength()
+    {
+        return 1;
+    }
+
+    protected function getBinaryMaxLength()
+    {
+        return 32767;
+    }
+
+    public function testReturnsBinaryTypeDeclarationSQL()
+    {
+        $this->assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
+        $this->assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        $this->assertSame('VARBINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32767)));
+        $this->assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32768)));
+
+        $this->assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        $this->assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        $this->assertSame('BINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32767)));
+        $this->assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32768)));
+    }
 }

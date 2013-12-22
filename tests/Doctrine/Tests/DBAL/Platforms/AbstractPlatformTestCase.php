@@ -547,4 +547,32 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $this->_platform->getIdentitySequenceName('mytable', 'mycolumn');
     }
+
+    public function testReturnsBinaryDefaultLength()
+    {
+        $this->assertSame($this->getBinaryDefaultLength(), $this->_platform->getBinaryDefaultLength());
+    }
+
+    protected function getBinaryDefaultLength()
+    {
+        return 255;
+    }
+
+    public function testReturnsBinaryMaxLength()
+    {
+        $this->assertSame($this->getBinaryMaxLength(), $this->_platform->getBinaryMaxLength());
+    }
+
+    protected function getBinaryMaxLength()
+    {
+        return 4000;
+    }
+
+    /**
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testReturnsBinaryTypeDeclarationSQL()
+    {
+        $this->_platform->getBinaryTypeDeclarationSQL(array());
+    }
 }

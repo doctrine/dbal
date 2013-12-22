@@ -48,6 +48,7 @@ abstract class Type
     const SMALLINT = 'smallint';
     const STRING = 'string';
     const TEXT = 'text';
+    const BINARY = 'binary';
     const BLOB = 'blob';
     const FLOAT = 'float';
     const GUID = 'guid';
@@ -81,6 +82,7 @@ abstract class Type
         self::TIME => 'Doctrine\DBAL\Types\TimeType',
         self::DECIMAL => 'Doctrine\DBAL\Types\DecimalType',
         self::FLOAT => 'Doctrine\DBAL\Types\FloatType',
+        self::BINARY => 'Doctrine\DBAL\Types\BinaryType',
         self::BLOB => 'Doctrine\DBAL\Types\BlobType',
         self::GUID => 'Doctrine\DBAL\Types\GuidType',
     );

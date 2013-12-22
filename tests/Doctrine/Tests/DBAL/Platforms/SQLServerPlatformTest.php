@@ -665,15 +665,33 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $this->assertSame('text', $this->_platform->getDoctrineTypeMapping('ntext'));
 
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
-        $this->assertSame('blob', $this->_platform->getDoctrineTypeMapping('binary'));
+        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('binary'));
 
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('varbinary'));
-        $this->assertSame('blob', $this->_platform->getDoctrineTypeMapping('varbinary'));
+        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('varbinary'));
 
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('image'));
         $this->assertSame('blob', $this->_platform->getDoctrineTypeMapping('image'));
 
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('uniqueidentifier'));
         $this->assertSame('guid', $this->_platform->getDoctrineTypeMapping('uniqueidentifier'));
+    }
+
+    protected function getBinaryMaxLength()
+    {
+        return 8000;
+    }
+
+    public function testReturnsBinaryTypeDeclarationSQL()
+    {
+        $this->assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
+        $this->assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        $this->assertSame('VARBINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 8000)));
+        $this->assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 8001)));
+
+        $this->assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        $this->assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        $this->assertSame('BINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 8000)));
+        $this->assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 8001)));
     }
 }

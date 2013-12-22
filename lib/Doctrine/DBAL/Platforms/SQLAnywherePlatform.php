@@ -310,6 +310,22 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function getBinaryDefaultLength()
+    {
+        return 1;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
+    {
+        return 32767;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'LONG BINARY';
@@ -1320,6 +1336,16 @@ class SQLAnywherePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return $fixed
+            ? 'BINARY(' . ($length ?: $this->getBinaryDefaultLength()) . ')'
+            : 'VARBINARY(' . ($length ?: $this->getBinaryDefaultLength()) . ')';
+    }
+
+    /**
      * Returns the SQL snippet for creating a table constraint.
      *
      * @param Constraint  $constraint The table constraint to create the SQL snippet for.
@@ -1447,11 +1473,11 @@ class SQLAnywherePlatform extends AbstractPlatform
             'smalldatetime' => 'datetime',
             'time' => 'time',
             'timestamp' => 'datetime',
-            'binary' => 'blob',
+            'binary' => 'binary',
             'image' => 'blob',
             'long binary' => 'blob',
             'uniqueidentifier' => 'guid',
-            'varbinary' => 'blob',
+            'varbinary' => 'binary',
         );
     }
 }

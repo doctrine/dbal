@@ -935,6 +935,28 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
 
+    public function testCompareChangedBinaryColumn()
+    {
+        $oldSchema = new Schema();
+
+        $tableFoo = $oldSchema->createTable('foo');
+        $tableFoo->addColumn('id', 'binary');
+
+        $newSchema = new Schema();
+        $table = $newSchema->createTable('foo');
+        $table->addColumn('id', 'binary', array('length' => 42, 'fixed' => true));
+
+        $expected = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+        $tableDiff = $expected->changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->fromTable = $tableFoo;
+        $columnDiff = $tableDiff->changedColumns['id'] = new ColumnDiff('id', $table->getColumn('id'));
+        $columnDiff->fromColumn = $tableFoo->getColumn('id');
+        $columnDiff->changedProperties = array('length', 'fixed');
+
+        $this->assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
+    }
+
     /**
      * @group DBAL-617
      */

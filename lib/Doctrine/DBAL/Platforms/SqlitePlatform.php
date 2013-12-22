@@ -362,6 +362,30 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return 'BLOB';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
+    {
+        return 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryDefaultLength()
+    {
+        return 0;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $field)

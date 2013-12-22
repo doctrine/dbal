@@ -26,6 +26,22 @@ use Doctrine\DBAL\Schema\TableDiff;
 class DB2Platform extends AbstractPlatform
 {
     /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
+    {
+        return 32704;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryDefaultLength()
+    {
+        return 1;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getBlobTypeDeclarationSQL(array $field)
@@ -47,6 +63,8 @@ class DB2Platform extends AbstractPlatform
             'date'          => 'date',
             'varchar'       => 'string',
             'character'     => 'string',
+            'varbinary'     => 'binary',
+            'binary'        => 'binary',
             'clob'          => 'text',
             'blob'          => 'blob',
             'decimal'       => 'decimal',
@@ -63,6 +81,14 @@ class DB2Platform extends AbstractPlatform
     {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
                 : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return $fixed ? 'BINARY(' . ($length ?: 255) . ')' : 'VARBINARY(' . ($length ?: 255) . ')';
     }
 
     /**

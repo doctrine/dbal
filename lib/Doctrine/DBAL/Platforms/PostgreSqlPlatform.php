@@ -19,7 +19,11 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\DBAL\Types\BlobType;
 
 /**
  * PostgreSqlPlatform.
@@ -458,6 +462,10 @@ class PostgreSqlPlatform extends AbstractPlatform
                 continue;
             }
 
+            if ($this->isUnchangedBinaryColumn($columnDiff)) {
+                continue;
+            }
+
             $oldColumnName = $columnDiff->getOldColumnName()->getQuotedName($this);
             $column = $columnDiff->column;
 
@@ -531,6 +539,47 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * Checks whether a given column diff is a logically unchanged binary type column.
+     *
+     * Used to determine whether a column alteration for a binary type column can be skipped.
+     * Doctrine's {@link \Doctrine\DBAL\Types\BinaryType} and {@link \Doctrine\DBAL\Types\BlobType}
+     * are mapped to the same database column type on this platform as this platform
+     * does not have a native VARBINARY/BINARY column type. Therefore the {@link \Doctrine\DBAL\Schema\Comparator}
+     * might detect differences for binary type columns which do not have to be propagated
+     * to database as there actually is no difference at database level.
+     *
+     * @param ColumnDiff $columnDiff The column diff to check against.
+     *
+     * @return boolean True if the given column diff is an unchanged binary type column, false otherwise.
+     */
+    private function isUnchangedBinaryColumn(ColumnDiff $columnDiff)
+    {
+        $columnType = $columnDiff->column->getType();
+
+        if ( ! $columnType instanceof BinaryType && ! $columnType instanceof BlobType) {
+            return false;
+        }
+
+        $fromColumn = $columnDiff->fromColumn instanceof Column ? $columnDiff->fromColumn : null;
+
+        if ($fromColumn) {
+            $fromColumnType = $fromColumn->getType();
+
+            if ( ! $fromColumnType instanceof BinaryType && ! $fromColumnType instanceof BlobType) {
+                return false;
+            }
+
+            return count(array_diff($columnDiff->changedProperties, array('type', 'length', 'fixed'))) === 0;
+        }
+
+        if ($columnDiff->hasChanged('type')) {
+            return false;
+        }
+
+        return count(array_diff($columnDiff->changedProperties, array('length', 'fixed'))) === 0;
     }
 
     /**
@@ -793,6 +842,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return 'BYTEA';
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $field)
@@ -903,6 +960,22 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getVarcharMaxLength()
     {
         return 65535;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
+    {
+        return 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryDefaultLength()
+    {
+        return 0;
     }
 
     /**

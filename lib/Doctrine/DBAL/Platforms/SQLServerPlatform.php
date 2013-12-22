@@ -1030,6 +1030,22 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return $fixed ? 'BINARY(' . ($length ?: 255) . ')' : 'VARBINARY(' . ($length ?: 255) . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
+    {
+        return 8000;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $field)
@@ -1258,8 +1274,8 @@ class SQLServerPlatform extends AbstractPlatform
             'nchar' => 'string',
             'nvarchar' => 'string',
             'ntext' => 'text',
-            'binary' => 'blob',
-            'varbinary' => 'blob',
+            'binary' => 'binary',
+            'varbinary' => 'binary',
             'image' => 'blob',
             'uniqueidentifier' => 'guid',
         );
