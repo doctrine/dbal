@@ -13,6 +13,16 @@ existing native or self-made APIs. For example, the DBAL ships with
 a driver for Oracle databases that uses the oci8 extension under
 the hood.
 
+The following database vendors are currently supported:
+
+- MySQL
+- Oracle
+- Microsoft SQL Server
+- PostgreSQL
+- SAP Sybase SQL Anywhere
+- SQLite
+- Drizzle
+
 The Doctrine 2 database layer can be used independently of the
 object-relational mapper. In order to use the DBAL all you need is
 the ``Doctrine\Common`` and ``Doctrine\DBAL`` namespaces. Once you
@@ -23,9 +33,9 @@ to be able to autoload the classes:
 
     <?php
     use Doctrine\Common\ClassLoader;
-    
+
     require '/path/to/doctrine/lib/Doctrine/Common/ClassLoader.php';
-    
+
     $classLoader = new ClassLoader('Doctrine', '/path/to/doctrine');
     $classLoader->register();
 
