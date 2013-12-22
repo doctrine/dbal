@@ -129,6 +129,8 @@ class DBALException extends \Exception
 
     /**
      * Factory method for subclasses of DBALException based on exception code.
+     *
+     * @return \Doctrine\DBAL\DBALException
      */
     private static function createDriverException($msg, $code, $driverEx)
     {
