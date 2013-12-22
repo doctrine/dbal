@@ -406,7 +406,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function dataCreateSequenceWithCache()
     {
         return array(
-            array(1, 'CACHE 20'),
+            array(1, 'NOCACHE'),
             array(0, 'NOCACHE'),
             array(3, 'CACHE 3')
         );
