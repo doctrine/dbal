@@ -361,4 +361,27 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         $this->assertSame('COL', $this->_platform->getSQLResultCasing('cOl'));
     }
+
+    protected function getBinaryDefaultLength()
+    {
+        return 1;
+    }
+
+    protected function getBinaryMaxLength()
+    {
+        return 32704;
+    }
+
+    public function testReturnsBinaryTypeDeclarationSQL()
+    {
+        $this->assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
+        $this->assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        $this->assertSame('VARBINARY(32704)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32704)));
+        $this->assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32705)));
+
+        $this->assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        $this->assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        $this->assertSame('BINARY(32704)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32704)));
+        $this->assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32705)));
+    }
 }
