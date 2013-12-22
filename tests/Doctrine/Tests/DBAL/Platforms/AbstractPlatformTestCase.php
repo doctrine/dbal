@@ -510,4 +510,24 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $this->_platform->schemaNeedsCreation('schema');
     }
+
+    /**
+     * @group DBAL-585
+     */
+    public function testAlterTableChangeQuotedColumn()
+    {
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff->fromTable = new \Doctrine\DBAL\Schema\Table('mytable');
+        $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'select', new \Doctrine\DBAL\Schema\Column(
+                'select', \Doctrine\DBAL\Types\Type::getType('string')
+            ),
+            array('type')
+        );
+
+        $this->assertContains(
+            $this->_platform->quoteIdentifier('select'),
+            implode(';', $this->_platform->getAlterTableSQL($tableDiff))
+        );
+    }
 }
