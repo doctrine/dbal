@@ -22,7 +22,6 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\LockMode;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Constraint;
@@ -287,7 +286,14 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         // Do not return alter clause if only comment has changed.
         if ( ! ($columnDiff->hasChanged('comment') && count($columnDiff->changedProperties) === 1)) {
-            return 'ALTER ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $columnAlterationClause = 'ALTER ' .
+                $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+
+            if ($columnDiff->hasChanged('default') && null === $column->getDefault()) {
+                $columnAlterationClause .= ', ALTER ' . $column->getQuotedName($this) . ' DROP DEFAULT';
+            }
+
+            return $columnAlterationClause;
         }
     }
 

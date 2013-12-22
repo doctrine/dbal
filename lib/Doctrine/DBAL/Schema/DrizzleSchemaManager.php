@@ -41,7 +41,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         $options = array(
             'notnull' => !(bool)$tableColumn['IS_NULLABLE'],
             'length' => (int)$tableColumn['CHARACTER_MAXIMUM_LENGTH'],
-            'default' => empty($tableColumn['COLUMN_DEFAULT']) ? null : $tableColumn['COLUMN_DEFAULT'],
+            'default' => isset($tableColumn['COLUMN_DEFAULT']) ? $tableColumn['COLUMN_DEFAULT'] : null,
             'autoincrement' => (bool)$tableColumn['IS_AUTO_INCREMENT'],
             'scale' => (int)$tableColumn['NUMERIC_SCALE'],
             'precision' => (int)$tableColumn['NUMERIC_PRECISION'],
