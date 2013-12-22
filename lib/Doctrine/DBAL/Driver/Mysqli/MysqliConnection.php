@@ -182,7 +182,7 @@ class MysqliConnection implements Connection, PingableConnection
             \MYSQLI_READ_DEFAULT_GROUP,
         );
 
-        if (version_compare(PHP_VERSION, '5.5.0') >= 0) {
+        if (defined('MYSQLI_SERVER_PUBLIC_KEY')) {
             $supportedDriverOptions[] = \MYSQLI_SERVER_PUBLIC_KEY;
         }
 
