@@ -23,6 +23,8 @@ use Doctrine\DBAL\DBALException;
 
 /**
  * Thrown when {@link DBALException::ERROR_DUPLICATE_KEY} is detected in driver
+ *
+ * @since 2.5
  */
 class DuplicateKeyException extends DBALException
 {

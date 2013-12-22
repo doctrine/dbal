@@ -23,6 +23,8 @@ use Doctrine\DBAL\DBALException;
 
 /**
  * Thrown when {@link DBALException::ERROR_FOREIGN_KEY_CONSTRAINT} is detected in driver
+ *
+ * @since 2.5
  */
 class ForeignKeyConstraintViolationException extends DBALException
 {
