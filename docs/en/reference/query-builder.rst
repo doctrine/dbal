@@ -46,8 +46,8 @@ Building a Query
 ----------------
 
 The ``\Doctrine\DBAL\Query\QueryBuilder`` supports building ``SELECT``,
-``UPDATE`` and ``DELETE`` queries. Which sort of query you are building
-depends on the methods you are using.
+``INSERT``, ``UPDATE`` and ``DELETE`` queries. Which sort of query you
+are building depends on the methods you are using.
 
 For ``SELECT`` queries you start with invoking the ``select()`` method
 
@@ -59,12 +59,17 @@ For ``SELECT`` queries you start with invoking the ``select()`` method
         ->select('u.id', 'u.name')
         ->from('users', 'u');
 
-For ``UPDATE`` and ``DELETE`` queries you can pass the table name into
-the ``update($tableName)`` and ``delete($tableName)``:
+For ``INSERT``, ``UPDATE`` and ``DELETE`` queries you can pass the
+table name into the ``insert($tableName)``, ``update($tableName)``
+and ``delete($tableName)``:
 
 .. code-block:: php
 
     <?php
+
+    $queryBuilder
+        ->insert('users', 'u')
+    ;
 
     $queryBuilder
         ->update('users', 'u')
@@ -80,7 +85,8 @@ by calling ``$queryBuilder->getSQL()`` or casting the object to string.
 WHERE-Clause
 ~~~~~~~~~~~~
 
-All 3 types of queries allow where clauses with the following API:
+The ``SELECT``, ``UPDATE`` and ``DELETE`` types of queries allow where
+clauses with the following API:
 
 .. code-block:: php
 
@@ -177,6 +183,82 @@ returned.
         ->from('users', 'u')
         ->setFirstResult(10)
         ->setMaxResults(20);
+
+VALUES Clause
+~~~~~~~~~~
+
+For the ``INSERT`` clause setting the values for columns to insert can be
+done with the ``values()`` method on the query builder:
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->insert('users')
+        ->values(
+            array(
+                'name' => '?',
+                'password' => '?'
+            )
+        )
+        ->setParameter(1, $username)
+        ->setParameter(2, $password)
+    ;
+    // INSERT INTO users (name, password) VALUES (?, ?)
+
+Each subsequent call to ``values()`` overwrites any previous set values.
+Setting single values instead of all at once is also possible with the
+``setValue()`` method:
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->insert('users')
+        ->setValue('name', '?')
+        ->setValue('password', '?')
+        ->setParameter(1, $username)
+        ->setParameter(2, $password)
+    ;
+    // INSERT INTO users (name, password) VALUES (?, ?)
+
+Of course you can also use both methods in combination:
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->insert('users')
+        ->values(
+            array(
+                'name' => '?'
+            )
+        )
+        ->setParameter(1, $username)
+    ;
+    // INSERT INTO users (name) VALUES (?)
+
+    if ($password) {
+        $queryBuilder
+            ->setValue('password', '?')
+            ->setParameter(2, $password)
+        ;
+        // INSERT INTO users (name, password) VALUES (?, ?)
+    }
+
+Not setting any values at all will result in an empty insert statement:
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->insert('users')
+    ;
+    // INSERT INTO users () VALUES ()
 
 Set Clause
 ~~~~~~~~~~
