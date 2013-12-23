@@ -463,4 +463,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             'RENAME INDEX "schema"."foo" TO "bar"',
         );
     }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
 }
