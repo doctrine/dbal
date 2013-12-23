@@ -66,9 +66,9 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null,$length = null)
+    public function bindParam($column, &$variable, $type = null, $length = null)
     {
-        return $this->stmt->bindParam($column, $variable, $type);
+        return $this->stmt->bindParam($column, $variable, $type, $length);
     }
     /**
      * {@inheritdoc}
