@@ -254,7 +254,12 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $sequence = \array_change_key_case($sequence, CASE_LOWER);
 
-        return new Sequence($sequence['sequence_name'], $sequence['increment_by'], $sequence['min_value']);
+        return new Sequence(
+            $sequence['sequence_name'],
+            $sequence['increment_by'],
+            $sequence['min_value'],
+            $sequence['cache_size']
+        );
     }
 
     /**

@@ -60,7 +60,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->markTestSkipped($this->_conn->getDriver()->getName().' does not support sequences.');
         }
 
-        $sequence = new \Doctrine\DBAL\Schema\Sequence('list_sequences_test_seq', 20, 10);
+        $sequence = new \Doctrine\DBAL\Schema\Sequence('list_sequences_test_seq', 20, 10, 5);
         $this->_sm->createSequence($sequence);
 
         $sequences = $this->_sm->listSequences();
@@ -78,6 +78,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertNotNull($foundSequence, "Sequence with name 'list_sequences_test_seq' was not found.");
         $this->assertEquals(20, $foundSequence->getAllocationSize(), "Allocation Size is expected to be 20.");
         $this->assertEquals(10, $foundSequence->getInitialValue(), "Initial Value is expected to be 10.");
+        $this->assertEquals(5, $foundSequence->getCacheSize(), "Cache size is expected to be 5.");
     }
 
     public function testListDatabases()

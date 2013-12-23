@@ -36,7 +36,8 @@ class SQLServer2012Platform extends SQLServer2008Platform
     public function getAlterSequenceSQL(Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
-               ' INCREMENT BY ' . $sequence->getAllocationSize();
+               ' INCREMENT BY ' . $sequence->getAllocationSize() .
+               $this->getSequenceCacheClause($sequence);
     }
 
     /**
@@ -47,7 +48,30 @@ class SQLServer2012Platform extends SQLServer2008Platform
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' START WITH ' . $sequence->getInitialValue() .
                ' INCREMENT BY ' . $sequence->getAllocationSize() .
-               ' MINVALUE ' . $sequence->getInitialValue();
+               ' MINVALUE ' . $sequence->getInitialValue() .
+               $this->getSequenceCacheClause($sequence);
+    }
+
+    /**
+     * Returns the CACHE clause to be used in sequence creation and alteration statements.
+     *
+     * @param Sequence $sequence The sequence to return the CACHE clause for.
+     *
+     * @return string
+     */
+    protected function getSequenceCacheClause(Sequence $sequence)
+    {
+        $cacheSize = $sequence->getCacheSize();
+
+        if (null === $cacheSize) {
+            return '';
+        }
+
+        if (0 == $cacheSize) {
+            return ' NO CACHE';
+        }
+
+        return ' CACHE ' . $cacheSize;
     }
 
     /**
@@ -67,7 +91,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
      */
     public function getListSequencesSQL($database)
     {
-        return 'SELECT seq.name, seq.increment, seq.start_value FROM sys.sequences AS seq';
+        return 'SELECT seq.name, seq.increment, seq.start_value, seq.cache_size FROM sys.sequences AS seq';
     }
 
     /**

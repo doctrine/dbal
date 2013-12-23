@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
@@ -604,37 +605,41 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    public function getCreateSequenceSQL(Sequence $sequence)
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize() .
                ' MINVALUE ' . $sequence->getInitialValue() .
                ' START ' . $sequence->getInitialValue() .
-               $this->getSequenceCacheSQL($sequence);
+               $this->getSequenceCacheClause($sequence);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    public function getAlterSequenceSQL(Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize() .
-               $this->getSequenceCacheSQL($sequence);
+               $this->getSequenceCacheClause($sequence);
     }
 
     /**
-     * Cache definition for sequences
+     * Returns the CACHE clause to be used in sequence creation and alteration statements.
+     *
+     * @param Sequence $sequence The sequence to return the CACHE clause for.
      *
      * @return string
      */
-    private function getSequenceCacheSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    protected function getSequenceCacheClause(Sequence $sequence)
     {
-        if ($sequence->getCache() > 1) {
-            return ' CACHE ' . $sequence->getCache();
+        $cacheSize = $sequence->getCacheSize();
+
+        if (0 == $cacheSize) {
+            return '';
         }
 
-        return '';
+        return ' CACHE ' . $cacheSize;
     }
 
     /**
@@ -642,7 +647,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDropSequenceSQL($sequence)
     {
-        if ($sequence instanceof \Doctrine\DBAL\Schema\Sequence) {
+        if ($sequence instanceof Sequence) {
             $sequence = $sequence->getQuotedName($this);
         }
         return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
