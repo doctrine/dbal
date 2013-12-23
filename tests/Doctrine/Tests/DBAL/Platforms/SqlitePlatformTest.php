@@ -552,4 +552,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'when used with schemas.'
         );
     }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
 }

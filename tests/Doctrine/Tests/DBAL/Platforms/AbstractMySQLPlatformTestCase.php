@@ -596,4 +596,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "CHANGE `select` `select` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 3'"
         );
     }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
 }
