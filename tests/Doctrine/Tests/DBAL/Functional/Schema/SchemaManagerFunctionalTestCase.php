@@ -743,4 +743,44 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_binary')->getType());
         $this->assertTrue($table->getColumn('column_binary')->getFixed());
     }
+
+    public function testListTableDetailsWithFullQualifiedTableName()
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->supportsSchemas()) {
+            $this->markTestSkipped('Test only works on platforms that support schemas.');
+        }
+
+        $defaultSchemaName = $this->_sm->getDatabasePlatform()->getDefaultSchemaName();
+        $primaryTableName  = 'primary_table';
+        $foreignTableName  = 'foreign_table';
+
+        $table = new Table($foreignTableName);
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $table = new Table($primaryTableName);
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
+        $table->addColumn('bar', 'string');
+        $table->addForeignKeyConstraint($foreignTableName, array('foo'), array('id'));
+        $table->addIndex(array('bar'));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $this->assertEquals(
+            $this->_sm->listTableColumns($primaryTableName),
+            $this->_sm->listTableColumns($defaultSchemaName . '.' . $primaryTableName)
+        );
+        $this->assertEquals(
+            $this->_sm->listTableIndexes($primaryTableName),
+            $this->_sm->listTableIndexes($defaultSchemaName . '.' . $primaryTableName)
+        );
+        $this->assertEquals(
+            $this->_sm->listTableForeignKeys($primaryTableName),
+            $this->_sm->listTableForeignKeys($defaultSchemaName . '.' . $primaryTableName)
+        );
+    }
 }
