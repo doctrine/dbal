@@ -439,6 +439,16 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testTrimExpression($value, $position, $char, $expectedResult)
     {
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\PDOInformix\Driver &&
+            preg_match('/\s$/', $expectedResult)) {
+
+            // The Informix trim function always returns a *varchar type and PDO_INFORMIX
+            // trims automatically the trailing spaces
+            $this->markTestSkipped(
+                'Doesn\'t work with PDO_INFORMIX: it always trims trailing spaces on varchar types'
+            );
+        }
+
         $sql = 'SELECT ' .
             $this->_conn->getDatabasePlatform()->getTrimExpression($value, $position, $char) . ' AS trimmed ' .
             'FROM fetch_table';
@@ -542,6 +552,12 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testLocateExpression()
     {
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\PDOInformix\Driver) {
+            $this->markTestSkipped(
+                'Test doesn\'t work with Informix'
+            );
+        }
+
         $platform = $this->_conn->getDatabasePlatform();
 
         $sql = 'SELECT ';
@@ -860,5 +876,19 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
 class MyFetchClass
 {
-    public $test_int, $test_string, $test_datetime;
+
+    protected $cols = array();
+
+    public function __set($name, $value) {
+
+      $this->cols[strtolower($name)] = $value;
+
+    }
+
+    public function __get($name) {
+
+      return $this->cols[strtolower($name)];
+
+    }
+
 }

@@ -27,6 +27,7 @@ class TestUtil
      * 'db_host' : The hostname of the database to connect to.
      * 'db_server' : The server name of the database to connect to
      *               (optional, some vendors allow multiple server instances with different names on the same host).
+     * 'db_protocol' : The protocol for make the connection (optional).
      * 'db_name' : The name of the database to connect to.
      * 'db_port' : The port of the database to connect to.
      *
@@ -157,6 +158,10 @@ class TestUtil
             $connectionParams['unix_socket'] = $GLOBALS['tmpdb_unix_socket'];
         }
 
+        if (isset($GLOBALS['tmpdb_protocol'])) {
+            $connectionParams['protocol'] = $GLOBALS['tmpdb_protocol'];
+        }
+
         return $connectionParams;
     }
 
@@ -177,6 +182,10 @@ class TestUtil
 
         if (isset($GLOBALS['db_unix_socket'])) {
             $connectionParams['unix_socket'] = $GLOBALS['db_unix_socket'];
+        }
+
+        if (isset($GLOBALS['db_protocol'])) {
+            $connectionParams['protocol'] = $GLOBALS['db_protocol'];
         }
 
         return $connectionParams;
