@@ -34,7 +34,7 @@ class JsonArrayType extends Type
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
+        return $platform->getJsonTypeDeclarationSQL($fieldDeclaration);
     }
 
     /**
@@ -76,6 +76,6 @@ class JsonArrayType extends Type
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {
-        return true;
+        return ! $platform->hasNativeJsonType();
     }
 }

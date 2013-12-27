@@ -269,6 +269,21 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to declare a JSON field.
+     *
+     * By default this maps directly to a CLOB and only maps to more
+     * special datatypes when the underlying databases support this datatype.
+     *
+     * @param array $field
+     *
+     * @return string
+     */
+    public function getJsonTypeDeclarationSQL(array $field)
+    {
+        return $this->getClobTypeDeclarationSQL($field);
+    }
+
+    /**
      * @param integer $length
      * @param boolean $fixed
      *
@@ -2870,6 +2885,16 @@ abstract class AbstractPlatform
      * @return boolean
      */
     public function hasNativeGuidType()
+    {
+        return false;
+    }
+
+    /**
+     * Does this platform have native JSON type.
+     *
+     * @return boolean
+     */
+    public function hasNativeJsonType()
     {
         return false;
     }

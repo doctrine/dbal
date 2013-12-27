@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 {
@@ -574,5 +575,30 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testReturnsBinaryTypeDeclarationSQL()
     {
         $this->_platform->getBinaryTypeDeclarationSQL(array());
+    }
+
+    /**
+     * @group DBAL-553
+     */
+    public function hasNativeJsonType()
+    {
+        $this->assertFalse($this->_platform->hasNativeJsonType());
+    }
+
+    /**
+     * @group DBAL-553
+     */
+    public function testReturnsJsonTypeDeclarationSQL()
+    {
+        $column = array(
+            'length'  => 666,
+            'notnull' => true,
+            'type'    => Type::getType('json_array'),
+        );
+
+        $this->assertSame(
+            $this->_platform->getClobTypeDeclarationSQL($column),
+            $this->_platform->getJsonTypeDeclarationSQL($column)
+        );
     }
 }
