@@ -63,13 +63,13 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableSql()
     {
-        return 'CREATE TABLE test (id NUMBER(10) NOT NULL, test VARCHAR2(255) DEFAULT NULL, PRIMARY KEY(id))';
+        return 'CREATE TABLE test (id NUMBER(10) NOT NULL, test VARCHAR2(255) DEFAULT NULL NULL, PRIMARY KEY(id))';
     }
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
         return array(
-            'CREATE TABLE test (foo VARCHAR2(255) DEFAULT NULL, bar VARCHAR2(255) DEFAULT NULL)',
+            'CREATE TABLE test (foo VARCHAR2(255) DEFAULT NULL NULL, bar VARCHAR2(255) DEFAULT NULL NULL)',
             'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
         );
     }
@@ -77,8 +77,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            'ALTER TABLE mytable ADD (quota NUMBER(10) DEFAULT NULL)',
-            "ALTER TABLE mytable MODIFY (baz  VARCHAR2(255) DEFAULT 'def' NOT NULL, bloo  NUMBER(1) DEFAULT '0' NOT NULL)",
+            'ALTER TABLE mytable ADD (quota NUMBER(10) DEFAULT NULL NULL)',
+            "ALTER TABLE mytable MODIFY (baz VARCHAR2(255) DEFAULT 'def' NOT NULL, bloo NUMBER(1) DEFAULT '0' NOT NULL)",
             "ALTER TABLE mytable DROP (foo)",
             "ALTER TABLE mytable RENAME TO userlist",
         );
@@ -326,9 +326,15 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             ),
             array('type', 'notnull')
         );
+        $tableDiff->changedColumns['metar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'metar', new \Doctrine\DBAL\Schema\Column(
+                'metar', \Doctrine\DBAL\Types\Type::getType('string'), array('length' => 2000, 'notnull' => false)
+            ),
+            array('notnull')
+        );
 
         $expectedSql = array(
-            "ALTER TABLE mytable MODIFY (foo  VARCHAR2(255) DEFAULT 'bla', baz  VARCHAR2(255) DEFAULT 'bla' NOT NULL)",
+            "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla' NULL, baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)",
 	);
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }

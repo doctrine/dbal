@@ -686,7 +686,7 @@ LEFT JOIN user_cons_columns r_cols
                     $columnInfo['notnull'] = false;
                 }
 
-                $fields[] = $column->getQuotedName($this) . ' ' . $this->getColumnDeclarationSQL('', $columnInfo);
+                $fields[] = $column->getQuotedName($this) . $this->getColumnDeclarationSQL('', $columnInfo);
             }
 
             if ($columnHasChangedComment) {
@@ -734,6 +734,31 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnDeclarationSQL($name, array $field)
+    {
+        if (isset($field['columnDefinition'])) {
+            $columnDef = $this->getCustomTypeDeclarationSQL($field);
+        } else {
+            $default = $this->getDefaultValueDeclarationSQL($field);
+
+            $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+
+            $unique = (isset($field['unique']) && $field['unique']) ?
+                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+
+            $check = (isset($field['check']) && $field['check']) ?
+                ' ' . $field['check'] : '';
+
+            $typeDecl = $field['type']->getSqlDeclaration($field, $this);
+            $columnDef = $typeDecl . $default . $notnull . $unique . $check;
+        }
+
+        return $name . ' ' . $columnDef;
     }
 
     /**
