@@ -259,7 +259,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function addFlag($flag)
     {
-        $this->flags[strtolower($flag)] = true;
+        $this->_flags[strtolower($flag)] = true;
 
         return $this;
     }
@@ -273,7 +273,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function hasFlag($flag)
     {
-        return isset($this->flags[strtolower($flag)]);
+        return isset($this->_flags[strtolower($flag)]);
     }
 
     /**
@@ -285,6 +285,6 @@ class Index extends AbstractAsset implements Constraint
      */
     public function removeFlag($flag)
     {
-        unset($this->flags[strtolower($flag)]);
+        unset($this->_flags[strtolower($flag)]);
     }
 }

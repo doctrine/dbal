@@ -89,13 +89,16 @@ class IndexTest extends \PHPUnit_Framework_TestCase
     {
         $idx1 = $this->createIndex();
         $this->assertFalse($idx1->hasFlag('clustered'));
+        $this->assertEmpty($idx1->getFlags());
 
         $idx1->addFlag('clustered');
         $this->assertTrue($idx1->hasFlag('clustered'));
         $this->assertTrue($idx1->hasFlag('CLUSTERED'));
+        $this->assertSame(array('clustered'), $idx1->getFlags());
 
         $idx1->removeFlag('clustered');
         $this->assertFalse($idx1->hasFlag('clustered'));
+        $this->assertEmpty($idx1->getFlags());
     }
 
     /**
