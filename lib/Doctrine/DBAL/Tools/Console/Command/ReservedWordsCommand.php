@@ -33,6 +33,7 @@ class ReservedWordsCommand extends Command
      */
     private $keywordListClasses = array(
         'mysql'         => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
+        'mysql57'       => 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords',
         'sqlserver'     => 'Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords',
         'sqlserver2005' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords',
         'sqlserver2008' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords',
@@ -91,6 +92,7 @@ pass them to the command:
 The following keyword lists are currently shipped with Doctrine:
 
     * mysql
+    * mysql57
     * pgsql
     * pgsql92
     * sqlite
@@ -120,6 +122,7 @@ EOT
         if ( ! $keywordLists) {
             $keywordLists = array(
                 'mysql',
+                'mysql57',
                 'pgsql',
                 'pgsql92',
                 'sqlite',
