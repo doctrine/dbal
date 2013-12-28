@@ -617,9 +617,14 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $tableB->addIndex(array("id"), "bar_foo_idx");
 
         $c = new Comparator();
-        $tableDiff = $c->diffTable($tableA, $tableB);
+        $tableDiff = new TableDiff('foo');
+        $tableDiff->fromTable = $tableA;
+        $tableDiff->renamedIndexes['foo_bar_idx'] = new Index('bar_foo_idx', array('id'));
 
-        $this->assertFalse($tableDiff);
+        $this->assertEquals(
+            $tableDiff,
+            $c->diffTable($tableA, $tableB)
+        );
     }
 
     public function testCompareForeignKeyBasedOnPropertiesNotName()

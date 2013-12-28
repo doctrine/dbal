@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\Sequence;
@@ -1823,10 +1824,12 @@ abstract class AbstractPlatform
             : $diff->getName()->getQuotedName($this);
 
         $sql = array();
+
         if ($this->supportsForeignKeyConstraints()) {
             foreach ($diff->addedForeignKeys as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
+
             foreach ($diff->changedForeignKeys as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
@@ -1835,11 +1838,37 @@ abstract class AbstractPlatform
         foreach ($diff->addedIndexes as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
+
         foreach ($diff->changedIndexes as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
 
+        foreach ($diff->renamedIndexes as $oldIndexName => $index) {
+            $oldIndexName = new Identifier($oldIndexName);
+            $sql          = array_merge(
+                $sql,
+                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName)
+            );
+        }
+
         return $sql;
+    }
+
+    /**
+     * Returns the SQL for renaming an index on a table.
+     *
+     * @param string                      $oldIndexName The name of the index to rename from.
+     * @param \Doctrine\DBAL\Schema\Index $index        The definition of the index to rename to.
+     * @param string                      $tableName    The table to rename the given index on.
+     *
+     * @return array The sequence of SQL statements for renaming the given index.
+     */
+    protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
+    {
+        return array(
+            $this->getDropIndexSQL($oldIndexName, $tableName),
+            $this->getCreateIndexSQL($index, $tableName)
+        );
     }
 
     /**

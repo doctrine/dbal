@@ -484,4 +484,28 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
             $this->_platform->getAlterTableSQL($tableDiff)
         );
     }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getAlterTableRenameIndexSQL()
+    {
+        return array(
+            'DROP INDEX idx_foo ON mytable',
+            'CREATE INDEX idx_bar ON mytable (id)',
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexSQL()
+    {
+        return array(
+            'DROP INDEX `create` ON `table`',
+            'CREATE INDEX `select` ON `table` (id)',
+            'DROP INDEX `foo` ON `table`',
+            'CREATE INDEX `bar` ON `table` (id)',
+        );
+    }
 }

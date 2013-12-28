@@ -88,6 +88,13 @@ class TableDiff
     public $removedIndexes = array();
 
     /**
+     * Indexes that are only renamed but are identical otherwise.
+     *
+     * @var \Doctrine\DBAL\Schema\Index[]
+     */
+    public $renamedIndexes = array();
+
+    /**
      * All added foreign key definitions
      *
      * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]

@@ -506,4 +506,25 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
         // BLOB      -> BLOB
         $this->assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
     }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getAlterTableRenameIndexSQL()
+    {
+        return array(
+            'ALTER INDEX idx_foo RENAME TO idx_bar',
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexSQL()
+    {
+        return array(
+            'ALTER INDEX "create" RENAME TO "select"',
+            'ALTER INDEX "foo" RENAME TO "bar"',
+        );
+    }
 }

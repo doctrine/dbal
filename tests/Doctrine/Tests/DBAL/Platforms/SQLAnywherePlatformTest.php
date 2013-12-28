@@ -784,4 +784,25 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->assertSame('BINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32767)));
         $this->assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32768)));
     }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getAlterTableRenameIndexSQL()
+    {
+        return array(
+            'ALTER INDEX idx_foo ON mytable RENAME TO idx_bar',
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexSQL()
+    {
+        return array(
+            'ALTER INDEX "create" ON "table" RENAME TO "select"',
+            'ALTER INDEX "foo" ON "table" RENAME TO "bar"',
+        );
+    }
 }

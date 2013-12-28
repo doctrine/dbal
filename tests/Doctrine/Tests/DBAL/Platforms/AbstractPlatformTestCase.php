@@ -6,6 +6,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -599,6 +600,69 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->assertSame(
             $this->_platform->getClobTypeDeclarationSQL($column),
             $this->_platform->getJsonTypeDeclarationSQL($column)
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    public function testAlterTableRenameIndex()
+    {
+        $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = new Table('mytable');
+        $tableDiff->fromTable->addColumn('id', 'integer');
+        $tableDiff->fromTable->setPrimaryKey(array('id'));
+        $tableDiff->renamedIndexes = array(
+            'idx_foo' => new Index('idx_bar', array('id'))
+        );
+
+        $this->assertSame(
+            $this->getAlterTableRenameIndexSQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getAlterTableRenameIndexSQL()
+    {
+        return array(
+            'DROP INDEX idx_foo',
+            'CREATE INDEX idx_bar ON mytable (id)',
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    public function testQuotesAlterTableRenameIndex()
+    {
+        $tableDiff = new TableDiff('table');
+        $tableDiff->fromTable = new Table('table');
+        $tableDiff->fromTable->addColumn('id', 'integer');
+        $tableDiff->fromTable->setPrimaryKey(array('id'));
+        $tableDiff->renamedIndexes = array(
+            'create' => new Index('select', array('id')),
+            '`foo`'  => new Index('`bar`', array('id')),
+        );
+
+        $this->assertSame(
+            $this->getQuotedAlterTableRenameIndexSQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexSQL()
+    {
+        return array(
+            'DROP INDEX "create"',
+            'CREATE INDEX "select" ON "table" (id)',
+            'DROP INDEX "foo"',
+            'CREATE INDEX "bar" ON "table" (id)',
         );
     }
 }
