@@ -35,7 +35,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $sql = "SELECT * FROM unknown_table";
 
-        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_UNKNOWN_TABLE);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\TableNotFoundException', null, DBALException::ERROR_UNKNOWN_TABLE);
         $this->_conn->executeQuery($sql);
     }
 
@@ -45,7 +45,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
-        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_TABLE_ALREADY_EXISTS);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\TableExistsException', null, DBALException::ERROR_TABLE_ALREADY_EXISTS);
         foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
             $this->_conn->executeQuery($sql);
         }
@@ -111,7 +111,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->executeQuery($sql);
         }
 
-        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_BAD_FIELD_NAME);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\InvalidFieldNameException', null, DBALException::ERROR_BAD_FIELD_NAME);
         $this->_conn->insert("bad_fieldname_table", array('name' => 5));
     }
 
@@ -130,7 +130,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
-        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_NON_UNIQUE_FIELD_NAME);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\NonUniqueFieldNameException', null, DBALException::ERROR_NON_UNIQUE_FIELD_NAME);
         $this->_conn->executeQuery($sql);
     }
 
@@ -147,7 +147,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->_conn->insert("unique_field_table", array('id' => 5));
-        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_DUPLICATE_KEY);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\DuplicateKeyException', null, DBALException::ERROR_DUPLICATE_KEY);
         $this->_conn->insert("unique_field_table", array('id' => 5));
     }
 
@@ -162,14 +162,14 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $sql = 'SELECT id FRO syntax_error_table';
-        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, DBALException::ERROR_SYNTAX);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\SyntaxErrorException', null, DBALException::ERROR_SYNTAX);
         $this->_conn->executeQuery($sql);
     }
 
     /**
      * @dataProvider getSqLiteOpenConnection
      */
-    public function testConnectionExceptionSqLite($mode, $exceptionCode)
+    public function testConnectionExceptionSqLite($mode, $exceptionClass, $exceptionCode)
     {
         if ($this->_conn->getDatabasePlatform()->getName() != 'sqlite') {
             $this->markTestSkipped("Only fails this way on sqlite");
@@ -194,7 +194,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table = $schema->createTable("no_connection");
         $table->addColumn('id', 'integer');
 
-        $this->setExpectedException('\Doctrine\DBAL\DBALException', null, $exceptionCode);
+        $this->setExpectedException($exceptionClass, null, $exceptionCode);
         foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
             $conn->executeQuery($sql);
         }
@@ -203,8 +203,8 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function getSqLiteOpenConnection()
     {
         return array(
-            array(0000, DBALException::ERROR_UNABLE_TO_OPEN),
-            array(0444, DBALException::ERROR_WRITE_READONLY),
+            array(0000, '\Doctrine\DBAL\Exception\FailedToOpenException', DBALException::ERROR_UNABLE_TO_OPEN),
+            array(0444, '\Doctrine\DBAL\Exception\ReadOnlyException', DBALException::ERROR_WRITE_READONLY),
         );
     }
 

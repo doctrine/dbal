@@ -130,6 +130,10 @@ class DBALException extends \Exception
     /**
      * Factory method for subclasses of DBALException based on exception code.
      *
+     * @param string     $msg      The driver error message.
+     * @param integer    $code     The DBAL driver error code. One of the DBALException::ERROR_* constants.
+     * @param \Exception $driverEx The underlying driver exception to wrap.
+     *
      * @return \Doctrine\DBAL\DBALException
      */
     private static function createDriverException($msg, $code, $driverEx)
@@ -143,6 +147,30 @@ class DBALException extends \Exception
 
             case self::ERROR_FOREIGN_KEY_CONSTRAINT:
                 return new Exception\ForeignKeyConstraintViolationException($msg, $code, $driverEx);
+
+            case self::ERROR_ACCESS_DENIED:
+                return new Exception\AccessDeniedException($msg, $code, $driverEx);
+
+            case self::ERROR_BAD_FIELD_NAME:
+                return new Exception\InvalidFieldNameException($msg, $code, $driverEx);
+
+            case self::ERROR_NON_UNIQUE_FIELD_NAME:
+                return new Exception\NonUniqueFieldNameException($msg, $code, $driverEx);
+
+            case self::ERROR_SYNTAX:
+                return new Exception\SyntaxErrorException($msg, $code, $driverEx);
+
+            case self::ERROR_TABLE_ALREADY_EXISTS:
+                return new Exception\TableExistsException($msg, $code, $driverEx);
+
+            case self::ERROR_UNABLE_TO_OPEN:
+                return new Exception\FailedToOpenException($msg, $code, $driverEx);
+
+            case self::ERROR_UNKNOWN_TABLE:
+                return new Exception\TableNotFoundException($msg, $code, $driverEx);
+
+            case self::ERROR_WRITE_READONLY:
+                return new Exception\ReadOnlyException($msg, $code, $driverEx);
 
             default:
                 return new self($msg, $code, $driverEx);
