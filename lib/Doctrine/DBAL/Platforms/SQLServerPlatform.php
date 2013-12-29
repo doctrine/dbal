@@ -793,6 +793,8 @@ class SQLServerPlatform extends AbstractPlatform
                 ON        col.user_type_id = type.user_type_id
                 JOIN      sys.objects AS obj
                 ON        col.object_id = obj.object_id
+                JOIN      sys.schemas AS scm
+                ON        obj.schema_id = scm.schema_id
                 LEFT JOIN sys.default_constraints def
                 ON        col.default_object_id = def.object_id
                 AND       col.object_id = def.parent_object_id
@@ -801,7 +803,7 @@ class SQLServerPlatform extends AbstractPlatform
                 AND       col.column_id = prop.minor_id
                 AND       prop.name = 'MS_Description'
                 WHERE     obj.type = 'U'
-                AND       obj.name = '$table'";
+                AND       " . $this->getTableWhereClause($table, 'scm.name', 'obj.name');
     }
 
     /**
@@ -822,7 +824,8 @@ class SQLServerPlatform extends AbstractPlatform
                 INNER JOIN sys.foreign_key_columns AS fc
                 INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
                 ON f.OBJECT_ID = fc.constraint_object_id
-                WHERE OBJECT_NAME (f.parent_object_id) = '" . $table . "'";
+                WHERE " .
+                $this->getTableWhereClause($table, 'SCHEMA_NAME (f.schema_id)', 'OBJECT_NAME (f.parent_object_id)');
     }
 
     /**
@@ -840,10 +843,11 @@ class SQLServerPlatform extends AbstractPlatform
                            ELSE NULL
                        END AS flags
                 FROM sys.tables AS tbl
+                JOIN sys.schemas AS scm ON tbl.schema_id = scm.schema_id
                 JOIN sys.indexes AS idx ON tbl.object_id = idx.object_id
                 JOIN sys.index_columns AS idxcol ON idx.object_id = idxcol.object_id AND idx.index_id = idxcol.index_id
                 JOIN sys.columns AS col ON idxcol.object_id = col.object_id AND idxcol.column_id = col.column_id
-                WHERE tbl.name = '$table'
+                WHERE " . $this->getTableWhereClause($table, 'scm.name', 'tbl.name') . "
                 ORDER BY idx.index_id ASC, idxcol.index_column_id ASC";
     }
 
@@ -861,6 +865,27 @@ class SQLServerPlatform extends AbstractPlatform
     public function getListViewsSQL($database)
     {
         return "SELECT name FROM sysobjects WHERE type = 'V' ORDER BY name";
+    }
+
+    /**
+     * Returns the where clause to filter schema and table name in a query.
+     *
+     * @param string $table        The full qualified name of the table.
+     * @param string $tableColumn  The name of the column to compare the schema to in the where clause.
+     * @param string $schemaColumn The name of the column to compare the table to in the where clause.
+     *
+     * @return string
+     */
+    private function getTableWhereClause($table, $schemaColumn, $tableColumn)
+    {
+        if (strpos($table, ".") !== false) {
+            list($schema, $table) = explode(".", $table);
+            $schema = "'" . $schema . "'";
+        } else {
+            $schema = "SCHEMA_NAME()";
+        }
+
+        return "({$tableColumn} = '{$table}' AND {$schemaColumn} = {$schema})";
     }
 
     /**

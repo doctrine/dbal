@@ -752,6 +752,13 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
+        $user = 'USER_NAME()';
+
+        if (strpos($table, '.') !== false) {
+            list($user, $table) = explode('.', $table);
+            $user = "'" . $user . "'";
+        }
+
         return "SELECT    col.column_name,
                           COALESCE(def.user_type_name, def.domain_name) AS 'type',
                           def.declared_width AS 'length',
@@ -766,6 +773,7 @@ class SQLAnywherePlatform extends AbstractPlatform
                 ON        col.table_id = def.base_table_id AND col.column_id = def.base_column_id
                 LEFT JOIN SYS.SYSREMARK AS rem
                 ON        col.object_id = rem.object_id
+                WHERE     def.base_owner_name = $user
                 ORDER BY  def.base_column_id ASC";
     }
 
@@ -776,10 +784,18 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getListTableConstraintsSQL($table)
     {
+        $user = '';
+
+        if (strpos($table, '.') !== false) {
+            list($user, $table) = explode('.', $table);
+            $user = "'" . $user . "'";
+        }
+
         return "SELECT con.*
                 FROM   SYS.SYSCONSTRAINT AS con
-                JOIN   SYS.SYSTABLE AS tab ON con.table_object_id = tab.object_id
-                WHERE  tab.table_name = '$table'";
+                JOIN   SYS.SYSTAB AS tab ON con.table_object_id = tab.object_id
+                WHERE  tab.table_name = '$table'
+                AND    tab.creator = USER_ID($user)";
     }
 
     /**
@@ -787,6 +803,13 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table)
     {
+        $user = '';
+
+        if (strpos($table, '.') !== false) {
+            list($user, $table) = explode('.', $table);
+            $user = "'" . $user . "'";
+        }
+
         return "SELECT    fcol.column_name AS local_column,
                           ptbl.table_name AS foreign_table,
                           pcol.column_name AS foreign_column,
@@ -854,6 +877,7 @@ class SQLAnywherePlatform extends AbstractPlatform
                 AND       fk.foreign_index_id = dt.foreign_key_id
                 AND       dt.event = 'D'
                 WHERE     ftbl.table_name = '$table'
+                AND       ftbl.creator = USER_ID($user)
                 ORDER BY  fk.foreign_index_id ASC, idxcol.sequence ASC";
     }
 
@@ -862,6 +886,13 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
+        $user = '';
+
+        if (strpos($table, '.') !== false) {
+            list($user, $table) = explode('.', $table);
+            $user = "'" . $user . "'";
+        }
+
         return "SELECT   idx.index_name AS key_name,
                          IF idx.index_category = 1
                              THEN 1
@@ -895,6 +926,7 @@ class SQLAnywherePlatform extends AbstractPlatform
                 JOIN     SYS.SYSTAB AS tbl
                 ON       idx.table_id = tbl.table_id
                 WHERE    tbl.table_name = '$table'
+                AND      tbl.creator = USER_ID($user)
                 ORDER BY idx.index_id ASC, idxcol.sequence ASC";
     }
 
