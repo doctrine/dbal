@@ -36,6 +36,7 @@ class SQLParserUtils
     // Quote characters within string literals can be preceded by a backslash.
     const ESCAPED_SINGLE_QUOTED_TEXT = "'(?:[^'\\\\]|\\\\'|\\\\\\\\)*'";
     const ESCAPED_DOUBLE_QUOTED_TEXT = '"(?:[^"\\\\]|\\\\"|\\\\\\\\)*"';
+    const ESCAPED_BACKTICK_QUOTED_TEXT = '`(?:[^`\\\\]|\\\\`|\\\\\\\\)*`';
 
     /**
      * Gets an array of the placeholders in an sql statements as keys and their positions in the query string.
@@ -194,8 +195,10 @@ class SQLParserUtils
      */
     static private function getUnquotedStatementFragments($statement)
     {
-        $literal = self::ESCAPED_SINGLE_QUOTED_TEXT . '|' . self::ESCAPED_DOUBLE_QUOTED_TEXT;
-        preg_match_all("/([^'\"]+)(?:$literal)?/s", $statement, $fragments, PREG_OFFSET_CAPTURE);
+        $literal = self::ESCAPED_SINGLE_QUOTED_TEXT . '|' .
+                   self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
+                   self::ESCAPED_BACKTICK_QUOTED_TEXT;
+        preg_match_all("/([^'\"`]+)(?:$literal)?/s", $statement, $fragments, PREG_OFFSET_CAPTURE);
 
         return $fragments[1];
     }
