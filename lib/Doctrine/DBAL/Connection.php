@@ -514,7 +514,7 @@ class Connection implements DriverConnection
             $criteria[] = $columnName . ' = ?';
         }
 
-        if ( ! is_int(key($types))) {
+        if (is_string(key($types))) {
             $types = $this->extractTypeValues($identifier, $types);
         }
 
@@ -578,7 +578,7 @@ class Connection implements DriverConnection
             $set[] = $columnName . ' = ?';
         }
 
-        if ( ! is_int(key($types))) {
+        if (is_string(key($types))) {
             $types = $this->extractTypeValues(array_merge($data, $identifier), $types);
         }
 
@@ -612,7 +612,7 @@ class Connection implements DriverConnection
             'INSERT INTO ' . $tableName . ' (' . implode(', ', array_keys($data)) . ')' .
             ' VALUES (' . implode(', ', array_fill(0, count($data), '?')) . ')',
             array_values($data),
-            is_int(key($types)) ? $types : $this->extractTypeValues($data, $types)
+            is_string(key($types)) ? $this->extractTypeValues($data, $types) : $types
         );
     }
 
