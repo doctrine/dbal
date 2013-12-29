@@ -113,14 +113,16 @@ class OracleSchemaManager extends AbstractSchemaManager
             $tableColumn['column_name'] = '';
         }
 
-        if ($tableColumn['data_default'] === 'NULL') {
+        // Default values returned from database sometimes have trailing spaces.
+        $tableColumn['data_default'] = trim($tableColumn['data_default']);
+
+        if ($tableColumn['data_default'] === '' || $tableColumn['data_default'] === 'NULL') {
             $tableColumn['data_default'] = null;
         }
 
         if (null !== $tableColumn['data_default']) {
             // Default values returned from database are enclosed in single quotes.
-            // Sometimes trailing spaces are also encountered.
-            $tableColumn['data_default'] = trim(trim($tableColumn['data_default']), "'");
+            $tableColumn['data_default'] = trim($tableColumn['data_default'], "'");
         }
 
         $precision = null;
