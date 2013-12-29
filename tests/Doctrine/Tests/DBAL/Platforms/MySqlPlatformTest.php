@@ -2,8 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -409,5 +411,77 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
         $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65536)));
         $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777215)));
         $this->assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777216)));
+    }
+
+    public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines()
+    {
+        $table = new Table("foreign_table");
+        $table->addColumn('id', 'integer');
+        $table->addColumn('fk_id', 'integer');
+        $table->addForeignKeyConstraint('foreign_table', array('fk_id'), array('id'));
+        $table->setPrimaryKey(array('id'));
+        $table->addOption('engine', 'MyISAM');
+
+        $this->assertSame(
+            array('CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'),
+            $this->_platform->getCreateTableSQL(
+                $table,
+                AbstractPlatform::CREATE_INDEXES|AbstractPlatform::CREATE_FOREIGNKEYS
+            )
+        );
+
+        $table = clone $table;
+        $table->addOption('engine', 'InnoDB');
+
+        $this->assertSame(
+            array(
+                'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB',
+                'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D0 FOREIGN KEY (fk_id) REFERENCES foreign_table (id)'
+            ),
+            $this->_platform->getCreateTableSQL(
+                $table,
+                AbstractPlatform::CREATE_INDEXES|AbstractPlatform::CREATE_FOREIGNKEYS
+            )
+        );
+    }
+
+    public function testDoesNotPropagateForeignKeyAlterationForNonSupportingEngines()
+    {
+        $table = new Table("foreign_table");
+        $table->addColumn('id', 'integer');
+        $table->addColumn('fk_id', 'integer');
+        $table->addForeignKeyConstraint('foreign_table', array('fk_id'), array('id'));
+        $table->setPrimaryKey(array('id'));
+        $table->addOption('engine', 'MyISAM');
+
+        $addedForeignKeys   = array(new ForeignKeyConstraint(array('fk_id'), 'foo', array('id'), 'fk_add'));
+        $changedForeignKeys = array(new ForeignKeyConstraint(array('fk_id'), 'bar', array('id'), 'fk_change'));
+        $removedForeignKeys = array(new ForeignKeyConstraint(array('fk_id'), 'baz', array('id'), 'fk_remove'));
+
+        $tableDiff = new TableDiff('foreign_table');
+        $tableDiff->fromTable = $table;
+        $tableDiff->addedForeignKeys = $addedForeignKeys;
+        $tableDiff->changedForeignKeys = $changedForeignKeys;
+        $tableDiff->removedForeignKeys = $removedForeignKeys;
+
+        $this->assertEmpty($this->_platform->getAlterTableSQL($tableDiff));
+
+        $table->addOption('engine', 'InnoDB');
+
+        $tableDiff = new TableDiff('foreign_table');
+        $tableDiff->fromTable = $table;
+        $tableDiff->addedForeignKeys = $addedForeignKeys;
+        $tableDiff->changedForeignKeys = $changedForeignKeys;
+        $tableDiff->removedForeignKeys = $removedForeignKeys;
+
+        $this->assertSame(
+            array(
+                'ALTER TABLE foreign_table DROP FOREIGN KEY fk_remove',
+                'ALTER TABLE foreign_table DROP FOREIGN KEY fk_change',
+                'ALTER TABLE foreign_table ADD CONSTRAINT fk_add FOREIGN KEY (fk_id) REFERENCES foo (id)',
+                'ALTER TABLE foreign_table ADD CONSTRAINT fk_change FOREIGN KEY (fk_id) REFERENCES bar (id)',
+            ),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
     }
 }

@@ -446,9 +446,15 @@ class MySqlPlatform extends AbstractPlatform
         $query .= $this->buildTableOptions($options);
         $query .= $this->buildPartitionOptions($options);
 
-        $sql[] = $query;
+        $sql[]  = $query;
+        $engine = 'INNODB';
 
-        if (isset($options['foreignKeys'])) {
+        if (isset($options['engine'])) {
+            $engine = strtoupper(trim($options['engine']));
+        }
+
+        // Propagate foreign key constraints only for InnoDB.
+        if (isset($options['foreignKeys']) && $engine === 'INNODB') {
             foreach ((array) $options['foreignKeys'] as $definition) {
                 $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
             }
@@ -649,6 +655,19 @@ class MySqlPlatform extends AbstractPlatform
                     break;
                 }
             }
+        }
+
+        $engine = 'INNODB';
+
+        if ($diff->fromTable instanceof Table && $diff->fromTable->hasOption('engine')) {
+            $engine = strtoupper(trim($diff->fromTable->getOption('engine')));
+        }
+
+        // Suppress foreign key constraint propagation on non-supporting engines.
+        if ('INNODB' !== $engine) {
+            $diff->addedForeignKeys   = array();
+            $diff->changedForeignKeys = array();
+            $diff->removedForeignKeys = array();
         }
 
         $sql = array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
