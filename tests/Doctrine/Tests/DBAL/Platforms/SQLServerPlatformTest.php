@@ -694,4 +694,25 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
         $this->assertSame('BINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 8000)));
         $this->assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 8001)));
     }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getAlterTableRenameIndexSQL()
+    {
+        return array(
+            "EXEC sp_RENAME N'mytable.idx_foo', N'idx_bar', N'INDEX'",
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexSQL()
+    {
+        return array(
+            "EXEC sp_RENAME N'[table].[create]', N'[select]', N'INDEX'",
+            "EXEC sp_RENAME N'[table].[foo]', N'[bar]', N'INDEX'",
+        );
+    }
 }

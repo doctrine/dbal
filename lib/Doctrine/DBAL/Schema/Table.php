@@ -207,6 +207,52 @@ class Table extends AbstractAsset
     }
 
     /**
+     * Renames an index.
+     *
+     * @param string      $oldIndexName The name of the index to rename from.
+     * @param string|null $newIndexName The name of the index to rename to.
+     *                                  If null is given, the index name will be auto-generated.
+     *
+     * @return \Doctrine\DBAL\Schema\Table This table instance.
+     *
+     * @throws SchemaException if no index exists for the given current name
+     *                         or if an index with the given new name already exists on this table.
+     */
+    public function renameIndex($oldIndexName, $newIndexName = null)
+    {
+        $oldIndexName           = strtolower($oldIndexName);
+        $normalizedNewIndexName = strtolower($newIndexName);
+
+        if ($oldIndexName === $normalizedNewIndexName) {
+            return $this;
+        }
+
+        if ( ! $this->hasIndex($oldIndexName)) {
+            throw SchemaException::indexDoesNotExist($oldIndexName, $this->_name);
+        }
+
+        if ($this->hasIndex($normalizedNewIndexName)) {
+            throw SchemaException::indexAlreadyExists($normalizedNewIndexName, $this->_name);
+        }
+
+        $oldIndex = $this->_indexes[$oldIndexName];
+
+        if ($oldIndex->isPrimary()) {
+            $this->dropPrimaryKey();
+
+            return $this->setPrimaryKey($oldIndex->getColumns(), $newIndexName);
+        }
+
+        unset($this->_indexes[$oldIndexName]);
+
+        if ($oldIndex->isUnique()) {
+            return $this->addUniqueIndex($oldIndex->getColumns(), $newIndexName);
+        }
+
+        return $this->addIndex($oldIndex->getColumns(), $newIndexName, $oldIndex->getFlags());
+    }
+
+    /**
      * Checks if an index begins in the order of the given columns.
      *
      * @param array $columnsNames

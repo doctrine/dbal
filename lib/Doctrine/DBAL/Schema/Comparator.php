@@ -227,6 +227,11 @@ class Comparator
         foreach ($table2Indexes as $index2Name => $index2Definition) {
             foreach ($table1Indexes as $index1Name => $index1Definition) {
                 if ($this->diffIndex($index1Definition, $index2Definition) === false) {
+                    if ( ! $index1Definition->isPrimary() && $index1Name != $index2Name) {
+                        $tableDifferences->renamedIndexes[$index1Name] = $index2Definition;
+                        $changes++;
+                    }
+
                     unset($table1Indexes[$index1Name]);
                     unset($table2Indexes[$index2Name]);
                 } else {

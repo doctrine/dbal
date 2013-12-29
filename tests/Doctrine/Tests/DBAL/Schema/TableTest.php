@@ -525,4 +525,104 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->dropPrimaryKey();
         $this->assertFalse($table->hasPrimaryKey());
     }
+
+    /**
+     * @group DBAL-234
+     */
+    public function testRenameIndex()
+    {
+        $table = new Table("test");
+        $table->addColumn('id', 'integer');
+        $table->addColumn('foo', 'integer');
+        $table->addColumn('bar', 'integer');
+        $table->addColumn('baz', 'integer');
+        $table->setPrimaryKey(array('id'), 'pk');
+        $table->addIndex(array('foo'), 'idx', array('flag'));
+        $table->addUniqueIndex(array('bar', 'baz'), 'uniq');
+
+        // Rename to custom name.
+        $this->assertSame($table, $table->renameIndex('pk', 'pk_new'));
+        $this->assertSame($table, $table->renameIndex('idx', 'idx_new'));
+        $this->assertSame($table, $table->renameIndex('uniq', 'uniq_new'));
+
+        $this->assertTrue($table->hasPrimaryKey());
+        $this->assertTrue($table->hasIndex('pk_new'));
+        $this->assertTrue($table->hasIndex('idx_new'));
+        $this->assertTrue($table->hasIndex('uniq_new'));
+
+        $this->assertFalse($table->hasIndex('pk'));
+        $this->assertFalse($table->hasIndex('idx'));
+        $this->assertFalse($table->hasIndex('uniq'));
+
+        $this->assertEquals(new Index('pk_new', array('id'), true, true), $table->getPrimaryKey());
+        $this->assertEquals(new Index('pk_new', array('id'), true, true), $table->getIndex('pk_new'));
+        $this->assertEquals(
+            new Index('idx_new', array('foo'), false, false, array('flag')),
+            $table->getIndex('idx_new')
+        );
+        $this->assertEquals(new Index('uniq_new', array('bar', 'baz'), true), $table->getIndex('uniq_new'));
+
+        // Rename to auto-generated name.
+        $this->assertSame($table, $table->renameIndex('pk_new', null));
+        $this->assertSame($table, $table->renameIndex('idx_new', null));
+        $this->assertSame($table, $table->renameIndex('uniq_new', null));
+
+        $this->assertTrue($table->hasPrimaryKey());
+        $this->assertTrue($table->hasIndex('primary'));
+        $this->assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
+        $this->assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
+
+        $this->assertFalse($table->hasIndex('pk_new'));
+        $this->assertFalse($table->hasIndex('idx_new'));
+        $this->assertFalse($table->hasIndex('uniq_new'));
+
+        $this->assertEquals(new Index('primary', array('id'), true, true), $table->getPrimaryKey());
+        $this->assertEquals(new Index('primary', array('id'), true, true), $table->getIndex('primary'));
+        $this->assertEquals(
+            new Index('IDX_D87F7E0C8C736521', array('foo'), false, false, array('flag')),
+            $table->getIndex('IDX_D87F7E0C8C736521')
+        );
+        $this->assertEquals(
+            new Index('UNIQ_D87F7E0C76FF8CAA78240498', array('bar', 'baz'), true),
+            $table->getIndex('UNIQ_D87F7E0C76FF8CAA78240498')
+        );
+
+        // Rename to same name (changed case).
+        $this->assertSame($table, $table->renameIndex('primary', 'PRIMARY'));
+        $this->assertSame($table, $table->renameIndex('IDX_D87F7E0C8C736521', 'idx_D87F7E0C8C736521'));
+        $this->assertSame($table, $table->renameIndex('UNIQ_D87F7E0C76FF8CAA78240498', 'uniq_D87F7E0C76FF8CAA78240498'));
+
+        $this->assertTrue($table->hasPrimaryKey());
+        $this->assertTrue($table->hasIndex('primary'));
+        $this->assertTrue($table->hasIndex('IDX_D87F7E0C8C736521'));
+        $this->assertTrue($table->hasIndex('UNIQ_D87F7E0C76FF8CAA78240498'));
+    }
+
+    /**
+     * @group DBAL-234
+     * @expectedException \Doctrine\DBAL\Schema\SchemaException
+     */
+    public function testThrowsExceptionOnRenamingNonExistingIndex()
+    {
+        $table = new Table("test");
+        $table->addColumn('id', 'integer');
+        $table->addIndex(array('id'), 'idx');
+
+        $table->renameIndex('foo', 'bar');
+    }
+
+    /**
+     * @group DBAL-234
+     * @expectedException \Doctrine\DBAL\Schema\SchemaException
+     */
+    public function testThrowsExceptionOnRenamingToAlreadyExistingIndex()
+    {
+        $table = new Table("test");
+        $table->addColumn('id', 'integer');
+        $table->addColumn('foo', 'integer');
+        $table->addIndex(array('id'), 'idx_id');
+        $table->addIndex(array('foo'), 'idx_foo');
+
+        $table->renameIndex('idx_id', 'idx_foo');
+    }
 }

@@ -425,7 +425,21 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
         $tableDiff->fromTable = $table;
-        $tableDiff->removedIndexes[] = new \Doctrine\DBAL\Schema\Index('foo_idx', array('foo', 'foreign_key_test'));
+        $tableDiff->renamedIndexes['foo_idx'] = new \Doctrine\DBAL\Schema\Index('bar_idx', array('foo', 'foreign_key_test'));
+
+        $this->_sm->alterTable($tableDiff);
+
+        $table = $this->_sm->listTableDetails('alter_table');
+        $this->assertEquals(2, count($table->getIndexes()));
+        $this->assertTrue($table->hasIndex('bar_idx'));
+        $this->assertFalse($table->hasIndex('foo_idx'));
+        $this->assertEquals(array('foo', 'foreign_key_test'), array_map('strtolower', $table->getIndex('bar_idx')->getColumns()));
+        $this->assertFalse($table->getIndex('bar_idx')->isPrimary());
+        $this->assertFalse($table->getIndex('bar_idx')->isUnique());
+
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff("alter_table");
+        $tableDiff->fromTable = $table;
+        $tableDiff->removedIndexes[] = new \Doctrine\DBAL\Schema\Index('bar_idx', array('foo', 'foreign_key_test'));
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('foreign_key_test'), 'alter_table_foreign', array('id'));
         $tableDiff->addedForeignKeys[] = $fk;
 
@@ -433,7 +447,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table = $this->_sm->listTableDetails('alter_table');
 
         // dont check for index size here, some platforms automatically add indexes for foreign keys.
-        $this->assertFalse($table->hasIndex('foo_idx'));
+        $this->assertFalse($table->hasIndex('bar_idx'));
 
         if ($this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $fks = $table->getForeignKeys();

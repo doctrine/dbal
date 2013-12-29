@@ -384,4 +384,25 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         $this->assertSame('BINARY(32704)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32704)));
         $this->assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32705)));
     }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getAlterTableRenameIndexSQL()
+    {
+        return array(
+            'RENAME INDEX idx_foo TO idx_bar',
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexSQL()
+    {
+        return array(
+            'RENAME INDEX "create" TO "select"',
+            'RENAME INDEX "foo" TO "bar"',
+        );
+    }
 }

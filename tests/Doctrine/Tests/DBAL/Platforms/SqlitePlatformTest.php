@@ -323,4 +323,35 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
         $this->assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 9999999)));
     }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getAlterTableRenameIndexSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT id FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (id INTEGER NOT NULL, PRIMARY KEY(id))',
+            'INSERT INTO mytable (id) SELECT id FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
+            'CREATE INDEX idx_bar ON mytable (id)',
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__table AS SELECT id FROM "table"',
+            'DROP TABLE "table"',
+            'CREATE TABLE "table" (id INTEGER NOT NULL, PRIMARY KEY(id))',
+            'INSERT INTO "table" (id) SELECT id FROM __temp__table',
+            'DROP TABLE __temp__table',
+            'CREATE INDEX "select" ON table (id)',
+            'CREATE INDEX "bar" ON table (id)',
+        );
+    }
 }

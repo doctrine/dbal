@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 
@@ -573,6 +572,14 @@ class DB2Platform extends AbstractPlatform
         $sql = array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
 
         return $sql;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
+    {
+        return array('RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this));
     }
 
     /**
