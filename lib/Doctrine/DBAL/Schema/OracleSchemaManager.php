@@ -317,7 +317,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function dropTable($name)
     {
-        $this->dropAutoincrement($name);
+        $this->tryMethod('dropAutoincrement', $name);
 
         parent::dropTable($name);
     }
