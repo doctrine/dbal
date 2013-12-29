@@ -57,4 +57,35 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_binary')->getType());
         $this->assertFalse($table->getColumn('column_binary')->getFixed());
     }
+
+    /**
+     * @group DBAL-472
+     */
+    public function testAlterTableColumnNotNull()
+    {
+        $comparator = new Schema\Comparator();
+        $tableName  = 'list_table_column_notnull';
+        $table      = new Schema\Table($tableName);
+
+        $table->addColumn('id', 'integer');
+        $table->addColumn('foo', 'integer');
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertTrue($columns['id']->getNotnull());
+        $this->assertTrue($columns['foo']->getNotnull());
+
+        $diffTable = clone $table;
+        $diffTable->changeColumn('foo', array('notnull' => false));
+
+        $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertTrue($columns['id']->getNotnull());
+        $this->assertFalse($columns['foo']->getNotnull());
+    }
 }
