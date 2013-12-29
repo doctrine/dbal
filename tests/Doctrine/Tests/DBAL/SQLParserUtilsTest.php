@@ -27,9 +27,15 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT "?" FROM foo', true, array()),
             array("SELECT '?' FROM foo", true, array()),
             array("SELECT `?` FROM foo", true, array()), // Ticket DBAL-552
+            array("SELECT 'Doctrine\DBAL?' FROM foo", true, array()), // Ticket DBAL-558
+            array('SELECT "Doctrine\DBAL?" FROM foo', true, array()), // Ticket DBAL-558
+            array('SELECT `Doctrine\DBAL?` FROM foo', true, array()), // Ticket DBAL-558
             array('SELECT "?" FROM foo WHERE bar = ?', true, array(32)),
             array("SELECT '?' FROM foo WHERE bar = ?", true, array(32)),
             array("SELECT `?` FROM foo WHERE bar = ?", true, array(32)), // Ticket DBAL-552
+            array("SELECT 'Doctrine\DBAL?' FROM foo WHERE bar = ?", true, array(45)), // Ticket DBAL-558
+            array('SELECT "Doctrine\DBAL?" FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
+            array('SELECT `Doctrine\DBAL?` FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
             array(
 <<<'SQLDATA'
 SELECT * FROM foo WHERE bar = 'it\'s a trap? \\' OR bar = ?
