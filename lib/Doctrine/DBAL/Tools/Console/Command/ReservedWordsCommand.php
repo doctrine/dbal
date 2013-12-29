@@ -39,6 +39,7 @@ class ReservedWordsCommand extends Command
         'sqlserver2012' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords',
         'sqlite'        => 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords',
         'pgsql'         => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords',
+        'pgsql92'       => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords',
         'oracle'        => 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords',
         'db2'           => 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords',
         'sqlanywhere'   => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords',
@@ -91,6 +92,7 @@ The following keyword lists are currently shipped with Doctrine:
 
     * mysql
     * pgsql
+    * pgsql92
     * sqlite
     * oracle
     * sqlserver
@@ -119,6 +121,7 @@ EOT
             $keywordLists = array(
                 'mysql',
                 'pgsql',
+                'pgsql92',
                 'sqlite',
                 'oracle',
                 'sqlserver',

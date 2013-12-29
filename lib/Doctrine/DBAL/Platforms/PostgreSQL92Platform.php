@@ -17,65 +17,47 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Types;
-
-use Doctrine\DBAL\Platforms\AbstractPlatform;
+namespace Doctrine\DBAL\Platforms;
 
 /**
- * Array Type which can be used to generate json arrays.
+ * Provides the behavior, features and SQL dialect of the PostgreSQL 9.2 database platform.
  *
- * @since  2.3
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+ * @author Steve Müller <st.mueller@dzh-online.de>
+ * @link   www.doctrine-project.org
+ * @since  2.5
  */
-class JsonArrayType extends Type
+class PostgreSQL92Platform extends PostgreSqlPlatform
 {
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getJsonTypeDeclarationSQL(array $field)
     {
-        return $platform->getJsonTypeDeclarationSQL($fieldDeclaration);
+        return 'JSON';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function hasNativeJsonType()
     {
-        if (null === $value) {
-            return null;
-        }
-
-        return json_encode($value);
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    protected function getReservedKeywordsClass()
     {
-        if ($value === null) {
-            return array();
-        }
-
-        $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-
-        return json_decode($value, true);
+        return 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    protected function initializeDoctrineTypeMappings()
     {
-        return Type::JSON_ARRAY;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
-    {
-        return ! $platform->hasNativeJsonType();
+        parent::initializeDoctrineTypeMappings();
+        $this->doctrineTypeMapping['json'] = 'json_array';
     }
 }

@@ -52,6 +52,7 @@ PostgreSQL
 ^^^^^^^^^^
 
 -  ``PostgreSqlPlatform`` for all versions.
+-  ``PostgreSQL92Platform`` for version 9.2 and above.
 
 SAP Sybase SQL Anywhere
 ^^^^^^^^^^^^^^^^^^^^^^^

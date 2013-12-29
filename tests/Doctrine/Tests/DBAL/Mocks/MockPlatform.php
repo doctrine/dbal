@@ -34,6 +34,14 @@ class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function getJsonTypeDeclarationSQL(array $field)
+    {
+        return 'DUMMYJSON';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getBinaryTypeDeclarationSQL(array $field)
     {
         return 'DUMMYBINARY';

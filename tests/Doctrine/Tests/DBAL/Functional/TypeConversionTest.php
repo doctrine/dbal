@@ -29,6 +29,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('test_time', 'time', array('notnull' => false));
         $table->addColumn('test_text', 'text', array('notnull' => false));
         $table->addColumn('test_array', 'array', array('notnull' => false));
+        $table->addColumn('test_json_array', 'json_array', array('notnull' => false));
         $table->addColumn('test_object', 'object', array('notnull' => false));
         $table->addColumn('test_float', 'float', array('notnull' => false));
         $table->addColumn('test_decimal', 'decimal', array('notnull' => false, 'scale' => 2, 'precision' => 10));
@@ -61,6 +62,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             array('time',       new \DateTime('10:10:10'), 'DateTime'),
             array('text',       str_repeat('foo ', 1000), 'string'),
             array('array',      array('foo' => 'bar'), 'array'),
+            array('json_array', array('foo' => 'bar'), 'array'),
             array('object',     $obj, 'object'),
             array('float',      1.5, 'float'),
             array('decimal',    1.55, 'string'),
