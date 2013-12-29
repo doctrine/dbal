@@ -54,8 +54,9 @@ class SQLParserUtils
             return array();
         }
 
-        $token = ($isPositional) ? self::POSITIONAL_TOKEN : self::NAMED_TOKEN;
-        $paramMap = array();
+        $statement = self::getUncommentedStatement($statement);
+        $token     = ($isPositional) ? self::POSITIONAL_TOKEN : self::NAMED_TOKEN;
+        $paramMap  = array();
 
         foreach (self::getUnquotedStatementFragments($statement) as $fragment) {
             preg_match_all("/$token/", $fragment[0], $matches, PREG_OFFSET_CAPTURE);
@@ -178,6 +179,34 @@ class SQLParserUtils
         }
 
         return array($query, $paramsOrd, $typesOrd);
+    }
+
+    /**
+     * Strips comments from the given statement.
+     *
+     * @param string $statement Statement to uncomment.
+     *
+     * @return string The uncommented statement.
+     */
+    static private function getUncommentedStatement($statement)
+    {
+        $comments = '@
+            (([\'"`]).*?[^\\\]\2) # $1 : Skip single, double and backtick quoted expressions
+            |(                    # $3 : Match comments
+                (?:\#|--).*?$     # - Single line comments
+                |                 # - Multi line (nested) comments
+                 /\*              #   . comment open marker
+                    (?: [^/*]     #   . non comment-marker characters
+                        |/(?!\*)  #   . ! not a comment open
+                        |\*(?!/)  #   . ! not a comment close
+                        |(?R)     #   . recursive case
+                    )*            #   . repeat eventually
+                \*\/              #   . comment close marker
+            )\s*                  # Trim after comments
+            |(?<=;)\s+            # Trim after semi-colon
+            @msx';
+
+        return trim(preg_replace($comments, '$1', $statement));
     }
 
     /**

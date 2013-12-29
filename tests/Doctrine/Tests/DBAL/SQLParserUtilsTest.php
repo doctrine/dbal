@@ -43,6 +43,35 @@ AND baz = "\"quote\" me on it? \\" OR baz = ?
 SQLDATA
                 , true, array(58, 104)
             ),
+            array(
+<<<'SQLDATA'
+# ?
+-- ?
+/* ? */
+/* ?
+*/
+/*
+? */
+/*
+?
+*/
+/* ? /* ? */*/
+-- ? -- ? # ? /* ?
+SELECT -- ?
+       ?,
+       /* ?
+       ? */
+       ?, --?
+       '--?',
+       "--?",
+       `--?`
+FROM baz #:?
+/*
+
+    ?
+    */
+SQLDATA
+            , true, array(7, 17)), // Ticket DBAL-624
 
             // named
             array('SELECT :foo FROM :bar', false, array(7 => 'foo', 17 => 'bar')),
@@ -55,6 +84,35 @@ SQLDATA
             array('SELECT * FROM Foo WHERE bar > :start_date AND baz > :start_date', false, array(30 => 'start_date', 52 =>  'start_date')), // Ticket GH-113
             array('SELECT foo::date as date FROM Foo WHERE bar > :start_date AND baz > :start_date', false, array(46 => 'start_date', 68 =>  'start_date')), // Ticket GH-259
             array('SELECT `d.ns:col_name` FROM my_table d WHERE `d.date` >= :param1', false, array(57 => 'param1')), // Ticket DBAL-552
+            array(
+<<<'SQLDATA'
+# :comment1
+-- :comment2
+/* :comment3 */
+/* :comment4
+*/
+/*
+:comment5 */
+/*
+:comment6
+*/
+/* :comment7 /* :comment8 */*/
+-- :comment9 -- :comment10 # :comment11 /* :comment12
+SELECT -- :comment13
+       :foo,
+       /* :comment14
+       :comment15 */
+       :bar, --:comment16
+       '--:param1',
+       "--:param2",
+       `--:param3`
+FROM baz #:comment17
+/*
+
+    :comment 18
+    */
+SQLDATA
+            , false, array(7 => 'foo', 20 => 'bar')), // Ticket DBAL-624
         );
     }
 
