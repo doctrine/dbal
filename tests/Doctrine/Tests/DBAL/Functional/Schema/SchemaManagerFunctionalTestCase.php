@@ -89,9 +89,9 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm->dropAndCreateDatabase('test_create_database');
         $databases = $this->_sm->listDatabases();
 
-        $databases = \array_map('strtolower', $databases);
+        $databases = array_map('strtolower', $databases);
 
-        $this->assertEquals(true, \in_array('test_create_database', $databases));
+        $this->assertContains('test_create_database', $databases);
     }
 
     public function testListTables()
