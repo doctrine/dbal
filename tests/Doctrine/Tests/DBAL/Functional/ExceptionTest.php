@@ -234,13 +234,10 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table = $schema->createTable("no_connection");
         $table->addColumn('id', 'integer');
 
-        try {
-            foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
-                $conn->executeQuery($sql);
-            }
-            $this->fail("Did not trigger DBALException with code " . $exceptionCode);
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            $this->assertEquals($exceptionCode, $e->getCode(), "Got exception " . $e->getMessage());
+        $this->setExpectedException('Doctrine\DBAL\Exception\AccessDeniedException', null, $exceptionCode);
+
+        foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
+            $conn->executeQuery($sql);
         }
     }
 
