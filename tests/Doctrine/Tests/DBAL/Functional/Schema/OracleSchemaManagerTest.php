@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
+use Doctrine\Tests\TestUtil;
 
 require_once __DIR__ . '/../../../TestInit.php';
 
@@ -87,5 +88,18 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertTrue($columns['id']->getNotnull());
         $this->assertFalse($columns['foo']->getNotnull());
+    }
+
+    public function testListDatabases()
+    {
+        // We need the temp connection that has privileges to create a database.
+        $sm = TestUtil::getTempConnection()->getSchemaManager();
+
+        $sm->dropAndCreateDatabase('c##test_create_database');
+
+        $databases = $this->_sm->listDatabases();
+        $databases = \array_map('strtolower', $databases);
+
+        $this->assertEquals(true, \in_array('c##test_create_database', $databases));
     }
 }
