@@ -98,8 +98,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $sm->dropAndCreateDatabase('c##test_create_database');
 
         $databases = $this->_sm->listDatabases();
-        $databases = \array_map('strtolower', $databases);
+        $databases = array_map('strtolower', $databases);
 
-        $this->assertEquals(true, \in_array('c##test_create_database', $databases));
+        $this->assertContains('c##test_create_database', $databases);
     }
 }
