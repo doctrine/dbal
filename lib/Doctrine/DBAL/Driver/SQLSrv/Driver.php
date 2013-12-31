@@ -20,13 +20,18 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\SQLServer2005Platform;
 use Doctrine\DBAL\Platforms\SQLServer2008Platform;
+use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 /**
  * Driver for ext/sqlsrv.
  */
-class Driver implements \Doctrine\DBAL\Driver
+class Driver implements \Doctrine\DBAL\Driver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
@@ -36,15 +41,16 @@ class Driver implements \Doctrine\DBAL\Driver
         if (!isset($params['host'])) {
             throw new SQLSrvException("Missing 'host' in configuration for sqlsrv driver.");
         }
-        if (!isset($params['dbname'])) {
-            throw new SQLSrvException("Missing 'dbname' in configuration for sqlsrv driver.");
-        }
 
         $serverName = $params['host'];
         if (isset($params['port'])) {
             $serverName .= ', ' . $params['port'];
         }
-        $driverOptions['Database'] = $params['dbname'];
+
+        if (isset($params['dbname'])) {
+            $driverOptions['Database'] = $params['dbname'];
+        }
+
         $driverOptions['UID'] = $username;
         $driverOptions['PWD'] = $password;
 
@@ -53,6 +59,40 @@ class Driver implements \Doctrine\DBAL\Driver
         }
 
         return new SQLSrvConnection($serverName, $driverOptions);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDatabasePlatformForVersion($version)
+    {
+        if ( ! preg_match(
+            '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)(?:\.(?P<build>\d+))?)?)?/',
+            $version,
+            $versionParts
+        )) {
+            throw DBALException::invalidPlatformVersionSpecified(
+                $version,
+                '<major_version>.<minor_version>.<patch_version>.<build_version>'
+            );
+        }
+
+        $majorVersion = $versionParts['major'];
+        $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
+        $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
+        $buildVersion = isset($versionParts['build']) ? $versionParts['build'] : 0;
+        $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion . $buildVersion;
+
+        switch(true) {
+            case version_compare($version, '11.00.2100', '>='):
+                return new SQLServer2012Platform();
+            case version_compare($version, '10.00.1600', '>='):
+                return new SQLServer2008Platform();
+            case version_compare($version, '9.00.1399', '>='):
+                return new SQLServer2005Platform();
+            default:
+                return new SQLServerPlatform();
+        }
     }
 
     /**

@@ -26,6 +26,7 @@ use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 /**
  * A Doctrine DBAL driver for the Oracle OCI8 PHP extensions.
@@ -33,7 +34,7 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
  * @author Roman Borschel <roman@code-factory.org>
  * @since 2.0
  */
-class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
@@ -97,6 +98,14 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
         }
 
         return $dsn;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDatabasePlatformForVersion($version)
+    {
+        return $this->getDatabasePlatform();
     }
 
     /**

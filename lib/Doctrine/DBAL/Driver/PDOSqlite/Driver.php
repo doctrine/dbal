@@ -27,6 +27,7 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 use PDOException;
 
 /**
@@ -34,7 +35,7 @@ use PDOException;
  *
  * @since 2.0
  */
-class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * @var array
@@ -91,6 +92,14 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
         }
 
         return $dsn;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDatabasePlatformForVersion($version)
+    {
+        return $this->getDatabasePlatform();
     }
 
     /**

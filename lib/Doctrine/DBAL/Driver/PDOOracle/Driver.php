@@ -27,6 +27,7 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 /**
  * PDO Oracle driver.
@@ -36,7 +37,7 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
  * which leads us to the recommendation to use the "oci8" driver to connect
  * to Oracle instead.
  */
-class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
@@ -103,6 +104,14 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
         }
 
         return $dsn;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDatabasePlatformForVersion($version)
+    {
+        return $this->getDatabasePlatform();
     }
 
     /**

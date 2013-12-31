@@ -24,8 +24,12 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\SQLAnywhere11Platform;
 use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
+use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
+use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 /**
  * A Doctrine DBAL driver for the SAP Sybase SQL Anywhere PHP extension.
@@ -34,7 +38,7 @@ use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
@@ -71,6 +75,40 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
             );
         } catch (SQLAnywhereException $e) {
             throw DBALException::driverException($this, $e);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDatabasePlatformForVersion($version)
+    {
+        if ( ! preg_match(
+            '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)(?:\.(?P<build>\d+))?)?)?/',
+            $version,
+            $versionParts
+        )) {
+            throw DBALException::invalidPlatformVersionSpecified(
+                $version,
+                '<major_version>.<minor_version>.<patch_version>.<build_version>'
+            );
+        }
+
+        $majorVersion = $versionParts['major'];
+        $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
+        $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
+        $buildVersion = isset($versionParts['build']) ? $versionParts['build'] : 0;
+        $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion . '.' . $buildVersion;
+
+        switch(true) {
+            case version_compare($version, '16', '>='):
+                return new SQLAnywhere16Platform();
+            case version_compare($version, '12', '>='):
+                return new SQLAnywhere12Platform();
+            case version_compare($version, '11', '>='):
+                return new SQLAnywhere11Platform();
+            default:
+                return new SQLAnywherePlatform();
         }
     }
 

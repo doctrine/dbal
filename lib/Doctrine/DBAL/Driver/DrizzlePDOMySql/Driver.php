@@ -24,13 +24,14 @@ use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\DrizzlePlatform;
 use Doctrine\DBAL\Schema\DrizzleSchemaManager;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 /**
  * Drizzle driver using PDO MySql.
  *
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
-class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
@@ -71,6 +72,14 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
         }
 
         return $dsn;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDatabasePlatformForVersion($version)
+    {
+        return $this->getDatabasePlatform();
     }
 
     /**

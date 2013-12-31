@@ -23,6 +23,7 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\DB2Platform;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 /**
  * IBM DB2 Driver.
@@ -30,7 +31,7 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
  * @since 2.0
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class DB2Driver implements Driver
+class DB2Driver implements Driver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
@@ -58,6 +59,14 @@ class DB2Driver implements Driver
         }
 
         return new DB2Connection($params, $username, $password, $driverOptions);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDatabasePlatformForVersion($version)
+    {
+        return $this->getDatabasePlatform();
     }
 
     /**

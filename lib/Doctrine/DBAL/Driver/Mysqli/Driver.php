@@ -24,12 +24,14 @@ use Doctrine\DBAL\Driver as DriverInterface;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\VersionAwarePlatformDriver;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
-class Driver implements DriverInterface, ExceptionConverterDriver
+class Driver implements DriverInterface, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
     /**
      * {@inheritdoc}
@@ -57,6 +59,30 @@ class Driver implements DriverInterface, ExceptionConverterDriver
     public function getSchemaManager(Connection $conn)
     {
         return new \Doctrine\DBAL\Schema\MySqlSchemaManager($conn);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDatabasePlatformForVersion($version)
+    {
+        if ( ! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
+            throw DBALException::invalidPlatformVersionSpecified(
+                $version,
+                '<major_version>.<minor_version>.<patch_version>'
+            );
+        }
+
+        $majorVersion = $versionParts['major'];
+        $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
+        $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
+        $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+
+        if (version_compare($version, '5.7', '>=')) {
+            return new MySQL57Platform();
+        }
+
+        return $this->getDatabasePlatform();
     }
 
     /**

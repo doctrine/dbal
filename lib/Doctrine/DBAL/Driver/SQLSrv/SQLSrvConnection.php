@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 
 /**
  * SQL Server implementation for the Connection interface.
@@ -27,7 +28,7 @@ use Doctrine\DBAL\Driver\Connection;
  * @since 2.3
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class SQLSrvConnection implements Connection
+class SQLSrvConnection implements Connection, ServerInfoAwareConnection
 {
     /**
      * @var resource
@@ -56,6 +57,24 @@ class SQLSrvConnection implements Connection
             throw SQLSrvException::fromSqlSrvErrors();
         }
         $this->lastInsertId = new LastInsertId();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getServerVersion()
+    {
+        $serverInfo = sqlsrv_server_info($this->conn);
+
+        return $serverInfo['SQLServerVersion'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresQueryForServerVersion()
+    {
+        return false;
     }
 
     /**

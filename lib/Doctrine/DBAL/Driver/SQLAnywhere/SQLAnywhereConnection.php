@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 
 /**
  * SAP Sybase SQL Anywhere implementation of the Connection interface.
@@ -28,7 +29,7 @@ use Doctrine\DBAL\Driver\Connection;
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class SQLAnywhereConnection implements Connection
+class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
 {
     /**
      * @var resource The SQL Anywhere connection resource.
@@ -130,6 +131,14 @@ class SQLAnywhereConnection implements Connection
     /**
      * {@inheritdoc}
      */
+    public function getServerVersion()
+    {
+        return $this->query("SELECT PROPERTY('ProductVersion')")->fetchColumn();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function lastInsertId($name = null)
     {
         if (null === $name) {
@@ -170,6 +179,14 @@ class SQLAnywhereConnection implements Connection
         }
 
         return "'" . sasql_escape_string($this->connection, $input) . "'";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresQueryForServerVersion()
+    {
+        return true;
     }
 
     /**
