@@ -20,6 +20,8 @@
 namespace Doctrine\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
@@ -32,19 +34,23 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
  * which leads us to the recommendation to use the "oci8" driver to connect
  * to Oracle instead.
  */
-class Driver implements \Doctrine\DBAL\Driver
+class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 {
     /**
      * {@inheritdoc}
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return new PDOConnection(
-            $this->_constructPdoDsn($params),
-            $username,
-            $password,
-            $driverOptions
-        );
+        try {
+            return new PDOConnection(
+                $this->_constructPdoDsn($params),
+                $username,
+                $password,
+                $driverOptions
+            );
+        } catch (\PDOException $e) {
+            throw DBALException::driverException($this, $e);
+        }
     }
 
     /**
@@ -136,6 +142,46 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function convertExceptionCode(\Exception $exception)
     {
+        $errorCode = $exception->getCode();
+
+        // Use driver-specific error code instead of SQLSTATE for PDO exceptions if available.
+        if ($exception instanceof \PDOException && null !== $exception->errorInfo[1]) {
+            $errorCode = $exception->errorInfo[1];
+        }
+
+        switch ($errorCode) {
+            case '1':
+            case '2299':
+            case '38911':
+                return DBALException::ERROR_DUPLICATE_KEY;
+
+            case '904':
+                return DBALException::ERROR_BAD_FIELD_NAME;
+
+            case '918':
+            case '960':
+                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+
+            case '923':
+                return DBALException::ERROR_SYNTAX;
+
+            case '942':
+                return DBALException::ERROR_UNKNOWN_TABLE;
+
+            case '955':
+                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+
+            case '1017':
+            case '12545':
+                return DBALException::ERROR_ACCESS_DENIED;
+
+            case '1400':
+                return DBALException::ERROR_NOT_NULL;
+
+            case '2292':
+                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+        }
+
         return 0;
     }
 }
