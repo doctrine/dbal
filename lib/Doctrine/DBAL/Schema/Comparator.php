@@ -367,7 +367,15 @@ class Comparator
             $changedProperties[] = 'notnull';
         }
 
-        if ($column1->getDefault() != $column2->getDefault()) {
+        $column1Default = $column1->getDefault();
+        $column2Default = $column2->getDefault();
+
+        if ($column1Default != $column2Default ||
+            // Null values need to be checked additionally as they tell whether to create or drop a default value.
+            // null != 0, null != false, null != '' etc. This affects platform's table alteration SQL generation.
+            (null === $column1Default && null !== $column2Default) ||
+            (null === $column2Default && null !== $column1Default)
+        ) {
             $changedProperties[] = 'default';
         }
 

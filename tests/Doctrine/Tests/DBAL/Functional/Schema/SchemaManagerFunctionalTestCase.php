@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type,
     Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -665,5 +667,55 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $fkeys[0]);
         $this->assertEquals(array('id', 'foreign_key_test'), array_map('strtolower', $fkeys[0]->getLocalColumns()));
         $this->assertEquals(array('id', 'other_id'),         array_map('strtolower', $fkeys[0]->getForeignColumns()));
+    }
+
+    /**
+     * @group DBAL-44
+     */
+    public function testColumnDefaultLifecycle()
+    {
+        $table = new Table("col_def_lifecycle");
+        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
+        $table->addColumn('column1', 'string', array('default' => null));
+        $table->addColumn('column2', 'string', array('default' => false));
+        $table->addColumn('column3', 'string', array('default' => true));
+        $table->addColumn('column4', 'string', array('default' => 0));
+        $table->addColumn('column5', 'string', array('default' => ''));
+        $table->addColumn('column6', 'string', array('default' => 'def'));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns('col_def_lifecycle');
+
+        $this->assertNull($columns['id']->getDefault());
+        $this->assertNull($columns['column1']->getDefault());
+        $this->assertSame('', $columns['column2']->getDefault());
+        $this->assertSame('1', $columns['column3']->getDefault());
+        $this->assertSame('0', $columns['column4']->getDefault());
+        $this->assertSame('', $columns['column5']->getDefault());
+        $this->assertSame('def', $columns['column6']->getDefault());
+
+        $diffTable = clone $table;
+
+        $diffTable->changeColumn('column1', array('default' => false));
+        $diffTable->changeColumn('column2', array('default' => null));
+        $diffTable->changeColumn('column3', array('default' => false));
+        $diffTable->changeColumn('column4', array('default' => null));
+        $diffTable->changeColumn('column5', array('default' => false));
+        $diffTable->changeColumn('column6', array('default' => 666));
+
+        $comparator = new Comparator();
+
+        $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
+
+        $columns = $this->_sm->listTableColumns('col_def_lifecycle');
+
+        $this->assertSame('', $columns['column1']->getDefault());
+        $this->assertNull($columns['column2']->getDefault());
+        $this->assertSame('', $columns['column3']->getDefault());
+        $this->assertNull($columns['column4']->getDefault());
+        $this->assertSame('', $columns['column5']->getDefault());
+        $this->assertSame('666', $columns['column6']->getDefault());
     }
 }
