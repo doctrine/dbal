@@ -365,4 +365,12 @@ class MysqliStatement implements \IteratorAggregate, Statement
 
         return new \ArrayIterator($data);
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function dataSeek($num)
+    {
+            $this->_stmt->data_seek($num);
+    }
 }
