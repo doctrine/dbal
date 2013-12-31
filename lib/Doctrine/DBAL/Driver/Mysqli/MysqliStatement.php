@@ -371,6 +371,6 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function dataSeek($num)
     {
-            $this->_stmt->data_seek($num);
+        $this->_stmt->data_seek($num);
     }
 }
