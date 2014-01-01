@@ -876,14 +876,6 @@ class PostgreSqlPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     */
-    public function getVendor()
-    {
-        return 'postgresql';
-    }
-
-    /**
-     * {@inheritDoc}
      *
      * PostgreSQL returns all column names in SQL result sets in lowercase.
      */

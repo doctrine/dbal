@@ -43,14 +43,6 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getVendor()
-    {
-        return 'drizzle';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getIdentifierQuoteCharacter()
     {
         return '`';

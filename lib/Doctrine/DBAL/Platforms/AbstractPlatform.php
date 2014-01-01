@@ -338,13 +338,6 @@ abstract class AbstractPlatform
     abstract public function getName();
 
     /**
-     * Gets the name of the vendor, independent of version.
-     *
-     * @return string
-     */
-    abstract public function getVendor();
-
-    /**
      * Registers a doctrine type to be used in conjunction with a column type of this platform.
      *
      * @param string $dbType

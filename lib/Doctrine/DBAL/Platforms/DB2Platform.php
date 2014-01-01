@@ -110,14 +110,6 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getVendor()
-    {
-        return 'db2';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getBooleanTypeDeclarationSQL(array $columnDef)
     {
         return 'SMALLINT';

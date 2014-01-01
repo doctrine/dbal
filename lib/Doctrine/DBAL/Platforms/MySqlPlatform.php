@@ -798,14 +798,6 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getVendor()
-    {
-        return 'mysql';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getReadLockSQL()
     {
         return 'LOCK IN SHARE MODE';

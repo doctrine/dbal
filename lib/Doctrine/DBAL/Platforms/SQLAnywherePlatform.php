@@ -1006,14 +1006,6 @@ class SQLAnywherePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function getVendor()
-    {
-        return 'sqlanywhere';
-    }
-
-    /**
      * Obtain DBMS specific SQL code portion needed to set a primary key
      * declaration to be used in statements like ALTER TABLE.
      *

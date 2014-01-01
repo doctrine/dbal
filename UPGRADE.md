@@ -1,15 +1,5 @@
 # Upgrade to 2.5
 
-## New abstract method `getVendor` on `AbstractPlatform`
-
-Because we have been getting more and more version specific platforms
-it is necessary to detect platforms based on the vendor, not on their version names.
-For this a new method `abstract public function getVendor()` was introduced on
-the `AbstractPlatform`.
-
-If you have a custom platform that extends from `AbstractPlatform` you need to provide
-this method as of version 2.5 of DBAL.
-
 ## datetime Type uses date_create() as fallback
 
 Before 2.5 the DateTime type always required a specific format, defined in
