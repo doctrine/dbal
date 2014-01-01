@@ -5,7 +5,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Sequence;
 
-class SQLServer2012PlatformTest extends SQLServerPlatformTest
+class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 {
     public function createPlatform()
     {

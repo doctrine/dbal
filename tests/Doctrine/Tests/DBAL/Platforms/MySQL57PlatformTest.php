@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 
-class MySQL57PlatformTest extends MySqlPlatformTest
+class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 {
     /**
      * {@inheritdoc}
