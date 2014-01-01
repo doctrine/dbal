@@ -56,6 +56,12 @@ class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     {
         return 'mock';
     }
+
+    public function getVendor()
+    {
+        return 'mock';
+    }
+
     protected function initializeDoctrineTypeMappings() {
     }
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)

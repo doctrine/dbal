@@ -489,6 +489,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getVendor()
+    {
+        return 'sqlite';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         $tableName = str_replace('.', '__', $tableName);

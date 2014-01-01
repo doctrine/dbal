@@ -1289,6 +1289,14 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getVendor()
+    {
+        return 'sqlserver';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = array(

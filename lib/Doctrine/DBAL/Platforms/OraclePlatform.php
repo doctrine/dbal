@@ -813,6 +813,14 @@ LEFT JOIN user_cons_columns r_cols
     /**
      * {@inheritDoc}
      */
+    public function getVendor()
+    {
+        return 'oracle';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
         $limit = (int) $limit;
