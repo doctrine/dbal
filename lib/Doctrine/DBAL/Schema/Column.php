@@ -464,14 +464,6 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param \Doctrine\DBAL\Schema\Visitor\Visitor $visitor
-     */
-    public function visit(Visitor $visitor)
-    {
-        $visitor->accept($this);
-    }
-
-    /**
      * @return array
      */
     public function toArray()
