@@ -20,6 +20,8 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Types\StringType;
+use Doctrine\DBAL\Types\TextType;
 
 /**
  * Sqlite SchemaManager.
@@ -217,8 +219,11 @@ class SqliteSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableColumnList($table, $database, $tableColumns)
     {
         $list = parent::_getPortableTableColumnList($table, $database, $tableColumns);
+
+        // find column with autoincrement
         $autoincrementColumn = null;
         $autoincrementCount = 0;
+
         foreach ($tableColumns as $tableColumn) {
             if ('0' != $tableColumn['pk']) {
                 $autoincrementCount++;
@@ -233,6 +238,18 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 if ($autoincrementColumn == $column->getName()) {
                     $column->setAutoincrement(true);
                 }
+            }
+        }
+
+        // inspect column collation
+        $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
+        $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
+
+        foreach ($list as $columnName => $column) {
+            $type = $column->getType();
+
+            if ($type instanceof StringType || $type instanceof TextType) {
+                $column->setPlatformOption('collation', $this->parseColumnCollationFromSQL($columnName, $createSql) ?: 'BINARY');
             }
         }
 
@@ -392,5 +409,18 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $tableDiff->fromTable = $table;
 
         return $tableDiff;
+    }
+
+    private function parseColumnCollationFromSQL($column, $sql)
+    {
+        if (preg_match(
+            '{(?:'.preg_quote($column).'|'.preg_quote($this->_platform->quoteSingleIdentifier($column)).')
+                [^,(]+(?:\([^()]+\)[^,]*)?
+                (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
+                COLLATE\s+["\']?([^\s,"\')]+)}isx', $sql, $match)) {
+            return $match[1];
+        }
+
+        return false;
     }
 }

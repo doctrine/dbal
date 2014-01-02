@@ -40,6 +40,7 @@ class ReservedWordsCommand extends Command
         'sqlserver2012' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords',
         'sqlite'        => 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords',
         'pgsql'         => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords',
+        'pgsql91'       => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords',
         'pgsql92'       => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords',
         'oracle'        => 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords',
         'db2'           => 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords',

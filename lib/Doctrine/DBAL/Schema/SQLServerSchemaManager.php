@@ -99,12 +99,11 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             'comment'       => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
         );
 
-        $platformOptions = array(
-            'collate' => $tableColumn['collation'] == 'NULL' ? null : $tableColumn['collation']
-        );
-
         $column = new Column($tableColumn['name'], Type::getType($type), $options);
-        $column->setPlatformOptions($platformOptions);
+
+        if (isset($tableColumn['collation']) && $tableColumn['collation'] !== 'NULL') {
+            $column->setPlatformOption('collation', $tableColumn['collation']);
+        }
 
         return $column;
     }

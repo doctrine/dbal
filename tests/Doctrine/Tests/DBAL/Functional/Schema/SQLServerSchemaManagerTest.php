@@ -10,10 +10,10 @@ use Doctrine\DBAL\Types\Type;
 
 class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-	protected function getPlatformName()
-	{
-		return "mssql";
-	}
+    protected function getPlatformName()
+    {
+        return "mssql";
+    }
 
     /**
      * @group DBAL-255
@@ -35,22 +35,22 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals(1, count($columns));
     }
 
-    public function testCollationCharset()
+    public function testColumnCollation()
     {
-        $table = new \Doctrine\DBAL\Schema\Table($tableName = 'test_collation_charset');
+        $table = new \Doctrine\DBAL\Schema\Table($tableName = 'test_collation');
         $column = $table->addColumn($columnName = 'test', 'string');
 
         $this->_sm->dropAndCreateTable($table);
         $columns = $this->_sm->listTableColumns($tableName);
 
-        $this->assertTrue($columns[$columnName]->hasPlatformOption('collate')); // SQL Server should report a default collation on the column
+        $this->assertTrue($columns[$columnName]->hasPlatformOption('collation')); // SQL Server should report a default collation on the column
 
-        $column->setPlatformOption('collate', $collation = 'Icelandic_CS_AS');
+        $column->setPlatformOption('collation', $collation = 'Icelandic_CS_AS');
 
         $this->_sm->dropAndCreateTable($table);
         $columns = $this->_sm->listTableColumns($tableName);
 
-        $this->assertEquals($collation, $columns[$columnName]->getPlatformOption('collate'));
+        $this->assertEquals($collation, $columns[$columnName]->getPlatformOption('collation'));
     }
 
     public function testDefaultContraints()
