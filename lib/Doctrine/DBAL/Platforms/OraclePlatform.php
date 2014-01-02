@@ -190,35 +190,39 @@ class OraclePlatform extends AbstractPlatform
                ' START WITH ' . $sequence->getInitialValue() .
                ' MINVALUE ' . $sequence->getInitialValue() .
                ' INCREMENT BY ' . $sequence->getAllocationSize() .
-               $this->getSequenceCacheSQL($sequence);
+               $this->getSequenceCacheClause($sequence);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    public function getAlterSequenceSQL(Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize()
-               . $this->getSequenceCacheSQL($sequence);
+               . $this->getSequenceCacheClause($sequence);
     }
 
     /**
-     * Cache definition for sequences
+     * Returns the CACHE clause to be used in sequence creation and alteration statements.
+     *
+     * @param Sequence $sequence The sequence to return the CACHE clause for.
      *
      * @return string
      */
-    private function getSequenceCacheSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    protected function getSequenceCacheClause(Sequence $sequence)
     {
-        if ($sequence->getCache() === 0) {
-            return ' NOCACHE';
-        } else if ($sequence->getCache() === 1) {
-            return ' NOCACHE';
-        } else if ($sequence->getCache() > 1) {
-            return ' CACHE ' . $sequence->getCache();
+        $cacheSize = $sequence->getCacheSize();
+
+        if (null === $cacheSize) {
+            return '';
         }
 
-        return '';
+        if ($cacheSize < 2) {
+            return ' NOCACHE';
+        }
+
+        return ' CACHE ' . $cacheSize;
     }
 
     /**
@@ -373,7 +377,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getListSequencesSQL($database)
     {
-        return "SELECT sequence_name, min_value, increment_by FROM sys.all_sequences ".
+        return "SELECT sequence_name, min_value, increment_by, cache_size FROM sys.all_sequences ".
                "WHERE SEQUENCE_OWNER = '".strtoupper($database)."'";
     }
 

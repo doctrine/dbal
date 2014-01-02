@@ -436,11 +436,22 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $seq1 = new Sequence('foo', 1, 1);
         $seq2 = new Sequence('foo', 1, 2);
         $seq3 = new Sequence('foo', 2, 1);
+        $seq4 = new Sequence('foo', 1, 1);
+        $seq5 = new Sequence('foo', 1, 1, 0);
+        $seq6 = new Sequence('foo', 1, 1, '0');
+        $seq7 = new Sequence('foo', 1, 1, 5);
 
         $c = new Comparator();
 
         $this->assertTrue($c->diffSequence($seq1, $seq2));
         $this->assertTrue($c->diffSequence($seq1, $seq3));
+        $this->assertFalse($c->diffSequence($seq1, $seq4));
+        $this->assertTrue($c->diffSequence($seq1, $seq5));
+        $this->assertTrue($c->diffSequence($seq1, $seq6));
+        $this->assertTrue($c->diffSequence($seq1, $seq7));
+        $this->assertFalse($c->diffSequence($seq5, $seq6));
+        $this->assertTrue($c->diffSequence($seq5, $seq7));
+        $this->assertTrue($c->diffSequence($seq6, $seq7));
     }
 
     public function testRemovedSequence()

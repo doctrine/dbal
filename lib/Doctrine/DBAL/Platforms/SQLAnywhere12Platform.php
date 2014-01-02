@@ -40,7 +40,8 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
             ' INCREMENT BY ' . $sequence->getAllocationSize() .
             ' START WITH ' . $sequence->getInitialValue() .
-            ' MINVALUE ' . $sequence->getInitialValue();
+            ' MINVALUE ' . $sequence->getInitialValue() .
+            $this->getSequenceCacheClause($sequence);
     }
 
     /**
@@ -49,7 +50,8 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
     public function getAlterSequenceSQL(Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
-            ' INCREMENT BY ' . $sequence->getAllocationSize();
+            ' INCREMENT BY ' . $sequence->getAllocationSize() .
+            $this->getSequenceCacheClause($sequence);
     }
 
     /**
@@ -85,7 +87,7 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
      */
     public function getListSequencesSQL($database)
     {
-        return 'SELECT sequence_name, increment_by, start_with, min_value FROM SYS.SYSSEQUENCE';
+        return 'SELECT sequence_name, increment_by, start_with, min_value, cache FROM SYS.SYSSEQUENCE';
     }
 
     /**
@@ -122,6 +124,28 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords';
+    }
+
+    /**
+     * Returns the CACHE clause to be used in sequence creation and alteration statements.
+     *
+     * @param Sequence $sequence The sequence to return the CACHE clause for.
+     *
+     * @return string
+     */
+    protected function getSequenceCacheClause(Sequence $sequence)
+    {
+        $cacheSize = $sequence->getCacheSize();
+
+        if (null === $cacheSize) {
+            return '';
+        }
+
+        if (0 == $cacheSize) {
+            return ' NOCACHE';
+        }
+
+        return ' CACHE ' . $cacheSize;
     }
 
     /**

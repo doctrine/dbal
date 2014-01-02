@@ -39,6 +39,17 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             'ALTER SEQUENCE myseq INCREMENT BY 20',
             $this->_platform->getAlterSequenceSQL($sequence)
         );
+
+        $sequence = new Sequence('myseq', 20, 1, 5);
+        $this->assertEquals(
+            'CREATE SEQUENCE myseq INCREMENT BY 20 START WITH 1 MINVALUE 1 CACHE 5',
+            $this->_platform->getCreateSequenceSQL($sequence)
+        );
+        $this->assertEquals(
+            'ALTER SEQUENCE myseq INCREMENT BY 20 CACHE 5',
+            $this->_platform->getAlterSequenceSQL($sequence)
+        );
+
         $this->assertEquals(
             'DROP SEQUENCE myseq',
             $this->_platform->getDropSequenceSQL('myseq')
@@ -52,7 +63,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getSequenceNextValSQL('myseq')
         );
         $this->assertEquals(
-            'SELECT sequence_name, increment_by, start_with, min_value FROM SYS.SYSSEQUENCE',
+            'SELECT sequence_name, increment_by, start_with, min_value, cache FROM SYS.SYSSEQUENCE',
             $this->_platform->getListSequencesSQL(null)
         );
     }

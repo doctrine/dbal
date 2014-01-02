@@ -295,15 +295,20 @@ class Schema extends AbstractAsset
     /**
      * Creates a new sequence.
      *
-     * @param string  $sequenceName
-     * @param integer $allocationSize
-     * @param integer $initialValue
+     * @param string              $sequenceName   The name of the sequence.
+     * @param integer             $allocationSize The amount to increment by when allocating sequence numbers from the
+     *                                            sequence.
+     * @param integer             $initialValue   The first sequence number to be generated.
+     * @param integer|string|null $cacheSize      The number of preallocated sequence values that are kept in memory.
+     *                                            This has to be a positive integer or numeric character string value.
+     *                                            The value "0" indicates to disable caching.
+     *                                            A null argument indicates to use platform's default cache size.
      *
      * @return \Doctrine\DBAL\Schema\Sequence
      */
-    public function createSequence($sequenceName, $allocationSize=1, $initialValue=1)
+    public function createSequence($sequenceName, $allocationSize = 1, $initialValue = 1, $cacheSize = null)
     {
-        $seq = new Sequence($sequenceName, $allocationSize, $initialValue);
+        $seq = new Sequence($sequenceName, $allocationSize, $initialValue, $cacheSize);
         $this->_addSequence($seq);
 
         return $seq;

@@ -33,6 +33,17 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
             'ALTER SEQUENCE myseq INCREMENT BY 20',
             $this->_platform->getAlterSequenceSQL($sequence)
         );
+
+        $sequence = new Sequence('myseq', 20, 1, 5);
+        $this->assertEquals(
+            'CREATE SEQUENCE myseq START WITH 1 INCREMENT BY 20 MINVALUE 1 CACHE 5',
+            $this->_platform->getCreateSequenceSQL($sequence)
+        );
+        $this->assertEquals(
+            'ALTER SEQUENCE myseq INCREMENT BY 20 CACHE 5',
+            $this->_platform->getAlterSequenceSQL($sequence)
+        );
+
         $this->assertEquals(
             'DROP SEQUENCE myseq',
             $this->_platform->getDropSequenceSQL('myseq')

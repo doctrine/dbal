@@ -93,7 +93,12 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        return new Sequence($sequence['sequence_name'], $sequence['increment_by'], $sequence['start_with']);
+        return new Sequence(
+            $sequence['sequence_name'],
+            $sequence['increment_by'],
+            $sequence['start_with'],
+            $sequence['cache']
+        );
     }
 
     /**

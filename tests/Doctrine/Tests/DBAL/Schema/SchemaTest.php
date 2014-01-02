@@ -99,7 +99,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
     public function testAddSequences()
     {
-        $sequence = new Sequence("a_seq", 1, 1);
+        $sequence = new Sequence("a_seq", 1, 1, 5);
 
         $schema = new Schema(array(), array($sequence));
 
@@ -108,6 +108,9 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
         $sequences = $schema->getSequences();
         $this->assertArrayHasKey('public.a_seq', $sequences);
+        $this->assertSame(1, $sequences['public.a_seq']->getAllocationSize());
+        $this->assertSame(1, $sequences['public.a_seq']->getInitialValue());
+        $this->assertSame(5, $sequences['public.a_seq']->getCacheSize());
     }
 
     public function testSequenceAccessCaseInsensitive()
@@ -135,17 +138,21 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     public function testCreateSequence()
     {
         $schema = new Schema();
-        $sequence = $schema->createSequence('a_seq', 10, 20);
+        $sequence = $schema->createSequence('a_seq', 10, 20, 5);
 
         $this->assertEquals('a_seq', $sequence->getName());
         $this->assertEquals(10, $sequence->getAllocationSize());
         $this->assertEquals(20, $sequence->getInitialValue());
+        $this->assertEquals(5, $sequence->getCacheSize());
 
         $this->assertTrue($schema->hasSequence("a_seq"));
         $this->assertInstanceOf('Doctrine\DBAL\Schema\Sequence', $schema->getSequence("a_seq"));
 
         $sequences = $schema->getSequences();
         $this->assertArrayHasKey('public.a_seq', $sequences);
+        $this->assertSame(10, $sequences['public.a_seq']->getAllocationSize());
+        $this->assertSame(20, $sequences['public.a_seq']->getInitialValue());
+        $this->assertSame(5, $sequences['public.a_seq']->getCacheSize());
     }
 
     public function testDropSequence()

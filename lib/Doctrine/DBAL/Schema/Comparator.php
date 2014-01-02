@@ -162,15 +162,7 @@ class Comparator
      */
     public function diffSequence(Sequence $sequence1, Sequence $sequence2)
     {
-        if ($sequence1->getAllocationSize() != $sequence2->getAllocationSize()) {
-            return true;
-        }
-
-        if ($sequence1->getInitialValue() != $sequence2->getInitialValue()) {
-            return true;
-        }
-
-        return false;
+        return $sequence1->equals($sequence2) === false;
     }
 
     /**
