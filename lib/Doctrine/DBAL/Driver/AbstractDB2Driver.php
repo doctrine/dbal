@@ -17,33 +17,44 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\Mysqli;
+namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\Driver\AbstractMySQLDriver;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Schema\DB2SchemaManager;
 
 /**
- * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
+ * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for IBM DB2 based drivers.
+ *
+ * @author Steve Müller <st.mueller@dzh-online.de>
+ * @link   www.doctrine-project.org
+ * @since  2.5
  */
-class Driver extends AbstractMySQLDriver
+abstract class AbstractDB2Driver implements Driver
 {
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
+    public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {
-        try {
-            return new MysqliConnection($params, $username, $password, $driverOptions);
-        } catch (MysqliException $e) {
-            throw DBALException::driverException($this, $e);
-        }
+        $params = $conn->getParams();
+
+        return $params['dbname'];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getDatabasePlatform()
     {
-        return 'mysqli';
+        return new DB2Platform();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    {
+        return new DB2SchemaManager($conn);
     }
 }
