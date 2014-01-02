@@ -755,6 +755,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testInitializesDoctrineTypeMappings()
     {
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('integer'));
+        $this->assertSame('integer', $this->_platform->getDoctrineTypeMapping('integer'));
+
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
         $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('binary'));
 

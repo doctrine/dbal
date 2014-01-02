@@ -1500,6 +1500,7 @@ class SQLAnywherePlatform extends AbstractPlatform
             'double' => 'float',
             'float' => 'float',
             'int' => 'integer',
+            'integer' => 'integer',
             'unsigned int' => 'integer',
             'numeric' => 'decimal',
             'smallint' => 'smallint',
