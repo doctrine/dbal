@@ -67,7 +67,14 @@ class SQLServer2012Platform extends SQLServer2008Platform
      */
     public function getListSequencesSQL($database)
     {
-        return 'SELECT seq.name, seq.increment, seq.start_value FROM sys.sequences AS seq';
+        return 'SELECT seq.name,
+                       CAST(
+                           seq.increment AS VARCHAR(MAX)
+                       ) AS increment, -- CAST avoids driver error for sql_variant type
+                       CAST(
+                           seq.start_value AS VARCHAR(MAX)
+                       ) AS start_value -- CAST avoids driver error for sql_variant type
+                FROM   sys.sequences AS seq';
     }
 
     /**
