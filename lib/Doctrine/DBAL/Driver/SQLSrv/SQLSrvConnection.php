@@ -47,6 +47,10 @@ class SQLSrvConnection implements Connection
      */
     public function __construct($serverName, $connectionOptions)
     {
+        if ( ! sqlsrv_configure('WarningsReturnAsErrors', 0)) {
+            throw SQLSrvException::fromSqlSrvErrors();
+        }
+
         $this->conn = sqlsrv_connect($serverName, $connectionOptions);
         if ( ! $this->conn) {
             throw SQLSrvException::fromSqlSrvErrors();
