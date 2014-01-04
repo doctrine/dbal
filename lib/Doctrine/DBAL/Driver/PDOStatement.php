@@ -65,7 +65,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = \PDO::PARAM_STR, $length = null, $driverOptions = array())
+    public function bindParam($column, &$variable, $type = \PDO::PARAM_STR, $length = null, $driverOptions = null)
     {
         return parent::bindParam($column, $variable, $type, $length, $driverOptions);
     }
