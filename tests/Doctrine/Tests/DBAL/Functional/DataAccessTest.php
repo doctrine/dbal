@@ -212,7 +212,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testFetchAllWithMissingTypes()
     {
-        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver) {
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver ||
+            $this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLSrv\Driver) {
             $this->markTestSkipped('mysqli actually supports this');
         }
 
