@@ -1,7 +1,6 @@
 <?php
 namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer;
 
 class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
