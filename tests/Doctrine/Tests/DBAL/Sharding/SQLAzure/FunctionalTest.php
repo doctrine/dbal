@@ -1,7 +1,7 @@
 <?php
 namespace Doctrine\Tests\DBAL\Sharding\SQLAzure;
 
-use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureSchemaSynchronizer;
+use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureFederationsSynchronizer;
 
 class FunctionalTest extends AbstractTestCase
 {
@@ -9,7 +9,7 @@ class FunctionalTest extends AbstractTestCase
     {
         $schema = $this->createShopSchema();
 
-        $synchronizer = new SQLAzureSchemaSynchronizer($this->conn, $this->sm);
+        $synchronizer = new SQLAzureFederationsSynchronizer($this->conn, $this->sm);
         $synchronizer->dropAllSchema();
         $synchronizer->createSchema($schema);
 

@@ -17,6 +17,10 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\PDOSqlsrv\Driver) {
+            $this->markTestSkipped('This test does not work on pdo_sqlsrv driver due to a bug. See: http://social.msdn.microsoft.com/Forums/sqlserver/en-US/5a755bdd-41e9-45cb-9166-c9da4475bb94/how-to-set-null-for-varbinarymax-using-bindvalue-using-pdosqlsrv?forum=sqldriverforphp');
+        }
+
         try {
             /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
             $table = new \Doctrine\DBAL\Schema\Table("blob_table");

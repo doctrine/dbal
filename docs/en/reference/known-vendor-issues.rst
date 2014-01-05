@@ -48,7 +48,7 @@ that detects the format automatically:
 ::
 
     use Doctrine\DBAL\Types\Type;
-    
+
     Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTimeType');
     Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTimeType');
     Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTimeType');
@@ -180,7 +180,18 @@ that detects the format automatically:
 ::
 
     use Doctrine\DBAL\Types\Type;
-    
+
     Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTime');
     Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTime');
     Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTime');
+
+PDO_SQLSRV: VARBINARY/BLOB columns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``PDO_SQLSRV`` driver currently has a bug when binding values to
+VARBINARY/BLOB columns with ``bindValue`` in prepared statements.
+This raises an implicit conversion from data type error as it tries
+to convert a character type value to a binary type value even if
+you explicitly define the value as ``\PDO::PARAM_LOB`` type.
+Therefore it is highly encouraged to use the native ``sqlsrv``
+driver instead which does not have this limitation.

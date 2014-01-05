@@ -212,8 +212,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testFetchAllWithMissingTypes()
     {
-        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver) {
-            $this->markTestSkipped('mysqli actually supports this');
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver ||
+            $this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLSrv\Driver) {
+            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
         $datetimeString = '2010-01-01 10:10:10';

@@ -559,7 +559,10 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             'id', new \Doctrine\DBAL\Schema\Column(
                 'id', \Doctrine\DBAL\Types\Type::getType('integer'), array('primary' => true)
             ),
-            array('comment')
+            array('comment'),
+            new \Doctrine\DBAL\Schema\Column(
+                'id', \Doctrine\DBAL\Types\Type::getType('integer'), array('comment' => 'This is a comment')
+            )
         );
 
         $this->_sm->alterTable($tableDiff);

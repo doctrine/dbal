@@ -537,8 +537,6 @@ class SQLServerPlatform extends AbstractPlatform
 
             $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "', '".$column->getQuotedName($this)."', 'COLUMN'";
 
-            // todo: Find a way how to implement column comment alteration statements for renamed columns.
-
             $columnDef = $column->toArray();
 
             /**
