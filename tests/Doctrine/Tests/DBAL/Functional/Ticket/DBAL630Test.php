@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Exception\TableExistsException;
 use PDO;
 
 /**
