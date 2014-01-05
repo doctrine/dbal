@@ -295,4 +295,140 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $conn->insert('footable', array());
     }
+
+    public function testFetchAssoc()
+    {
+        $statement = 'SELECT * FROM foo WHERE bar = ?';
+        $params    = array(666);
+        $types     = array(\PDO::PARAM_INT);
+        $result    = array();
+
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $driverStatementMock = $this->getMock('Doctrine\Tests\Mocks\DriverStatementMock');
+
+        $driverStatementMock->expects($this->once())
+            ->method('fetch')
+            ->with(\PDO::FETCH_ASSOC)
+            ->will($this->returnValue($result));
+
+        /** @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\DBAL\Connection $conn */
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeQuery'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeQuery')
+            ->with($statement, $params, $types)
+            ->will($this->returnValue($driverStatementMock));
+
+        $this->assertSame($result, $conn->fetchAssoc($statement, $params, $types));
+    }
+
+    public function testFetchArray()
+    {
+        $statement = 'SELECT * FROM foo WHERE bar = ?';
+        $params    = array(666);
+        $types     = array(\PDO::PARAM_INT);
+        $result    = array();
+
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $driverStatementMock = $this->getMock('Doctrine\Tests\Mocks\DriverStatementMock');
+
+        $driverStatementMock->expects($this->once())
+            ->method('fetch')
+            ->with(\PDO::FETCH_NUM)
+            ->will($this->returnValue($result));
+
+        /** @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\DBAL\Connection $conn */
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeQuery'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeQuery')
+            ->with($statement, $params, $types)
+            ->will($this->returnValue($driverStatementMock));
+
+        $this->assertSame($result, $conn->fetchArray($statement, $params, $types));
+    }
+
+    public function testFetchColumn()
+    {
+        $statement = 'SELECT * FROM foo WHERE bar = ?';
+        $params    = array(666);
+        $types     = array(\PDO::PARAM_INT);
+        $column    = 0;
+        $result    = array();
+
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $driverStatementMock = $this->getMock('Doctrine\Tests\Mocks\DriverStatementMock');
+
+        $driverStatementMock->expects($this->once())
+            ->method('fetchColumn')
+            ->with($column)
+            ->will($this->returnValue($result));
+
+        /** @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\DBAL\Connection $conn */
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeQuery'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeQuery')
+            ->with($statement, $params, $types)
+            ->will($this->returnValue($driverStatementMock));
+
+        $this->assertSame($result, $conn->fetchColumn($statement, $params, $column, $types));
+    }
+
+    public function testFetchAll()
+    {
+        $statement = 'SELECT * FROM foo WHERE bar = ?';
+        $params    = array(666);
+        $types     = array(\PDO::PARAM_INT);
+        $result    = array();
+
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $driverStatementMock = $this->getMock('Doctrine\Tests\Mocks\DriverStatementMock');
+
+        $driverStatementMock->expects($this->once())
+            ->method('fetchAll')
+            ->will($this->returnValue($result));
+
+        /** @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\DBAL\Connection $conn */
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeQuery'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeQuery')
+            ->with($statement, $params, $types)
+            ->will($this->returnValue($driverStatementMock));
+
+        $this->assertSame($result, $conn->fetchAll($statement, $params, $types));
+    }
 }
