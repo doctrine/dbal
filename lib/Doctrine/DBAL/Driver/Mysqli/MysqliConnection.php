@@ -56,7 +56,7 @@ class MysqliConnection implements Connection, PingableConnection
         if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket)) {
             set_error_handler($previousHandler);
 
-            throw new MysqliException($this->_conn->connect_error, $this->_conn->connect_errno);
+            throw new MysqliException($this->_conn->connect_error, $this->_conn->sqlstate, $this->_conn->connect_errno);
         }
 
         set_error_handler($previousHandler);
@@ -205,7 +205,8 @@ class MysqliConnection implements Connection, PingableConnection
 
             throw new MysqliException(
                 $msg,
-                mysqli_errno($this->_conn)
+                $this->_conn->sqlstate,
+                $this->_conn->errno
             );
         }
     }

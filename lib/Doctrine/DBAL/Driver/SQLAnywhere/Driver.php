@@ -21,7 +21,9 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 
@@ -77,35 +79,35 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
      *
      * @link http://dcx.sybase.com/index.html#sa160/en/saerrors/sqlerror.html
      */
-    public function convertExceptionCode(\Exception $exception)
+    public function convertException($message, DriverException $exception)
     {
-        switch ($exception->getCode()) {
+        switch ($exception->getErrorCode()) {
             case '-100':
             case '-103':
             case '-832':
-                return DBALException::ERROR_ACCESS_DENIED;
+                return new Exception\ConnectionException($message, $exception);
             case '-143':
-                return DBALException::ERROR_BAD_FIELD_NAME;
+                return new Exception\InvalidFieldNameException($message, $exception);
             case '-193':
             case '-196':
-                return DBALException::ERROR_DUPLICATE_KEY;
+                return new Exception\UniqueConstraintViolationException($message, $exception);
             case '-198':
-                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+                return new Exception\ForeignKeyConstraintViolationException($message, $exception);
             case '-144':
-                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+                return new Exception\NonUniqueFieldNameException($message, $exception);
             case '-184':
             case '-195':
-                return DBALException::ERROR_NOT_NULL;
+                return new Exception\NotNullConstraintViolationException($message, $exception);
             case '-131':
-                return DBALException::ERROR_SYNTAX;
+                return new Exception\SyntaxErrorException($message, $exception);
             case '-110':
-                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+                return new Exception\TableExistsException($message, $exception);
             case '-141':
             case '-1041':
-                return DBALException::ERROR_UNKNOWN_TABLE;
+                return new Exception\TableNotFoundException($message, $exception);
         }
 
-        return 0;
+        return new Exception\DriverException($message, $exception);
     }
 
     /**

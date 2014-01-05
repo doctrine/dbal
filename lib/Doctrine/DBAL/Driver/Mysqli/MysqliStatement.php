@@ -91,7 +91,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         $this->_conn = $conn;
         $this->_stmt = $conn->prepare($prepareString);
         if (false === $this->_stmt) {
-            throw new MysqliException($this->_conn->error, $this->_conn->errno);
+            throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
         }
 
         $paramCount = $this->_stmt->param_count;
@@ -156,13 +156,13 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 }
             } else {
                 if (!call_user_func_array(array($this->_stmt, 'bind_param'), array($this->types) + $this->_bindedValues)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
+                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
                 }
             }
         }
 
         if ( ! $this->_stmt->execute()) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
+            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
         if (null === $this->_columnNames) {
@@ -186,7 +186,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 }
 
                 if (!call_user_func_array(array($this->_stmt, 'bind_result'), $refs)) {
-                    throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
+                    throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
                 }
             } else {
                 $this->_columnNames = false;
@@ -245,7 +245,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         }
 
         if (false === $values) {
-            throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
+            throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;

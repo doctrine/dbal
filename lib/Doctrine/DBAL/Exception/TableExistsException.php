@@ -19,15 +19,13 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
-
 /**
- * Thrown when {@link DBALException::ERROR_TABLE_ALREADY_EXISTS} is detected in driver.
+ * Exception for an already existing table referenced in a statement detected in the driver.
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class TableExistsException extends DBALException
+class TableExistsException extends DatabaseObjectExistsException
 {
 }

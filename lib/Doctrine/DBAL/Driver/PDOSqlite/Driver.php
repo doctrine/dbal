@@ -21,8 +21,10 @@ namespace Doctrine\DBAL\Driver\PDOSqlite;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 use PDOException;
@@ -130,48 +132,48 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
      *
      * @link http://www.sqlite.org/c3ref/c_abort.html
      */
-    public function convertExceptionCode(\Exception $exception)
+    public function convertException($message, DriverException $exception)
     {
         if (strpos($exception->getMessage(), 'must be unique') !== false) {
-            return DBALException::ERROR_DUPLICATE_KEY;
+            return new Exception\UniqueConstraintViolationException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'may not be NULL') !== false) {
-            return DBALException::ERROR_NOT_NULL;
+            return new Exception\NotNullConstraintViolationException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'is not unique') !== false) {
-            return DBALException::ERROR_DUPLICATE_KEY;
+            return new Exception\UniqueConstraintViolationException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'no such table:') !== false) {
-            return DBALException::ERROR_UNKNOWN_TABLE;
+            return new Exception\TableNotFoundException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'already exists') !== false) {
-            return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+            return new Exception\TableExistsException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'has no column named') !== false) {
-            return DBALException::ERROR_BAD_FIELD_NAME;
+            return new Exception\InvalidFieldNameException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'ambiguous column name') !== false) {
-            return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+            return new Exception\NonUniqueFieldNameException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'syntax error') !== false) {
-            return DBALException::ERROR_SYNTAX;
+            return new Exception\SyntaxErrorException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'attempt to write a readonly database') !== false) {
-            return DBALException::ERROR_WRITE_READONLY;
+            return new Exception\ReadOnlyException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'unable to open database file') !== false) {
-            return DBALException::ERROR_UNABLE_TO_OPEN;
+            return new Exception\ConnectionException($message, $exception);
         }
 
-        return 0;
+        return new Exception\DriverException($message, $exception);
     }
 }

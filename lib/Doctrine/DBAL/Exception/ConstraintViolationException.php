@@ -19,15 +19,13 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
-
 /**
- * Thrown when {@link DBALException::ERROR_UNABLE_TO_OPEN} is detected in driver.
+ * Base class for all constraint violation related errors detected in the driver.
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class FailedToOpenException extends DBALException
+class ConstraintViolationException extends ServerException
 {
 }

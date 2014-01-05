@@ -21,8 +21,10 @@ namespace Doctrine\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use PDOException;
@@ -125,44 +127,37 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
      * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-client.html
      * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html
      */
-    public function convertExceptionCode(\Exception $exception)
+    public function convertException($message, DriverException $exception)
     {
-        $errorCode = $exception->getCode();
-
-        // Use driver-specific error code instead of SQLSTATE for PDO exceptions if available.
-        if ($exception instanceof \PDOException && null !== $exception->errorInfo[1]) {
-            $errorCode = $exception->errorInfo[1];
-        }
-
-        switch ($errorCode) {
+        switch ($exception->getErrorCode()) {
             case '1050':
-                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+                return new Exception\TableExistsException($message, $exception);
 
             case '1051':
             case '1146':
-                return DBALException::ERROR_UNKNOWN_TABLE;
+                return new Exception\TableNotFoundException($message, $exception);
 
             case '1216':
             case '1217':
             case '1451':
             case '1452':
-                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+                return new Exception\ForeignKeyConstraintViolationException($message, $exception);
 
             case '1062':
             case '1557':
             case '1569':
             case '1586':
-                return DBALException::ERROR_DUPLICATE_KEY;
+                return new Exception\UniqueConstraintViolationException($message, $exception);
 
             case '1054':
             case '1166':
             case '1611':
-                return DBALException::ERROR_BAD_FIELD_NAME;
+                return new Exception\InvalidFieldNameException($message, $exception);
 
             case '1052':
             case '1060':
             case '1110':
-                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+                return new Exception\NonUniqueFieldNameException($message, $exception);
 
             case '1064':
             case '1149':
@@ -176,7 +171,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
             case '1541':
             case '1554':
             case '1626':
-                return DBALException::ERROR_SYNTAX;
+                return new Exception\SyntaxErrorException($message, $exception);
 
             case '1044':
             case '1045':
@@ -189,7 +184,7 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
             case '1370':
             case '2002':
             case '2005':
-                return DBALException::ERROR_ACCESS_DENIED;
+                return new Exception\ConnectionException($message, $exception);
 
             case '1048':
             case '1121':
@@ -198,9 +193,9 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
             case '1252':
             case '1263':
             case '1566':
-                return DBALException::ERROR_NOT_NULL;
+                return new Exception\NotNullConstraintViolationException($message, $exception);
         }
 
-        return 0;
+        return new Exception\DriverException($message, $exception);
     }
 }

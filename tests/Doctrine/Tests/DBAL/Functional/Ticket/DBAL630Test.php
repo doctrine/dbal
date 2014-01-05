@@ -25,6 +25,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $sm = $this->_conn->getSchemaManager();
 
         try {
+            $sm->tryMethod('dropTable', 'dbal630');
             $this->_conn->exec('CREATE TABLE dbal630 (id SERIAL, bool_col BOOLEAN NOT NULL);');
         } catch (TableExistsException $e) {
         }

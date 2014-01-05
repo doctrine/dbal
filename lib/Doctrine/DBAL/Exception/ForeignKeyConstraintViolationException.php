@@ -19,13 +19,14 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
-
 /**
- * Thrown when {@link DBALException::ERROR_FOREIGN_KEY_CONSTRAINT} is detected in driver
+ * Exception for a foreign key constraint violation detected in the driver.
  *
- * @since 2.5
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Steve Müller <st.mueller@dzh-online.de>
+ * @link   www.doctrine-project.org
+ * @since  2.5
  */
-class ForeignKeyConstraintViolationException extends DBALException
+class ForeignKeyConstraintViolationException extends ConstraintViolationException
 {
 }

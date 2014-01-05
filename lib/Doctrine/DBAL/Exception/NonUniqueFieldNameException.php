@@ -19,15 +19,13 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
-
 /**
- * Thrown when {@link DBALException::ERROR_NON_UNIQUE_FIELD_NAME} is detected in driver.
+ * Exception for a non-unique/ambiguous specified field name in a statement detected in the driver.
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class NonUniqueFieldNameException extends DBALException
+class NonUniqueFieldNameException extends ServerException
 {
 }

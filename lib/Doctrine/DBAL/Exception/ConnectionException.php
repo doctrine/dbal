@@ -19,13 +19,13 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
-
 /**
- * Thrown when {@link DBALException::ERROR_DUPLICATE_KEY} is detected in driver
+ * Base class for all connection related errors detected in the driver.
  *
- * @since 2.5
+ * @author Steve Müller <st.mueller@dzh-online.de>
+ * @link   www.doctrine-project.org
+ * @since  2.5
  */
-class DuplicateKeyException extends DBALException
+class ConnectionException extends DriverException
 {
 }
