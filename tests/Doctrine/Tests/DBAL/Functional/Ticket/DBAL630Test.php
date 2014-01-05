@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Exception\TableExistsException;
+use Doctrine\DBAL\Schema\Table;
 use PDO;
 
 /**
@@ -24,11 +25,13 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sm = $this->_conn->getSchemaManager();
 
-        try {
-            $sm->tryMethod('dropTable', 'dbal630');
-            $this->_conn->exec('CREATE TABLE dbal630 (id SERIAL, bool_col BOOLEAN NOT NULL);');
-        } catch (TableExistsException $e) {
-        }
+        $table = new Table('dbal630');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('bool_col', 'boolean');
+        $table->setPrimaryKey(array('id'));
+
+        $sm->dropAndCreateTable($table);
+
         $this->running = true;
     }
 
