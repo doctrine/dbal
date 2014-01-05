@@ -438,12 +438,13 @@ class Connection implements DriverConnection
      *
      * @param string $statement The SQL query.
      * @param array  $params    The query parameters.
+     * @param array  $types     The query parameter types.
      *
      * @return array
      */
-    public function fetchAssoc($statement, array $params = array())
+    public function fetchAssoc($statement, array $params = array(), array $types = array())
     {
-        return $this->executeQuery($statement, $params)->fetch(PDO::FETCH_ASSOC);
+        return $this->executeQuery($statement, $params, $types)->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -452,12 +453,13 @@ class Connection implements DriverConnection
      *
      * @param string $statement The SQL query to be executed.
      * @param array  $params    The prepared statement params.
+     * @param array  $types     The query parameter types.
      *
      * @return array
      */
-    public function fetchArray($statement, array $params = array())
+    public function fetchArray($statement, array $params = array(), array $types = array())
     {
-        return $this->executeQuery($statement, $params)->fetch(PDO::FETCH_NUM);
+        return $this->executeQuery($statement, $params, $types)->fetch(PDO::FETCH_NUM);
     }
 
     /**
@@ -467,12 +469,13 @@ class Connection implements DriverConnection
      * @param string  $statement The SQL query to be executed.
      * @param array   $params    The prepared statement params.
      * @param integer $column    The 0-indexed column number to retrieve.
+     * @param array  $types      The query parameter types.
      *
      * @return mixed
      */
-    public function fetchColumn($statement, array $params = array(), $column = 0)
+    public function fetchColumn($statement, array $params = array(), $column = 0, array $types = array())
     {
-        return $this->executeQuery($statement, $params)->fetchColumn($column);
+        return $this->executeQuery($statement, $params, $types)->fetchColumn($column);
     }
 
     /**
