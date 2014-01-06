@@ -62,4 +62,9 @@ class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
     {
 
     }
+
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\Tests\DBAL\Mocks\MockKeywords';
+    }
 }

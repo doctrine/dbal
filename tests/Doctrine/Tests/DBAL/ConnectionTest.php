@@ -296,6 +296,70 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $conn->insert('footable', array());
     }
 
+    public function testQuotesInsert()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeUpdate'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeUpdate')
+            ->with('INSERT INTO "insert" (foo, "bar", "create") VALUES (?, ?, ?)');
+
+        $conn->insert('insert', array('foo' => 1, '`bar`' => 2, 'create' => 3));
+    }
+
+    public function testQuotesDelete()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeUpdate'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeUpdate')
+            ->with('DELETE FROM "delete" WHERE foo = ? AND "bar" = ? AND "select" = ?');
+
+        $conn->delete('delete', array('foo' => 1, '`bar`' => 2, 'select' => 3));
+    }
+
+    public function testQuotesUpdate()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeUpdate'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeUpdate')
+            ->with('UPDATE "update" SET foo = ?, "bar" = ?, "alter" = ? WHERE foo = ? AND "bar" = ? AND "drop" = ?');
+
+        $conn->update(
+            'update',
+            array('foo' => 1, '`bar`' => 2, 'alter' => 3),
+            array('foo' => 4, '`bar`' => 5, 'drop' => 6)
+        );
+    }
+
     public function testFetchAssoc()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';

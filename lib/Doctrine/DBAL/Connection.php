@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Schema\Identifier;
 use PDO;
 use Closure;
 use Exception;
@@ -511,17 +512,19 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
+        $tableName = new Identifier($tableName);
         $criteria = array();
 
         foreach (array_keys($identifier) as $columnName) {
-            $criteria[] = $columnName . ' = ?';
+            $columnName = new Identifier($columnName);
+            $criteria[] = $columnName->getQuotedName($this->_platform) . ' = ?';
         }
 
         if (is_string(key($types))) {
             $types = $this->extractTypeValues($identifier, $types);
         }
 
-        $query = 'DELETE FROM ' . $tableName . ' WHERE ' . implode(' AND ', $criteria);
+        $query = 'DELETE FROM ' . $tableName->getQuotedName($this->_platform) . ' WHERE ' . implode(' AND ', $criteria);
 
         return $this->executeUpdate($query, array_values($identifier), $types);
     }
@@ -575,10 +578,19 @@ class Connection implements DriverConnection
     public function update($tableName, array $data, array $identifier, array $types = array())
     {
         $this->connect();
-        $set = array();
+
+        $tableName = new Identifier($tableName);
+        $set       = array();
+        $criteria  = array();
 
         foreach ($data as $columnName => $value) {
-            $set[] = $columnName . ' = ?';
+            $columnName = new Identifier($columnName);
+            $set[]      = $columnName->getQuotedName($this->_platform) . ' = ?';
+        }
+
+        foreach (array_keys($identifier) as $columnName) {
+            $columnName = new Identifier($columnName);
+            $criteria[] = $columnName->getQuotedName($this->_platform) . ' = ?';
         }
 
         if (is_string(key($types))) {
@@ -587,9 +599,8 @@ class Connection implements DriverConnection
 
         $params = array_merge(array_values($data), array_values($identifier));
 
-        $sql  = 'UPDATE ' . $tableName . ' SET ' . implode(', ', $set)
-                . ' WHERE ' . implode(' = ? AND ', array_keys($identifier))
-                . ' = ?';
+        $sql  = 'UPDATE ' . $tableName->getQuotedName($this->_platform) . ' SET ' . implode(', ', $set)
+                . ' WHERE ' . implode(' AND ', $criteria);
 
         return $this->executeUpdate($sql, $params, $types);
     }
@@ -607,14 +618,28 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
+        $tableName = new Identifier($tableName);
+        $tableName = $tableName->getQuotedName($this->_platform);
+
         if (empty($data)) {
             return $this->executeUpdate('INSERT INTO ' . $tableName . ' ()' . ' VALUES ()');
         }
 
+        $columns      = array();
+        $params       = array();
+        $placeholders = array();
+
+        foreach ($data as $columnName => $param) {
+            $columnName     = new Identifier($columnName);
+            $columns[]      = $columnName->getQuotedName($this->_platform);
+            $params[]       = $param;
+            $placeholders[] = '?';
+        }
+
         return $this->executeUpdate(
-            'INSERT INTO ' . $tableName . ' (' . implode(', ', array_keys($data)) . ')' .
-            ' VALUES (' . implode(', ', array_fill(0, count($data), '?')) . ')',
-            array_values($data),
+            'INSERT INTO ' . $tableName . ' (' . implode(', ', $columns) . ')' .
+            ' VALUES (' . implode(', ', $placeholders) . ')',
+            $params,
             is_string(key($types)) ? $this->extractTypeValues($data, $types) : $types
         );
     }
