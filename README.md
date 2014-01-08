@@ -5,7 +5,6 @@ Powerful database abstraction layer with many features for database schema intro
 * Master: [![Build Status](https://secure.travis-ci.org/doctrine/dbal.png?branch=master)](http://travis-ci.org/doctrine/dbal) [![Dependency Status](https://www.versioneye.com/php/doctrine:dbal/dev-master/badge.png)](https://www.versioneye.com/php/doctrine:dbal/dev-master)
 * 2.4: [![Build Status](https://secure.travis-ci.org/doctrine/dbal.png?branch=2.3)](http://travis-ci.org/doctrine/dbal) [![Dependency Status](https://www.versioneye.com/php/doctrine:dbal/2.4.2/badge.png)](https://www.versioneye.com/php/doctrine:dbal/2.4.2)
 * 2.3: [![Build Status](https://secure.travis-ci.org/doctrine/dbal.png?branch=2.3)](http://travis-ci.org/doctrine/dbal) [![Dependency Status](https://www.versioneye.com/php/doctrine:dbal/2.3.4/badge.png)](https://www.versioneye.com/php/doctrine:dbal/2.3.4)
-* 2.2: [![Build Status](https://secure.travis-ci.org/doctrine/dbal.png?branch=2.2)](http://travis-ci.org/doctrine/dbal) [![Dependency Status](https://www.versioneye.com/php/doctrine:dbal/2.2.2/badge.png)](https://www.versioneye.com/php/doctrine:dbal/2.2.2)
 
 ## More resources:
 
