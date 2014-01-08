@@ -585,7 +585,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT * FROM fetch_table";
         $stmt = $this->_conn->query($sql);
-        $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass', array());
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass');
 
         $results = $stmt->fetchAll();
 
@@ -607,7 +607,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT * FROM fetch_table";
         $stmt = $this->_conn->query($sql);
-        $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass', array());
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass');
 
         $results = array();
         while ($row = $stmt->fetch()) {
