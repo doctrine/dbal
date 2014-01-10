@@ -39,6 +39,18 @@ class PostgreSQL92Platform extends PostgreSqlPlatform
     /**
      * {@inheritdoc}
      */
+    public function getSmallIntTypeDeclarationSQL(array $field)
+    {
+        if ( ! empty($field['autoincrement'])) {
+            return 'SMALLSERIAL';
+        }
+
+        return parent::getSmallIntTypeDeclarationSQL($field);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasNativeJsonType()
     {
         return true;

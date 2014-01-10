@@ -30,6 +30,24 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
         $this->assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
     }
 
+    public function testReturnsSmallIntTypeDeclarationSQL()
+    {
+        $this->assertSame(
+            'SMALLSERIAL',
+            $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => true))
+        );
+
+        $this->assertSame(
+            'SMALLINT',
+            $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => false))
+        );
+
+        $this->assertSame(
+            'SMALLINT',
+            $this->_platform->getSmallIntTypeDeclarationSQL(array())
+        );
+    }
+
     /**
      * @group DBAL-553
      */
