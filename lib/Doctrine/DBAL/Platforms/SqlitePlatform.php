@@ -225,7 +225,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
-        return $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -233,7 +233,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
-        return $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -241,7 +241,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getTinyIntTypeDeclarationSql(array $field)
     {
-        return $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'TINYINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -249,7 +249,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
-        return $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -257,7 +257,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getMediumIntTypeDeclarationSql(array $field)
     {
-        return $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'MEDIUMINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -289,7 +289,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
-        return 'INTEGER';
+        return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
 
     /**
