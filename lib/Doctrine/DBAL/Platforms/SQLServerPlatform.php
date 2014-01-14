@@ -1347,21 +1347,19 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function appendLockHint($fromClause, $lockMode)
     {
-        switch ($lockMode) {
-            case LockMode::NONE:
-                $lockClause = ' WITH (NOLOCK)';
-                break;
-            case LockMode::PESSIMISTIC_READ:
-                $lockClause = ' WITH (HOLDLOCK, ROWLOCK)';
-                break;
-            case LockMode::PESSIMISTIC_WRITE:
-                $lockClause = ' WITH (UPDLOCK, ROWLOCK)';
-                break;
-            default:
-                $lockClause = '';
-        }
+        switch (true) {
+            case LockMode::NONE === $lockMode:
+                return $fromClause . ' WITH (NOLOCK)';
 
-        return $fromClause . $lockClause;
+            case LockMode::PESSIMISTIC_READ === $lockMode:
+                return $fromClause . ' WITH (HOLDLOCK, ROWLOCK)';
+
+            case LockMode::PESSIMISTIC_WRITE === $lockMode:
+                return $fromClause . ' WITH (UPDLOCK, ROWLOCK)';
+
+            default:
+                return $fromClause;
+        }
     }
 
     /**
