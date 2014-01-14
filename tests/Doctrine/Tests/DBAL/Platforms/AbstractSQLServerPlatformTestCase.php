@@ -257,6 +257,74 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     }
 
     /**
+     * @group DBAL-713
+     */
+    public function testModifyLimitQueryWithSubSelectInSelectList()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            "SELECT " .
+            "u.id, " .
+            "(u.foo/2) foodiv, " .
+            "CONCAT(u.bar, u.baz) barbaz, " .
+            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
+            "FROM user u " .
+            "WHERE u.status = 'disabled'",
+            10
+        );
+
+        $this->assertEquals(
+            "SELECT * FROM (" .
+            "SELECT " .
+            "u.id, " .
+            "(u.foo/2) foodiv, " .
+            "CONCAT(u.bar, u.baz) barbaz, " .
+            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count, " .
+            "ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum " .
+            "FROM user u " .
+            "WHERE u.status = 'disabled'" .
+            ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10",
+            $sql
+        );
+    }
+
+    /**
+     * @group DBAL-713
+     */
+    public function testModifyLimitQueryWithSubSelectInSelectListAndOrderByClause()
+    {
+        if ( ! $this->_platform->supportsLimitOffset()) {
+            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
+        }
+
+        $sql = $this->_platform->modifyLimitQuery(
+            "SELECT " .
+            "u.id, " .
+            "(u.foo/2) foodiv, " .
+            "CONCAT(u.bar, u.baz) barbaz, " .
+            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
+            "FROM user u " .
+            "WHERE u.status = 'disabled' " .
+            "ORDER BY u.username DESC",
+            10,
+            5
+        );
+
+        $this->assertEquals(
+            "SELECT * FROM (" .
+            "SELECT " .
+            "u.id, " .
+            "(u.foo/2) foodiv, " .
+            "CONCAT(u.bar, u.baz) barbaz, " .
+            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count, " .
+            "ROW_NUMBER() OVER (ORDER BY username DESC) AS doctrine_rownum " .
+            "FROM user u " .
+            "WHERE u.status = 'disabled'" .
+            ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15",
+            $sql
+        );
+    }
+
+    /**
      * @group DDC-1360
      */
     public function testQuoteIdentifier()
