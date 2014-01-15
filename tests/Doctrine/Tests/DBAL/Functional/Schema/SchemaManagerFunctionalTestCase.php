@@ -250,6 +250,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         }
 
         $offlineTable = $this->createListTableColumns();
+        $this->_sm->dropAndCreateTable($offlineTable);
         $onlineTable = $this->_sm->listTableDetails('list_table_columns');
 
         $comparator = new \Doctrine\DBAL\Schema\Comparator();
