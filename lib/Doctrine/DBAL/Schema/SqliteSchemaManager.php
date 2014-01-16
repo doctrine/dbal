@@ -220,7 +220,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $autoincrementColumn = null;
         $autoincrementCount = 0;
         foreach ($tableColumns as $tableColumn) {
-            if ('1' == $tableColumn['pk']) {
+            if ('0' != $tableColumn['pk']) {
                 $autoincrementCount++;
                 if (null === $autoincrementColumn && 'integer' == strtolower($tableColumn['type'])) {
                     $autoincrementColumn = $tableColumn['name'];
