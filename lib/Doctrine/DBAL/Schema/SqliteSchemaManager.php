@@ -168,7 +168,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         foreach ($indexArray as $indexColumnRow) {
             if ($indexColumnRow['pk'] != "0") {
-                $indexBuffer[] = array(
+                $indexBuffer[$indexColumnRow['pk']] = array(
                     'key_name' => 'primary',
                     'primary' => true,
                     'non_unique' => false,
@@ -176,6 +176,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 );
             }
         }
+        ksort($indexBuffer);
 
         // fetch regular indexes
         foreach ($tableIndexes as $tableIndex) {
