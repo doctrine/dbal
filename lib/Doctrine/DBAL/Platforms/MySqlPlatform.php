@@ -23,6 +23,8 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\TextType;
 
 /**
  * The MySqlPlatform provides the behavior, features and SQL dialect of the
@@ -464,6 +466,19 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getDefaultValueDeclarationSQL($field)
+    {
+        // Unset the default value if the given field definition does not allow default values.
+        if ($field['type'] instanceof TextType || $field['type'] instanceof BlobType) {
+            $field['default'] = null;
+        }
+
+        return parent::getDefaultValueDeclarationSQL($field);
+    }
+
+    /**
      * Build SQL for table options
      *
      * @param array $options
@@ -570,6 +585,15 @@ class MySqlPlatform extends AbstractPlatform
             /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $columnArray = $column->toArray();
+
+            // Don't propagate default value changes for unsupported column types.
+            if ($columnDiff->hasChanged('default') &&
+                count($columnDiff->changedProperties) === 1 &&
+                ($columnArray['type'] instanceof TextType || $columnArray['type'] instanceof BlobType)
+            ) {
+                continue;
+            }
+
             $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[] =  'CHANGE ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);

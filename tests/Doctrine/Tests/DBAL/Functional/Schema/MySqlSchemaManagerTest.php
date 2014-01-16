@@ -117,4 +117,40 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertFalse($table->hasPrimaryKey());
         $this->assertFalse($table->getColumn('id')->getAutoincrement());
     }
+
+    /**
+     * @group DBAL-789
+     */
+    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
+    {
+        $table = new Table("text_blob_default_value");
+        $table->addColumn('def_text', 'text', array('default' => 'def'));
+        $table->addColumn('def_text_null', 'text', array('notnull' => false, 'default' => 'def'));
+        $table->addColumn('def_blob', 'blob', array('default' => 'def'));
+        $table->addColumn('def_blob_null', 'blob', array('notnull' => false, 'default' => 'def'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
+
+        $this->assertNull($onlineTable->getColumn('def_text')->getDefault());
+        $this->assertNull($onlineTable->getColumn('def_text_null')->getDefault());
+        $this->assertFalse($onlineTable->getColumn('def_text_null')->getNotnull());
+        $this->assertNull($onlineTable->getColumn('def_blob')->getDefault());
+        $this->assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
+        $this->assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
+
+        $comparator = new Comparator();
+
+        $this->_sm->alterTable($comparator->diffTable($table, $onlineTable));
+
+        $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
+
+        $this->assertNull($onlineTable->getColumn('def_text')->getDefault());
+        $this->assertNull($onlineTable->getColumn('def_text_null')->getDefault());
+        $this->assertFalse($onlineTable->getColumn('def_text_null')->getNotnull());
+        $this->assertNull($onlineTable->getColumn('def_blob')->getDefault());
+        $this->assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
+        $this->assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
+    }
 }
