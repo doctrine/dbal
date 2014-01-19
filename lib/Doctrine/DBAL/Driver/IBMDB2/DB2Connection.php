@@ -53,9 +53,9 @@ class DB2Connection implements Connection
     /**
      * {@inheritdoc}
      */
-    public function prepare($sql)
+    public function prepare($sql, $driverOptions = array())
     {
-        $stmt = @db2_prepare($this->_conn, $sql);
+        $stmt = @db2_prepare($this->_conn, $sql, $driverOptions);
         if ( ! $stmt) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
