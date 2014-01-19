@@ -26,7 +26,7 @@ Doctrine will work as expected.
 
 ## Signature for method ``prepare`` changed for Connections
 
-An optionnal parameter: ``$driverOptions = array()`` has been added in the interface ``Doctrine\DBAL\Connection`` (in order to make ``Doctrine\DBAL\Driver\PDOConnection`` compatible with this interface). So the following class have been modified to reflect this change:
+An optional parameter: ``$driverOptions = array()`` has been added in the interface ``Doctrine\DBAL\Connection`` (in order to make ``Doctrine\DBAL\Driver\PDOConnection`` compatible with this interface). So the following class have been modified to reflect this change:
 
 - Doctrine\DBAL\Driver\Connection
 - Doctrine\Tests\Mocks\DriverConnectionMock
