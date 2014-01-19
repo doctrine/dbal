@@ -367,10 +367,10 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function prepare($statement)
+    public function prepare($statement, $driverOptions = array())
     {
         $this->connect('master');
 
-        return parent::prepare($statement);
+        return parent::prepare($statement, $driverOptions);
     }
 }
