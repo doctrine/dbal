@@ -33,10 +33,11 @@ interface Connection
      * Prepares a statement for execution and returns a Statement object.
      *
      * @param string $prepareString
+     * @param array  $driverOptions
      *
      * @return \Doctrine\DBAL\Driver\Statement
      */
-    function prepare($prepareString);
+    function prepare($prepareString, $driverOptions = array());
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
@@ -53,7 +54,7 @@ interface Connection
      *
      * @return string
      */
-    function quote($input, $type=\PDO::PARAM_STR);
+    function quote($input, $type = \PDO::PARAM_STR);
 
     /**
      * Executes an SQL statement and return the number of affected rows.
