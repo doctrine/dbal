@@ -127,9 +127,9 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function prepare($statement)
+    public function prepare($statement, $driverOptions = array())
     {
-        $stmt = new Statement(parent::prepare($statement), $this);
+        $stmt = new Statement(parent::prepare($statement, $driverOptions), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
         return $stmt;
