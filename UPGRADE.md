@@ -24,6 +24,32 @@ connection parameter to explicitly specify the ``Doctrine\DBAL\Driver\PDOIbm\Dri
 However be aware that you are doing this at your own risk and it will not be guaranteed that
 Doctrine will work as expected.
 
+## Signature for method ``prepare`` changed for Connections
+
+An optionnal parameter: ``$driverOptions = array()`` has been added in the interface ``Doctrine\DBAL\Connection`` (in order to make ``Doctrine\DBAL\Driver\PDOConnection`` compatible with this interface). So the following class have been modified to reflect this change:
+
+- Doctrine\DBAL\Driver\Connection
+- Doctrine\Tests\Mocks\DriverConnectionMock
+- Doctrine\DBAL\Connections\MasterSlaveConnection
+- Doctrine\DBAL\Portability\Connection
+- Doctrine\DBAL\Driver\Mysqli\MysqliConnection
+- Doctrine\DBAL\Driver\IBMDB2\DB2Connection
+- Doctrine\DBAL\Driver\OCI8\OCI8Connection
+- Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection
+- Doctrine\DBAL\Driver\SQLSrv\SQLSrvConnection
+
+If you extends the method ``prepare`` of one of those class, or if you implement the interface ``Doctrine\DBAL\Connection`` be sure to add the ``$driverOptions = array()`` parameter in you custom code.
+
+Before:
+```php
+function prepare($prepareString) {
+```
+
+After:
+```php
+function prepare($prepareString, $driverOptions = array()) {
+```
+
 # Upgrade to 2.4
 
 ## Doctrine\DBAL\Schema\Constraint
