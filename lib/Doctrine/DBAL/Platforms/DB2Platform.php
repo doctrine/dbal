@@ -295,6 +295,9 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
+    	// TODO this doesn't work with ibm_db2 running on ibmi use
+    	//return "SELECT NAME FROM QSYS2.SYSTABLES WHERE TYPE = 'T'";
+    	   
         return "SELECT NAME FROM SYSIBM.SYSTABLES WHERE TYPE = 'T'";
     }
 
@@ -303,6 +306,9 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListViewsSQL($database)
     {
+    	// TODO this doesn't work with ibm_db2 running on ibmi use
+    	//return "SELECT NAME, TEXT FROM QSYS2.SYSVIEWS";
+    	
         return "SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS";
     }
 
@@ -311,6 +317,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
+    	// TODO this doesn't work with ibm_db2 running on ibmi, cannot find equivalent
         return "SELECT   idx.INDNAME AS key_name,
                          idxcol.COLNAME AS column_name,
                          CASE
@@ -333,6 +340,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table)
     {
+    	// TODO this doesn't work with ibm_db2 running on ibmi, cannot find equivalent
         return "SELECT   fkcol.COLNAME AS local_column,
                          fk.REFTABNAME AS foreign_table,
                          pkcol.COLNAME AS foreign_column,
@@ -640,6 +648,70 @@ class DB2Platform extends AbstractPlatform
         $sql = 'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* '.
                'FROM (' . $query . ') db21) db22 WHERE db22.DC_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
 
+        /**
+         * NFRIGNANI
+         */
+        $query = $sql;
+        $orderBy = stristr ( $query, 'ORDER BY' );
+        if (! $orderBy) {
+        	return $sql;
+        } else {
+        	// Remove ORDER BY from $query
+        	$query = preg_replace ( '/\s+ORDER\s+BY\s+([^\)]*)/', '', $query );
+        		
+        	// Clear ORDER BY
+        	$orderBy = preg_replace ( '/ORDER\s+BY\s+([^\)]*)(.*)/', '$1', $orderBy );
+        	$orderByParts = explode ( ',', $orderBy );
+        	$orderbyColumns = array ();
+        		
+        	// Split ORDER BY into parts
+        	foreach ( $orderByParts as &$part ) {
+        
+        		if (preg_match ( '/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', trim ( $part ), $matches )) {
+        			$orderbyColumns [] = array (
+        					'column' => $matches [3],
+        					'hasTable' => (! empty ( $matches [2] )),
+        					'sort' => isset ( $matches [4] ) ? $matches [4] : null,
+        					'table' => empty ( $matches [2] ) ? '[^\.\s]*' : $matches [2]
+        			);
+        		}
+        	}
+        		
+        	// print_r($orderbyColumns);
+        		
+        	$isWrapped = (preg_match ( '/SELECT DISTINCT .* FROM \(.*\) dctrn_result/', $query )) ? true : false;
+        		
+        	// Find alias for each colum used in ORDER BY
+        	if (! empty ( $orderbyColumns )) {
+        		foreach ( $orderbyColumns as $column ) {
+        				
+        			$pattern = sprintf ( '/%s\.%s\s+(?:AS\s+)?([^,\s)]+)/i', $column ['table'], $column ['column'] );
+        				
+        			if ($isWrapped) {
+        				$overColumn = preg_match ( $pattern, $query, $matches ) ? $matches [1] : '';
+        			} else {
+        				$overColumn = preg_match ( $pattern, $query, $matches ) ? ($column ['hasTable'] ? $column ['table'] . '.' : '') . $column ['column'] : $column ['column'];
+        			}
+        				
+        			if (isset ( $column ['sort'] )) {
+        				$overColumn .= ' ' . $column ['sort'];
+        			}
+        				
+        			$overColumns [] = $overColumn;
+        		}
+        	}
+        		
+        	// Replace only first occurrence of FROM with $over to prevent
+        	// changing
+        	// FROM also in subqueries.
+        	$over = 'ORDER BY ' . implode ( ', ', $overColumns );
+        	$query = preg_replace ( '/OVER\(\)/i', " OVER ($over) ", $query, 1 );
+        	//echo $query;
+        	$sql = $query;
+        }
+        /**
+         * END NFRIGNANI
+         */
         return $sql;
     }
 
@@ -706,6 +778,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getDummySelectSQL()
     {
+    	// TODO this doesn't work with ibm_db2 running on ibmi, cannot find equivalent
         return 'SELECT 1 FROM sysibm.sysdummy1';
     }
 
