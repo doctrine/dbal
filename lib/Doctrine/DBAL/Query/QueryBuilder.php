@@ -560,19 +560,20 @@ class QueryBuilder
      *
      * @return QueryBuilder This QueryBuilder instance.
      */
-	public function insert($insert = null, $alias = null) {
-		$this->type = self::INSERT;
-		
-		if (! $insert) {
-			return $this;
-		}
-		
-		return $this->add ( 'from', array (
-				'table' => $insert,
-				'alias' => $alias 
-		) );
-	}
-    
+    public function insert($insert = null)
+    {
+        $this->type = self::INSERT;
+
+        if ( ! $insert) {
+            return $this;
+        }
+
+        return $this->add('from', array(
+            'table' => $insert,
+            'alias' => $alias 
+        ));
+    }
+
     /**
      * Creates and adds a query root corresponding to the table identified by the
      * given alias, forming a cartesian product with any existing query roots.
