@@ -93,4 +93,23 @@ EOS
         $this->assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_binary')->getType());
         $this->assertFalse($table->getColumn('column_binary')->getFixed());
     }
+
+    public function testNonDefaultPKOrder()
+    {
+        $this->_conn->executeQuery(<<<EOS
+CREATE TABLE non_default_pk_order (
+    id INTEGER,
+    other_id INTEGER,
+    PRIMARY KEY(other_id, id)
+)
+EOS
+        );
+
+        $tableIndexes = $this->_sm->listTableIndexes('non_default_pk_order');
+
+         $this->assertEquals(1, count($tableIndexes));
+
+        $this->assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
+        $this->assertEquals(array('other_id', 'id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+    }
 }
