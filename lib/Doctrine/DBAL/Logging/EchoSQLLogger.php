@@ -39,10 +39,15 @@ class EchoSQLLogger implements SQLLogger
         echo $sql . PHP_EOL;
 
         if ($params) {
-            var_dump($params);
-        }
+            $dump = $params;
+            if ($types)
+                foreach ($params as $index => $param) {
+                    $dump[$types[$index] . " index: " . $index] = $param;
+                    unset($dump[$index]);
+                }
 
-        if ($types) {
+            var_dump($dump);
+    	} else if ($types) {
             var_dump($types);
         }
     }
