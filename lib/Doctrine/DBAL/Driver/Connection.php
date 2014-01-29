@@ -33,10 +33,11 @@ interface Connection
      * Prepares a statement for execution and returns a Statement object.
      *
      * @param string $prepareString
+     * @param array  $driverOptions
      *
      * @return \Doctrine\DBAL\Driver\Statement
      */
-    function prepare($prepareString);
+    function prepare($prepareString, $driverOptions);
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
