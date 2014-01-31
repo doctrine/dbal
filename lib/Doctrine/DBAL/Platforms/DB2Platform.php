@@ -646,7 +646,7 @@ class DB2Platform extends AbstractPlatform
             //Replace only "main" FROM with OVER to prevent changing FROM also in subqueries.
             $query = preg_replace(
                 $selectFromPattern,
-                '$1, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM ',
+                '$1, ROW_NUMBER() OVER () AS doctrine_rownum FROM ',
                 $query,
                 1
             );
