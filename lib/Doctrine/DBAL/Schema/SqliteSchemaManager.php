@@ -166,9 +166,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         // fetch primary
         $stmt = $this->_conn->executeQuery("PRAGMA TABLE_INFO ('$tableName')");
         $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        usort($indexArray, function($a, $b) {
+            return $a['pk'] - $b['pk'];
+        });
         foreach ($indexArray as $indexColumnRow) {
             if ($indexColumnRow['pk'] != "0") {
-                $indexBuffer[$indexColumnRow['pk']] = array(
+                $indexBuffer[] = array(
                     'key_name' => 'primary',
                     'primary' => true,
                     'non_unique' => false,
@@ -176,7 +179,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 );
             }
         }
-        ksort($indexBuffer);
 
         // fetch regular indexes
         foreach ($tableIndexes as $tableIndex) {
