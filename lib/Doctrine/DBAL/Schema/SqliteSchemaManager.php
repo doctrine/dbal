@@ -170,12 +170,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
             if ($a['pk'] == $b['pk']) {
                 return $a['cid'] - $b['cid'];
             }
-            if ($a['pk'] == "0" && $b['pk'] != "0") {
-                return 1;
-            }
-            if ($a['pk'] != "0" && $b['pk'] == "0") {
-                return -1;
-            }
             return $a['pk'] - $b['pk'];
         });
         foreach ($indexArray as $indexColumnRow) {
