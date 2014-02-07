@@ -96,6 +96,10 @@ EOS
 
     public function testNonDefaultPKOrder()
     {
+        $version = \SQLite3::version();
+        if(version_compare($version['versionString'], '3.7.16', '<')) {
+            $this->markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
+        }
         $this->_conn->executeQuery(<<<EOS
 CREATE TABLE non_default_pk_order (
     id INTEGER,
