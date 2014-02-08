@@ -39,8 +39,14 @@ input to any of the methods of the QueryBuilder and use the placeholder
         ->select('u.id', 'u.name')
         ->from('users', 'u')
         ->where('u.email = ?')
-        ->setParameter(1, $userInputEmail)
+        ->setParameter(0, $userInputEmail)
     ;
+
+.. note::
+
+    Due to an API design error the numerical parameters in the QueryBuilder API
+    start with the needle ``0``, not with ``1`` as in the PDO API. This is very
+    unfortunate, but we have found no BC way to fix this.
 
 Building a Query
 ----------------
@@ -202,8 +208,8 @@ done with the ``values()`` method on the query builder:
                 'password' => '?'
             )
         )
-        ->setParameter(1, $username)
-        ->setParameter(2, $password)
+        ->setParameter(0, $username)
+        ->setParameter(1, $password)
     ;
     // INSERT INTO users (name, password) VALUES (?, ?)
 
@@ -219,8 +225,8 @@ Setting single values instead of all at once is also possible with the
         ->insert('users')
         ->setValue('name', '?')
         ->setValue('password', '?')
-        ->setParameter(1, $username)
-        ->setParameter(2, $password)
+        ->setParameter(0, $username)
+        ->setParameter(1, $password)
     ;
     // INSERT INTO users (name, password) VALUES (?, ?)
 
@@ -237,14 +243,14 @@ Of course you can also use both methods in combination:
                 'name' => '?'
             )
         )
-        ->setParameter(1, $username)
+        ->setParameter(0, $username)
     ;
     // INSERT INTO users (name) VALUES (?)
 
     if ($password) {
         $queryBuilder
             ->setValue('password', '?')
-            ->setParameter(2, $password)
+            ->setParameter(1, $password)
         ;
         // INSERT INTO users (name, password) VALUES (?, ?)
     }
@@ -276,7 +282,7 @@ user-input:
         ->update('users', 'u')
         ->set('u.logins', 'u.logins + 1')
         ->set('u.last_login', '?')
-        ->setParameter(1, $userInputLastLogin)
+        ->setParameter(0, $userInputLastLogin)
     ;
 
 Building Expressions
