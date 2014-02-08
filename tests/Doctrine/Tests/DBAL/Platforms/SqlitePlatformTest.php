@@ -63,6 +63,90 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->assertTrue($this->_platform->prefersIdentityColumns());
     }
 
+    /**
+     * @group DBAL-752
+     */
+    public function testGeneratesTypeDeclarationForTinyIntegers()
+    {
+        $this->assertEquals(
+            'TINYINT',
+            $this->_platform->getTinyIntTypeDeclarationSQL(array())
+        );
+        $this->assertEquals(
+            'TINYINT',
+            $this->_platform->getTinyIntTypeDeclarationSQL(array('autoincrement' => true))
+        );
+        $this->assertEquals(
+            'TINYINT',
+            $this->_platform->getTinyIntTypeDeclarationSQL(
+                array('autoincrement' => true, 'primary' => true))
+        );
+        $this->assertEquals(
+            'TINYINT',
+            $this->_platform->getTinyIntTypeDeclarationSQL(array('unsigned' => false))
+        );
+        $this->assertEquals(
+            'TINYINT UNSIGNED',
+            $this->_platform->getTinyIntTypeDeclarationSQL(array('unsigned' => true))
+        );
+    }
+
+    /**
+     * @group DBAL-752
+     */
+    public function testGeneratesTypeDeclarationForSmallIntegers()
+    {
+        $this->assertEquals(
+            'SMALLINT',
+            $this->_platform->getSmallIntTypeDeclarationSQL(array())
+        );
+        $this->assertEquals(
+            'SMALLINT',
+            $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => true))
+        );
+        $this->assertEquals(
+            'SMALLINT',
+            $this->_platform->getSmallIntTypeDeclarationSQL(
+                array('autoincrement' => true, 'primary' => true))
+        );
+        $this->assertEquals(
+            'SMALLINT',
+            $this->_platform->getSmallIntTypeDeclarationSQL(array('unsigned' => false))
+        );
+        $this->assertEquals(
+            'SMALLINT UNSIGNED',
+            $this->_platform->getSmallIntTypeDeclarationSQL(array('unsigned' => true))
+        );
+    }
+
+    /**
+     * @group DBAL-752
+     */
+    public function testGeneratesTypeDeclarationForMediumIntegers()
+    {
+        $this->assertEquals(
+            'MEDIUMINT',
+            $this->_platform->getMediumIntTypeDeclarationSQL(array())
+        );
+        $this->assertEquals(
+            'MEDIUMINT',
+            $this->_platform->getMediumIntTypeDeclarationSQL(array('autoincrement' => true))
+        );
+        $this->assertEquals(
+            'MEDIUMINT',
+            $this->_platform->getMediumIntTypeDeclarationSQL(
+                array('autoincrement' => true, 'primary' => true))
+        );
+        $this->assertEquals(
+            'MEDIUMINT',
+            $this->_platform->getMediumIntTypeDeclarationSQL(array('unsigned' => false))
+        );
+        $this->assertEquals(
+            'MEDIUMINT UNSIGNED',
+            $this->_platform->getMediumIntTypeDeclarationSQL(array('unsigned' => true))
+        );
+    }
+
     public function testGeneratesTypeDeclarationForIntegers()
     {
         $this->assertEquals(
@@ -77,6 +161,42 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
+        );
+        $this->assertEquals(
+            'INTEGER',
+            $this->_platform->getIntegerTypeDeclarationSQL(array('unsigned' => false))
+        );
+        $this->assertEquals(
+            'INTEGER UNSIGNED',
+            $this->_platform->getIntegerTypeDeclarationSQL(array('unsigned' => true))
+        );
+    }
+
+    /**
+     * @group DBAL-752
+     */
+    public function testGeneratesTypeDeclarationForBigIntegers()
+    {
+        $this->assertEquals(
+            'BIGINT',
+            $this->_platform->getBigIntTypeDeclarationSQL(array())
+        );
+        $this->assertEquals(
+            'BIGINT',
+            $this->_platform->getBigIntTypeDeclarationSQL(array('autoincrement' => true))
+        );
+        $this->assertEquals(
+            'BIGINT',
+            $this->_platform->getBigIntTypeDeclarationSQL(
+                array('autoincrement' => true, 'primary' => true))
+        );
+        $this->assertEquals(
+            'BIGINT',
+            $this->_platform->getBigIntTypeDeclarationSQL(array('unsigned' => false))
+        );
+        $this->assertEquals(
+            'BIGINT UNSIGNED',
+            $this->_platform->getBigIntTypeDeclarationSQL(array('unsigned' => true))
         );
     }
 

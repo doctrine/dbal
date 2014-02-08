@@ -24,9 +24,14 @@ class DBAL752Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->_conn->exec(<<<SQL
 CREATE TABLE dbal752_unsigneds (
-    id  BIGINT UNSIGNED,
-    flag SMALLINT UNSIGNED,
-    masks  INTEGER UNSIGNED
+    small SMALLINT,
+    small_unsigned SMALLINT UNSIGNED,
+    medium MEDIUMINT,
+    medium_unsigned MEDIUMINT UNSIGNED,
+    "integer" INTEGER,
+    integer_unsigned INTEGER UNSIGNED,
+    big BIGINT,
+    big_unsigned BIGINT UNSIGNED
 );
 SQL
         );
@@ -35,11 +40,23 @@ SQL
 
         $fetchedTable = $schemaManager->listTableDetails('dbal752_unsigneds');
 
-        $this->assertEquals('bigint', $fetchedTable->getColumn('id')->getType()->getName());
-        $this->assertEquals('smallint', $fetchedTable->getColumn('flag')->getType()->getName());
-        $this->assertEquals('integer', $fetchedTable->getColumn('masks')->getType()->getName());
-        $this->assertTrue($fetchedTable->getColumn('id')->getUnsigned());
-        $this->assertTrue($fetchedTable->getColumn('flag')->getUnsigned());
-        $this->assertTrue($fetchedTable->getColumn('masks')->getUnsigned());
+        $this->assertEquals('smallint', $fetchedTable->getColumn('small')->getType()->getName());
+        $this->assertEquals('smallint', $fetchedTable->getColumn('small_unsigned')->getType()->getName());
+        $this->assertEquals('integer', $fetchedTable->getColumn('medium')->getType()->getName());
+        $this->assertEquals('integer', $fetchedTable->getColumn('medium_unsigned')->getType()->getName());
+        $this->assertEquals('integer', $fetchedTable->getColumn('integer')->getType()->getName());
+        $this->assertEquals('integer', $fetchedTable->getColumn('integer_unsigned')->getType()->getName());
+        $this->assertEquals('bigint', $fetchedTable->getColumn('big')->getType()->getName());
+        $this->assertEquals('bigint', $fetchedTable->getColumn('big_unsigned')->getType()->getName());
+
+        $this->assertTrue($fetchedTable->getColumn('small_unsigned')->getUnsigned());
+        $this->assertTrue($fetchedTable->getColumn('medium_unsigned')->getUnsigned());
+        $this->assertTrue($fetchedTable->getColumn('integer_unsigned')->getUnsigned());
+        $this->assertTrue($fetchedTable->getColumn('big_unsigned')->getUnsigned());
+
+        $this->assertFalse($fetchedTable->getColumn('small')->getUnsigned());
+        $this->assertFalse($fetchedTable->getColumn('medium')->getUnsigned());
+        $this->assertFalse($fetchedTable->getColumn('integer')->getUnsigned());
+        $this->assertFalse($fetchedTable->getColumn('big')->getUnsigned());
     }
 }
