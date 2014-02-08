@@ -10,32 +10,284 @@ Type.
 
 Using the ORM you generally don't need to know about the Type
 system. This is unless you want to make use of database vendor
-specific database types not included in Doctrine 2. The following
-PHP Types are abstracted across all the supported database
-vendors:
-
-
--  Integer
--  SmallInt
--  BigInt
--  String (string with maximum length, for example 255)
--  Text (strings without maximum length)
--  Binary (binary string with maximum length, for example 255)
--  Decimal (restricted floats, *NOTE* Only works with a setlocale()
-   configuration that uses decimal points!)
--  Boolean
--  DateTime
--  Date (DateTime instance where only Y-m-d get persisted)
--  Time (DateTime instance where only H:i:s get persisted)
--  Array (serialized into a text field for all vendors by default)
--  Object (serialized into a text field for all vendors by default)
--  Float (*NOTE* Only works with a setlocale() configuration that
-   uses decimal points!)
+specific database types not included in Doctrine 2.
 
 Types are flyweights. This means there is only ever one instance of
 a type and it is not allowed to contain any state. Creation of type
 instances is abstracted through a static get method
 ``Doctrine\DBAL\Types\Type::getType()``.
+
+Types are abstracted across all the supported database
+vendors.
+
+Reference
+---------
+
+The following chapter gives an overview of all available Doctrine 2
+types with short explanations on their context and usage.
+The type names listed here equal those that can be passed to the
+``Doctrine\DBAL\Types\Type::getType()``  factory method in order to retrieve
+the desired type instance.
+
+.. code-block:: php
+
+    <?php
+
+    // Returns instance of \Doctrine\DBAL\Types\IntegerType
+    $type = \Doctrine\DBAL\Types\Type::getType('integer');
+
+Numeric types
+~~~~~~~~~~~~~
+
+Types that map numeric data such as integers, fixed and floating point
+numbers.
+
+Integer types
+^^^^^^^^^^^^^
+
+Types that map numeric data without fractions.
+
+smallint
+++++++++
+
+Maps and converts 2-byte integer values.
+Unsigned integer values have a range of **0** to **65535** while signed
+integer values have a range of **−32768** to **32767**.
+If you know the integer data you want to store always fits into one of these ranges
+you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``integer`` type
+or ``null`` if no data is present.
+
+.. note::
+
+    Not all of the database vendors support unsigned integers, so such an assumption
+    might not be propagated to the database.
+
+integer
++++++++
+
+Maps and converts 4-byte integer values.
+Unsigned integer values have a range of **0** to **4294967295** while signed
+integer values have a range of **−2147483648** to **2147483647**.
+If you know the integer data you want to store always fits into one of these ranges
+you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``integer`` type
+or ``null`` if no data is present.
+
+.. note::
+
+    Not all of the database vendors support unsigned integers, so such an assumption
+    might not be propagated to the database.
+
+bigint
+++++++
+
+Maps and converts 8-byte integer values.
+Unsigned integer values have a range of **0** to **18446744073709551615** while signed
+integer values have a range of **−9223372036854775808** to **9223372036854775807**.
+If you know the integer data you want to store always fits into one of these ranges
+you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``string`` type
+or ``null`` if no data is present.
+
+.. note::
+
+    For compatibility reasons this type is not converted to an integer
+    as PHP can only represent big integer values as real integers on
+    systems with a 64-bit architecture and would fall back to approximated
+    float values otherwise which could lead to false assumptions in applications.
+
+    Not all of the database vendors support unsigned integers, so such an assumption
+    might not be propagated to the database.
+
+Decimal types
+^^^^^^^^^^^^^
+
+Types that map numeric data with fractions.
+
+decimal
++++++++
+
+Maps and converts numeric data with fixed-point precision.
+If you need an exact precision for numbers with fractions, you should consider using
+this type.
+Values retrieved from the database are always converted to PHP's ``string`` type
+or ``null`` if no data is present.
+
+.. note::
+
+    For compatibility reasons this type is not converted to a double
+    as PHP can only preserve the precision to a certain degree. Otherwise
+    it approximates precision which can lead to false assumptions in
+    applications.
+
+float
++++++
+
+Maps and converts numeric data with floating-point precision.
+If you only need an approximate precision for numbers with fractions, you should
+consider using this type.
+Values retrieved from the database are always converted to PHP's
+``float``/``double`` type or ``null`` if no data is present.
+
+String types
+~~~~~~~~~~~~
+
+Types that map string data such as character and binary text.
+
+Character string types
+^^^^^^^^^^^^^^^^^^^^^^
+
+Types that map string data of letters, numbers, and other symbols.
+
+string
+++++++
+
+Maps and converts string data with a maximum length.
+If you know that the data to be stored always fits into the specified length,
+you should consider using this type.
+Values retrieved from the database are always converted to PHP's string type
+or ``null`` if no data is present.
+
+.. note::
+
+    Database vendors have different limits for the maximum length of a
+    varying string. Doctrine internally maps the ``string`` type to the
+    vendor's ``text`` type if the maximum allowed length is exceeded.
+    This can lead to type inconsistencies when reverse engineering the
+    type from the database.
+
+text
+++++
+
+Maps and converts string data without a maximum length.
+If you don't know the maximum length of the data to be stored, you should
+consider using this type.
+Values retrieved from the database are always converted to PHP's ``string`` type
+or ``null`` if no data is present.
+
+guid
+++++
+
+Maps and converts a "Globally Unique Identifier".
+If you want to store a GUID, you should consider using this type, as some
+database vendors have a native data type for this kind of data which offers
+the most efficient way to store it. For vendors that do not support this
+type natively, this type is mapped to the ``string`` type internally.
+Values retrieved from the database are always converted to PHP's ``string`` type
+or ``null`` if no data is present.
+
+Binary string types
+^^^^^^^^^^^^^^^^^^^
+
+Types that map binary string data including images and other types of
+information that are not interpreted by the database.
+If you know that the data to be stored always is in binary format, you
+should consider using one of these types in favour of character string
+types, as it offers the most efficient way to store it.
+
+binary
+++++++
+
+Maps and converts binary string data with a maximum length.
+If you know that the data to be stored always fits into the specified length,
+you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``resource`` type
+or ``null`` if no data is present.
+
+.. note::
+
+    Database vendors have different limits for the maximum length of a
+    varying binary string. Doctrine internally maps the ``binary`` type to the
+    vendor's ``blob`` type if the maximum allowed length is exceeded.
+    This can lead to type inconsistencies when reverse engineering the
+    type from the database.
+
+blob
+++++
+
+Maps and converts binary string data without a maximum length.
+If you don't know the maximum length of the data to be stored, you should
+consider using this type.
+Values retrieved from the database are always converted to PHP's ``resource`` type
+or ``null`` if no data is present.
+
+Bit types
+~~~~~~~~~
+
+Types that map bit data such as boolean values.
+
+boolean
+^^^^^^^
+
+Maps and converts boolean data.
+If you know that the data to be stored always is a ``boolean`` (``true`` or ``false``),
+you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``boolean`` type
+or ``null`` if no data is present.
+
+.. note::
+
+    As most of the database vendors do not have a native boolean type,
+    this type silently falls back to the smallest possible integer or
+    bit data type if necessary to ensure the least possible data storage
+    requirements are met.
+
+Date and time types
+~~~~~~~~~~~~~~~~~~~
+
+Types that map date, time and timezone related values such as date only,
+date and time, date, time and timezone or time only.
+
+date
+^^^^
+
+Maps and converts date data without time and timezone information.
+If you know that the data to be stored always only needs to be a date
+without time and timezone information, you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``\DateTime`` object
+or ``null`` if no data is present.
+
+datetime
+^^^^^^^^
+
+Maps and converts date and time data without timezone information.
+If you know that the data to be stored always only needs to be a date
+with time but without timezone information, you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``\DateTime`` object
+or ``null`` if no data is present.
+
+.. warning::
+
+    Before 2.5 this type always required a specific format,
+    defined in ``$platform->getDateTimeFormatString()``, which
+    could cause quite some troubles on platforms that had various
+    microtime precision formats.
+    Starting with 2.5 whenever the parsing of a date fails with
+    the predefined platform format, the ``date_create()``
+    function will be used to parse the date.
+
+    This could cause some troubles when your date format is weird
+    and not parsed correctly by ``date_create()``, however since
+    databases are rather strict on dates there should be no problem.
+
+datetimetz
+^^^^^^^^^^
+
+Maps and converts date with time and timezone information data.
+If you know that the data to be stored always contains date, time and timezone
+information, you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``\DateTime`` object
+or ``null`` if no data is present.
+
+time
+^^^^
+
+Maps and converts time data without date and timezone information.
+If you know that the data to be stored only needs to be a time
+without date, time and timezone information, you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``\DateTime`` object
+or ``null`` if no data is present.
 
 .. note::
 
@@ -45,12 +297,461 @@ instances is abstracted through a static get method
 
 .. warning::
 
-    All Date types assume that you are exclusively using the default timezone
+    All date types assume that you are exclusively using the default timezone
     set by `date_default_timezone_set() <http://docs.php.net/manual/en/function.date-default-timezone-set.php>`_
     or by the php.ini configuration ``date.timezone``.
 
     If you need specific timezone handling you have to handle this
     in your domain, converting all the values back and forth from UTC.
+
+Array types
+~~~~~~~~~~~
+
+Types that map array data in different variations such as simple arrays,
+real arrays or JSON format arrays.
+
+array
+^^^^^
+
+Maps and converts array data based on PHP serialization.
+If you need to store an exact representation of your array data,
+you should consider using this type as it uses serialization
+to represent an exact copy of your array as string in the database.
+Values retrieved from the database are always converted to PHP's ``array`` type
+using deserialization or ``null`` if no data is present.
+
+.. note::
+
+    This type will always be mapped to the database vendor's ``text`` type
+    internally as there is no way of storing a PHP array representation
+    natively in the database.
+    Furthermore this type requires a SQL column comment hint so that it can be
+    reverse engineered from the database. Doctrine cannot map back this type
+    properly on vendors not supporting column comments and will fall back to
+    ``text`` type instead.
+
+simple_array
+^^^^^^^^^^^^
+
+Maps and converts array data based on PHP comma delimited imploding and exploding.
+If you know that the data to be stored always is a scalar value based one-dimensional
+array, you should consider using this type as it uses simple PHP imploding and
+exploding techniques to serialize and deserialize your data.
+Values retrieved from the database are always converted to PHP's ``array`` type
+using comma delimited ``explode()`` or ``null`` if no data is present.
+
+.. note::
+
+    This type will always be mapped to the database vendor's ``text`` type
+    internally as there is no way of storing a PHP array representation
+    natively in the database.
+    Furthermore this type requires a SQL column comment hint so that it can be
+    reverse engineered from the database. Doctrine cannot map back this type
+    properly on vendors not supporting column comments and will fall back to
+    ``text`` type instead.
+
+.. warning::
+
+    You should never rely on a specific PHP type like ``boolean``,
+    ``integer``, ``float`` or ``null`` when retrieving values from
+    the database as the ``explode()`` deserialization technique used
+    by this type converts every single array item to ``string``.
+    This basically means that every array item other than ``string``
+    will loose its type awareness.
+
+json_array
+^^^^^^^^^^
+
+Maps and converts array data based on PHP's JSON encoding functions.
+If you know that the data to be stored always is in a valid UTF-8
+encoded JSON format string, you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``array`` type
+using PHP's ``json_decode()`` function.
+
+.. note::
+
+    Some vendors have a native JSON type and Doctrine will use it if possible
+    and otherwise silently fall back to the vendor's ``text`` type to ensure
+    the most efficient storage requirements.
+    If the vendor does not have a native JSON type, this type requires a SQL
+    column comment hint so that it can be reverse engineered from the database.
+    Doctrine cannot map back this type properly on vendors not supporting column
+    comments and will fall back to ``text`` type instead.
+
+Object types
+~~~~~~~~~~~~
+
+Types that map to objects such as POPOs.
+
+object
+^^^^^^
+
+Maps and converts object data based on PHP serialization.
+If you need to store an exact representation of your object data,
+you should consider using this type as it uses serialization
+to represent an exact copy of your object as string in the database.
+Values retrieved from the database are always converted to PHP's ``object`` type
+using deserialization or ``null`` if no data is present.
+
+.. note::
+
+    This type will always be mapped to the database vendor's ``text`` type
+    internally as there is no way of storing a PHP object representation
+    natively in the database.
+    Furthermore this type requires a SQL column comment hint so that it can be
+    reverse engineered from the database. Doctrine cannot map back this type
+    properly on vendors not supporting column comments and will fall back to
+    ``text`` type instead.
+
+Mapping Matrix
+--------------
+
+The following table shows an overview of Doctrine's type abstraction.
+The matrix contains the mapping information for how a specific Doctrine
+type is mapped to the database and back to PHP.
+Please also notice the mapping specific footnotes for additional information.
+
++-------------------+---------------+-----------------------------------------------------------------------------------------------+
+| Doctrine          | PHP           | Database vendor                                                                               |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | Name                     | Version | Type                                                     |
++===================+===============+==========================+=========+==========================================================+
+| **smallint**      | ``integer``   | **MySQL**                | *all*   | ``SMALLINT`` ``UNSIGNED`` [10]_ ``AUTO_INCREMENT`` [11]_ |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Drizzle**              | *all*   | ``INT`` ``UNSIGNED`` [10]_ ``AUTO_INCREMENT`` [11]_      |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``SMALLINT``                                             |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``NUMBER(5)``                                            |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``SMALLINT`` ``IDENTITY`` [11]_                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Anywhere**         | *all*   | ``UNSIGNED`` [10]_ ``SMALLINT`` ``IDENTITY`` [11]_       |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQLite**               | *all*   | ``INTEGER`` [16]_                                        |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **integer**       | ``integer``   | **MySQL**                | *all*   | ``INT`` ``UNSIGNED`` [10]_ ``AUTO_INCREMENT`` [11]_      |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``INT`` [12]_                                            |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``SERIAL`` [11]_                                         |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``NUMBER(10)``                                           |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``INT`` ``IDENTITY`` [11]_                               |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Anywhere**         | *all*   | ``UNSIGNED`` [10]_ ``INT`` ``IDENTITY`` [11]_            |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQLite**               | *all*   | ``INTEGER`` [16]_                                        |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **bigint**        | ``string``    | **MySQL**                | *all*   | ``BIGINT`` ``UNSIGNED`` [10]_ ``AUTO_INCREMENT`` [11]_   |
+|                   | [8]_          +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``BIGINT`` [12]_                                         |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``BIGSERIAL`` [11]_                                      |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``NUMBER(20)``                                           |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``BIGINT`` ``IDENTITY`` [11]_                            |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Anywhere**         | *all*   | ``UNSIGNED`` [10]_ ``BIGINT`` ``IDENTITY`` [11]_         |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQLite**               | *all*   | ``INTEGER`` [16]_                                        |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **decimal** [7]_  | ``string``    | **MySQL**                | *all*   | ``NUMERIC(p, s)``                                        |
+|                   | [9]_          +--------------------------+         |                                                          |
+|                   |               | **PostgreSQL**           |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Oracle**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Server**           |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **float**         | ``float``     | **MySQL**                | *all*   | ``DOUBLE PRECISION``                                     |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **PostgreSQL**           |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Oracle**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Server**           |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **string**        | ``string``    | **MySQL**                | *all*   | ``VARCHAR(n)`` [3]_                                      |
+| [2]_ [5]_         |               +--------------------------+         |                                                          |
+|                   |               | **PostgreSQL**           |         |                                                          |
+|                   |               +--------------------------+         +----------------------------------------------------------+
+|                   |               | **SQL Anywhere**         |         | ``CHAR(n)`` [4]_                                         |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Drizzle**              | *all*   | ``VARCHAR(n)``                                           |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``VARCHAR2(n)`` [3]_                                     |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``CHAR(n)`` [4]_                                         |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``NVARCHAR(n)`` [3]_                                     |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``NCHAR(n)`` [4]_                                        |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **text**          | ``string``    | **MySQL**                | *all*   | ``TINYTEXT`` [17]_                                       |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``TEXT`` [18]_                                           |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``MEDIUMTEXT`` [19]_                                     |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``LONGTEXT`` [20]_                                       |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``TEXT``                                                 |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``CLOB``                                                 |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **guid **         | ``string``    | **MySQL**                | *all*   | ``VARCHAR(255)`` [1]_                                    |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Oracle**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``UNIQUEIDENTIFIER``                                     |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``UUID``                                                 |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **binary**        | ``resource``  | **MySQL**                | *all*   | ``VARBINARY(n)`` [3]_                                    |
+| [2]_ [6]_         |               +--------------------------+         |                                                          |
+|                   |               | **SQL Server**           |         +----------------------------------------------------------+
+|                   |               +--------------------------+         | ``BINARY(n)`` [4]_                                       |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Drizzle**              | *all*   | ``VARBINARY(n)``                                         |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``RAW(n)``                                               |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``BYTEA`` [16]_                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQLite**               | *all*   | ``BLOB`` [16]_                                           |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **blob**          | ``resource``  | **MySQL**                | *all*   | ``TINYBLOB`` [17]_                                       |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``BLOB`` [18]_                                           |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``MEDIUMBLOB`` [19]_                                     |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``LONGBLOB`` [20]_                                       |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``BLOB``                                                 |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``VARBINARY(MAX)``                                       |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Anywhere**         | *all*   | ``LONG BINARY``                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``BYTEA``                                                |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **boolean**       | ``boolean``   | **MySQL**                | *all*   | ``TINYINT(1)``                                           |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``BOOLEAN``                                              |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``BIT``                                                  |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``NUMBER(1)``                                            |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **date**          | ``\DateTime`` | **MySQL**                | *all*   | ``DATE``                                                 |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **PostgreSQL**           |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Oracle**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+                                                          |
+|                   |               | **SQL Server**           | >= 2008 |                                                          |
+|                   |               |                          +---------+----------------------------------------------------------+
+|                   |               |                          | < 2008  | ``DATETIME`` [16]_                                       |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **datetime**      | ``\DateTime`` | **MySQL**                | *all*   | ``DATETIME`` [13]_                                       |
+|                   |               +--------------------------+         +----------------------------------------------------------+
+|                   |               | **Drizzle**              |         | ``TIMESTAMP`` [14]_                                      |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``DATETIME``                                             |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``TIMESTAMP(0) WITHOUT TIME ZONE``                       |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``TIMESTAMP(0)``                                         |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **datetimetz**    | ``\DateTime`` | **MySQL**                | *all*   | ``DATETIME``  [15]_ [16]_                                |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+---------+                                                          |
+|                   |               | **SQL Server**           | < 2008  |                                                          |
+|                   |               |                          +---------+----------------------------------------------------------+
+|                   |               |                          | >= 2008 | ``DATETIMEOFFSET(6)``                                    |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``TIMESTAMP(0) WITH TIME ZONE``                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Oracle**               |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Anywhere**         | < 12    | ``DATETIME``  [15]_ [16]_                                |
+|                   |               |                          +---------+----------------------------------------------------------+
+|                   |               |                          | >= 12   | ``TIMESTAMP WITH TIME ZONE``                             |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **time**          | ``\DateTime`` | **MySQL**                | *all*   | ``TIME``                                                 |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``TIME(0) WITHOUT TIME ZONE``                            |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``DATE`` [16]_                                           |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | < 2008  | ``DATETIME`` [16]_                                       |
+|                   |               |                          +---------+----------------------------------------------------------+
+|                   |               |                          | >= 2008 | ``TIME(0)``                                              |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **array** [1]_    | ``array``     | **MySQL**                | *all*   | ``TINYTEXT`` [17]_                                       |
++-------------------+               |                          |         +----------------------------------------------------------+
+| **simple array**  |               |                          |         | ``TEXT`` [18]_                                           |
+| [1]_              |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``MEDIUMTEXT`` [19]_                                     |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``LONGTEXT`` [20]_                                       |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``TEXT``                                                 |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``CLOB``                                                 |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **json_array**    | ``array``     | **MySQL** [1]_           | *all*   | ``TINYTEXT`` [17]_                                       |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``TEXT`` [18]_                                           |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``MEDIUMTEXT`` [19]_                                     |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``LONGTEXT`` [20]_                                       |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | >= 9.2  | ``JSON``                                                 |
+|                   |               |                          +---------+----------------------------------------------------------+
+|                   |               |                          | < 9.2   | ``TEXT`` [1]_                                            |
+|                   |               +--------------------------+---------+                                                          |
+|                   |               | **SQL Anywhere**         | *all*   |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``CLOB`` [1]_                                            |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``VARCHAR(MAX)`` [1]_                                    |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+| **object** [1]_   | ``object``    | **MySQL**                | *all*   | ``TINYTEXT`` [17]_                                       |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``TEXT`` [18]_                                           |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``MEDIUMTEXT`` [19]_                                     |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``LONGTEXT`` [20]_                                       |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``TEXT``                                                 |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQL Anywhere**         |         |                                                          |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **Drizzle**              |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **Oracle**               | *all*   | ``CLOB``                                                 |
+|                   |               +--------------------------+         |                                                          |
+|                   |               | **SQLite**               |         |                                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Server**           | *all*   | ``VARCHAR(MAX)``                                         |
++-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
+
+.. [1] Requires hint in the column comment for proper reverse engineering of the appropriate
+       Doctrine type mapping.
+.. [2] **n** is the **length** attribute set in the column definition (defaults to 255 if omitted).
+.. [3] Chosen if the column definition has the **fixed** attribute set to ``false`` (default).
+.. [4] Chosen if the column definition has the **fixed** attribute set to ``true``.
+.. [5] Silently maps to the vendor specific ``text`` type if the given **length** attribute for
+       **n** exceeds the maximum length the related platform allows. If this is the case, please
+       see [16]_.
+.. [6] Silently maps to the vendor specific ``blob`` type if the given **length** attribute for
+       **n** exceeds the maximum length the related platform allows. If this is the case, please
+       see [16]_.
+.. [7] **p** is the precision and **s** the scale set in the column definition.
+       The precision defaults to ``10`` and the scale to ``0`` if not set.
+.. [8] Returns PHP ``string`` type value instead of ``integer`` because of maximum integer value
+       implications on non 64bit platforms.
+.. [9] Returns PHP ``string`` type value instead of ``double`` because of PHP's limitation in
+       preserving the exact precision when casting to ``double``.
+.. [10] Used if **unsigned** attribute is set to ``true`` in the column definition (default ``false``).
+.. [11] Used if **autoincrement** attribute is set to ``true`` in the column definition (default ``false``).
+.. [12] Chosen if the column definition has the **autoincrement** attribute set to ``false`` (default).
+.. [13] Chosen if the column definition not contains the **version** option inside the **platformOptions**
+        attribute array or is set to ``false`` which marks it as a non-locking information column.
+.. [14] Chosen if the column definition contains the **version** option inside the **platformOptions**
+        attribute array and is set to ``true`` which marks it as a locking information column.
+.. [15] Fallback type as the vendor does not support a native date time type with timezone information.
+        This means that the timezone information gets lost when storing a value.
+.. [16] Cannot be safely reverse engineered to the same Doctrine type as the vendor does not have a
+        native distinct data type for this mapping. Using this type with this vendor can therefore
+        have implications on schema comparison (*online* vs *offline* schema) and PHP type safety
+        (data conversion from database to PHP value) because it silently falls back to its
+        appropriate Doctrine type.
+.. [17] Chosen if the column length is less or equal to **2 ^  8 - 1 = 255**.
+.. [18] Chosen if the column length is less or equal to **2 ^ 16 - 1 = 65535**.
+.. [19] Chosen if the column length is less or equal to **2 ^ 24 - 1 = 16777215**.
+.. [20] Chosen if the column length is less or equal to **2 ^ 32 - 1 = 4294967295** or empty.
 
 Detection of Database Types
 ---------------------------
