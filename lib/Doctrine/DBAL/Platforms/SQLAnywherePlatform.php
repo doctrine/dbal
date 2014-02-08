@@ -1262,12 +1262,8 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if ( ! empty($options['indexes'])) {
             /** @var \Doctrine\DBAL\Schema\Index $index */
-            foreach ((array) $options['indexes'] as $name => $index) {
-                if ($index->isUnique()) {
-                    $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $index);
-                } else {
-                    $indexSql[] = $this->getCreateIndexSQL($index, $tableName);
-                }
+            foreach ((array) $options['indexes'] as $index) {
+                $indexSql[] = $this->getCreateIndexSQL($index, $tableName);
             }
         }
 
