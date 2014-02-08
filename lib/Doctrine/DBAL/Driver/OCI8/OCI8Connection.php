@@ -69,7 +69,7 @@ class OCI8Connection implements Connection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($prepareString, $driverOptions = array())
     {
         return new OCI8Statement($this->dbh, $prepareString, $this);
     }

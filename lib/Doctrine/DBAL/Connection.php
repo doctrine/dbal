@@ -693,12 +693,13 @@ class Connection implements DriverConnection
      * Prepares an SQL statement.
      *
      * @param string $statement The SQL statement to prepare.
+     * @param array  $driverOptions
      *
      * @return \Doctrine\DBAL\Driver\Statement The prepared statement.
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function prepare($statement)
+    public function prepare($statement, $driverOptions = array())
     {
         $this->connect();
 

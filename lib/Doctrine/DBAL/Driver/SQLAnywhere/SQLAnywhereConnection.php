@@ -142,7 +142,7 @@ class SQLAnywhereConnection implements Connection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($prepareString, $driverOptions = array())
     {
         return new SQLAnywhereStatement($this->connection, $prepareString);
     }

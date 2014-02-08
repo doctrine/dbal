@@ -61,7 +61,7 @@ class SQLSrvConnection implements Connection
     /**
      * {@inheritDoc}
      */
-    public function prepare($sql)
+    public function prepare($sql, $driverOptions = array())
     {
         return new SQLSrvStatement($this->conn, $sql, $this->lastInsertId);
     }

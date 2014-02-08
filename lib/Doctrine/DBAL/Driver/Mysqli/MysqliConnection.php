@@ -81,7 +81,7 @@ class MysqliConnection implements Connection, PingableConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare($prepareString, $driverOptions = array())
     {
         return new MysqliStatement($this->_conn, $prepareString);
     }
@@ -101,7 +101,7 @@ class MysqliConnection implements Connection, PingableConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type=\PDO::PARAM_STR)
+    public function quote($input, $type = \PDO::PARAM_STR)
     {
         return "'". $this->_conn->escape_string($input) ."'";
     }
