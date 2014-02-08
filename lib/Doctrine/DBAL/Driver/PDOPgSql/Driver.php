@@ -20,7 +20,9 @@
 namespace Doctrine\DBAL\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
@@ -126,43 +128,43 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
      *
      * @link http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
      */
-    public function convertExceptionCode(\Exception $exception)
+    public function convertException($message, DriverException $exception)
     {
-        switch ($exception->getCode()) {
+        switch ($exception->getSQLState()) {
             case '23502':
-                return DBALException::ERROR_NOT_NULL;
+                return new Exception\NotNullConstraintViolationException($message, $exception);
 
             case '23503':
-                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+                return new Exception\ForeignKeyConstraintViolationException($message, $exception);
 
             case '23505':
-                return DBALException::ERROR_DUPLICATE_KEY;
+                return new Exception\UniqueConstraintViolationException($message, $exception);
 
             case '42601':
-                return DBALException::ERROR_SYNTAX;
+                return new Exception\SyntaxErrorException($message, $exception);
 
             case '42702':
-                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+                return new Exception\NonUniqueFieldNameException($message, $exception);
 
             case '42703':
-                return DBALException::ERROR_BAD_FIELD_NAME;
+                return new Exception\InvalidFieldNameException($message, $exception);
 
             case '42P01':
-                return DBALException::ERROR_UNKNOWN_TABLE;
+                return new Exception\TableNotFoundException($message, $exception);
 
             case '42P07':
-                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+                return new Exception\TableExistsException($message, $exception);
 
             case '7':
                 // In some case (mainly connection errors) the PDO exception does not provide a SQLSTATE via its code.
                 // The exception code is always set to 7 here.
                 // We have to match against the SQLSTATE in the error message in these cases.
                 if (strpos($exception->getMessage(), 'SQLSTATE[08006]') !== false) {
-                    return DBALException::ERROR_ACCESS_DENIED;
+                    return new Exception\ConnectionException($message, $exception);
                 }
                 break;
         }
 
-        return 0;
+        return new Exception\DriverException($message, $exception);
     }
 }

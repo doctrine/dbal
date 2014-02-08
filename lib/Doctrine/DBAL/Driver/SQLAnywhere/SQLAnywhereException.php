@@ -19,7 +19,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\AbstractDriverException;
 
 /**
  * SAP Sybase SQL Anywhere driver exception.
@@ -28,7 +28,7 @@ use Doctrine\DBAL\DBALException;
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class SQLAnywhereException extends DBALException
+class SQLAnywhereException extends AbstractDriverException
 {
     /**
      * Helper method to turn SQL Anywhere error into exception.
@@ -86,9 +86,9 @@ class SQLAnywhereException extends DBALException
         }
 
         if ($message) {
-            return new self('SQLSTATE [' . $state . '] [' . $code . '] ' . $message, $code);
+            return new self('SQLSTATE [' . $state . '] [' . $code . '] ' . $message, $state, $code);
         }
 
-        return new self('SQL Anywhere error occurred but no error message was retrieved from driver.', $code);
+        return new self('SQL Anywhere error occurred but no error message was retrieved from driver.', $state, $code);
     }
 }

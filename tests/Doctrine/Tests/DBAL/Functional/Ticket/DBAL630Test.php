@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
-use Doctrine\DBAL\Exception\TableExistsException;
+use Doctrine\DBAL\DBALException;
 use PDO;
 
 /**
@@ -22,11 +22,9 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('Currently restricted to PostgreSQL');
         }
 
-        $sm = $this->_conn->getSchemaManager();
-
         try {
             $this->_conn->exec('CREATE TABLE dbal630 (id SERIAL, bool_col BOOLEAN NOT NULL);');
-        } catch (TableExistsException $e) {
+        } catch (DBALException $e) {
         }
         $this->running = true;
     }

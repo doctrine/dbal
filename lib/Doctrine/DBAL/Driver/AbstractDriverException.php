@@ -20,25 +20,56 @@
 namespace Doctrine\DBAL\Driver;
 
 /**
- * Contract for a driver that is capable of converting DBAL driver exceptions into standardized DBAL driver exceptions.
+ * Abstract base implementation of the {@link DriverException} interface.
  *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-interface ExceptionConverterDriver
+abstract class AbstractDriverException extends \Exception implements DriverException
 {
     /**
-     * Converts a given DBAL driver exception into a standardized DBAL driver exception.
+     * The driver specific error code.
      *
-     * It evaluates the vendor specific error code and SQLSTATE and transforms
-     * it into a unified {@link Doctrine\DBAL\Exception\DriverException} subclass.
-     *
-     * @param string                                $message   The DBAL exception message to use.
-     * @param \Doctrine\DBAL\Driver\DriverException $exception The DBAL driver exception to convert.
-     *
-     * @return \Doctrine\DBAL\Exception\DriverException An instance of one of the DriverException subclasses.
+     * @var integer|string|null
      */
-    public function convertException($message, DriverException $exception);
+    private $errorCode;
+
+    /**
+     * The SQLSTATE of the driver.
+     *
+     * @var string|null
+     */
+    private $sqlState;
+
+    /**
+     * Constructor.
+     *
+     * @param string              $message   The driver error message.
+     * @param string|null         $sqlState  The SQLSTATE the driver is in at the time the error occured, if any.
+     * @param integer|string|null $errorCode The driver specific error code if any.
+     */
+    public function __construct($message, $sqlState = null, $errorCode = null)
+    {
+        parent::__construct($message);
+
+        $this->errorCode = $errorCode;
+        $this->sqlState  = $sqlState;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getErrorCode()
+    {
+        return $this->errorCode;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSQLState()
+    {
+        return $this->sqlState;
+    }
 }

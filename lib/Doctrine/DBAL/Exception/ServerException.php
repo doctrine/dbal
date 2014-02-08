@@ -19,13 +19,13 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
-
 /**
- * Thrown when {@link DBALException::ERROR_NOT_NULL} is detected in driver
+ * Base class for all server related errors detected in the driver.
  *
- * @since 2.5
+ * @author Steve Müller <st.mueller@dzh-online.de>
+ * @link   www.doctrine-project.org
+ * @since  2.5
  */
-class NotNullableException extends DBALException
+class ServerException extends DriverException
 {
 }

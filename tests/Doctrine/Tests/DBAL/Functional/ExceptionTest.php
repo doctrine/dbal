@@ -15,7 +15,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
-    public function testDuplicateKeyException()
+    public function testPrimaryConstraintViolationException()
     {
         $table = new \Doctrine\DBAL\Schema\Table("duplicatekey_table");
         $table->addColumn('id', 'integer', array());
@@ -27,25 +27,26 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->_conn->insert("duplicatekey_table", array('id' => 1));
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\DuplicateKeyException', null, DBALException::ERROR_DUPLICATE_KEY);
+        $this->setExpectedException(
+            '\Doctrine\DBAL\Exception\UniqueConstraintViolationException');
         $this->_conn->insert("duplicatekey_table", array('id' => 1));
     }
 
-    public function testUnknownTableException()
+    public function testTableNotFoundException()
     {
         $sql = "SELECT * FROM unknown_table";
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\TableNotFoundException', null, DBALException::ERROR_UNKNOWN_TABLE);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\TableNotFoundException');
         $this->_conn->executeQuery($sql);
     }
 
-    public function testTableAlreadyExistsException()
+    public function testTableExistsException()
     {
         $table = new \Doctrine\DBAL\Schema\Table("alreadyexist_table");
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\TableExistsException', null, DBALException::ERROR_TABLE_ALREADY_EXISTS);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\TableExistsException');
         foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
             $this->_conn->executeQuery($sql);
         }
@@ -54,7 +55,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
-    public function testForeignKeyContraintException()
+    public function testForeignKeyContraintViolationException()
     {
         if ( ! $this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped("Only fails on platforms with foreign key constraints.");
@@ -79,11 +80,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->insert("constraint_error_table", array('id' => 1));
         $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException', null, DBALException::ERROR_FOREIGN_KEY_CONSTRAINT);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException');
         $this->_conn->delete('constraint_error_table', array('id' => 1));
     }
 
-    public function testNotNullException()
+    public function testNotNullConstraintViolationException()
     {
         $schema = new \Doctrine\DBAL\Schema\Schema();
 
@@ -96,11 +97,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->executeQuery($sql);
         }
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\NotNullableException', null, DBALException::ERROR_NOT_NULL);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\NotNullConstraintViolationException');
         $this->_conn->insert("notnull_table", array('id' => 1, 'value' => null));
     }
 
-    public function testBadFieldNameException()
+    public function testInvalidFieldNameException()
     {
         $schema = new \Doctrine\DBAL\Schema\Schema();
 
@@ -111,7 +112,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->executeQuery($sql);
         }
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\InvalidFieldNameException', null, DBALException::ERROR_BAD_FIELD_NAME);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\InvalidFieldNameException');
         $this->_conn->insert("bad_fieldname_table", array('name' => 5));
     }
 
@@ -130,11 +131,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
-        $this->setExpectedException('\Doctrine\DBAL\Exception\NonUniqueFieldNameException', null, DBALException::ERROR_NON_UNIQUE_FIELD_NAME);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\NonUniqueFieldNameException');
         $this->_conn->executeQuery($sql);
     }
 
-    public function testNotUniqueException()
+    public function testUniqueConstraintViolationException()
     {
         $schema = new \Doctrine\DBAL\Schema\Schema();
 
@@ -147,7 +148,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->_conn->insert("unique_field_table", array('id' => 5));
-        $this->setExpectedException('\Doctrine\DBAL\Exception\DuplicateKeyException', null, DBALException::ERROR_DUPLICATE_KEY);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\UniqueConstraintViolationException');
         $this->_conn->insert("unique_field_table", array('id' => 5));
     }
 
@@ -162,14 +163,14 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $sql = 'SELECT id FRO syntax_error_table';
-        $this->setExpectedException('\Doctrine\DBAL\Exception\SyntaxErrorException', null, DBALException::ERROR_SYNTAX);
+        $this->setExpectedException('\Doctrine\DBAL\Exception\SyntaxErrorException');
         $this->_conn->executeQuery($sql);
     }
 
     /**
      * @dataProvider getSqLiteOpenConnection
      */
-    public function testConnectionExceptionSqLite($mode, $exceptionClass, $exceptionCode)
+    public function testConnectionExceptionSqLite($mode, $exceptionClass)
     {
         if ($this->_conn->getDatabasePlatform()->getName() != 'sqlite') {
             $this->markTestSkipped("Only fails this way on sqlite");
@@ -194,7 +195,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table = $schema->createTable("no_connection");
         $table->addColumn('id', 'integer');
 
-        $this->setExpectedException($exceptionClass, null, $exceptionCode);
+        $this->setExpectedException($exceptionClass);
         foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
             $conn->executeQuery($sql);
         }
@@ -203,15 +204,15 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function getSqLiteOpenConnection()
     {
         return array(
-            array(0000, '\Doctrine\DBAL\Exception\FailedToOpenException', DBALException::ERROR_UNABLE_TO_OPEN),
-            array(0444, '\Doctrine\DBAL\Exception\ReadOnlyException', DBALException::ERROR_WRITE_READONLY),
+            array(0000, '\Doctrine\DBAL\Exception\ConnectionException'),
+            array(0444, '\Doctrine\DBAL\Exception\ReadOnlyException'),
         );
     }
 
     /**
      * @dataProvider getConnectionParams
      */
-    public function testConnectionException($params, $exceptionCode)
+    public function testConnectionException($params)
     {
         if ($this->_conn->getDatabasePlatform()->getName() == 'sqlite') {
             $this->markTestSkipped("Only skipped if platform is not sqlite");
@@ -234,7 +235,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table = $schema->createTable("no_connection");
         $table->addColumn('id', 'integer');
 
-        $this->setExpectedException('Doctrine\DBAL\Exception\AccessDeniedException', null, $exceptionCode);
+        $this->setExpectedException('Doctrine\DBAL\Exception\ConnectionException');
 
         foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
             $conn->executeQuery($sql);
@@ -244,9 +245,9 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function getConnectionParams()
     {
         return array(
-            array(array('user' => 'not_existing'), DBALException::ERROR_ACCESS_DENIED),
-            array(array('password' => 'really_not'), DBALException::ERROR_ACCESS_DENIED),
-            array(array('host' => 'localnope'), DBALException::ERROR_ACCESS_DENIED),
+            array(array('user' => 'not_existing')),
+            array(array('password' => 'really_not')),
+            array(array('host' => 'localnope')),
         );
     }
 }

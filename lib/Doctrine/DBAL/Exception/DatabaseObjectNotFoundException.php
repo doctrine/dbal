@@ -20,12 +20,16 @@
 namespace Doctrine\DBAL\Exception;
 
 /**
- * Exception for a write operation attempt on a read-only database element detected in the driver.
+ * Base class for all unknown database object related errors detected in the driver.
+ *
+ * A database object is considered any asset that can be created in a database
+ * such as schemas, tables, views, sequences, triggers,  constraints, indexes,
+ * functions, stored procedures etc.
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class ReadOnlyException extends ServerException
+class DatabaseObjectNotFoundException extends ServerException
 {
 }

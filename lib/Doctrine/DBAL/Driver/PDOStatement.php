@@ -43,15 +43,19 @@ class PDOStatement extends \PDOStatement implements Statement
         // of PDOStatement::setFetchMode(): even if the second and third
         // parameters are optional, PHP will not let us remove it from this
         // declaration.
-        if ($arg2 === null && $arg3 === null) {
-            return parent::setFetchMode($fetchMode);
-        }
+        try {
+            if ($arg2 === null && $arg3 === null) {
+                return parent::setFetchMode($fetchMode);
+            }
 
-        if ($arg3 === null) {
-            return parent::setFetchMode($fetchMode, $arg2);
-        }
+            if ($arg3 === null) {
+                return parent::setFetchMode($fetchMode, $arg2);
+            }
 
-        return parent::setFetchMode($fetchMode, $arg2, $arg3);
+            return parent::setFetchMode($fetchMode, $arg2, $arg3);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**
@@ -59,7 +63,11 @@ class PDOStatement extends \PDOStatement implements Statement
      */
     public function bindValue($param, $value, $type = \PDO::PARAM_STR)
     {
-        return parent::bindValue($param, $value, $type);
+        try {
+            return parent::bindValue($param, $value, $type);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**
@@ -67,7 +75,11 @@ class PDOStatement extends \PDOStatement implements Statement
      */
     public function bindParam($column, &$variable, $type = \PDO::PARAM_STR, $length = null, $driverOptions = null)
     {
-        return parent::bindParam($column, $variable, $type, $length, $driverOptions);
+        try {
+            return parent::bindParam($column, $variable, $type, $length, $driverOptions);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**
@@ -75,7 +87,11 @@ class PDOStatement extends \PDOStatement implements Statement
      */
     public function execute($params = null)
     {
-        return parent::execute($params);
+        try {
+            return parent::execute($params);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**
@@ -83,19 +99,23 @@ class PDOStatement extends \PDOStatement implements Statement
      */
     public function fetch($fetchMode = null, $cursorOrientation = null, $cursorOffset = null)
     {
-        if ($fetchMode === null && $cursorOrientation === null && $cursorOffset === null) {
-            return parent::fetch();
-        }
+        try {
+            if ($fetchMode === null && $cursorOrientation === null && $cursorOffset === null) {
+                return parent::fetch();
+            }
 
-        if ($cursorOrientation === null && $cursorOffset === null) {
-            return parent::fetch($fetchMode);
-        }
+            if ($cursorOrientation === null && $cursorOffset === null) {
+                return parent::fetch($fetchMode);
+            }
 
-        if ($cursorOffset === null) {
-            return parent::fetch($fetchMode, $cursorOrientation);
-        }
+            if ($cursorOffset === null) {
+                return parent::fetch($fetchMode, $cursorOrientation);
+            }
 
-        return parent::fetch($fetchMode, $cursorOrientation, $cursorOffset);
+            return parent::fetch($fetchMode, $cursorOrientation, $cursorOffset);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**
@@ -103,19 +123,23 @@ class PDOStatement extends \PDOStatement implements Statement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        if ($fetchMode === null && $fetchArgument === null && $ctorArgs === null) {
-            return parent::fetchAll();
-        }
+        try {
+            if ($fetchMode === null && $fetchArgument === null && $ctorArgs === null) {
+                return parent::fetchAll();
+            }
 
-        if ($fetchArgument === null && $ctorArgs === null) {
-            return parent::fetchAll($fetchMode);
-        }
+            if ($fetchArgument === null && $ctorArgs === null) {
+                return parent::fetchAll($fetchMode);
+            }
 
-        if ($ctorArgs === null) {
-            return parent::fetchAll($fetchMode, $fetchArgument);
-        }
+            if ($ctorArgs === null) {
+                return parent::fetchAll($fetchMode, $fetchArgument);
+            }
 
-        return parent::fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+            return parent::fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 
     /**
@@ -123,6 +147,10 @@ class PDOStatement extends \PDOStatement implements Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        return parent::fetchColumn($columnIndex);
+        try {
+            return parent::fetchColumn($columnIndex);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
     }
 }

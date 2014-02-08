@@ -21,8 +21,10 @@ namespace Doctrine\DBAL\Driver\PDOOracle;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\OracleSchemaManager;
 
@@ -140,48 +142,41 @@ class Driver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function convertExceptionCode(\Exception $exception)
+    public function convertException($message, DriverException $exception)
     {
-        $errorCode = $exception->getCode();
-
-        // Use driver-specific error code instead of SQLSTATE for PDO exceptions if available.
-        if ($exception instanceof \PDOException && null !== $exception->errorInfo[1]) {
-            $errorCode = $exception->errorInfo[1];
-        }
-
-        switch ($errorCode) {
+        switch ($exception->getErrorCode()) {
             case '1':
             case '2299':
             case '38911':
-                return DBALException::ERROR_DUPLICATE_KEY;
+                return new Exception\UniqueConstraintViolationException($message, $exception);
 
             case '904':
-                return DBALException::ERROR_BAD_FIELD_NAME;
+                return new Exception\InvalidFieldNameException($message, $exception);
 
             case '918':
             case '960':
-                return DBALException::ERROR_NON_UNIQUE_FIELD_NAME;
+                return new Exception\NonUniqueFieldNameException($message, $exception);
 
             case '923':
-                return DBALException::ERROR_SYNTAX;
+                return new Exception\SyntaxErrorException($message, $exception);
 
             case '942':
-                return DBALException::ERROR_UNKNOWN_TABLE;
+                return new Exception\TableNotFoundException($message, $exception);
 
             case '955':
-                return DBALException::ERROR_TABLE_ALREADY_EXISTS;
+                return new Exception\TableExistsException($message, $exception);
 
             case '1017':
             case '12545':
-                return DBALException::ERROR_ACCESS_DENIED;
+                return new Exception\ConnectionException($message, $exception);
 
             case '1400':
-                return DBALException::ERROR_NOT_NULL;
+                return new Exception\NotNullConstraintViolationException($message, $exception);
 
             case '2292':
-                return DBALException::ERROR_FOREIGN_KEY_CONSTRAINT;
+                return new Exception\ForeignKeyConstraintViolationException($message, $exception);
         }
 
-        return 0;
+        return new Exception\DriverException($message, $exception);
     }
 }
