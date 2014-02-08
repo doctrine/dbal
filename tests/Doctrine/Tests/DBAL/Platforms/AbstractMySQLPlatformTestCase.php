@@ -501,4 +501,28 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             'CREATE INDEX `bar` ON `table` (id)',
         );
     }
+
+    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
+    {
+        $table = new Table("text_blob_default_value");
+        $table->addColumn('def_text', 'text', array('default' => 'def'));
+        $table->addColumn('def_text_null', 'text', array('notnull' => false, 'default' => 'def'));
+        $table->addColumn('def_blob', 'blob', array('default' => 'def'));
+        $table->addColumn('def_blob_null', 'blob', array('notnull' => false, 'default' => 'def'));
+
+        $this->assertSame(
+            array('CREATE TABLE text_blob_default_value (def_text LONGTEXT NOT NULL, def_text_null LONGTEXT DEFAULT NULL, def_blob LONGBLOB NOT NULL, def_blob_null LONGBLOB DEFAULT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'),
+            $this->_platform->getCreateTableSQL($table)
+        );
+
+        $diffTable = clone $table;
+        $diffTable->changeColumn('def_text', array('default' => null));
+        $diffTable->changeColumn('def_text_null', array('default' => null));
+        $diffTable->changeColumn('def_blob', array('default' => null));
+        $diffTable->changeColumn('def_blob_null', array('default' => null));
+
+        $comparator = new Comparator();
+
+        $this->assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable)));
+    }
 }
