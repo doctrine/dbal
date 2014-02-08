@@ -34,6 +34,11 @@ class MysqliConnection implements Connection, PingableConnection
     private $_conn;
 
     /**
+     * @var string
+     */
+    private $flagsOptionName = 'flags';
+
+    /**
      * @param array  $params
      * @param string $username
      * @param string $password
@@ -46,6 +51,8 @@ class MysqliConnection implements Connection, PingableConnection
         $port = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
         $socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
 
+        $flags = isset($driverOptions[$this->flagsOptionName]) ? $driverOptions[$this->flagsOptionName] : null;
+
         $this->_conn = mysqli_init();
 
         $this->setDriverOptions($driverOptions);
@@ -53,7 +60,7 @@ class MysqliConnection implements Connection, PingableConnection
         $previousHandler = set_error_handler(function () {
         });
 
-        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket)) {
+        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket, $flags)) {
             set_error_handler($previousHandler);
 
             throw new MysqliException($this->_conn->connect_error, $this->_conn->sqlstate, $this->_conn->connect_errno);
@@ -189,6 +196,10 @@ class MysqliConnection implements Connection, PingableConnection
         $exceptionMsg = "%s option '%s' with value '%s'";
 
         foreach ($driverOptions as $option => $value) {
+
+            if ($option === $this->flagsOptionName) {
+                continue;
+            }
 
             if (!in_array($option, $supportedDriverOptions, true)) {
                 throw new MysqliException(
