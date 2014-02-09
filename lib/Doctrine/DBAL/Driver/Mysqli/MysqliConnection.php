@@ -29,14 +29,14 @@ use Doctrine\DBAL\Driver\PingableConnection;
 class MysqliConnection implements Connection, PingableConnection
 {
     /**
+     * Name of the option to set connection flags
+     */
+    const OPTION_FLAGS = 'flags';
+
+    /**
      * @var \mysqli
      */
     private $_conn;
-
-    /**
-     * @var string
-     */
-    private $flagsOptionName = 'flags';
 
     /**
      * @param array  $params
@@ -51,7 +51,7 @@ class MysqliConnection implements Connection, PingableConnection
         $port = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
         $socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
 
-        $flags = isset($driverOptions[$this->flagsOptionName]) ? $driverOptions[$this->flagsOptionName] : null;
+        $flags = isset($driverOptions[static::OPTION_FLAGS]) ? $driverOptions[static::OPTION_FLAGS] : null;
 
         $this->_conn = mysqli_init();
 
@@ -197,7 +197,7 @@ class MysqliConnection implements Connection, PingableConnection
 
         foreach ($driverOptions as $option => $value) {
 
-            if ($option === $this->flagsOptionName) {
+            if ($option === static::OPTION_FLAGS) {
                 continue;
             }
 
