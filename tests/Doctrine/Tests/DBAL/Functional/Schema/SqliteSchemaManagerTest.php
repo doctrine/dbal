@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-
 use Doctrine\DBAL\Schema;
 
 require_once __DIR__ . '/../../../TestInit.php';
@@ -62,15 +60,32 @@ EOS
         );
 
         $expected = array(
-            new ForeignKeyConstraint(array('log'), 'log', array(null), 'FK_3',
+            new Schema\ForeignKeyConstraint(array('log'), 'log', array(null), 'FK_3',
                 array('onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false)),
-            new ForeignKeyConstraint(array('parent'), 'user', array('id'), '1',
+            new Schema\ForeignKeyConstraint(array('parent'), 'user', array('id'), '1',
                 array('onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false)),
-            new ForeignKeyConstraint(array('page'), 'page', array('key'), 'FK_1',
+            new Schema\ForeignKeyConstraint(array('page'), 'page', array('key'), 'FK_1',
                 array('onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true)),
         );
 
         $this->assertEquals($expected, $this->_sm->listTableForeignKeys('user'));
+    }
+
+    public function testColumnCollation()
+    {
+        $table = new Schema\Table('test_collation');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('text', 'text');
+        $table->addColumn('foo', 'text')->setPlatformOption('collation', 'BINARY');
+        $table->addColumn('bar', 'text')->setPlatformOption('collation', 'NOCASE');
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns('test_collation');
+
+        $this->assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
+        $this->assertEquals('BINARY', $columns['text']->getPlatformOption('collation'));
+        $this->assertEquals('BINARY', $columns['foo']->getPlatformOption('collation'));
+        $this->assertEquals('NOCASE', $columns['bar']->getPlatformOption('collation'));
     }
 
     public function testListTableWithBinary()

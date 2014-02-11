@@ -17,34 +17,49 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Platforms\Keywords;
+namespace Doctrine\DBAL\Platforms;
 
 /**
- * PostgreSQL 9.2 reserved keywords list.
+ * Provides the behavior, features and SQL dialect of the PostgreSQL 9.1 database platform.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
+ * @author Martin Hasoň <martin.hason@gmail.com>
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class PostgreSQL92Keywords extends PostgreSQL91Keywords
+class PostgreSQL91Platform extends PostgreSqlPlatform
 {
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getName()
+    public function supportsColumnCollation()
     {
-        return 'PostgreSQL92';
+        return true;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @link http://www.postgresql.org/docs/9.2/static/sql-keywords-appendix.html
      */
-    protected function getKeywords()
+    protected function getReservedKeywordsClass()
     {
-        return array_merge(parent::getKeywords(), array(
-            'COLLATION',
-        ));
+        return 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $this->quoteSingleIdentifier($collation);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getListTableColumnsSQL($table, $database = null)
+    {
+        $sql = parent::getListTableColumnsSQL($table, $database);
+        $parts = explode('AS complete_type,', $sql, 2);
+
+        return $parts[0].'AS complete_type, (SELECT tc.collcollate FROM pg_catalog.pg_collation tc WHERE tc.oid = a.attcollation) AS collation,'.$parts[1];
     }
 }

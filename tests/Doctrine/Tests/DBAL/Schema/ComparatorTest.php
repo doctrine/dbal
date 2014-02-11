@@ -1001,4 +1001,38 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($changeSequenceCount, count($diff->changedSequences), "Expected number of changed sequences is wrong.");
         $this->assertEquals($removeSequenceCount, count($diff->removedSequences), "Expected number of removed sequences is wrong.");
     }
+
+    public function testDiffColumnPlatformOptions()
+    {
+        $column1 = new Column('foo', Type::getType('string'), array('platformOptions' => array('foo' => 'foo', 'bar' => 'bar')));
+        $column2 = new Column('foo', Type::getType('string'), array('platformOptions' => array('foo' => 'foo', 'foobar' => 'foobar')));
+        $column3 = new Column('foo', Type::getType('string'), array('platformOptions' => array('foo' => 'foo', 'bar' => 'rab')));
+        $column4 = new Column('foo', Type::getType('string'));
+
+        $comparator = new Comparator();
+
+        $this->assertEquals(array(), $comparator->diffColumn($column1, $column2));
+        $this->assertEquals(array(), $comparator->diffColumn($column2, $column1));
+        $this->assertEquals(array('bar'), $comparator->diffColumn($column1, $column3));
+        $this->assertEquals(array('bar'), $comparator->diffColumn($column3, $column1));
+        $this->assertEquals(array(), $comparator->diffColumn($column1, $column4));
+        $this->assertEquals(array(), $comparator->diffColumn($column4, $column1));
+    }
+
+    public function testComplexDiffColumn()
+    {
+        $column1 = new Column('foo', Type::getType('string'), array(
+            'platformOptions' => array('foo' => 'foo'),
+            'customSchemaOptions' => array('foo' => 'bar'),
+        ));
+
+        $column2 = new Column('foo', Type::getType('string'), array(
+            'platformOptions' => array('foo' => 'bar'),
+        ));
+
+        $comparator = new Comparator();
+
+        $this->assertEquals(array(), $comparator->diffColumn($column1, $column2));
+        $this->assertEquals(array(), $comparator->diffColumn($column2, $column1));
+    }
 }

@@ -2317,7 +2317,7 @@ abstract class AbstractPlatform
      */
     public function getColumnCollationDeclarationSQL($collation)
     {
-        return '';
+        return $this->supportsColumnCollation() ? 'COLLATE ' . $collation : '';
     }
 
     /**
@@ -2946,6 +2946,16 @@ abstract class AbstractPlatform
     public function supportsViews()
     {
         return true;
+    }
+
+    /**
+     * Does this platform support column collation?
+     *
+     * @return boolean
+     */
+    public function supportsColumnCollation()
+    {
+        return false;
     }
 
     /**

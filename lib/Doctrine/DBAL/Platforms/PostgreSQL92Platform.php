@@ -26,7 +26,7 @@ namespace Doctrine\DBAL\Platforms;
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class PostgreSQL92Platform extends PostgreSqlPlatform
+class PostgreSQL92Platform extends PostgreSQL91Platform
 {
     /**
      * {@inheritdoc}

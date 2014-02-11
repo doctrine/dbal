@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Types\Type;
+
 /**
  * Schema manager for the MySql RDBMS.
  *
@@ -168,7 +170,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             'scale'         => null,
             'precision'     => null,
             'autoincrement' => (bool) (strpos($tableColumn['extra'], 'auto_increment') !== false),
-            'comment'       => (isset($tableColumn['comment'])) ? $tableColumn['comment'] : null
+            'comment'       => isset($tableColumn['comment']) ? $tableColumn['comment'] : null,
         );
 
         if ($scale !== null && $precision !== null) {
@@ -176,7 +178,13 @@ class MySqlSchemaManager extends AbstractSchemaManager
             $options['precision'] = $precision;
         }
 
-        return new Column($tableColumn['field'], \Doctrine\DBAL\Types\Type::getType($type), $options);
+        $column = new Column($tableColumn['field'], Type::getType($type), $options);
+
+        if (isset($tableColumn['collation'])) {
+            $column->setPlatformOption('collation', $tableColumn['collation']);
+        }
+
+        return $column;
     }
 
     /**

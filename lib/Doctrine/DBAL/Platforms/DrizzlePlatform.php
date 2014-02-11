@@ -231,6 +231,116 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    {
+        $queryFields = $this->getColumnDeclarationListSQL($columns);
+
+        if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
+            foreach ($options['uniqueConstraints'] as $index => $definition) {
+                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($index, $definition);
+            }
+        }
+
+        // add all indexes
+        if (isset($options['indexes']) && ! empty($options['indexes'])) {
+            foreach($options['indexes'] as $index => $definition) {
+                $queryFields .= ', ' . $this->getIndexDeclarationSQL($index, $definition);
+            }
+        }
+
+        // attach all primary keys
+        if (isset($options['primary']) && ! empty($options['primary'])) {
+            $keyColumns = array_unique(array_values($options['primary']));
+            $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+        }
+
+        $query = 'CREATE ';
+
+        if (!empty($options['temporary'])) {
+            $query .= 'TEMPORARY ';
+        }
+
+        $query .= 'TABLE ' . $tableName . ' (' . $queryFields . ') ';
+        $query .= $this->buildTableOptions($options);
+        $query .= $this->buildPartitionOptions($options);
+
+        $sql[] = $query;
+
+        if (isset($options['foreignKeys'])) {
+            foreach ((array) $options['foreignKeys'] as $definition) {
+                $sql[] = $this->getCreateForeignKeySQL($definition, $tableName);
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Build SQL for table options
+     *
+     * @param array $options
+     *
+     * @return string
+     */
+    private function buildTableOptions(array $options)
+    {
+        if (isset($options['table_options'])) {
+            return $options['table_options'];
+        }
+
+        $tableOptions = array();
+
+        // Collate
+        if ( ! isset($options['collate'])) {
+            $options['collate'] = 'utf8_unicode_ci';
+        }
+
+        $tableOptions[] = sprintf('COLLATE %s', $options['collate']);
+
+        // Engine
+        if ( ! isset($options['engine'])) {
+            $options['engine'] = 'InnoDB';
+        }
+
+        $tableOptions[] = sprintf('ENGINE = %s', $options['engine']);
+
+        // Auto increment
+        if (isset($options['auto_increment'])) {
+            $tableOptions[] = sprintf('AUTO_INCREMENT = %s', $options['auto_increment']);
+        }
+
+        // Comment
+        if (isset($options['comment'])) {
+            $comment = trim($options['comment'], " '");
+
+            $tableOptions[] = sprintf("COMMENT = '%s' ", str_replace("'", "''", $comment));
+        }
+
+        // Row format
+        if (isset($options['row_format'])) {
+            $tableOptions[] = sprintf('ROW_FORMAT = %s', $options['row_format']);
+        }
+
+        return implode(' ', $tableOptions);
+    }
+
+    /**
+     * Build SQL for partition options.
+     *
+     * @param array $options
+     *
+     * @return string
+     */
+    private function buildPartitionOptions(array $options)
+    {
+        return (isset($options['partition_options']))
+            ? ' ' . $options['partition_options']
+            : '';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListDatabasesSQL()
     {
         return "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE CATALOG_NAME='LOCAL'";
@@ -264,7 +374,7 @@ class DrizzlePlatform extends AbstractPlatform
         }
 
         return "SELECT COLUMN_NAME, DATA_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT, CHARACTER_MAXIMUM_LENGTH, COLUMN_DEFAULT," .
-               " NUMERIC_PRECISION, NUMERIC_SCALE" .
+               " NUMERIC_PRECISION, NUMERIC_SCALE, COLLATION_NAME" .
                " FROM DATA_DICTIONARY.COLUMNS" .
                " WHERE TABLE_SCHEMA=" . $database . " AND TABLE_NAME = '" . $table . "'";
     }
@@ -331,6 +441,14 @@ class DrizzlePlatform extends AbstractPlatform
     public function supportsViews()
     {
         return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsColumnCollation()
+    {
+        return true;
     }
 
     /**
