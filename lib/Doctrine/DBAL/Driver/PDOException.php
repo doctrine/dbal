@@ -51,6 +51,8 @@ class PDOException extends \PDOException implements DriverException
     {
         parent::__construct($exception->getMessage(), 0, $exception->getPrevious());
 
+        $this->code      = $exception->getCode();
+        $this->errorInfo = $exception->errorInfo;
         $this->errorCode = isset($exception->errorInfo[1]) ? $exception->errorInfo[1] : $exception->getCode();
         $this->sqlState  = isset($exception->errorInfo[0]) ? $exception->errorInfo[0] : $exception->getCode();
     }
