@@ -2365,6 +2365,20 @@ abstract class AbstractPlatform
 
         return $item;
     }
+    
+    /**
+     * Some platforms have boolean literals that needs to be correctly 
+     *
+     * The default conversion tries to convert value into bool "(bool)$item"
+     *
+     * @param mixed $item
+     *
+     * @return bool
+     */
+    public function convertFromBoolean($item)
+    {
+        return (null === $item) ? null : (bool) $item;
+    }
 
     /**
      * Returns the SQL specific for the platform to get the current date.
