@@ -86,7 +86,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     {
         $majorVersion = floor($this->_conn->server_version / 10000);
         $minorVersion = floor(($this->_conn->server_version - $majorVersion * 10000) / 100);
-        $patchVersion = floor(($this->_conn->server_version - $majorVersion * 10000 - $minorVersion * 100));
+        $patchVersion = floor($this->_conn->server_version - $majorVersion * 10000 - $minorVersion * 100);
 
         return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
     }
