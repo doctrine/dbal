@@ -15,6 +15,10 @@ class DB2ConnectionTest extends DbalTestCase
 
     protected function setUp()
     {
+        if ( ! extension_loaded('ibm_db2')) {
+            $this->markTestSkipped('ibm_db2 is not installed.');
+        }
+
         parent::setUp();
 
         $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\IBMDB2\DB2Connection')

@@ -29,6 +29,10 @@ class PDOExceptionTest extends DbalTestCase
 
     protected function setUp()
     {
+        if ( ! extension_loaded('PDO')) {
+            $this->markTestSkipped('PDO is not installed.');
+        }
+
         parent::setUp();
 
         $this->wrappedExceptionMock = $this->getMockBuilder('\PDOException')

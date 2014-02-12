@@ -15,6 +15,10 @@ class SQLSrvConnectionTest extends DbalTestCase
 
     protected function setUp()
     {
+        if ( ! extension_loaded('sqlsrv')) {
+            $this->markTestSkipped('sqlsrv is not installed.');
+        }
+
         parent::setUp();
 
         $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\SQLSrv\SQLSrvConnection')

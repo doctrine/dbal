@@ -15,6 +15,10 @@ class MysqliConnectionTest extends DbalTestCase
 
     protected function setUp()
     {
+        if ( ! extension_loaded('mysqli')) {
+            $this->markTestSkipped('mysqli is not installed.');
+        }
+
         parent::setUp();
 
         $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\Mysqli\MysqliConnection')

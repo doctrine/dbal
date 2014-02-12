@@ -15,6 +15,10 @@ class SQLAnywhereConnectionTest extends DbalTestCase
 
     protected function setUp()
     {
+        if ( ! extension_loaded('sqlanywhere')) {
+            $this->markTestSkipped('sqlanywhere is not installed.');
+        }
+
         parent::setUp();
 
         $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection')

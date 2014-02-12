@@ -15,6 +15,10 @@ class OCI8ConnectionTest extends DbalTestCase
 
     protected function setUp()
     {
+        if ( ! extension_loaded('oci8')) {
+            $this->markTestSkipped('oci8 is not installed.');
+        }
+
         parent::setUp();
 
         $this->connectionMock = $this->getMockBuilder('Doctrine\DBAL\Driver\OCI8\OCI8Connection')
