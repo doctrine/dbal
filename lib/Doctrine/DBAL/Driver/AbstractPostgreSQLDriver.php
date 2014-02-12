@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
@@ -98,11 +99,14 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
         $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
 
-        if (version_compare($version, '9.2', '>=')) {
-            return new PostgreSQL92Platform();
+        switch(true) {
+            case version_compare($version, '9.2', '>='):
+                return new PostgreSQL92Platform();
+            case version_compare($version, '9.1', '>='):
+                return new PostgreSQL91Platform();
+            default:
+                return new PostgreSqlPlatform();
         }
-
-        return $this->getDatabasePlatform();
     }
 
     /**

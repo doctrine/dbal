@@ -55,7 +55,11 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
     protected function getDatabasePlatformsForVersions()
     {
         return array(
-            array('9.1.9', 'Doctrine\DBAL\Platforms\PostgreSqlPlatform'),
+            array('9.0.9', 'Doctrine\DBAL\Platforms\PostgreSqlPlatform'),
+            array('9.1', 'Doctrine\DBAL\Platforms\PostgreSQL91Platform'),
+            array('9.1.0', 'Doctrine\DBAL\Platforms\PostgreSQL91Platform'),
+            array('9.1.1', 'Doctrine\DBAL\Platforms\PostgreSQL91Platform'),
+            array('9.1.9', 'Doctrine\DBAL\Platforms\PostgreSQL91Platform'),
             array('9.2', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'),
             array('9.2.0', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'),
             array('9.2.1', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'),
