@@ -69,11 +69,20 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \UnexpectedValueException if the version string returned by the database server
+     *                                   does not contain a parsable version number.
      */
     public function getServerVersion()
     {
         if ( ! preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', oci_server_version($this->dbh), $version)) {
-            return null;
+            throw new \UnexpectedValueException(
+                sprintf(
+                    'Unexpected database version string "%s". Cannot parse an appropriate version number from it. ' .
+                    'Please report this database version string to the Doctrine team.',
+                    oci_server_version($this->dbh)
+                )
+            );
         }
 
         return $version[1];
