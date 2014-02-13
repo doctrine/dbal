@@ -155,10 +155,33 @@ abstract class AbstractDriverTest extends DbalTestCase
         $this->assertAttributeSame($connection, '_conn', $schemaManager);
     }
 
+    /**
+     * Factory method for creating the driver instance under test.
+     *
+     * @return \Doctrine\DBAL\Driver
+     */
     abstract protected function createDriver();
 
+    /**
+     * Factory method for creating the the platform instance return by the driver under test.
+     *
+     * The platform instance returned by this method must be the same as returned by
+     * the driver's getDatabasePlatform() method.
+     *
+     * @return \Doctrine\DBAL\Platforms\AbstractPlatform
+     */
     abstract protected function createPlatform();
 
+    /**
+     * Factory method for creating the the schema manager instance return by the driver under test.
+     *
+     * The schema manager instance returned by this method must be the same as returned by
+     * the driver's getSchemaManager() method.
+     *
+     * @param Connection $connection The underlying connection to use.
+     *
+     * @return \Doctrine\DBAL\Schema\AbstractSchemaManager
+     */
     abstract protected function createSchemaManager(Connection $connection);
 
     protected function getConnectionMock()
