@@ -322,11 +322,9 @@ class Connection implements DriverConnection
      */
     public function getDatabasePlatform()
     {
-        if (null !== $this->platform) {
-            return $this->platform;
+        if (null == $this->platform) {
+            $this->detectDatabasePlatform();
         }
-
-        $this->detectDatabasePlatform();
 
         return $this->platform;
     }
