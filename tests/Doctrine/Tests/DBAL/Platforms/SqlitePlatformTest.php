@@ -63,6 +63,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->assertTrue($this->_platform->prefersIdentityColumns());
     }
 
+    public function testIgnoresUnsignedIntegerDeclarationForAutoIncrementalIntegers()
+    {
+        $this->assertSame(
+            'INTEGER',
+            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
+        );
+    }
+
     /**
      * @group DBAL-752
      */
