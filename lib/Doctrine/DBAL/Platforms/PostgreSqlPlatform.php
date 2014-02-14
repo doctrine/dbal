@@ -716,7 +716,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function convertFromBoolean($item)
     {
-        if(
+        if (
             (null !== $item) && 
             (false !== $item) && 
             (true !== $item) && 
