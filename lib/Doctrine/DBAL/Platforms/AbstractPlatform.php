@@ -2367,7 +2367,7 @@ abstract class AbstractPlatform
     }
     
     /**
-     * Some platforms have boolean literals that needs to be correctly 
+     * Some platforms have boolean literals that needs to be correctly converted
      *
      * The default conversion tries to convert value into bool "(bool)$item"
      *
