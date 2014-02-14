@@ -734,12 +734,14 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function convertFromBoolean($item)
     {
-        if((null !== $item) && (false !== $item) && (true !== $item) && in_array((string)$item, array('false', 'f', 'n', 'no', 'off')))
-        {
+        if(
+            (null !== $item) && 
+            (false !== $item) && 
+            (true !== $item) && 
+            in_array((string)$item, array('false', 'f', 'n', 'no', 'off'))
+        ) {
             return false;
-        }
-        else
-        {
+        } else {
             return parent::convertFromBoolean($item);
         }
     }
