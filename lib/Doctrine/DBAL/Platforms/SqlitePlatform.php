@@ -289,6 +289,11 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
+        // sqlite autoincrement is implicit for integer PKs, but not when the field is unsigned
+        if ( ! empty($columnDef['autoincrement'])) {
+            return '';
+        }
+
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
 
