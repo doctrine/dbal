@@ -315,19 +315,30 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testConvertFromBoolean()
     {
         $platform = $this->createPlatform();
+        
         $this->assertFalse($platform->convertFromBoolean(false));
         $this->assertFalse($platform->convertFromBoolean('false'));
+        $this->assertFalse($platform->convertFromBoolean('FALSE'));
         $this->assertFalse($platform->convertFromBoolean('f'));
+        $this->assertFalse($platform->convertFromBoolean('F'));
         $this->assertFalse($platform->convertFromBoolean('no'));
+        $this->assertFalse($platform->convertFromBoolean('NO'));
         $this->assertFalse($platform->convertFromBoolean('n'));
+        $this->assertFalse($platform->convertFromBoolean('N'));
         $this->assertFalse($platform->convertFromBoolean('off'));
+        $this->assertFalse($platform->convertFromBoolean('OFF'));
         $this->assertFalse($platform->convertFromBoolean('0'));
         $this->assertTrue($platform->convertFromBoolean(true));
         $this->assertTrue($platform->convertFromBoolean('true'));
+        $this->assertTrue($platform->convertFromBoolean('TRUE'));
         $this->assertTrue($platform->convertFromBoolean('t'));
+        $this->assertTrue($platform->convertFromBoolean('T'));
         $this->assertTrue($platform->convertFromBoolean('yes'));
+        $this->assertTrue($platform->convertFromBoolean('YES'));
         $this->assertTrue($platform->convertFromBoolean('y'));
+        $this->assertTrue($platform->convertFromBoolean('Y'));
         $this->assertTrue($platform->convertFromBoolean('on'));
+        $this->assertTrue($platform->convertFromBoolean('ON'));
         $this->assertTrue($platform->convertFromBoolean('1'));
     }
 
