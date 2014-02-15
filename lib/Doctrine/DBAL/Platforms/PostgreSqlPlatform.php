@@ -720,12 +720,12 @@ class PostgreSqlPlatform extends AbstractPlatform
             (null !== $item) && 
             (false !== $item) && 
             (true !== $item) && 
-            in_array((string)$item, array('false', 'f', 'n', 'no', 'off'))
+            in_array(strtolower($item), array('false', 'f', 'n', 'no', 'off'), true)
         ) {
             return false;
-        } else {
-            return parent::convertFromBoolean($item);
-        }
+        } 
+          
+        return parent::convertFromBoolean($item);
     }
 
     /**
