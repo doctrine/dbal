@@ -45,6 +45,26 @@ class DBALException extends \Exception
     }
 
     /**
+     * Returns a new instance for an invalid specified platform version.
+     *
+     * @param string $version        The invalid platform version given.
+     * @param string $expectedFormat The expected platform version format.
+     *
+     * @return DBALException
+     */
+    public static function invalidPlatformVersionSpecified($version, $expectedFormat)
+    {
+        return new self(
+            sprintf(
+                'Invalid platform version "%s" specified. ' .
+                'The platform version has to be specified in the format: "%s".',
+                $version,
+                $expectedFormat
+            )
+        );
+    }
+
+    /**
      * @return \Doctrine\DBAL\DBALException
      */
     public static function invalidPdoInstance()

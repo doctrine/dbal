@@ -69,11 +69,6 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
         $this->_fetchOneResult = $fetchOneResult;
     }
 
-    public function setDatabasePlatform($platform)
-    {
-        $this->_platformMock = $platform;
-    }
-
     public function setLastInsertId($id)
     {
         $this->_lastInsertId = $id;

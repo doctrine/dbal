@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Events;
+use Doctrine\Tests\Mocks\DriverMock;
 use Doctrine\Tests\Mocks\DriverConnectionMock;
 
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
@@ -17,16 +18,17 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     protected $_conn = null;
 
+    protected $params = array(
+        'driver' => 'pdo_mysql',
+        'host' => 'localhost',
+        'user' => 'root',
+        'password' => 'password',
+        'port' => '1234'
+    );
+
     public function setUp()
     {
-        $params = array(
-            'driver' => 'pdo_mysql',
-            'host' => 'localhost',
-            'user' => 'root',
-            'password' => 'password',
-            'port' => '1234'
-        );
-        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($this->params);
     }
 
     public function testIsConnected()
@@ -119,8 +121,10 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
     public function testEventManagerPassedToPlatform()
     {
-        $this->assertInstanceOf('Doctrine\Common\EventManager', $this->_conn->getDatabasePlatform()->getEventManager());
-        $this->assertSame($this->_conn->getEventManager(), $this->_conn->getDatabasePlatform()->getEventManager());
+        $driverMock = new DriverMock();
+        $connection = new Connection($this->params, $driverMock);
+        $this->assertInstanceOf('Doctrine\Common\EventManager', $connection->getDatabasePlatform()->getEventManager());
+        $this->assertSame($connection->getEventManager(), $connection->getDatabasePlatform()->getEventManager());
     }
 
     /**

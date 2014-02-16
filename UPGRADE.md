@@ -1,5 +1,30 @@
 # Upgrade to 2.5
 
+## BC BREAK: Doctrine\DBAL\Connection
+
+The visibility of the property ``$_platform`` in ``Doctrine\DBAL\Connection``
+was changed from protected to private. If you have subclassed ``Doctrine\DBAL\Connection``
+in your application and accessed ``$_platform`` directly, you have to change the code
+portions to use ``getDatabasePlatform()`` instead to retrieve the underlying database
+platform.
+The reason for this change is the new automatic platform version detection feature,
+which lazily evaluates the appropriate platform class to use for the underlying database
+server version at runtime.
+Please also note, that calling ``getDatabasePlatform()`` now needs to establish a connection
+in order to evaluate the appropriate platform class if ``Doctrine\DBAL\Connection`` is not
+already connected. Under the following circumstances, it is not possible anymore to retrieve
+the platform instance from the connection object without having to do a real connect:
+
+1. ``Doctrine\DBAL\Connection`` was instantiated without the ``platform`` connection parameter.
+2. ``Doctrine\DBAL\Connection`` was instantiated without the ``serverVersion`` connection parameter.
+3. The underlying driver is "version aware" and can provide different platform instances
+   for different versions.
+4. The underlying driver connection is "version aware" and can provide the database server
+   version without having to query for it.
+
+If one of the above conditions is NOT met, there is no need for ``Doctrine\DBAL\Connection``
+to do a connect when calling ``getDatabasePlatform()``.
+
 ## datetime Type uses date_create() as fallback
 
 Before 2.5 the DateTime type always required a specific format, defined in

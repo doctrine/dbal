@@ -19,10 +19,8 @@
 
 namespace Doctrine\DBAL\Driver\PDOIbm;
 
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\AbstractDB2Driver;
 use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\Platforms\DB2Platform;
-use Doctrine\DBAL\Schema\DB2SchemaManager;
 
 /**
  * Driver for the PDO IBM extension.
@@ -34,7 +32,7 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
  * @author Jonathan Wage <jonwage@gmail.com>
  * @author Roman Borschel <roman@code-factory.org>
  */
-class Driver implements \Doctrine\DBAL\Driver
+class Driver extends AbstractDB2Driver
 {
     /**
      * {@inheritdoc}
@@ -78,42 +76,8 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
-    {
-        return new DB2Platform();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSchemaManager(Connection $conn)
-    {
-        return new DB2SchemaManager($conn);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getName()
     {
         return 'pdo_ibm';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDatabase(Connection $conn)
-    {
-        $params = $conn->getParams();
-
-        return $params['dbname'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function convertExceptionCode(\Exception $exception)
-    {
-        return 0;
     }
 }

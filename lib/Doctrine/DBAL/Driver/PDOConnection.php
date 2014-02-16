@@ -27,7 +27,7 @@ use PDO;
  *
  * @since 2.0
  */
-class PDOConnection extends PDO implements Connection
+class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
 {
     /**
      * @param string      $dsn
@@ -46,6 +46,14 @@ class PDOConnection extends PDO implements Connection
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getServerVersion()
+    {
+        return PDO::getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
     /**
@@ -109,5 +117,13 @@ class PDOConnection extends PDO implements Connection
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresQueryForServerVersion()
+    {
+        return false;
     }
 }

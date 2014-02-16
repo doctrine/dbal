@@ -19,14 +19,12 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\SQLServer2008Platform;
-use Doctrine\DBAL\Schema\SQLServerSchemaManager;
+use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 
 /**
  * Driver for ext/sqlsrv.
  */
-class Driver implements \Doctrine\DBAL\Driver
+class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritdoc}
@@ -36,15 +34,16 @@ class Driver implements \Doctrine\DBAL\Driver
         if (!isset($params['host'])) {
             throw new SQLSrvException("Missing 'host' in configuration for sqlsrv driver.");
         }
-        if (!isset($params['dbname'])) {
-            throw new SQLSrvException("Missing 'dbname' in configuration for sqlsrv driver.");
-        }
 
         $serverName = $params['host'];
         if (isset($params['port'])) {
             $serverName .= ', ' . $params['port'];
         }
-        $driverOptions['Database'] = $params['dbname'];
+
+        if (isset($params['dbname'])) {
+            $driverOptions['Database'] = $params['dbname'];
+        }
+
         $driverOptions['UID'] = $username;
         $driverOptions['PWD'] = $password;
 
@@ -58,41 +57,8 @@ class Driver implements \Doctrine\DBAL\Driver
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
-    {
-        return new SQLServer2008Platform();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSchemaManager(Connection $conn)
-    {
-        return new SQLServerSchemaManager($conn);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getName()
     {
         return 'sqlsrv';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDatabase(Connection $conn)
-    {
-        $params = $conn->getParams();
-        return $params['dbname'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function convertExceptionCode(\Exception $exception)
-    {
-        return 0;
     }
 }

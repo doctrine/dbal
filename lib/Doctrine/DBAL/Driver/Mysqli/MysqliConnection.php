@@ -21,12 +21,13 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection as Connection;
 use Doctrine\DBAL\Driver\PingableConnection;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  * @author Till Klampaeckel <till@php.net>
  */
-class MysqliConnection implements Connection, PingableConnection
+class MysqliConnection implements Connection, PingableConnection, ServerInfoAwareConnection
 {
     /**
      * @var \mysqli
@@ -76,6 +77,26 @@ class MysqliConnection implements Connection, PingableConnection
     public function getWrappedResourceHandle()
     {
         return $this->_conn;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getServerVersion()
+    {
+        $majorVersion = floor($this->_conn->server_version / 10000);
+        $minorVersion = floor(($this->_conn->server_version - $majorVersion * 10000) / 100);
+        $patchVersion = floor($this->_conn->server_version - $majorVersion * 10000 - $minorVersion * 100);
+
+        return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresQueryForServerVersion()
+    {
+        return false;
     }
 
     /**

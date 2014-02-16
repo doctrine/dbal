@@ -19,13 +19,13 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use PDO;
 use Closure;
 use Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ArrayStatement;
@@ -159,7 +159,7 @@ class Connection implements DriverConnection
      *
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    protected $_platform;
+    private $platform;
 
     /**
      * The schema manager.
@@ -222,17 +222,6 @@ class Connection implements DriverConnection
 
         $this->_expr = new Query\Expression\ExpressionBuilder($this);
 
-        if ( ! isset($params['platform'])) {
-            $this->_platform = $driver->getDatabasePlatform();
-        } elseif ($params['platform'] instanceof Platforms\AbstractPlatform) {
-            $this->_platform = $params['platform'];
-        } else {
-            throw DBALException::invalidPlatformSpecified();
-        }
-
-        $this->_platform->setEventManager($eventManager);
-
-        $this->_transactionIsolationLevel = $this->_platform->getDefaultTransactionIsolationLevel();
         $this->autoCommit = $config->getAutoCommit();
     }
 
@@ -333,7 +322,11 @@ class Connection implements DriverConnection
      */
     public function getDatabasePlatform()
     {
-        return $this->_platform;
+        if (null == $this->platform) {
+            $this->detectDatabasePlatform();
+        }
+
+        return $this->platform;
     }
 
     /**
@@ -365,6 +358,10 @@ class Connection implements DriverConnection
         $this->_conn = $this->_driver->connect($this->_params, $user, $password, $driverOptions);
         $this->_isConnected = true;
 
+        if (null === $this->platform) {
+            $this->detectDatabasePlatform();
+        }
+
         if (false === $this->autoCommit) {
             $this->beginTransaction();
         }
@@ -375,6 +372,70 @@ class Connection implements DriverConnection
         }
 
         return true;
+    }
+
+    /**
+     * Detects and sets the database platform.
+     *
+     * Evaluates custom platform class and version in order to set the correct platform.
+     *
+     * @throws DBALException if an invalid platform was specified for this connection.
+     */
+    private function detectDatabasePlatform()
+    {
+        if ( ! isset($this->_params['platform'])) {
+            $version = $this->getDatabasePlatformVersion();
+
+            if (null !== $version) {
+                $this->platform = $this->_driver->createDatabasePlatformForVersion($version);
+            } else {
+                $this->platform = $this->_driver->getDatabasePlatform();
+            }
+        } elseif ($this->_params['platform'] instanceof Platforms\AbstractPlatform) {
+            $this->platform = $this->_params['platform'];
+        } else {
+            throw DBALException::invalidPlatformSpecified();
+        }
+
+        $this->platform->setEventManager($this->_eventManager);
+    }
+
+    /**
+     * Returns the version of the related platform if applicable.
+     *
+     * Returns null if either the driver is not capable to create version
+     * specific platform instances, no explicit server version was specified
+     * or the underlying driver connection cannot determine the platform
+     * version without having to query it (performance reasons).
+     *
+     * @return string|null
+     */
+    private function getDatabasePlatformVersion()
+    {
+        // Driver does not support version specific platforms.
+        if ( ! $this->_driver instanceof VersionAwarePlatformDriver) {
+            return null;
+        }
+
+        // Explicit platform version requested (supersedes auto-detection).
+        if (isset($this->_params['serverVersion'])) {
+            return $this->_params['serverVersion'];
+        }
+
+        // If not connected, we need to connect now to determine the platform version.
+        if (null === $this->_conn) {
+            $this->connect();
+        }
+
+        // Automatic platform version detection.
+        if ($this->_conn instanceof ServerInfoAwareConnection &&
+            ! $this->_conn->requiresQueryForServerVersion()
+        ) {
+            return $this->_conn->getServerVersion();
+        }
+
+        // Unable to detect platform version.
+        return null;
     }
 
     /**
@@ -549,7 +610,7 @@ class Connection implements DriverConnection
     {
         $this->_transactionIsolationLevel = $level;
 
-        return $this->executeUpdate($this->_platform->getSetTransactionIsolationSQL($level));
+        return $this->executeUpdate($this->getDatabasePlatform()->getSetTransactionIsolationSQL($level));
     }
 
     /**
@@ -559,6 +620,10 @@ class Connection implements DriverConnection
      */
     public function getTransactionIsolation()
     {
+        if (null === $this->_transactionIsolationLevel) {
+            $this->_transactionIsolationLevel = $this->getDatabasePlatform()->getDefaultTransactionIsolationLevel();
+        }
+
         return $this->_transactionIsolationLevel;
     }
 
@@ -656,7 +721,7 @@ class Connection implements DriverConnection
      */
     public function quoteIdentifier($str)
     {
-        return $this->_platform->quoteIdentifier($str);
+        return $this->getDatabasePlatform()->quoteIdentifier($str);
     }
 
     /**
@@ -1055,7 +1120,7 @@ class Connection implements DriverConnection
             throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
         }
 
-        if ( ! $this->_platform->supportsSavepoints()) {
+        if ( ! $this->getDatabasePlatform()->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
@@ -1237,11 +1302,11 @@ class Connection implements DriverConnection
      */
     public function createSavepoint($savepoint)
     {
-        if ( ! $this->_platform->supportsSavepoints()) {
+        if ( ! $this->getDatabasePlatform()->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->_conn->exec($this->_platform->createSavePoint($savepoint));
+        $this->_conn->exec($this->platform->createSavePoint($savepoint));
     }
 
     /**
@@ -1255,12 +1320,12 @@ class Connection implements DriverConnection
      */
     public function releaseSavepoint($savepoint)
     {
-        if ( ! $this->_platform->supportsSavepoints()) {
+        if ( ! $this->getDatabasePlatform()->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
-        if ($this->_platform->supportsReleaseSavepoints()) {
-            $this->_conn->exec($this->_platform->releaseSavePoint($savepoint));
+        if ($this->platform->supportsReleaseSavepoints()) {
+            $this->_conn->exec($this->platform->releaseSavePoint($savepoint));
         }
     }
 
@@ -1275,11 +1340,11 @@ class Connection implements DriverConnection
      */
     public function rollbackSavepoint($savepoint)
     {
-        if ( ! $this->_platform->supportsSavepoints()) {
+        if ( ! $this->getDatabasePlatform()->supportsSavepoints()) {
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->_conn->exec($this->_platform->rollbackSavePoint($savepoint));
+        $this->_conn->exec($this->platform->rollbackSavePoint($savepoint));
     }
 
     /**
@@ -1352,7 +1417,7 @@ class Connection implements DriverConnection
      */
     public function convertToDatabaseValue($value, $type)
     {
-        return Type::getType($type)->convertToDatabaseValue($value, $this->_platform);
+        return Type::getType($type)->convertToDatabaseValue($value, $this->getDatabasePlatform());
     }
 
     /**
@@ -1366,7 +1431,7 @@ class Connection implements DriverConnection
      */
     public function convertToPHPValue($value, $type)
     {
-        return Type::getType($type)->convertToPHPValue($value, $this->_platform);
+        return Type::getType($type)->convertToPHPValue($value, $this->getDatabasePlatform());
     }
 
     /**
@@ -1428,7 +1493,7 @@ class Connection implements DriverConnection
             $type = Type::getType($type);
         }
         if ($type instanceof Type) {
-            $value = $type->convertToDatabaseValue($value, $this->_platform);
+            $value = $type->convertToDatabaseValue($value, $this->getDatabasePlatform());
             $bindingType = $type->getBindingType();
         } else {
             $bindingType = $type; // PDO::PARAM_* constants
@@ -1524,7 +1589,7 @@ class Connection implements DriverConnection
         }
 
         try {
-            $this->query($this->_platform->getDummySelectSQL());
+            $this->query($this->platform->getDummySelectSQL());
 
             return true;
         } catch (DBALException $e) {

@@ -65,19 +65,19 @@ class Connection extends \Doctrine\DBAL\Connection
         if ($ret) {
             $params = $this->getParams();
             if (isset($params['portability'])) {
-                if ($this->_platform->getName() === "oracle") {
+                if ($this->getDatabasePlatform()->getName() === "oracle") {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_ORACLE;
-                } elseif ($this->_platform->getName() === "postgresql") {
+                } elseif ($this->getDatabasePlatform()->getName() === "postgresql") {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_POSTGRESQL;
-                } elseif ($this->_platform->getName() === "sqlite") {
+                } elseif ($this->getDatabasePlatform()->getName() === "sqlite") {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLITE;
-                } elseif ($this->_platform->getName() === "drizzle") {
+                } elseif ($this->getDatabasePlatform()->getName() === "drizzle") {
                     $params['portability'] = self::PORTABILITY_DRIZZLE;
-                } elseif ($this->_platform->getName() === 'sqlanywhere') {
+                } elseif ($this->getDatabasePlatform()->getName() === 'sqlanywhere') {
                     $params['portability'] = self::PORTABILITY_SQLANYWHERE;
-                } elseif ($this->_platform->getName() === 'db2') {
+                } elseif ($this->getDatabasePlatform()->getName() === 'db2') {
                     $params['portability'] = self::PORTABILITY_DB2;
-                } elseif ($this->_platform->getName() === 'mssql') {
+                } elseif ($this->getDatabasePlatform()->getName() === 'mssql') {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLSRV;
                 } else {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_OTHERVENDORS;

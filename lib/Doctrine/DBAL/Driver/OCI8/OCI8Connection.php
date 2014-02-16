@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 
 /**
@@ -27,7 +28,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
  *
  * @since 2.0
  */
-class OCI8Connection implements Connection
+class OCI8Connection implements Connection, ServerInfoAwareConnection
 {
     /**
      * @var resource
@@ -64,6 +65,35 @@ class OCI8Connection implements Connection
         if ( ! $this->dbh) {
             throw OCI8Exception::fromErrorInfo(oci_error());
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws \UnexpectedValueException if the version string returned by the database server
+     *                                   does not contain a parsable version number.
+     */
+    public function getServerVersion()
+    {
+        if ( ! preg_match('/\s+(\d+\.\d+\.\d+\.\d+\.\d+)\s+/', oci_server_version($this->dbh), $version)) {
+            throw new \UnexpectedValueException(
+                sprintf(
+                    'Unexpected database version string "%s". Cannot parse an appropriate version number from it. ' .
+                    'Please report this database version string to the Doctrine team.',
+                    oci_server_version($this->dbh)
+                )
+            );
+        }
+
+        return $version[1];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresQueryForServerVersion()
+    {
+        return false;
     }
 
     /**

@@ -233,6 +233,44 @@ platform version here:
 - `SQL Anywhere 12.0.1 <http://dcx.sybase.com/index.html#1201/en/dbadmin/da-conparm.html>`_
 - `SAP Sybase SQL Anywhere 16.0 <http://dcx.sybase.com/index.html#sa160/en/dbadmin/da-conparm.html>`_
 
+Automatic platform version detection
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Doctrine ships with different database platform implementations for some vendors
+to support version specific features, dialect and behaviour.
+As of Doctrine DBAL 2.5 the appropriate platform implementation for the underlying
+database server version can be detected at runtime automatically for nearly all drivers.
+Before 2.5 you had to configure Doctrine to use a certain platform implementation
+explicitly with the ``platform`` connection parameter (see section below).
+Otherwise Doctrine always used a default platform implementation. For example if
+your application was backed by a SQL Server 2012 database, Doctrine would still use
+the SQL Server 2008 platform implementation as it is the default, unless you told
+Doctrine explicitly to use the SQL Server 2012 implementation.
+
+The following drivers support automatic database platform detection out of the box
+without any extra configuration required:
+
+-  ``pdo_mysql``
+-  ``mysqli``
+-  ``pdo_pgsql``
+-  ``pdo_sqlsrv``
+-  ``sqlsrv``
+
+Some drivers cannot provide the version of the underlying database server without
+having to query for it explicitly. For performance reasons (to save one extra query
+on every connect), Doctrine does not enable automatic database platform version
+detection for the following drivers:
+
+-  ``sqlanywhere``
+
+If you still want to tell Doctrine which database server version you are using in
+order to choose the appropriate platform implementation, you can pass the
+``serverVersion`` option with a vendor specific version string that matches the
+database server version you are using.
+You can also pass this option if you want to disable automatic database platform
+detection for a driver that natively supports it and choose the platform version
+implementation explicitly.
+
 Custom Platform
 ~~~~~~~~~~~~~~~
 
