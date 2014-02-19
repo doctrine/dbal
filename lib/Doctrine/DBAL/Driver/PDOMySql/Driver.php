@@ -69,7 +69,7 @@ class Driver extends AbstractMySQLDriver
         if (isset($params['dbname'])) {
             $dsn .= 'dbname=' . $params['dbname'] . ';';
         }
-        if (isset($params['unix_socket'])  && $params['unix_socket'] != '') {
+        if (isset($params['unix_socket']) && $params['unix_socket'] != '') {
             $dsn .= 'unix_socket=' . $params['unix_socket'] . ';';
         }
         if (isset($params['charset'])) {
