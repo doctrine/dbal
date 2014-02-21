@@ -28,9 +28,11 @@ There are however some exceptions.
 
 The following APIs are designed to be **SAFE** from SQL injections:
 
-- ``$values`` in ``Doctrine\DBAL\Connection#insert($table, $values, $types)``
-- ``$values`` in ``Doctrine\DBAL\Connection#update($table, $values, $where, $types)``
-- ``$values`` in ``Doctrine\DBAL\Connection#delete($table, $where, $types)``
+- For ``Doctrine\DBAL\Connection#insert($table, $values, $types)``,
+  ``Doctrine\DBAL\Connection#update($table, $values, $where, $types)`` and
+  ``Doctrine\DBAL\Connection#delete($table, $where, $types)`` only the array
+  values of ``$values`` and ``$where``. The table name and keys of ``$values``
+  and ``$where`` are NOT escaped.
 - ``Doctrine\DBAL\Query\QueryBuilder#setFirstResult($offset)``
 - ``Doctrine\DBAL\Query\QueryBuilder#setMaxResults($limit)``
 - ``Doctrine\DBAL\Platforms\AbstractPlatform#modifyLimitQuery($sql, $limit, $offset)`` for the ``$limit`` and ``$offset`` parameters.
@@ -40,6 +42,8 @@ Consider **ALL** other APIs to be not safe for user-input:
 - Query methods on the Connection
 - The QueryBuilder API
 - The Platforms and SchemaManager APIs to generate and execute DML/DDL SQL statements
+
+To escape user input in those scenarios use the ``Connection#quote()`` method.
 
 User input in your queries
 --------------------------
