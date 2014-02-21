@@ -28,9 +28,9 @@ There are however some exceptions.
 
 The following APIs are designed to be **SAFE** from SQL injections:
 
-- ``Doctrine\DBAL\Connection#insert($table, $values, $types)``
-- ``Doctrine\DBAL\Connection#update($table, $values, $where, $types)``
-- ``Doctrine\DBAL\Connection#delete($table, $where, $types)``
+- ``$values`` in ``Doctrine\DBAL\Connection#insert($table, $values, $types)``
+- ``$values`` in ``Doctrine\DBAL\Connection#update($table, $values, $where, $types)``
+- ``$values`` in ``Doctrine\DBAL\Connection#delete($table, $where, $types)``
 - ``Doctrine\DBAL\Query\QueryBuilder#setFirstResult($offset)``
 - ``Doctrine\DBAL\Query\QueryBuilder#setMaxResults($limit)``
 - ``Doctrine\DBAL\Platforms\AbstractPlatform#modifyLimitQuery($sql, $limit, $offset)`` for the ``$limit`` and ``$offset`` parameters.
