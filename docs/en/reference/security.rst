@@ -66,7 +66,9 @@ SQL or DQL query. For Example:
 An attacker could inject any value into the GET variable "username" to modify the query to his needs.
 
 Although DQL is a wrapper around SQL that can prevent you from some security implications, the previous
-example is also a thread to DQL queries.
+example is also a threat to DQL queries.
+
+.. code-block:: php
 
     <?php
     // DQL is not safe against arbitrary user-input as well:
