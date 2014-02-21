@@ -2592,7 +2592,7 @@ abstract class AbstractPlatform
      */
     public function convertFromBoolean($item)
     {
-        return (null === $item) ? null : (bool) $item;
+        return null === $item ?: (bool) $item ;
     }
 
     /**
