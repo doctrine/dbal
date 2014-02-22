@@ -34,4 +34,25 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
             'ALTER TABLE `table` RENAME INDEX `foo` TO `bar`',
         );
     }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`',
+            'ALTER TABLE `schema`.`table` RENAME INDEX `foo` TO `bar`',
+        );
+    }
 }

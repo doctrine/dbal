@@ -555,6 +555,11 @@ class DB2Platform extends AbstractPlatform
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
+        if (strpos($tableName, '.') !== false) {
+            list($schema) = explode('.', $tableName);
+            $oldIndexName = $schema . '.' . $oldIndexName;
+        }
+
         return array('RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this));
     }
 

@@ -434,4 +434,25 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             'RENAME COLUMN quoted3 TO "baz"'
         );
     }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'RENAME INDEX myschema.idx_foo TO idx_bar',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'RENAME INDEX "schema"."create" TO "select"',
+            'RENAME INDEX "schema"."foo" TO "bar"',
+        );
+    }
 }

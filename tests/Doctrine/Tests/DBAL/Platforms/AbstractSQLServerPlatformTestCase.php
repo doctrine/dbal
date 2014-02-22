@@ -881,4 +881,25 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "sp_RENAME 'mytable.quoted3', '[baz]', 'COLUMN'",
         );
     }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            "EXEC sp_RENAME N'myschema.mytable.idx_foo', N'idx_bar', N'INDEX'",
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            "EXEC sp_RENAME N'[schema].[table].[create]', N'[select]', N'INDEX'",
+            "EXEC sp_RENAME N'[schema].[table].[foo]', N'[bar]', N'INDEX'",
+        );
+    }
 }

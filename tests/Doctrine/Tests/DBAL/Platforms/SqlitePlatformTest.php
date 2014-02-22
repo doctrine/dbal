@@ -496,4 +496,26 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'DROP TABLE __temp__mytable',
         );
     }
+
+    /**
+     * @group DBAL-807
+     */
+    public function testAlterTableRenameIndexInSchema()
+    {
+        $this->markTestIncomplete(
+            'Test currently produces broken SQL due to SQLLitePlatform::getAlterTable being broken ' .
+            'when used with schemas.'
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    public function testQuotesAlterTableRenameIndexInSchema()
+    {
+        $this->markTestIncomplete(
+            'Test currently produces broken SQL due to SQLLitePlatform::getAlterTable being broken ' .
+            'when used with schemas.'
+        );
+    }
 }

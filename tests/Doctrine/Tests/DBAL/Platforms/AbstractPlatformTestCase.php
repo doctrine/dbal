@@ -716,4 +716,67 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      * @group DBAL-835
      */
     abstract protected function getQuotedAlterTableRenameColumnSQL();
+
+    /**
+     * @group DBAL-807
+     */
+    public function testAlterTableRenameIndexInSchema()
+    {
+        $tableDiff = new TableDiff('myschema.mytable');
+        $tableDiff->fromTable = new Table('myschema.mytable');
+        $tableDiff->fromTable->addColumn('id', 'integer');
+        $tableDiff->fromTable->setPrimaryKey(array('id'));
+        $tableDiff->renamedIndexes = array(
+            'idx_foo' => new Index('idx_bar', array('id'))
+        );
+
+        $this->assertSame(
+            $this->getAlterTableRenameIndexInSchemaSQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'DROP INDEX idx_foo',
+            'CREATE INDEX idx_bar ON myschema.mytable (id)',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    public function testQuotesAlterTableRenameIndexInSchema()
+    {
+        $tableDiff = new TableDiff('`schema`.table');
+        $tableDiff->fromTable = new Table('`schema`.table');
+        $tableDiff->fromTable->addColumn('id', 'integer');
+        $tableDiff->fromTable->setPrimaryKey(array('id'));
+        $tableDiff->renamedIndexes = array(
+            'create' => new Index('select', array('id')),
+            '`foo`'  => new Index('`bar`', array('id')),
+        );
+
+        $this->assertSame(
+            $this->getQuotedAlterTableRenameIndexInSchemaSQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'DROP INDEX "schema"."create"',
+            'CREATE INDEX "select" ON "schema"."table" (id)',
+            'DROP INDEX "schema"."foo"',
+            'CREATE INDEX "bar" ON "schema"."table" (id)',
+        );
+    }
 }
