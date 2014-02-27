@@ -115,7 +115,10 @@ class Comparator
             $sequenceName = $sequence->getShortestName($toSchema->getName());
             if ( ! $fromSchema->hasSequence($sequenceName)) {
                 if ( ! $this->isAutoIncrementSequenceInSchema($fromSchema, $sequence)) {
-                    $diff->newSequences[] = $sequence;
+                    $table = $this->getTableForSequenceInSchema($toSchema, $sequence);
+                    if ( ! $table || empty($diff->newTables[$table->getName()])) {
+                        $diff->newSequences[] = $sequence;
+                    }
                 }
             } else {
                 if ($this->diffSequence($sequence, $fromSchema->getSequence($sequenceName))) {
@@ -143,17 +146,28 @@ class Comparator
      * @param \Doctrine\DBAL\Schema\Schema   $schema
      * @param \Doctrine\DBAL\Schema\Sequence $sequence
      *
+     * @return \Doctrine\DBAL\Schema\Table|null
+     */
+    private function getTableForSequenceInSchema($schema, $sequence)
+    {
+        foreach ($schema->getTables() as $table) {
+            if ($sequence->isAutoIncrementsFor($table)) {
+                return $table;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Schema   $schema
+     * @param \Doctrine\DBAL\Schema\Sequence $sequence
+     *
      * @return boolean
      */
     private function isAutoIncrementSequenceInSchema($schema, $sequence)
     {
-        foreach ($schema->getTables() as $table) {
-            if ($sequence->isAutoIncrementsFor($table)) {
-                return true;
-            }
-        }
-
-        return false;
+        return null !== $this->getTableForSequenceInSchema($schema, $sequence);
     }
 
     /**
