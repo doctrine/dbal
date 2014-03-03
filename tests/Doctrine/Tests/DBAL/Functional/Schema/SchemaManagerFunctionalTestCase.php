@@ -669,7 +669,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
                 $this->assertEquals($value, $all[$key], "$changedProperty: Option $key holds unexpected value");
             }
         }
-        $this->assertSame('5', $columns['column_1']->getDefault());
+        $this->assertEquals('5', $columns['column_1']->getDefault());
     }
 
     /**
