@@ -597,36 +597,74 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
-     * @group DBAL-825
+     * Data provider for testChangeColumnWithDefault()
+     * @return array
      */
-    public function testChangeColumnsTypeWithDefault()
+    function changeColumnProvider() {
+        return array(
+            array('type', 'integer', array(), array()),
+            array('unsigned', 'integer', array('unsigned' => false), array('unsigned' => true)),
+            array('length', 'string', array('length' => 25), array('length' => 26)),
+            array('precision', 'decimal', array('precision' => 8), array('precision' => 9)),
+            array('scale', 'decimal', array('scale' => 0), array('scale' => 1)),
+            array('notnull', 'decimal', array('notnull' => true), array('notnull' => false)),
+            array('fixed', 'string', array('fixed' => true, 'length' => 25), array('fixed' => false, 'length' => 25)),
+        );
+    }
+
+    /**
+     * @group DBAL-825
+     * @dataProvider changeColumnProvider
+     */
+    public function testChangeColumnWithDefault($changedProperty, $type, $fromOptions, $toOptions)
     {
-        $table = new \Doctrine\DBAL\Schema\Table('column_change_type_test');
-        $table->addColumn('id', 'integer', array('default' => 5));
+        if ($this->_conn->getDatabasePlatform()->getName() === 'mssql' && $changedProperty === 'unsigned') {
+            $this->markTestSkipped('Datatype unsigned is not supported on mssql.');
+            return;
+        }
+
+        $tableName = 'column_change_'.$changedProperty.'_test';
+        $table = new \Doctrine\DBAL\Schema\Table($tableName);
+        $table->addColumn('column_1', $type, array_merge($fromOptions, array('default' => 5)));
 
         $this->_sm->createTable($table);
 
-        $columns = $this->_sm->listTableColumns("column_change_type_test");
+        $columns = $this->_sm->listTableColumns($tableName);
         $this->assertEquals(1, count($columns));
-        $this->assertInstanceOf('Doctrine\DBAL\Types\IntegerType', $columns['id']->getType());
 
-        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('column_change_type_test');
-        $tableDiff->changedColumns['id'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'id', new \Doctrine\DBAL\Schema\Column(
-                'id', \Doctrine\DBAL\Types\Type::getType('smallint'), array('default' => 5)
+        // special handling for type changes:
+        $toType = $type;
+        if ($changedProperty === 'type') {
+            $toType = 'smallint';
+        }
+
+        // build the difference to be applied
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff($tableName);
+        $tableDiff->changedColumns['column_1'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'column_1', new \Doctrine\DBAL\Schema\Column(
+                'column_1', \Doctrine\DBAL\Types\Type::getType($toType), array_merge($toOptions, array('default' => 5))
             ),
-            array('type'),
+            array($changedProperty),
             new \Doctrine\DBAL\Schema\Column(
-                'id', \Doctrine\DBAL\Types\Type::getType('integer'), array('default' => '5')
+                'column_1', \Doctrine\DBAL\Types\Type::getType($type), array_merge($fromOptions, array('default' => 5))
             )
         );
 
         $this->_sm->alterTable($tableDiff);
 
-        $columns = $this->_sm->listTableColumns("column_change_type_test");
+        $columns = $this->_sm->listTableColumns($tableName);
         $this->assertEquals(1, count($columns));
-        $this->assertInstanceOf('Doctrine\DBAL\Types\SmallIntType', $columns['id']->getType());
-        $this->assertSame('', $columns['id']->getDefault());
+
+        // assert type change
+        if ($changedProperty === 'type') {
+            $this->assertInstanceOf('Doctrine\DBAL\Types\SmallIntType', $columns['column_1']->getType());
+        } else {
+            $all = $columns['column_1']->toArray();
+            foreach($toOptions as $key => $value) {
+                $this->assertEquals($value, $all[$key], "$changedProperty: Option $key holds unexpected value");
+            }
+        }
+        $this->assertSame('5', $columns['column_1']->getDefault());
     }
 
     /**
