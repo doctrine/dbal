@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type,
     Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -593,6 +594,39 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $columns = $this->_sm->listTableColumns("column_comment_test");
         $this->assertEquals(1, count($columns));
         $this->assertEmpty($columns['id']->getComment());
+    }
+
+    /**
+     * @group DBAL-825
+     */
+    public function testChangeColumnsTypeWithDefault()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table('column_change_type_test');
+        $table->addColumn('id', 'integer', array('default' => 5));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns("column_change_type_test");
+        $this->assertEquals(1, count($columns));
+        $this->assertInstanceOf('Doctrine\DBAL\Types\IntegerType', $columns['id']->getType());
+
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('column_change_type_test');
+        $tableDiff->changedColumns['id'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'id', new \Doctrine\DBAL\Schema\Column(
+                'id', \Doctrine\DBAL\Types\Type::getType('smallint'), array('default' => 5)
+            ),
+            array('type'),
+            new \Doctrine\DBAL\Schema\Column(
+                'id', \Doctrine\DBAL\Types\Type::getType('integer'), array('default' => '5')
+            )
+        );
+
+        $this->_sm->alterTable($tableDiff);
+
+        $columns = $this->_sm->listTableColumns("column_change_type_test");
+        $this->assertEquals(1, count($columns));
+        $this->assertInstanceOf('Doctrine\DBAL\Types\SmallIntType', $columns['id']->getType());
+        $this->assertSame('', $columns['id']->getDefault());
     }
 
     /**
