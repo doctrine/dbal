@@ -615,11 +615,16 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     /**
      * @group DBAL-825
      * @dataProvider changeColumnProvider
+     *
+     * @param string $changedProperty
+     * @param string $type of the columns to be changed
+     * @param array $fromOptions used to create the initial columns
+     * @param array $toOptions used to perform the column change and for assertion
      */
     public function testChangeColumnWithDefault($changedProperty, $type, $fromOptions, $toOptions)
     {
         if ($this->_conn->getDatabasePlatform()->getName() === 'mssql' && $changedProperty === 'unsigned') {
-            $this->markTestSkipped('Datatype unsigned is not supported on mssql.');
+            $this->markTestSkipped('Data type unsigned is not supported on mssql.');
             return;
         }
 
