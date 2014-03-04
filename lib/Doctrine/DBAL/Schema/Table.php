@@ -441,6 +441,10 @@ class Table extends AbstractAsset
             $localColumnNames, $foreignTable, $foreignColumnNames, $name, $options
         );
         $this->_addForeignKeyConstraint($constraint);
+        // add an explicit index on the foreign key columns. If there is already an index that fulfils this requirements drop the request.
+        // In the case of __construct calling this method during hydration from schema-details all the explicitly added indexes
+        // lead to duplicates. This creates computation overhead in this case, however no duplicate indexes are ever added (based on columns).
+        $this->addIndex($constraint->getColumns());
 
         return $this;
     }
@@ -537,10 +541,6 @@ class Table extends AbstractAsset
         $name = strtolower($name);
 
         $this->_fkConstraints[$name] = $constraint;
-        // add an explicit index on the foreign key columns. If there is already an index that fulfils this requirements drop the request.
-        // In the case of __construct calling this method during hydration from schema-details all the explicitly added indexes
-        // lead to duplicates. This creates computation overhead in this case, however no duplicate indexes are ever added (based on columns).
-        $this->addIndex($constraint->getColumns());
     }
 
     /**
