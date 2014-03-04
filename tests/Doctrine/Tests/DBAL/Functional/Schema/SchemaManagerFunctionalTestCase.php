@@ -621,7 +621,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $columns = $this->_sm->listTableColumns('column_keyword_test');
         $this->assertEquals(1, count($columns));
-        $this->assertEquals(24, $columns['select']->getDefault());
+        $column = reset($columns);
+        $this->assertEquals(24, $column->getDefault());
     }
 
     /**
