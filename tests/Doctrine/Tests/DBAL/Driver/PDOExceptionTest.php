@@ -63,4 +63,9 @@ class PDOExceptionTest extends DbalTestCase
     {
         $this->assertSame(self::SQLSTATE, $this->exception->getSQLState());
     }
+
+    public function testOriginalExceptionIsInChain()
+    {
+        $this->assertSame($this->wrappedExceptionMock, $this->exception->getPrevious());
+    }
 }
