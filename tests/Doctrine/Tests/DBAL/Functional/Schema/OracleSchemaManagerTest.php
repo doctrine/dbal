@@ -102,4 +102,21 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertContains('c##test_create_database', $databases);
     }
+
+    public function testConstraintOnLowercase()
+    {
+        // the identifiers will be quoted before in order to force lowercase names
+        $tableName = $this->_sm->getDatabasePlatform()->quoteIdentifier('oc_storages');
+        $column1 = $this->_sm->getDatabasePlatform()->quoteIdentifier('id');
+        $column2 = $this->_sm->getDatabasePlatform()->quoteIdentifier('numeric_id');
+
+        $table = new Schema\Table($tableName);
+        $table->addColumn($column1, 'string', array('length' => 64));
+        $table->addColumn($column2, 'integer', array('notnull' => true, 'autoincrement' => true));
+
+        $table->setPrimaryKey(array($column1));
+
+        $this->_sm->dropAndCreateTable($table);
+
+    }
 }
