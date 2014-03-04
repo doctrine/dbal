@@ -486,7 +486,7 @@ class SQLServerPlatform extends AbstractPlatform
             if ($requireDropDefaultConstraint) {
                 $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
                     $diff->name,
-                    $columnDiff->oldColumnName
+                    $columnDiff->getOldColumnName()->getQuotedName($this)
                 );
             }
 
