@@ -5,11 +5,21 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../../TestInit.php';
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    protected function setUp()
+    {
+        parent::setUp();
+
+        if (!Type::hasType('point')) {
+            Type::addType('point', 'Doctrine\Tests\Types\MySqlPointType');
+        }
+    }
+
     public function testSwitchPrimaryKeyColumns()
     {
         $tableOld = new Table("switch_primary_key_columns");
@@ -64,6 +74,23 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $indexes = $this->_sm->listTableIndexes('fulltext_index');
         $this->assertArrayHasKey('f_index', $indexes);
         $this->assertTrue($indexes['f_index']->hasFlag('fulltext'));
+    }
+
+    public function testSpatialIndex()
+    {
+        $table = new Table('spatial_index');
+        $table->addColumn('point', 'point');
+        $table->addIndex(array('point'), 's_index');
+        $table->addOption('engine', 'MyISAM');
+
+        $index = $table->getIndex('s_index');
+        $index->addFlag('spatial');
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $indexes = $this->_sm->listTableIndexes('spatial_index');
+        $this->assertArrayHasKey('s_index', $indexes);
+        $this->assertTrue($indexes['s_index']->hasFlag('spatial'));
     }
 
     /**
