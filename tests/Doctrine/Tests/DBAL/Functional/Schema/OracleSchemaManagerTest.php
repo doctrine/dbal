@@ -114,9 +114,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn($column1, 'string', array('length' => 64));
         $table->addColumn($column2, 'integer', array('notnull' => true, 'autoincrement' => true));
 
-        $table->setPrimaryKey(array($column1));
-
         $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+        $this->assertEquals(2, count($columns));
 
     }
 }
