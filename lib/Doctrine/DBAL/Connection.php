@@ -562,13 +562,15 @@ class Connection implements DriverConnection
     /**
      * Executes an SQL DELETE statement on a table.
      *
-     * @param string $tableName  The name of the table on which to delete.
+     * Table expression and columns are not escaped and are not safe for user-input.
+     *
+     * @param string $tableExpression  The expression of the table on which to delete.
      * @param array  $identifier The deletion criteria. An associative array containing column-value pairs.
      * @param array  $types      The types of identifiers.
      *
      * @return integer The number of affected rows.
      */
-    public function delete($tableName, array $identifier, array $types = array())
+    public function delete($tableExpression, array $identifier, array $types = array())
     {
         $this->connect();
 
@@ -582,7 +584,7 @@ class Connection implements DriverConnection
             $types = $this->extractTypeValues($identifier, $types);
         }
 
-        $query = 'DELETE FROM ' . $tableName . ' WHERE ' . implode(' AND ', $criteria);
+        $query = 'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $criteria);
 
         return $this->executeUpdate($query, array_values($identifier), $types);
     }
@@ -630,14 +632,16 @@ class Connection implements DriverConnection
     /**
      * Executes an SQL UPDATE statement on a table.
      *
-     * @param string $tableName  The name of the table to update.
+     * Table expression and columns are not escaped and are not safe for user-input.
+     *
+     * @param string $tableExpression  The expression of the table to update quoted or unquoted.
      * @param array  $data       An associative array containing column-value pairs.
      * @param array  $identifier The update criteria. An associative array containing column-value pairs.
      * @param array  $types      Types of the merged $data and $identifier arrays in that order.
      *
      * @return integer The number of affected rows.
      */
-    public function update($tableName, array $data, array $identifier, array $types = array())
+    public function update($tableExpression, array $data, array $identifier, array $types = array())
     {
         $this->connect();
         $set = array();
@@ -652,7 +656,7 @@ class Connection implements DriverConnection
 
         $params = array_merge(array_values($data), array_values($identifier));
 
-        $sql  = 'UPDATE ' . $tableName . ' SET ' . implode(', ', $set)
+        $sql  = 'UPDATE ' . $tableExpression . ' SET ' . implode(', ', $set)
                 . ' WHERE ' . implode(' = ? AND ', array_keys($identifier))
                 . ' = ?';
 
@@ -662,22 +666,24 @@ class Connection implements DriverConnection
     /**
      * Inserts a table row with specified data.
      *
-     * @param string $tableName The name of the table to insert data into.
+     * Table expression and columns are not escaped and are not safe for user-input.
+     *
+     * @param string $tableExpression The expression of the table to insert data into, quoted or unquoted.
      * @param array  $data      An associative array containing column-value pairs.
      * @param array  $types     Types of the inserted data.
      *
      * @return integer The number of affected rows.
      */
-    public function insert($tableName, array $data, array $types = array())
+    public function insert($tableExpression, array $data, array $types = array())
     {
         $this->connect();
 
         if (empty($data)) {
-            return $this->executeUpdate('INSERT INTO ' . $tableName . ' ()' . ' VALUES ()');
+            return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' ()' . ' VALUES ()');
         }
 
         return $this->executeUpdate(
-            'INSERT INTO ' . $tableName . ' (' . implode(', ', array_keys($data)) . ')' .
+            'INSERT INTO ' . $tableExpression . ' (' . implode(', ', array_keys($data)) . ')' .
             ' VALUES (' . implode(', ', array_fill(0, count($data), '?')) . ')',
             array_values($data),
             is_string(key($types)) ? $this->extractTypeValues($data, $types) : $types
