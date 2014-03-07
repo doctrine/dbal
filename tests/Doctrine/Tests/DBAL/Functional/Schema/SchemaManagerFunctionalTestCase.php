@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type,
     Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -593,6 +594,82 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $columns = $this->_sm->listTableColumns("column_comment_test");
         $this->assertEquals(1, count($columns));
         $this->assertEmpty($columns['id']->getComment());
+    }
+
+    /**
+     * Data provider for testChangeColumnWithDefault()
+     * @return array
+     */
+    function changeColumnProvider() {
+        return array(
+            array('type', 'integer', array(), array()),
+            array('unsigned', 'integer', array('unsigned' => false), array('unsigned' => true)),
+            array('length', 'string', array('length' => 25), array('length' => 26)),
+            array('precision', 'decimal', array('precision' => 8), array('precision' => 9)),
+            array('scale', 'decimal', array('scale' => 0), array('scale' => 1)),
+            array('notnull', 'decimal', array('notnull' => true), array('notnull' => false)),
+            array('fixed', 'string', array('fixed' => true, 'length' => 25), array('fixed' => false, 'length' => 25)),
+        );
+    }
+
+    /**
+     * @group DBAL-825
+     * @dataProvider changeColumnProvider
+     *
+     * @param string $changedProperty
+     * @param string $type of the columns to be changed
+     * @param array $fromOptions used to create the initial columns
+     * @param array $toOptions used to perform the column change and for assertion
+     */
+    public function testChangeColumnWithDefault($changedProperty, $type, $fromOptions, $toOptions)
+    {
+        if ($this->_conn->getDatabasePlatform()->getName() === 'mssql' && $changedProperty === 'unsigned') {
+            $this->markTestSkipped('Data type unsigned is not supported on mssql.');
+            return;
+        }
+
+        $tableName = 'column_change_'.$changedProperty.'_test';
+        $table = new \Doctrine\DBAL\Schema\Table($tableName);
+        $table->addColumn('column_1', $type, array_merge($fromOptions, array('default' => 5)));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+        $this->assertEquals(1, count($columns));
+
+        // special handling for type changes:
+        $toType = $type;
+        if ($changedProperty === 'type') {
+            $toType = 'smallint';
+        }
+
+        // build the difference to be applied
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff($tableName);
+        $tableDiff->changedColumns['column_1'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'column_1', new \Doctrine\DBAL\Schema\Column(
+                'column_1', \Doctrine\DBAL\Types\Type::getType($toType), array_merge($toOptions, array('default' => 5))
+            ),
+            array($changedProperty),
+            new \Doctrine\DBAL\Schema\Column(
+                'column_1', \Doctrine\DBAL\Types\Type::getType($type), array_merge($fromOptions, array('default' => 5))
+            )
+        );
+
+        $this->_sm->alterTable($tableDiff);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+        $this->assertEquals(1, count($columns));
+
+        // assert type change
+        if ($changedProperty === 'type') {
+            $this->assertInstanceOf('Doctrine\DBAL\Types\SmallIntType', $columns['column_1']->getType());
+        } else {
+            $all = $columns['column_1']->toArray();
+            foreach($toOptions as $key => $value) {
+                $this->assertEquals($value, $all[$key], "$changedProperty: Option $key holds unexpected value");
+            }
+        }
+        $this->assertEquals('5', $columns['column_1']->getDefault());
     }
 
     /**
