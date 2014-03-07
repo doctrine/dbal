@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -453,8 +454,7 @@ class SQLServerPlatform extends AbstractPlatform
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
             if (isset($columnDef['default'])) {
-                $columnDef['name'] = $column->getQuotedName($this);
-                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+                $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $column);
             }
 
             $comment = $this->getColumnComment($column);
@@ -514,26 +514,22 @@ class SQLServerPlatform extends AbstractPlatform
                 continue;
             }
 
-            $fromColumnDefault = isset($columnDiff->fromColumn) ? $columnDiff->fromColumn->getDefault() : null;
-            $columnDef = $column->toArray();
-            $columnDefaultHasChanged = $columnDiff->hasChanged('default');
+            $requireDropDefaultConstraint = $this->alterColumnRequiresDropDefaultConstraint($columnDiff);
 
-            /**
-             * Drop existing column default constraint
-             * if default value has changed and another
-             * default constraint already exists for the column.
-             */
-            if ($columnDefaultHasChanged && null !== $fromColumnDefault) {
-                $queryParts[] = 'DROP CONSTRAINT ' .
-                    $this->generateDefaultConstraintName($diff->name, $columnDiff->oldColumnName);
+            if ($requireDropDefaultConstraint) {
+                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
+                    $diff->name,
+                    $columnDiff->oldColumnName
+                );
             }
+
+            $columnDef = $column->toArray();
 
             $queryParts[] = 'ALTER COLUMN ' .
                     $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
-            if ($columnDefaultHasChanged && isset($columnDef['default'])) {
-                $columnDef['name'] = $column->getQuotedName($this);
-                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+            if (isset($columnDef['default']) && ($requireDropDefaultConstraint || $columnDiff->hasChanged('default'))) {
+                $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $column);
             }
         }
 
@@ -544,26 +540,10 @@ class SQLServerPlatform extends AbstractPlatform
 
             $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "', '".$column->getQuotedName($this)."', 'COLUMN'";
 
-            $columnDef = $column->toArray();
-
-            /**
-             * Drop existing default constraint for the old column name
-             * if column has default value.
-             */
-            if (isset($columnDef['default'])) {
-                $queryParts[] = 'DROP CONSTRAINT ' .
-                    $this->generateDefaultConstraintName($diff->name, $oldColumnName);
-            }
-
-            $queryParts[] = 'ALTER COLUMN ' .
-                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
-
-            /**
-             * Readd default constraint for the new column name.
-             */
-            if (isset($columnDef['default'])) {
-                $columnDef['name'] = $column->getQuotedName($this);
-                $queryParts[] = 'ADD' . $this->getDefaultConstraintDeclarationSQL($diff->name, $columnDef);
+            // Recreate default constraint with new column name if necessary (for future reference).
+            if ($column->getDefault() !== null) {
+                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($diff->name, $oldColumnName);
+                $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $column);
             }
         }
 
@@ -601,6 +581,76 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * Returns the SQL clause for adding a default constraint in an ALTER TABLE statement.
+     *
+     * @param  string $tableName The name of the table to generate the clause for.
+     * @param  Column $column    The column to generate the clause for.
+     *
+     * @return string
+     */
+    private function getAlterTableAddDefaultConstraintClause($tableName, Column $column)
+    {
+        $columnDef = $column->toArray();
+        $columnDef['name'] = $column->getQuotedName($this);
+
+        return 'ADD' . $this->getDefaultConstraintDeclarationSQL($tableName, $columnDef);
+    }
+
+    /**
+     * Returns the SQL clause for dropping an existing default constraint in an ALTER TABLE statement.
+     *
+     * @param  string $tableName  The name of the table to generate the clause for.
+     * @param  string $columnName The name of the column to generate the clause for.
+     *
+     * @return string
+     */
+    private function getAlterTableDropDefaultConstraintClause($tableName, $columnName)
+    {
+        return 'DROP CONSTRAINT ' . $this->generateDefaultConstraintName($tableName, $columnName);
+    }
+
+    /**
+     * Checks whether a column alteration requires dropping its default constraint first.
+     *
+     * Different to other database vendors SQL Server implements column default values
+     * as constraints and therefore changes in a column's default value as well as changes
+     * in a column's type require dropping the default constraint first before being to
+     * alter the particular column to the new definition.
+     *
+     * @param  ColumnDiff $columnDiff The column diff to evaluate.
+     *
+     * @return boolean True if the column alteration requires dropping its default constraint first, false otherwise.
+     */
+    private function alterColumnRequiresDropDefaultConstraint(ColumnDiff $columnDiff)
+    {
+        // We can only decide whether to drop an existing default constraint
+        // if we know the original default value.
+        if ( ! $columnDiff->fromColumn instanceof Column) {
+            return false;
+        }
+
+        // We only need to drop an existing default constraint if we know the
+        // column was defined with a default value before.
+        if ($columnDiff->fromColumn->getDefault() === null) {
+            return false;
+        }
+
+        // We need to drop an existing default constraint if the column was
+        // defined with a default value before and it has changed.
+        if ($columnDiff->hasChanged('default')) {
+            return true;
+        }
+
+        // We need to drop an existing default constraint if the column was
+        // defined with a default value before and the native column type has changed.
+        if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('fixed')) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
