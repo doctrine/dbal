@@ -59,6 +59,18 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('SELECT u.*, p.* FROM users u LEFT JOIN phones p ON p.user_id = u.id', (string) $qb);
     }
 
+    public function testSelectWithLeftOuterJoin()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.*', 'p.*')
+           ->from('users', 'u')
+           ->leftOuterJoin('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
+
+        $this->assertEquals('SELECT u.*, p.* FROM users u LEFT OUTER JOIN phones p ON p.user_id = u.id', (string) $qb);
+    }
+
     public function testSelectWithJoin()
     {
         $qb   = new QueryBuilder($this->conn);
@@ -93,6 +105,18 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
            ->rightJoin('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
 
         $this->assertEquals('SELECT u.*, p.* FROM users u RIGHT JOIN phones p ON p.user_id = u.id', (string) $qb);
+    }
+
+    public function testSelectWithRightOuterJoin()
+    {
+        $qb   = new QueryBuilder($this->conn);
+        $expr = $qb->expr();
+
+        $qb->select('u.*', 'p.*')
+           ->from('users', 'u')
+           ->rightOuterJoin('u', 'phones', 'p', $expr->eq('p.user_id', 'u.id'));
+
+        $this->assertEquals('SELECT u.*, p.* FROM users u RIGHT OUTER JOIN phones p ON p.user_id = u.id', (string) $qb);
     }
 
     public function testSelectWithAndWhereConditions()
