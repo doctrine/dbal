@@ -36,6 +36,7 @@ use Doctrine\DBAL\Connection;
  * @since  2.1
  * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Italo Domingues <italo.domingues1@gmail.com>
  */
 class QueryBuilder
 {
@@ -677,6 +678,35 @@ class QueryBuilder
     }
 
     /**
+     * Creates and adds a left outer join to the query.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u.name')
+     *         ->from('users', 'u')
+     *         ->leftOuterJoin('u', 'phonenumbers', 'p', 'p.is_primary = 1');
+     * </code>
+     *
+     * @param string $fromAlias The alias that points to a from clause.
+     * @param string $join      The table name to join.
+     * @param string $alias     The alias of the join table.
+     * @param string $condition The condition for the join.
+     *
+     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     */
+    public function leftOuterJoin($fromAlias, $join, $alias, $condition = null)
+    {
+        return $this->add('join', array(
+            $fromAlias => array(
+                'joinType'      => 'left outer',
+                'joinTable'     => $join,
+                'joinAlias'     => $alias,
+                'joinCondition' => $condition
+            )
+        ), true);
+    }
+
+    /**
      * Creates and adds a right join to the query.
      *
      * <code>
@@ -698,6 +728,35 @@ class QueryBuilder
         return $this->add('join', array(
             $fromAlias => array(
                 'joinType'      => 'right',
+                'joinTable'     => $join,
+                'joinAlias'     => $alias,
+                'joinCondition' => $condition
+            )
+        ), true);
+    }
+
+    /**
+     * Creates and adds a right outer join to the query.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u.name')
+     *         ->from('users', 'u')
+     *         ->rightOuterJoin('u', 'phonenumbers', 'p', 'p.is_primary = 1');
+     * </code>
+     *
+     * @param string $fromAlias The alias that points to a from clause.
+     * @param string $join      The table name to join.
+     * @param string $alias     The alias of the join table.
+     * @param string $condition The condition for the join.
+     *
+     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     */
+    public function rightOuterJoin($fromAlias, $join, $alias, $condition = null)
+    {
+        return $this->add('join', array(
+            $fromAlias => array(
+                'joinType'      => 'right outer',
                 'joinTable'     => $join,
                 'joinAlias'     => $alias,
                 'joinCondition' => $condition

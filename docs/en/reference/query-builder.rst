@@ -131,7 +131,7 @@ Join Clauses
 ~~~~~~~~~~~~
 
 For ``SELECT`` clauses you can generate different types ofjoins: ``INNER``,
-``LEFT`` and ``RIGHT``. The ``RIGHT`` join is not portable across all platforms
+``LEFT``, ``LEFT OUTER``, ``RIGHT OUTER`` and  ``RIGHT``. The ``RIGHT`` join is not portable across all platforms
 (Sqlite for example does not support it).
 
 A join always belongs to one part of the from clause. This is why you have
@@ -149,8 +149,8 @@ join-table and the fourth argument contains the ``ON`` clause.
         ->from('users', 'u')
         ->innerJoin('u', 'phonenumbers', 'p', 'u.id = p.user_id')
 
-The method signature for ``join()``, ``innerJoin()``, ``leftJoin()`` and
-``rightJoin()`` is the same. ``join()`` is a shorthand syntax for
+The method signature for ``join()``, ``innerJoin()``, ``leftJoin()``,
+``rightJoin()``, ``leftOuterJoin()`` and ``rightOuterJoin()`` is the same. ``join()`` is a shorthand syntax for
 ``innerJoin()``.
 
 Order-By Clause
