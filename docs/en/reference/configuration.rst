@@ -193,7 +193,7 @@ pdo\_oci / oci8
    connection pooling.
 -  ``charset`` (string): The charset used when connecting to the
    database.
--  ``instancename´´ (string): Optional parameter, complete whether to
+-  ``instancename`` (string): Optional parameter, complete whether to
    add the INSTANCE_NAME parameter in the connection. It is generally used
    to connect to an Oracle RAC server to select the name of a particular instance.   
 
