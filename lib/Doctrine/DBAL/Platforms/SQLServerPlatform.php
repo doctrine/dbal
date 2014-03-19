@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -538,7 +539,10 @@ class SQLServerPlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = "sp_RENAME '". $diff->name. ".". $oldColumnName . "', '".$column->getQuotedName($this)."', 'COLUMN'";
+            $oldColumnName = new Identifier($oldColumnName);
+
+            $sql[] = "sp_RENAME '" . $diff->name . "." . $oldColumnName->getQuotedName($this) .
+                "', '" . $column->getQuotedName($this) . "', 'COLUMN'";
 
             // Recreate default constraint with new column name if necessary (for future reference).
             if ($column->getDefault() !== null) {

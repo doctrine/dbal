@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -573,9 +574,11 @@ class DrizzlePlatform extends AbstractPlatform
                 continue;
             }
 
+            $oldColumnName = new Identifier($oldColumnName);
+
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[] =  'CHANGE ' . $oldColumnName . ' '
+            $queryParts[] =  'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
