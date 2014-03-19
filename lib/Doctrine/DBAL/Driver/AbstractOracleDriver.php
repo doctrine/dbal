@@ -130,8 +130,8 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
                 $service = 'SERVICE_NAME=' . $serviceName;
             }
             
-            if (isset($params['instance_name']) && ! empty($params['instance_name'])) {
-                $instance = '(INSTANCE_NAME = ' . $params['instance_name'] . ')';
+            if (isset($params['instancename']) && ! empty($params['instancename'])) {
+                $instance = '(INSTANCE_NAME = ' . $params['instancename'] . ')';
             }
 
             if (isset($params['pooled']) && $params['pooled'] == true) {
