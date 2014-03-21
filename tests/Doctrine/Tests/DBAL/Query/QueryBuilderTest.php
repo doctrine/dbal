@@ -675,6 +675,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('SELECT DISTINCT u.id FROM users u INNER JOIN permissions p ON p.user_id = u.id, articles a INNER JOIN comments c ON c.article_id = a.id WHERE (u.id = a.user_id) AND (p.read = 1)', $qb->getSQL());
     }
 
+    /**
+     * @group DBAL-774
+     */
     public function testSelectWithJoinsWithMultipleOnConditionsParseOrder()
     {
         $qb = new QueryBuilder($this->conn);
