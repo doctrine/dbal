@@ -947,4 +947,14 @@ class MySqlPlatform extends AbstractPlatform
 
         return 'LONGBLOB';
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTruncateTableSQL($tableName, $cascade = false)
+    {
+        return 'SET FOREIGN_KEY_CHECKS=0;'
+            . parent::getTruncateTableSQL($tableName, $cascade) . ';'
+            . 'SET FOREIGN_KEY_CHECKS=1';
+    }
 }
