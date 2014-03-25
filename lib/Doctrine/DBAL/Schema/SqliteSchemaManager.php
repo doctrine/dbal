@@ -168,6 +168,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         // fetch primary
         $stmt = $this->_conn->executeQuery("PRAGMA TABLE_INFO ('$tableName')");
         $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        usort($indexArray, function($a, $b) {
+            if ($a['pk'] == $b['pk']) {
+                return $a['cid'] - $b['cid'];
+            }
+            return $a['pk'] - $b['pk'];
+        });
         foreach ($indexArray as $indexColumnRow) {
             if ($indexColumnRow['pk'] != "0") {
                 $indexBuffer[] = array(
