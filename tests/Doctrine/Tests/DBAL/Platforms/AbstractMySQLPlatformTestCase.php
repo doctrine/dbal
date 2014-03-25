@@ -268,6 +268,20 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $this->assertEquals(array('CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (text)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
     }
 
+    public function testCreateTableWithSpatialIndex()
+    {
+        $table = new Table('spatial_table');
+        $table->addOption('engine', 'MyISAM');
+        $table->addColumn('point', 'text'); // This should be a point type
+        $table->addIndex(array('point'), 'spatial_text');
+
+        $index = $table->getIndex('spatial_text');
+        $index->addFlag('spatial');
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals(array('CREATE TABLE spatial_table (point LONGTEXT NOT NULL, SPATIAL INDEX spatial_text (point)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
+    }
+
     public function testClobTypeDeclarationSQL()
     {
         $this->assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 1)));

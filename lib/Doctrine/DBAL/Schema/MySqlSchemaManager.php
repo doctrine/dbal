@@ -73,6 +73,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
             }
             if (strpos($v['index_type'], 'FULLTEXT') !== false) {
                 $v['flags'] = array('FULLTEXT');
+            } elseif (strpos($v['index_type'], 'SPATIAL') !== false) {
+                $v['flags'] = array('SPATIAL');
             }
             $tableIndexes[$k] = $v;
         }

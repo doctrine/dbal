@@ -718,6 +718,8 @@ class MySqlPlatform extends AbstractPlatform
             $type .= 'UNIQUE ';
         } elseif ($index->hasFlag('fulltext')) {
             $type .= 'FULLTEXT ';
+        } elseif ($index->hasFlag('spatial')) {
+            $type .= 'SPATIAL ';
         }
 
         return $type;
