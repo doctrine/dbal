@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Schema;
@@ -198,5 +199,64 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('latin1_swedish_ci', $columns['text']->getPlatformOption('collation'));
         $this->assertEquals('latin1_swedish_ci', $columns['foo']->getPlatformOption('collation'));
         $this->assertEquals('utf8_general_ci', $columns['bar']->getPlatformOption('collation'));
+    }
+
+    /**
+     * @group DBAL-843
+     */
+    public function testListLobTypeColumns()
+    {
+        $tableName = 'lob_type_columns';
+        $table = new Table($tableName);
+
+        $table->addColumn('col_tinytext', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT));
+        $table->addColumn('col_text', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TEXT));
+        $table->addColumn('col_mediumtext', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT));
+        $table->addColumn('col_longtext', 'text');
+
+        $table->addColumn('col_tinyblob', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB));
+        $table->addColumn('col_blob', 'blob', array('length' => MySqlPlatform::LENGTH_LIMIT_BLOB));
+        $table->addColumn('col_mediumblob', 'blob', array('length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB));
+        $table->addColumn('col_longblob', 'blob');
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $platform = $this->_sm->getDatabasePlatform();
+        $offlineColumns = $table->getColumns();
+        $onlineColumns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertSame(
+            $platform->getClobTypeDeclarationSQL($offlineColumns['col_tinytext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_tinytext']->toArray())
+        );
+        $this->assertSame(
+            $platform->getClobTypeDeclarationSQL($offlineColumns['col_text']->toArray()),
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_text']->toArray())
+        );
+        $this->assertSame(
+            $platform->getClobTypeDeclarationSQL($offlineColumns['col_mediumtext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_mediumtext']->toArray())
+        );
+        $this->assertSame(
+            $platform->getClobTypeDeclarationSQL($offlineColumns['col_longtext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_longtext']->toArray())
+        );
+
+        $this->assertSame(
+            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_tinyblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_tinyblob']->toArray())
+        );
+        $this->assertSame(
+            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_blob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_blob']->toArray())
+        );
+        $this->assertSame(
+            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_mediumblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_mediumblob']->toArray())
+        );
+        $this->assertSame(
+            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_longblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_longblob']->toArray())
+        );
     }
 }
