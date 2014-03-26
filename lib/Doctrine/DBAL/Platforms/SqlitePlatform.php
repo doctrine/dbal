@@ -136,7 +136,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateAddHourExpression($date, $hours)
     {
-        return "DATETIME(" . $date . ",'+". $hours . " hour')";
+        return "DATETIME(" . $date . ",'+". $this->prepareDateIntervalParam($hours) . " hour')";
     }
 
     /**
@@ -144,7 +144,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
-        return "DATETIME(" . $date . ",'-". $hours . " hour')";
+        return "DATETIME(" . $date . ",'-". $this->prepareDateIntervalParam($hours) . " hour')";
     }
 
     /**
@@ -152,7 +152,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateAddDaysExpression($date, $days)
     {
-        return "DATE(" . $date . ",'+". $days . " day')";
+        return "DATE(" . $date . ",'+". $this->prepareDateIntervalParam($days) . " day')";
     }
 
     /**
@@ -160,7 +160,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateSubDaysExpression($date, $days)
     {
-        return "DATE(" . $date . ",'-". $days . " day')";
+        return "DATE(" . $date . ",'-". $this->prepareDateIntervalParam($days) . " day')";
     }
 
     /**
@@ -168,7 +168,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateAddMonthExpression($date, $months)
     {
-        return "DATE(" . $date . ",'+". $months . " month')";
+        return "DATE(" . $date . ",'+". $this->prepareDateIntervalParam($months) . " month')";
     }
 
     /**
@@ -176,7 +176,12 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateSubMonthExpression($date, $months)
     {
-        return "DATE(" . $date . ",'-". $months . " month')";
+        return "DATE(" . $date . ",'-". $this->prepareDateIntervalParam($months) . " month')";
+    }
+
+    protected function prepareDateIntervalParam($param)
+    {
+        return !is_numeric($param) ? "' || ". $param . " || '" : $param;
     }
 
     /**
