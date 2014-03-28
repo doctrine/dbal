@@ -717,7 +717,7 @@ LEFT JOIN user_cons_columns r_cols
 
     public function getDateFormatString()
     {
-        return 'Y-m-d 00:00:00';
+        return 'd-M-Y';
     }
 
     public function getTimeFormatString()
