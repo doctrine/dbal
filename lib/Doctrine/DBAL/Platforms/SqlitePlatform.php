@@ -546,7 +546,7 @@ class SqlitePlatform extends AbstractPlatform
         // SQL's LOCATE function works on 1-based positions, while PHP's strpos works on 0-based positions.
         // So we have to make them compatible if an offset is given.
         if ($offset > 0) {
-            $offset--;
+            $offset -= 1;
         }
 
         $pos = strpos($str, $substr, $offset);
