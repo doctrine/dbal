@@ -538,6 +538,14 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function getDateTimeTzFormatString()
+    {
+        return $this->getDateTimeFormatString();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
         return 'DATE';

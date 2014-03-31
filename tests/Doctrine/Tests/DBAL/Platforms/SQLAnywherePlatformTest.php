@@ -592,6 +592,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->_platform->getRegexpExpression();
     }
 
+    public function testHasCorrectDateTimeTzFormatString()
+    {
+        // Date time type with timezone is not supported before version 12.
+        // For versions before we have to ensure that the date time with timezone format
+        // equals the normal date time format so that it corresponds to the declaration SQL equality (datetimetz -> datetime).
+        $this->assertEquals($this->_platform->getDateTimeFormatString(), $this->_platform->getDateTimeTzFormatString());
+    }
+
     public function testHasCorrectDefaultTransactionIsolationLevel()
     {
         $this->assertEquals(
