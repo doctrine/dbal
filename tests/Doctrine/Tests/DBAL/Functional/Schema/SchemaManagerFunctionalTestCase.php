@@ -726,6 +726,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $table->addColumn('column4', 'string', array('default' => 0));
         $table->addColumn('column5', 'string', array('default' => ''));
         $table->addColumn('column6', 'string', array('default' => 'def'));
+        $table->addColumn('column7', 'integer', array('default' => 0));
         $table->setPrimaryKey(array('id'));
 
         $this->_sm->dropAndCreateTable($table);
@@ -739,6 +740,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertSame('0', $columns['column4']->getDefault());
         $this->assertSame('', $columns['column5']->getDefault());
         $this->assertSame('def', $columns['column6']->getDefault());
+        $this->assertSame('0', $columns['column7']->getDefault());
 
         $diffTable = clone $table;
 
@@ -748,6 +750,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $diffTable->changeColumn('column4', array('default' => null));
         $diffTable->changeColumn('column5', array('default' => false));
         $diffTable->changeColumn('column6', array('default' => 666));
+        $diffTable->changeColumn('column7', array('default' => null));
 
         $comparator = new Comparator();
 
@@ -761,6 +764,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertNull($columns['column4']->getDefault());
         $this->assertSame('', $columns['column5']->getDefault());
         $this->assertSame('666', $columns['column6']->getDefault());
+        $this->assertNull($columns['column7']->getDefault());
     }
 
     public function testListTableWithBinary()
