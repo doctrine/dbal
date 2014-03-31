@@ -464,6 +464,36 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Adding month should end up on 2009-11-01");
     }
 
+    public function testLocateExpression()
+    {
+        $platform = $this->_conn->getDatabasePlatform();
+
+        $sql = 'SELECT ';
+        $sql .= $platform->getLocateExpression('test_string', "'oo'") .' AS locate1, ';
+        $sql .= $platform->getLocateExpression('test_string', "'foo'") .' AS locate2, ';
+        $sql .= $platform->getLocateExpression('test_string', "'bar'") .' AS locate3, ';
+        $sql .= $platform->getLocateExpression('test_string', 'test_string') .' AS locate4, ';
+        $sql .= $platform->getLocateExpression("'foo'", 'test_string') .' AS locate5, ';
+        $sql .= $platform->getLocateExpression("'barfoobaz'", 'test_string') .' AS locate6, ';
+        $sql .= $platform->getLocateExpression("'bar'", 'test_string') .' AS locate7, ';
+        $sql .= $platform->getLocateExpression('test_string', "'oo'", 2) .' AS locate8, ';
+        $sql .= $platform->getLocateExpression('test_string', "'oo'", 3) .' AS locate9 ';
+        $sql .= 'FROM fetch_table';
+
+        $row = $this->_conn->fetchAssoc($sql);
+        $row = array_change_key_case($row, CASE_LOWER);
+
+        $this->assertEquals(2, $row['locate1']);
+        $this->assertEquals(1, $row['locate2']);
+        $this->assertEquals(0, $row['locate3']);
+        $this->assertEquals(1, $row['locate4']);
+        $this->assertEquals(1, $row['locate5']);
+        $this->assertEquals(4, $row['locate6']);
+        $this->assertEquals(0, $row['locate7']);
+        $this->assertEquals(2, $row['locate8']);
+        $this->assertEquals(0, $row['locate9']);
+    }
+
     public function testQuoteSQLInjection()
     {
         $sql = "SELECT * FROM fetch_table WHERE test_string = " . $this->_conn->quote("bar' OR '1'='1");
