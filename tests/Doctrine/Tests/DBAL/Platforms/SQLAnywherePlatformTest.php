@@ -568,19 +568,21 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED)
         );
         $this->assertEquals(
-            "SUBSTR(column, PATINDEX('%[^c]%', column))",
+            "SUBSTR(column, PATINDEX('%[^' + c + ']%', column))",
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_LEADING, 'c')
         );
         $this->assertEquals(
-            "REVERSE(SUBSTR(REVERSE(column), PATINDEX('%[^c]%', REVERSE(column))))",
+            "REVERSE(SUBSTR(REVERSE(column), PATINDEX('%[^' + c + ']%', REVERSE(column))))",
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_TRAILING, 'c')
         );
         $this->assertEquals(
-            "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^c]%', column))), PATINDEX('%[^c]%', REVERSE(SUBSTR(column, PATINDEX('%[^c]%', column))))))",
+            "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
+            "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
             $this->_platform->getTrimExpression('column', null, 'c')
         );
         $this->assertEquals(
-            "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^c]%', column))), PATINDEX('%[^c]%', REVERSE(SUBSTR(column, PATINDEX('%[^c]%', column))))))",
+            "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
+            "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED, 'c')
         );
     }

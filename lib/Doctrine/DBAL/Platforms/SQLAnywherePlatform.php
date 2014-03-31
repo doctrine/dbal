@@ -1128,7 +1128,7 @@ class SQLAnywherePlatform extends AbstractPlatform
             }
         }
 
-        $pattern = "'%[^$char]%'";
+        $pattern = "'%[^' + $char + ']%'";
 
         switch ($pos) {
             case self::TRIM_LEADING:
