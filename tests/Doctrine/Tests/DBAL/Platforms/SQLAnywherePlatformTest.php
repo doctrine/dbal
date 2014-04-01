@@ -544,9 +544,8 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals("H:i:s.u", $this->_platform->getTimeFormatString());
         $this->assertEquals('FOR UPDATE BY LOCK', $this->_platform->getForUpdateSQL());
         $this->assertEquals('NEWID()', $this->_platform->getGuidExpression());
-        $this->assertEquals('CHARINDEX(substring_column, string_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
-        $this->assertEquals('CHARINDEX(substring_column, string_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
-        $this->assertEquals('CHARINDEX(substring_column, SUBSTR(string_column, 2))', $this->_platform->getLocateExpression('string_column', 'substring_column', 1));
+        $this->assertEquals('LOCATE(string_column, substring_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
+        $this->assertEquals('LOCATE(string_column, substring_column, 1)', $this->_platform->getLocateExpression('string_column', 'substring_column', 1));
         $this->assertEquals("HASH(column, 'MD5')", $this->_platform->getMd5Expression('column'));
         $this->assertEquals('SUBSTRING(column, 5)', $this->_platform->getSubstringExpression('column', 5));
         $this->assertEquals('SUBSTRING(column, 5, 2)', $this->_platform->getSubstringExpression('column', 5, 2));

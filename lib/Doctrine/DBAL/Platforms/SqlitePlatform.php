@@ -543,9 +543,16 @@ class SqlitePlatform extends AbstractPlatform
      */
     static public function udfLocate($str, $substr, $offset = 0)
     {
+        // SQL's LOCATE function works on 1-based positions, while PHP's strpos works on 0-based positions.
+        // So we have to make them compatible if an offset is given.
+        if ($offset > 0) {
+            $offset -= 1;
+        }
+
         $pos = strpos($str, $substr, $offset);
+
         if ($pos !== false) {
-            return $pos+1;
+            return $pos + 1;
         }
 
         return 0;
