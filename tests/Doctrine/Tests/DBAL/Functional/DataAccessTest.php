@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Connection;
 use PDO;
@@ -433,6 +434,63 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $data = $stmt->fetchAll(PDO::FETCH_NUM);
         $this->assertEquals(5, count($data));
         $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
+    }
+
+    /**
+     * @dataProvider getTrimExpressionData
+     */
+    public function testTrimExpression($value, $position, $char, $expectedResult)
+    {
+        $sql = 'SELECT ' .
+            $this->_conn->getDatabasePlatform()->getTrimExpression($value, $position, $char) . ' AS trimmed ' .
+            'FROM fetch_table';
+
+        $row = $this->_conn->fetchAssoc($sql);
+        $row = array_change_key_case($row, CASE_LOWER);
+
+        $this->assertEquals($expectedResult, $row['trimmed']);
+    }
+
+    public function getTrimExpressionData()
+    {
+        return array(
+            array('test_string', AbstractPlatform::TRIM_UNSPECIFIED, false, 'foo'),
+            array('test_string', AbstractPlatform::TRIM_LEADING, false, 'foo'),
+            array('test_string', AbstractPlatform::TRIM_TRAILING, false, 'foo'),
+            array('test_string', AbstractPlatform::TRIM_BOTH, false, 'foo'),
+            array('test_string', AbstractPlatform::TRIM_UNSPECIFIED, "'f'", 'oo'),
+            array('test_string', AbstractPlatform::TRIM_UNSPECIFIED, "'o'", 'f'),
+            array('test_string', AbstractPlatform::TRIM_UNSPECIFIED, "'.'", 'foo'),
+            array('test_string', AbstractPlatform::TRIM_LEADING, "'f'", 'oo'),
+            array('test_string', AbstractPlatform::TRIM_LEADING, "'o'", 'foo'),
+            array('test_string', AbstractPlatform::TRIM_LEADING, "'.'", 'foo'),
+            array('test_string', AbstractPlatform::TRIM_TRAILING, "'f'", 'foo'),
+            array('test_string', AbstractPlatform::TRIM_TRAILING, "'o'", 'f'),
+            array('test_string', AbstractPlatform::TRIM_TRAILING, "'.'", 'foo'),
+            array('test_string', AbstractPlatform::TRIM_BOTH, "'f'", 'oo'),
+            array('test_string', AbstractPlatform::TRIM_BOTH, "'o'", 'f'),
+            array('test_string', AbstractPlatform::TRIM_BOTH, "'.'", 'foo'),
+            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, false, 'foo'),
+            array("' foo '", AbstractPlatform::TRIM_LEADING, false, 'foo '),
+            array("' foo '", AbstractPlatform::TRIM_TRAILING, false, ' foo'),
+            array("' foo '", AbstractPlatform::TRIM_BOTH, false, 'foo'),
+            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, "'f'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, "'o'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, "'.'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, "' '", 'foo'),
+            array("' foo '", AbstractPlatform::TRIM_LEADING, "'f'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_LEADING, "'o'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_LEADING, "'.'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_LEADING, "' '", 'foo '),
+            array("' foo '", AbstractPlatform::TRIM_TRAILING, "'f'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_TRAILING, "'o'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_TRAILING, "'.'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_TRAILING, "' '", ' foo'),
+            array("' foo '", AbstractPlatform::TRIM_BOTH, "'f'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_BOTH, "'o'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_BOTH, "'.'", ' foo '),
+            array("' foo '", AbstractPlatform::TRIM_BOTH, "' '", 'foo'),
+        );
     }
 
     /**
