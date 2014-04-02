@@ -802,7 +802,6 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $expected = new SchemaDiff();
         $expected->fromSchema = $oldSchema;
-        $expected->newNamespaces['foo'] = 'foo';
 
         $this->assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
     }
@@ -1062,5 +1061,50 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array(), $comparator->diffColumn($column1, $column2));
         $this->assertEquals(array(), $comparator->diffColumn($column2, $column1));
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testComparesNamespaces()
+    {
+        $comparator = new Comparator();
+        $fromSchema = $this->getMock('Doctrine\DBAL\Schema\Schema', array('getNamespaces', 'hasNamespace'));
+        $toSchema = $this->getMock('Doctrine\DBAL\Schema\Schema', array('getNamespaces', 'hasNamespace'));
+
+        $fromSchema->expects($this->once())
+            ->method('getNamespaces')
+            ->will($this->returnValue(array('foo', 'bar')));
+
+        $fromSchema->expects($this->at(0))
+            ->method('hasNamespace')
+            ->with('bar')
+            ->will($this->returnValue(true));
+
+        $fromSchema->expects($this->at(1))
+            ->method('hasNamespace')
+            ->with('baz')
+            ->will($this->returnValue(false));
+
+        $toSchema->expects($this->once())
+            ->method('getNamespaces')
+            ->will($this->returnValue(array('bar', 'baz')));
+
+        $toSchema->expects($this->at(1))
+            ->method('hasNamespace')
+            ->with('foo')
+            ->will($this->returnValue(false));
+
+        $toSchema->expects($this->at(2))
+            ->method('hasNamespace')
+            ->with('bar')
+            ->will($this->returnValue(true));
+
+        $expected = new SchemaDiff();
+        $expected->fromSchema = $fromSchema;
+        $expected->newNamespaces = array('baz' => 'baz');
+        $expected->removedNamespaces = array('foo' => 'foo');
+
+        $this->assertEquals($expected, $comparator->compare($fromSchema, $toSchema));
     }
 }

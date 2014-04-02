@@ -1023,13 +1023,21 @@ abstract class AbstractSchemaManager
      */
     public function createSchema()
     {
+        $namespaces = array();
+
+        if ($this->_platform->supportsSchemas()) {
+            $namespaces = $this->listNamespaceNames();
+        }
+
         $sequences = array();
+
         if ($this->_platform->supportsSequences()) {
             $sequences = $this->listSequences();
         }
+
         $tables = $this->listTables();
 
-        return new Schema($tables, $sequences, $this->createSchemaConfig());
+        return new Schema($tables, $sequences, $this->createSchemaConfig(), $namespaces);
     }
 
     /**

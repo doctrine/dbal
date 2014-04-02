@@ -29,12 +29,19 @@ use Doctrine\DBAL\Schema\Index;
 /**
  * Abstract Visitor with empty methods for easy extension.
  */
-class AbstractVisitor implements Visitor
+class AbstractVisitor implements Visitor, NamespaceVisitor
 {
     /**
      * @param \Doctrine\DBAL\Schema\Schema $schema
      */
     public function acceptSchema(Schema $schema)
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function acceptNamespace($namespaceName)
     {
     }
 

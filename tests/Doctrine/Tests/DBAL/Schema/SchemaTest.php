@@ -245,4 +245,103 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($schema->hasNamespace('tab'));
     }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testCreatesNamespace()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createNamespace('foo');
+
+        $this->assertTrue($schema->hasNamespace('foo'));
+        $this->assertTrue($schema->hasNamespace('FOO'));
+        $this->assertTrue($schema->hasNamespace('`foo`'));
+        $this->assertTrue($schema->hasNamespace('`FOO`'));
+
+        $schema->createNamespace('`bar`');
+
+        $this->assertTrue($schema->hasNamespace('bar'));
+        $this->assertTrue($schema->hasNamespace('BAR'));
+        $this->assertTrue($schema->hasNamespace('`bar`'));
+        $this->assertTrue($schema->hasNamespace('`BAR`'));
+
+        $this->assertSame(array('foo' => 'foo', 'bar' => '`bar`'), $schema->getNamespaces());
+    }
+
+    /**
+     * @group DBAL-669
+     *
+     * @expectedException \Doctrine\DBAL\Schema\SchemaException
+     */
+    public function testThrowsExceptionOnCreatingNamespaceTwice()
+    {
+        $schema = new Schema();
+
+        $schema->createNamespace('foo');
+        $schema->createNamespace('foo');
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testCreatesNamespaceThroughAddingTableImplicitly()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createTable('baz');
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+        $this->assertFalse($schema->hasNamespace('baz'));
+
+        $schema->createTable('foo.bar');
+
+        $this->assertTrue($schema->hasNamespace('foo'));
+        $this->assertFalse($schema->hasNamespace('bar'));
+
+        $schema->createTable('`baz`.bloo');
+
+        $this->assertTrue($schema->hasNamespace('baz'));
+        $this->assertFalse($schema->hasNamespace('bloo'));
+
+        $schema->createTable('`baz`.moo');
+
+        $this->assertTrue($schema->hasNamespace('baz'));
+        $this->assertFalse($schema->hasNamespace('moo'));
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testCreatesNamespaceThroughAddingSequenceImplicitly()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createSequence('baz');
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+        $this->assertFalse($schema->hasNamespace('baz'));
+
+        $schema->createSequence('foo.bar');
+
+        $this->assertTrue($schema->hasNamespace('foo'));
+        $this->assertFalse($schema->hasNamespace('bar'));
+
+        $schema->createSequence('`baz`.bloo');
+
+        $this->assertTrue($schema->hasNamespace('baz'));
+        $this->assertFalse($schema->hasNamespace('bloo'));
+
+        $schema->createSequence('`baz`.moo');
+
+        $this->assertTrue($schema->hasNamespace('baz'));
+        $this->assertFalse($schema->hasNamespace('moo'));
+    }
 }

@@ -45,6 +45,13 @@ class SchemaDiff
     public $newNamespaces = array();
 
     /**
+     * All removed namespaces.
+     *
+     * @var string[]
+     */
+    public $removedNamespaces = array();
+
+    /**
      * All added tables.
      *
      * @var \Doctrine\DBAL\Schema\Table[]
