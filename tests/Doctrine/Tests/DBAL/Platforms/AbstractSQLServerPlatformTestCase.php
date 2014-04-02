@@ -472,18 +472,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
     }
 
-    public function testSchemaNeedsCreation()
-    {
-        $schemaNames = array(
-            'dbo' => false,
-            'schema' => true,
-        );
-        foreach ($schemaNames as $name => $expected) {
-            $actual = $this->_platform->schemaNeedsCreation($name);
-            $this->assertEquals($expected, $actual);
-        }
-    }
-
     /**
      * @group DBAL-543
      */

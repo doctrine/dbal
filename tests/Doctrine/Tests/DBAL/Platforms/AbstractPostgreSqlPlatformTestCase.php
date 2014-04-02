@@ -387,19 +387,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $this->assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
     }
 
-    public function testSchemaNeedsCreation()
-    {
-        $schemaNames = array(
-            'default' => false,
-            'public' => false,
-            'schema' => true,
-        );
-        foreach ($schemaNames as $name => $expected) {
-            $actual = $this->_platform->schemaNeedsCreation($name);
-            $this->assertEquals($expected, $actual);
-        }
-    }
-
     public function testAlterDecimalPrecisionScale()
     {
 

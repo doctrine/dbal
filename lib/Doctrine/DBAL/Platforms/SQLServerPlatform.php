@@ -158,14 +158,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function schemaNeedsCreation($schemaName)
-    {
-        return $schemaName !== 'dbo';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         if ($foreignKey instanceof ForeignKeyConstraint) {
