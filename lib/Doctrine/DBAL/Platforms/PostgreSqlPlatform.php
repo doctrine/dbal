@@ -225,6 +225,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getListNamespacesSQL()
+    {
+        return "SELECT nspname FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema'";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListSequencesSQL($database)
     {
         return "SELECT

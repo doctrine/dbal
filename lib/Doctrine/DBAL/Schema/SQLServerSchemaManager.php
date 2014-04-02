@@ -183,6 +183,14 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
+    protected function getPortableNamespaceDefinition(array $namespace)
+    {
+        return $namespace['name'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableViewDefinition($view)
     {
         // @todo

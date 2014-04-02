@@ -286,6 +286,14 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
+    protected function getPortableNamespaceDefinition(array $namespace)
+    {
+        return $namespace['nspname'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableSequenceDefinition($sequence)
     {
         if ($sequence['schemaname'] != 'public') {

@@ -1028,6 +1028,14 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getListNamespacesSQL()
+    {
+        return "SELECT name FROM SYS.SCHEMAS WHERE name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getSubstringExpression($value, $from, $length = null)
     {
         if (!is_null($length)) {

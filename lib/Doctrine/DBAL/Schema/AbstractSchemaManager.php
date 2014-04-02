@@ -116,6 +116,20 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Returns a list of all namespaces in the current database.
+     *
+     * @return array
+     */
+    public function listNamespaceNames()
+    {
+        $sql = $this->_platform->getListNamespacesSQL();
+
+        $namespaces = $this->_conn->fetchAll($sql);
+
+        return $this->getPortableNamespacesList($namespaces);
+    }
+
+    /**
      * Lists the available sequences for this connection.
      *
      * @param string|null $database
@@ -652,6 +666,24 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
+     *
+     * @param array $namespaces The list of namespace names in the native DBMS data definition.
+     *
+     * @return array
+     */
+    protected function getPortableNamespacesList(array $namespaces)
+    {
+        $namespacesList = array();
+
+        foreach ($namespaces as $namespace) {
+            $namespacesList[] = $this->getPortableNamespaceDefinition($namespace);
+        }
+
+        return $namespacesList;
+    }
+
+    /**
      * @param array $database
      *
      * @return mixed
@@ -659,6 +691,18 @@ abstract class AbstractSchemaManager
     protected function _getPortableDatabaseDefinition($database)
     {
         return $database;
+    }
+
+    /**
+     * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
+     *
+     * @param array $namespace The native DBMS namespace definition.
+     *
+     * @return mixed
+     */
+    protected function getPortableNamespaceDefinition(array $namespace)
+    {
+        return $namespace;
     }
 
     /**

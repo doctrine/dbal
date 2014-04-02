@@ -2679,6 +2679,18 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL statement for retrieving the namespaces defined in the database.
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getListNamespacesSQL()
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * @param string $database
      *
      * @return string
