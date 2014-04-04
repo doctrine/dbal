@@ -2030,7 +2030,7 @@ abstract class AbstractPlatform
                 } elseif ((string)$field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
                     $default = " DEFAULT ".$this->getCurrentDateSQL();
                 } elseif ((string) $field['type'] == 'Boolean') {
-                    $default = " DEFAULT '" . $this->convertBoolToSqlLiteral($field['default']) . "'";
+                    $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
                 }
             }
         }
@@ -2375,9 +2375,9 @@ abstract class AbstractPlatform
      * @param  mixed $item
      * @return mixed
      */
-    public function convertBoolToDbValue($item)
+    public function convertBooleansToDbValue($item)
     {
-        return self::convertBooleans($item);
+        return $this->convertBooleans($item);
     }
 
     /**

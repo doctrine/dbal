@@ -61,8 +61,6 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testBooleanConversionBoolParamEmulatedPrepares()
     {
-        // $this->markTestIncomplete('There is something missing here, on some machines it fails on some it passes.');
-
         $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
         $this->_conn->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT, true);
 
