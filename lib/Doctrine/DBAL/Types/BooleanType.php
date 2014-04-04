@@ -41,7 +41,7 @@ class BooleanType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return $platform->convertBooleansToDbValue($value);
+        return $platform->convertBooleansToDatabaseValue($value);
     }
 
     /**

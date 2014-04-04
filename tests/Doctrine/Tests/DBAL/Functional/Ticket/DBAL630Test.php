@@ -67,7 +67,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $platform = $this->_conn->getDatabasePlatform();
 
         $stmt = $this->_conn->prepare('INSERT INTO dbal630 (bool_col) VALUES(?)');
-        $stmt->bindValue(1, $platform->convertBooleansToDbValue('false'), PDO::PARAM_BOOL);
+        $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue('false'), PDO::PARAM_BOOL);
         $stmt->execute();
 
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
