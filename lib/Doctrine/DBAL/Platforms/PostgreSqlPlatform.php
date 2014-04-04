@@ -690,10 +690,10 @@ class PostgreSqlPlatform extends AbstractPlatform
      *
      * Postgres wants boolean values converted to the strings 'true'/'false'.
      */
-    public function convertBoolToSqlLiteral($item)
+    public function convertBooleans($item)
     {
         if ( ! $this->useBooleanTrueFalseStrings) {
-            return parent::convertBoolToSqlLiteral($item);
+            return parent::convertBooleans($item);
         }
 
         if (is_array($item)) {
