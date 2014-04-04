@@ -698,13 +698,23 @@ class PostgreSqlPlatform extends AbstractPlatform
 
         if (is_array($item)) {
             foreach ($item as $key => $value) {
-                if (is_bool($value) || is_numeric($item)) {
+                if (is_bool($value) || is_numeric($value)) {
                     $item[$key] = ($value) ? 'true' : 'false';
+                } elseif (is_string($value)) {
+                    $value = trim(strtolower($value));
+                    if ('false' !== $value && 'f' !== $value) {
+                        $item[$key] = 'true';
+                    }
                 }
             }
         } else {
             if (is_bool($item) || is_numeric($item)) {
                 $item = ($item) ? 'true' : 'false';
+            } elseif (is_string($item)) {
+                $item = trim(strtolower($item));
+                if ('false' !== $item && 'f' !== $item) {
+                    $item = 'true';
+                }
             }
         }
 
@@ -725,10 +735,11 @@ class PostgreSqlPlatform extends AbstractPlatform
                 if (is_bool($value) || is_numeric($value)) {
                     $item[$key] = $value ? 1 : 0;
                 } elseif (is_string($value)) {
-                    if (trim(strtolower($item)) === 'false') {
-                        $item[$key] = 0;
-                    } else {
+                    $value = trim(strtolower($item));
+                    if ('false' !== $value && 'f' !== $value) {
                         $item[$key] = 1;
+                    } else {
+                        $item[$key] = 0;
                     }
                 }
             }
@@ -736,10 +747,11 @@ class PostgreSqlPlatform extends AbstractPlatform
             if (is_bool($item) || is_numeric($item)) {
                 $item = $item ? 1 : 0;
             } elseif (is_string($item)) {
-                if (trim(strtolower($item)) === 'false') {
-                    $item = 0;
-                } else {
+                $item = trim(strtolower($item));
+                if ('false' !== $item && 'f' !== $item) {
                     $item = 1;
+                } else {
+                    $item = 0;
                 }
             }
         }
