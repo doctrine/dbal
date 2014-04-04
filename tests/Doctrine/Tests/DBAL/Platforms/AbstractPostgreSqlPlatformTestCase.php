@@ -318,8 +318,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         $platform = $this->createPlatform();
 
-        $this->assertEquals(1, $platform->convertBoolToDbValue(true));
-        $this->assertEquals(0, $platform->convertBoolToDbValue(false));
+        $this->assertEquals(1, $platform->convertBooleansToDbValue(true));
+        $this->assertEquals(0, $platform->convertBooleansToDbValue(false));
     }
 
     /**
@@ -330,8 +330,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $platform = $this->createPlatform();
         $platform->setUseBooleanTrueFalseStrings(false);
 
-        $this->assertEquals(1, $platform->convertBoolToDbValue(true));
-        $this->assertEquals(0, $platform->convertBoolToDbValue(false));
+        $this->assertEquals(1, $platform->convertBooleansToDbValue(true));
+        $this->assertEquals(0, $platform->convertBooleansToDbValue(false));
     }
     
     public function testConvertFromBoolean()
