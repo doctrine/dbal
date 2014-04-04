@@ -725,7 +725,11 @@ class PostgreSqlPlatform extends AbstractPlatform
                 if (is_bool($value) || is_numeric($value)) {
                     $item[$key] = $value ? 1 : 0;
                 } elseif (is_string($value)) {
-                    $item[$key] = (trim(strtolower($value)) === 'false');
+                    if (trim(strtolower($item)) === 'false') {
+                        $item[$key] = 0;
+                    } else {
+                        $item[$key] = 1;
+                    }
                 }
             }
         } else {
