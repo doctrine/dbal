@@ -292,24 +292,47 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-457
      */
-    public function testConvertBooleanAsStrings()
+    public function testConvertBooleanAsLiteralStrings()
     {
         $platform = $this->createPlatform();
 
-        $this->assertEquals('true', $platform->convertBooleans(true));
-        $this->assertEquals('false', $platform->convertBooleans(false));
+        $this->assertEquals('true', $platform->convertBoolToSqlLiteral(true));
+        $this->assertEquals('false', $platform->convertBoolToSqlLiteral(false));
     }
 
     /**
      * @group DBAL-457
      */
-    public function testConvertBooleanAsIntegers()
+    public function testConvertBooleanAsLiteralIntegers()
     {
         $platform = $this->createPlatform();
         $platform->setUseBooleanTrueFalseStrings(false);
 
-        $this->assertEquals('1', $platform->convertBooleans(true));
-        $this->assertEquals('0', $platform->convertBooleans(false));
+        $this->assertEquals('1', $platform->convertBoolToSqlLiteral(true));
+        $this->assertEquals('0', $platform->convertBoolToSqlLiteral(false));
+    }
+
+    /**
+     * @group DBAL-630
+     */
+    public function testConvertBooleanAsDbValueStrings()
+    {
+        $platform = $this->createPlatform();
+
+        $this->assertEquals(1, $platform->convertBoolToDbValue(true));
+        $this->assertEquals(0, $platform->convertBoolToDbValue(false));
+    }
+
+    /**
+     * @group DBAL-630
+     */
+    public function testConvertBooleanAsDbValueIntegers()
+    {
+        $platform = $this->createPlatform();
+        $platform->setUseBooleanTrueFalseStrings(false);
+
+        $this->assertEquals(1, $platform->convertBoolToDbValue(true));
+        $this->assertEquals(0, $platform->convertBoolToDbValue(false));
     }
 
     public function testGetCreateSchemaSQL()

@@ -2030,7 +2030,7 @@ abstract class AbstractPlatform
                 } elseif ((string)$field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
                     $default = " DEFAULT ".$this->getCurrentDateSQL();
                 } elseif ((string) $field['type'] == 'Boolean') {
-                    $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
+                    $default = " DEFAULT '" . $this->convertBoolToSqlLiteral($field['default']) . "'";
                 }
             }
         }
@@ -2347,11 +2347,13 @@ abstract class AbstractPlatform
      *
      * The default conversion in this implementation converts to integers (false => 0, true => 1).
      *
-     * @param mixed $item
+     * There are two contexts when converting booleans: Literals and Prepared Statements.
+     * This method should handle the literal case
      *
+     * @param  mixed $item
      * @return mixed
      */
-    public function convertBooleans($item)
+    public function convertBoolToSqlLiteral($item)
     {
         if (is_array($item)) {
             foreach ($item as $k => $value) {
@@ -2364,6 +2366,18 @@ abstract class AbstractPlatform
         }
 
         return $item;
+    }
+
+    /**
+     * This method should handle the prepared statements case. When there is no
+     * distinction, it's OK to use the same method.
+     *
+     * @param  mixed $item
+     * @return mixed
+     */
+    public function convertBoolToDbValue($item)
+    {
+        return self::convertBoolToSqlLiteral($item);
     }
 
     /**
