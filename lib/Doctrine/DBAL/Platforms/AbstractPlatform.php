@@ -2353,7 +2353,7 @@ abstract class AbstractPlatform
      * @param  mixed $item
      * @return mixed
      */
-    public function convertBoolToSqlLiteral($item)
+    public function convertBooleans($item)
     {
         if (is_array($item)) {
             foreach ($item as $k => $value) {
@@ -2377,7 +2377,7 @@ abstract class AbstractPlatform
      */
     public function convertBoolToDbValue($item)
     {
-        return self::convertBoolToSqlLiteral($item);
+        return self::convertBooleans($item);
     }
 
     /**
