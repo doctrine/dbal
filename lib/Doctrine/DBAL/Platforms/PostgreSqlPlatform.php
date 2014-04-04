@@ -714,10 +714,10 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function convertBooleansToDbValue($item)
+    public function convertBooleansToDatabaseValue($item)
     {
         if ( ! $this->useBooleanTrueFalseStrings) {
-            return parent::convertBooleansToDbValue($item);
+            return parent::convertBooleansToDatabaseValue($item);
         }
 
         if (is_array($item)) {

@@ -2604,7 +2604,7 @@ abstract class AbstractPlatform
      * @param  mixed $item
      * @return mixed
      */
-    public function convertBooleansToDbValue($item)
+    public function convertBooleansToDatabaseValue($item)
     {
         return $this->convertBooleans($item);
     }
