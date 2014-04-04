@@ -690,10 +690,10 @@ class PostgreSqlPlatform extends AbstractPlatform
      *
      * Postgres wants boolean values converted to the strings 'true'/'false'.
      */
-    public function convertBooleans($item)
+    public function convertBoolToSqlLiteral($item)
     {
-        if ( ! $this->useBooleanTrueFalseStrings) {
-            return parent::convertBooleans($item);
+        if (! $this->useBooleanTrueFalseStrings) {
+            return parent::convertBoolToSqlLiteral($item);
         }
 
         if (is_array($item)) {
@@ -703,9 +703,41 @@ class PostgreSqlPlatform extends AbstractPlatform
                 }
             }
         } else {
-           if (is_bool($item) || is_numeric($item)) {
-               $item = ($item) ? 'true' : 'false';
-           }
+            if (is_bool($item) || is_numeric($item)) {
+                $item = ($item) ? 'true' : 'false';
+            }
+        }
+
+        return $item;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function convertBoolToDbValue($item)
+    {
+        if (! $this->useBooleanTrueFalseStrings) {
+            return parent::convertBoolToDbValue($item);
+        }
+
+        if (is_array($item)) {
+            foreach ($item as $key => $value) {
+                if (is_bool($value) || is_numeric($value)) {
+                    $item[$key] = $value ? 1 : 0;
+                } elseif (is_string($value)) {
+                    $item[$key] = (trim(strtolower($value)) === 'false');
+                }
+            }
+        } else {
+            if (is_bool($item) || is_numeric($item)) {
+                $item = $item ? 1 : 0;
+            } elseif (is_string($item)) {
+                if (trim(strtolower($item)) === 'false') {
+                    $item = 0;
+                } else {
+                    $item = 1;
+                }
+            }
         }
 
         return $item;
