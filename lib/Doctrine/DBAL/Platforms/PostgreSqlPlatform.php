@@ -710,7 +710,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function convertBoolToSqlLiteral($item)
     {
-        if (! $this->useBooleanTrueFalseStrings) {
+        if ( ! $this->useBooleanTrueFalseStrings) {
             return parent::convertBoolToSqlLiteral($item);
         }
 
@@ -734,7 +734,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function convertBoolToDbValue($item)
     {
-        if (! $this->useBooleanTrueFalseStrings) {
+        if ( ! $this->useBooleanTrueFalseStrings) {
             return parent::convertBoolToDbValue($item);
         }
 
