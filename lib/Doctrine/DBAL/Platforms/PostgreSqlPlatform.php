@@ -45,6 +45,28 @@ class PostgreSqlPlatform extends AbstractPlatform
     private $useBooleanTrueFalseStrings = true;
 
     /**
+     * @var array PostgreSQL booleans literals
+     */
+    private $booleanLiterals = array(
+            'true' => array(
+                't',
+                'true',
+                'y',
+                'yes',
+                'on',
+                '1'
+            ),
+            'false' => array(
+                'f',
+                'false',
+                'n',
+                'no',
+                'off',
+                '0'
+            )
+        );
+
+    /**
      * PostgreSQL has different behavior with some drivers
      * with regard to how booleans have to be handled.
      *
@@ -701,8 +723,9 @@ class PostgreSqlPlatform extends AbstractPlatform
                 if (is_bool($value) || is_numeric($value)) {
                     $item[$key] = ($value) ? 'true' : 'false';
                 } elseif (is_string($value)) {
-                    $value = trim(strtolower($value));
-                    if ('false' !== $value && 'f' !== $value) {
+                    if (in_array(trim(strtolower($value)), $this->booleanLiterals['false'])) {
+                        $item[$key] = 'false';
+                    } else {
                         $item[$key] = 'true';
                     }
                 }
@@ -711,8 +734,9 @@ class PostgreSqlPlatform extends AbstractPlatform
             if (is_bool($item) || is_numeric($item)) {
                 $item = ($item) ? 'true' : 'false';
             } elseif (is_string($item)) {
-                $item = trim(strtolower($item));
-                if ('false' !== $item && 'f' !== $item) {
+                if (in_array(trim(strtolower($item)), $this->booleanLiterals['false'])) {
+                    $item = 'false';
+                } else {
                     $item = 'true';
                 }
             }
@@ -735,11 +759,10 @@ class PostgreSqlPlatform extends AbstractPlatform
                 if (is_bool($value) || is_numeric($value)) {
                     $item[$key] = $value ? 1 : 0;
                 } elseif (is_string($value)) {
-                    $value = trim(strtolower($item));
-                    if ('false' !== $value && 'f' !== $value) {
-                        $item[$key] = 1;
-                    } else {
+                    if (in_array(trim(strtolower($item)), $this->booleanLiterals['false'])) {
                         $item[$key] = 0;
+                    } else {
+                        $item[$key] = 1;
                     }
                 }
             }
@@ -747,11 +770,10 @@ class PostgreSqlPlatform extends AbstractPlatform
             if (is_bool($item) || is_numeric($item)) {
                 $item = $item ? 1 : 0;
             } elseif (is_string($item)) {
-                $item = trim(strtolower($item));
-                if ('false' !== $item && 'f' !== $item) {
-                    $item = 1;
-                } else {
+                if (in_array(trim(strtolower($item)), $this->booleanLiterals['false'])) {
                     $item = 0;
+                } else {
+                    $item = 1;
                 }
             }
         }

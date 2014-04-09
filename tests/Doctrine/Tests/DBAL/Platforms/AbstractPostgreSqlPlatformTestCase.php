@@ -296,7 +296,21 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $platform = $this->createPlatform();
 
         $this->assertEquals('true', $platform->convertBooleans(true));
+
+        $this->assertEquals('true', $platform->convertBooleans('t'));
+        $this->assertEquals('true', $platform->convertBooleans('true'));
+        $this->assertEquals('true', $platform->convertBooleans('y'));
+        $this->assertEquals('true', $platform->convertBooleans('yes'));
+        $this->assertEquals('true', $platform->convertBooleans('on'));
+        $this->assertEquals('true', $platform->convertBooleans('1'));
+
         $this->assertEquals('false', $platform->convertBooleans(false));
+        $this->assertEquals('false', $platform->convertBooleans('f'));
+        $this->assertEquals('false', $platform->convertBooleans('false'));
+        $this->assertEquals('false', $platform->convertBooleans('n'));
+        $this->assertEquals('false', $platform->convertBooleans('no'));
+        $this->assertEquals('false', $platform->convertBooleans('off'));
+        $this->assertEquals('false', $platform->convertBooleans('0'));
     }
 
     /**
