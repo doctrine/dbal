@@ -106,11 +106,11 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
 
     /**
-     * @param resource     $conn
-     * @param string       $sql
-     * @param integer|null $lastInsertId
+     * @param resource                                       $conn
+     * @param string                                         $sql
+     * @param \Doctrine\DBAL\Driver\SQLSrv\LastInsertId|null $lastInsertId
      */
-    public function __construct($conn, $sql, $lastInsertId = null)
+    public function __construct($conn, $sql, LastInsertId $lastInsertId = null)
     {
         $this->conn = $conn;
         $this->sql = $sql;
