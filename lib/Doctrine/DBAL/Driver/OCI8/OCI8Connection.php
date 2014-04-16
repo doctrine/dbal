@@ -230,4 +230,15 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     {
         return oci_error($this->dbh);
     }
+
+    /**
+     * Returns the database handler resource.
+     *
+     * @return resource
+     */
+    public function getDBH()
+    {
+      return $this->dbh;
+    }
+    
 }

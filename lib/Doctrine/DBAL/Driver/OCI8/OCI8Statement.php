@@ -145,10 +145,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
         $column = isset($this->_paramMap[$column]) ? $this->_paramMap[$column] : $column;
 
         if ($type == \PDO::PARAM_LOB) {
-            $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
-            $lob->writeTemporary($variable, OCI_TEMP_BLOB);
-
-            return oci_bind_by_name($this->_sth, $column, $lob, -1, OCI_B_BLOB);
+            return oci_bind_by_name($this->_sth, $column, $variable, -1, OCI_B_BLOB);
         } elseif ($length !== null) {
             return oci_bind_by_name($this->_sth, $column, $variable, $length);
         }
