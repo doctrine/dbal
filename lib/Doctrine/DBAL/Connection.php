@@ -142,9 +142,9 @@ class Connection implements DriverConnection
     /**
      * If nested transactions should use savepoints.
      *
-     * @var integer
+     * @var boolean
      */
-    private $_nestTransactionsWithSavepoints;
+    private $_nestTransactionsWithSavepoints = false;
 
     /**
      * The parameters used during creation of the Connection instance.
@@ -1130,7 +1130,7 @@ class Connection implements DriverConnection
             throw ConnectionException::savepointsNotSupported();
         }
 
-        $this->_nestTransactionsWithSavepoints = $nestTransactionsWithSavepoints;
+        $this->_nestTransactionsWithSavepoints = (bool) $nestTransactionsWithSavepoints;
     }
 
     /**
