@@ -19,8 +19,6 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Schema\AbstractAsset;
-
 /**
  * An abstraction class for an asset identifier.
  *
