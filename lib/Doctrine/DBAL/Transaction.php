@@ -8,6 +8,8 @@ namespace Doctrine\DBAL;
 class Transaction
 {
     /**
+     * The transaction manager that created this transaction object.
+     *
      * @var \Doctrine\DBAL\TransactionManager
      */
     private $transactionManager;
@@ -27,16 +29,22 @@ class Transaction
     private $isRollbackOnly = false;
 
     /**
+     * Indicates whether this transaction was committed.
+     *
      * @var boolean
      */
     private $wasCommitted = false;
 
     /**
+     * Indicates whether this transaction was rolled back.
+     *
      * @var boolean
      */
     private $wasRolledBack = false;
 
     /**
+     * Class constructor.
+     *
      * @param TransactionManager $transactionManager
      */
     public function __construct(TransactionManager $transactionManager)
@@ -45,6 +53,8 @@ class Transaction
     }
 
     /**
+     * Commits this transaction.
+     *
      * @return void
      *
      * @throws \Doctrine\DBAL\ConnectionException If this transaction is not active or marked as rollback only.
@@ -66,6 +76,8 @@ class Transaction
     }
 
     /**
+     * Rolls back this transaction.
+     *
      * @return void
      *
      * @throws \Doctrine\DBAL\ConnectionException If this transaction is not active.
@@ -97,7 +109,7 @@ class Transaction
      *
      * @return void
      *
-     * @throws \Doctrine\DBAL\ConnectionException If the transaction is not active.
+     * @throws \Doctrine\DBAL\ConnectionException If this transaction is not active.
      */
     public function setRollbackOnly()
     {
@@ -119,6 +131,8 @@ class Transaction
     }
 
     /**
+     * Returns whether this transaction was committed.
+     *
      * @return boolean
      */
     public function wasCommitted()
@@ -127,6 +141,8 @@ class Transaction
     }
 
     /**
+     * Returns whether this transaction was rolled back.
+     *
      * @return boolean
      */
     public function wasRolledBack()
