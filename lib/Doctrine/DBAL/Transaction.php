@@ -27,6 +27,16 @@ class Transaction
     private $isRollbackOnly = false;
 
     /**
+     * @var boolean
+     */
+    private $wasCommitted = false;
+
+    /**
+     * @var boolean
+     */
+    private $wasRolledBack = false;
+
+    /**
      * @param TransactionManager $transactionManager
      */
     public function __construct(TransactionManager $transactionManager)
@@ -50,6 +60,7 @@ class Transaction
         }
 
         $this->isActive = false;
+        $this->wasCommitted = true;
 
         $this->transactionManager->commitTransaction($this);
     }
@@ -66,6 +77,7 @@ class Transaction
         }
 
         $this->isActive = false;
+        $this->wasRolledBack = true;
 
         $this->transactionManager->rollbackTransaction($this);
     }
@@ -85,10 +97,14 @@ class Transaction
      *
      * @return void
      *
-     * @throws \Doctrine\DBAL\ConnectionException If no transaction is active.
+     * @throws \Doctrine\DBAL\ConnectionException If the transaction is not active.
      */
     public function setRollbackOnly()
     {
+        if (! $this->isActive) {
+            throw ConnectionException::transactionNotActive();
+        }
+
         $this->isRollbackOnly = true;
     }
 
@@ -100,5 +116,21 @@ class Transaction
     public function isRollbackOnly()
     {
         return $this->isRollbackOnly;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function wasCommitted()
+    {
+        return $this->wasCommitted;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function wasRolledBack()
+    {
+        return $this->wasRolledBack;
     }
 }
