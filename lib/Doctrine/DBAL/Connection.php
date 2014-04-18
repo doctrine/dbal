@@ -1286,7 +1286,7 @@ class Connection implements DriverConnection
      */
     public function setRollbackOnly()
     {
-        $this->transactionManager->getTopLevelTransaction()->setRollbackOnly();
+        $this->transactionManager->getCurrentTransaction()->setRollbackOnly();
     }
 
     /**
@@ -1300,7 +1300,7 @@ class Connection implements DriverConnection
      */
     public function isRollbackOnly()
     {
-        return $this->transactionManager->getTopLevelTransaction()->isRollbackOnly();
+        return $this->transactionManager->getCurrentTransaction()->isRollbackOnly();
     }
 
     /**
