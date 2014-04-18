@@ -184,11 +184,11 @@ class TransactionManager
     }
 
     /**
-     * @return bool
+     * @return boolean
      */
     public function isTransactionActive()
     {
-        return (bool) $this->activeTransactions;
+        return ! empty($this->activeTransactions);
     }
 
     /**

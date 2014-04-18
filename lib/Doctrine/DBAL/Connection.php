@@ -161,7 +161,7 @@ class Connection implements DriverConnection
     /**
      * @var \Doctrine\DBAL\TransactionManager
      */
-    protected $transactionManager;
+    private $transactionManager;
 
     /**
      * Initializes a new instance of the Connection class.
