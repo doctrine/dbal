@@ -28,6 +28,25 @@ class ConnectionException extends DBALException
     /**
      * @return \Doctrine\DBAL\ConnectionException
      */
+    public static function transactionNotActive()
+    {
+        return new self("This transaction is not active, and cannot be committed or rolled back.");
+    }
+
+    /**
+     * @return \Doctrine\DBAL\ConnectionException
+     */
+    public static function staleTransaction()
+    {
+        return new self(
+            "This transaction is not managed by this transaction manager, " .
+            "it has probably already been committed or rolled back, or belongs to another transaction manager."
+        );
+    }
+
+    /**
+     * @return \Doctrine\DBAL\ConnectionException
+     */
     public static function savepointsNotSupported()
     {
         return new self("Savepoints are not supported by this driver.");
