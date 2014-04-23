@@ -48,23 +48,23 @@ class PostgreSqlPlatform extends AbstractPlatform
      * @var array PostgreSQL booleans literals
      */
     private $booleanLiterals = array(
-            'true' => array(
-                't',
-                'true',
-                'y',
-                'yes',
-                'on',
-                '1'
-            ),
-            'false' => array(
-                'f',
-                'false',
-                'n',
-                'no',
-                'off',
-                '0'
-            )
-        );
+        'true' => array(
+            't',
+            'true',
+            'y',
+            'yes',
+            'on',
+            '1'
+        ),
+        'false' => array(
+            'f',
+            'false',
+            'n',
+            'no',
+            'off',
+            '0'
+        )
+    );
 
     /**
      * PostgreSQL has different behavior with some drivers
