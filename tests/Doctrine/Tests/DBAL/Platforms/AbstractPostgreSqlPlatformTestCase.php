@@ -338,6 +338,15 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $this->assertEquals(0, $platform->convertBooleansToDatabaseValue(false));
     }
 
+    /**
+     * @expectedException        UnexpectedValueException
+     * @expectedExceptionMessage Unrecognized boolean literal 'my-bool'
+     */
+    public function testThrowsExceptionWithInvalidBooleanLiteral()
+    {
+        $platform = $this->createPlatform()->convertBooleansToDatabaseValue("my-bool");
+    }
+
     public function testGetCreateSchemaSQL()
     {
         $schemaName = 'schema';
