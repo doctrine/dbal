@@ -729,8 +729,17 @@ class PostgreSqlPlatform extends AbstractPlatform
             return $callback($value ? true : false);
         }
 
-        if (is_string($value) && in_array(trim(strtolower($value)), $this->booleanLiterals['false'])) {
-            return $callback(false);
+        if (is_string($value)) {
+            /**
+             * Better safe than sorry: http://php.net/in_array#106319
+             */
+            if (in_array(trim(strtolower($value)), $this->booleanLiterals['false'], true)) {
+                return $callback(false);
+            } elseif (in_array(trim(strtolower($value)), $this->booleanLiterals['true'], true)) {
+                return $callback(true);
+            } else {
+                throw new \UnexpectedValueException("Unrecognized boolean literal '${value}'");
+            }
         }
 
         return $callback(true);
