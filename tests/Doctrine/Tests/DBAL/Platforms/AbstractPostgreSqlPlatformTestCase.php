@@ -291,27 +291,13 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * @group DBAL-457
+     * @dataProvider pgStringBooleanProvider
      */
-    public function testConvertBooleanAsLiteralStrings()
+    public function testConvertBooleanAsLiteralStrings($expected, $input)
     {
         $platform = $this->createPlatform();
 
-        $this->assertEquals('true', $platform->convertBooleans(true));
-
-        $this->assertEquals('true', $platform->convertBooleans('t'));
-        $this->assertEquals('true', $platform->convertBooleans('true'));
-        $this->assertEquals('true', $platform->convertBooleans('y'));
-        $this->assertEquals('true', $platform->convertBooleans('yes'));
-        $this->assertEquals('true', $platform->convertBooleans('on'));
-        $this->assertEquals('true', $platform->convertBooleans('1'));
-
-        $this->assertEquals('false', $platform->convertBooleans(false));
-        $this->assertEquals('false', $platform->convertBooleans('f'));
-        $this->assertEquals('false', $platform->convertBooleans('false'));
-        $this->assertEquals('false', $platform->convertBooleans('n'));
-        $this->assertEquals('false', $platform->convertBooleans('no'));
-        $this->assertEquals('false', $platform->convertBooleans('off'));
-        $this->assertEquals('false', $platform->convertBooleans('0'));
+        $this->assertEquals($expected, $platform->convertBooleans($input));
     }
 
     /**
@@ -322,19 +308,22 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $platform = $this->createPlatform();
         $platform->setUseBooleanTrueFalseStrings(false);
 
-        $this->assertEquals('1', $platform->convertBooleans(true));
-        $this->assertEquals('0', $platform->convertBooleans(false));
+        $this->assertEquals(1, $platform->convertBooleans(true));
+        $this->assertEquals(1, $platform->convertBooleans('1'));
+
+        $this->assertEquals(0, $platform->convertBooleans(false));
+        $this->assertEquals(0, $platform->convertBooleans('0'));
     }
 
     /**
      * @group DBAL-630
+     * @dataProvider pgStringBooleanDatabaseValueProvider
      */
-    public function testConvertBooleanAsDatabaseValueStrings()
+    public function testConvertBooleanAsDatabaseValueStrings($expected, $input)
     {
         $platform = $this->createPlatform();
 
-        $this->assertEquals(1, $platform->convertBooleansToDatabaseValue(true));
-        $this->assertEquals(0, $platform->convertBooleansToDatabaseValue(false));
+        $this->assertEquals($expected, $platform->convertBooleansToDatabaseValue($input));
     }
 
     /**
@@ -556,6 +545,56 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         return array(
             'ALTER INDEX "create" RENAME TO "select"',
             'ALTER INDEX "foo" RENAME TO "bar"',
+        );
+    }
+
+    /**
+     * PostgreSQL boolean strings provider
+     * @return array
+     */
+    public function pgStringBooleanProvider()
+    {
+        return array(
+            array('true', true),
+            array('true', 't'),
+            array('true', 'true'),
+            array('true', 'y'),
+            array('true', 'yes'),
+            array('true', 'on'),
+            array('true', '1'),
+
+            array('false', false),
+            array('false', 'f'),
+            array('false', 'false'),
+            array('false', 'n'),
+            array('false', 'no'),
+            array('false', 'off'),
+            array('false', '0'),
+        );
+    }
+
+    /**
+     * PostgreSQL boolean strings as database values provider
+     * @return array
+     */
+    public function pgStringBooleanDatabaseValueProvider()
+    {
+        return array(
+            array(1, true),
+            array(1, 't'),
+            array(1, 'true'),
+            array(1, 'y'),
+            array(1, 'yes'),
+            array(1, 'on'),
+            array(1, '1'),
+
+            array(0, false),
+            array(0, 'f'),
+            array(0, 'false'),
+            array(0, 'n'),
+            array(0, 'no'),
+            array(0, 'off'),
+            array(0, '0'),
         );
     }
 }

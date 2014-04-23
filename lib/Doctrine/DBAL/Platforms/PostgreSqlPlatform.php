@@ -772,28 +772,16 @@ class PostgreSqlPlatform extends AbstractPlatform
             return parent::convertBooleansToDatabaseValue($item);
         }
 
+        $item = $this->convertBooleans($item);
         if (is_array($item)) {
-            foreach ($item as $key => $value) {
-                if (is_bool($value) || is_numeric($value)) {
-                    $item[$key] = $value ? 1 : 0;
-                } elseif (is_string($value)) {
-                    if (in_array(trim(strtolower($item)), $this->booleanLiterals['false'])) {
-                        $item[$key] = 0;
-                    } else {
-                        $item[$key] = 1;
-                    }
-                }
-            }
+            $item = array_map(
+                function ($element) {
+                    return (int) ('true' === $element);
+                },
+                $item
+            );
         } else {
-            if (is_bool($item) || is_numeric($item)) {
-                $item = $item ? 1 : 0;
-            } elseif (is_string($item)) {
-                if (in_array(trim(strtolower($item)), $this->booleanLiterals['false'])) {
-                    $item = 0;
-                } else {
-                    $item = 1;
-                }
-            }
+            $item = (int) ('true' === $item);
         }
 
         return $item;
