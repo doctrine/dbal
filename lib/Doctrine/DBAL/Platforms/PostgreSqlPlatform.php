@@ -726,6 +726,60 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * Converts a single boolean value.
+     *
+     * First converts the value to its native PHP boolean type
+     * and passes it to the given callback function to be reconverted
+     * into any custom representation.
+     *
+     * @param mixed    $value    The value to convert.
+     * @param callable $callback The callback function to use for converting the real boolean value.
+     *
+     * @return mixed
+     */
+    private function convertSingleBooleanValue($value, $callback)
+    {
+        if (null === $value) {
+            return $callback(false);
+        }
+
+        if (is_bool($value) || is_numeric($value)) {
+            return $callback($value ? true : false);
+        }
+
+        if (is_string($value) && in_array(trim(strtolower($value)), $this->booleanLiterals['false'])) {
+            return $callback(false);
+        }
+
+        return $callback(true);
+    }
+
+    /**
+     * Converts one or multiple boolean values.
+     *
+     * First converts the value(s) to their native PHP boolean type
+     * and passes them to the given callback function to be reconverted
+     * into any custom representation.
+     *
+     * @param  $item     The value(s) to convert.
+     * @param  $callback The callback function to use for converting the real boolean value(s).
+     *
+     * @return mixed
+     */
+    private function doConvertBooleans($item, $callback)
+    {
+        if (is_array($item)) {
+            foreach ($item as $key => $value) {
+                $item[$key] = $this->convertSingleBooleanValue($value, $callback);
+            }
+
+            return $item;
+        }
+
+        return $this->convertSingleBooleanValue($item, $callback);
+    }
+
+    /**
      * {@inheritDoc}
      *
      * Postgres wants boolean values converted to the strings 'true'/'false'.
@@ -736,31 +790,12 @@ class PostgreSqlPlatform extends AbstractPlatform
             return parent::convertBooleans($item);
         }
 
-        if (is_array($item)) {
-            foreach ($item as $key => $value) {
-                if (is_bool($value) || is_numeric($value)) {
-                    $item[$key] = ($value) ? 'true' : 'false';
-                } elseif (is_string($value)) {
-                    if (in_array(trim(strtolower($value)), $this->booleanLiterals['false'])) {
-                        $item[$key] = 'false';
-                    } else {
-                        $item[$key] = 'true';
-                    }
-                }
+        return $this->doConvertBooleans(
+            $item,
+            function ($boolean) {
+                return true === $boolean ? 'true' : 'false';
             }
-        } else {
-            if (is_bool($item) || is_numeric($item)) {
-                $item = ($item) ? 'true' : 'false';
-            } elseif (is_string($item)) {
-                if (in_array(trim(strtolower($item)), $this->booleanLiterals['false'])) {
-                    $item = 'false';
-                } else {
-                    $item = 'true';
-                }
-            }
-        }
-
-        return $item;
+        );
     }
 
     /**
@@ -772,19 +807,12 @@ class PostgreSqlPlatform extends AbstractPlatform
             return parent::convertBooleansToDatabaseValue($item);
         }
 
-        $item = $this->convertBooleans($item);
-        if (is_array($item)) {
-            $item = array_map(
-                function ($element) {
-                    return (int) ('true' === $element);
-                },
-                $item
-            );
-        } else {
-            $item = (int) ('true' === $item);
-        }
-
-        return $item;
+        return $this->doConvertBooleans(
+            $item,
+            function ($boolean) {
+                return (int) $boolean;
+            }
+        );
     }
 
     /**
