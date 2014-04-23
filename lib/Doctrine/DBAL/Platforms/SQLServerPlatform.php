@@ -1149,7 +1149,10 @@ class SQLServerPlatform extends AbstractPlatform
         $start   = $offset + 1;
         $end     = $offset + $limit;
         $orderBy = stristr($query, 'ORDER BY');
-        $query   = preg_replace('/\s+ORDER\s+BY\s+([^\)]*)/i', '', $query); //Remove ORDER BY from $query
+
+        //Remove ORDER BY from $query (including nested parentheses in order by list).
+        $query = preg_replace('/\s+ORDER\s+BY\s+([^()]+|\((?:(?:(?>[^()]+)|(?R))*)\))+/i', '', $query);
+
         $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d';
 
         // Pattern to match "main" SELECT ... FROM clause (including nested parentheses in select list).
@@ -1168,7 +1171,7 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         //Clear ORDER BY
-        $orderBy        = preg_replace('/ORDER\s+BY\s+([^\)]*)(.*)/i', '$1', $orderBy);
+        $orderBy        = preg_replace('/ORDER\s+BY\s+(.*)/i', '$1', $orderBy);
         $orderByParts   = explode(',', $orderBy);
         $orderbyColumns = array();
 
@@ -1190,7 +1193,6 @@ class SQLServerPlatform extends AbstractPlatform
         //Find alias for each colum used in ORDER BY
         if ( ! empty($orderbyColumns)) {
             foreach ($orderbyColumns as $column) {
-
                 $pattern    = sprintf('/%s\.%s\s+(?:AS\s+)?([^,\s)]+)/i', $column['table'], $column['column']);
 
                 if ($isWrapped) {
