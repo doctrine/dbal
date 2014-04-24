@@ -124,59 +124,39 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    {
+        switch ($unit) {
+            case self::DATE_INTERVAL_UNIT_SECOND:
+            case self::DATE_INTERVAL_UNIT_MINUTE:
+            case self::DATE_INTERVAL_UNIT_HOUR:
+                return "DATETIME(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
+
+            default:
+                switch ($unit) {
+                    case self::DATE_INTERVAL_UNIT_WEEK:
+                        $interval *= 7;
+                        $unit = self::DATE_INTERVAL_UNIT_DAY;
+                        break;
+
+                    case self::DATE_INTERVAL_UNIT_QUARTER:
+                        $interval *= 3;
+                        $unit = self::DATE_INTERVAL_UNIT_MONTH;
+                        break;
+                }
+
+                return "DATE(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getDateDiffExpression($date1, $date2)
     {
         return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddHourExpression($date, $hours)
-    {
-        return "DATETIME(" . $date . ",'+". $hours . " hour')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubHourExpression($date, $hours)
-    {
-        return "DATETIME(" . $date . ",'-". $hours . " hour')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddDaysExpression($date, $days)
-    {
-        return "DATE(" . $date . ",'+". $days . " day')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return "DATE(" . $date . ",'-". $days . " day')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return "DATE(" . $date . ",'+". $months . " month')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return "DATE(" . $date . ",'-". $months . " month')";
     }
 
     /**
