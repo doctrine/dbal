@@ -190,6 +190,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
         $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username ASC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
     }
+    
+    public function testModifyLimitQueryWithLowercaseOrderBy()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user order by username', 10);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+    }
 
     public function testModifyLimitQueryWithDescOrderBy()
     {

@@ -1150,7 +1150,7 @@ class SQLServerPlatform extends AbstractPlatform
         $start   = $offset + 1;
         $end     = $offset + $limit;
         $orderBy = stristr($query, 'ORDER BY');
-        $query   = preg_replace('/\s+ORDER\s+BY\s+([^\)]*)/', '', $query); //Remove ORDER BY from $query
+        $query   = preg_replace('/\s+ORDER\s+BY\s+([^\)]*)/i', '', $query); //Remove ORDER BY from $query
         $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d';
 
         // Pattern to match "main" SELECT ... FROM clause (including nested parentheses in select list).
@@ -1169,7 +1169,7 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         //Clear ORDER BY
-        $orderBy        = preg_replace('/ORDER\s+BY\s+([^\)]*)(.*)/', '$1', $orderBy);
+        $orderBy        = preg_replace('/ORDER\s+BY\s+([^\)]*)(.*)/i', '$1', $orderBy);
         $orderByParts   = explode(',', $orderBy);
         $orderbyColumns = array();
 
