@@ -1173,13 +1173,13 @@ class SQLServerPlatform extends AbstractPlatform
         //Clear ORDER BY
         $orderBy        = preg_replace('/ORDER\s+BY\s+(.*)/i', '$1', $orderBy);
         $orderByParts   = explode(',', $orderBy);
-        $orderbyColumns = array();
+        $orderByColumns = array();
 
         //Split ORDER BY into parts
         foreach ($orderByParts as &$part) {
 
             if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', trim($part), $matches)) {
-                $orderbyColumns[] = array(
+                $orderByColumns[] = array(
                     'column'    => $matches[3],
                     'hasTable'  => ( ! empty($matches[2])),
                     'sort'      => isset($matches[4]) ? $matches[4] : null,
@@ -1190,10 +1190,12 @@ class SQLServerPlatform extends AbstractPlatform
 
         $isWrapped = (preg_match('/SELECT DISTINCT .* FROM \(.*\) dctrn_result/', $query)) ? true : false;
 
-        //Find alias for each colum used in ORDER BY
-        if ( ! empty($orderbyColumns)) {
-            foreach ($orderbyColumns as $column) {
-                $pattern    = sprintf('/%s\.%s\s+(?:AS\s+)?([^,\s)]+)/i', $column['table'], $column['column']);
+        $overColumns = array();
+
+        //Find alias for each column used in ORDER BY
+        if ( ! empty($orderByColumns)) {
+            foreach ($orderByColumns as $column) {
+                $pattern = sprintf('/%s\.%s\s+(?:AS\s+)?([^,\s)]+)/i', $column['table'], $column['column']);
 
                 if ($isWrapped) {
                     $overColumn = preg_match($pattern, $query, $matches)
