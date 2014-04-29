@@ -247,7 +247,6 @@ class SQLServerPlatform extends AbstractPlatform
         // @todo does other code breaks because of this?
         // force primary keys to be not null
         foreach ($columns as &$column) {
-            /** @var $column \Doctrine\DBAL\Schema\Column */
             if (isset($column['primary']) && $column['primary']) {
                 $column['notnull'] = true;
             }
