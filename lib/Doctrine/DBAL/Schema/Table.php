@@ -132,14 +132,14 @@ class Table extends AbstractAsset
      */
     public function setPrimaryKey(array $columns, $indexName = false)
     {
-        $primaryKey = $this->_createIndex($columns, $indexName ?: "primary", true, true);
+        $this->_addIndex($this->_createIndex($columns, $indexName ?: "primary", true, true));
 
         foreach ($columns as $columnName) {
             $column = $this->getColumn($columnName);
             $column->setNotnull(true);
         }
 
-        return $primaryKey;
+        return $this;
     }
 
     /**
@@ -157,7 +157,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_createIndex($columnNames, $indexName, false, false, $flags);
+        return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, false, $flags));
     }
 
     /**
@@ -203,7 +203,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_createIndex($columnNames, $indexName, true, false);
+        return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, false));
     }
 
     /**
@@ -278,7 +278,7 @@ class Table extends AbstractAsset
      * @param boolean $isPrimary
      * @param array   $flags
      *
-     * @return self
+     * @return Index
      *
      * @throws SchemaException
      */
@@ -298,9 +298,7 @@ class Table extends AbstractAsset
             }
         }
 
-        $this->_addIndex(new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags));
-
-        return $this;
+        return new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags);
     }
 
     /**
