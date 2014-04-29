@@ -128,7 +128,7 @@ class Table extends AbstractAsset
      * @param array          $columns
      * @param string|boolean $indexName
      *
-     * @return Table
+     * @return self
      */
     public function setPrimaryKey(array $columns, $indexName = false)
     {
@@ -147,7 +147,7 @@ class Table extends AbstractAsset
      * @param string|null $indexName
      * @param array       $flags
      *
-     * @return Table
+     * @return self
      */
     public function addIndex(array $columnNames, $indexName = null, array $flags = array())
     {
@@ -193,7 +193,7 @@ class Table extends AbstractAsset
      * @param array       $columnNames
      * @param string|null $indexName
      *
-     * @return Table
+     * @return self
      */
     public function addUniqueIndex(array $columnNames, $indexName = null)
     {
@@ -213,7 +213,7 @@ class Table extends AbstractAsset
      * @param string|null $newIndexName The name of the index to rename to.
      *                                  If null is given, the index name will be auto-generated.
      *
-     * @return Table This table instance.
+     * @return self This table instance.
      *
      * @throws SchemaException if no index exists for the given current name
      *                         or if an index with the given new name already exists on this table.
@@ -278,7 +278,7 @@ class Table extends AbstractAsset
      * @param boolean $isPrimary
      * @param array   $flags
      *
-     * @return Table
+     * @return self
      *
      * @throws SchemaException
      */
@@ -325,7 +325,7 @@ class Table extends AbstractAsset
      * @param string $oldColumnName
      * @param string $newColumnName
      *
-     * @return Table
+     * @return self
      *
      * @throws DBALException
      */
@@ -342,7 +342,7 @@ class Table extends AbstractAsset
      * @param string $columnName
      * @param array  $options
      *
-     * @return Table
+     * @return self
      */
     public function changeColumn($columnName, array $options)
     {
@@ -357,7 +357,7 @@ class Table extends AbstractAsset
      *
      * @param string $columnName
      *
-     * @return Table
+     * @return self
      */
     public function dropColumn($columnName)
     {
@@ -378,7 +378,7 @@ class Table extends AbstractAsset
      * @param array        $options
      * @param string|null  $constraintName
      *
-     * @return Table
+     * @return self
      */
     public function addForeignKeyConstraint($foreignTable, array $localColumnNames, array $foreignColumnNames, array $options=array(), $constraintName = null)
     {
@@ -399,7 +399,7 @@ class Table extends AbstractAsset
      * @param array        $foreignColumnNames
      * @param array        $options
      *
-     * @return Table
+     * @return self
      */
     public function addUnnamedForeignKeyConstraint($foreignTable, array $localColumnNames, array $foreignColumnNames, array $options=array())
     {
@@ -417,7 +417,7 @@ class Table extends AbstractAsset
      * @param array        $foreignColumnNames
      * @param array        $options
      *
-     * @return Table
+     * @return self
      *
      * @throws SchemaException
      */
@@ -449,7 +449,7 @@ class Table extends AbstractAsset
      * @param string $name
      * @param string $value
      *
-     * @return Table
+     * @return self
      */
     public function addOption($name, $value)
     {
@@ -482,7 +482,7 @@ class Table extends AbstractAsset
      *
      * @param Index $indexCandidate
      *
-     * @return Table
+     * @return self
      *
      * @throws SchemaException
      */
