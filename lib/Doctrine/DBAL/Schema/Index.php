@@ -58,7 +58,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
     {
-        $isUnique = ($isPrimary)?true:$isUnique;
+        $isUnique = $isUnique || $isPrimary;
 
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
