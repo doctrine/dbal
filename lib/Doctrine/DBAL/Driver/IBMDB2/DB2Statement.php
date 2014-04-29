@@ -222,7 +222,7 @@ class DB2Statement implements \IteratorAggregate, Statement
                 return $result;
             case \PDO::FETCH_NUM:
                 return db2_fetch_array($this->_stmt);
-            case PDO::FETCH_OBJ:
+            case \PDO::FETCH_OBJ:
                 return db2_fetch_object($this->_stmt);
             default:
                 throw new DB2Exception("Given Fetch-Style " . $fetchMode . " is not supported.");
