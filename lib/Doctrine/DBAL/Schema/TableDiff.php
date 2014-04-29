@@ -48,7 +48,7 @@ class TableDiff
     /**
      * All changed fields.
      *
-     * @var \Doctrine\DBAL\Schema\Column[]
+     * @var \Doctrine\DBAL\Schema\ColumnDiff[]
      */
     public $changedColumns = array();
 
