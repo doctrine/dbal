@@ -251,6 +251,30 @@ class QueryBuilder
         return $sql;
     }
 
+	/**
+	 * @param string[] $columnNames
+	 * @param string   $tableName
+	 * @param array    $criteria [$columnName (string) => $columnValue (mixed)]
+	 *
+	 * @return self
+	 */
+	public function selectFromWhere(array $columnNames, $tableName, array $criteria)
+	{
+		$wherePredicates = array();
+
+		foreach ($criteria as $columnName => $columnValue) {
+			$wherePredicates[] = 't.' . $columnName . ' = :' . $columnName;
+			$this->setParameter(':' . $columnName, $columnValue);
+		}
+
+		$this
+			->select(array_map(function( $columnName ) { return 't.' . $columnName; }, $columnNames))
+			->from($tableName, 't')
+			->where($wherePredicates);
+
+		return $this;
+	}
+
     /**
      * Sets a query parameter for the query being constructed.
      *
