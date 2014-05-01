@@ -85,7 +85,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @expectedException Doctrine\DBAL\DBALException
+     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testRLike()
     {
@@ -119,7 +119,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @expectedException Doctrine\DBAL\DBALException
+     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testCreateDatabaseThrowsException()
     {

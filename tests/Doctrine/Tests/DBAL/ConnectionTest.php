@@ -14,7 +14,7 @@ use Doctrine\Tests\Mocks\DriverConnectionMock;
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
-     * @var Doctrine\DBAL\Connection
+     * @var \Doctrine\DBAL\Connection
      */
     protected $_conn = null;
 
@@ -128,7 +128,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @expectedException Doctrine\DBAL\DBALException
+     * @expectedException \Doctrine\DBAL\DBALException
      * @dataProvider getQueryMethods
      */
     public function testDriverExceptionIsWrapped($method)
