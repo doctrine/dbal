@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
-use \Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
+use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 
 class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 {

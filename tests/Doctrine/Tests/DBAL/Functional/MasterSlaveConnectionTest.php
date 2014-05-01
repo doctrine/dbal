@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\Tests\DbalFunctionalTestCase;
 
 /**
  * @group DBAL-20
