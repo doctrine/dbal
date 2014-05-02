@@ -40,16 +40,17 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
      */
     public function convertException($message, DriverException $exception)
     {
-        if (strpos($exception->getMessage(), 'must be unique') !== false) {
+        if (strpos($exception->getMessage(), 'must be unique') !== false ||
+            strpos($exception->getMessage(), 'is not unique') !== false ||
+            strpos($exception->getMessage(), 'UNIQUE constraint failed') !== false
+        ) {
             return new Exception\UniqueConstraintViolationException($message, $exception);
         }
 
-        if (strpos($exception->getMessage(), 'may not be NULL') !== false) {
+        if (strpos($exception->getMessage(), 'may not be NULL') !== false ||
+            strpos($exception->getMessage(), 'NOT NULL constraint failed') !== false
+        ) {
             return new Exception\NotNullConstraintViolationException($message, $exception);
-        }
-
-        if (strpos($exception->getMessage(), 'is not unique') !== false) {
-            return new Exception\UniqueConstraintViolationException($message, $exception);
         }
 
         if (strpos($exception->getMessage(), 'no such table:') !== false) {
