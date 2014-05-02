@@ -2,11 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use PDO;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
+use PDO;
 
 require_once __DIR__ . '/../../TestInit.php';
 

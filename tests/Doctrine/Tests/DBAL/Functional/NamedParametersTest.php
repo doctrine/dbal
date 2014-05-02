@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Connection;
-use\PDO;
+use PDO;
 
 require_once __DIR__ . '/../../TestInit.php';
 

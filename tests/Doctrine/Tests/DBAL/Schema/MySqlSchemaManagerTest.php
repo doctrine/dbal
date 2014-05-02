@@ -3,12 +3,9 @@
 namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Configuration;
-use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\Tests\DBAL\Mocks;
-use Doctrine\Tests\TestUtil;
 
 class MySqlSchemaManagerTest extends \PHPUnit_Framework_TestCase
 {

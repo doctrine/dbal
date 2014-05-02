@@ -1,7 +1,6 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use PDO;
 

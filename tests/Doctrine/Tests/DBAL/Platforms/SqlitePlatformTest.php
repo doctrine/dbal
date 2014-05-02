@@ -2,12 +2,12 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
 

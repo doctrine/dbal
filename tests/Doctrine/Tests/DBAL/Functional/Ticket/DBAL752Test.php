@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
-use Doctrine\DBAL\Schema\Table;
-
 /**
  * @group DBAL-752
  */

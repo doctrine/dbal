@@ -4,15 +4,10 @@ namespace Doctrine\Tests\DBAL\Schema;
 
 require_once __DIR__ . '/../../TestInit.php';
 
-use Doctrine\DBAL\Schema\Schema,
-    Doctrine\DBAL\Schema\Table,
-    Doctrine\DBAL\Schema\Column,
-    Doctrine\DBAL\Schema\Index,
-    Doctrine\DBAL\Schema\Sequence,
-    Doctrine\DBAL\Schema\SchemaDiff,
-    Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Comparator,
-    Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\SchemaDiff;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 
 class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 {

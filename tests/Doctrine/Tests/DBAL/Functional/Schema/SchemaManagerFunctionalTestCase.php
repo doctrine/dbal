@@ -2,13 +2,11 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
-use Doctrine\DBAL\Schema\Comparator;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type,
-    Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../../TestInit.php';
 

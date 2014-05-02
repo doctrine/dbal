@@ -21,18 +21,18 @@ namespace Doctrine\Tests\DBAL\Schema;
 
 require_once __DIR__ . '/../../TestInit.php';
 
-use Doctrine\DBAL\Schema\Schema,
-    Doctrine\DBAL\Schema\SchemaConfig,
-    Doctrine\DBAL\Schema\Table,
-    Doctrine\DBAL\Schema\Column,
-    Doctrine\DBAL\Schema\Index,
-    Doctrine\DBAL\Schema\Sequence,
-    Doctrine\DBAL\Schema\SchemaDiff,
-    Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\ColumnDiff,
-    Doctrine\DBAL\Schema\Comparator,
-    Doctrine\DBAL\Types\Type,
-    Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\SchemaConfig;
+use Doctrine\DBAL\Schema\SchemaDiff;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL

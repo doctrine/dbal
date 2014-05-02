@@ -2,10 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
 
 class RemoveNamespacedAssetsTest extends \PHPUnit_Framework_TestCase
 {
