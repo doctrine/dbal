@@ -2354,8 +2354,10 @@ abstract class AbstractPlatform
      *
      * The default conversion in this implementation converts to integers (false => 0, true => 1).
      *
-     * @param mixed $item
+     * There are two contexts when converting booleans: Literals and Prepared Statements.
+     * This method should handle the literal case
      *
+     * @param  mixed $item
      * @return mixed
      */
     public function convertBooleans($item)
@@ -2371,6 +2373,18 @@ abstract class AbstractPlatform
         }
 
         return $item;
+    }
+
+    /**
+     * This method should handle the prepared statements case. When there is no
+     * distinction, it's OK to use the same method.
+     *
+     * @param  mixed $item
+     * @return mixed
+     */
+    public function convertBooleansToDatabaseValue($item)
+    {
+        return $this->convertBooleans($item);
     }
 
     /**
