@@ -14,7 +14,7 @@ class DropSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
         $keyConstraintOne = $this->getStubKeyConstraint('first');
         $keyConstraintTwo = $this->getStubKeyConstraint('second');
 
-        $platform = $this->getMockBuilder( 'Doctrine\DBAL\Platforms\AbstractPlatform')
+        $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
 			->setMethods(array('getDropForeignKeySQL'))
 			->getMockForAbstractClass();
 
