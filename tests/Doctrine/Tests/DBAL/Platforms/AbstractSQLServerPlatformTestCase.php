@@ -331,6 +331,35 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     }
 
     /**
+     * @group DBAL-834
+     */
+    public function testModifyLimitQueryWithAggregateFunctionInOrderByClause()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            "SELECT " .
+            "MAX(heading_id) aliased, " .
+            "code " .
+            "FROM operator_model_operator " .
+            "GROUP BY code " .
+            "ORDER BY MAX(heading_id) DESC",
+            1,
+            0
+        );
+
+        $this->assertEquals(
+            "SELECT * FROM (" .
+            "SELECT " .
+            "MAX(heading_id) aliased, " .
+            "code, " .
+            "ROW_NUMBER() OVER (ORDER BY MAX(heading_id) DESC) AS doctrine_rownum " .
+            "FROM operator_model_operator " .
+            "GROUP BY code" .
+            ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 1",
+            $sql
+        );
+    }
+
+    /**
      * @group DDC-1360
      */
     public function testQuoteIdentifier()
