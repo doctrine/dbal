@@ -2571,7 +2571,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to drop an existing sequence.
      *
-     * @param \Doctrine\DBAL\Schema\Sequence $sequence
+     * @param Sequence|string $sequence
      *
      * @return string
      *
