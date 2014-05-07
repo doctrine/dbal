@@ -175,6 +175,16 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * Whether the platform supports partial indexes.
+     *
+     * @return boolean
+     */
+    public function supportsPartialIndexes()
+    {
+        return true;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function usesSequenceEmulatedIdentityColumns()
@@ -314,7 +324,8 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         return "SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
-                       pg_index.indkey, pg_index.indrelid
+                       pg_index.indkey, pg_index.indrelid,
+                       TRIM(BOTH '()' FROM pg_get_expr(indpred, indrelid)) AS where
                  FROM pg_class, pg_index
                  WHERE oid IN (
                     SELECT indexrelid

@@ -136,6 +136,27 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract public function getGenerateUniqueIndexSql();
 
+    public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
+    {
+        $where = 'test IS NULL AND test2 IS NOT NULL';
+        $indexDef = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), false, false, array(), $where);
+
+        $expected = ' WHERE ' . $where;
+
+        $actuals = array();
+        $actuals []= $this->_platform->getIndexDeclarationSQL('name', $indexDef);
+        $actuals []= $this->_platform->getUniqueConstraintDeclarationSQL('name', $indexDef);
+        $actuals []= $this->_platform->getCreateIndexSQL($indexDef, 'table');
+
+        foreach ($actuals as $actual) {
+            if ($this->_platform->supportsPartialIndexes()) {
+                $this->assertStringEndsWith($expected, $actual, 'WHERE clause should be present');
+            } else {
+                $this->assertStringEndsNotWith($expected, $actual, 'WHERE clause should NOT be present');
+            }
+        }
+    }
+
     public function testGeneratesForeignKeyCreationSql()
     {
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name_id'), 'other_table', array('id'), '');

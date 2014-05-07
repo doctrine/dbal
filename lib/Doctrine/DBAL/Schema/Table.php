@@ -146,10 +146,11 @@ class Table extends AbstractAsset
      * @param array       $columnNames
      * @param string|null $indexName
      * @param array       $flags
+     * @param string|null $where
      *
      * @return self
      */
-    public function addIndex(array $columnNames, $indexName = null, array $flags = array())
+    public function addIndex(array $columnNames, $indexName = null, array $flags = array(), $where = null)
     {
         if ($indexName == null) {
             $indexName = $this->_generateIdentifierName(
@@ -157,7 +158,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, false, $flags));
+        return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, false, $flags, $where));
     }
 
     /**
@@ -192,10 +193,11 @@ class Table extends AbstractAsset
     /**
      * @param array       $columnNames
      * @param string|null $indexName
+     * @param string|null $where
      *
      * @return self
      */
-    public function addUniqueIndex(array $columnNames, $indexName = null)
+    public function addUniqueIndex(array $columnNames, $indexName = null, $where = null)
     {
         if ($indexName === null) {
             $indexName = $this->_generateIdentifierName(
@@ -203,7 +205,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, false));
+        return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, false, array(), $where));
     }
 
     /**
@@ -277,12 +279,13 @@ class Table extends AbstractAsset
      * @param boolean $isUnique
      * @param boolean $isPrimary
      * @param array   $flags
+     * @param string|null $where
      *
      * @return Index
      *
      * @throws SchemaException
      */
-    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = array())
+    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = array(), $where = null)
     {
         if (preg_match('(([^a-zA-Z0-9_]+))', $indexName)) {
             throw SchemaException::indexNameInvalid($indexName);
@@ -298,7 +301,7 @@ class Table extends AbstractAsset
             }
         }
 
-        return new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags);
+        return new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags, $where);
     }
 
     /**

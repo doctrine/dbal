@@ -819,6 +819,7 @@ abstract class AbstractSchemaManager
                     'unique' => $tableIndex['non_unique'] ? false : true,
                     'primary' => $tableIndex['primary'],
                     'flags' => isset($tableIndex['flags']) ? $tableIndex['flags'] : array(),
+                    'where' => isset($tableIndex['where']) ? $tableIndex['where'] : null,
                 );
             } else {
                 $result[$keyName]['columns'][] = $tableIndex['column_name'];
@@ -841,7 +842,7 @@ abstract class AbstractSchemaManager
             }
 
             if ( ! $defaultPrevented) {
-                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags']);
+                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['where']);
             }
 
             if ($index) {

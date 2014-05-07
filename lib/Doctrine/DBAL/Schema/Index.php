@@ -50,19 +50,28 @@ class Index extends AbstractAsset implements Constraint
     protected $_flags = array();
 
     /**
+     * Platform specific condition for partial indexes
+     *
+     * @var string|null
+     */
+    protected $_where = null;
+
+    /**
      * @param string   $indexName
      * @param string[] $columns
      * @param boolean  $isUnique
      * @param boolean  $isPrimary
      * @param string[] $flags
+     * @param string|null $where
      */
-    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
+    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array(), $where = null)
     {
         $isUnique = $isUnique || $isPrimary;
 
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
         $this->_isPrimary = $isPrimary;
+        $this->_where = $where;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -199,7 +208,9 @@ class Index extends AbstractAsset implements Constraint
         $sameColumns = $this->spansColumns($other->getColumns());
 
         if ($sameColumns) {
-            if ( ! $this->isUnique() && !$this->isPrimary()) {
+            if ($other->getWhere() != $this->getWhere()) {
+                return false;
+            } elseif ( ! $this->isUnique() && !$this->isPrimary()) {
                 // this is a special case: If the current key is neither primary or unique, any uniqe or
                 // primary key will always have the same effect for the index and there cannot be any constraint
                 // overlaps. This means a primary or unique index can always fulfill the requirements of just an
@@ -232,7 +243,7 @@ class Index extends AbstractAsset implements Constraint
             return false;
         }
 
-        if ($this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique())) {
+        if ($this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique()) && $this->getWhere() == $other->getWhere()) {
             return true;
         }
 
@@ -287,5 +298,14 @@ class Index extends AbstractAsset implements Constraint
     public function removeFlag($flag)
     {
         unset($this->_flags[strtolower($flag)]);
+    }
+
+    /**
+     * Returns the where condition for partial indexes, if any
+     * @return string|null
+     */
+    public function getWhere()
+    {
+        return $this->_where;
     }
 }
