@@ -405,6 +405,36 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals($sql, $this->_platform->getAlterTableSQL($diff));
     }
 
+    public function testPrepareDateIntervalStringParamInDateFunctions()
+    {
+        $this->assertEquals(
+            "DATETIME(NOW(),'+' || field || ' hour')",
+            $this->_platform->getDateAddHourExpression("NOW()", "field")
+        );
+        $this->assertEquals(
+            "DATETIME(NOW(),'-' || field || ' hour')",
+            $this->_platform->getDateSubHourExpression("NOW()", "field")
+        );
+
+        $this->assertEquals(
+            "DATE(NOW(),'+' || field || ' day')",
+            $this->_platform->getDateAddDaysExpression("NOW()", "field")
+        );
+        $this->assertEquals(
+            "DATE(NOW(),'-' || field || ' day')",
+            $this->_platform->getDateSubDaysExpression("NOW()", "field")
+        );
+
+        $this->assertEquals(
+            "DATE(NOW(),'+' || field || ' month')",
+            $this->_platform->getDateAddMonthExpression("NOW()", "field")
+        );
+        $this->assertEquals(
+            "DATE(NOW(),'-' || field || ' month')",
+            $this->_platform->getDateSubMonthExpression("NOW()", "field")
+        );
+    }
+
     protected function getQuotedColumnInPrimaryKeySQL()
     {
         return array(
