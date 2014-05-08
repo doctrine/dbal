@@ -294,7 +294,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'TIMESTAMP(0)';
+        return 'DATE';
     }
 
     /**
