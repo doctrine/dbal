@@ -4,8 +4,11 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../../TestInit.php';
@@ -619,6 +622,46 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInstanceOf('Doctrine\DBAL\Types\ObjectType', $columns['obj']->getType(), "The Doctrine2 should be detected from comment hint.");
         $this->assertEquals('This is a comment', $columns['arr']->getComment(), "The Doctrine2 Typehint should be stripped from comment.");
         $this->assertInstanceOf('Doctrine\DBAL\Types\ArrayType', $columns['arr']->getType(), "The Doctrine2 should be detected from comment hint.");
+    }
+
+    /**
+     * @group DBAL-825
+     */
+    public function testChangeColumnsTypeWithDefaultValue()
+    {
+        $tableName = 'column_def_change_type';
+        $table     = new Table($tableName);
+
+        $table->addColumn('col_int', 'smallint', array('default' => 666));
+        $table->addColumn('col_string', 'string', array('default' => 'foo'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $tableDiff = new TableDiff($tableName);
+        $tableDiff->fromTable = $table;
+        $tableDiff->changedColumns['col_int'] = new ColumnDiff(
+            'col_int',
+            new Column('col_int', Type::getType('integer'), array('default' => 666)),
+            array('type'),
+            new Column('col_int', Type::getType('smallint'), array('default' => 666))
+        );
+
+        $tableDiff->changedColumns['col_string'] = new ColumnDiff(
+            'col_string',
+            new Column('col_string', Type::getType('string'), array('default' => 'foo', 'fixed' => true)),
+            array('fixed'),
+            new Column('col_string', Type::getType('string'), array('default' => 'foo'))
+        );
+
+        $this->_sm->alterTable($tableDiff);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Types\IntegerType', $columns['col_int']->getType());
+        $this->assertEquals(666, $columns['col_int']->getDefault());
+
+        $this->assertInstanceOf('Doctrine\DBAL\Types\StringType', $columns['col_string']->getType());
+        $this->assertEquals('foo', $columns['col_string']->getDefault());
     }
 
     /**

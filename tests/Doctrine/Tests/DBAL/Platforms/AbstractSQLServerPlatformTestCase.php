@@ -677,9 +677,6 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "ALTER TABLE mytable ALTER COLUMN [create] VARCHAR(MAX) NOT NULL",
                 "ALTER TABLE mytable ALTER COLUMN commented_type INT NOT NULL",
 
-                // Renamed columns.
-                "ALTER TABLE mytable ALTER COLUMN comment_double_0 NUMERIC(10, 0) NOT NULL",
-
                 // Added columns.
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_comment_integer_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_comment_float_0",
@@ -822,6 +819,48 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         return array(
             "EXEC sp_RENAME N'[table].[create]', N'[select]', N'INDEX'",
             "EXEC sp_RENAME N'[table].[foo]', N'[bar]', N'INDEX'",
+        );
+    }
+
+    /**
+     * @group DBAL-825
+     */
+    public function testChangeColumnsTypeWithDefaultValue()
+    {
+        $tableName = 'column_def_change_type';
+        $table     = new Table($tableName);
+
+        $table->addColumn('col_int', 'smallint', array('default' => 666));
+        $table->addColumn('col_string', 'string', array('default' => 'foo'));
+
+        $tableDiff = new TableDiff($tableName);
+        $tableDiff->fromTable = $table;
+        $tableDiff->changedColumns['col_int'] = new ColumnDiff(
+            'col_int',
+            new Column('col_int', Type::getType('integer'), array('default' => 666)),
+            array('type'),
+            new Column('col_int', Type::getType('smallint'), array('default' => 666))
+        );
+
+        $tableDiff->changedColumns['col_string'] = new ColumnDiff(
+            'col_string',
+            new Column('col_string', Type::getType('string'), array('default' => 666, 'fixed' => true)),
+            array('fixed'),
+            new Column('col_string', Type::getType('string'), array('default' => 666))
+        );
+
+        $expected = $this->_platform->getAlterTableSQL($tableDiff);
+
+        $this->assertSame(
+            $expected,
+            array(
+                'ALTER TABLE column_def_change_type DROP CONSTRAINT DF_829302E0_FA2CB292',
+                'ALTER TABLE column_def_change_type ALTER COLUMN col_int INT NOT NULL',
+                'ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_FA2CB292 DEFAULT 666 FOR col_int',
+                'ALTER TABLE column_def_change_type DROP CONSTRAINT DF_829302E0_2725A6D0',
+                'ALTER TABLE column_def_change_type ALTER COLUMN col_string NCHAR(255) NOT NULL',
+                "ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_2725A6D0 DEFAULT '666' FOR col_string",
+            )
         );
     }
 }
