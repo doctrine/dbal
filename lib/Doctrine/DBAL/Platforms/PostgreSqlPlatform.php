@@ -348,7 +348,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         } else {
             $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') from pg_catalog.pg_settings where name = 'search_path'),','))";
         }
-        $whereClause .= "$classAlias.relname = '" . $table . "' AND $namespaceAlias.nspname = $schema";
+        $whereClause .= "quote_ident($classAlias.relname) = '" . $table . "' AND $namespaceAlias.nspname = $schema";
 
         return $whereClause;
     }
