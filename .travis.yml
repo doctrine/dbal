@@ -4,7 +4,9 @@ php:
   - 5.3
   - 5.4
   - 5.5
+  - 5.6
   - hhvm
+  - hhvm-nightly
 
 env:
   - DB=mysql
@@ -31,10 +33,17 @@ script: phpunit --configuration tests/travis/$DB.travis.xml
 matrix:
   allow_failures:
     - php: hhvm
+    - php: hhvm-nightly
   exclude:
       - php: hhvm
         env: DB=pgsql POSTGRESQL_VERSION=9.1 # driver currently unsupported by HHVM
       - php: hhvm
         env: DB=pgsql POSTGRESQL_VERSION=9.2 # driver currently unsupported by HHVM
       - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
+      - php: hhvm-nightly
+        env: DB=pgsql POSTGRESQL_VERSION=9.1 # driver currently unsupported by HHVM
+      - php: hhvm-nightly
+        env: DB=pgsql POSTGRESQL_VERSION=9.2 # driver currently unsupported by HHVM
+      - php: hhvm-nightly
         env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
