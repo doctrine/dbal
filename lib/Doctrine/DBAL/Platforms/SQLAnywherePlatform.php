@@ -251,7 +251,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     protected function getAlterTableRenameColumnClause($oldColumnName, Column $column)
     {
-        return 'RENAME ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
+        $oldColumnName = new Identifier($oldColumnName);
+
+        return 'RENAME ' . $oldColumnName->getQuotedName($this) .' TO ' . $column->getQuotedName($this);
     }
 
     /**

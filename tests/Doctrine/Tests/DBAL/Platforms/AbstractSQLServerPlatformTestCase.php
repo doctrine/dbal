@@ -190,7 +190,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
         $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username ASC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
     }
-    
+
     public function testModifyLimitQueryWithLowercaseOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user order by username', 10);
@@ -861,6 +861,24 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 'ALTER TABLE column_def_change_type ALTER COLUMN col_string NCHAR(255) NOT NULL',
                 "ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_2725A6D0 DEFAULT '666' FOR col_string",
             )
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            "sp_RENAME 'mytable.unquoted1', 'unquoted', 'COLUMN'",
+            "sp_RENAME 'mytable.unquoted2', '[where]', 'COLUMN'",
+            "sp_RENAME 'mytable.unquoted3', '[foo]', 'COLUMN'",
+            "sp_RENAME 'mytable.[create]', 'reserved_keyword', 'COLUMN'",
+            "sp_RENAME 'mytable.[table]', '[from]', 'COLUMN'",
+            "sp_RENAME 'mytable.[select]', '[bar]', 'COLUMN'",
+            "sp_RENAME 'mytable.quoted1', 'quoted', 'COLUMN'",
+            "sp_RENAME 'mytable.quoted2', '[and]', 'COLUMN'",
+            "sp_RENAME 'mytable.quoted3', '[baz]', 'COLUMN'",
         );
     }
 }

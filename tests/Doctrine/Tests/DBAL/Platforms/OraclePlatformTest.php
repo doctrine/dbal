@@ -437,4 +437,22 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'ALTER INDEX "foo" RENAME TO "bar"',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE mytable RENAME COLUMN unquoted1 TO unquoted',
+            'ALTER TABLE mytable RENAME COLUMN unquoted2 TO "where"',
+            'ALTER TABLE mytable RENAME COLUMN unquoted3 TO "foo"',
+            'ALTER TABLE mytable RENAME COLUMN "create" TO reserved_keyword',
+            'ALTER TABLE mytable RENAME COLUMN "table" TO "from"',
+            'ALTER TABLE mytable RENAME COLUMN "select" TO "bar"',
+            'ALTER TABLE mytable RENAME COLUMN quoted1 TO quoted',
+            'ALTER TABLE mytable RENAME COLUMN quoted2 TO "and"',
+            'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
+        );
+    }
 }

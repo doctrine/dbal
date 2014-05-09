@@ -809,4 +809,22 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'ALTER INDEX "foo" ON "table" RENAME TO "bar"',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE mytable RENAME unquoted1 TO unquoted',
+            'ALTER TABLE mytable RENAME unquoted2 TO "where"',
+            'ALTER TABLE mytable RENAME unquoted3 TO "foo"',
+            'ALTER TABLE mytable RENAME "create" TO reserved_keyword',
+            'ALTER TABLE mytable RENAME "table" TO "from"',
+            'ALTER TABLE mytable RENAME "select" TO "bar"',
+            'ALTER TABLE mytable RENAME quoted1 TO quoted',
+            'ALTER TABLE mytable RENAME quoted2 TO "and"',
+            'ALTER TABLE mytable RENAME quoted3 TO "baz"',
+        );
+    }
 }
