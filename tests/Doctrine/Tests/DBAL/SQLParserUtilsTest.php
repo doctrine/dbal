@@ -65,9 +65,6 @@ SQLDATA
 
     /**
      * @dataProvider dataGetPlaceholderPositions
-     * @param $query
-     * @param $isPositional
-     * @param $expectedParamPos
      */
     public function testGetPlaceholderPositions($query, $isPositional, $expectedParamPos)
     {
@@ -322,12 +319,6 @@ SQLDATA
 
     /**
      * @dataProvider dataExpandListParameters
-     * @param $q
-     * @param $p
-     * @param $t
-     * @param $expectedQuery
-     * @param $expectedParams
-     * @param $expectedTypes
      */
     public function testExpandListParameters($q, $p, $t, $expectedQuery, $expectedParams, $expectedTypes)
     {
