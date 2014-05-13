@@ -22,9 +22,6 @@
     "suggest": {
         "symfony/console": "For helpful console commands such as SQL execution and import of files."
     },
-    "suggest": {
-        "symfony/console": "Allows use of the command line interface"
-    },
     "autoload": {
         "psr-0": { "Doctrine\\DBAL\\": "lib/" }
     },
