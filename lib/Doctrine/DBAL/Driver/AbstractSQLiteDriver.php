@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -87,7 +88,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 
@@ -105,7 +106,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
         return new SqliteSchemaManager($conn);
     }
