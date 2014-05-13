@@ -20,21 +20,19 @@
 use Symfony\Component\Console\Helper\HelperSet;
 use Doctrine\DBAL\Tools\Console\ConsoleRunner;
 
-function requireAutoloader() {
-    $files = array(__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php');
+$files = array(__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php');
 
-    foreach ($files as $file) {
-        if (file_exists($file)) {
-            require $file;
-            return;
-        }
+foreach ($files as $file) {
+    if (file_exists($file)) {
+        $loader = require $file;
+
+        break;
     }
-
-    echo 'vendor/autoload.php could not be found. Did you run `php composer.phar install`?' . PHP_EOL;
-    exit(1);
 }
 
-requireAutoloader();
+if (! $loader) {
+    throw new RuntimeException('vendor/autoload.php could not be found. Did you run `php composer.phar install`?');
+}
 
 $directories = array(getcwd(), getcwd() . DIRECTORY_SEPARATOR . 'config');
 
