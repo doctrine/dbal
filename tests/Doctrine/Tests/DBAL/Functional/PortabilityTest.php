@@ -14,8 +14,6 @@ require_once __DIR__ . '/../../TestInit.php';
  */
 class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    static private $hasTable = false;
-
     private $portableConnection;
 
     public function tearDown()
