@@ -1,4 +1,4 @@
 #!/usr/bin/env php
 <?php
 
-include('doctrine-dbal.php');
+require __DIR__ . '/doctrine-dbal.php';
