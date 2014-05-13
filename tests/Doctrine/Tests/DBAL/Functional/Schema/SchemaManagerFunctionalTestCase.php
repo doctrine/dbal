@@ -120,7 +120,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     public function createListTableColumns()
     {
-        $table = new \Doctrine\DBAL\Schema\Table('list_table_columns');
+        $table = new Table('list_table_columns');
         $table->addColumn('id', 'integer', array('notnull' => true));
         $table->addColumn('test', 'string', array('length' => 255, 'notnull' => false, 'default' => 'expected default'));
         $table->addColumn('foo', 'text', array('notnull' => true));
@@ -485,7 +485,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->markTestSkipped('This test is only supported on platforms that have autoincrement');
         }
 
-        $table = new \Doctrine\DBAL\Schema\Table('test_autoincrement');
+        $table = new Table('test_autoincrement');
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
         $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->setPrimaryKey(array('id'));
@@ -506,7 +506,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->markTestSkipped('This test is only supported on platforms that have autoincrement');
         }
 
-        $table = new \Doctrine\DBAL\Schema\Table('test_not_autoincrement');
+        $table = new Table('test_not_autoincrement');
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
         $table->addColumn('id', 'integer');
         $table->addColumn('other_id', 'integer');
@@ -528,11 +528,11 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
         }
 
-        $table = new \Doctrine\DBAL\Schema\Table('test_fk_base');
+        $table = new Table('test_fk_base');
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(array('id'));
 
-        $tableFK = new \Doctrine\DBAL\Schema\Table('test_fk_rename');
+        $tableFK = new Table('test_fk_rename');
         $tableFK->setSchemaConfig($this->_sm->createSchemaConfig());
         $tableFK->addColumn('id', 'integer');
         $tableFK->addColumn('fk_id', 'integer');
@@ -543,7 +543,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm->createTable($table);
         $this->_sm->createTable($tableFK);
 
-        $tableFKNew = new \Doctrine\DBAL\Schema\Table('test_fk_rename');
+        $tableFKNew = new Table('test_fk_rename');
         $tableFKNew->setSchemaConfig($this->_sm->createSchemaConfig());
         $tableFKNew->addColumn('id', 'integer');
         $tableFKNew->addColumn('rename_fk_id', 'integer');
@@ -568,7 +568,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->markTestSkipped('Database does not support column comments.');
         }
 
-        $table = new \Doctrine\DBAL\Schema\Table('column_comment_test');
+        $table = new Table('column_comment_test');
         $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
         $table->setPrimaryKey(array('id'));
 
@@ -607,7 +607,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->markTestSkipped('Database does not support column comments.');
         }
 
-        $table = new \Doctrine\DBAL\Schema\Table('column_comment_test2');
+        $table = new Table('column_comment_test2');
         $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
         $table->addColumn('obj', 'object', array('comment' => 'This is a comment'));
         $table->addColumn('arr', 'array', array('comment' => 'This is a comment'));
@@ -669,18 +669,19 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     public function testListTableWithBlob()
     {
-        $table = new \Doctrine\DBAL\Schema\Table('test_blob_table');
+        $table = new Table('test_blob_table');
         $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
         $table->addColumn('binarydata', 'blob', array());
         $table->setPrimaryKey(array('id'));
 
         $this->_sm->createTable($table);
-        $blobTable = $this->_sm->listTableDetails('test_blob_table');
+        $this->_sm->listTableDetails('test_blob_table');
     }
 
     /**
      * @param string $name
      * @param array $data
+     * @return Table
      */
     protected function createTestTable($name = 'test_table', $data = array())
     {
@@ -698,7 +699,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     protected function getTestTable($name, $options=array())
     {
-        $table = new \Doctrine\DBAL\Schema\Table($name, array(), array(), array(), false, $options);
+        $table = new Table($name, array(), array(), array(), false, $options);
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
         $table->addColumn('id', 'integer', array('notnull' => true));
         $table->setPrimaryKey(array('id'));
@@ -709,7 +710,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     protected function getTestCompositeTable($name)
     {
-        $table = new \Doctrine\DBAL\Schema\Table($name, array(), array(), array(), false, array());
+        $table = new Table($name, array(), array(), array(), false, array());
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
         $table->addColumn('id', 'integer', array('notnull' => true));
         $table->addColumn('other_id', 'integer', array('notnull' => true));
@@ -812,7 +813,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     {
         $tableName = 'test_binary_table';
 
-        $table = new \Doctrine\DBAL\Schema\Table($tableName);
+        $table = new Table($tableName);
         $table->addColumn('id', 'integer');
         $table->addColumn('column_varbinary', 'binary', array());
         $table->addColumn('column_binary', 'binary', array('fixed' => true));
