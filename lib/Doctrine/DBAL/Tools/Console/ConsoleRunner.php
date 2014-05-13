@@ -19,7 +19,10 @@
 
 namespace Doctrine\DBAL\Tools\Console;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Tools\Console\Command\ImportCommand;
+use Doctrine\DBAL\Tools\Console\Command\ReservedWordsCommand;
+use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Symfony\Component\Console\Helper\HelperSet;
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Symfony\Component\Console\Application;
@@ -34,6 +37,7 @@ class ConsoleRunner
      * Create a Symfony Console HelperSet
      *
      * @param Connection $connection
+     *
      * @return HelperSet
      */
     static public function createHelperSet(Connection $connection)
@@ -54,9 +58,12 @@ class ConsoleRunner
     static public function run(HelperSet $helperSet, $commands = array())
     {
         $cli = new Application('Doctrine Command Line Interface', Version::VERSION);
+
         $cli->setCatchExceptions(true);
         $cli->setHelperSet($helperSet);
+
         self::addCommands($cli);
+
         $cli->addCommands($commands);
         $cli->run();
     }
@@ -69,9 +76,9 @@ class ConsoleRunner
     static public function addCommands(Application $cli)
     {
         $cli->addCommands(array(
-            new \Doctrine\DBAL\Tools\Console\Command\RunSqlCommand(),
-            new \Doctrine\DBAL\Tools\Console\Command\ImportCommand(),
-            new \Doctrine\DBAL\Tools\Console\Command\ReservedWordsCommand(),
+            new RunSqlCommand(),
+            new ImportCommand(),
+            new ReservedWordsCommand(),
         ));
     }
 
