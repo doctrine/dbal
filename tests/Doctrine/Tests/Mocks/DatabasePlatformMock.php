@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\Mocks;
 
+use Doctrine\DBAL\DBALException;
+
 class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
 {
     private $_sequenceNextValSql = "";
