@@ -100,59 +100,24 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    {
+        if (self::DATE_INTERVAL_UNIT_QUARTER === $unit) {
+            $interval *= 3;
+            $unit = self::DATE_INTERVAL_UNIT_MONTH;
+        }
+
+        return "(" . $date ." " . $operator . " (" . $interval . " || ' " . $unit . "')::interval)";
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getDateDiffExpression($date1, $date2)
     {
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddHourExpression($date, $hours)
-    {
-        return "(" . $date ." + (" . $hours . " || ' hour')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubHourExpression($date, $hours)
-    {
-        return "(" . $date ." - (" . $hours . " || ' hour')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddDaysExpression($date, $days)
-    {
-        return "(" . $date ." + (" . $days . " || ' day')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return "(" . $date ." - (" . $days . " || ' day')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return "(" . $date ." + (" . $months . " || ' month')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return "(" . $date ." - (" . $months . " || ' month')::interval)";
     }
 
     /**

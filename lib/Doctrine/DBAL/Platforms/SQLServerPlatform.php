@@ -41,59 +41,25 @@ use Doctrine\DBAL\Schema\Table;
 class SQLServerPlatform extends AbstractPlatform
 {
     /**
+     * {@inheritdoc}
+     */
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    {
+        $factorClause = '';
+
+        if ('-' === $operator) {
+            $factorClause = '-1 * ';
+        }
+
+        return 'DATEADD(' . $unit . ', ' . $factorClause . $interval . ', ' . $date . ')';
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getDateDiffExpression($date1, $date2)
     {
         return 'DATEDIFF(day, ' . $date2 . ',' . $date1 . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddHourExpression($date, $hours)
-    {
-        return 'DATEADD(hour, ' . $hours . ', ' . $date . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubHourExpression($date, $hours)
-    {
-        return 'DATEADD(hour, -1 * ' . $hours . ', ' . $date . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddDaysExpression($date, $days)
-    {
-        return 'DATEADD(day, ' . $days . ', ' . $date . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return 'DATEADD(day, -1 * ' . $days . ', ' . $date . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return 'DATEADD(month, ' . $months . ', ' . $date . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return 'DATEADD(month, -1 * ' . $months . ', ' . $date . ')';
     }
 
     /**
