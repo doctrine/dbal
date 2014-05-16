@@ -552,7 +552,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->_platform->getDateSubYearsExpression("'1987/05/02'", 10));
         $this->assertEquals("Y-m-d H:i:s.u", $this->_platform->getDateTimeFormatString());
         $this->assertEquals("H:i:s.u", $this->_platform->getTimeFormatString());
-        $this->assertEquals('FOR UPDATE BY LOCK', $this->_platform->getForUpdateSQL());
+        $this->assertEquals('', $this->_platform->getForUpdateSQL());
         $this->assertEquals('NEWID()', $this->_platform->getGuidExpression());
         $this->assertEquals('LOCATE(string_column, substring_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
         $this->assertEquals('LOCATE(string_column, substring_column, 1)', $this->_platform->getLocateExpression('string_column', 'substring_column', 1));

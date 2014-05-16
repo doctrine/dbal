@@ -665,7 +665,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getForUpdateSQL()
     {
-        return 'FOR UPDATE BY LOCK';
+        return '';
     }
 
     /**
