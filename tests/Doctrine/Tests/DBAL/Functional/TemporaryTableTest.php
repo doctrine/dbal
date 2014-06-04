@@ -2,9 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use \Doctrine\DBAL\Schema\Table;
-use \Doctrine\DBAL\Schema\Column;
-use \Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 
 class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {

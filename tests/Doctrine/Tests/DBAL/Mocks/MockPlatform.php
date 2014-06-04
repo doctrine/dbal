@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Mocks;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms;
 
 class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform

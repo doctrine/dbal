@@ -124,59 +124,39 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    {
+        switch ($unit) {
+            case self::DATE_INTERVAL_UNIT_SECOND:
+            case self::DATE_INTERVAL_UNIT_MINUTE:
+            case self::DATE_INTERVAL_UNIT_HOUR:
+                return "DATETIME(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
+
+            default:
+                switch ($unit) {
+                    case self::DATE_INTERVAL_UNIT_WEEK:
+                        $interval *= 7;
+                        $unit = self::DATE_INTERVAL_UNIT_DAY;
+                        break;
+
+                    case self::DATE_INTERVAL_UNIT_QUARTER:
+                        $interval *= 3;
+                        $unit = self::DATE_INTERVAL_UNIT_MONTH;
+                        break;
+                }
+
+                return "DATE(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getDateDiffExpression($date1, $date2)
     {
         return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddHourExpression($date, $hours)
-    {
-        return "DATETIME(" . $date . ",'+". $hours . " hour')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubHourExpression($date, $hours)
-    {
-        return "DATETIME(" . $date . ",'-". $hours . " hour')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddDaysExpression($date, $days)
-    {
-        return "DATE(" . $date . ",'+". $days . " day')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return "DATE(" . $date . ",'-". $days . " day')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return "DATE(" . $date . ",'+". $months . " month')";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return "DATE(" . $date . ",'-". $months . " month')";
     }
 
     /**
@@ -543,9 +523,16 @@ class SqlitePlatform extends AbstractPlatform
      */
     static public function udfLocate($str, $substr, $offset = 0)
     {
+        // SQL's LOCATE function works on 1-based positions, while PHP's strpos works on 0-based positions.
+        // So we have to make them compatible if an offset is given.
+        if ($offset > 0) {
+            $offset -= 1;
+        }
+
         $pos = strpos($str, $substr, $offset);
+
         if ($pos !== false) {
-            return $pos+1;
+            return $pos + 1;
         }
 
         return 0;

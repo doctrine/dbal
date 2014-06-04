@@ -2,12 +2,12 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -480,6 +480,20 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'DROP TABLE __temp__table',
             'CREATE INDEX "select" ON table (id)',
             'CREATE INDEX "bar" ON table (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (unquoted INTEGER NOT NULL, "where" INTEGER NOT NULL, "foo" INTEGER NOT NULL, reserved_keyword INTEGER NOT NULL, "from" INTEGER NOT NULL, "bar" INTEGER NOT NULL, quoted INTEGER NOT NULL, "and" INTEGER NOT NULL, "baz" INTEGER NOT NULL)',
+            'INSERT INTO mytable (unquoted, "where", "foo", reserved_keyword, "from", "bar", quoted, "and", "baz") SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
         );
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 require_once __DIR__ . '/../../../TestInit.php';
 
@@ -300,6 +300,24 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_binary')->getType());
         $this->assertFalse($table->getColumn('column_binary')->getFixed());
+    }
+
+    public function testListQuotedTable()
+    {
+        $offlineTable = new Schema\Table('user');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('username', 'string', array('unique' => true));
+        $offlineTable->addColumn('fk', 'integer');
+        $offlineTable->setPrimaryKey(array('id'));
+        $offlineTable->addForeignKeyConstraint($offlineTable, array('fk'), array('id'));
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails('"user"');
+
+        $comparator = new Schema\Comparator();
+
+        $this->assertFalse($comparator->diffTable($offlineTable, $onlineTable));
     }
 }
 

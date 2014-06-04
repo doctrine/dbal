@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Sequence;
 
 class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
 {

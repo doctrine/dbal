@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 
@@ -171,25 +172,21 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDateAddDaysExpression($date, $days)
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
-        return $date . ' + ' . $days . ' days';
-    }
+        switch ($unit) {
+            case self::DATE_INTERVAL_UNIT_WEEK:
+                $interval *= 7;
+                $unit = self::DATE_INTERVAL_UNIT_DAY;
+                break;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateAddHourExpression($date, $hours)
-    {
-        return $date . ' + ' . $hours . ' hours';
-    }
+            case self::DATE_INTERVAL_UNIT_QUARTER:
+                $interval *= 3;
+                $unit = self::DATE_INTERVAL_UNIT_MONTH;
+                break;
+        }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return $date . ' + ' . $months . ' months';
+        return $date . ' ' . $operator . ' ' . $interval . ' ' . $unit;
     }
 
     /**
@@ -198,30 +195,6 @@ class DB2Platform extends AbstractPlatform
     public function getDateDiffExpression($date1, $date2)
     {
         return 'DAYS(' . $date1 . ') - DAYS(' . $date2 . ')';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return $date . ' - ' . $days . ' days';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateSubHourExpression($date, $hours)
-    {
-        return $date . ' - ' . $hours . ' hours';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return $date . ' - ' . $months . ' months';
     }
 
     /**
@@ -511,7 +484,10 @@ class DB2Platform extends AbstractPlatform
                 continue;
             }
 
-            $queryParts[] =  'RENAME COLUMN ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
+            $oldColumnName = new Identifier($oldColumnName);
+
+            $queryParts[] =  'RENAME COLUMN ' . $oldColumnName->getQuotedName($this) .
+                ' TO ' . $column->getQuotedName($this);
         }
 
         $tableSql = array();

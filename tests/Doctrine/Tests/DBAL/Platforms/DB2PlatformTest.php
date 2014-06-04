@@ -290,13 +290,23 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('CURRENT DATE', $this->_platform->getCurrentDateSQL());
         $this->assertEquals('CURRENT TIME', $this->_platform->getCurrentTimeSQL());
         $this->assertEquals('CURRENT TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
-        $this->assertEquals("'1987/05/02' + 4 days", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("'1987/05/02' + 12 hours", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("'1987/05/02' + 102 months", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("'1987/05/02' + 4 DAY", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("'1987/05/02' + 12 HOUR", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
+        $this->assertEquals("'1987/05/02' + 2 MINUTE", $this->_platform->getDateAddMinutesExpression("'1987/05/02'", 2));
+        $this->assertEquals("'1987/05/02' + 102 MONTH", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("'1987/05/02' + 15 MONTH", $this->_platform->getDateAddQuartersExpression("'1987/05/02'", 5));
+        $this->assertEquals("'1987/05/02' + 1 SECOND", $this->_platform->getDateAddSecondsExpression("'1987/05/02'", 1));
+        $this->assertEquals("'1987/05/02' + 21 DAY", $this->_platform->getDateAddWeeksExpression("'1987/05/02'", 3));
+        $this->assertEquals("'1987/05/02' + 10 YEAR", $this->_platform->getDateAddYearsExpression("'1987/05/02'", 10));
         $this->assertEquals("DAYS('1987/05/02') - DAYS('1987/04/01')", $this->_platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
-        $this->assertEquals("'1987/05/02' - 4 days", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("'1987/05/02' - 12 hours", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("'1987/05/02' - 102 months", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("'1987/05/02' - 4 DAY", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("'1987/05/02' - 12 HOUR", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
+        $this->assertEquals("'1987/05/02' - 2 MINUTE", $this->_platform->getDateSubMinutesExpression("'1987/05/02'", 2));
+        $this->assertEquals("'1987/05/02' - 102 MONTH", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("'1987/05/02' - 15 MONTH", $this->_platform->getDateSubQuartersExpression("'1987/05/02'", 5));
+        $this->assertEquals("'1987/05/02' - 1 SECOND", $this->_platform->getDateSubSecondsExpression("'1987/05/02'", 1));
+        $this->assertEquals("'1987/05/02' - 21 DAY", $this->_platform->getDateSubWeeksExpression("'1987/05/02'", 3));
+        $this->assertEquals("'1987/05/02' - 10 YEAR", $this->_platform->getDateSubYearsExpression("'1987/05/02'", 10));
         $this->assertEquals(' WITH RR USE AND KEEP UPDATE LOCKS', $this->_platform->getForUpdateSQL());
         $this->assertEquals('LOCATE(substring_column, string_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
         $this->assertEquals('LOCATE(substring_column, string_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
@@ -403,6 +413,25 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return array(
             'RENAME INDEX "create" TO "select"',
             'RENAME INDEX "foo" TO "bar"',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE mytable ' .
+            'RENAME COLUMN unquoted1 TO unquoted ' .
+            'RENAME COLUMN unquoted2 TO "where" ' .
+            'RENAME COLUMN unquoted3 TO "foo" ' .
+            'RENAME COLUMN "create" TO reserved_keyword ' .
+            'RENAME COLUMN "table" TO "from" ' .
+            'RENAME COLUMN "select" TO "bar" ' .
+            'RENAME COLUMN quoted1 TO quoted ' .
+            'RENAME COLUMN quoted2 TO "and" ' .
+            'RENAME COLUMN quoted3 TO "baz"'
         );
     }
 }

@@ -4,9 +4,6 @@ namespace Doctrine\Tests\DBAL\Schema;
 
 require_once __DIR__ . '/../../TestInit.php';
 
-use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
 
 class IndexTest extends \PHPUnit_Framework_TestCase

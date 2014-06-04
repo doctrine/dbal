@@ -74,7 +74,7 @@ example is also a threat to DQL queries.
     // DQL is not safe against arbitrary user-input as well:
     $dql = "SELECT u FROM User u WHERE u.username = '" . $_GET['username'] . "'";
 
-In this scenario an attacker could still pass a username set to "' OR 1 = 1" and create a valid DQL query.
+In this scenario an attacker could still pass a username set to ``' OR 1 = 1`` and create a valid DQL query.
 Although DQL will make use of quoting functions when literals are used in a DQL statement, allowing
 the attacker to modify the DQL statement with valid literals cannot be detected by the DQL parser, it
 is your responsibility.

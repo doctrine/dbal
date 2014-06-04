@@ -326,13 +326,13 @@ abstract class AbstractSchemaManager
     /**
      * Drops the given table.
      *
-     * @param string $table The name of the table to drop.
+     * @param string $tableName The name of the table to drop.
      *
      * @return void
      */
-    public function dropTable($table)
+    public function dropTable($tableName)
     {
-        $this->_execSql($this->_platform->getDropTableSQL($table));
+        $this->_execSql($this->_platform->getDropTableSQL($tableName));
     }
 
     /**

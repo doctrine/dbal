@@ -5,11 +5,9 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\Index;
 
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
@@ -268,6 +266,20 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $this->assertEquals(array('CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (text)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
     }
 
+    public function testCreateTableWithSpatialIndex()
+    {
+        $table = new Table('spatial_table');
+        $table->addOption('engine', 'MyISAM');
+        $table->addColumn('point', 'text'); // This should be a point type
+        $table->addIndex(array('point'), 'spatial_text');
+
+        $index = $table->getIndex('spatial_text');
+        $index->addFlag('spatial');
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals(array('CREATE TABLE spatial_table (point LONGTEXT NOT NULL, SPATIAL INDEX spatial_text (point)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
+    }
+
     public function testClobTypeDeclarationSQL()
     {
         $this->assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 1)));
@@ -524,5 +536,24 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $comparator = new Comparator();
 
         $this->assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable)));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            "ALTER TABLE mytable " .
+            "CHANGE unquoted1 unquoted INT NOT NULL COMMENT 'Unquoted 1', " .
+            "CHANGE unquoted2 `where` INT NOT NULL COMMENT 'Unquoted 2', " .
+            "CHANGE unquoted3 `foo` INT NOT NULL COMMENT 'Unquoted 3', " .
+            "CHANGE `create` reserved_keyword INT NOT NULL COMMENT 'Reserved keyword 1', " .
+            "CHANGE `table` `from` INT NOT NULL COMMENT 'Reserved keyword 2', " .
+            "CHANGE `select` `bar` INT NOT NULL COMMENT 'Reserved keyword 3', " .
+            "CHANGE quoted1 quoted INT NOT NULL COMMENT 'Quoted 1', " .
+            "CHANGE quoted2 `and` INT NOT NULL COMMENT 'Quoted 2', " .
+            "CHANGE quoted3 `baz` INT NOT NULL COMMENT 'Quoted 3'"
+        );
     }
 }

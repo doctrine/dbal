@@ -246,4 +246,45 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertFalse($data);
     }
+
+    public function testEmptyIdentityInsert()
+    {
+        $platform = $this->_conn->getDatabasePlatform();
+
+        if ( ! ($platform->supportsIdentityColumns() || $platform->usesSequenceEmulatedIdentityColumns()) ) {
+            $this->markTestSkipped(
+                'Test only works on platforms with identity columns or sequence emulated identity columns.'
+            );
+        }
+
+        $table = new \Doctrine\DBAL\Schema\Table('test_empty_identity');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->setPrimaryKey(array('id'));
+
+        try {
+            $this->_conn->getSchemaManager()->dropTable($table);
+        } catch(\Exception $e) { }
+
+        foreach ($platform->getCreateTableSQL($table) as $sql) {
+            $this->_conn->exec($sql);
+        }
+
+        $seqName = $platform->usesSequenceEmulatedIdentityColumns()
+            ? $platform->getIdentitySequenceName('test_empty_identity', 'id')
+            : null;
+
+        $sql = $platform->getEmptyIdentityInsertSQL('test_empty_identity', 'id');
+
+        $this->_conn->exec($sql);
+
+        $firstId = $this->_conn->lastInsertId($seqName);
+
+        $this->_conn->exec($sql);
+
+        $secondId = $this->_conn->lastInsertId($seqName);
+
+        $this->assertTrue($secondId > $firstId);
+
+    }
+
 }

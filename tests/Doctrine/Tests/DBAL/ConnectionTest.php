@@ -4,17 +4,17 @@ namespace Doctrine\Tests\DBAL;
 
 require_once __DIR__ . '/../TestInit.php';
 
-use Doctrine\DBAL\Connection;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Events;
-use Doctrine\Tests\Mocks\DriverMock;
 use Doctrine\Tests\Mocks\DriverConnectionMock;
+use Doctrine\Tests\Mocks\DriverMock;
 
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
-     * @var Doctrine\DBAL\Connection
+     * @var \Doctrine\DBAL\Connection
      */
     protected $_conn = null;
 
@@ -128,7 +128,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @expectedException Doctrine\DBAL\DBALException
+     * @expectedException \Doctrine\DBAL\DBALException
      * @dataProvider getQueryMethods
      */
     public function testDriverExceptionIsWrapped($method)

@@ -20,7 +20,6 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Schema\Visitor\Visitor;
 
 /**
  * Object representation of a database column.
@@ -32,7 +31,7 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 class Column extends AbstractAsset
 {
     /**
-     * @var \Doctrine\DBAL\Types\Type
+     * @var Type
      */
     protected $_type;
 
@@ -99,9 +98,9 @@ class Column extends AbstractAsset
     /**
      * Creates a new Column.
      *
-     * @param string                    $columnName
-     * @param \Doctrine\DBAL\Types\Type $type
-     * @param array                     $options
+     * @param string $columnName
+     * @param Type $type
+     * @param array $options
      */
     public function __construct($columnName, Type $type, array $options=array())
     {
@@ -113,7 +112,7 @@ class Column extends AbstractAsset
     /**
      * @param array $options
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setOptions(array $options)
     {
@@ -128,9 +127,9 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param \Doctrine\DBAL\Types\Type $type
+     * @param Type $type
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setType(Type $type)
     {
@@ -141,7 +140,7 @@ class Column extends AbstractAsset
     /**
      * @param integer|null $length
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setLength($length)
     {
@@ -157,7 +156,7 @@ class Column extends AbstractAsset
     /**
      * @param integer $precision
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setPrecision($precision)
     {
@@ -173,7 +172,7 @@ class Column extends AbstractAsset
     /**
      * @param integer $scale
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setScale($scale)
     {
@@ -189,7 +188,7 @@ class Column extends AbstractAsset
     /**
      * @param boolean $unsigned
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setUnsigned($unsigned)
     {
@@ -201,7 +200,7 @@ class Column extends AbstractAsset
     /**
      * @param boolean $fixed
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setFixed($fixed)
     {
@@ -213,7 +212,7 @@ class Column extends AbstractAsset
     /**
      * @param boolean $notnull
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setNotnull($notnull)
     {
@@ -225,7 +224,7 @@ class Column extends AbstractAsset
     /**
      * @param mixed $default
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setDefault($default)
     {
@@ -237,7 +236,7 @@ class Column extends AbstractAsset
     /**
      * @param array $platformOptions
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setPlatformOptions(array $platformOptions)
     {
@@ -250,7 +249,7 @@ class Column extends AbstractAsset
      * @param string $name
      * @param mixed  $value
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setPlatformOption($name, $value)
     {
@@ -262,7 +261,7 @@ class Column extends AbstractAsset
     /**
      * @param string $value
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setColumnDefinition($value)
     {
@@ -272,7 +271,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return \Doctrine\DBAL\Types\Type
+     * @return Type
      */
     public function getType()
     {
@@ -382,7 +381,7 @@ class Column extends AbstractAsset
     /**
      * @param boolean $flag
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setAutoincrement($flag)
     {
@@ -393,7 +392,7 @@ class Column extends AbstractAsset
     /**
      * @param string $comment
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setComment($comment)
     {
@@ -414,7 +413,7 @@ class Column extends AbstractAsset
      * @param string $name
      * @param mixed  $value
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setCustomSchemaOption($name, $value)
     {
@@ -446,7 +445,7 @@ class Column extends AbstractAsset
     /**
      * @param array $customSchemaOptions
      *
-     * @return \Doctrine\DBAL\Schema\Column
+     * @return Column
      */
     public function setCustomSchemaOptions(array $customSchemaOptions)
     {

@@ -34,7 +34,7 @@ class ColumnDiff
     public $oldColumnName;
 
     /**
-     * @var \Doctrine\DBAL\Schema\Column
+     * @var Column
      */
     public $column;
 
@@ -44,15 +44,15 @@ class ColumnDiff
     public $changedProperties = array();
 
     /**
-     * @var \Doctrine\DBAL\Schema\Column
+     * @var Column
      */
     public $fromColumn;
 
     /**
-     * @param string                       $oldColumnName
-     * @param \Doctrine\DBAL\Schema\Column $column
-     * @param array                        $changedProperties
-     * @param \Doctrine\DBAL\Schema\Column $fromColumn
+     * @param string   $oldColumnName
+     * @param Column   $column
+     * @param string[] $changedProperties
+     * @param Column   $fromColumn
      */
     public function __construct($oldColumnName, Column $column, array $changedProperties = array(), Column $fromColumn = null)
     {
@@ -73,7 +73,7 @@ class ColumnDiff
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Identifier
+     * @return Identifier
      */
     public function getOldColumnName()
     {

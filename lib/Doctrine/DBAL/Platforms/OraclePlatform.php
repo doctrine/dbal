@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -100,6 +101,52 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    {
+        switch ($unit) {
+            case self::DATE_INTERVAL_UNIT_MONTH:
+            case self::DATE_INTERVAL_UNIT_QUARTER:
+            case self::DATE_INTERVAL_UNIT_YEAR:
+                switch ($unit) {
+                    case self::DATE_INTERVAL_UNIT_QUARTER:
+                        $interval *= 3;
+                        break;
+
+                    case self::DATE_INTERVAL_UNIT_YEAR:
+                        $interval *= 12;
+                        break;
+                }
+
+                return 'ADD_MONTHS(' . $date . ', ' . $operator . $interval . ')';
+
+            default:
+                $calculationClause = '';
+
+                switch ($unit) {
+                    case self::DATE_INTERVAL_UNIT_SECOND:
+                        $calculationClause = '/24/60/60';
+                        break;
+
+                    case self::DATE_INTERVAL_UNIT_MINUTE:
+                        $calculationClause = '/24/60';
+                        break;
+
+                    case self::DATE_INTERVAL_UNIT_HOUR:
+                        $calculationClause = '/24';
+                        break;
+
+                    case self::DATE_INTERVAL_UNIT_WEEK:
+                        $calculationClause = '*7';
+                        break;
+                }
+
+                return '(' . $date . $operator . $interval . $calculationClause . ')';
+        }
+    }
+
+    /**
      * {@inheritDoc}
      *
      * Note: Since Oracle timestamp differences are calculated down to the microsecond we have to truncate
@@ -109,54 +156,6 @@ class OraclePlatform extends AbstractPlatform
     public function getDateDiffExpression($date1, $date2)
     {
         return "TRUNC(TO_NUMBER(SUBSTR((" . $date1 . "-" . $date2 . "), 1, INSTR(" . $date1 . "-" . $date2 .", ' '))))";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddHourExpression($date, $hours)
-    {
-        return '(' . $date . '+' . $hours . '/24)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubHourExpression($date, $hours)
-    {
-        return '(' . $date . '-' . $hours . '/24)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddDaysExpression($date, $days)
-    {
-        return '(' . $date . '+' . $days . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return '(' . $date . '-' . $days . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return "ADD_MONTHS(" . $date . ", " . $months . ")";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return "ADD_MONTHS(" . $date . ", -" . $months . ")";
     }
 
     /**
@@ -196,7 +195,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    public function getAlterSequenceSQL(Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize()
@@ -206,9 +205,11 @@ class OraclePlatform extends AbstractPlatform
     /**
      * Cache definition for sequences
      *
+     * @param Sequence $sequence
+     *
      * @return string
      */
-    private function getSequenceCacheSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    private function getSequenceCacheSQL(Sequence $sequence)
     {
         if ($sequence->getCache() === 0) {
             return ' NOCACHE';
@@ -708,7 +709,10 @@ LEFT JOIN user_cons_columns r_cols
                 continue;
             }
 
-            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
+            $oldColumnName = new Identifier($oldColumnName);
+
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) .
+                ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) .' TO ' . $column->getQuotedName($this);
         }
 
         $fields = array();

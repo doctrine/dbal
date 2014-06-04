@@ -43,21 +43,22 @@ class Index extends AbstractAsset implements Constraint
 
     /**
      * Platform specific flags for indexes.
+     * array($flagName => true)
      *
      * @var array
      */
     protected $_flags = array();
 
     /**
-     * @param string  $indexName
-     * @param array   $columns
-     * @param boolean $isUnique
-     * @param boolean $isPrimary
-     * @param array   $flags
+     * @param string   $indexName
+     * @param string[] $columns
+     * @param boolean  $isUnique
+     * @param boolean  $isPrimary
+     * @param string[] $flags
      */
     public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
     {
-        $isUnique = ($isPrimary)?true:$isUnique;
+        $isUnique = $isUnique || $isPrimary;
 
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
@@ -110,7 +111,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getUnquotedColumns()
     {
@@ -182,7 +183,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Checks if the other index already fulfills all the indexing and constraint needs of the current one.
      *
-     * @param \Doctrine\DBAL\Schema\Index $other
+     * @param Index $other
      *
      * @return boolean
      */
@@ -219,7 +220,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Detects if the other index is a non-unique, non primary index that can be overwritten by this one.
      *
-     * @param \Doctrine\DBAL\Schema\Index $other
+     * @param Index $other
      *
      * @return boolean
      */
@@ -241,7 +242,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Returns platform specific flags for indexes.
      *
-     * @return array
+     * @return string[]
      */
     public function getFlags()
     {
@@ -255,7 +256,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @param string $flag
      *
-     * @return \Doctrine\DBAL\Schema\Index
+     * @return Index
      */
     public function addFlag($flag)
     {

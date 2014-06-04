@@ -5,7 +5,6 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -85,7 +84,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @expectedException Doctrine\DBAL\DBALException
+     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testRLike()
     {
@@ -119,7 +118,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @expectedException Doctrine\DBAL\DBALException
+     * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testCreateDatabaseThrowsException()
     {
@@ -436,6 +435,24 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         return array(
             'ALTER INDEX "create" RENAME TO "select"',
             'ALTER INDEX "foo" RENAME TO "bar"',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE mytable RENAME COLUMN unquoted1 TO unquoted',
+            'ALTER TABLE mytable RENAME COLUMN unquoted2 TO "where"',
+            'ALTER TABLE mytable RENAME COLUMN unquoted3 TO "foo"',
+            'ALTER TABLE mytable RENAME COLUMN "create" TO reserved_keyword',
+            'ALTER TABLE mytable RENAME COLUMN "table" TO "from"',
+            'ALTER TABLE mytable RENAME COLUMN "select" TO "bar"',
+            'ALTER TABLE mytable RENAME COLUMN quoted1 TO quoted',
+            'ALTER TABLE mytable RENAME COLUMN quoted2 TO "and"',
+            'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
         );
     }
 }

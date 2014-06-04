@@ -46,9 +46,10 @@ class Sequence extends AbstractAsset
     protected $cache = null;
 
     /**
-     * @param string  $name
-     * @param integer $allocationSize
-     * @param integer $initialValue
+     * @param string       $name
+     * @param integer      $allocationSize
+     * @param integer      $initialValue
+     * @param integer|null $cache
      */
     public function __construct($name, $allocationSize = 1, $initialValue = 1, $cache = null)
     {

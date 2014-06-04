@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Schema\Visitor;
 require_once __DIR__ . '/../../../TestInit.php';
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 
 class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 {

@@ -2,12 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableBuilder;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
 class TableTest extends \Doctrine\Tests\DbalTestCase

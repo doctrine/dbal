@@ -533,20 +533,29 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('CURRENT DATE', $this->_platform->getCurrentDateSQL());
         $this->assertEquals('CURRENT TIME', $this->_platform->getCurrentTimeSQL());
         $this->assertEquals('CURRENT TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
-        $this->assertEquals("DATEADD(day, 4, '1987/05/02')", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("DATEADD(hour, 12, '1987/05/02')", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("DATEADD(month, 102, '1987/05/02')", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("DATEADD(DAY, 4, '1987/05/02')", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("DATEADD(HOUR, 12, '1987/05/02')", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
+        $this->assertEquals("DATEADD(MINUTE, 2, '1987/05/02')", $this->_platform->getDateAddMinutesExpression("'1987/05/02'", 2));
+        $this->assertEquals("DATEADD(MONTH, 102, '1987/05/02')", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("DATEADD(QUARTER, 5, '1987/05/02')", $this->_platform->getDateAddQuartersExpression("'1987/05/02'", 5));
+        $this->assertEquals("DATEADD(SECOND, 1, '1987/05/02')", $this->_platform->getDateAddSecondsExpression("'1987/05/02'", 1));
+        $this->assertEquals("DATEADD(WEEK, 3, '1987/05/02')", $this->_platform->getDateAddWeeksExpression("'1987/05/02'", 3));
+        $this->assertEquals("DATEADD(YEAR, 10, '1987/05/02')", $this->_platform->getDateAddYearsExpression("'1987/05/02'", 10));
         $this->assertEquals("DATEDIFF(day, '1987/04/01', '1987/05/02')", $this->_platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
-        $this->assertEquals("DATEADD(day, -1 * 4, '1987/05/02')", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("DATEADD(hour, -1 * 12, '1987/05/02')", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("DATEADD(month, -1 * 102, '1987/05/02')", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("DATEADD(DAY, -1 * 4, '1987/05/02')", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("DATEADD(HOUR, -1 * 12, '1987/05/02')", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
+        $this->assertEquals("DATEADD(MINUTE, -1 * 2, '1987/05/02')", $this->_platform->getDateSubMinutesExpression("'1987/05/02'", 2));
+        $this->assertEquals("DATEADD(MONTH, -1 * 102, '1987/05/02')", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("DATEADD(QUARTER, -1 * 5, '1987/05/02')", $this->_platform->getDateSubQuartersExpression("'1987/05/02'", 5));
+        $this->assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->_platform->getDateSubSecondsExpression("'1987/05/02'", 1));
+        $this->assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->_platform->getDateSubWeeksExpression("'1987/05/02'", 3));
+        $this->assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->_platform->getDateSubYearsExpression("'1987/05/02'", 10));
         $this->assertEquals("Y-m-d H:i:s.u", $this->_platform->getDateTimeFormatString());
         $this->assertEquals("H:i:s.u", $this->_platform->getTimeFormatString());
-        $this->assertEquals('FOR UPDATE BY LOCK', $this->_platform->getForUpdateSQL());
+        $this->assertEquals('', $this->_platform->getForUpdateSQL());
         $this->assertEquals('NEWID()', $this->_platform->getGuidExpression());
-        $this->assertEquals('CHARINDEX(substring_column, string_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
-        $this->assertEquals('CHARINDEX(substring_column, string_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
-        $this->assertEquals('CHARINDEX(substring_column, SUBSTR(string_column, 2))', $this->_platform->getLocateExpression('string_column', 'substring_column', 1));
+        $this->assertEquals('LOCATE(string_column, substring_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
+        $this->assertEquals('LOCATE(string_column, substring_column, 1)', $this->_platform->getLocateExpression('string_column', 'substring_column', 1));
         $this->assertEquals("HASH(column, 'MD5')", $this->_platform->getMd5Expression('column'));
         $this->assertEquals('SUBSTRING(column, 5)', $this->_platform->getSubstringExpression('column', 5));
         $this->assertEquals('SUBSTRING(column, 5, 2)', $this->_platform->getSubstringExpression('column', 5, 2));
@@ -568,19 +577,21 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED)
         );
         $this->assertEquals(
-            "SUBSTR(column, PATINDEX('%[^c]%', column))",
+            "SUBSTR(column, PATINDEX('%[^' + c + ']%', column))",
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_LEADING, 'c')
         );
         $this->assertEquals(
-            "REVERSE(SUBSTR(REVERSE(column), PATINDEX('%[^c]%', REVERSE(column))))",
+            "REVERSE(SUBSTR(REVERSE(column), PATINDEX('%[^' + c + ']%', REVERSE(column))))",
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_TRAILING, 'c')
         );
         $this->assertEquals(
-            "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^c]%', column))), PATINDEX('%[^c]%', REVERSE(SUBSTR(column, PATINDEX('%[^c]%', column))))))",
+            "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
+            "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
             $this->_platform->getTrimExpression('column', null, 'c')
         );
         $this->assertEquals(
-            "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^c]%', column))), PATINDEX('%[^c]%', REVERSE(SUBSTR(column, PATINDEX('%[^c]%', column))))))",
+            "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
+            "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
             $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED, 'c')
         );
     }
@@ -590,6 +601,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->setExpectedException('\Doctrine\DBAL\DBALException');
 
         $this->_platform->getRegexpExpression();
+    }
+
+    public function testHasCorrectDateTimeTzFormatString()
+    {
+        // Date time type with timezone is not supported before version 12.
+        // For versions before we have to ensure that the date time with timezone format
+        // equals the normal date time format so that it corresponds to the declaration SQL equality (datetimetz -> datetime).
+        $this->assertEquals($this->_platform->getDateTimeFormatString(), $this->_platform->getDateTimeTzFormatString());
     }
 
     public function testHasCorrectDefaultTransactionIsolationLevel()
@@ -806,6 +825,24 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         return array(
             'ALTER INDEX "create" ON "table" RENAME TO "select"',
             'ALTER INDEX "foo" ON "table" RENAME TO "bar"',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE mytable RENAME unquoted1 TO unquoted',
+            'ALTER TABLE mytable RENAME unquoted2 TO "where"',
+            'ALTER TABLE mytable RENAME unquoted3 TO "foo"',
+            'ALTER TABLE mytable RENAME "create" TO reserved_keyword',
+            'ALTER TABLE mytable RENAME "table" TO "from"',
+            'ALTER TABLE mytable RENAME "select" TO "bar"',
+            'ALTER TABLE mytable RENAME quoted1 TO quoted',
+            'ALTER TABLE mytable RENAME quoted2 TO "and"',
+            'ALTER TABLE mytable RENAME quoted3 TO "baz"',
         );
     }
 }

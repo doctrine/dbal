@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Query;
 
-use Doctrine\DBAL\Query\Expression\ExpressionBuilder,
-    Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 require_once __DIR__ . '/../../TestInit.php';
 

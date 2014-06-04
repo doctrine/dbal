@@ -248,7 +248,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::beginTransaction();
+        parent::beginTransaction();
     }
 
     /**
@@ -258,7 +258,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::commit();
+        parent::commit();
     }
 
     /**
@@ -329,7 +329,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::createSavepoint($savepoint);
+        parent::createSavepoint($savepoint);
     }
 
     /**
@@ -339,7 +339,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::releaseSavepoint($savepoint);
+        parent::releaseSavepoint($savepoint);
     }
 
     /**
@@ -349,7 +349,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::rollbackSavepoint($savepoint);
+        parent::rollbackSavepoint($savepoint);
     }
 
     /**

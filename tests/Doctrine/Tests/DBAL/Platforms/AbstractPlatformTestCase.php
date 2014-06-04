@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -665,4 +666,54 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             'CREATE INDEX "bar" ON "table" (id)',
         );
     }
+
+    /**
+     * @group DBAL-835
+     */
+    public function testQuotesAlterTableRenameColumn()
+    {
+        $fromTable = new Table('mytable');
+
+        $fromTable->addColumn('unquoted1', 'integer', array('comment' => 'Unquoted 1'));
+        $fromTable->addColumn('unquoted2', 'integer', array('comment' => 'Unquoted 2'));
+        $fromTable->addColumn('unquoted3', 'integer', array('comment' => 'Unquoted 3'));
+
+        $fromTable->addColumn('create', 'integer', array('comment' => 'Reserved keyword 1'));
+        $fromTable->addColumn('table', 'integer', array('comment' => 'Reserved keyword 2'));
+        $fromTable->addColumn('select', 'integer', array('comment' => 'Reserved keyword 3'));
+
+        $fromTable->addColumn('`quoted1`', 'integer', array('comment' => 'Quoted 1'));
+        $fromTable->addColumn('`quoted2`', 'integer', array('comment' => 'Quoted 2'));
+        $fromTable->addColumn('`quoted3`', 'integer', array('comment' => 'Quoted 3'));
+
+        $toTable = new Table('mytable');
+
+        $toTable->addColumn('unquoted', 'integer', array('comment' => 'Unquoted 1')); // unquoted -> unquoted
+        $toTable->addColumn('where', 'integer', array('comment' => 'Unquoted 2')); // unquoted -> reserved keyword
+        $toTable->addColumn('`foo`', 'integer', array('comment' => 'Unquoted 3')); // unquoted -> quoted
+
+        $toTable->addColumn('reserved_keyword', 'integer', array('comment' => 'Reserved keyword 1')); // reserved keyword -> unquoted
+        $toTable->addColumn('from', 'integer', array('comment' => 'Reserved keyword 2')); // reserved keyword -> reserved keyword
+        $toTable->addColumn('`bar`', 'integer', array('comment' => 'Reserved keyword 3')); // reserved keyword -> quoted
+
+        $toTable->addColumn('quoted', 'integer', array('comment' => 'Quoted 1')); // quoted -> unquoted
+        $toTable->addColumn('and', 'integer', array('comment' => 'Quoted 2')); // quoted -> reserved keyword
+        $toTable->addColumn('`baz`', 'integer', array('comment' => 'Quoted 3')); // quoted -> quoted
+
+        $comparator = new Comparator();
+
+        $this->assertEquals(
+            $this->getQuotedAlterTableRenameColumnSQL(),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+        );
+    }
+
+    /**
+     * Returns SQL statements for {@link testQuotesAlterTableRenameColumn}.
+     *
+     * @return array
+     *
+     * @group DBAL-835
+     */
+    abstract protected function getQuotedAlterTableRenameColumnSQL();
 }

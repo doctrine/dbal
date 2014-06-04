@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
 
 class SequenceTest extends \Doctrine\Tests\DbalTestCase
 {

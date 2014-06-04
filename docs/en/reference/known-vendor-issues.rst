@@ -95,6 +95,14 @@ DateTimeTz
 Sqlite does not support saving timezones or offsets. The DateTimeTz
 type therefore behave like the DateTime type.
 
+Reverse engineering primary key order
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SQLite versions < 3.7.16 only return that a column is part of the primary key,
+but not the order. This is only a problem with tables where the order of the
+columns in the table is not the same as the order in the primary key. Tables
+created with Doctrine use the order of the columns as defined in the primary
+key.
+
 IBM DB2
 -------
 

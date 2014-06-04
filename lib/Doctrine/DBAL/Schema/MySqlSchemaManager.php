@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
 
 /**
@@ -73,6 +74,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
             }
             if (strpos($v['index_type'], 'FULLTEXT') !== false) {
                 $v['flags'] = array('FULLTEXT');
+            } elseif (strpos($v['index_type'], 'SPATIAL') !== false) {
+                $v['flags'] = array('SPATIAL');
             }
             $tableIndexes[$k] = $v;
         }
@@ -144,16 +147,30 @@ class MySqlSchemaManager extends AbstractSchemaManager
                     $length = null;
                 }
                 break;
+            case 'tinytext':
+                $length = MySqlPlatform::LENGTH_LIMIT_TINYTEXT;
+                break;
+            case 'text':
+                $length = MySqlPlatform::LENGTH_LIMIT_TEXT;
+                break;
+            case 'mediumtext':
+                $length = MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT;
+                break;
+            case 'tinyblob':
+                $length = MySqlPlatform::LENGTH_LIMIT_TINYBLOB;
+                break;
+            case 'blob':
+                $length = MySqlPlatform::LENGTH_LIMIT_BLOB;
+                break;
+            case 'mediumblob':
+                $length = MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB;
+                break;
             case 'tinyint':
             case 'smallint':
             case 'mediumint':
             case 'int':
             case 'integer':
             case 'bigint':
-            case 'tinyblob':
-            case 'mediumblob':
-            case 'longblob':
-            case 'blob':
             case 'year':
                 $length = null;
                 break;

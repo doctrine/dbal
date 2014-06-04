@@ -16,15 +16,13 @@
         "doctrine/common": "2.4.*"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*",
+        "phpunit/phpunit": "4.0.*",
         "symfony/console": "2.*"
     },
     "suggest": {
         "symfony/console": "For helpful console commands such as SQL execution and import of files."
     },
-    "suggest": {
-        "symfony/console": "Allows use of the command line interface"
-    },
+    "bin": ["bin/doctrine-dbal"],
     "autoload": {
         "psr-0": { "Doctrine\\DBAL\\": "lib/" }
     },

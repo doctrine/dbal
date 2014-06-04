@@ -124,9 +124,14 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 
             $service = 'SID=' . $serviceName;
             $pooled  = '';
+            $instance = '';
 
             if (isset($params['service']) && $params['service'] == true) {
                 $service = 'SERVICE_NAME=' . $serviceName;
+            }
+            
+            if (isset($params['instancename']) && ! empty($params['instancename'])) {
+                $instance = '(INSTANCE_NAME = ' . $params['instancename'] . ')';
             }
 
             if (isset($params['pooled']) && $params['pooled'] == true) {
@@ -135,7 +140,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 
             return '(DESCRIPTION=' .
                      '(ADDRESS=(PROTOCOL=TCP)(HOST=' . $params['host'] . ')(PORT=' . $params['port'] . '))' .
-                     '(CONNECT_DATA=(' . $service . ')' . $pooled . '))';
+                     '(CONNECT_DATA=(' . $service . ')' . $instance . $pooled . '))';
 
         }
 

@@ -21,7 +21,9 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\BlobType;
@@ -98,59 +100,24 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    {
+        if (self::DATE_INTERVAL_UNIT_QUARTER === $unit) {
+            $interval *= 3;
+            $unit = self::DATE_INTERVAL_UNIT_MONTH;
+        }
+
+        return "(" . $date ." " . $operator . " (" . $interval . " || ' " . $unit . "')::interval)";
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getDateDiffExpression($date1, $date2)
     {
         return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddHourExpression($date, $hours)
-    {
-        return "(" . $date ." + (" . $hours . " || ' hour')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubHourExpression($date, $hours)
-    {
-        return "(" . $date ." - (" . $hours . " || ' hour')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddDaysExpression($date, $days)
-    {
-        return "(" . $date ." + (" . $days . " || ' day')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return "(" . $date ." - (" . $days . " || ' day')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return "(" . $date ." + (" . $months . " || ' month')::interval)";
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return "(" . $date ." - (" . $months . " || ' month')::interval)";
     }
 
     /**
@@ -300,6 +267,9 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTableConstraintsSQL($table)
     {
+        $table = new Identifier($table);
+        $table = $table->getName();
+
         return "SELECT
                     quote_ident(relname) as relname
                 FROM
@@ -347,7 +317,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         } else {
             $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') from pg_catalog.pg_settings where name = 'search_path'),','))";
         }
-        $whereClause .= "$classAlias.relname = '" . $table . "' AND $namespaceAlias.nspname = $schema";
+
+        $table = new Identifier($table);
+        $whereClause .= "$classAlias.relname = '" . $table->getName() . "' AND $namespaceAlias.nspname = $schema";
 
         return $whereClause;
     }
@@ -372,7 +344,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                         AND pg_index.indkey[0] = a.attnum
                         AND pg_index.indisprimary = 't'
                     ) AS pri,
-                    (SELECT pg_attrdef.adsrc
+                    (SELECT pg_get_expr(adbin, adrelid)
                      FROM pg_attrdef
                      WHERE c.oid = pg_attrdef.adrelid
                         AND pg_attrdef.adnum=a.attnum
@@ -478,7 +450,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                 $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
             }
 
-            if ($columnDiff->hasChanged('default')) {
+            if ($columnDiff->hasChanged('default') || $columnDiff->hasChanged('type')) {
                 $defaultClause = null === $column->getDefault()
                     ? ' DROP DEFAULT'
                     : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
@@ -528,7 +500,10 @@ class PostgreSqlPlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' RENAME COLUMN ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
+            $oldColumnName = new Identifier($oldColumnName);
+
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) .
+                ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
         }
 
         $tableSql = array();
@@ -606,7 +581,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    public function getCreateSequenceSQL(Sequence $sequence)
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize() .
@@ -618,7 +593,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    public function getAlterSequenceSQL(Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize() .
@@ -628,9 +603,11 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * Cache definition for sequences
      *
+     * @param Sequence $sequence
+     *
      * @return string
      */
-    private function getSequenceCacheSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    private function getSequenceCacheSQL(Sequence $sequence)
     {
         if ($sequence->getCache() > 1) {
             return ' CACHE ' . $sequence->getCache();
@@ -644,7 +621,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDropSequenceSQL($sequence)
     {
-        if ($sequence instanceof \Doctrine\DBAL\Schema\Sequence) {
+        if ($sequence instanceof Sequence) {
             $sequence = $sequence->getQuotedName($this);
         }
         return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
