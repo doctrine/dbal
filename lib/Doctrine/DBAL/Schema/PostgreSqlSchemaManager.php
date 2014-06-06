@@ -325,7 +325,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         if (preg_match("/^'(.*)'::.*$/", $tableColumn['default'], $matches)
             || preg_match("/^(.*)::.*$/", $tableColumn['default'], $matches)) {
-            $tableColumn['default'] = $matches[1];
+            $tableColumn['default'] = trim($matches[1], '()');
         }
 
         if (stripos($tableColumn['default'], 'NULL') === 0) {
