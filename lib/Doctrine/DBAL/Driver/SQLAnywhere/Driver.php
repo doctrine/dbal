@@ -81,7 +81,7 @@ class Driver extends AbstractSQLAnywhereDriver
      * Build the connection string for given connection parameters and driver options.
      *
      * @param string  $host          Host address to connect to.
-     * @param integer $port          Port to use for the connection (default to SQL Anywhere standard port 2683).
+     * @param integer $port          Port to use for the connection (default to SQL Anywhere standard port 2638).
      * @param string  $server        Database server name on the host to connect to.
      *                               SQL Anywhere allows multiple database server instances on the same host,
      *                               therefore specifying the server instance name to use is mandatory.
@@ -94,7 +94,7 @@ class Driver extends AbstractSQLAnywhereDriver
      */
     private function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = array())
     {
-        $port = $port ?: 2683;
+        $port = $port ?: 2638;
 
         return
             'LINKS=tcpip(HOST=' . $host . ';PORT=' . $port . ';DoBroadcast=Direct)' .
