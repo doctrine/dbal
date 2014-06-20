@@ -24,7 +24,7 @@
     },
     "bin": ["bin/doctrine-dbal"],
     "autoload": {
-        "psr-0": { "Doctrine\\DBAL\\": "lib/" }
+        "psr-4": { "Doctrine\\DBAL\\": "lib/Doctrine/DBAL/" }
     },
     "extra": {
         "branch-alias": {
