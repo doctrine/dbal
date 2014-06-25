@@ -435,4 +435,26 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $this->assertSame($result, $conn->fetchAll($statement, $params, $types));
     }
+
+    public function testConnectionDoesNotMaintainTwoReferencesToExternalPDO()
+    {
+        $params['pdo'] = new \stdClass();
+
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $conn = new Connection($params, $driverMock);
+
+        $this->assertArrayNotHasKey('pdo', $conn->getParams(), "Connection is maintaining additional reference to the PDO connection");
+    }
+
+    public function testPassingExternalPDOMeansConnectionIsConnected()
+    {
+        $params['pdo'] = new \stdClass();
+
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $conn = new Connection($params, $driverMock);
+
+        $this->assertTrue($conn->isConnected(), "Connection is not connected after passing external PDO");
+    }
 }

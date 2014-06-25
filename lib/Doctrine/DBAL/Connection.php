@@ -206,6 +206,7 @@ class Connection implements DriverConnection
         if (isset($params['pdo'])) {
             $this->_conn = $params['pdo'];
             $this->_isConnected = true;
+            unset($this->_params['pdo']);
         }
 
         // Create default config and event manager if none given
