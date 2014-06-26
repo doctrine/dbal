@@ -38,6 +38,11 @@ class ExpressionBuilder
     const GT  = '>';
     const GTE = '>=';
 
+    const NONE = 0;
+    const INT = 1;
+    const DEC = 2;
+    const STRING = 3;
+
     /**
      * The DBAL Connection.
      *
@@ -276,12 +281,14 @@ class ExpressionBuilder
      * Creates a IN () comparison expression with the given arguments.
      *
      * @param string $x The field in string format to be inspected by IN() comparison.
-     * @param array  $y The array of values to be used by IN() comparison.
+     * @param array $y The array of values to be used by IN() comparison.
+     * @param integer $type The type to sanitize the array values.
      *
      * @return string
      */
-    public function in($x, array $y)
+    public function in($x, array $y, $type = self::STRING)
     {
+        $this->sanitizeArray($y, $type);
         return $this->comparison($x, 'IN', '('.implode(', ', $y).')');
     }
 
@@ -290,11 +297,13 @@ class ExpressionBuilder
      *
      * @param string $x The field in string format to be inspected by NOT IN() comparison.
      * @param array $y  The array of values to be used by NOT IN() comparison.
+     * @param integer $type The type to sanitize the array values.
      *
      * @return string
      */
-    public function notIn($x, array $y)
+    public function notIn($x, array $y, $type = self::STRING)
     {
+        $this->sanitizeArray($y, $type);
         return $this->comparison($x, 'NOT IN', '('.implode(', ', $y).')');
     }
 
@@ -309,5 +318,38 @@ class ExpressionBuilder
     public function literal($input, $type = null)
     {
         return $this->connection->quote($input, $type);
+    }
+
+    /**
+     * Sanitizes an array for imploding.
+     *
+     * @param array $array An array of values to sanitize.
+     * @param integer $type The value type to conform.
+     */
+    public function sanitizeArray(array &$array, $type)
+    {
+        switch($type) {
+            case self::NONE:
+                return;
+
+            case self::INT:
+                $array = array_map('intval', $array);
+                break;
+
+            case self::DEC:
+                $array = array_map('floatval', $array);
+                break;
+
+            case self::STRING:
+            default:
+                $connection = $this->connection;
+                $array = array_map(
+                    function ($value) use ($connection) {
+                        return $connection->quote($value, null);
+                    },
+                    $array
+                );
+                break;
+        }
     }
 }
