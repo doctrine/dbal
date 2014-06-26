@@ -30,6 +30,11 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 class MysqliConnection implements Connection, PingableConnection, ServerInfoAwareConnection
 {
     /**
+     * Name of the option to set connection flags
+     */
+    const OPTION_FLAGS = 'flags';
+
+    /**
      * @var \mysqli
      */
     private $_conn;
@@ -47,6 +52,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $port = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
         $socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
 
+        $flags = isset($driverOptions[static::OPTION_FLAGS]) ? $driverOptions[static::OPTION_FLAGS] : null;
+
         $this->_conn = mysqli_init();
 
         $this->setDriverOptions($driverOptions);
@@ -54,7 +61,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $previousHandler = set_error_handler(function () {
         });
 
-        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket)) {
+        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket, $flags)) {
             set_error_handler($previousHandler);
 
             $sqlState = 'HY000';
@@ -215,6 +222,10 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $exceptionMsg = "%s option '%s' with value '%s'";
 
         foreach ($driverOptions as $option => $value) {
+
+            if ($option === static::OPTION_FLAGS) {
+                continue;
+            }
 
             if (!in_array($option, $supportedDriverOptions, true)) {
                 throw new MysqliException(
