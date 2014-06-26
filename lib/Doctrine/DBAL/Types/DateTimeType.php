@@ -49,8 +49,12 @@ class DateTimeType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return ($value !== null)
-            ? $value->format($platform->getDateTimeFormatString()) : null;
+        if ($value === null) { return null; }
+
+        $copy = clone $value;
+        $copy->setTimezone(new \DateTimeZone('UTC'));
+
+        return $copy->format($platform->getDateTimeFormatString());
     }
 
     /**
@@ -62,15 +66,17 @@ class DateTimeType extends Type
             return $value;
         }
 
-        $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
+        $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value, new \DateTimeZone('UTC'));
 
         if ( ! $val) {
-            $val = date_create($value);
+            $val = date_create($value, new \DateTimeZone('UTC'));
         }
 
         if ( ! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString());
         }
+
+        $val->setTimezone(new \DateTimeZone(date_default_timezone_get()));
 
         return $val;
     }
