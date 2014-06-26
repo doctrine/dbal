@@ -50,12 +50,12 @@ class DropSchemaSqlCollector extends AbstractVisitor
     private $tables;
 
     /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var AbstractPlatform
      */
     private $platform;
 
     /**
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     * @param AbstractPlatform $platform
      */
     public function __construct(AbstractPlatform $platform)
     {
