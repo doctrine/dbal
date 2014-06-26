@@ -33,8 +33,11 @@ namespace Doctrine\DBAL\Driver;
 interface Statement extends ResultStatement
 {
     /**
-     * Binds a value to a corresponding named or positional
+     * Binds a value to a corresponding named (not supported by mysqli driver, see comment below) or positional
      * placeholder in the SQL statement that was used to prepare the statement.
+     *
+     * As mentioned above, the named parameters are not natively supported by the mysqli driver, use executeQuery(),
+     * fetchAll(), fetchArray(), fetchColumn(), fetchAssoc() methods to have the named parameter emulated by doctrine.
      *
      * @param mixed   $param Parameter identifier. For a prepared statement using named placeholders,
      *                       this will be a parameter name of the form :name. For a prepared statement
