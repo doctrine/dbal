@@ -102,7 +102,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function bindParam($column, &$variable, $type = null, $length = null)
     {
