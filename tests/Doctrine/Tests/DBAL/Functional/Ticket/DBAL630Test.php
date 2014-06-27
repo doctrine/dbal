@@ -71,7 +71,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
         // PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT is deprecated in php 5.6. PDO::ATTR_EMULATE_PREPARES should
         // be used instead. so should only it be set when it is supported.
         if (version_compare('5.6', phpversion()) === 1) {
-            $this->_conn->getWrappedConnection()->setAttribute(PDO::GSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT, true);
+            $this->_conn->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT, true);
         }
 
         $platform = $this->_conn->getDatabasePlatform();
