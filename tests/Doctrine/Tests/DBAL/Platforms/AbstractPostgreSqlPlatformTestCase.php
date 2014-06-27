@@ -290,13 +290,22 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * @group DBAL-457
-     * @dataProvider pgStringBooleanProvider
+     * @dataProvider pgBooleanProvider
+     *
+     * @param string $databaseValue
+     * @param string $prepareStatementValue
+     * @param integer $integerValue
+     * @param boolean $booleanValue
      */
-    public function testConvertBooleanAsLiteralStrings($expected, $input)
-    {
+    public function testConvertBooleanAsLiteralStrings(
+        $databaseValue,
+        $preparedStatementValue,
+        $integerValue,
+        $booleanValue
+    ) {
         $platform = $this->createPlatform();
 
-        $this->assertEquals($expected, $platform->convertBooleans($input));
+        $this->assertEquals($preparedStatementValue, $platform->convertBooleans($databaseValue));
     }
 
     /**
@@ -316,13 +325,23 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     /**
      * @group DBAL-630
-     * @dataProvider pgStringBooleanDatabaseValueProvider
+     * @dataProvider pgBooleanProvider
+     *
+     * @param string $databaseValue
+     * @param string $prepareStatementValue
+     * @param integer $integerValue
+     * @param boolean $booleanValue
      */
-    public function testConvertBooleanAsDatabaseValueStrings($expected, $input)
+    public function testConvertBooleanAsDatabaseValueStrings(
+        $databaseValue,
+        $preparedStatementValue,
+        $integerValue,
+        $booleanValue
+    )
     {
         $platform = $this->createPlatform();
 
-        $this->assertEquals($expected, $platform->convertBooleansToDatabaseValue($input));
+        $this->assertEquals($integerValue, $platform->convertBooleansToDatabaseValue($booleanValue));
     }
 
     /**
@@ -347,17 +366,18 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @dataProvider pgStringBooleanDatabaseValueProvider
+     * @dataProvider pgBooleanProvider
+     *
+     * @param string $databaseValue
+     * @param string $prepareStatementValue
+     * @param integer $integerValue
+     * @param boolean $booleanValue
      */
-    public function testConvertFromBoolean($expected, $input)
+    public function testConvertFromBoolean($databaseValue, $prepareStatementValue, $integerValue, $booleanValue)
     {
         $platform = $this->createPlatform();
 
-        if ($expected === 1) {
-            $this->assertTrue($platform->convertFromBoolean($input));
-        } else {
-            $this->assertFalse($platform->convertFromBoolean($input));
-        }
+        $this->assertSame($booleanValue, $platform->convertFromBoolean($databaseValue));
     }
 
     /**
@@ -583,49 +603,25 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      * PostgreSQL boolean strings provider
      * @return array
      */
-    public function pgStringBooleanProvider()
+    public function pgBooleanProvider()
     {
         return array(
-            array('true', true),
-            array('true', 't'),
-            array('true', 'true'),
-            array('true', 'y'),
-            array('true', 'yes'),
-            array('true', 'on'),
-            array('true', '1'),
+            // Database value, prepared statement value, boolean integer value, boolean value.
+            array(true, 'true', 1, true),
+            array('t', 'true', 1, true),
+            array('true', 'true', 1, true),
+            array('y', 'true', 1, true),
+            array('yes', 'true', 1, true),
+            array('on', 'true', 1, true),
+            array('1', 'true', 1, true),
 
-            array('false', false),
-            array('false', 'f'),
-            array('false', 'false'),
-            array('false', 'n'),
-            array('false', 'no'),
-            array('false', 'off'),
-            array('false', '0'),
-        );
-    }
-
-    /**
-     * PostgreSQL boolean strings as database values provider
-     * @return array
-     */
-    public function pgStringBooleanDatabaseValueProvider()
-    {
-        return array(
-            array(1, true),
-            array(1, 't'),
-            array(1, 'true'),
-            array(1, 'y'),
-            array(1, 'yes'),
-            array(1, 'on'),
-            array(1, '1'),
-
-            array(0, false),
-            array(0, 'f'),
-            array(0, 'false'),
-            array(0, 'n'),
-            array(0, 'no'),
-            array(0, 'off'),
-            array(0, '0'),
+            array(false, 'false', 0, false),
+            array('f', 'false', 0, false),
+            array('false', 'false', 0, false),
+            array( 'n', 'false', 0, false),
+            array('no', 'false', 0, false),
+            array('off', 'false', 0, false),
+            array('0', 'false', 0, false),
         );
     }
 
