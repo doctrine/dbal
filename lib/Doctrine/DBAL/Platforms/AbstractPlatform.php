@@ -2565,7 +2565,7 @@ abstract class AbstractPlatform
      * There are two contexts when converting booleans: Literals and Prepared Statements.
      * This method should handle the literal case
      *
-     * @param  mixed $item
+     * @param mixed $item
      * @return mixed
      */
     public function convertBooleans($item)
