@@ -209,8 +209,10 @@ class PostgreSqlPlatform extends AbstractPlatform
                     c.relname, n.nspname AS schemaname
                 FROM
                    pg_class c, pg_namespace n
-                WHERE relkind = 'S' AND n.oid = c.relnamespace AND
-                    (n.nspname NOT LIKE 'pg_%' AND n.nspname != 'information_schema')";
+                WHERE relkind = 'S' 
+                AND n.oid = c.relnamespace 
+                AND (n.nspname NOT LIKE 'pg_%' AND n.nspname != 'information_schema')
+                AND pg_table_is_visible(oid) is true";
     }
 
     /**
@@ -218,8 +220,17 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT quote_ident(tablename) AS table_name, schemaname AS schema_name
-                FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname != 'information_schema' AND tablename != 'geometry_columns' AND tablename != 'spatial_ref_sys'";
+        return "SELECT quote_ident(t.tablename) AS table_name, 
+                t.schemaname AS schema_name
+                FROM pg_tables t,
+                     pg_class c
+                WHERE t.tablename = c.relname
+                AND c.relkind = 'r'
+                AND pg_table_is_visible(c.oid) is true
+                AND t.schemaname NOT LIKE 'pg_%' 
+                AND schemaname != 'information_schema' 
+                AND tablename != 'geometry_columns' 
+                AND tablename != 'spatial_ref_sys'";
     }
 
     /**
