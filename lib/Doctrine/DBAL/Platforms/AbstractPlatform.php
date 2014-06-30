@@ -2373,7 +2373,7 @@ abstract class AbstractPlatform
      *
      * @param mixed $item
      *
-     * @return bool
+     *  @return bool|null 
      */
     public function convertFromBoolean($item)
     {
