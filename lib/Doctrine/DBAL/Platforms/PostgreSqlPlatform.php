@@ -705,6 +705,22 @@ class PostgreSqlPlatform extends AbstractPlatform
 
         return $item;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public function convertFromBoolean($item)
+    {
+        if ((null !== $item) && 
+            (false !== $item) && 
+            (true !== $item) && 
+            in_array(strtolower($item), array('false', 'f', 'n', 'no', 'off'), true)
+        ) {
+            return false;
+        } 
+          
+        return parent::convertFromBoolean($item);
+    }
 
     /**
      * {@inheritDoc}
