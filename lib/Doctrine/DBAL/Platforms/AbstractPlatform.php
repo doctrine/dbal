@@ -2562,9 +2562,13 @@ abstract class AbstractPlatform
      *
      * The default conversion in this implementation converts to integers (false => 0, true => 1).
      *
-     * @param mixed $item
+     * Note: if the input is not a boolean the original input might be returned.
      *
-     * @return mixed
+     * There are two contexts when converting booleans: Literals and Prepared Statements.
+     * This method should handle the literal case
+     *
+     * @param mixed $item A boolean or an array of them.
+     * @return mixed A boolean database value or an array of them.
      */
     public function convertBooleans($item)
     {
@@ -2579,6 +2583,34 @@ abstract class AbstractPlatform
         }
 
         return $item;
+    }
+    
+    /**
+     * Some platforms have boolean literals that needs to be correctly converted
+     *
+     * The default conversion tries to convert value into bool "(bool)$item"
+     *
+     * @param mixed $item
+     *
+     * @return bool|null
+     */
+    public function convertFromBoolean($item)
+    {
+        return null === $item ? null: (bool) $item ;
+    }
+
+    /**
+     * This method should handle the prepared statements case. When there is no
+     * distinction, it's OK to use the same method.
+     *
+     * Note: if the input is not a boolean the original input might be returned.
+     *
+     * @param mixed $item A boolean or an array of them.
+     * @return mixed A boolean database value or an array of them.
+     */
+    public function convertBooleansToDatabaseValue($item)
+    {
+        return $this->convertBooleans($item);
     }
 
     /**

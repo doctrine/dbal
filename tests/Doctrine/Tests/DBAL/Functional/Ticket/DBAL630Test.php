@@ -33,6 +33,12 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         if ($this->running) {
             $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+            // PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT is deprecated in php 5.6. PDO::ATTR_EMULATE_PREPARES should
+            // be used instead. so should only it be set when it is supported.
+            if (PHP_VERSION_ID < 50600) {
+                $this->_conn->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT, false);
+            }
         }
     }
 
@@ -60,12 +66,18 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testBooleanConversionBoolParamEmulatedPrepares()
     {
-        $this->markTestIncomplete('There is something missing here, on some machines it fails on some it passes.');
-
         $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
+        // PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT is deprecated in php 5.6. PDO::ATTR_EMULATE_PREPARES should
+        // be used instead. so should only it be set when it is supported.
+        if (PHP_VERSION_ID < 50600) {
+            $this->_conn->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT, true);
+        }
+
+        $platform = $this->_conn->getDatabasePlatform();
+
         $stmt = $this->_conn->prepare('INSERT INTO dbal630 (bool_col) VALUES(?)');
-        $stmt->bindValue(1, 'false', PDO::PARAM_BOOL);
+        $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue('false'), PDO::PARAM_BOOL);
         $stmt->execute();
 
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
@@ -74,6 +86,6 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', array($id));
 
-        $this->assertTrue($row['bool_col']);
+        $this->assertFalse($row['bool_col']);
     }
 }
