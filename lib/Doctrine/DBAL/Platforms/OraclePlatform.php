@@ -771,6 +771,11 @@ LEFT JOIN user_cons_columns r_cols
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
+        if (strpos($tableName, '.') !== false) {
+            list($schema) = explode('.', $tableName);
+            $oldIndexName = $schema . '.' . $oldIndexName;
+        }
+
         return array('ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this));
     }
 

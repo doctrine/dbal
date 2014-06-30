@@ -845,4 +845,25 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable RENAME quoted3 TO "baz"',
         );
     }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'ALTER INDEX idx_foo ON myschema.mytable RENAME TO idx_bar',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'ALTER INDEX "create" ON "schema"."table" RENAME TO "select"',
+            'ALTER INDEX "foo" ON "schema"."table" RENAME TO "bar"',
+        );
+    }
 }

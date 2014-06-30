@@ -514,6 +514,30 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'DROP INDEX idx_foo ON myschema.mytable',
+            'CREATE INDEX idx_bar ON myschema.mytable (id)',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'DROP INDEX `create` ON `schema`.`table`',
+            'CREATE INDEX `select` ON `schema`.`table` (id)',
+            'DROP INDEX `foo` ON `schema`.`table`',
+            'CREATE INDEX `bar` ON `schema`.`table` (id)',
+        );
+    }
+
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
     {
         $table = new Table("text_blob_default_value");

@@ -455,4 +455,25 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
         );
     }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'ALTER INDEX myschema.idx_foo RENAME TO idx_bar',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'ALTER INDEX "schema"."create" RENAME TO "select"',
+            'ALTER INDEX "schema"."foo" RENAME TO "bar"',
+        );
+    }
 }
