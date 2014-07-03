@@ -250,7 +250,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                 WHERE relkind = 'S' 
                 AND n.oid = c.relnamespace 
                 AND (n.nspname NOT LIKE 'pg_%' AND n.nspname != 'information_schema')
-                AND pg_table_is_visible(n.oid) is true";
+                AND pg_table_is_visible(c.oid) is true";
     }
 
     /**
