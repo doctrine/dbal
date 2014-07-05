@@ -234,7 +234,7 @@ class DB2Platform extends AbstractPlatform
     }
 
     /**
-     * This code fragment is originally from the Zend_Db_Adapter_Db2 class.
+     * This code fragment is originally from the Zend_Db_Adapter_Db2 class, but has been edited.
      *
      * @license New BSD License
      *
@@ -245,22 +245,47 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        return "SELECT DISTINCT c.tabschema, c.tabname, c.colname, c.colno,
-                c.typename, c.default, c.nulls, c.length, c.scale,
-                c.identity, tc.type AS tabconsttype, k.colseq,
-                CASE
-                    WHEN c.generated = 'D' THEN 1
-                    ELSE 0
-                END AS autoincrement
-                FROM syscat.columns c
-                LEFT JOIN (syscat.keycoluse k JOIN syscat.tabconst tc
-                ON (k.tabschema = tc.tabschema
-                    AND k.tabname = tc.tabname
-                    AND tc.type = 'P'))
-                ON (c.tabschema = k.tabschema
-                    AND c.tabname = k.tabname
-                    AND c.colname = k.colname)
-                WHERE UPPER(c.tabname) = UPPER('" . $table . "') ORDER BY c.colno";
+        // We do the funky subquery and join syscat.columns.default this crazy way because
+        // as of db2 v10, the column is CLOB(64k) and the distinct operator won't allow a CLOB,
+        // it wants shorter stuff like a varchar.
+        return "
+        SELECT
+          cols.default,
+          subq.*
+        FROM (
+               SELECT DISTINCT
+                 c.tabschema,
+                 c.tabname,
+                 c.colname,
+                 c.colno,
+                 c.typename,
+                 c.nulls,
+                 c.length,
+                 c.scale,
+                 c.identity,
+                 tc.type AS tabconsttype,
+                 k.colseq,
+                 CASE
+                 WHEN c.generated = 'D' THEN 1
+                 ELSE 0
+                 END     AS autoincrement
+               FROM syscat.columns c
+                 LEFT JOIN (syscat.keycoluse k JOIN syscat.tabconst tc
+                     ON (k.tabschema = tc.tabschema
+                         AND k.tabname = tc.tabname
+                         AND tc.type = 'P'))
+                   ON (c.tabschema = k.tabschema
+                       AND c.tabname = k.tabname
+                       AND c.colname = k.colname)
+               WHERE UPPER(c.tabname) = UPPER('" . $table . "')
+               ORDER BY c.colno
+             ) subq
+          JOIN syscat.columns cols
+            ON subq.tabschema = cols.tabschema
+               AND subq.tabname = cols.tabname
+               AND subq.colno = cols.colno
+        ORDER BY subq.colno
+        ";
     }
 
     /**
