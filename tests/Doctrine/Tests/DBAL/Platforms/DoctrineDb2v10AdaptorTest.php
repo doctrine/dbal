@@ -98,8 +98,8 @@ class DoctrineDb2v10AdaptorTest extends PHPUnit_Framework_TestCase {
     private function checkRowsMatchForTable($tbl)
     {
         // run each query and fetch the rows they produce
-        $oldRows = $this->fetchall($this->oldSql, [$tbl], $this->conn);
-        $newRows = $this->fetchall($this->newSql, [$tbl], $this->conn);
+        $oldRows = $this->fetchall($this->oldSql, array($tbl), $this->conn);
+        $newRows = $this->fetchall($this->newSql, array($tbl), $this->conn);
 
         // compare the num of rows
         $this->assertEquals(count($oldRows), count($newRows));
