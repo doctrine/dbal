@@ -115,19 +115,7 @@ class DoctrineDb2v10AdaptorTest extends PHPUnit_Framework_TestCase {
         usort($oldRows, $cmp);
         usort($newRows, $cmp);
 
-        // compare the keys and values of row n in the old to row n in the new.
-        // this doesn't consider the order of the columns in the row, which shouldn't matter.
-        foreach ($oldRows as $k => $oldRow) {
-            $diff = array_diff_assoc($oldRow, $newRows[$k]);
-            if ($diff) {
-                var_dump($k, $diff);
-                print_r($oldRow);
-                print_r($newRows[$k]);
-                print_r($oldRows);
-                print_r($newRows);
-            }
-            $this->assertEmpty($diff);
-        }
+        $this->assertEquals($newRows, $oldRows);
     }
 
     private function getAllTables()
@@ -139,12 +127,12 @@ class DoctrineDb2v10AdaptorTest extends PHPUnit_Framework_TestCase {
 
         return array_map(function($row) {
             return $row['TABNAME'];
-        }, $this->fetchAll($sql, [], $this->conn));
+        }, $this->fetchAll($sql, array(), $this->conn));
     }
 
     private function fetchAll($sql, $args, $conn)
     {
-        $ret = [];
+        $ret = array();
         $stmt = db2_prepare($conn, $sql);
         db2_execute($stmt, $args);
         while ($row = db2_fetch_assoc($stmt)) {
