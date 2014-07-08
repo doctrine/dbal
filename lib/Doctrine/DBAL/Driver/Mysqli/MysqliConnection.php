@@ -51,6 +51,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     {
         $port = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
         $socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
+        $dbname = isset($params['dbname']) ? $params['dbname'] : null;
 
         $flags = isset($driverOptions[static::OPTION_FLAGS]) ? $driverOptions[static::OPTION_FLAGS] : null;
 
@@ -61,7 +62,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $previousHandler = set_error_handler(function () {
         });
 
-        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket, $flags)) {
+        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
             set_error_handler($previousHandler);
 
             $sqlState = 'HY000';
