@@ -741,7 +741,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     private function convertSingleBooleanValue($value, $callback)
     {
         if (null === $value) {
-            return $callback(false);
+            return $callback(null);
         }
 
         if (is_bool($value) || is_numeric($value)) {
@@ -805,6 +805,9 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $this->doConvertBooleans(
             $item,
             function ($boolean) {
+                if (is_null($boolean)) {
+                    return 'NULL';
+                }
                 return true === $boolean ? 'true' : 'false';
             }
         );
@@ -822,7 +825,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $this->doConvertBooleans(
             $item,
             function ($boolean) {
-                return (int) $boolean;
+                return is_null($boolean) ? null : (int) $boolean;
             }
         );
     }
