@@ -29,13 +29,13 @@ use Doctrine\DBAL\Driver\PDOConnection;
 class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
 {
     /**
-	 * The driver options for PDO::prepare as documented in
-	 * http://msdn.microsoft.com/en-us/library/ff628176.aspx
-	 *
+     * The driver options for PDO::prepare as documented in
+     * http://msdn.microsoft.com/en-us/library/ff628176.aspx
+     *
      * @var array
      */
     protected $driverOptions;
-	
+    
     /**
      * @override
      */
