@@ -805,7 +805,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $this->doConvertBooleans(
             $item,
             function ($boolean) {
-                if (is_null($boolean)) {
+                if (null === $boolean) {
                     return 'NULL';
                 }
                 return true === $boolean ? 'true' : 'false';
@@ -825,7 +825,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $this->doConvertBooleans(
             $item,
             function ($boolean) {
-                return is_null($boolean) ? null : (int) $boolean;
+                return null === $boolean ? null : (int) $boolean;
             }
         );
     }
