@@ -17,12 +17,6 @@
  * <http://www.doctrine-project.org>.
  */
 
-/**
- * This file has been edited to fix a bug.
- *
- * @issue http://www.doctrine-project.org/jira/browse/DBAL-934
- * @author supergoat
- */
 
 namespace Doctrine\DBAL\Platforms;
 
@@ -463,92 +457,6 @@ class DB2Platform extends AbstractPlatform
         }
         return $sqls;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function old___getAlterTableSQL(TableDiff $diff)
-    {
-        $sql = array();
-        $columnSql = array();
-
-        $queryParts = array();
-        foreach ($diff->addedColumns as $column) {
-            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
-            $columnDef = $column->toArray();
-            $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
-
-            // Adding non-nullable columns to a table requires a default value to be specified.
-            if ( ! empty($columnDef['notnull']) &&
-                ! isset($columnDef['default']) &&
-                empty($columnDef['autoincrement'])
-            ) {
-                $queryPart .= ' WITH DEFAULT';
-            }
-
-            $queryParts[] = $queryPart;
-        }
-
-        foreach ($diff->removedColumns as $column) {
-            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
-                continue;
-            }
-
-            $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
-        }
-
-        foreach ($diff->changedColumns as $columnDiff) {
-            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
-                continue;
-            }
-
-            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
-            $column = $columnDiff->column;
-            $queryParts[] =  'ALTER ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
-                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-        }
-
-        foreach ($diff->renamedColumns as $oldColumnName => $column) {
-            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
-                continue;
-            }
-
-            $oldColumnName = new Identifier($oldColumnName);
-
-            $queryParts[] =  'RENAME COLUMN ' . $oldColumnName->getQuotedName($this) .
-                ' TO ' . $column->getQuotedName($this);
-        }
-
-        $tableSql = array();
-
-        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
-            if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . implode(" ", $queryParts);
-            }
-
-            // Some table alteration operations require a table reorganization.
-            if ( ! empty($diff->removedColumns) || ! empty($diff->changedColumns)) {
-                $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $diff->getName()->getQuotedName($this) . "')";
-            }
-
-            $sql = array_merge(
-                $this->getPreAlterTableIndexForeignKeySQL($diff),
-                $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff)
-            );
-
-            if ($diff->newName !== false) {
-                $sql[] =  'RENAME TABLE ' . $diff->getName()->getQuotedName($this) . ' TO ' . $diff->getNewName()->getQuotedName($this);
-            }
-        }
-
-        return array_merge($sql, $tableSql, $columnSql);
-    }
-
-
 
     /**
      * {@inheritDoc}
