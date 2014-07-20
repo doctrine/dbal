@@ -836,6 +836,9 @@ class DB2Platform extends AbstractPlatform
      */
     private function getChangedColumnAttributeAlterClauses($columnDiff)
     {
+        // TODO: do column comments, like: comment on column mytab.col3 is 'This is column 3';
+        // But, this cannot be done as part of alter table.
+
         /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
         $column = $columnDiff->column;
         $colAttrs = $column->toArray();
@@ -846,7 +849,7 @@ class DB2Platform extends AbstractPlatform
             $clauses[] = $alterCol;
             $clauses[] = $colAttrs['columnDefinition'];
         } else {
-            if ($columnDiff->hasChanged('type')) {
+            if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('length')) {
                 /** @var \Doctrine\DBAL\Types\Type $type */
                 $type = $colAttrs['type'];
                 $clauses[] = $alterCol;
@@ -861,7 +864,7 @@ class DB2Platform extends AbstractPlatform
             if ($columnDiff->hasChanged('default') || $columnDiff->hasChanged('notnull')) {
                 if (isset($colAttrs['default']) || isset($colAttrs['notnull'])) {
                     $clause = $this->getDefaultValueDeclarationSQL($colAttrs);
-                    if (strlen($clause)) {
+                    if (strlen(trim($clause))) {
                         $clauses[] = $alterCol;
                         $clauses[] = 'SET ' . $clause;
                     }
