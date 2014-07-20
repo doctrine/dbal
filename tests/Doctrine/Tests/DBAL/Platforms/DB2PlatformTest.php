@@ -22,7 +22,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            "ALTER TABLE mytable ADD COLUMN quota INTEGER DEFAULT NULL DROP COLUMN foo ALTER bar baz VARCHAR(255) DEFAULT 'def' NOT NULL ALTER bloo bloo SMALLINT DEFAULT '0' NOT NULL",
+            "ALTER TABLE mytable ADD COLUMN quota INTEGER DEFAULT NULL DROP COLUMN foo ALTER COLUMN bar SET DATA TYPE VARCHAR(255) ALTER COLUMN bar SET NOT NULL ALTER COLUMN bar SET  DEFAULT 'def' ALTER COLUMN bloo SET DATA TYPE SMALLINT ALTER COLUMN bloo SET NOT NULL ALTER COLUMN bloo SET  DEFAULT '0'",
             "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
             'RENAME TABLE mytable TO userlist',
         );
@@ -101,7 +101,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT ALTER foo foo VARCHAR(255) NOT NULL ALTER bar baz VARCHAR(255) NOT NULL",
+            "ALTER TABLE mytable ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT  ",
             "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')"
         );
     }

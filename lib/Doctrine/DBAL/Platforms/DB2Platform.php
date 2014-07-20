@@ -17,6 +17,13 @@
  * <http://www.doctrine-project.org>.
  */
 
+/**
+ * This file has been edited to fix a bug.
+ *
+ * @issue http://www.doctrine-project.org/jira/browse/DBAL-934
+ * @author supergoat
+ */
+
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Identifier;
@@ -80,7 +87,7 @@ class DB2Platform extends AbstractPlatform
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+            : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
 
     /**
@@ -460,7 +467,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getAlterTableSQL(TableDiff $diff)
+    public function old___getAlterTableSQL(TableDiff $diff)
     {
         $sql = array();
         $columnSql = array();
@@ -501,7 +508,91 @@ class DB2Platform extends AbstractPlatform
             /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $queryParts[] =  'ALTER ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+        }
+
+        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+            if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $oldColumnName = new Identifier($oldColumnName);
+
+            $queryParts[] =  'RENAME COLUMN ' . $oldColumnName->getQuotedName($this) .
+                ' TO ' . $column->getQuotedName($this);
+        }
+
+        $tableSql = array();
+
+        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
+            if (count($queryParts) > 0) {
+                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . implode(" ", $queryParts);
+            }
+
+            // Some table alteration operations require a table reorganization.
+            if ( ! empty($diff->removedColumns) || ! empty($diff->changedColumns)) {
+                $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $diff->getName()->getQuotedName($this) . "')";
+            }
+
+            $sql = array_merge(
+                $this->getPreAlterTableIndexForeignKeySQL($diff),
+                $sql,
+                $this->getPostAlterTableIndexForeignKeySQL($diff)
+            );
+
+            if ($diff->newName !== false) {
+                $sql[] =  'RENAME TABLE ' . $diff->getName()->getQuotedName($this) . ' TO ' . $diff->getNewName()->getQuotedName($this);
+            }
+        }
+
+        return array_merge($sql, $tableSql, $columnSql);
+    }
+
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAlterTableSQL(TableDiff $diff)
+    {
+        $sql = array();
+        $columnSql = array();
+
+        $queryParts = array();
+        foreach ($diff->addedColumns as $column) {
+            if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $columnDef = $column->toArray();
+            $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
+
+            // Adding non-nullable columns to a table requires a default value to be specified.
+            if ( ! empty($columnDef['notnull']) &&
+                ! isset($columnDef['default']) &&
+                empty($columnDef['autoincrement'])
+            ) {
+                $queryPart .= ' WITH DEFAULT';
+            }
+
+            $queryParts[] = $queryPart;
+        }
+
+        foreach ($diff->removedColumns as $column) {
+            if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
+                continue;
+            }
+
+            $queryParts[] =  'DROP COLUMN ' . $column->getQuotedName($this);
+        }
+
+        foreach ($diff->changedColumns as $columnDiff) {
+            if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
+            $changes = $this->getChangedColumnAttributeAlterClauses($columnDiff);
+            $queryParts[] =  $changes;
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -644,7 +735,7 @@ class DB2Platform extends AbstractPlatform
 
         // Todo OVER() needs ORDER BY data!
         $sql = 'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* '.
-               'FROM (' . $query . ') db21) db22 WHERE db22.DC_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
+            'FROM (' . $query . ') db21) db22 WHERE db22.DC_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
 
         return $sql;
     }
@@ -734,4 +825,59 @@ class DB2Platform extends AbstractPlatform
     {
         return 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords';
     }
+
+    /**
+     * Makes a partial sql string which will make changes to a single column.
+     * To be used as part of an "alter table myTable ..." statement.
+     *
+     *
+     * @param $columnDiff
+     * @return string
+     */
+    private function getChangedColumnAttributeAlterClauses($columnDiff)
+    {
+        /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
+        $column = $columnDiff->column;
+        $colAttrs = $column->toArray();
+        $clauses = array();
+        $alterCol = 'ALTER COLUMN ' . $columnDiff->getOldColumnName()->getQuotedName($this);
+
+        if (isset($colAttrs['columnDefinition'])) {
+            $clauses[] = $alterCol;
+            $clauses[] = $colAttrs['columnDefinition'];
+        } else {
+            if ($columnDiff->hasChanged('type')) {
+                /** @var \Doctrine\DBAL\Types\Type $type */
+                $type = $colAttrs['type'];
+                $clauses[] = $alterCol;
+                $clauses[] = 'SET DATA TYPE ' . $type->getSQLDeclaration($colAttrs, $this);
+            }
+
+            if ($columnDiff->hasChanged('notnull')) {
+                $clauses[] = $alterCol;
+                $clauses[] = empty($colAttrs['notnull']) ? 'DROP NOT NULL' : 'SET NOT NULL';
+            }
+
+            if ($columnDiff->hasChanged('default') || $columnDiff->hasChanged('notnull')) {
+                if (isset($colAttrs['default']) || isset($colAttrs['notnull'])) {
+                    $clause = $this->getDefaultValueDeclarationSQL($colAttrs);
+                    if (strlen($clause)) {
+                        $clauses[] = $alterCol;
+                        $clauses[] = 'SET ' . $clause;
+                    }
+                } else {
+                    $clauses[] = $alterCol;
+                    $clauses[] = 'DROP DEFAULT';
+                }
+            }
+        }
+
+        return join(' ', $clauses);
+    }
+
+
+
+
+
+
 }
