@@ -15,6 +15,13 @@ class Transaction
     private $transactionManager;
 
     /**
+     * The definition for this transaction.
+     *
+     * @var \Doctrine\DBAL\TransactionDefinition
+     */
+    private $transactionDefinition;
+
+    /**
      * Indicates whether this transaction is active, and can be committed or rolled back.
      *
      * @var boolean
@@ -45,11 +52,12 @@ class Transaction
     /**
      * Class constructor.
      *
-     * @param TransactionManager $transactionManager
+     * @param \Doctrine\DBAL\TransactionDefinition $definition
      */
-    public function __construct(TransactionManager $transactionManager)
+    public function __construct(TransactionDefinition $definition)
     {
-        $this->transactionManager = $transactionManager;
+        $this->transactionManager    = $definition->getTransactionManager();
+        $this->transactionDefinition = $definition;
     }
 
     /**
@@ -148,5 +156,25 @@ class Transaction
     public function wasRolledBack()
     {
         return $this->wasRolledBack;
+    }
+
+    /**
+     * Returns the manager that created this transaction object.
+     *
+     * @return \Doctrine\DBAL\TransactionManager
+     */
+    public function getTransactionManager()
+    {
+        return $this->transactionManager;
+    }
+
+    /**
+     * Returns the definition for this transaction.
+     *
+     * @return \Doctrine\DBAL\TransactionDefinition
+     */
+    public function getTransactionDefinition()
+    {
+        return $this->transactionDefinition;
     }
 }

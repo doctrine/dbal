@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\TransactionDefinition;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
 /**
@@ -52,14 +53,16 @@ class TransactionManagerTest extends DbalFunctionalTestCase
     {
         $this->assertTransactionNestingLevel(0);
 
-        $transaction1 = $this->transactionManager->createTransaction();
+        $definition = new TransactionDefinition($this->transactionManager);
+
+        $transaction1 = $this->transactionManager->createTransaction($definition);
 
         $this->assertSame($transaction1, $this->transactionManager->getTopLevelTransaction());
         $this->assertSame($transaction1, $this->transactionManager->getCurrentTransaction());
 
         $this->assertTransactionNestingLevel(1);
 
-        $transaction2 = $this->transactionManager->createTransaction();
+        $transaction2 = $this->transactionManager->createTransaction($definition);
 
         $this->assertSame($transaction1, $this->transactionManager->getTopLevelTransaction());
         $this->assertSame($transaction2, $this->transactionManager->getCurrentTransaction());
@@ -80,9 +83,11 @@ class TransactionManagerTest extends DbalFunctionalTestCase
 
     public function testCommittingTopLevelTransactionCommitsNestedTransactions()
     {
-        $transaction1 = $this->transactionManager->createTransaction();
-        $transaction2 = $this->transactionManager->createTransaction();
-        $transaction3 = $this->transactionManager->createTransaction();
+        $definition = new TransactionDefinition($this->transactionManager);
+
+        $transaction1 = $this->transactionManager->createTransaction($definition);
+        $transaction2 = $this->transactionManager->createTransaction($definition);
+        $transaction3 = $this->transactionManager->createTransaction($definition);
 
         $transaction1->commit();
 
@@ -92,9 +97,11 @@ class TransactionManagerTest extends DbalFunctionalTestCase
 
     public function testRollingBackTopLevelTransactionRollsBackNestedTransactions()
     {
-        $transaction1 = $this->transactionManager->createTransaction();
-        $transaction2 = $this->transactionManager->createTransaction();
-        $transaction3 = $this->transactionManager->createTransaction();
+        $definition = new TransactionDefinition($this->transactionManager);
+
+        $transaction1 = $this->transactionManager->createTransaction($definition);
+        $transaction2 = $this->transactionManager->createTransaction($definition);
+        $transaction3 = $this->transactionManager->createTransaction($definition);
 
         $transaction1->rollback();
 
