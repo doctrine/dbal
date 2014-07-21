@@ -146,11 +146,11 @@ class Table extends AbstractAsset
      * @param array       $columnNames
      * @param string|null $indexName
      * @param array       $flags
-     * @param string|null $where
+     * @param array       $options
      *
      * @return self
      */
-    public function addIndex(array $columnNames, $indexName = null, array $flags = array(), $where = null)
+    public function addIndex(array $columnNames, $indexName = null, array $flags = array(), array $options = array())
     {
         if ($indexName == null) {
             $indexName = $this->_generateIdentifierName(
@@ -158,7 +158,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, false, $flags, $where));
+        return $this->_addIndex($this->_createIndex($columnNames, $indexName, false, false, $flags, $options));
     }
 
     /**
@@ -193,11 +193,11 @@ class Table extends AbstractAsset
     /**
      * @param array       $columnNames
      * @param string|null $indexName
-     * @param string|null $where
+     * @param array       $options
      *
      * @return self
      */
-    public function addUniqueIndex(array $columnNames, $indexName = null, $where = null)
+    public function addUniqueIndex(array $columnNames, $indexName = null, $options = array())
     {
         if ($indexName === null) {
             $indexName = $this->_generateIdentifierName(
@@ -205,7 +205,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, false, array(), $where));
+        return $this->_addIndex($this->_createIndex($columnNames, $indexName, true, false, array(), $options));
     }
 
     /**
@@ -279,13 +279,13 @@ class Table extends AbstractAsset
      * @param boolean $isUnique
      * @param boolean $isPrimary
      * @param array   $flags
-     * @param string|null $where
+     * @param array   $options
      *
      * @return Index
      *
      * @throws SchemaException
      */
-    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = array(), $where = null)
+    private function _createIndex(array $columnNames, $indexName, $isUnique, $isPrimary, array $flags = array(), array $options = array())
     {
         if (preg_match('(([^a-zA-Z0-9_]+))', $indexName)) {
             throw SchemaException::indexNameInvalid($indexName);
@@ -301,7 +301,7 @@ class Table extends AbstractAsset
             }
         }
 
-        return new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags, $where);
+        return new Index($indexName, $columnNames, $isUnique, $isPrimary, $flags, $options);
     }
 
     /**

@@ -81,9 +81,9 @@ class IndexTest extends \PHPUnit_Framework_TestCase
 
     public function testFullfilledWithPartial()
     {
-        $without = new Index('without', array('col1', 'col2'), true, false, array(), null);
-        $partial = new Index('partial', array('col1', 'col2'), true, false, array(), 'col1 IS NULL');
-        $another = new Index('another', array('col1', 'col2'), true, false, array(), 'col1 IS NULL');
+        $without = new Index('without', array('col1', 'col2'), true, false, array(), array());
+        $partial = new Index('partial', array('col1', 'col2'), true, false, array(), array('where' => 'col1 IS NULL'));
+        $another = new Index('another', array('col1', 'col2'), true, false, array(), array('where' => 'col1 IS NULL'));
 
         $this->assertFalse($partial->isFullfilledBy($without));
         $this->assertFalse($without->isFullfilledBy($partial));
@@ -96,9 +96,9 @@ class IndexTest extends \PHPUnit_Framework_TestCase
 
     public function testOverrulesWithPartial()
     {
-        $without = new Index('without', array('col1', 'col2'), true, false, array(), null);
-        $partial = new Index('partial', array('col1', 'col2'), true, false, array(), 'col1 IS NULL');
-        $another = new Index('another', array('col1', 'col2'), true, false, array(), 'col1 IS NULL');
+        $without = new Index('without', array('col1', 'col2'), true, false, array(), array());
+        $partial = new Index('partial', array('col1', 'col2'), true, false, array(), array('where' => 'col1 IS NULL'));
+        $another = new Index('another', array('col1', 'col2'), true, false, array(), array('where' => 'col1 IS NULL'));
 
         $this->assertFalse($partial->overrules($without));
         $this->assertFalse($without->overrules($partial));

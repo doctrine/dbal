@@ -139,7 +139,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
     {
         $where = 'test IS NULL AND test2 IS NOT NULL';
-        $indexDef = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), false, false, array(), $where);
+        $indexDef = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), false, false, array(), array('where' => $where));
 
         $expected = ' WHERE ' . $where;
 

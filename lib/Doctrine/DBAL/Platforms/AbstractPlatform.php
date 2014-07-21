@@ -1759,9 +1759,11 @@ abstract class AbstractPlatform
      */
     protected function getPartialIndexSQL(Index $index)
     {
-        $where = $index->getWhere();
-
-        return $this->supportsPartialIndexes() && $where ? ' WHERE ' . $where : '';
+        if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
+            return  ' WHERE ' . $index->getOption('where');
+        } else {
+            return '';
+        }
     }
 
     /**
