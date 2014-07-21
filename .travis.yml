@@ -31,8 +31,17 @@ script: phpunit --configuration tests/travis/$DB.travis.xml
 
 matrix:
   allow_failures:
-    - php: hhvm
-    - php: hhvm-nightly
+      - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.1
+      - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.2
+      - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.3
+      - php: hhvm
+        env: DB=sqlite
+      - php: hhvm
+        env: DB=mysqli
+      - php: hhvm-nightly
   exclude:
       - php: hhvm
         env: DB=pgsql POSTGRESQL_VERSION=9.1 # driver currently unsupported by HHVM
