@@ -580,4 +580,20 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "CHANGE quoted3 `baz` INT NOT NULL COMMENT 'Quoted 3'"
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    {
+        return array(
+            "ALTER TABLE mytable " .
+            "CHANGE unquoted1 unquoted1 VARCHAR(255) NOT NULL COMMENT 'Unquoted 1', " .
+            "CHANGE unquoted2 unquoted2 VARCHAR(255) NOT NULL COMMENT 'Unquoted 2', " .
+            "CHANGE unquoted3 unquoted3 VARCHAR(255) NOT NULL COMMENT 'Unquoted 3', " .
+            "CHANGE `create` `create` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 1', " .
+            "CHANGE `table` `table` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 2', " .
+            "CHANGE `select` `select` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 3'"
+        );
+    }
 }

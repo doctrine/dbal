@@ -883,6 +883,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    {
+        $this->markTestIncomplete('Not implemented yet');
+    }
+
+    /**
      * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
