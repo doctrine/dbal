@@ -54,7 +54,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @var string|null
      */
-    protected $_where = null;
+    protected $where = null;
 
     /**
      * @param string   $indexName
@@ -71,7 +71,7 @@ class Index extends AbstractAsset implements Constraint
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
         $this->_isPrimary = $isPrimary;
-        $this->_where = $where;
+        $this->where = $where;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -306,6 +306,6 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getWhere()
     {
-        return $this->_where;
+        return $this->where;
     }
 }
