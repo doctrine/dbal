@@ -436,6 +436,14 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    {
+        $this->markTestIncomplete('Not implemented yet');
+    }
+
+    /**
      * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
