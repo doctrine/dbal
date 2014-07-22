@@ -789,6 +789,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                 if (null === $boolean) {
                     return 'NULL';
                 }
+
                 return true === $boolean ? 'true' : 'false';
             }
         );
