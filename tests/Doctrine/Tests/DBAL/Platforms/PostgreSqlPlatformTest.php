@@ -295,26 +295,119 @@ class PostgreSqlPlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @group DBAL-457
+     * @group        DBAL-457
+     * @dataProvider pgBooleanProvider
+     *
+     * @param string  $databaseValue
+     * @param string  $preparedStatementValue
+     * @param integer $integerValue
+     * @param boolean $booleanValue
      */
-    public function testConvertBooleanAsStrings()
-    {
+    public function testConvertBooleanAsLiteralStrings(
+        $databaseValue,
+        $preparedStatementValue,
+        $integerValue,
+        $booleanValue
+    ) {
         $platform = $this->createPlatform();
 
-        $this->assertEquals('true', $platform->convertBooleans(true));
-        $this->assertEquals('false', $platform->convertBooleans(false));
+        $this->assertEquals($preparedStatementValue, $platform->convertBooleans($databaseValue));
     }
 
     /**
      * @group DBAL-457
      */
-    public function testConvertBooleanAsIntegers()
+    public function testConvertBooleanAsLiteralIntegers()
     {
         $platform = $this->createPlatform();
         $platform->setUseBooleanTrueFalseStrings(false);
 
-        $this->assertEquals('1', $platform->convertBooleans(true));
-        $this->assertEquals('0', $platform->convertBooleans(false));
+        $this->assertEquals(1, $platform->convertBooleans(true));
+        $this->assertEquals(1, $platform->convertBooleans('1'));
+
+        $this->assertEquals(0, $platform->convertBooleans(false));
+        $this->assertEquals(0, $platform->convertBooleans('0'));
+    }
+
+    /**
+     * @group        DBAL-630
+     * @dataProvider pgBooleanProvider
+     *
+     * @param string  $databaseValue
+     * @param string  $preparedStatementValue
+     * @param integer $integerValue
+     * @param boolean $booleanValue
+     */
+    public function testConvertBooleanAsDatabaseValueStrings(
+        $databaseValue,
+        $preparedStatementValue,
+        $integerValue,
+        $booleanValue
+    ) {
+        $platform = $this->createPlatform();
+
+        $this->assertSame($integerValue, $platform->convertBooleansToDatabaseValue($booleanValue));
+    }
+
+    /**
+     * @group DBAL-630
+     */
+    public function testConvertBooleanAsDatabaseValueIntegers()
+    {
+        $platform = $this->createPlatform();
+        $platform->setUseBooleanTrueFalseStrings(false);
+
+        $this->assertSame(1, $platform->convertBooleansToDatabaseValue(true));
+        $this->assertSame(0, $platform->convertBooleansToDatabaseValue(false));
+    }
+
+    /**
+     * @dataProvider pgBooleanProvider
+     *
+     * @param string  $databaseValue
+     * @param string  $prepareStatementValue
+     * @param integer $integerValue
+     * @param boolean $booleanValue
+     */
+    public function testConvertFromBoolean($databaseValue, $prepareStatementValue, $integerValue, $booleanValue)
+    {
+        $platform = $this->createPlatform();
+
+        $this->assertSame($booleanValue, $platform->convertFromBoolean($databaseValue));
+    }
+
+    /**
+     * @expectedException        UnexpectedValueException
+     * @expectedExceptionMessage Unrecognized boolean literal 'my-bool'
+     */
+    public function testThrowsExceptionWithInvalidBooleanLiteral()
+    {
+        $platform = $this->createPlatform()->convertBooleansToDatabaseValue("my-bool");
+    }
+
+    /**
+     * PostgreSQL boolean strings provider
+     * @return array
+     */
+    public function pgBooleanProvider()
+    {
+        return array(
+            // Database value, prepared statement value, boolean integer value, boolean value.
+            array(true, 'true', 1, true),
+            array('t', 'true', 1, true),
+            array('true', 'true', 1, true),
+            array('y', 'true', 1, true),
+            array('yes', 'true', 1, true),
+            array('on', 'true', 1, true),
+            array('1', 'true', 1, true),
+            array(false, 'false', 0, false),
+            array('f', 'false', 0, false),
+            array('false', 'false', 0, false),
+            array('n', 'false', 0, false),
+            array('no', 'false', 0, false),
+            array('off', 'false', 0, false),
+            array('0', 'false', 0, false),
+        );
     }
 
     public function testAlterDecimalPrecisionScale()
