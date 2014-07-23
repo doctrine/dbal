@@ -205,14 +205,11 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListSequencesSQL($database)
     {
-        return "SELECT
-                    c.relname, n.nspname AS schemaname
-                FROM
-                   pg_class c, pg_namespace n
-                WHERE relkind = 'S' 
-                AND n.oid = c.relnamespace 
-                AND (n.nspname NOT LIKE 'pg_%' AND n.nspname != 'information_schema')
-                AND pg_table_is_visible(c.oid) is true";
+        return "SELECT sequence_name AS relname, 
+                       sequence_schema AS schemaname
+                FROM information_schema.sequences
+                WHERE sequence_schema NOT LIKE 'pg_%' 
+                AND sequence_schema != 'information_schema'";
     }
 
     /**
@@ -220,17 +217,13 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT quote_ident(t.tablename) AS table_name, 
-                t.schemaname AS schema_name
-                FROM pg_tables t,
-                     pg_class c
-                WHERE t.tablename = c.relname
-                AND c.relkind = 'r'
-                AND pg_table_is_visible(c.oid) is true
-                AND t.schemaname NOT LIKE 'pg_%' 
-                AND schemaname != 'information_schema' 
-                AND tablename != 'geometry_columns' 
-                AND tablename != 'spatial_ref_sys'";
+        return "SELECT quote_ident(table_name) AS table_name, 
+                       table_schema AS schema_name
+                FROM information_schema.tables
+                WHERE table_schema NOT LIKE 'pg_%' 
+                AND table_schema != 'information_schema' 
+                AND table_name != 'geometry_columns' 
+                AND table_name != 'spatial_ref_sys'";
     }
 
     /**
