@@ -786,7 +786,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $this->doConvertBooleans(
             $item,
             function ($boolean) {
-                return true === $boolean ? 'true' : 'false';
+                return $boolean === true ? 'true' : 'false';
             }
         );
     }
