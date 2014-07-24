@@ -88,4 +88,31 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertFalse($row['bool_col']);
     }
+    
+    public function testBooleanConversionNullParamEmulatedPrepares()
+    {
+        $this->_conn->exec('CREATE TABLE dbal630_allow_nulls (id SERIAL, bool_col BOOLEAN);');
+
+        $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+
+        // PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT is deprecated in php 5.6. PDO::ATTR_EMULATE_PREPARES should
+        // be used instead. so should only it be set when it is supported.
+        if (PHP_VERSION_ID < 50600) {
+            $this->_conn->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT, true);
+        }
+
+        $platform = $this->_conn->getDatabasePlatform();
+
+        $stmt = $this->_conn->prepare('INSERT INTO dbal630_allow_nulls (bool_col) VALUES(?)');
+        $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue(null));
+        $stmt->execute();
+
+        $id = $this->_conn->lastInsertId('dbal630_id_seq');
+
+        $this->assertNotEmpty($id);
+
+        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', array($id));
+
+        $this->assertNull($row['bool_col']);
+    }
 }
