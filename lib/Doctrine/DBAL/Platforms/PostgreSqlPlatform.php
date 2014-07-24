@@ -754,8 +754,8 @@ class PostgreSqlPlatform extends AbstractPlatform
      * and passes them to the given callback function to be reconverted
      * into any custom representation.
      *
-     * @param  $item     The value(s) to convert.
-     * @param  $callback The callback function to use for converting the real boolean value(s).
+     * @param mixed $item        The value(s) to convert.
+     * @param callable $callback The callback function to use for converting the real boolean value(s).
      *
      * @return mixed
      */
