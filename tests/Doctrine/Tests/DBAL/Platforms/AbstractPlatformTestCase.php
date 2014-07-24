@@ -718,6 +718,48 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     abstract protected function getQuotedAlterTableRenameColumnSQL();
 
     /**
+     * @group DBAL-835
+     */
+    public function testQuotesAlterTableChangeColumnLength()
+    {
+        $fromTable = new Table('mytable');
+
+        $fromTable->addColumn('unquoted1', 'string', array('comment' => 'Unquoted 1', 'length' => 10));
+        $fromTable->addColumn('unquoted2', 'string', array('comment' => 'Unquoted 2', 'length' => 10));
+        $fromTable->addColumn('unquoted3', 'string', array('comment' => 'Unquoted 3', 'length' => 10));
+
+        $fromTable->addColumn('create', 'string', array('comment' => 'Reserved keyword 1', 'length' => 10));
+        $fromTable->addColumn('table', 'string', array('comment' => 'Reserved keyword 2', 'length' => 10));
+        $fromTable->addColumn('select', 'string', array('comment' => 'Reserved keyword 3', 'length' => 10));
+
+        $toTable = new Table('mytable');
+
+        $toTable->addColumn('unquoted1', 'string', array('comment' => 'Unquoted 1', 'length' => 255));
+        $toTable->addColumn('unquoted2', 'string', array('comment' => 'Unquoted 2', 'length' => 255));
+        $toTable->addColumn('unquoted3', 'string', array('comment' => 'Unquoted 3', 'length' => 255));
+
+        $toTable->addColumn('create', 'string', array('comment' => 'Reserved keyword 1', 'length' => 255));
+        $toTable->addColumn('table', 'string', array('comment' => 'Reserved keyword 2', 'length' => 255));
+        $toTable->addColumn('select', 'string', array('comment' => 'Reserved keyword 3', 'length' => 255));
+
+        $comparator = new Comparator();
+
+        $this->assertEquals(
+            $this->getQuotedAlterTableChangeColumnLengthSQL(),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+        );
+    }
+
+    /**
+     * Returns SQL statements for {@link testQuotesAlterTableChangeColumnLength}.
+     *
+     * @return array
+     *
+     * @group DBAL-835
+     */
+    abstract protected function getQuotedAlterTableChangeColumnLengthSQL();
+
+    /**
      * @group DBAL-807
      */
     public function testAlterTableRenameIndexInSchema()

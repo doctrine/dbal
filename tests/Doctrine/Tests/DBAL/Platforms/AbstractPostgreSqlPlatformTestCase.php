@@ -637,6 +637,21 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    {
+        return array(
+            'ALTER TABLE mytable ALTER unquoted1 TYPE VARCHAR(255)',
+            'ALTER TABLE mytable ALTER unquoted2 TYPE VARCHAR(255)',
+            'ALTER TABLE mytable ALTER unquoted3 TYPE VARCHAR(255)',
+            'ALTER TABLE mytable ALTER "create" TYPE VARCHAR(255)',
+            'ALTER TABLE mytable ALTER "table" TYPE VARCHAR(255)',
+            'ALTER TABLE mytable ALTER "select" TYPE VARCHAR(255)',
+        );
+    }
+
+    /**
      * @group DBAL-807
      */
     protected function getAlterTableRenameIndexInSchemaSQL()

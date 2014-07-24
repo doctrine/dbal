@@ -247,6 +247,28 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     }
 
     /**
+     * @group DBAL-927
+     */
+    public function testModifyLimitQueryWithExtraLongQuery()
+    {
+        $query = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
+        $query.= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
+        $query.= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
+        $query.= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
+        
+        $sql = $this->_platform->modifyLimitQuery($query, 10);
+        
+        $expected = 'SELECT * FROM (SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum ';
+        $expected.= 'FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
+        $expected.= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) ';
+        $expected.= 'AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) ';
+        $expected.= 'AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)) ';
+        $expected.= 'AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10';
+        
+        $this->assertEquals($expected, $sql);
+    }
+
+    /**
      * @group DDC-2470
      */
     public function testModifyLimitQueryWithOrderByClause()
@@ -880,6 +902,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "sp_RENAME 'mytable.quoted2', '[and]', 'COLUMN'",
             "sp_RENAME 'mytable.quoted3', '[baz]', 'COLUMN'",
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    {
+        $this->markTestIncomplete('Not implemented yet');
     }
 
     /**
