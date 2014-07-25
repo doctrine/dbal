@@ -718,6 +718,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      * @param callable $callback The callback function to use for converting the real boolean value.
      *
      * @return mixed
+     * @throws \UnexpectedValueException
      */
     private function convertSingleBooleanValue($value, $callback)
     {
