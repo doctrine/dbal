@@ -69,7 +69,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInternalType('array', $sequences, 'listSequences() should return an array.');
 
         $foundSequence = null;
-        foreach($sequences AS $sequence) {
+        foreach($sequences as $sequence) {
             $this->assertInstanceOf('Doctrine\DBAL\Schema\Sequence', $sequence, 'Array elements of listSequences() should be Sequence instances.');
             if(strtolower($sequence->getName()) == 'list_sequences_test_seq') {
                 $foundSequence = $sequence;
@@ -104,7 +104,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertTrue(count($tables) > 0, "List Tables has to find at least one table named 'list_tables_test'.");
 
         $foundTable = false;
-        foreach ($tables AS $table) {
+        foreach ($tables as $table) {
             $this->assertInstanceOf('Doctrine\DBAL\Schema\Table', $table);
             if (strtolower($table->getName()) == 'list_tables_test') {
                 $foundTable = true;
@@ -722,7 +722,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     protected function assertHasTable($tables, $tableName)
     {
         $foundTable = false;
-        foreach ($tables AS $table) {
+        foreach ($tables as $table) {
             $this->assertInstanceOf('Doctrine\DBAL\Schema\Table', $table, 'No Table instance was found in tables array.');
             if (strtolower($table->getName()) == 'list_tables_test_new_name') {
                 $foundTable = true;

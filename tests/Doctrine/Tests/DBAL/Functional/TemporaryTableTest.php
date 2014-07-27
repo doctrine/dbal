@@ -50,7 +50,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn("id", "integer");
         $table->setPrimaryKey(array('id'));
 
-        foreach ($platform->getCreateTableSQL($table) AS $sql) {
+        foreach ($platform->getCreateTableSQL($table) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 
@@ -87,7 +87,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn("id", "integer");
         $table->setPrimaryKey(array('id'));
 
-        foreach ($platform->getCreateTableSQL($table) AS $sql) {
+        foreach ($platform->getCreateTableSQL($table) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 

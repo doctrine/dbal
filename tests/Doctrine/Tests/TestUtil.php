@@ -60,7 +60,7 @@ class TestUtil
                 $schema = $sm->createSchema();
                 $stmts = $schema->toDropSql($realConn->getDatabasePlatform());
 
-                foreach ($stmts AS $stmt) {
+                foreach ($stmts as $stmt) {
                     $realConn->exec($stmt);
                 }
             }
@@ -80,7 +80,7 @@ class TestUtil
 
         if (isset($GLOBALS['db_event_subscribers'])) {
             $evm = $conn->getEventManager();
-            foreach (explode(",", $GLOBALS['db_event_subscribers']) AS $subscriberClass) {
+            foreach (explode(",", $GLOBALS['db_event_subscribers']) as $subscriberClass) {
                 $subscriberInstance = new $subscriberClass();
                 $evm->addEventSubscriber($subscriberInstance);
             }
