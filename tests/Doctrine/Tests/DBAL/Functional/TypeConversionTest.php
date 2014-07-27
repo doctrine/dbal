@@ -36,7 +36,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->setPrimaryKey(array('id'));
 
         try {
-            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
                 $this->_conn->executeQuery($sql);
             }
         } catch(\Exception $e) {

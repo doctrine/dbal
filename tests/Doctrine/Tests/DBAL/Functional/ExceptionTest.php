@@ -20,7 +20,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
-        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 
@@ -46,10 +46,10 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->setPrimaryKey(array('id'));
 
         $this->setExpectedException('\Doctrine\DBAL\Exception\TableExistsException');
-        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
             $this->_conn->executeQuery($sql);
         }
-        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
             $this->_conn->executeQuery($sql);
         }
     }
@@ -72,7 +72,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $owningTable->setPrimaryKey(array('id'));
         $owningTable->addForeignKeyConstraint($table, array('constraint_id'), array('id'));
 
-        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 
@@ -92,7 +92,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('value', 'integer', array('notnull' => true));
         $table->setPrimaryKey(array('id'));
 
-        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 
@@ -107,7 +107,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table = $schema->createTable("bad_fieldname_table");
         $table->addColumn('id', 'integer', array());
 
-        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 
@@ -125,7 +125,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table2 = $schema->createTable("ambiguous_list_table_2");
         $table2->addColumn('id', 'integer');
 
-        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 
@@ -142,7 +142,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->addUniqueIndex(array('id'));
 
-        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) AS $sql) {
+        foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 
@@ -157,7 +157,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
-        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 
@@ -195,7 +195,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer');
 
         $this->setExpectedException($exceptionClass);
-        foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
+        foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
             $conn->executeQuery($sql);
         }
     }
@@ -236,7 +236,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setExpectedException('Doctrine\DBAL\Exception\ConnectionException');
 
-        foreach ($schema->toSql($conn->getDatabasePlatform()) AS $sql) {
+        foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
             $conn->executeQuery($sql);
         }
     }

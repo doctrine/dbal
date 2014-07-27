@@ -109,7 +109,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function assertFetchResultRows($rows)
     {
         $this->assertEquals(2, count($rows));
-        foreach ($rows AS $row) {
+        foreach ($rows as $row) {
             $this->assertFetchResultRow($row);
         }
     }
