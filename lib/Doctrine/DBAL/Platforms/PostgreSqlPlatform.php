@@ -51,6 +51,28 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * @var array PostgreSQL booleans literals
+     */
+    private $booleanLiterals = array(
+        'true'  => array(
+            't',
+            'true',
+            'y',
+            'yes',
+            'on',
+            '1'
+        ),
+        'false' => array(
+            'f',
+            'false',
+            'n',
+            'no',
+            'off',
+            '0'
+        )
+    );
+
+    /**
      * {@inheritDoc}
      */
     public function getSubstringExpression($value, $from, $length = null)
@@ -574,6 +596,71 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * Converts a single boolean value.
+     *
+     * First converts the value to its native PHP boolean type
+     * and passes it to the given callback function to be reconverted
+     * into any custom representation.
+     *
+     * @param mixed    $value    The value to convert.
+     * @param callable $callback The callback function to use for converting the real boolean value.
+     *
+     * @return mixed
+     */
+    private function convertSingleBooleanValue($value, $callback)
+    {
+        if (null === $value) {
+            return $callback(false);
+        }
+
+        if (is_bool($value) || is_numeric($value)) {
+            return $callback($value ? true : false);
+        }
+
+        if (!is_string($value)) {
+            return $callback(true);
+        }
+
+        /**
+         * Better safe than sorry: http://php.net/in_array#106319
+         */
+        if (in_array(trim(strtolower($value)), $this->booleanLiterals['false'], true)) {
+            return $callback(false);
+        }
+
+        if (in_array(trim(strtolower($value)), $this->booleanLiterals['true'], true)) {
+            return $callback(true);
+        }
+
+        throw new \UnexpectedValueException("Unrecognized boolean literal '${value}'");
+    }
+
+    /**
+     * Converts one or multiple boolean values.
+     *
+     * First converts the value(s) to their native PHP boolean type
+     * and passes them to the given callback function to be reconverted
+     * into any custom representation.
+     *
+     * @param mixed    $item     The value(s) to convert.
+     * @param callable $callback The callback function to use for converting the real boolean value(s).
+     *
+     * @return mixed
+     */
+    private function doConvertBooleans($item, $callback)
+    {
+        if (is_array($item)) {
+            foreach ($item as $key => $value) {
+                $item[$key] = $this->convertSingleBooleanValue($value, $callback);
+            }
+
+            return $item;
+        }
+
+        return $this->convertSingleBooleanValue($item, $callback);
+    }
+
+    /**
      * {@inheritDoc}
      *
      * Postgres wants boolean values converted to the strings 'true'/'false'.
@@ -584,19 +671,41 @@ class PostgreSqlPlatform extends AbstractPlatform
             return parent::convertBooleans($item);
         }
 
-        if (is_array($item)) {
-            foreach ($item as $key => $value) {
-                if (is_bool($value) || is_numeric($item)) {
-                    $item[$key] = ($value) ? 'true' : 'false';
-                }
+        return $this->doConvertBooleans(
+            $item,
+            function ($boolean) {
+                return true === $boolean ? 'true' : 'false';
             }
-        } else {
-           if (is_bool($item) || is_numeric($item)) {
-               $item = ($item) ? 'true' : 'false';
-           }
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function convertBooleansToDatabaseValue($item)
+    {
+        if ( ! $this->useBooleanTrueFalseStrings) {
+            return parent::convertBooleansToDatabaseValue($item);
         }
 
-        return $item;
+        return $this->doConvertBooleans(
+            $item,
+            function ($boolean) {
+                return (int) $boolean;
+            }
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function convertFromBoolean($item)
+    {
+        if (in_array(strtolower($item), $this->booleanLiterals['false'], true)) {
+            return false;
+        }
+
+        return parent::convertFromBoolean($item);
     }
 
     /**

@@ -167,7 +167,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $stmt = $this->_conn->executeQuery( "PRAGMA TABLE_INFO ('$tableName')" );
         $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         foreach($indexArray as $indexColumnRow) {
-            if($indexColumnRow['pk'] == "1") {
+            if($indexColumnRow['pk'] !== "0") {
                 $indexBuffer[] = array(
                     'key_name' => 'primary',
                     'primary' => true,
