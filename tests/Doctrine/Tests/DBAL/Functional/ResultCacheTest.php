@@ -31,7 +31,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         }
         $this->_conn->executeUpdate('DELETE FROM caching');
-        foreach ($this->expectedResult AS $row) {
+        foreach ($this->expectedResult as $row) {
             $this->_conn->insert('caching', $row);
         }
 
@@ -50,7 +50,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchNum()
     {
         $expectedResult = array();
-        foreach ($this->expectedResult AS $v) {
+        foreach ($this->expectedResult as $v) {
             $expectedResult[] = array_values($v);
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_NUM);
@@ -59,7 +59,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchBoth()
     {
         $expectedResult = array();
-        foreach ($this->expectedResult AS $v) {
+        foreach ($this->expectedResult as $v) {
             $expectedResult[] = array_merge($v, array_values($v));
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_BOTH);
@@ -68,7 +68,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchColumn()
     {
         $expectedResult = array();
-        foreach ($this->expectedResult AS $v) {
+        foreach ($this->expectedResult as $v) {
             $expectedResult[] = array_shift($v);
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_COLUMN);
@@ -77,7 +77,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testMixingFetch()
     {
         $numExpectedResult = array();
-        foreach ($this->expectedResult AS $v) {
+        foreach ($this->expectedResult as $v) {
             $numExpectedResult[] = array_values($v);
         }
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));

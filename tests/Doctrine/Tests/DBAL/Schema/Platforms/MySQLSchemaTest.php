@@ -55,7 +55,7 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
         $tableOld->addUnnamedForeignKeyConstraint('test_foreign', array('foo_id'), array('foo_id'));
 
         $sqls = array();
-        foreach ($tableOld->getForeignKeys() AS $fk) {
+        foreach ($tableOld->getForeignKeys() as $fk) {
             $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld);
         }
 

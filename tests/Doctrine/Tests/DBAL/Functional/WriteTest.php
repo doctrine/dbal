@@ -18,7 +18,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('test_string', 'string', array('notnull' => false));
             $table->setPrimaryKey(array('id'));
 
-            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
                 $this->_conn->executeQuery($sql);
             }
         } catch(\Exception $e) {

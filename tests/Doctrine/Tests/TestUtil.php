@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
 /**
@@ -32,61 +33,23 @@ class TestUtil
      * 1) Each invocation of this method returns a NEW database connection.
      * 2) The database is dropped and recreated to ensure it's clean.
      *
-     * @return \Doctrine\DBAL\Connection The database connection instance.
+     * @return Connection The database connection instance.
      */
     public static function getConnection()
     {
-        if (self::hasRequiredConnectionParams()) {
-            $realDbParams = self::getConnectionParams();
-            $tmpDbParams = self::getTmpConnectionParams();
+        $conn = DriverManager::getConnection(self::getConnectionParams());
 
-            $realConn = DriverManager::getConnection($realDbParams);
-
-            // Connect to tmpdb in order to drop and create the real test db.
-            $tmpConn = DriverManager::getConnection($tmpDbParams);
-
-            $platform  = $tmpConn->getDatabasePlatform();
-
-            if ($platform->supportsCreateDropDatabase()) {
-                $dbname = $realConn->getDatabase();
-                $realConn->close();
-
-                $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
-
-                $tmpConn->close();
-            } else {
-                $sm = $realConn->getSchemaManager();
-
-                $schema = $sm->createSchema();
-                $stmts = $schema->toDropSql($realConn->getDatabasePlatform());
-
-                foreach ($stmts AS $stmt) {
-                    $realConn->exec($stmt);
-                }
-            }
-
-            $conn = DriverManager::getConnection($realDbParams, null, null);
-        } else {
-            $params = array(
-                'driver' => 'pdo_sqlite',
-                'memory' => true
-            );
-            if (isset($GLOBALS['db_path'])) {
-                $params['path'] = $GLOBALS['db_path'];
-                unlink($GLOBALS['db_path']);
-            }
-            $conn = DriverManager::getConnection($params);
-        }
-
-        if (isset($GLOBALS['db_event_subscribers'])) {
-            $evm = $conn->getEventManager();
-            foreach (explode(",", $GLOBALS['db_event_subscribers']) AS $subscriberClass) {
-                $subscriberInstance = new $subscriberClass();
-                $evm->addEventSubscriber($subscriberInstance);
-            }
-        }
+        self::addDbEventSubscribers($conn);
 
         return $conn;
+    }
+
+    private static function getConnectionParams() {
+        if (self::hasRequiredConnectionParams()) {
+            return self::getSpecifiedConnectionParams();
+        }
+
+        return self::getFallbackConnectionParams();
     }
 
     private static function hasRequiredConnectionParams()
@@ -108,7 +71,63 @@ class TestUtil
         );
     }
 
-    private static function getTmpConnectionParams()
+    private static function getSpecifiedConnectionParams() {
+        $realDbParams = self::getParamsForMainConnection();
+        $tmpDbParams = self::getParamsForTemporaryConnection();
+
+        $realConn = DriverManager::getConnection($realDbParams);
+
+        // Connect to tmpdb in order to drop and create the real test db.
+        $tmpConn = DriverManager::getConnection($tmpDbParams);
+
+        $platform  = $tmpConn->getDatabasePlatform();
+
+        if ($platform->supportsCreateDropDatabase()) {
+            $dbname = $realConn->getDatabase();
+            $realConn->close();
+
+            $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
+
+            $tmpConn->close();
+        } else {
+            $sm = $realConn->getSchemaManager();
+
+            $schema = $sm->createSchema();
+            $stmts = $schema->toDropSql($realConn->getDatabasePlatform());
+
+            foreach ($stmts as $stmt) {
+                $realConn->exec($stmt);
+            }
+        }
+
+        return $realDbParams;
+    }
+
+    private static function getFallbackConnectionParams() {
+        $params = array(
+            'driver' => 'pdo_sqlite',
+            'memory' => true
+        );
+
+        if (isset($GLOBALS['db_path'])) {
+            $params['path'] = $GLOBALS['db_path'];
+            unlink($GLOBALS['db_path']);
+        }
+
+        return $params;
+    }
+
+    private static function addDbEventSubscribers(Connection $conn) {
+        if (isset($GLOBALS['db_event_subscribers'])) {
+            $evm = $conn->getEventManager();
+            foreach (explode(",", $GLOBALS['db_event_subscribers']) as $subscriberClass) {
+                $subscriberInstance = new $subscriberClass();
+                $evm->addEventSubscriber($subscriberInstance);
+            }
+        }
+    }
+
+    private static function getParamsForTemporaryConnection()
     {
         $connectionParams = array(
             'driver' => $GLOBALS['tmpdb_type'],
@@ -134,7 +153,7 @@ class TestUtil
         return $connectionParams;
     }
 
-    private static function getConnectionParams()
+    private static function getParamsForMainConnection()
     {
         $connectionParams = array(
             'driver' => $GLOBALS['db_type'],
@@ -157,10 +176,10 @@ class TestUtil
     }
 
     /**
-     * @return \Doctrine\DBAL\Connection
+     * @return Connection
      */
     public static function getTempConnection()
     {
-        return DriverManager::getConnection(self::getTmpConnectionParams());
+        return DriverManager::getConnection(self::getParamsForTemporaryConnection());
     }
 }
