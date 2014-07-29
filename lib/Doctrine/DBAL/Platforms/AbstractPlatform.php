@@ -2227,13 +2227,11 @@ abstract class AbstractPlatform
         if (is_array($item)) {
             foreach ($item as $k => $value) {
                 if (is_bool($value)) {
-                    $item[$k] = (int)$value;
+                    $item[$k] = (int) $value;
                 }
             }
-        } else {
-            if (is_bool($item)) {
-                $item = (int)$item;
-            }
+        } elseif (is_bool($item)) {
+            $item = (int) $item;
         }
 
         return $item;

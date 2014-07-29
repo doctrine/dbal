@@ -708,7 +708,6 @@ class PostgreSqlPlatform extends AbstractPlatform
         return parent::convertFromBoolean($item);
     }
 
-
     /**
      * {@inheritDoc}
      */
