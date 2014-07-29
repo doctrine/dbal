@@ -117,7 +117,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', array($id));
 
-        $this->assertEquals($databaseConvertedValue, $row['bool_col']);
+        $this->assertSame($databaseConvertedValue, $row['bool_col']);
     }
 
     /**
@@ -147,7 +147,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', array($id));
 
-        $this->assertEquals($databaseConvertedValue, $row['bool_col']);
+        $this->assertSame($databaseConvertedValue, $row['bool_col']);
     }
 
     /**
