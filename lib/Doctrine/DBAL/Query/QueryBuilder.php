@@ -1095,9 +1095,15 @@ class QueryBuilder
             . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
             . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
 
-        return ($this->maxResults === null && $this->firstResult == null)
-            ? $query
-            : $this->connection->getDatabasePlatform()->modifyLimitQuery($query, $this->maxResults, $this->firstResult);
+        if ($this->isLimitQuery()) {
+            return $this->connection->getDatabasePlatform()->modifyLimitQuery(
+                $query,
+                $this->maxResults,
+                $this->firstResult
+            );
+        }
+
+        return $query;
     }
 
     private function getFromClauses()
@@ -1127,6 +1133,11 @@ class QueryBuilder
                 throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
             }
         }
+    }
+
+    private function isLimitQuery()
+    {
+        return $this->maxResults !== null || $this->firstResult != null;
     }
 
     /**
