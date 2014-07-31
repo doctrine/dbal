@@ -1121,12 +1121,12 @@ class QueryBuilder
             $fromClauses[$from['alias']] = $fromClause;
         }
 
-        $this->verifyAllAliasesAreKnown( $knownAliases );
+        $this->verifyAllAliasesAreKnown($knownAliases);
 
         return $fromClauses;
     }
 
-    private function verifyAllAliasesAreKnown( array $knownAliases )
+    private function verifyAllAliasesAreKnown(array $knownAliases)
     {
         foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
             if ( ! isset($knownAliases[$fromAlias])) {
