@@ -1087,9 +1087,7 @@ class QueryBuilder
     {
         $query = 'SELECT ' . implode(', ', $this->sqlParts['select']) . ' FROM ';
 
-        $fromClauses = $this->getFromClauses();
-
-        $query .= implode(', ', $fromClauses)
+        $query .= implode(', ', $this->getFromClauses())
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
             . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
             . ($this->sqlParts['having'] !== null ? ' HAVING ' . ((string) $this->sqlParts['having']) : '')
@@ -1106,6 +1104,9 @@ class QueryBuilder
         return $query;
     }
 
+    /**
+     * @return string[]
+     */
     private function getFromClauses()
     {
         $fromClauses = array();
@@ -1113,19 +1114,17 @@ class QueryBuilder
 
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
-            if ( $from['alias'] === null ) {
+            if ($from['alias'] === null) {
                 $tableSql = $from['table'];
                 $tableReference = $from['table'];
-            }
-            else {
+            } else {
                 $tableSql = $from['table'] . ' ' . $from['alias'];
                 $tableReference = $from['alias'];
             }
 
             $knownAliases[$tableReference] = true;
 
-            $fromClauses[$tableReference] = $tableSql
-                . $this->getSQLForJoins($tableReference, $knownAliases);
+            $fromClauses[$tableReference] = $tableSql . $this->getSQLForJoins($tableReference, $knownAliases);
         }
 
         $this->verifyAllAliasesAreKnown($knownAliases);
@@ -1133,6 +1132,11 @@ class QueryBuilder
         return $fromClauses;
     }
 
+    /**
+     * @param array $knownAliases
+     *
+     * @throws QueryException
+     */
     private function verifyAllAliasesAreKnown(array $knownAliases)
     {
         foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
@@ -1142,6 +1146,9 @@ class QueryBuilder
         }
     }
 
+    /**
+     * @return bool
+     */
     private function isLimitQuery()
     {
         return $this->maxResults !== null || $this->firstResult !== null;
