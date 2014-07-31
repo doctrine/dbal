@@ -1087,23 +1087,7 @@ class QueryBuilder
     {
         $query = 'SELECT ' . implode(', ', $this->sqlParts['select']) . ' FROM ';
 
-        $fromClauses = array();
-        $knownAliases = array();
-
-        // Loop through all FROM clauses
-        foreach ($this->sqlParts['from'] as $from) {
-            $knownAliases[$from['alias']] = true;
-            $fromClause = $from['table'] . ' ' . $from['alias']
-                . $this->getSQLForJoins($from['alias'], $knownAliases);
-
-            $fromClauses[$from['alias']] = $fromClause;
-        }
-
-        foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
-            if ( ! isset($knownAliases[$fromAlias])) {
-                throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
-            }
-        }
+        $fromClauses = $this->getFromClauses();
 
         $query .= implode(', ', $fromClauses)
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '')
@@ -1114,6 +1098,35 @@ class QueryBuilder
         return ($this->maxResults === null && $this->firstResult == null)
             ? $query
             : $this->connection->getDatabasePlatform()->modifyLimitQuery($query, $this->maxResults, $this->firstResult);
+    }
+
+    private function getFromClauses()
+    {
+        $fromClauses = array();
+        $knownAliases = array();
+
+        // Loop through all FROM clauses
+        foreach ($this->sqlParts['from'] as $from) {
+            $knownAliases[$from['alias']] = true;
+
+            $fromClause = $from['table'] . ' ' . $from['alias']
+                . $this->getSQLForJoins($from['alias'], $knownAliases);
+
+            $fromClauses[$from['alias']] = $fromClause;
+        }
+
+        $this->verifyAllAliasesAreKnown( $knownAliases );
+
+        return $fromClauses;
+    }
+
+    private function verifyAllAliasesAreKnown( array $knownAliases )
+    {
+        foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
+            if ( ! isset($knownAliases[$fromAlias])) {
+                throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
+            }
+        }
     }
 
     /**
