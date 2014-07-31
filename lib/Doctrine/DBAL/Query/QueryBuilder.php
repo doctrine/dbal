@@ -583,12 +583,12 @@ class QueryBuilder
      *         ->from('users', 'u')
      * </code>
      *
-     * @param string $from   The table.
-     * @param string $alias  The alias of the table.
+     * @param string      $from  The table.
+     * @param string|null $alias The alias of the table.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return QueryBuilder This QueryBuilder instance.
      */
-    public function from($from, $alias)
+    public function from($from, $alias = null)
     {
         return $this->add('from', array(
             'table' => $from,
@@ -1113,12 +1113,19 @@ class QueryBuilder
 
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
-            $knownAliases[$from['alias']] = true;
+            if ( $from['alias'] === null ) {
+                $tableSql = $from['table'];
+                $tableReference = $from['table'];
+            }
+            else {
+                $tableSql = $from['table'] . ' ' . $from['alias'];
+                $tableReference = $from['alias'];
+            }
 
-            $fromClause = $from['table'] . ' ' . $from['alias']
-                . $this->getSQLForJoins($from['alias'], $knownAliases);
+            $knownAliases[$tableReference] = true;
 
-            $fromClauses[$from['alias']] = $fromClause;
+            $fromClauses[$tableReference] = $tableSql
+                . $this->getSQLForJoins($tableReference, $knownAliases);
         }
 
         $this->verifyAllAliasesAreKnown($knownAliases);
