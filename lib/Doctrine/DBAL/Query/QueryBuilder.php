@@ -1137,7 +1137,7 @@ class QueryBuilder
 
     private function isLimitQuery()
     {
-        return $this->maxResults !== null || $this->firstResult != null;
+        return $this->maxResults !== null || $this->firstResult !== null;
     }
 
     /**
