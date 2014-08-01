@@ -36,9 +36,9 @@ input to any of the methods of the QueryBuilder and use the placeholder
     <?php
 
     $queryBuilder
-        ->select('u.id', 'u.name')
-        ->from('users', 'u')
-        ->where('u.email = ?')
+        ->select('id', 'name')
+        ->from('users')
+        ->where('email = ?')
         ->setParameter(0, $userInputEmail)
     ;
 
@@ -62,8 +62,8 @@ For ``SELECT`` queries you start with invoking the ``select()`` method
     <?php
 
     $queryBuilder
-        ->select('u.id', 'u.name')
-        ->from('users', 'u');
+        ->select('id', 'name')
+        ->from('users');
 
 For ``INSERT``, ``UPDATE`` and ``DELETE`` queries you can pass the
 table name into the ``insert($tableName)``, ``update($tableName)``
@@ -74,15 +74,15 @@ and ``delete($tableName)``:
     <?php
 
     $queryBuilder
-        ->insert('users', 'u')
+        ->insert('users')
     ;
 
     $queryBuilder
-        ->update('users', 'u')
+        ->update('users')
     ;
 
     $queryBuilder
-        ->delete('users', 'u')
+        ->delete('users')
     ;
 
 You can convert a query builder to its SQL string representation
@@ -99,14 +99,30 @@ clauses with the following API:
     <?php
 
     $queryBuilder
-        ->select('u.id', 'u.name')
-        ->from('users', 'u')
-        ->where('u.email = ?')
+        ->select('id', 'name')
+        ->from('users')
+        ->where('email = ?')
     ;
 
 Calling ``where()`` overwrites the previous clause and you can prevent
 this by combining expressions with ``andWhere()`` and ``orWhere()`` methods.
 You can alternatively use expressions to generate the where clause.
+
+Table alias
+~~~~~~~~~~~
+
+The ``from()`` method takes an optional second parameter with which a table
+alias can be specified.
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->select('u.id', 'u.name')
+        ->from('users', 'u')
+        ->where('u.email = ?')
+    ;
 
 GROUP BY and HAVING Clause
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
