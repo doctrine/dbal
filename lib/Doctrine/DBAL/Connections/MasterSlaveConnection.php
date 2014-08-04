@@ -283,6 +283,17 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
+    public function close()
+    {
+        unset($this->connections['master']);
+        unset($this->connections['slave']);
+
+        parent::close();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function update($tableName, array $data, array $identifier, array $types = array())
     {
         $this->connect('master');
