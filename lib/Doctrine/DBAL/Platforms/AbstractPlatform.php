@@ -1761,9 +1761,9 @@ abstract class AbstractPlatform
     {
         if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
             return  ' WHERE ' . $index->getOption('where');
-        } else {
-            return '';
         }
+
+        return '';
     }
 
     /**
@@ -2341,8 +2341,8 @@ abstract class AbstractPlatform
         }
 
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ('
-                . $this->getIndexFieldDeclarationListSQL($columns)
-                . ')' . $this->getPartialIndexSQL($index);
+            . $this->getIndexFieldDeclarationListSQL($columns)
+            . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**
@@ -2600,7 +2600,7 @@ abstract class AbstractPlatform
 
         return $item;
     }
-    
+
     /**
      * Some platforms have boolean literals that needs to be correctly converted
      *

@@ -52,11 +52,11 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Platform specific options
      *
-     * $_flags should eventually be refactored into options
+     * @todo $_flags should eventually be refactored into options
      *
      * @var array
      */
-    protected $options = array();
+    private $options = array();
 
     /**
      * @param string   $indexName
@@ -210,17 +210,23 @@ class Index extends AbstractAsset implements Constraint
         $sameColumns = $this->spansColumns($other->getColumns());
 
         if ($sameColumns) {
-            if (!$this->samePartialIndex($other)) {
+            if ( ! $this->samePartialIndex($other)) {
                 return false;
-            } elseif (!$this->isUnique() && !$this->isPrimary()) {
+            }
+
+            if (!$this->isUnique() && !$this->isPrimary()) {
                 // this is a special case: If the current key is neither primary or unique, any uniqe or
                 // primary key will always have the same effect for the index and there cannot be any constraint
                 // overlaps. This means a primary or unique index can always fulfill the requirements of just an
                 // index that has no constraints.
                 return true;
-            } elseif ($other->isPrimary() != $this->isPrimary()) {
+            }
+
+            if ($other->isPrimary() != $this->isPrimary()) {
                 return false;
-            } elseif ($other->isUnique() != $this->isUnique()) {
+            }
+
+            if ($other->isUnique() != $this->isUnique()) {
                 return false;
             }
 
@@ -309,7 +315,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function hasOption($name)
     {
-        return isset($this->options[$name]);
+        return isset($this->options[strtolower($name)]);
     }
 
     /**
@@ -319,7 +325,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getOption($name)
     {
-        return $this->options[$name];
+        return $this->options[strtolower($name)];
     }
 
     /**
@@ -339,11 +345,13 @@ class Index extends AbstractAsset implements Constraint
     {
         if ($this->hasOption('where') && $other->hasOption('where') && $this->getOption('where') == $other->getOption('where')) {
             return true;
-        } elseif (!$this->hasOption('where') && !$other->hasOption('where')) {
-            return true;
-        } else {
-            return false;
         }
+
+        if (!$this->hasOption('where') && !$other->hasOption('where')) {
+            return true;
+        }
+
+        return false;
     }
 
 }
