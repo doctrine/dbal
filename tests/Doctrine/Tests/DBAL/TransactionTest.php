@@ -14,7 +14,7 @@ class TransactionTest extends DbalTestCase
     /**
      * The transaction manager mock.
      *
-     * @var \Doctrine\Tests\DBAL\Mocks\TransactionManagerMock
+     * @var \Doctrine\DBAL\TransactionManager|\PHPUnit_Framework_MockObject_MockObject
      */
     private $transactionManager;
 
