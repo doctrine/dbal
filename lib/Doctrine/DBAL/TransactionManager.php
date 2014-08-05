@@ -7,6 +7,8 @@ namespace Doctrine\DBAL;
  */
 class TransactionManager
 {
+    const SAVEPOINT_PREFIX = 'DOCTRINE2_SAVEPOINT_';
+
     /**
      * @var \Doctrine\DBAL\Connection
      */
@@ -241,7 +243,7 @@ class TransactionManager
      */
     private function getNestedTransactionSavePointName()
     {
-        return 'DOCTRINE2_SAVEPOINT_' . count($this->activeTransactions);
+        return self::SAVEPOINT_PREFIX . count($this->activeTransactions);
     }
 
     /**
