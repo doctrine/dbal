@@ -214,7 +214,7 @@ class Index extends AbstractAsset implements Constraint
                 return false;
             }
 
-            if (!$this->isUnique() && !$this->isPrimary()) {
+            if ( ! $this->isUnique() && ! $this->isPrimary()) {
                 // this is a special case: If the current key is neither primary or unique, any uniqe or
                 // primary key will always have the same effect for the index and there cannot be any constraint
                 // overlaps. This means a primary or unique index can always fulfill the requirements of just an
@@ -347,7 +347,7 @@ class Index extends AbstractAsset implements Constraint
             return true;
         }
 
-        if (!$this->hasOption('where') && !$other->hasOption('where')) {
+        if ( ! $this->hasOption('where') && ! $other->hasOption('where')) {
             return true;
         }
 
