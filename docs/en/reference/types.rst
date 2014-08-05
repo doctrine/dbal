@@ -403,6 +403,13 @@ using deserialization or ``null`` if no data is present.
     properly on vendors not supporting column comments and will fall back to
     ``text`` type instead.
 
+.. warning::
+
+    Because the build-in ``text`` type of PostgreSQL does not support NULL bytes,
+    the object type will cause deserialization errors on PostgreSQL. A workaround is
+    to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()`` PHP objects and store
+    them into a ``text`` field manually.
+
 Mapping Matrix
 --------------
 
