@@ -50,7 +50,7 @@ class TransactionManager
             $this->connection->setTransactionIsolation($isolationLevel);
         }
 
-        $transaction = new Transaction($definition);
+        $transaction = new Transaction($this, $definition);
         $this->activeTransactions[] = $transaction;
 
         $logger = $this->connection->getConfiguration()->getSQLLogger();

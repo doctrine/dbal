@@ -52,11 +52,12 @@ class Transaction
     /**
      * Class constructor.
      *
+     * @param \Doctrine\DBAL\TransactionManager    $manager
      * @param \Doctrine\DBAL\TransactionDefinition $definition
      */
-    public function __construct(TransactionDefinition $definition)
+    public function __construct(TransactionManager $manager, TransactionDefinition $definition)
     {
-        $this->transactionManager    = $definition->getTransactionManager();
+        $this->transactionManager    = $manager;
         $this->transactionDefinition = $definition;
     }
 
@@ -156,16 +157,6 @@ class Transaction
     public function wasRolledBack()
     {
         return $this->wasRolledBack;
-    }
-
-    /**
-     * Returns the manager that created this transaction object.
-     *
-     * @return \Doctrine\DBAL\TransactionManager
-     */
-    public function getTransactionManager()
-    {
-        return $this->transactionManager;
     }
 
     /**
