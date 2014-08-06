@@ -598,7 +598,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        $comment = $comment === null ? 'NULL' : "'$comment'";
+        $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
         return "COMMENT ON COLUMN $tableName.$columnName IS $comment";
     }

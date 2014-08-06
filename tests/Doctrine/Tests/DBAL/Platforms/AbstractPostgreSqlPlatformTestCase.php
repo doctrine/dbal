@@ -669,4 +669,12 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             'ALTER INDEX "schema"."foo" RENAME TO "bar"',
         );
     }
+
+    public function testGetNullCommentOnColumnSQL()
+    {
+        $this->assertEquals(
+            "COMMENT ON COLUMN mytable.id IS NULL",
+            $this->_platform->getCommentOnColumnSQL('mytable', 'id', null)
+        );
+    }
 }

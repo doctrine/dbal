@@ -1589,7 +1589,9 @@ abstract class AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        return "COMMENT ON COLUMN " . $tableName . "." . $columnName . " IS '" . $comment . "'";
+        $comment = $this->quoteStringLiteral($comment);
+
+        return "COMMENT ON COLUMN " . $tableName . "." . $columnName . " IS " . $comment;
     }
 
     /**
@@ -2198,7 +2200,7 @@ abstract class AbstractPlatform
         }
 
         if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment']) {
-            $columnDef .= " COMMENT '" . $field['comment'] . "'";
+            $columnDef .= " COMMENT " . $this->quoteStringLiteral($field['comment']);
         }
 
         return $name . ' ' . $columnDef;
@@ -3458,5 +3460,29 @@ abstract class AbstractPlatform
     protected function getReservedKeywordsClass()
     {
         throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Quotes a literal string
+     *
+     * @param string $str The literal string to be quoted.
+     *
+     * @return string The quoted literal string.
+     */
+    public function quoteStringLiteral($str)
+    {
+        $c = $this->getStringLiteralQuoteCharacter();
+
+        return $c . str_replace($c, $c . $c, $str) . $c;
+    }
+
+    /**
+     * Gets the character used for string literal quoting.
+     *
+     * @return string
+     */
+    public function getStringLiteralQuoteCharacter()
+    {
+        return "'";
     }
 }
