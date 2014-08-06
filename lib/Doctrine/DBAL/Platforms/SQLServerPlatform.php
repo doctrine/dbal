@@ -1185,7 +1185,7 @@ class SQLServerPlatform extends AbstractPlatform
         //Remove ORDER BY from $query (including nested parentheses in order by list).
         $query = preg_replace('/\s+ORDER\s+BY\s+([^()]+|\((?:(?:(?>[^()]+)|(?R))*)\))+/i', '', $query);
 
-        $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d';
+        $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum';
 
         // Pattern to match "main" SELECT ... FROM clause (including nested parentheses in select list).
         $selectFromPattern = '/^(\s*SELECT\s+(?:(.*)(?![^(]*\))))\sFROM\s/i';
