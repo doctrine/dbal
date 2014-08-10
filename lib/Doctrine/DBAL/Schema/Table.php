@@ -197,7 +197,7 @@ class Table extends AbstractAsset
      *
      * @return self
      */
-    public function addUniqueIndex(array $columnNames, $indexName = null, $options = array())
+    public function addUniqueIndex(array $columnNames, $indexName = null, array $options = array())
     {
         if ($indexName === null) {
             $indexName = $this->_generateIdentifierName(

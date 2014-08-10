@@ -2,9 +2,9 @@
 
 ## BC BREAK: Doctrine\DBAL\Schema\Table
 
-The method ``addIndex()`` in ``Doctrine\DBAL\Schema\Table`` has an additional,
-optional parameter. If you override this method, you should add this new parameter
-to the declaration of your overridden method.
+The methods ``addIndex()`` and ``addUniqueIndex()`` in ``Doctrine\DBAL\Schema\Table``
+hav an additional, optional parameter. If you override this method, you should
+add this new parameter to the declaration of your overridden method.
 
 ## BC BREAK: Doctrine\DBAL\Connection
 
