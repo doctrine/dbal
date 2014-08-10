@@ -499,8 +499,7 @@ class DB2Platform extends AbstractPlatform
                 continue;
             }
 
-            $changes = $this->getChangedColumnAttributeAlterClauses($columnDiff);
-            $queryParts[] =  $changes;
+            $queryParts[] = $this->getChangedColumnAttributeAlterClauses($columnDiff);
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -738,7 +737,6 @@ class DB2Platform extends AbstractPlatform
      * Makes a partial sql string which will make changes to a single column.
      * To be used as part of an "alter table myTable ..." statement.
      *
-     *
      * @param $columnDiff
      * @return string
      */
@@ -785,10 +783,4 @@ class DB2Platform extends AbstractPlatform
 
         return join(' ', $clauses);
     }
-
-
-
-
-
-
 }
