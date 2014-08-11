@@ -8,9 +8,9 @@ use Doctrine\DBAL\Schema\Index;
 
 class IndexTest extends \PHPUnit_Framework_TestCase
 {
-    public function createIndex($unique=false, $primary=false)
+    public function createIndex($unique = false, $primary = false, $options = array())
     {
-        return new Index("foo", array("bar", "baz"), $unique, $primary);
+        return new Index("foo", array("bar", "baz"), $unique, $primary, array(), $options);
     }
 
     public function testCreateIndex()
@@ -141,5 +141,19 @@ class IndexTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($index->hasColumnAtPosition("bar", 1));
         $this->assertFalse($index->hasColumnAtPosition("baz", 0));
+    }
+
+    public function testOptions()
+    {
+        $idx1 = $this->createIndex();
+        $this->assertFalse($idx1->hasOption('where'));
+        $this->assertEmpty($idx1->getOptions());
+
+        $idx2 = $this->createIndex(false, false, array('where' => 'name IS NULL'));
+        $this->assertTrue($idx2->hasOption('where'));
+        $this->assertTrue($idx2->hasOption('WHERE'));
+        $this->assertSame('name IS NULL', $idx2->getOption('where'));
+        $this->assertSame('name IS NULL', $idx2->getOption('WHERE'));
+        $this->assertSame(array('where' => 'name IS NULL'), $idx2->getOptions());
     }
 }

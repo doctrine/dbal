@@ -845,6 +845,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable RENAME quoted3 TO "baz"',
         );
     }
+
     public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
     {
         $this->markTestSkipped('Index declaration in statements like CREATE TABLE is not supported.');
