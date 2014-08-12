@@ -137,9 +137,9 @@ previous expressions or ``addGroupBy()`` which adds to them:
 
     <?php
     $queryBuilder
-        ->select('DATE(u.last_login) as date', 'COUNT(u.id) AS users')
-        ->from('users', 'u')
-        ->groupBy('DATE(u.last_login)')
+        ->select('DATE(last_login) as date', 'COUNT(id) AS users')
+        ->from('users')
+        ->groupBy('DATE(last_login)')
         ->having('users > 10')
     ;
 
@@ -180,10 +180,10 @@ user input and accepts SQL expressions.
 
     <?php
     $queryBuilder
-        ->select('u.id', 'u.name', 'p.number')
-        ->from('users', 'u')
-        ->orderBy('u.username', 'ASC')
-        ->addOrderBy('u.last_login', 'ASC NULLS FIRST')
+        ->select('id', 'name')
+        ->from('users')
+        ->orderBy('username', 'ASC')
+        ->addOrderBy('last_login', 'ASC NULLS FIRST')
     ;
 
 Use the ``addOrderBy`` method to add instead of replace the ``orderBy`` clause.
@@ -201,8 +201,8 @@ returned.
 
     <?php
     $queryBuilder
-        ->select('u.id', 'u.name')
-        ->from('users', 'u')
+        ->select('id', 'name')
+        ->from('users')
         ->setFirstResult(10)
         ->setMaxResults(20);
 
@@ -315,12 +315,12 @@ Most notably you can use expressions to build nested And-/Or statements:
     <?php
 
     $queryBuilder
-        ->select('u.id', 'u.name')
-        ->from('users', 'u')
+        ->select('id', 'name')
+        ->from('users')
         ->where(
             $queryBuilder->expr()->andX(
-                $queryBuilder->expr()->eq('u.username', '?'),
-                $queryBuilder->expr()->eq('u.email', '?')
+                $queryBuilder->expr()->eq('username', '?'),
+                $queryBuilder->expr()->eq('email', '?')
             )
         );
 
@@ -343,15 +343,15 @@ in your query as a return value:
     <?php
 
     $queryBuilder
-        ->select('u.id', 'u.name')
-        ->from('users', 'u')
-        ->where('u.email = ' .  $queryBuilder->createNamedParameter($userInputEmail))
+        ->select('id', 'name')
+        ->from('users')
+        ->where('email = ' .  $queryBuilder->createNamedParameter($userInputEmail))
     ;
-    // SELECT u.id, u.name FROM users u WHERE u.email = :dcValue1
+    // SELECT id, name FROM users WHERE email = :dcValue1
 
     $queryBuilder
-        ->select('u.id', 'u.name')
-        ->from('users', 'u')
-        ->where('u.email = ' .  $queryBuilder->createPositionalParameter($userInputEmail))
+        ->select('id', 'name')
+        ->from('users')
+        ->where('email = ' .  $queryBuilder->createPositionalParameter($userInputEmail))
     ;
-    // SELECT u.id, u.name FROM users u WHERE u.email = ?
+    // SELECT id, name FROM users WHERE email = ?
