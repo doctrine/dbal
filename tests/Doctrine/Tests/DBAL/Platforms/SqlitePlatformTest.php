@@ -497,11 +497,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testSupportsPartialIndexes()
-    {
-        $this->assertTrue($this->_platform->supportsPartialIndexes());
-    }
-
     /**
      * @group DBAL-807
      */

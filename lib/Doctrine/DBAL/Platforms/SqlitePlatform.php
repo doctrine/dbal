@@ -464,14 +464,6 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function supportsPartialIndexes()
-    {
-        return true;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function supportsColumnCollation()
