@@ -218,7 +218,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testModifyLimitQueryWithSubSelectAndOrder()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user u ORDER BY u.name DESC) dctrn_result', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY uname DESC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name FROM user u ORDER BY u.name DESC) dctrn_result', 10);
         $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC) AS doctrine_rownum FROM (SELECT u.id, u.name FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
@@ -231,10 +231,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         }
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user u ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY uname DESC, uid ASC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id uid, u.name uname FROM user u ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id uid, u.name uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY uname DESC, uid ASC) AS doctrine_rownum FROM (SELECT u.id uid, u.name uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name FROM user u ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
         $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id, u.name FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
@@ -344,7 +344,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "(u.foo/2) foodiv, " .
             "CONCAT(u.bar, u.baz) barbaz, " .
             "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count, " .
-            "ROW_NUMBER() OVER (ORDER BY username DESC) AS doctrine_rownum " .
+            "ROW_NUMBER() OVER (ORDER BY u.username DESC) AS doctrine_rownum " .
             "FROM user u " .
             "WHERE u.status = 'disabled'" .
             ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum",
@@ -446,7 +446,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $sql = $this->_platform->modifyLimitQuery(
             "SELECT DISTINCT id_0, name_1, foo_2 "
             . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo as foo_2 "
+            . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
             . "FROM table_parent t1 "
             . "LEFT JOIN join_table t2 ON t1.id = t2.table_id "
             . "ORDER BY t2.name ASC, t2.foo DESC"
@@ -478,7 +478,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "SELECT * FROM "
             . "(SELECT DISTINCT id_0, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum "
             . "FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 "
-            . "FROM key_table k0_ WHERE (k0_.where_field IN(1))) dctrn_result) AS doctrine_tbl "
+            . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result) AS doctrine_tbl "
             . "WHERE doctrine_rownum BETWEEN 1 AND 20",
             $sql
         );
