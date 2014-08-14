@@ -8,9 +8,9 @@ use Doctrine\Tests\DbalFunctionalTestCase;
 class ConnectionTest extends DbalFunctionalTestCase
 {
     /**
-     * The pdo_sqlsrv driver connection mock under test.
+     * The pdo_sqlsrv driver connection under test.
      *
-     * @var \Doctrine\DBAL\Driver\PDOSqlsrv\Connection|\PHPUnit_Framework_MockObject_MockObject
+     * @var \Doctrine\DBAL\Driver\PDOConnection
      */
     private $driverConnection;
 
