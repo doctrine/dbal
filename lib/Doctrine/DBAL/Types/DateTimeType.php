@@ -47,7 +47,7 @@ class DateTimeType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform, array $options = array())
     {
         return ($value !== null)
             ? $value->format($platform->getDateTimeFormatString()) : null;
@@ -56,7 +56,7 @@ class DateTimeType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform, array $options = array())
     {
         if ($value === null || $value instanceof \DateTime) {
             return $value;
