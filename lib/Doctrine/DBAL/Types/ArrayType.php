@@ -39,7 +39,7 @@ class ArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform, array $options = array())
     {
         // @todo 3.0 - $value === null check to save real NULL in database
         return serialize($value);
@@ -48,7 +48,7 @@ class ArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform, array $options = array())
     {
         if ($value === null) {
             return null;

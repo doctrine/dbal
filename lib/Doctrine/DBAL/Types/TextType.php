@@ -39,7 +39,7 @@ class TextType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform, array $options = array())
     {
         return (is_resource($value)) ? stream_get_contents($value) : $value;
     }

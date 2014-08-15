@@ -42,7 +42,7 @@ class SimpleArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform, array $options = array())
     {
         if (!$value) {
             return null;
@@ -54,7 +54,7 @@ class SimpleArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform, array $options = array())
     {
         if ($value === null) {
             return array();

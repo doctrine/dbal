@@ -1417,28 +1417,30 @@ class Connection implements DriverConnection
      * Converts a given value to its database representation according to the conversion
      * rules of a specific DBAL mapping type.
      *
-     * @param mixed  $value The value to convert.
-     * @param string $type  The name of the DBAL mapping type.
+     * @param mixed  $value   The value to convert.
+     * @param string $type    The name of the DBAL mapping type.
+     * @param array  $options Configuration options for the type.
      *
      * @return mixed The converted value.
      */
-    public function convertToDatabaseValue($value, $type)
+    public function convertToDatabaseValue($value, $type, array $options = array())
     {
-        return Type::getType($type)->convertToDatabaseValue($value, $this->getDatabasePlatform());
+        return Type::getType($type)->convertToDatabaseValue($value, $this->getDatabasePlatform(), $options);
     }
 
     /**
      * Converts a given value to its PHP representation according to the conversion
      * rules of a specific DBAL mapping type.
      *
-     * @param mixed  $value The value to convert.
-     * @param string $type  The name of the DBAL mapping type.
+     * @param mixed  $value   The value to convert.
+     * @param string $type    The name of the DBAL mapping type.
+     * @param array  $options Configuration options for the type.
      *
      * @return mixed The converted type.
      */
-    public function convertToPHPValue($value, $type)
+    public function convertToPHPValue($value, $type, array $options = array())
     {
-        return Type::getType($type)->convertToPHPValue($value, $this->getDatabasePlatform());
+        return Type::getType($type)->convertToPHPValue($value, $this->getDatabasePlatform(), $options);
     }
 
     /**

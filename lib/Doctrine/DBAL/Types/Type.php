@@ -100,10 +100,11 @@ abstract class Type
      *
      * @param mixed                                     $value    The value to convert.
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The currently used database platform.
+     * @param array                                     $options  Field specific options.
      *
      * @return mixed The database representation of the value.
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform, array $options = array())
     {
         return $value;
     }
@@ -114,10 +115,11 @@ abstract class Type
      *
      * @param mixed                                     $value    The value to convert.
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The currently used database platform.
+     * @param array                                     $options  Field specific options.
      *
      * @return mixed The PHP representation of the value.
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform, array $options = array())
     {
         return $value;
     }

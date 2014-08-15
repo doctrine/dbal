@@ -40,7 +40,7 @@ class VarDateTimeType extends DateTimeType
     /**
      * {@inheritdoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform, array $options = array())
     {
         if ($value === null || $value instanceof \DateTime) {
             return $value;
