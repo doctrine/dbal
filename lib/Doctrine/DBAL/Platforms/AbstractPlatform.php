@@ -2238,7 +2238,7 @@ abstract class AbstractPlatform
             if (isset($field['type'])) {
                 if (in_array((string)$field['type'], array("Integer", "BigInteger", "SmallInteger"))) {
                     $default = " DEFAULT ".$field['default'];
-                } elseif ((string)$field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
+                } elseif (((string)$field['type'] == 'DateTime' || (string)$field['type'] == 'DateTimeTz') && $field['default'] == $this->getCurrentTimestampSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimestampSQL();
                 } elseif ((string)$field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimeSQL();
