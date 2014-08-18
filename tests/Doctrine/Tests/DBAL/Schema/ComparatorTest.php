@@ -807,6 +807,33 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group DBAL-669
+     */
+    public function testNamespacesComparison()
+    {
+        $config = new SchemaConfig();
+        $config->setName("schemaName");
+
+        $oldSchema = new Schema(array(), array(), $config);
+        $oldSchema->createTable('taz');
+        $oldSchema->createTable('war.tab');
+
+        $newSchema= new Schema(array(), array(), $config);
+        $newSchema->createTable('bar.tab');
+        $newSchema->createTable('baz.tab');
+        $newSchema->createTable('war.tab');
+
+        $expected = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+        $expected->newNamespaces = array('bar' => 'bar', 'baz' => 'baz');
+
+        $diff = Comparator::compareSchemas($oldSchema, $newSchema);
+
+        $this->assertEquals(array('bar' => 'bar', 'baz' => 'baz'), $diff->newNamespaces);
+        $this->assertCount(2, $diff->newTables);
+    }
+
+    /**
      * @group DBAL-204
      */
     public function testFqnSchemaComparisionDifferentSchemaNameButSameTableNoDiff()
@@ -1034,5 +1061,50 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(array(), $comparator->diffColumn($column1, $column2));
         $this->assertEquals(array(), $comparator->diffColumn($column2, $column1));
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testComparesNamespaces()
+    {
+        $comparator = new Comparator();
+        $fromSchema = $this->getMock('Doctrine\DBAL\Schema\Schema', array('getNamespaces', 'hasNamespace'));
+        $toSchema = $this->getMock('Doctrine\DBAL\Schema\Schema', array('getNamespaces', 'hasNamespace'));
+
+        $fromSchema->expects($this->once())
+            ->method('getNamespaces')
+            ->will($this->returnValue(array('foo', 'bar')));
+
+        $fromSchema->expects($this->at(0))
+            ->method('hasNamespace')
+            ->with('bar')
+            ->will($this->returnValue(true));
+
+        $fromSchema->expects($this->at(1))
+            ->method('hasNamespace')
+            ->with('baz')
+            ->will($this->returnValue(false));
+
+        $toSchema->expects($this->once())
+            ->method('getNamespaces')
+            ->will($this->returnValue(array('bar', 'baz')));
+
+        $toSchema->expects($this->at(1))
+            ->method('hasNamespace')
+            ->with('foo')
+            ->will($this->returnValue(false));
+
+        $toSchema->expects($this->at(2))
+            ->method('hasNamespace')
+            ->with('bar')
+            ->will($this->returnValue(true));
+
+        $expected = new SchemaDiff();
+        $expected->fromSchema = $fromSchema;
+        $expected->newNamespaces = array('baz' => 'baz');
+        $expected->removedNamespaces = array('foo' => 'foo');
+
+        $this->assertEquals($expected, $comparator->compare($fromSchema, $toSchema));
     }
 }

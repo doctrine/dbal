@@ -1789,19 +1789,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Checks whether the schema $schemaName needs creating.
-     *
-     * @param string $schemaName
-     *
-     * @return boolean
-     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
-     */
-    public function schemaNeedsCreation($schemaName)
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
      * Quotes a string so that it can be safely used as a table or column name,
      * even if it is a reserved word of the platform. This also detects identifier
      * chains separated by dot and quotes them independently.
@@ -2674,6 +2661,18 @@ abstract class AbstractPlatform
      * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
      */
     public function getListDatabasesSQL()
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL statement for retrieving the namespaces defined in the database.
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getListNamespacesSQL()
     {
         throw DBALException::notSupported(__METHOD__);
     }

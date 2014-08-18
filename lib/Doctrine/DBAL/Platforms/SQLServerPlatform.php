@@ -158,14 +158,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function schemaNeedsCreation($schemaName)
-    {
-        return $schemaName !== 'dbo';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
         if ($foreignKey instanceof ForeignKeyConstraint) {
@@ -1023,6 +1015,14 @@ class SQLServerPlatform extends AbstractPlatform
     public function getListDatabasesSQL()
     {
         return 'SELECT * FROM SYS.DATABASES';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getListNamespacesSQL()
+    {
+        return "SELECT name FROM SYS.SCHEMAS WHERE name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')";
     }
 
     /**

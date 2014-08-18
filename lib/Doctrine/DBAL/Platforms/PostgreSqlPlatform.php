@@ -225,6 +225,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getListNamespacesSQL()
+    {
+        return "SELECT nspname FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema'";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListSequencesSQL($database)
     {
         return "SELECT
@@ -658,14 +666,6 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getCreateSchemaSQL($schemaName)
     {
         return 'CREATE SCHEMA ' . $schemaName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function schemaNeedsCreation($schemaName)
-    {
-        return !in_array($schemaName, array('default', 'public'));
     }
 
     /**

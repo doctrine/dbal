@@ -507,14 +507,6 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
-    public function testSchemaNeedsCreation()
-    {
-        $this->_platform->schemaNeedsCreation('schema');
-    }
-
-    /**
      * @group DBAL-585
      */
     public function testAlterTableChangeQuotedColumn()
