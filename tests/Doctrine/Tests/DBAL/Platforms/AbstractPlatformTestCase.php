@@ -442,6 +442,17 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGetDefaultValueDeclarationSQL()
     {
+        // non-timestamp value will get single quotes
+        $field = array(
+            'type' => 'string',
+            'default' => 'non_timestamp'
+        );
+
+        $this->assertEquals(" DEFAULT 'non_timestamp'", $this->_platform->getDefaultValueDeclarationSQL($field));
+    }
+
+    public function testGetDefaultValueDeclarationSQLDateTime()
+    {
         // timestamps on datetime types should not be quoted
         foreach (array('datetime', 'datetimetz') as $type) {
 
@@ -453,14 +464,6 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             $this->assertEquals(' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(), $this->_platform->getDefaultValueDeclarationSQL($field));
 
         }
-
-        // non-timestamp value will get single quotes
-        $field = array(
-            'type' => 'string',
-            'default' => 'non_timestamp'
-        );
-
-        $this->assertEquals(" DEFAULT 'non_timestamp'", $this->_platform->getDefaultValueDeclarationSQL($field));
     }
 
     /**
