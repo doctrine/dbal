@@ -1745,9 +1745,25 @@ abstract class AbstractPlatform
         }
 
         $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
+        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
+    }
+
+    /**
+     * Adds condition for partial index.
+     *
+     * @param \Doctrine\DBAL\Schema\Index $index
+     *
+     * @return string
+     */
+    protected function getPartialIndexSQL(Index $index)
+    {
+        if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
+            return  ' WHERE ' . $index->getOption('where');
+        }
+
+        return '';
     }
 
     /**
@@ -2289,7 +2305,7 @@ abstract class AbstractPlatform
 
         return 'CONSTRAINT ' . $name . ' UNIQUE ('
              . $this->getIndexFieldDeclarationListSQL($columns)
-             . ')';
+             . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**
@@ -2312,8 +2328,8 @@ abstract class AbstractPlatform
         }
 
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ('
-             . $this->getIndexFieldDeclarationListSQL($columns)
-             . ')';
+            . $this->getIndexFieldDeclarationListSQL($columns)
+            . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**
@@ -2571,7 +2587,7 @@ abstract class AbstractPlatform
 
         return $item;
     }
-    
+
     /**
      * Some platforms have boolean literals that needs to be correctly converted
      *
@@ -3005,6 +3021,16 @@ abstract class AbstractPlatform
     public function supportsIndexes()
     {
         return true;
+    }
+
+    /**
+     * Whether the platform supports partial indexes.
+     *
+     * @return boolean
+     */
+    public function supportsPartialIndexes()
+    {
+        return false;
     }
 
     /**

@@ -822,6 +822,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
+    {
+        $this->markTestSkipped('Index declaration in statements like CREATE TABLE is not supported.');
+    }
+
     /**
      * {@inheritdoc}
      */
