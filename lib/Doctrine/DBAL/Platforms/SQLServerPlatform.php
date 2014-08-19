@@ -1458,7 +1458,7 @@ class SQLServerPlatform extends AbstractPlatform
             return " DEFAULT " . $field['default'];
         }
 
-        if ((string) $field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
+        if (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getCurrentTimestampSQL()) {
             return " DEFAULT " . $this->getCurrentTimestampSQL();
         }
 
