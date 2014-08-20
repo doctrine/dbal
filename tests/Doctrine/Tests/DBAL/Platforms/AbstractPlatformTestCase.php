@@ -860,4 +860,25 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             'CREATE INDEX "bar" ON "schema"."table" (id)',
         );
     }
+
+    public function testGetCommentOnColumnSQL()
+    {
+        $this->assertEquals(
+            "COMMENT ON COLUMN mytable.id IS 'This is a comment'",
+            $this->_platform->getCommentOnColumnSQL('mytable', 'id', 'This is a comment')
+        );
+
+        $this->assertEquals(
+            "COMMENT ON COLUMN mytable.id IS 'It''s a quote !'",
+            $this->_platform->getCommentOnColumnSQL('mytable', 'id', "It's a quote !")
+        );
+    }
+
+    public function testQuoteStringLiteral()
+    {
+        $c = $this->_platform->getStringLiteralQuoteCharacter();
+        $this->assertEquals($c . 'No quote' . $c, $this->_platform->quoteStringLiteral('No quote'));
+        $this->assertEquals($c . 'It' . $c . $c . 's a quote' . $c, $this->_platform->quoteStringLiteral('It' . $c . 's a quote'));
+        $this->assertEquals($c . $c . $c . $c, $this->_platform->quoteStringLiteral($c));
+    }
 }
