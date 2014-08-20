@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\SQLServer2008Platform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\LockMode;
 
 class SQLServerPlatformTest extends AbstractPlatformTestCase
 {
@@ -316,6 +317,30 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ([create], foo, [bar]) REFERENCES [foreign] ([create], bar, [foo-bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ([create], foo, [bar]) REFERENCES foo ([create], bar, [foo-bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ([create], foo, [bar]) REFERENCES [foo-bar] ([create], bar, [foo-bar])',
+        );
+    }
+    /**
+     * @group DDC-2310
+     * @dataProvider getLockHints
+     */
+    public function testAppendsLockHint($lockMode, $lockHint)
+    {
+        $fromClause     = 'FROM users';
+        $expectedResult = $fromClause . $lockHint;
+
+        $this->assertSame($expectedResult, $this->_platform->appendLockHint($fromClause, $lockMode));
+    }
+
+    public function getLockHints()
+    {
+        return array(
+            array(null, ''),
+            array(false, ''),
+            array(true, ''),
+            array(LockMode::NONE, ' WITH (NOLOCK)'),
+            array(LockMode::OPTIMISTIC, ''),
+            array(LockMode::PESSIMISTIC_READ, ' WITH (HOLDLOCK, ROWLOCK)'),
+            array(LockMode::PESSIMISTIC_WRITE, ' WITH (UPDLOCK, ROWLOCK)'),
         );
     }
 }
