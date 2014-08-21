@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
+use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
@@ -477,9 +478,16 @@ class Schema extends AbstractAsset
     {
         $visitor->acceptSchema($this);
 
+        if ($visitor instanceof NamespaceVisitor) {
+            foreach ($this->namespaces as $namespace) {
+                $visitor->acceptNamespace($namespace);
+            }
+        }
+
         foreach ($this->_tables as $table) {
             $table->visit($visitor);
         }
+
         foreach ($this->_sequences as $sequence) {
             $sequence->visit($visitor);
         }
