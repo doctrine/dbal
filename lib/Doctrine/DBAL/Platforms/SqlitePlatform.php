@@ -205,7 +205,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
-        return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -213,7 +213,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -221,7 +221,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getTinyIntTypeDeclarationSql(array $field)
     {
-        return 'TINYINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -229,7 +229,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -237,7 +237,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getMediumIntTypeDeclarationSql(array $field)
     {
-        return 'MEDIUMINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -271,10 +271,10 @@ class SqlitePlatform extends AbstractPlatform
     {
         // sqlite autoincrement is implicit for integer PKs, but not when the field is unsigned
         if ( ! empty($columnDef['autoincrement'])) {
-            return '';
+            return 'INTEGER';
         }
 
-        return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
+        return ! empty($columnDef['unsigned']) ? 'INTEGER UNSIGNED' : 'INTEGER';
     }
 
     /**

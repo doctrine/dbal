@@ -77,24 +77,24 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesTypeDeclarationForTinyIntegers()
     {
         $this->assertEquals(
-            'TINYINT',
+            'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'TINYINT',
+            'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         $this->assertEquals(
-            'TINYINT',
+            'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
         $this->assertEquals(
-            'TINYINT',
+            'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('unsigned' => false))
         );
         $this->assertEquals(
-            'TINYINT UNSIGNED',
+            'INTEGER UNSIGNED',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('unsigned' => true))
         );
     }
@@ -105,24 +105,24 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesTypeDeclarationForSmallIntegers()
     {
         $this->assertEquals(
-            'SMALLINT',
+            'INTEGER',
             $this->_platform->getSmallIntTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'SMALLINT',
+            'INTEGER',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         $this->assertEquals(
-            'SMALLINT',
+            'INTEGER',
             $this->_platform->getSmallIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
         $this->assertEquals(
-            'SMALLINT',
+            'INTEGER',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('unsigned' => false))
         );
         $this->assertEquals(
-            'SMALLINT UNSIGNED',
+            'INTEGER UNSIGNED',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('unsigned' => true))
         );
     }
@@ -133,24 +133,24 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesTypeDeclarationForMediumIntegers()
     {
         $this->assertEquals(
-            'MEDIUMINT',
+            'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'MEDIUMINT',
+            'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         $this->assertEquals(
-            'MEDIUMINT',
+            'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
         $this->assertEquals(
-            'MEDIUMINT',
+            'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('unsigned' => false))
         );
         $this->assertEquals(
-            'MEDIUMINT UNSIGNED',
+            'INTEGER UNSIGNED',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('unsigned' => true))
         );
     }
@@ -186,24 +186,24 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesTypeDeclarationForBigIntegers()
     {
         $this->assertEquals(
-            'BIGINT',
+            'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'BIGINT',
+            'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         $this->assertEquals(
-            'BIGINT',
+            'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
         $this->assertEquals(
-            'BIGINT',
+            'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(array('unsigned' => false))
         );
         $this->assertEquals(
-            'BIGINT UNSIGNED',
+            'INTEGER UNSIGNED',
             $this->_platform->getBigIntTypeDeclarationSQL(array('unsigned' => true))
         );
     }
