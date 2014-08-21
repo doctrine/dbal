@@ -494,7 +494,7 @@ class MySqlPlatform extends AbstractPlatform
         if (isset($options['comment'])) {
             $comment = trim($options['comment'], " '");
 
-            $tableOptions[] = sprintf("COMMENT = '%s' ", str_replace("'", "''", $comment));
+            $tableOptions[] = sprintf("COMMENT = %s ", $this->quoteStringLiteral($comment));
         }
 
         // Row format
