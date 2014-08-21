@@ -861,6 +861,16 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    protected function getStringLiteralQuoteCharacter()
+    {
+        return "'";
+    }
+
+    public function testGetStringLiteralQuoteCharacter()
+    {
+        $this->assertSame($this->getStringLiteralQuoteCharacter(), $this->_platform->getStringLiteralQuoteCharacter());
+    }
+
     public function testGetCommentOnColumnSQL()
     {
         $this->assertEquals(
