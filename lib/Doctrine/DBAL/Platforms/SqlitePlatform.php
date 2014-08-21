@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
@@ -213,6 +214,11 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
+        //  SQLite autoincrement is implicit for INTEGER PKs, but not for BIGINT fields.
+        if ( ! empty($field['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($field);
+        }
+
         return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
@@ -221,6 +227,11 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getTinyIntTypeDeclarationSql(array $field)
     {
+        //  SQLite autoincrement is implicit for INTEGER PKs, but not for TINYINT fields.
+        if ( ! empty($field['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($field);
+        }
+
         return 'TINYINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
@@ -229,6 +240,11 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
+        //  SQLite autoincrement is implicit for INTEGER PKs, but not for SMALLINT fields.
+        if ( ! empty($field['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($field);
+        }
+
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
@@ -237,6 +253,11 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getMediumIntTypeDeclarationSql(array $field)
     {
+        //  SQLite autoincrement is implicit for INTEGER PKs, but not for MEDIUMINT fields.
+        if ( ! empty($field['autoincrement'])) {
+            return $this->getIntegerTypeDeclarationSQL($field);
+        }
+
         return 'MEDIUMINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
@@ -845,6 +866,29 @@ class SqlitePlatform extends AbstractPlatform
      */
     private function getSimpleAlterTableSQL(TableDiff $diff)
     {
+        // Suppress changes on integer type autoincrement columns.
+        foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
+            if ( ! $columnDiff->fromColumn instanceof Column ||
+                ! $columnDiff->column instanceof Column ||
+                ! $columnDiff->column->getAutoincrement() ||
+                ! (string) $columnDiff->column->getType() === 'Integer'
+            ) {
+                continue;
+            }
+
+            if ( ! $columnDiff->hasChanged('type') && $columnDiff->hasChanged('unsigned')) {
+                unset($diff->changedColumns[$oldColumnName]);
+
+                continue;
+            }
+
+            $fromColumnType = (string) $columnDiff->fromColumn->getType();
+
+            if ($fromColumnType === 'SmallInt' || $fromColumnType === 'BigInt') {
+                unset($diff->changedColumns[$oldColumnName]);
+            }
+        }
+
         if ( ! empty($diff->renamedColumns) || ! empty($diff->addedForeignKeys) || ! empty($diff->addedIndexes)
                 || ! empty($diff->changedColumns) || ! empty($diff->changedForeignKeys) || ! empty($diff->changedIndexes)
                 || ! empty($diff->removedColumns) || ! empty($diff->removedForeignKeys) || ! empty($diff->removedIndexes)
