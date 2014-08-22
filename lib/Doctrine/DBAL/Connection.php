@@ -126,25 +126,11 @@ class Connection implements DriverConnection
     private $autoCommit = true;
 
     /**
-     * The transaction nesting level.
-     *
-     * @var integer
-     */
-    private $_transactionNestingLevel = 0;
-
-    /**
      * The currently active transaction isolation level.
      *
      * @var integer
      */
     private $_transactionIsolationLevel;
-
-    /**
-     * If nested transactions should use savepoints.
-     *
-     * @var boolean
-     */
-    private $_nestTransactionsWithSavepoints = false;
 
     /**
      * The parameters used during creation of the Connection instance.
@@ -176,16 +162,14 @@ class Connection implements DriverConnection
     protected $_driver;
 
     /**
-     * Flag that indicates whether the current transaction is marked for rollback only.
-     *
-     * @var boolean
-     */
-    private $_isRollbackOnly = false;
-
-    /**
      * @var integer
      */
     protected $defaultFetchMode = PDO::FETCH_ASSOC;
+
+    /**
+     * @var \Doctrine\DBAL\TransactionManager
+     */
+    private $transactionManager;
 
     /**
      * Initializes a new instance of the Connection class.
@@ -224,6 +208,8 @@ class Connection implements DriverConnection
         $this->_expr = new Query\Expression\ExpressionBuilder($this);
 
         $this->autoCommit = $config->getAutoCommit();
+
+        $this->transactionManager = new TransactionManager($this);
     }
 
     /**
@@ -314,6 +300,14 @@ class Connection implements DriverConnection
     public function getEventManager()
     {
         return $this->_eventManager;
+    }
+
+    /**
+     * @return \Doctrine\DBAL\TransactionManager
+     */
+    public function getTransactionManager()
+    {
+        return $this->transactionManager;
     }
 
     /**
@@ -477,8 +471,8 @@ class Connection implements DriverConnection
         $this->autoCommit = $autoCommit;
 
         // Commit all currently active transactions if any when switching auto-commit mode.
-        if (true === $this->_isConnected && 0 !== $this->_transactionNestingLevel) {
-            $this->commitAll();
+        if ($this->_isConnected && $this->transactionManager->isTransactionActive()) {
+            $this->transactionManager->getTopLevelTransaction()->commit();
         }
     }
 
@@ -553,11 +547,13 @@ class Connection implements DriverConnection
     /**
      * Checks whether a transaction is currently active.
      *
+     * @deprecated use getTransactionManager()->isTransactionActive()
+     *
      * @return boolean TRUE if a transaction is currently active, FALSE otherwise.
      */
     public function isTransactionActive()
     {
-        return $this->_transactionNestingLevel > 0;
+        return $this->transactionManager->isTransactionActive();
     }
 
     /**
@@ -1036,11 +1032,13 @@ class Connection implements DriverConnection
     /**
      * Returns the current transaction nesting level.
      *
+     * @deprecated Use getTransactionManager()->getTransactionNestingLevel()
+     *
      * @return integer The nesting level. A value of 0 means there's no active transaction.
      */
     public function getTransactionNestingLevel()
     {
-        return $this->_transactionNestingLevel;
+        return $this->transactionManager->getTransactionNestingLevel();
     }
 
     /**
@@ -1115,6 +1113,8 @@ class Connection implements DriverConnection
     /**
      * Sets if nested transactions should use savepoints.
      *
+     * @deprecated Use getTransactionManager()->setNestTransactionsWithSavepoints()
+     *
      * @param boolean $nestTransactionsWithSavepoints
      *
      * @return void
@@ -1123,72 +1123,47 @@ class Connection implements DriverConnection
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
-        if ($this->_transactionNestingLevel > 0) {
-            throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
-        }
-
-        if ( ! $this->getDatabasePlatform()->supportsSavepoints()) {
-            throw ConnectionException::savepointsNotSupported();
-        }
-
-        $this->_nestTransactionsWithSavepoints = (bool) $nestTransactionsWithSavepoints;
+        $this->transactionManager->setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints);
     }
 
     /**
      * Gets if nested transactions should use savepoints.
      *
+     * @deprecated Use getTransactionManager()->getNestTransactionsWithSavepoints()
+     *
      * @return boolean
      */
     public function getNestTransactionsWithSavepoints()
     {
-        return $this->_nestTransactionsWithSavepoints;
+        return $this->transactionManager->getNestTransactionsWithSavepoints();
     }
 
     /**
-     * Returns the savepoint name to use for nested transactions are false if they are not supported
-     * "savepointFormat" parameter is not set
+     * Begins a transaction and returns the associated Transaction instance.
      *
-     * @return mixed A string with the savepoint name or false.
+     * @return \Doctrine\DBAL\Transaction
      */
-    protected function _getNestedTransactionSavePointName()
+    public function createTransaction()
     {
-        return 'DOCTRINE2_SAVEPOINT_'.$this->_transactionNestingLevel;
+        return $this->transactionManager->createTransaction();
     }
 
     /**
      * Starts a transaction by suspending auto-commit mode.
      *
+     * @deprecated Use createTransaction()
+     *
      * @return void
      */
     public function beginTransaction()
     {
-        $this->connect();
-
-        ++$this->_transactionNestingLevel;
-
-        $logger = $this->_config->getSQLLogger();
-
-        if ($this->_transactionNestingLevel == 1) {
-            if ($logger) {
-                $logger->startQuery('"START TRANSACTION"');
-            }
-            $this->_conn->beginTransaction();
-            if ($logger) {
-                $logger->stopQuery();
-            }
-        } elseif ($this->_nestTransactionsWithSavepoints) {
-            if ($logger) {
-                $logger->startQuery('"SAVEPOINT"');
-            }
-            $this->createSavepoint($this->_getNestedTransactionSavePointName());
-            if ($logger) {
-                $logger->stopQuery();
-            }
-        }
+        $this->createTransaction();
     }
 
     /**
      * Commits the current transaction.
+     *
+     * @deprecated Use Transaction::commit()
      *
      * @return void
      *
@@ -1197,58 +1172,7 @@ class Connection implements DriverConnection
      */
     public function commit()
     {
-        if ($this->_transactionNestingLevel == 0) {
-            throw ConnectionException::noActiveTransaction();
-        }
-        if ($this->_isRollbackOnly) {
-            throw ConnectionException::commitFailedRollbackOnly();
-        }
-
-        $this->connect();
-
-        $logger = $this->_config->getSQLLogger();
-
-        if ($this->_transactionNestingLevel == 1) {
-            if ($logger) {
-                $logger->startQuery('"COMMIT"');
-            }
-            $this->_conn->commit();
-            if ($logger) {
-                $logger->stopQuery();
-            }
-        } elseif ($this->_nestTransactionsWithSavepoints) {
-            if ($logger) {
-                $logger->startQuery('"RELEASE SAVEPOINT"');
-            }
-            $this->releaseSavepoint($this->_getNestedTransactionSavePointName());
-            if ($logger) {
-                $logger->stopQuery();
-            }
-        }
-
-        --$this->_transactionNestingLevel;
-
-        if (false === $this->autoCommit && 0 === $this->_transactionNestingLevel) {
-            $this->beginTransaction();
-        }
-    }
-
-    /**
-     * Commits all current nesting transactions.
-     */
-    private function commitAll()
-    {
-        while (0 !== $this->_transactionNestingLevel) {
-            if (false === $this->autoCommit && 1 === $this->_transactionNestingLevel) {
-                // When in no auto-commit mode, the last nesting commit immediately starts a new transaction.
-                // Therefore we need to do the final commit here and then leave to avoid an infinite loop.
-                $this->commit();
-
-                return;
-            }
-
-            $this->commit();
-        }
+        $this->transactionManager->getCurrentTransaction()->commit();
     }
 
     /**
@@ -1257,45 +1181,15 @@ class Connection implements DriverConnection
      * This method can be listened with onPreTransactionRollback and onTransactionRollback
      * eventlistener methods.
      *
+     * @deprecated Use Transaction::rollback()
+     *
+     * @return void
+     *
      * @throws \Doctrine\DBAL\ConnectionException If the rollback operation failed.
      */
     public function rollBack()
     {
-        if ($this->_transactionNestingLevel == 0) {
-            throw ConnectionException::noActiveTransaction();
-        }
-
-        $this->connect();
-
-        $logger = $this->_config->getSQLLogger();
-
-        if ($this->_transactionNestingLevel == 1) {
-            if ($logger) {
-                $logger->startQuery('"ROLLBACK"');
-            }
-            $this->_transactionNestingLevel = 0;
-            $this->_conn->rollback();
-            $this->_isRollbackOnly = false;
-            if ($logger) {
-                $logger->stopQuery();
-            }
-
-            if (false === $this->autoCommit) {
-                $this->beginTransaction();
-            }
-        } elseif ($this->_nestTransactionsWithSavepoints) {
-            if ($logger) {
-                $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
-            }
-            $this->rollbackSavepoint($this->_getNestedTransactionSavePointName());
-            --$this->_transactionNestingLevel;
-            if ($logger) {
-                $logger->stopQuery();
-            }
-        } else {
-            $this->_isRollbackOnly = true;
-            --$this->_transactionNestingLevel;
-        }
+        $this->transactionManager->getCurrentTransaction()->rollback();
     }
 
     /**
@@ -1385,20 +1279,21 @@ class Connection implements DriverConnection
      * Marks the current transaction so that the only possible
      * outcome for the transaction to be rolled back.
      *
+     * @deprecated Use Transaction::setRollbackOnly()
+     *
      * @return void
      *
      * @throws \Doctrine\DBAL\ConnectionException If no transaction is active.
      */
     public function setRollbackOnly()
     {
-        if ($this->_transactionNestingLevel == 0) {
-            throw ConnectionException::noActiveTransaction();
-        }
-        $this->_isRollbackOnly = true;
+        $this->transactionManager->getCurrentTransaction()->setRollbackOnly();
     }
 
     /**
      * Checks whether the current transaction is marked for rollback only.
+     *
+     * @deprecated use Transaction::isRollbackOnly()
      *
      * @return boolean
      *
@@ -1406,11 +1301,7 @@ class Connection implements DriverConnection
      */
     public function isRollbackOnly()
     {
-        if ($this->_transactionNestingLevel == 0) {
-            throw ConnectionException::noActiveTransaction();
-        }
-
-        return $this->_isRollbackOnly;
+        return $this->transactionManager->getCurrentTransaction()->isRollbackOnly();
     }
 
     /**
