@@ -743,4 +743,24 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertEquals('SELECT u.id FROM users u INNER JOIN permissions p ON p.user_id = u.id, articles INNER JOIN comments c ON c.article_id = articles.id', $qb->getSQL());
     }
+
+    public function testSelectAllFromTableWithoutTableAlias()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('users.*')
+            ->from('users');
+
+        $this->assertEquals("SELECT users.* FROM users", (string) $qb);
+    }
+
+    public function testSelectAllWithoutTableAlias()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('*')
+            ->from('users');
+
+        $this->assertEquals("SELECT * FROM users", (string) $qb);
+    }
 }
