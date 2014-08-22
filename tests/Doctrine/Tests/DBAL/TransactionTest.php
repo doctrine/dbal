@@ -31,7 +31,7 @@ class TransactionTest extends DbalTestCase
     public function setUp()
     {
         $this->transactionManager = $this->getMock('Doctrine\DBAL\TransactionManager', array(), array(), '', false);
-        $transactionDefinition = new TransactionDefinition($this->transactionManager);
+        $transactionDefinition = new TransactionDefinition();
         $this->transaction = new Transaction($this->transactionManager, $transactionDefinition);
     }
 

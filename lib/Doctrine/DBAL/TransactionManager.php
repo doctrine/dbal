@@ -35,14 +35,22 @@ class TransactionManager
     }
 
     /**
+     * @return TransactionBuilder
+     */
+    public function createTransaction()
+    {
+        return new TransactionBuilder($this);
+    }
+
+    /**
      * @param \Doctrine\DBAL\TransactionDefinition $definition
      *
      * @return \Doctrine\DBAL\Transaction
      */
-    public function createTransaction(TransactionDefinition $definition)
+    public function beginTransaction(TransactionDefinition $definition = null)
     {
         if ($definition === null) {
-            $definition = new TransactionDefinition($this);
+            $definition = new TransactionDefinition();
         }
 
         $this->connection->connect();
@@ -107,7 +115,7 @@ class TransactionManager
         array_pop($this->activeTransactions);
 
         if (! $this->connection->isAutoCommit() && ! $this->activeTransactions) {
-            $this->createTransaction($transaction->getTransactionDefinition());
+            $this->beginTransaction($transaction->getTransactionDefinition());
         }
     }
 
@@ -141,7 +149,7 @@ class TransactionManager
             $logger && $logger->stopQuery();
 
             if (! $this->connection->isAutoCommit()) {
-                $this->createTransaction($transaction->getTransactionDefinition());
+                $this->beginTransaction($transaction->getTransactionDefinition());
             }
         } elseif ($this->nestTransactionsWithSavepoints) {
             $logger && $logger->startQuery('"ROLLBACK TO SAVEPOINT"');

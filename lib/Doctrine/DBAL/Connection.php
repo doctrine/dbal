@@ -1197,27 +1197,15 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Creates a transaction definition.
-     *
-     * The actual transaction is started when begin() is called.
-     *
-     * @return \Doctrine\DBAL\TransactionDefinition
-     */
-    public function createTransaction()
-    {
-        return new TransactionDefinition($this->transactionManager);
-    }
-
-    /**
      * Starts a transaction by suspending auto-commit mode.
      *
-     * @deprecated Use createTransaction()->begin()
+     * @deprecated Use TransactionManager::beginTransaction()
      *
      * @return void
      */
     public function beginTransaction()
     {
-        $this->createTransaction()->begin();
+        $this->transactionManager->beginTransaction();
     }
 
     /**
