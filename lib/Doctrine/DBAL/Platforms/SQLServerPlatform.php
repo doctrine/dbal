@@ -1512,7 +1512,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Breaks down a SQL statement into logical parts
      *
-     * @param $sql
+     * @param string $sql
      *
      * @return array (
      *  ['selectList'] => an array of items in the select list as returned by the reprocessSelectList method
@@ -1650,7 +1650,7 @@ class SQLServerPlatform extends AbstractPlatform
      * Processes an array of fragments of a SQL select list into an array of logically
      * broken down select list items.
      *
-     * @param $selectList array of fragments of the select list
+     * @param array $selectList array of fragments of the select list
      *
      * @return array integer-indexed array. each item consists of one of the following:
      *      a string in the case of a modifier such as DISTINCT
