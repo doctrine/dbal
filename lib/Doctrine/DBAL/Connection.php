@@ -33,11 +33,6 @@ use Throwable;
 class Connection implements DriverConnection
 {
     /**
-     * Constant for transaction isolation level configuration variable.
-     */
-    const ISOLATION_LEVEL = 'dbal.isolation-level';
-
-    /**
      * Constant for transaction isolation level READ UNCOMMITTED.
      *
      * @deprecated Use TransactionIsolationLevel::READ_UNCOMMITTED.

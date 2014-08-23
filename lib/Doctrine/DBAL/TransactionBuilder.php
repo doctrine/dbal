@@ -7,6 +7,8 @@ namespace Doctrine\DBAL;
  */
 class TransactionBuilder
 {
+    const ISOLATION_LEVEL = 'dbal.isolation-level';
+
     /**
      * The transaction manager.
      *
@@ -32,18 +34,28 @@ class TransactionBuilder
     }
 
     /**
-     * Sets the isolation level for this transaction.
+     * Sets a configuration variable.
      *
      * @param string $configurationName  The configuration variable name.
      * @param string $configurationValue The configuration value.
      *
      * @return \Doctrine\DBAL\TransactionBuilder The current instance for chaining.
      */
-    public function with($configurationName, $configurationValue)
+    protected function with($configurationName, $configurationValue)
     {
         $this->configuration[$configurationName] = $configurationValue;
 
         return $this;
+    }
+
+    /**
+     * @param integer $isolationLevel
+     *
+     * @return \Doctrine\DBAL\TransactionBuilder
+     */
+    public function withIsolationLevel($isolationLevel)
+    {
+        return $this->with(self::ISOLATION_LEVEL, $isolationLevel);
     }
 
     /**

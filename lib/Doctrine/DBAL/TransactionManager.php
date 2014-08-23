@@ -51,8 +51,8 @@ class TransactionManager
     {
         $this->connection->connect();
 
-        if (isset($configuration[Connection::ISOLATION_LEVEL])) {
-            $this->connection->setTransactionIsolation($configuration[Connection::ISOLATION_LEVEL]);
+        if (isset($configuration[TransactionBuilder::ISOLATION_LEVEL])) {
+            $this->connection->setTransactionIsolation($configuration[TransactionBuilder::ISOLATION_LEVEL]);
         }
 
         $transaction = new Transaction($this, $configuration);
