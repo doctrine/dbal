@@ -8,18 +8,18 @@ namespace Doctrine\DBAL;
 class TransactionBuilder
 {
     /**
-     * The transaction manager that created this definition.
+     * The transaction manager.
      *
      * @var \Doctrine\DBAL\TransactionManager
      */
     private $transactionManager;
 
     /**
-     * The isolation level for the transaction, or null if not set.
+     * The configuration for the transaction to be built.
      *
-     * @var integer|null
+     * @var array
      */
-    private $isolationLevel;
+    private $configuration = array();
 
     /**
      * Class constructor.
@@ -34,25 +34,16 @@ class TransactionBuilder
     /**
      * Sets the isolation level for this transaction.
      *
-     * @param integer $isolationLevel One of the Connection::TRANSACTION_* constants.
+     * @param string $configurationName  The configuration variable name.
+     * @param string $configurationValue The configuration value.
      *
-     * @return \Doctrine\DBAL\TransactionDefinition The current instance for chaining.
+     * @return \Doctrine\DBAL\TransactionBuilder The current instance for chaining.
      */
-    public function withIsolationLevel($isolationLevel)
+    public function with($configurationName, $configurationValue)
     {
-        $this->isolationLevel = $isolationLevel;
+        $this->configuration[$configurationName] = $configurationValue;
 
         return $this;
-    }
-
-    /**
-     * Returns the isolation level set for this transaction.
-     *
-     * @return integer|null The isolation level if set, else null.
-     */
-    public function getIsolationLevel()
-    {
-        return $this->isolationLevel;
     }
 
     /**
@@ -62,8 +53,6 @@ class TransactionBuilder
      */
     public function begin()
     {
-        $definition = new TransactionDefinition($this);
-
-        return $this->transactionManager->beginTransaction($definition);
+        return $this->transactionManager->beginTransaction($this->configuration);
     }
 }

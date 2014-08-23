@@ -43,24 +43,19 @@ class TransactionManager
     }
 
     /**
-     * @param \Doctrine\DBAL\TransactionDefinition $definition
+     * @param array $configuration
      *
      * @return \Doctrine\DBAL\Transaction
      */
-    public function beginTransaction(TransactionDefinition $definition = null)
+    public function beginTransaction(array $configuration = array())
     {
-        if ($definition === null) {
-            $definition = new TransactionDefinition();
-        }
-
         $this->connection->connect();
 
-        $isolationLevel = $definition->getIsolationLevel();
-        if ($isolationLevel !== null) {
-            $this->connection->setTransactionIsolation($isolationLevel);
+        if (isset($configuration[Connection::ISOLATION_LEVEL])) {
+            $this->connection->setTransactionIsolation($configuration[Connection::ISOLATION_LEVEL]);
         }
 
-        $transaction = new Transaction($this, $definition);
+        $transaction = new Transaction($this, $configuration);
         $this->activeTransactions[] = $transaction;
 
         $logger = $this->connection->getConfiguration()->getSQLLogger();
@@ -115,7 +110,7 @@ class TransactionManager
         array_pop($this->activeTransactions);
 
         if (! $this->connection->isAutoCommit() && ! $this->activeTransactions) {
-            $this->beginTransaction($transaction->getTransactionDefinition());
+            $this->beginTransaction($transaction->getConfiguration());
         }
     }
 
@@ -149,7 +144,7 @@ class TransactionManager
             $logger && $logger->stopQuery();
 
             if (! $this->connection->isAutoCommit()) {
-                $this->beginTransaction($transaction->getTransactionDefinition());
+                $this->beginTransaction($transaction->getConfiguration());
             }
         } elseif ($this->nestTransactionsWithSavepoints) {
             $logger && $logger->startQuery('"ROLLBACK TO SAVEPOINT"');

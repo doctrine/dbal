@@ -15,11 +15,11 @@ class Transaction
     private $transactionManager;
 
     /**
-     * The definition for this transaction.
+     * The configuration for this transaction.
      *
-     * @var \Doctrine\DBAL\TransactionDefinition
+     * @var array
      */
-    private $transactionDefinition;
+    private $configuration;
 
     /**
      * Indicates whether this transaction is active, and can be committed or rolled back.
@@ -52,13 +52,13 @@ class Transaction
     /**
      * Class constructor.
      *
-     * @param \Doctrine\DBAL\TransactionManager    $manager
-     * @param \Doctrine\DBAL\TransactionDefinition $definition
+     * @param \Doctrine\DBAL\TransactionManager $manager
+     * @param array                             $configuration
      */
-    public function __construct(TransactionManager $manager, TransactionDefinition $definition)
+    public function __construct(TransactionManager $manager, array $configuration)
     {
-        $this->transactionManager    = $manager;
-        $this->transactionDefinition = $definition;
+        $this->transactionManager = $manager;
+        $this->configuration      = $configuration;
     }
 
     /**
@@ -162,10 +162,10 @@ class Transaction
     /**
      * Returns the definition for this transaction.
      *
-     * @return \Doctrine\DBAL\TransactionDefinition
+     * @return array
      */
-    public function getTransactionDefinition()
+    public function getConfiguration()
     {
-        return $this->transactionDefinition;
+        return $this->configuration;
     }
 }

@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Transaction;
-use Doctrine\DBAL\TransactionDefinition;
 use Doctrine\Tests\DbalTestCase;
 
 /**
@@ -31,8 +30,7 @@ class TransactionTest extends DbalTestCase
     public function setUp()
     {
         $this->transactionManager = $this->getMock('Doctrine\DBAL\TransactionManager', array(), array(), '', false);
-        $transactionDefinition = new TransactionDefinition();
-        $this->transaction = new Transaction($this->transactionManager, $transactionDefinition);
+        $this->transaction = new Transaction($this->transactionManager, array());
     }
 
     public function testTransactionDefaults()

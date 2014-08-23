@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\TransactionDefinition;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
 /**
