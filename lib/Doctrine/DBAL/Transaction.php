@@ -160,7 +160,7 @@ class Transaction
     }
 
     /**
-     * Returns the definition for this transaction.
+     * Returns the configuration for this transaction.
      *
      * @return array
      */
