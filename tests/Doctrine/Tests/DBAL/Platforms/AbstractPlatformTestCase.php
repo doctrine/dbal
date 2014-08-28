@@ -469,7 +469,6 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testGetDefaultValueDeclarationSQLForIntegerTypes()
     {
         foreach(array('bigint', 'integer', 'smallint') as $type) {
-
             $field = array(
                 'type'    => Type::getType($type),
                 'default' => 1
@@ -479,7 +478,6 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
                 ' DEFAULT 1',
                 $this->_platform->getDefaultValueDeclarationSQL($field)
             );
-
         }
     }
 
