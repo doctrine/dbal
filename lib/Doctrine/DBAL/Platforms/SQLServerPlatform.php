@@ -1454,7 +1454,7 @@ class SQLServerPlatform extends AbstractPlatform
             return " DEFAULT '" . $field['default'] . "'";
         }
 
-        if (in_array((string) $field['type'], array('Integer', 'BigInteger', 'SmallInteger'))) {
+        if (in_array((string) $field['type'], array('Integer', 'BigInt', 'SmallInt'))) {
             return " DEFAULT " . $field['default'];
         }
 
