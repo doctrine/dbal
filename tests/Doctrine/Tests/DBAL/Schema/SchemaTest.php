@@ -221,4 +221,237 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($schema->hasTable('`foo`'));
     }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testHasNamespace()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createTable('foo');
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createTable('bar.baz');
+
+        $this->assertFalse($schema->hasNamespace('baz'));
+        $this->assertTrue($schema->hasNamespace('bar'));
+        $this->assertFalse($schema->hasNamespace('tab'));
+
+        $schema->createTable('tab.taz');
+
+        $this->assertTrue($schema->hasNamespace('tab'));
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testCreatesNamespace()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createNamespace('foo');
+
+        $this->assertTrue($schema->hasNamespace('foo'));
+        $this->assertTrue($schema->hasNamespace('FOO'));
+        $this->assertTrue($schema->hasNamespace('`foo`'));
+        $this->assertTrue($schema->hasNamespace('`FOO`'));
+
+        $schema->createNamespace('`bar`');
+
+        $this->assertTrue($schema->hasNamespace('bar'));
+        $this->assertTrue($schema->hasNamespace('BAR'));
+        $this->assertTrue($schema->hasNamespace('`bar`'));
+        $this->assertTrue($schema->hasNamespace('`BAR`'));
+
+        $this->assertSame(array('foo' => 'foo', 'bar' => '`bar`'), $schema->getNamespaces());
+    }
+
+    /**
+     * @group DBAL-669
+     *
+     * @expectedException \Doctrine\DBAL\Schema\SchemaException
+     */
+    public function testThrowsExceptionOnCreatingNamespaceTwice()
+    {
+        $schema = new Schema();
+
+        $schema->createNamespace('foo');
+        $schema->createNamespace('foo');
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testCreatesNamespaceThroughAddingTableImplicitly()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createTable('baz');
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+        $this->assertFalse($schema->hasNamespace('baz'));
+
+        $schema->createTable('foo.bar');
+
+        $this->assertTrue($schema->hasNamespace('foo'));
+        $this->assertFalse($schema->hasNamespace('bar'));
+
+        $schema->createTable('`baz`.bloo');
+
+        $this->assertTrue($schema->hasNamespace('baz'));
+        $this->assertFalse($schema->hasNamespace('bloo'));
+
+        $schema->createTable('`baz`.moo');
+
+        $this->assertTrue($schema->hasNamespace('baz'));
+        $this->assertFalse($schema->hasNamespace('moo'));
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testCreatesNamespaceThroughAddingSequenceImplicitly()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+
+        $schema->createSequence('baz');
+
+        $this->assertFalse($schema->hasNamespace('foo'));
+        $this->assertFalse($schema->hasNamespace('baz'));
+
+        $schema->createSequence('foo.bar');
+
+        $this->assertTrue($schema->hasNamespace('foo'));
+        $this->assertFalse($schema->hasNamespace('bar'));
+
+        $schema->createSequence('`baz`.bloo');
+
+        $this->assertTrue($schema->hasNamespace('baz'));
+        $this->assertFalse($schema->hasNamespace('bloo'));
+
+        $schema->createSequence('`baz`.moo');
+
+        $this->assertTrue($schema->hasNamespace('baz'));
+        $this->assertFalse($schema->hasNamespace('moo'));
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testVisitsVisitor()
+    {
+        $schema = new Schema();
+        $visitor = $this->getMock('Doctrine\DBAL\Schema\Visitor\Visitor');
+
+        $schema->createNamespace('foo');
+        $schema->createNamespace('bar');
+
+        $schema->createTable('baz');
+        $schema->createTable('bla.bloo');
+
+        $schema->createSequence('moo');
+        $schema->createSequence('war');
+
+        $visitor->expects($this->once())
+            ->method('acceptSchema')
+            ->with($schema);
+
+        $visitor->expects($this->never())
+            ->method('acceptNamespace');
+
+        $visitor->expects($this->at(1))
+            ->method('acceptTable')
+            ->with($schema->getTable('baz'));
+
+        $visitor->expects($this->at(2))
+            ->method('acceptTable')
+            ->with($schema->getTable('bla.bloo'));
+
+        $visitor->expects($this->exactly(2))
+            ->method('acceptTable');
+
+        $visitor->expects($this->at(3))
+            ->method('acceptSequence')
+            ->with($schema->getSequence('moo'));
+
+        $visitor->expects($this->at(4))
+            ->method('acceptSequence')
+            ->with($schema->getSequence('war'));
+
+        $visitor->expects($this->exactly(2))
+            ->method('acceptSequence');
+
+        $this->assertNull($schema->visit($visitor));
+    }
+
+    /**
+     * @group DBAL-669
+     */
+    public function testVisitsNamespaceVisitor()
+    {
+        $schema = new Schema();
+        $visitor = $this->getMock('Doctrine\DBAL\Schema\Visitor\AbstractVisitor');
+
+        $schema->createNamespace('foo');
+        $schema->createNamespace('bar');
+
+        $schema->createTable('baz');
+        $schema->createTable('bla.bloo');
+
+        $schema->createSequence('moo');
+        $schema->createSequence('war');
+
+        $visitor->expects($this->once())
+            ->method('acceptSchema')
+            ->with($schema);
+
+        $visitor->expects($this->at(1))
+            ->method('acceptNamespace')
+            ->with('foo');
+
+        $visitor->expects($this->at(2))
+            ->method('acceptNamespace')
+            ->with('bar');
+
+        $visitor->expects($this->at(3))
+            ->method('acceptNamespace')
+            ->with('bla');
+
+        $visitor->expects($this->exactly(3))
+            ->method('acceptNamespace');
+
+        $visitor->expects($this->at(4))
+            ->method('acceptTable')
+            ->with($schema->getTable('baz'));
+
+        $visitor->expects($this->at(5))
+            ->method('acceptTable')
+            ->with($schema->getTable('bla.bloo'));
+
+        $visitor->expects($this->exactly(2))
+            ->method('acceptTable');
+
+        $visitor->expects($this->at(6))
+            ->method('acceptSequence')
+            ->with($schema->getSequence('moo'));
+
+        $visitor->expects($this->at(7))
+            ->method('acceptSequence')
+            ->with($schema->getSequence('war'));
+
+        $visitor->expects($this->exactly(2))
+            ->method('acceptSequence');
+
+        $this->assertNull($schema->visit($visitor));
+    }
 }

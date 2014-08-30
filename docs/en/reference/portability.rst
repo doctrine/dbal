@@ -10,24 +10,24 @@ all the different vendors work the same.
 
 There are many different layers that you need to take care of, here is a quick list:
 
-1.  Returning of data is handled differently across vendors.
+*   Returning of data is handled differently across vendors.
     Oracle converts empty strings to NULL, which means a portable application
     needs to convert all empty strings to null.
-2.  Additionally some vendors pad CHAR columns to their length, whereas others don't.
+*   Additionally some vendors pad CHAR columns to their length, whereas others don't.
     This means all strings returned from a database have to be passed through ``rtrim()``.
-3.  Case-sensitivity of column keys is handled differently in all databases, even depending
+*   Case-sensitivity of column keys is handled differently in all databases, even depending
     on identifier quoting or not. You either need to know all the rules or fix the cases
     to lower/upper-case only.
-4.  ANSI-SQL is not implemented fully by the different vendors. You have to make
+*   ANSI-SQL is not implemented fully by the different vendors. You have to make
     sure that the SQL you write is supported by all the vendors you are targeting.
-5.  Some vendors use sequences for identity generation, some auto-increment approaches.
+*   Some vendors use sequences for identity generation, some auto-increment approaches.
     Both are completely different (pre- and post-insert access) and therefore need
     special handling.
-6.  Every vendor has a list of keywords that are not allowed inside SQL. Some even
+*   Every vendor has a list of keywords that are not allowed inside SQL. Some even
     allow a subset of their keywords, but not at every position.
-7.  Database types like dates, long text fields, booleans and many others are handled
+*   Database types like dates, long text fields, booleans and many others are handled
     very differently between the vendors.
-8.  There are differences with the regard to support of positional, named or both styles of parameters
+*   There are differences with the regard to support of positional, named or both styles of parameters
     in prepared statements between all vendors.
 
 For each point in this list there are different abstraction layers in Doctrine DBAL that you

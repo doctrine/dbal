@@ -1589,7 +1589,9 @@ abstract class AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        return "COMMENT ON COLUMN " . $tableName . "." . $columnName . " IS '" . $comment . "'";
+        $comment = $this->quoteStringLiteral($comment);
+
+        return "COMMENT ON COLUMN " . $tableName . "." . $columnName . " IS " . $comment;
     }
 
     /**
@@ -1745,9 +1747,25 @@ abstract class AbstractPlatform
         }
 
         $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
+        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')' . $this->getPartialIndexSQL($index);
 
         return $query;
+    }
+
+    /**
+     * Adds condition for partial index.
+     *
+     * @param \Doctrine\DBAL\Schema\Index $index
+     *
+     * @return string
+     */
+    protected function getPartialIndexSQL(Index $index)
+    {
+        if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
+            return  ' WHERE ' . $index->getOption('where');
+        }
+
+        return '';
     }
 
     /**
@@ -1784,19 +1802,6 @@ abstract class AbstractPlatform
      * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
      */
     public function getCreateSchemaSQL($schemaName)
-    {
-        throw DBALException::notSupported(__METHOD__);
-    }
-
-    /**
-     * Checks whether the schema $schemaName needs creating.
-     *
-     * @param string $schemaName
-     *
-     * @return boolean
-     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
-     */
-    public function schemaNeedsCreation($schemaName)
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -2198,7 +2203,7 @@ abstract class AbstractPlatform
         }
 
         if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment']) {
-            $columnDef .= " COMMENT '" . $field['comment'] . "'";
+            $columnDef .= " COMMENT " . $this->quoteStringLiteral($field['comment']);
         }
 
         return $name . ' ' . $columnDef;
@@ -2236,9 +2241,9 @@ abstract class AbstractPlatform
         if (isset($field['default'])) {
             $default = " DEFAULT '".$field['default']."'";
             if (isset($field['type'])) {
-                if (in_array((string)$field['type'], array("Integer", "BigInteger", "SmallInteger"))) {
+                if (in_array((string) $field['type'], array("Integer", "BigInt", "SmallInt"))) {
                     $default = " DEFAULT ".$field['default'];
-                } elseif ((string)$field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
+                } elseif (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getCurrentTimestampSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimestampSQL();
                 } elseif ((string)$field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimeSQL();
@@ -2302,7 +2307,7 @@ abstract class AbstractPlatform
 
         return 'CONSTRAINT ' . $name . ' UNIQUE ('
              . $this->getIndexFieldDeclarationListSQL($columns)
-             . ')';
+             . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**
@@ -2325,8 +2330,8 @@ abstract class AbstractPlatform
         }
 
         return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ('
-             . $this->getIndexFieldDeclarationListSQL($columns)
-             . ')';
+            . $this->getIndexFieldDeclarationListSQL($columns)
+            . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**
@@ -2584,7 +2589,7 @@ abstract class AbstractPlatform
 
         return $item;
     }
-    
+
     /**
      * Some platforms have boolean literals that needs to be correctly converted
      *
@@ -2674,6 +2679,18 @@ abstract class AbstractPlatform
      * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
      */
     public function getListDatabasesSQL()
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL statement for retrieving the namespaces defined in the database.
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getListNamespacesSQL()
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -3006,6 +3023,16 @@ abstract class AbstractPlatform
     public function supportsIndexes()
     {
         return true;
+    }
+
+    /**
+     * Whether the platform supports partial indexes.
+     *
+     * @return boolean
+     */
+    public function supportsPartialIndexes()
+    {
+        return false;
     }
 
     /**
@@ -3458,5 +3485,32 @@ abstract class AbstractPlatform
     protected function getReservedKeywordsClass()
     {
         throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Quotes a literal string.
+     * This method is NOT meant to fix SQL injections!
+     * It is only meant to escape this platform's string literal
+     * quote character inside the given literal string.
+     *
+     * @param string $str The literal string to be quoted.
+     *
+     * @return string The quoted literal string.
+     */
+    public function quoteStringLiteral($str)
+    {
+        $c = $this->getStringLiteralQuoteCharacter();
+
+        return $c . str_replace($c, $c . $c, $str) . $c;
+    }
+
+    /**
+     * Gets the character used for string literal quoting.
+     *
+     * @return string
+     */
+    public function getStringLiteralQuoteCharacter()
+    {
+        return "'";
     }
 }

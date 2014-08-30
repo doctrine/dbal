@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
+use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
@@ -55,6 +56,13 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class Schema extends AbstractAsset
 {
     /**
+     * The namespaces in this schema.
+     *
+     * @var array
+     */
+    private $namespaces = array();
+
+    /**
      * @var \Doctrine\DBAL\Schema\Table[]
      */
     protected $_tables = array();
@@ -73,14 +81,23 @@ class Schema extends AbstractAsset
      * @param \Doctrine\DBAL\Schema\Table[]      $tables
      * @param \Doctrine\DBAL\Schema\Sequence[]   $sequences
      * @param \Doctrine\DBAL\Schema\SchemaConfig $schemaConfig
+     * @param array                              $namespaces
      */
-    public function __construct(array $tables=array(), array $sequences=array(), SchemaConfig $schemaConfig=null)
-    {
+    public function __construct(
+        array $tables = array(),
+        array $sequences = array(),
+        SchemaConfig $schemaConfig = null,
+        array $namespaces = array()
+    ) {
         if ($schemaConfig == null) {
             $schemaConfig = new SchemaConfig();
         }
         $this->_schemaConfig = $schemaConfig;
         $this->_setName($schemaConfig->getName() ?: 'public');
+
+        foreach ($namespaces as $namespace) {
+            $this->createNamespace($namespace);
+        }
 
         foreach ($tables as $table) {
             $this->_addTable($table);
@@ -108,9 +125,15 @@ class Schema extends AbstractAsset
      */
     protected function _addTable(Table $table)
     {
+        $namespaceName = $table->getNamespaceName();
         $tableName = $table->getFullQualifiedName($this->getName());
+
         if (isset($this->_tables[$tableName])) {
             throw SchemaException::tableAlreadyExists($tableName);
+        }
+
+        if ( ! $table->isInDefaultNamespace($this->getName()) && ! $this->hasNamespace($namespaceName)) {
+            $this->createNamespace($namespaceName);
         }
 
         $this->_tables[$tableName] = $table;
@@ -126,11 +149,28 @@ class Schema extends AbstractAsset
      */
     protected function _addSequence(Sequence $sequence)
     {
+        $namespaceName = $sequence->getNamespaceName();
         $seqName = $sequence->getFullQualifiedName($this->getName());
+
         if (isset($this->_sequences[$seqName])) {
             throw SchemaException::sequenceAlreadyExists($seqName);
         }
+
+        if ( ! $sequence->isInDefaultNamespace($this->getName()) && ! $this->hasNamespace($namespaceName)) {
+            $this->createNamespace($namespaceName);
+        }
+
         $this->_sequences[$seqName] = $sequence;
+    }
+
+    /**
+     * Returns the namespaces of this schema.
+     *
+     * @return array A list of namespace names.
+     */
+    public function getNamespaces()
+    {
+        return $this->namespaces;
     }
 
     /**
@@ -167,14 +207,43 @@ class Schema extends AbstractAsset
      */
     private function getFullQualifiedAssetName($name)
     {
-        if ($this->isIdentifierQuoted($name)) {
-            $name = $this->trimQuotes($name);
-        }
+        $name = $this->getUnquotedAssetName($name);
+
         if (strpos($name, ".") === false) {
             $name = $this->getName() . "." . $name;
         }
 
         return strtolower($name);
+    }
+
+    /**
+     * Returns the unquoted representation of a given asset name.
+     *
+     * @param string $assetName Quoted or unquoted representation of an asset name.
+     *
+     * @return string
+     */
+    private function getUnquotedAssetName($assetName)
+    {
+        if ($this->isIdentifierQuoted($assetName)) {
+            return $this->trimQuotes($assetName);
+        }
+
+        return $assetName;
+    }
+
+    /**
+     * Does this schema have a namespace with the given name?
+     *
+     * @param string $namespaceName
+     *
+     * @return boolean
+     */
+    public function hasNamespace($namespaceName)
+    {
+        $namespaceName = strtolower($this->getUnquotedAssetName($namespaceName));
+
+        return isset($this->namespaces[$namespaceName]);
     }
 
     /**
@@ -236,6 +305,26 @@ class Schema extends AbstractAsset
     public function getSequences()
     {
         return $this->_sequences;
+    }
+
+    /**
+     * Creates a new namespace.
+     *
+     * @param string $namespaceName The name of the namespace to create.
+     *
+     * @return \Doctrine\DBAL\Schema\Schema This schema instance.
+     */
+    public function createNamespace($namespaceName)
+    {
+        $unquotedNamespaceName = strtolower($this->getUnquotedAssetName($namespaceName));
+
+        if (isset($this->namespaces[$unquotedNamespaceName])) {
+            throw SchemaException::namespaceAlreadyExists($unquotedNamespaceName);
+        }
+
+        $this->namespaces[$unquotedNamespaceName] = $namespaceName;
+
+        return $this;
     }
 
     /**
@@ -389,9 +478,16 @@ class Schema extends AbstractAsset
     {
         $visitor->acceptSchema($this);
 
+        if ($visitor instanceof NamespaceVisitor) {
+            foreach ($this->namespaces as $namespace) {
+                $visitor->acceptNamespace($namespace);
+            }
+        }
+
         foreach ($this->_tables as $table) {
             $table->visit($visitor);
         }
+
         foreach ($this->_sequences as $sequence) {
             $sequence->visit($visitor);
         }

@@ -110,30 +110,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGetCreateSchemaSQL()
-    {
-        $schemaName = 'schema';
-        $sql = $this->_platform->getCreateSchemaSQL($schemaName);
-        $this->assertEquals('CREATE SCHEMA AUTHORIZATION ' . $schemaName, $sql);
-    }
-
-    public function testReturnsDefaultSchemaName()
-    {
-        $this->assertSame('DBA', $this->_platform->getDefaultSchemaName());
-    }
-
-    public function testSchemaNeedsCreation()
-    {
-        $schemaNames = array(
-            'DBA' => false,
-            'schema' => true,
-        );
-        foreach ($schemaNames as $name => $expected) {
-            $actual = $this->_platform->schemaNeedsCreation($name);
-            $this->assertEquals($expected, $actual);
-        }
-    }
-
     public function testHasCorrectPlatformName()
     {
         $this->assertEquals('sqlanywhere', $this->_platform->getName());
@@ -724,7 +700,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testSupportsSchemas()
     {
-        $this->assertTrue($this->_platform->supportsSchemas());
+        $this->assertFalse($this->_platform->supportsSchemas());
     }
 
     public function testSupportsIndexes()
@@ -844,6 +820,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable RENAME quoted2 TO "and"',
             'ALTER TABLE mytable RENAME quoted3 TO "baz"',
         );
+    }
+
+    public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
+    {
+        $this->markTestSkipped('Index declaration in statements like CREATE TABLE is not supported.');
     }
 
     /**

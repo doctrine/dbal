@@ -131,4 +131,44 @@ EOS
         $this->assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
         $this->assertEquals(array('other_id', 'id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
     }
+
+    /**
+     * @dataProvider getDiffListIntegerAutoincrementTableColumnsData
+     * @group DBAL-924
+     */
+    public function testDiffListIntegerAutoincrementTableColumns($integerType, $unsigned, $expectedComparatorDiff)
+    {
+        $tableName = 'test_int_autoincrement_table';
+
+        $offlineTable = new \Doctrine\DBAL\Schema\Table($tableName);
+        $offlineTable->addColumn('id', $integerType, array('autoincrement' => true, 'unsigned' => $unsigned));
+        $offlineTable->setPrimaryKey(array('id'));
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails($tableName);
+        $comparator = new Schema\Comparator();
+        $diff = $comparator->diffTable($offlineTable, $onlineTable);
+
+        if ($expectedComparatorDiff) {
+            $this->assertEmpty($this->_sm->getDatabasePlatform()->getAlterTableSQL($diff));
+        } else {
+            $this->assertFalse($diff);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getDiffListIntegerAutoincrementTableColumnsData()
+    {
+        return array(
+            array('smallint', false, true),
+            array('smallint', true, true),
+            array('integer', false, false),
+            array('integer', true, true),
+            array('bigint', false, true),
+            array('bigint', true, true),
+        );
+    }
 }

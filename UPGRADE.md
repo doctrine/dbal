@@ -1,5 +1,11 @@
 # Upgrade to 2.5
 
+## BC BREAK: Doctrine\DBAL\Schema\Table
+
+The methods ``addIndex()`` and ``addUniqueIndex()`` in ``Doctrine\DBAL\Schema\Table``
+hav an additional, optional parameter. If you override these methods, you should
+add this new parameter to the declaration of your overridden methods.
+
 ## BC BREAK: Doctrine\DBAL\Connection
 
 The visibility of the property ``$_platform`` in ``Doctrine\DBAL\Connection``

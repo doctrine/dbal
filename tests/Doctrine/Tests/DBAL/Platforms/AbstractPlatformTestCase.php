@@ -136,6 +136,27 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract public function getGenerateUniqueIndexSql();
 
+    public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
+    {
+        $where = 'test IS NULL AND test2 IS NOT NULL';
+        $indexDef = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), false, false, array(), array('where' => $where));
+
+        $expected = ' WHERE ' . $where;
+
+        $actuals = array();
+        $actuals []= $this->_platform->getIndexDeclarationSQL('name', $indexDef);
+        $actuals []= $this->_platform->getUniqueConstraintDeclarationSQL('name', $indexDef);
+        $actuals []= $this->_platform->getCreateIndexSQL($indexDef, 'table');
+
+        foreach ($actuals as $actual) {
+            if ($this->_platform->supportsPartialIndexes()) {
+                $this->assertStringEndsWith($expected, $actual, 'WHERE clause should be present');
+            } else {
+                $this->assertStringEndsNotWith($expected, $actual, 'WHERE clause should NOT be present');
+            }
+        }
+    }
+
     public function testGeneratesForeignKeyCreationSql()
     {
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name_id'), 'other_table', array('id'), '');
@@ -419,6 +440,47 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->markTestSkipped('Platform does not support Column comments.');
     }
 
+    public function testGetDefaultValueDeclarationSQL()
+    {
+        // non-timestamp value will get single quotes
+        $field = array(
+            'type' => 'string',
+            'default' => 'non_timestamp'
+        );
+
+        $this->assertEquals(" DEFAULT 'non_timestamp'", $this->_platform->getDefaultValueDeclarationSQL($field));
+    }
+
+    public function testGetDefaultValueDeclarationSQLDateTime()
+    {
+        // timestamps on datetime types should not be quoted
+        foreach (array('datetime', 'datetimetz') as $type) {
+
+            $field = array(
+                'type' => Type::getType($type),
+                'default' => $this->_platform->getCurrentTimestampSQL()
+            );
+
+            $this->assertEquals(' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(), $this->_platform->getDefaultValueDeclarationSQL($field));
+
+        }
+    }
+
+    public function testGetDefaultValueDeclarationSQLForIntegerTypes()
+    {
+        foreach(array('bigint', 'integer', 'smallint') as $type) {
+            $field = array(
+                'type'    => Type::getType($type),
+                'default' => 1
+            );
+
+            $this->assertEquals(
+                ' DEFAULT 1',
+                $this->_platform->getDefaultValueDeclarationSQL($field)
+            );
+        }
+    }
+
     /**
      * @group DBAL-45
      */
@@ -504,14 +566,6 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testGetCreateSchemaSQL()
     {
         $this->_platform->getCreateSchemaSQL('schema');
-    }
-
-    /**
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
-    public function testSchemaNeedsCreation()
-    {
-        $this->_platform->schemaNeedsCreation('schema');
     }
 
     /**
@@ -819,6 +873,77 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             'CREATE INDEX "select" ON "schema"."table" (id)',
             'DROP INDEX "schema"."foo"',
             'CREATE INDEX "bar" ON "schema"."table" (id)',
+        );
+    }
+
+    protected function getStringLiteralQuoteCharacter()
+    {
+        return "'";
+    }
+
+    public function testGetStringLiteralQuoteCharacter()
+    {
+        $this->assertSame($this->getStringLiteralQuoteCharacter(), $this->_platform->getStringLiteralQuoteCharacter());
+    }
+
+    protected function getQuotedCommentOnColumnSQLWithoutQuoteCharacter()
+    {
+        return "COMMENT ON COLUMN mytable.id IS 'This is a comment'";
+    }
+
+    public function testGetCommentOnColumnSQLWithoutQuoteCharacter()
+    {
+        $this->assertEquals(
+            $this->getQuotedCommentOnColumnSQLWithoutQuoteCharacter(),
+            $this->_platform->getCommentOnColumnSQL('mytable', 'id', 'This is a comment')
+        );
+    }
+
+    protected function getQuotedCommentOnColumnSQLWithQuoteCharacter()
+    {
+        return "COMMENT ON COLUMN mytable.id IS 'It''s a quote !'";
+    }
+
+    public function testGetCommentOnColumnSQLWithQuoteCharacter()
+    {
+        $c = $this->getStringLiteralQuoteCharacter();
+
+        $this->assertEquals(
+            $this->getQuotedCommentOnColumnSQLWithQuoteCharacter(),
+            $this->_platform->getCommentOnColumnSQL('mytable', 'id', "It" . $c . "s a quote !")
+        );
+    }
+
+    protected function getQuotedStringLiteralWithoutQuoteCharacter()
+    {
+        return "'No quote'";
+    }
+
+    protected function getQuotedStringLiteralWithQuoteCharacter()
+    {
+        return "'It''s a quote'";
+    }
+
+    protected function getQuotedStringLiteralQuoteCharacter()
+    {
+        return "''''";
+    }
+
+    public function testQuoteStringLiteral()
+    {
+        $c = $this->getStringLiteralQuoteCharacter();
+
+        $this->assertEquals(
+            $this->getQuotedStringLiteralWithoutQuoteCharacter(),
+            $this->_platform->quoteStringLiteral('No quote')
+        );
+        $this->assertEquals(
+            $this->getQuotedStringLiteralWithQuoteCharacter(),
+            $this->_platform->quoteStringLiteral('It' . $c . 's a quote')
+        );
+        $this->assertEquals(
+            $this->getQuotedStringLiteralQuoteCharacter(),
+            $this->_platform->quoteStringLiteral($c)
         );
     }
 }

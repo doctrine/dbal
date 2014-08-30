@@ -239,7 +239,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                             'key_name' => $row['relname'],
                             'column_name' => trim($colRow['attname']),
                             'non_unique' => !$row['indisunique'],
-                            'primary' => $row['indisprimary']
+                            'primary' => $row['indisprimary'],
+                            'where' => $row['where'],
                         );
                     }
                 }
@@ -281,6 +282,14 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
 
         return $list;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getPortableNamespaceDefinition(array $namespace)
+    {
+        return $namespace['nspname'];
     }
 
     /**

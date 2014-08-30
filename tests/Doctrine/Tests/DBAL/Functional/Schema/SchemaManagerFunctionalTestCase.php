@@ -869,4 +869,22 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->_sm->listTableForeignKeys($defaultSchemaName . '.' . $primaryTableName)
         );
     }
+
+    public function testCommentStringsAreQuoted()
+    {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsInlineColumnComments() &&
+            ! $this->_conn->getDatabasePlatform()->supportsCommentOnStatement() &&
+            $this->_conn->getDatabasePlatform()->getName() != 'mssql') {
+            $this->markTestSkipped('Database does not support column comments.');
+        }
+
+        $table = new Table('my_table');
+        $table->addColumn('id', 'integer', array('comment' => "It's a comment with a quote"));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns("my_table");
+        $this->assertEquals("It's a comment with a quote", $columns['id']->getComment());
+    }
 }

@@ -694,4 +694,73 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertFalse($qb->getQueryParts() === $qb_clone->getQueryParts());
         $this->assertFalse($qb->getParameters() === $qb_clone->getParameters());
     }
+
+    public function testSimpleSelectWithoutTableAlias()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('users');
+
+        $this->assertEquals('SELECT id FROM users', (string) $qb);
+    }
+
+    public function testSelectWithSimpleWhereWithoutTableAlias()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id', 'name')
+            ->from('users')
+            ->where('awesome=9001');
+
+        $this->assertEquals("SELECT id, name FROM users WHERE awesome=9001", (string) $qb);
+    }
+
+    public function testComplexSelectWithoutTableAliases()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('DISTINCT users.id')
+            ->from('users')
+            ->from('articles')
+            ->innerJoin('users', 'permissions', 'p', 'p.user_id = users.id')
+            ->innerJoin('articles', 'comments', 'c', 'c.article_id = articles.id')
+            ->where('users.id = articles.user_id')
+            ->andWhere('p.read = 1');
+
+        $this->assertEquals('SELECT DISTINCT users.id FROM users INNER JOIN permissions p ON p.user_id = users.id, articles INNER JOIN comments c ON c.article_id = articles.id WHERE (users.id = articles.user_id) AND (p.read = 1)', $qb->getSQL());
+    }
+
+    public function testComplexSelectWithSomeTableAliases()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('u.id')
+            ->from('users', 'u')
+            ->from('articles')
+            ->innerJoin('u', 'permissions', 'p', 'p.user_id = u.id')
+            ->innerJoin('articles', 'comments', 'c', 'c.article_id = articles.id');
+
+        $this->assertEquals('SELECT u.id FROM users u INNER JOIN permissions p ON p.user_id = u.id, articles INNER JOIN comments c ON c.article_id = articles.id', $qb->getSQL());
+    }
+
+    public function testSelectAllFromTableWithoutTableAlias()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('users.*')
+            ->from('users');
+
+        $this->assertEquals("SELECT users.* FROM users", (string) $qb);
+    }
+
+    public function testSelectAllWithoutTableAlias()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('*')
+            ->from('users');
+
+        $this->assertEquals("SELECT * FROM users", (string) $qb);
+    }
 }

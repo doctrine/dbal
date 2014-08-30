@@ -177,6 +177,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function supportsPartialIndexes()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function usesSequenceEmulatedIdentityColumns()
     {
         return true;
@@ -220,6 +228,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getListDatabasesSQL()
     {
         return 'SELECT datname FROM pg_database';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getListNamespacesSQL()
+    {
+        return "SELECT nspname FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema'";
     }
 
     /**
@@ -314,7 +330,8 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         return "SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
-                       pg_index.indkey, pg_index.indrelid
+                       pg_index.indkey, pg_index.indrelid,
+                       TRIM(BOTH '()' FROM pg_get_expr(indpred, indrelid)) AS where
                  FROM pg_class, pg_index
                  WHERE oid IN (
                     SELECT indexrelid
@@ -598,7 +615,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        $comment = $comment === null ? 'NULL' : "'$comment'";
+        $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
         return "COMMENT ON COLUMN $tableName.$columnName IS $comment";
     }
@@ -658,14 +675,6 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getCreateSchemaSQL($schemaName)
     {
         return 'CREATE SCHEMA ' . $schemaName;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function schemaNeedsCreation($schemaName)
-    {
-        return !in_array($schemaName, array('default', 'public'));
     }
 
     /**

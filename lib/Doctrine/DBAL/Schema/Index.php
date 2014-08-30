@@ -50,19 +50,30 @@ class Index extends AbstractAsset implements Constraint
     protected $_flags = array();
 
     /**
+     * Platform specific options
+     *
+     * @todo $_flags should eventually be refactored into options
+     *
+     * @var array
+     */
+    private $options = array();
+
+    /**
      * @param string   $indexName
      * @param string[] $columns
      * @param boolean  $isUnique
      * @param boolean  $isPrimary
      * @param string[] $flags
+     * @param array    $options
      */
-    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array())
+    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array(), array $options = array())
     {
         $isUnique = $isUnique || $isPrimary;
 
         $this->_setName($indexName);
         $this->_isUnique = $isUnique;
         $this->_isPrimary = $isPrimary;
+        $this->options = $options;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -199,15 +210,23 @@ class Index extends AbstractAsset implements Constraint
         $sameColumns = $this->spansColumns($other->getColumns());
 
         if ($sameColumns) {
-            if ( ! $this->isUnique() && !$this->isPrimary()) {
+            if ( ! $this->samePartialIndex($other)) {
+                return false;
+            }
+
+            if ( ! $this->isUnique() && ! $this->isPrimary()) {
                 // this is a special case: If the current key is neither primary or unique, any uniqe or
                 // primary key will always have the same effect for the index and there cannot be any constraint
                 // overlaps. This means a primary or unique index can always fulfill the requirements of just an
                 // index that has no constraints.
                 return true;
-            } elseif ($other->isPrimary() != $this->isPrimary()) {
+            }
+
+            if ($other->isPrimary() != $this->isPrimary()) {
                 return false;
-            } elseif ($other->isUnique() != $this->isUnique()) {
+            }
+
+            if ($other->isUnique() != $this->isUnique()) {
                 return false;
             }
 
@@ -232,7 +251,7 @@ class Index extends AbstractAsset implements Constraint
             return false;
         }
 
-        if ($this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique())) {
+        if ($this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique()) && $this->samePartialIndex($other)) {
             return true;
         }
 
@@ -288,4 +307,51 @@ class Index extends AbstractAsset implements Constraint
     {
         unset($this->_flags[strtolower($flag)]);
     }
+
+    /**
+     * @param string $name
+     *
+     * @return boolean
+     */
+    public function hasOption($name)
+    {
+        return isset($this->options[strtolower($name)]);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getOption($name)
+    {
+        return $this->options[strtolower($name)];
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
+     * Return whether the two indexes have the same partial index
+     * @param \Doctrine\DBAL\Schema\Index $other
+     * @return boolean
+     */
+    private function samePartialIndex(Index $other)
+    {
+        if ($this->hasOption('where') && $other->hasOption('where') && $this->getOption('where') == $other->getOption('where')) {
+            return true;
+        }
+
+        if ( ! $this->hasOption('where') && ! $other->hasOption('where')) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

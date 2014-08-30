@@ -387,19 +387,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $this->assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
     }
 
-    public function testSchemaNeedsCreation()
-    {
-        $schemaNames = array(
-            'default' => false,
-            'public' => false,
-            'schema' => true,
-        );
-        foreach ($schemaNames as $name => $expected) {
-            $actual = $this->_platform->schemaNeedsCreation($name);
-            $this->assertEquals($expected, $actual);
-        }
-    }
-
     public function testAlterDecimalPrecisionScale()
     {
 
@@ -669,6 +656,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         return array(
             'ALTER INDEX "schema"."create" RENAME TO "select"',
             'ALTER INDEX "schema"."foo" RENAME TO "bar"',
+        );
+    }
+
+    public function testGetNullCommentOnColumnSQL()
+    {
+        $this->assertEquals(
+            "COMMENT ON COLUMN mytable.id IS NULL",
+            $this->_platform->getCommentOnColumnSQL('mytable', 'id', null)
         );
     }
 }

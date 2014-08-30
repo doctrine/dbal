@@ -357,7 +357,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        $comment = $comment === null ? 'NULL' : "'$comment'";
+        $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
         return "COMMENT ON COLUMN $tableName.$columnName IS $comment";
     }
@@ -415,14 +415,6 @@ class SQLAnywherePlatform extends AbstractPlatform
         }
 
         return 'ALTER TABLE ' . $table . ' ADD ' . $this->getPrimaryKeyDeclarationSQL($index);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCreateSchemaSQL($schemaName)
-    {
-        return 'CREATE SCHEMA AUTHORIZATION ' . $schemaName;
     }
 
     /**
@@ -517,14 +509,6 @@ class SQLAnywherePlatform extends AbstractPlatform
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
         return 'DATE';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefaultSchemaName()
-    {
-        return 'DBA';
     }
 
     /**
@@ -1182,14 +1166,6 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function schemaNeedsCreation($schemaName)
-    {
-        return $schemaName !== 'DBA';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function supportsCommentOnStatement()
     {
         return true;
@@ -1199,14 +1175,6 @@ class SQLAnywherePlatform extends AbstractPlatform
      * {@inheritdoc}
      */
     public function supportsIdentityColumns()
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsSchemas()
     {
         return true;
     }
