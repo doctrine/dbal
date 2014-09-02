@@ -322,11 +322,13 @@ class SQLServerPlatform extends AbstractPlatform
             throw new \InvalidArgumentException("Incomplete column definition. 'default' required.");
         }
 
+        $columnName = new Identifier($column['name']);
+
         return
             ' CONSTRAINT ' .
             $this->generateDefaultConstraintName($table, $column['name']) .
             $this->getDefaultValueDeclarationSQL($column) .
-            ' FOR ' . $column['name'];
+            ' FOR ' . $columnName->getQuotedName($this);
     }
 
     /**
@@ -1519,6 +1521,9 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function generateIdentifierName($identifier)
     {
-        return strtoupper(dechex(crc32($identifier)));
+        // Always generate name for unquoted identifiers to ensure consistency.
+        $identifier = new Identifier($identifier);
+
+        return strtoupper(dechex(crc32($identifier->getName())));
     }
 }
