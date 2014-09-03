@@ -259,4 +259,24 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             $platform->getBlobTypeDeclarationSQL($onlineColumns['col_longblob']->toArray())
         );
     }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testDiffListGuidTableColumn()
+    {
+        $offlineTable = new Table('list_guid_table_column');
+        $offlineTable->addColumn('col_guid', 'guid');
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails('list_guid_table_column');
+
+        $comparator = new Comparator();
+
+        $this->assertFalse(
+            $comparator->diffTable($offlineTable, $onlineTable),
+            "No differences should be detected with the offline vs online schema."
+        );
+    }
 }
