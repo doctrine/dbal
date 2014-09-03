@@ -232,7 +232,7 @@ by this behaviour.
 
 
 To initialize a ``Doctrine\DBAL\Connection`` with auto-commit disabled,
-you can also use the ``Doctrine\DBAL\Configuration`` container to modfiy the
+you can also use the ``Doctrine\DBAL\Configuration`` container to modify the
 default auto-commit mode via ``Doctrine\DBAL\Configuration::setAutoCommit(false)``
 and pass it to a ``Doctrine\DBAL\Connection`` when instantiating.
 
