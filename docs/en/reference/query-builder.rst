@@ -146,11 +146,11 @@ previous expressions or ``addGroupBy()`` which adds to them:
 Join Clauses
 ~~~~~~~~~~~~
 
-For ``SELECT`` clauses you can generate different types ofjoins: ``INNER``,
+For ``SELECT`` clauses you can generate different types of joins: ``INNER``,
 ``LEFT`` and ``RIGHT``. The ``RIGHT`` join is not portable across all platforms
 (Sqlite for example does not support it).
 
-A join always belongs to one part of the from clause. This is why you have
+A join always belongs to one part of the from clause. This is why you have to
 specify the alias of the ``FROM`` part the join belongs to as the first
 argument.
 
@@ -327,7 +327,7 @@ Most notably you can use expressions to build nested And-/Or statements:
 The ``andX()`` and ``orX()`` methods accept an arbitrary amount
 of arguments and can be nested in each other.
 
-There is a bunch of methods to create comparisions and other SQL snippets
+There is a bunch of methods to create comparisons and other SQL snippets
 on the Expression object that you can see on the API documentation.
 
 Binding Parameters to Placeholders
