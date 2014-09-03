@@ -327,7 +327,7 @@ Most notably you can use expressions to build nested And-/Or statements:
 The ``andX()`` and ``orX()`` methods accept an arbitrary amount
 of arguments and can be nested in each other.
 
-There is a bunch of methods to create comparisions and other SQL snippets
+There is a bunch of methods to create comparisons and other SQL snippets
 on the Expression object that you can see on the API documentation.
 
 Binding Parameters to Placeholders
