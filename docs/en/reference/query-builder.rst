@@ -146,11 +146,11 @@ previous expressions or ``addGroupBy()`` which adds to them:
 Join Clauses
 ~~~~~~~~~~~~
 
-For ``SELECT`` clauses you can generate different types ofjoins: ``INNER``,
+For ``SELECT`` clauses you can generate different types of joins: ``INNER``,
 ``LEFT`` and ``RIGHT``. The ``RIGHT`` join is not portable across all platforms
 (Sqlite for example does not support it).
 
-A join always belongs to one part of the from clause. This is why you have
+A join always belongs to one part of the from clause. This is why you have to
 specify the alias of the ``FROM`` part the join belongs to as the first
 argument.
 
