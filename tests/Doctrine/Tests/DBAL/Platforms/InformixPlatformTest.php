@@ -166,38 +166,27 @@ class InformixPlatformTest extends AbstractPlatformTestCase
         $this->assertSame('f', $this->_platform->convertBooleans(false));
     }
 
-    public function testGeneratesTypeDeclarationForStrings()
+    /**
+     * @dataProvider dataProviderTestGeneratesTypeDeclarationForStrings
+     */
+    public function testGeneratesTypeDeclarationForStrings($length, $fixed, $expected)
     {
         $this->assertEquals(
-            'CHAR(150)',
+            $expected,
             $this->_platform->getVarcharTypeDeclarationSQL(
-                array('fixed' => true, 'length' => 150)
+                array('fixed' => $fixed, 'length' => $length)
             )
         );
+    }
 
-        $this->assertEquals(
-            'VARCHAR(150)',
-            $this->_platform->getVarcharTypeDeclarationSQL(
-                array('fixed' => false, 'length' => 150)
-            )
-        );
-
-        $this->assertEquals(
-            $this->_platform->getClobTypeDeclarationSQL(
-                array('fixed' => true, 'length' => 2000)
-            ),
-            $this->_platform->getVarcharTypeDeclarationSQL(
-                array('fixed' => true, 'length' => 2000)
-            )
-        );
-
-        $this->assertEquals(
-            $this->_platform->getClobTypeDeclarationSQL(
-                array('fixed' => false, 'length' => 2000)
-            ),
-            $this->_platform->getVarcharTypeDeclarationSQL(
-                array('fixed' => false, 'length' => 2000)
-            )
+    public function dataProviderTestGeneratesTypeDeclarationForStrings()
+    {
+        return array(
+            array(255,   false, 'VARCHAR(255)'),
+            array(32767, false, 'LVARCHAR(32767)'),
+            array(32767, true,  'CHAR(32767)'),
+            array(32768, false, 'TEXT'),
+            array(32768, true,  'TEXT'),
         );
     }
 

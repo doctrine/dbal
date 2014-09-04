@@ -93,12 +93,17 @@ class InformixPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     *
+     * When the length required is not fixed and does not exceed the 255
+     * bytes the VARCHAR type is used, otherwise LVARCHAR type.
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
+        $length = $length ? : $this->getVarcharDefaultLength();
+
         return $fixed
-            ? 'CHAR(' . ($length ? : $this->getVarcharDefaultLength()) . ')'
-            : 'VARCHAR(' . ($length ? : $this->getVarcharDefaultLength()) . ')';
+            ? 'CHAR(' . $length . ')'
+            : ( $length > 255 ? 'LVARCHAR(' . $length . ')' : 'VARCHAR(' . $length . ')' );
     }
 
     /**
@@ -156,7 +161,8 @@ class InformixPlatform extends AbstractPlatform
      */
     public function getVarcharMaxLength()
     {
-        return 255;
+        /* 32767 is the maximum length for the CHAR data type */
+        return 32767;
     }
 
     /**
