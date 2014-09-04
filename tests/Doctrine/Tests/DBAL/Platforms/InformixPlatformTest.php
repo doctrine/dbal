@@ -190,6 +190,14 @@ class InformixPlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGetClobTypeDeclarationSQL()
+    {
+        $this->assertEquals(
+            'TEXT',
+            $this->_platform->getClobTypeDeclarationSQL(array())
+        );
+    }
+
     public function testHasCorrectPlatformName()
     {
         $this->assertEquals('informix', $this->_platform->getName());
