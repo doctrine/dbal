@@ -664,4 +664,12 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             $this->_platform->getCommentOnColumnSQL('mytable', 'id', null)
         );
     }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('UUID', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
 }

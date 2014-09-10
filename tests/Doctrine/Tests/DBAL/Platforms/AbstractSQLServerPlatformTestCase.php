@@ -1101,4 +1101,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             ),
         );
     }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
 }
