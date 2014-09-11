@@ -507,7 +507,9 @@ class PostgreSqlPlatform extends AbstractPlatform
                     // add autoincrement
                     $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
 
+                    //TODO This is a bug. We need to check sequence existence in database before creating new one
                     $sql[] = "CREATE SEQUENCE " . $seqName;
+
                     $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->getName()->getQuotedName($this) . "))";
                     $query = "ALTER " . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
                     $sql[] = "ALTER TABLE " . $diff->getName()->getQuotedName($this) . " " . $query;
@@ -1061,6 +1063,8 @@ class PostgreSqlPlatform extends AbstractPlatform
             'year'          => 'date',
             'uuid'          => 'guid',
             'bytea'         => 'blob',
+            'oid'           => 'bigint',
+            'hstore'        => 'string'
         );
     }
 
