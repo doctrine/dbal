@@ -468,9 +468,12 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getCreateAutoincrementSql($name, $table, $start = 1)
     {
-        $table = strtoupper($table);
-        $name = strtoupper($name);
-
+        if ($table[0] !== '"') {
+            $table = strtoupper($table);
+        }
+        if ($name[0] !== '"') {
+            $name = strtoupper($name);
+        }
         $sql   = array();
 
         $indexName  = $table . '_AI_PK';
@@ -491,6 +494,10 @@ END;';
         $sql[] = $this->getCreateSequenceSQL($sequence);
 
         $triggerName  = $table . '_AI_PK';
+        if ($table[0] === '"') {
+            $triggerName  = '"' . trim($table, '"') . '_AI_PK"';
+        }
+
         $sql[] = 'CREATE TRIGGER ' . $triggerName . '
    BEFORE INSERT
    ON ' . $table . '
@@ -577,7 +584,11 @@ LEFT JOIN user_cons_columns r_cols
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        $table = strtoupper($table);
+        if ($table[0] !== '"') {
+            $table = strtoupper($table);
+        } else {
+            $table = trim($table, '"');
+        }
 
         $tabColumnsTableName = "user_tab_columns";
         $colCommentsTableName = "user_col_comments";
@@ -800,6 +811,19 @@ LEFT JOIN user_cons_columns r_cols
      */
     public function getIdentitySequenceName($tableName, $columnName)
     {
+        $quotingRequired = false;
+        if ($tableName[0] === '"') {
+            $tableName  = trim($tableName, '"');
+            $quotingRequired = true;
+        }
+        if ($columnName[0] === '"') {
+            $columnName  = trim($columnName, '"');
+            $quotingRequired = true;
+        }
+
+        if ($quotingRequired) {
+            return '"' . $tableName . '_' . $columnName . '_SEQ"';
+        }
         return $tableName . '_' . $columnName . '_SEQ';
     }
 
