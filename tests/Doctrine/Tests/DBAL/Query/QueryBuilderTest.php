@@ -595,6 +595,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertEquals('SELECT u.* FROM users u WHERE u.name = :dcValue1', (string)$qb);
         $this->assertEquals(10, $qb->getParameter('dcValue1'));
+        $this->assertEquals(\PDO::PARAM_INT, $qb->getParameterType('dcValue1'));
     }
 
     public function testCreateNamedParameterCustomPlaceholder()
@@ -607,6 +608,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertEquals('SELECT u.* FROM users u WHERE u.name = :test', (string)$qb);
         $this->assertEquals(10, $qb->getParameter('test'));
+        $this->assertEquals(\PDO::PARAM_INT, $qb->getParameterType('test'));
     }
 
     public function testCreatePositionalParameter()
@@ -619,6 +621,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string)$qb);
         $this->assertEquals(10, $qb->getParameter(1));
+        $this->assertEquals(\PDO::PARAM_INT, $qb->getParameterType(1));
     }
 
     /**
@@ -762,5 +765,50 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->from('users');
 
         $this->assertEquals("SELECT * FROM users", (string) $qb);
+    }
+
+    /**
+     * @group DBAL-959
+     */
+    public function testGetParameterType()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('*')->from('users');
+
+        $this->assertNull($qb->getParameterType('name'));
+
+        $qb->where('name = :name');
+        $qb->setParameter('name', 'foo');
+
+        $this->assertNull($qb->getParameterType('name'));
+
+        $qb->setParameter('name', 'foo', \PDO::PARAM_STR);
+
+        $this->assertSame(\PDO::PARAM_STR, $qb->getParameterType('name'));
+    }
+
+    /**
+     * @group DBAL-959
+     */
+    public function testGetParameterTypes()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('*')->from('users');
+
+        $this->assertSame(array(), $qb->getParameterTypes());
+
+        $qb->where('name = :name');
+        $qb->setParameter('name', 'foo');
+
+        $this->assertSame(array(), $qb->getParameterTypes());
+
+        $qb->setParameter('name', 'foo', \PDO::PARAM_STR);
+
+        $qb->where('is_active = :isActive');
+        $qb->setParameter('isActive', true, \PDO::PARAM_BOOL);
+
+        $this->assertSame(array('name' => \PDO::PARAM_STR, 'isActive' => \PDO::PARAM_BOOL), $qb->getParameterTypes());
     }
 }

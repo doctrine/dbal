@@ -307,9 +307,9 @@ class QueryBuilder
     }
 
     /**
-     * Gets all defined query parameters for the query being constructed.
+     * Gets all defined query parameters for the query being constructed indexed by parameter index or name.
      *
-     * @return array The currently defined query parameters.
+     * @return array The currently defined query parameters indexed by parameter index or name.
      */
     public function getParameters()
     {
@@ -326,6 +326,28 @@ class QueryBuilder
     public function getParameter($key)
     {
         return isset($this->params[$key]) ? $this->params[$key] : null;
+    }
+
+    /**
+     * Gets all defined query parameter types for the query being constructed indexed by parameter index or name.
+     *
+     * @return array The currently defined query parameter types indexed by parameter index or name.
+     */
+    public function getParameterTypes()
+    {
+        return $this->paramTypes;
+    }
+
+    /**
+     * Gets a (previously set) query parameter type of the query being constructed.
+     *
+     * @param mixed $key The key (index or name) of the bound parameter type.
+     *
+     * @return mixed The value of the bound parameter type.
+     */
+    public function getParameterType($key)
+    {
+        return isset($this->paramTypes[$key]) ? $this->paramTypes[$key] : null;
     }
 
     /**
