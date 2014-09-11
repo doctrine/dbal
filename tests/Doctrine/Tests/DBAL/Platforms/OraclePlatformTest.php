@@ -392,10 +392,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @group DBAL-563
+     * @group DBAL-831
      */
     public function testReturnsIdentitySequenceName()
     {
-        $this->assertSame('mytable_mycolumn_SEQ', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
+        $this->assertSame('MYTABLE_MYCOLUMN_SEQ', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
+        $this->assertSame('"mytable_mycolumn_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
+        $this->assertSame('"mytable_mycolumn_SEQ"', $this->_platform->getIdentitySequenceName('mytable', '"mycolumn"'));
+        $this->assertSame('"mytable_mycolumn_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
     }
 
     /**
