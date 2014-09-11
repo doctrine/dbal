@@ -329,6 +329,28 @@ class QueryBuilder
     }
 
     /**
+     * Gets all defined query parameter types for the query being constructed.
+     *
+     * @return array The currently defined query parameter types.
+     */
+    public function getParameterTypes()
+    {
+        return $this->paramTypes;
+    }
+
+    /**
+     * Gets a (previously set) query parameter type of the query being constructed.
+     *
+     * @param mixed $key The key (index or name) of the bound parameter type.
+     *
+     * @return mixed The value of the bound parameter type.
+     */
+    public function getParameterType($key)
+    {
+        return isset($this->paramTypes[$key]) ? $this->paramTypes[$key] : null;
+    }
+
+    /**
      * Sets the position of the first result to retrieve (the "offset").
      *
      * @param integer $firstResult The first result to return.
