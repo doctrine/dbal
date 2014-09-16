@@ -946,4 +946,14 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             $this->_platform->quoteStringLiteral($c)
         );
     }
+
+    /**
+     * @group DBAL-423
+     *
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->_platform->getGuidTypeDeclarationSQL(array());
+    }
 }

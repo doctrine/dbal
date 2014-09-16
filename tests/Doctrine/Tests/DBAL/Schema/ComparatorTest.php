@@ -1107,4 +1107,19 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $comparator->compare($fromSchema, $toSchema));
     }
+
+    public function testCompareGuidColumns()
+    {
+        $comparator = new Comparator();
+
+        $column1 = new Column('foo', Type::getType('guid'), array('comment' => 'GUID 1'));
+        $column2 = new Column(
+            'foo',
+            Type::getType('guid'),
+            array('notnull' => false, 'length' => '36', 'fixed' => true, 'default' => 'NEWID()', 'comment' => 'GUID 2.')
+        );
+
+        $this->assertEquals(array('notnull', 'default', 'comment'), $comparator->diffColumn($column1, $column2));
+        $this->assertEquals(array('notnull', 'default', 'comment'), $comparator->diffColumn($column2, $column1));
+    }
 }

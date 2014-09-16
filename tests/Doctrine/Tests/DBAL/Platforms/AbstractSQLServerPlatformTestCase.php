@@ -255,16 +255,16 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $query.= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
         $query.= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
         $query.= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
-        
+
         $sql = $this->_platform->modifyLimitQuery($query, 10);
-        
+
         $expected = 'SELECT * FROM (SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum ';
         $expected.= 'FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
         $expected.= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) ';
         $expected.= 'AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) ';
         $expected.= 'AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)) ';
         $expected.= 'AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10';
-        
+
         $this->assertEquals($expected, $sql);
     }
 
@@ -919,5 +919,194 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "EXEC sp_RENAME N'[schema].[table].[create]', N'[select]', N'INDEX'",
             "EXEC sp_RENAME N'[schema].[table].[foo]', N'[bar]', N'INDEX'",
         );
+    }
+
+    /**
+     * @dataProvider getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL
+     * @group DBAL-830
+     */
+    public function testGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL($table, $column, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getDefaultConstraintDeclarationSQL($table, $column));
+    }
+
+    public function getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL()
+    {
+        return array(
+            // Unquoted identifiers non-reserved keywords.
+            array('mytable', array('name' => 'mycolumn', 'default' => 'foo'), " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn"),
+            // Quoted identifiers non-reserved keywords.
+            array('`mytable`', array('name' => '`mycolumn`', 'default' => 'foo'), " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]"),
+            // Unquoted identifiers reserved keywords.
+            array('table', array('name' => 'select', 'default' => 'foo'), " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"),
+            // Quoted identifiers reserved keywords.
+            array('`table`', array('name' => '`select`', 'default' => 'foo'), " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"),
+        );
+    }
+
+    /**
+     * @dataProvider getGeneratesIdentifierNamesInCreateTableSQL
+     * @group DBAL-830
+     */
+    public function testGeneratesIdentifierNamesInCreateTableSQL($table, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getCreateTableSQL($table));
+    }
+
+    public function getGeneratesIdentifierNamesInCreateTableSQL()
+    {
+        return array(
+            // Unquoted identifiers non-reserved keywords.
+            array(
+                new Table('mytable', array(new Column('mycolumn', Type::getType('string'), array('default' => 'foo')))),
+                array(
+                    'CREATE TABLE mytable (mycolumn NVARCHAR(255) NOT NULL)',
+                    "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn"
+                )
+            ),
+            // Quoted identifiers reserved keywords.
+            array(
+                new Table('`mytable`', array(new Column('`mycolumn`', Type::getType('string'), array('default' => 'foo')))),
+                array(
+                    'CREATE TABLE [mytable] ([mycolumn] NVARCHAR(255) NOT NULL)',
+                    "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]"
+                )
+            ),
+            // Unquoted identifiers reserved keywords.
+            array(
+                new Table('table', array(new Column('select', Type::getType('string'), array('default' => 'foo')))),
+                array(
+                    'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
+                    "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"
+                )
+            ),
+            // Quoted identifiers reserved keywords.
+            array(
+                new Table('`table`', array(new Column('`select`', Type::getType('string'), array('default' => 'foo')))),
+                array(
+                    'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
+                    "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"
+                )
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider getGeneratesIdentifierNamesInAlterTableSQL
+     * @group DBAL-830
+     */
+    public function testGeneratesIdentifierNamesInAlterTableSQL($tableDiff, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+    }
+
+    public function getGeneratesIdentifierNamesInAlterTableSQL()
+    {
+        return array(
+            // Unquoted identifiers non-reserved keywords.
+            array(
+                new TableDiff(
+                    'mytable',
+                    array(new Column('addcolumn', Type::getType('string'), array('default' => 'foo'))),
+                    array(
+                        'mycolumn' => new ColumnDiff(
+                            'mycolumn',
+                            new Column('mycolumn', Type::getType('string'), array('default' => 'bar')),
+                            array('default'),
+                            new Column('mycolumn', Type::getType('string'), array('default' => 'foo'))
+                        )
+                    ),
+                    array(new Column('removecolumn', Type::getType('string'), array('default' => 'foo')))
+                ),
+                array(
+                    'ALTER TABLE mytable ADD addcolumn NVARCHAR(255) NOT NULL',
+                    "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo' FOR addcolumn",
+                    'ALTER TABLE mytable DROP COLUMN removecolumn',
+                    'ALTER TABLE mytable DROP CONSTRAINT DF_6B2BD609_9BADD926',
+                    'ALTER TABLE mytable ALTER COLUMN mycolumn NVARCHAR(255) NOT NULL',
+                    "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'bar' FOR mycolumn"
+                )
+            ),
+            // Quoted identifiers non-reserved keywords.
+            array(
+                new TableDiff(
+                    '`mytable`',
+                    array(new Column('`addcolumn`', Type::getType('string'), array('default' => 'foo'))),
+                    array(
+                        'mycolumn' => new ColumnDiff(
+                            '`mycolumn`',
+                            new Column('`mycolumn`', Type::getType('string'), array('default' => 'bar')),
+                            array('default'),
+                            new Column('`mycolumn`', Type::getType('string'), array('default' => 'foo'))
+                        )
+                    ),
+                    array(new Column('`removecolumn`', Type::getType('string'), array('default' => 'foo')))
+                ),
+                array(
+                    'ALTER TABLE [mytable] ADD [addcolumn] NVARCHAR(255) NOT NULL',
+                    "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo' FOR [addcolumn]",
+                    'ALTER TABLE [mytable] DROP COLUMN [removecolumn]',
+                    'ALTER TABLE [mytable] DROP CONSTRAINT DF_6B2BD609_9BADD926',
+                    'ALTER TABLE [mytable] ALTER COLUMN [mycolumn] NVARCHAR(255) NOT NULL',
+                    "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'bar' FOR [mycolumn]"
+                )
+            ),
+            // Unquoted identifiers reserved keywords.
+            array(
+                new TableDiff(
+                    'table',
+                    array(new Column('add', Type::getType('string'), array('default' => 'foo'))),
+                    array(
+                        'select' => new ColumnDiff(
+                            'select',
+                            new Column('select', Type::getType('string'), array('default' => 'bar')),
+                            array('default'),
+                            new Column('select', Type::getType('string'), array('default' => 'foo'))
+                        )
+                    ),
+                    array(new Column('drop', Type::getType('string'), array('default' => 'foo')))
+                ),
+                array(
+                    'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL',
+                    "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo' FOR [add]",
+                    'ALTER TABLE [table] DROP COLUMN [drop]',
+                    'ALTER TABLE [table] DROP CONSTRAINT DF_F6298F46_4BF2EAC0',
+                    'ALTER TABLE [table] ALTER COLUMN [select] NVARCHAR(255) NOT NULL',
+                    "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'bar' FOR [select]"
+                )
+            ),
+            // Quoted identifiers reserved keywords.
+            array(
+                new TableDiff(
+                    '`table`',
+                    array(new Column('`add`', Type::getType('string'), array('default' => 'foo'))),
+                    array(
+                        'select' => new ColumnDiff(
+                            '`select`',
+                            new Column('`select`', Type::getType('string'), array('default' => 'bar')),
+                            array('default'),
+                            new Column('`select`', Type::getType('string'), array('default' => 'foo'))
+                        )
+                    ),
+                    array(new Column('`drop`', Type::getType('string'), array('default' => 'foo')))
+                ),
+                array(
+                    'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL',
+                    "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo' FOR [add]",
+                    'ALTER TABLE [table] DROP COLUMN [drop]',
+                    'ALTER TABLE [table] DROP CONSTRAINT DF_F6298F46_4BF2EAC0',
+                    'ALTER TABLE [table] ALTER COLUMN [select] NVARCHAR(255) NOT NULL',
+                    "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'bar' FOR [select]"
+                )
+            ),
+        );
+    }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
 }

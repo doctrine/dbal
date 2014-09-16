@@ -155,7 +155,7 @@ abstract class AbstractAsset
      */
     protected function isIdentifierQuoted($identifier)
     {
-        return (isset($identifier[0]) && ($identifier[0] == '`' || $identifier[0] == '"'));
+        return (isset($identifier[0]) && ($identifier[0] == '`' || $identifier[0] == '"' || $identifier[0] == '['));
     }
 
     /**
@@ -167,7 +167,7 @@ abstract class AbstractAsset
      */
     protected function trimQuotes($identifier)
     {
-        return str_replace(array('`', '"'), '', $identifier);
+        return str_replace(array('`', '"', '[', ']'), '', $identifier);
     }
 
     /**
