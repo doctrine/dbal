@@ -692,7 +692,44 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->join('a', 'table_d', 'd', 'a.fk_d = d.id')
             ->join('c', 'table_e', 'e', 'e.fk_c = c.id AND e.fk_d = d.id');
 
-        $this->assertEquals('SELECT a.id FROM table_a a INNER JOIN table_b b ON a.fk_b = b.id INNER JOIN table_d d ON a.fk_d = d.id INNER JOIN table_c c ON c.fk_b = b.id AND b.language = ? INNER JOIN table_e e ON e.fk_c = c.id AND e.fk_d = d.id', (string) $qb);
+        $this->assertEquals(
+            'SELECT a.id ' .
+            'FROM table_a a ' .
+            'INNER JOIN table_b b ON a.fk_b = b.id ' .
+            'INNER JOIN table_d d ON a.fk_d = d.id ' .
+            'INNER JOIN table_c c ON c.fk_b = b.id AND b.language = ? ' .
+            'INNER JOIN table_e e ON e.fk_c = c.id AND e.fk_d = d.id',
+            (string) $qb
+        );
+    }
+
+    /**
+     * @group DBAL-774
+     */
+    public function testSelectWithMultipleFromsAndJoinsWithMultipleOnConditionsParseOrder()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('a.id')
+            ->from('table_a', 'a')
+            ->from('table_f', 'f')
+            ->join('a', 'table_b', 'b', 'a.fk_b = b.id')
+            ->join('b', 'table_c', 'c', 'c.fk_b = b.id AND b.language = ?')
+            ->join('a', 'table_d', 'd', 'a.fk_d = d.id')
+            ->join('c', 'table_e', 'e', 'e.fk_c = c.id AND e.fk_d = d.id')
+            ->join('f', 'table_g', 'g', 'f.fk_g = g.id');
+
+        $this->assertEquals(
+            'SELECT a.id ' .
+            'FROM table_a a ' .
+            'INNER JOIN table_b b ON a.fk_b = b.id ' .
+            'INNER JOIN table_d d ON a.fk_d = d.id ' .
+            'INNER JOIN table_c c ON c.fk_b = b.id AND b.language = ? ' .
+            'INNER JOIN table_e e ON e.fk_c = c.id AND e.fk_d = d.id, ' .
+            'table_f f ' .
+            'INNER JOIN table_g g ON f.fk_g = g.id',
+            (string) $qb
+        );
     }
 
     public function testClone()
