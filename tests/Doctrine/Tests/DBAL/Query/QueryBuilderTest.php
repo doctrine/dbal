@@ -678,6 +678,23 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('SELECT DISTINCT u.id FROM users u INNER JOIN permissions p ON p.user_id = u.id, articles a INNER JOIN comments c ON c.article_id = a.id WHERE (u.id = a.user_id) AND (p.read = 1)', $qb->getSQL());
     }
 
+    /**
+     * @group DBAL-774
+     */
+    public function testSelectWithJoinsWithMultipleOnConditionsParseOrder()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('a.id')
+            ->from('table_a', 'a')
+            ->join('a', 'table_b', 'b', 'a.fk_b = b.id')
+            ->join('b', 'table_c', 'c', 'c.fk_b = b.id AND b.language = ?')
+            ->join('a', 'table_d', 'd', 'a.fk_d = d.id')
+            ->join('c', 'table_e', 'e', 'e.fk_c = c.id AND e.fk_d = d.id');
+
+        $this->assertEquals('SELECT a.id FROM table_a a INNER JOIN table_b b ON a.fk_b = b.id INNER JOIN table_d d ON a.fk_d = d.id INNER JOIN table_c c ON c.fk_b = b.id AND b.language = ? INNER JOIN table_e e ON e.fk_c = c.id AND e.fk_d = d.id', (string) $qb);
+    }
+
     public function testClone()
     {
         $qb = new QueryBuilder($this->conn);
