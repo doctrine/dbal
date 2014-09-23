@@ -533,14 +533,16 @@ END;';
     public function getDropAutoincrementSql($table)
     {
         $table = $this->normalizeIdentifier($table);
-        $quotedTableName = $table->getQuotedName($this);
-        $unquotedTableName = $table->getName();
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);
+        $identitySequenceName = $this->getIdentitySequenceName(
+            $table->isQuoted() ? $table->getQuotedName($this) : $table->getName(),
+            ''
+        );
 
         return array(
             'DROP TRIGGER ' . $autoincrementIdentifierName,
-            $this->getDropSequenceSQL($unquotedTableName . '_SEQ'), // todo: needs to be fixed
-            $this->getDropConstraintSQL($autoincrementIdentifierName, $quotedTableName),
+            $this->getDropSequenceSQL($identitySequenceName),
+            $this->getDropConstraintSQL($autoincrementIdentifierName, $table->getQuotedName($this)),
         );
     }
 
