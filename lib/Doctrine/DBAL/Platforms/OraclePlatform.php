@@ -847,10 +847,11 @@ LEFT JOIN user_cons_columns r_cols
     public function getIdentitySequenceName($tableName, $columnName)
     {
         $table = new Identifier($tableName);
-        $column = new Identifier($columnName);
-        $identitySequenceName = $table->getName() . '_' . $column->getName() . '_SEQ';
 
-        if ($table->isQuoted() || $column->isQuoted()) {
+        // No usage of column name to preserve BC compatibility with <2.5
+        $identitySequenceName = $table->getName() . '_SEQ';
+
+        if ($table->isQuoted()) {
             $identitySequenceName = '"' . $identitySequenceName . '"';
         }
 
