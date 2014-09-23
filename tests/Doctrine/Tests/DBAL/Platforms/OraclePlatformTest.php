@@ -506,4 +506,43 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE foo RENAME COLUMN bar TO baz',
         );
     }
+
+    /**
+     * @dataProvider getReturnsDropAutoincrementSQL
+     * @group DBAL-831
+     */
+    public function testReturnsDropAutoincrementSQL($table, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getDropAutoincrementSql($table));
+    }
+
+    public function getReturnsDropAutoincrementSQL()
+    {
+        return array(
+            array(
+                'myTable',
+                array(
+                    'DROP TRIGGER MYTABLE_AI_PK',
+                    'DROP SEQUENCE MYTABLE_SEQ',
+                    'ALTER TABLE MYTABLE DROP CONSTRAINT MYTABLE_AI_PK',
+                )
+            ),
+            array(
+                '"myTable"',
+                array(
+                    'DROP TRIGGER "myTable_AI_PK"',
+                    'DROP SEQUENCE "myTable_SEQ"',
+                    'ALTER TABLE "myTable" DROP CONSTRAINT "myTable_AI_PK"',
+                )
+            ),
+            array(
+                'table',
+                array(
+                    'DROP TRIGGER TABLE_AI_PK',
+                    'DROP SEQUENCE TABLE_SEQ',
+                    'ALTER TABLE "TABLE" DROP CONSTRAINT TABLE_AI_PK',
+                )
+            ),
+        );
+    }
 }
