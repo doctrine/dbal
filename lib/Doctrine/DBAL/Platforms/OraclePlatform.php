@@ -494,7 +494,10 @@ BEGIN
   END IF;
 END;';
 
-        $sequenceName = $this->getIdentitySequenceName($unquotedTableName, $unquotedName);
+        $sequenceName = $this->getIdentitySequenceName(
+            $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName,
+            $nameIdentifier->isQuoted() ? $quotedName : $unquotedName
+        );
         $sequence = new Sequence($sequenceName, $start);
         $sql[] = $this->getCreateSequenceSQL($sequence);
 
@@ -512,7 +515,7 @@ BEGIN
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
         FROM User_Sequences
-       WHERE Sequence_Name = \'' . $sequenceName . '\';
+       WHERE Sequence_Name = \'' . $sequence->getName() . '\';
       SELECT :NEW.' . $quotedName . ' INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
          SELECT ' . $sequenceName . '.NEXTVAL INTO last_Sequence FROM DUAL;

@@ -146,12 +146,12 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals(
             'NUMBER(10)',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
-        ));
+            ));
         $this->assertEquals(
             'NUMBER(10)',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true)
-        ));
+            ));
     }
 
     public function testGeneratesTypeDeclarationsForStrings()
@@ -160,7 +160,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
                 array('length' => 10, 'fixed' => true)
-        ));
+            ));
         $this->assertEquals(
             'VARCHAR2(50)',
             $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
@@ -235,19 +235,19 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $column = $table->addColumn($columnName, 'integer');
         $column->setAutoincrement(true);
         $targets = array(
-          "CREATE TABLE {$tableName} ({$columnName} NUMBER(10) NOT NULL)",
-          "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '{$tableName}' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE {$tableName} ADD CONSTRAINT {$tableName}_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
-          "CREATE SEQUENCE {$tableName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
-          "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
+            "CREATE TABLE {$tableName} ({$columnName} NUMBER(10) NOT NULL)",
+            "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '{$tableName}' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE {$tableName} ADD CONSTRAINT {$tableName}_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
+            "CREATE SEQUENCE {$tableName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
+            "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
         );
         $statements = $this->_platform->getCreateTableSQL($table);
         //strip all the whitespace from the statements
         array_walk($statements, function(&$value){
-          $value = preg_replace('/\s+/', ' ',$value);
+            $value = preg_replace('/\s+/', ' ',$value);
         });
         foreach($targets as $key => $sql){
-          $this->assertArrayHasKey($key,$statements);
-          $this->assertEquals($sql, $statements[$key]);
+            $this->assertArrayHasKey($key,$statements);
+            $this->assertEquals($sql, $statements[$key]);
         }
     }
 
@@ -285,8 +285,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getBitOrComparisonExpressionSql($value1, $value2)
     {
         return '(' . $value1 . '-' .
-                $this->getBitAndComparisonExpressionSql($value1, $value2)
-                . '+' . $value2 . ')';
+        $this->getBitAndComparisonExpressionSql($value1, $value2)
+        . '+' . $value2 . ')';
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
@@ -340,7 +340,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         $expectedSql = array(
             "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)",
-	);
+        );
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }
 
@@ -601,5 +601,45 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             ),
             $this->_platform->getAlterTableSQL($tableDiff)
         );
+    }
+
+    public function testQuotedTableNames()
+    {
+        $table = new Table('"test"');
+        $table->addColumn('"id"', 'integer', array('autoincrement' => true));
+
+        // assert tabel
+        $this->assertTrue($table->isQuoted());
+        $this->assertEquals('test', $table->getName());
+        $this->assertEquals('"test"', $table->getQuotedName($this->_platform));
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals('CREATE TABLE "test" ("id" NUMBER(10) NOT NULL)', $sql[0]);
+        $this->assertEquals('CREATE SEQUENCE "test_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[2]);
+        $createTriggerStatement = <<<EOD
+CREATE TRIGGER "test_AI_PK"
+   BEFORE INSERT
+   ON "test"
+   FOR EACH ROW
+DECLARE
+   last_Sequence NUMBER;
+   last_InsertID NUMBER;
+BEGIN
+   SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
+   IF (:NEW."id" IS NULL OR :NEW."id" = 0) THEN
+      SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
+   ELSE
+      SELECT NVL(Last_Number, 0) INTO last_Sequence
+        FROM User_Sequences
+       WHERE Sequence_Name = 'test_SEQ';
+      SELECT :NEW."id" INTO last_InsertID FROM DUAL;
+      WHILE (last_InsertID > last_Sequence) LOOP
+         SELECT "test_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
+      END LOOP;
+   END IF;
+END;
+EOD;
+
+        $this->assertEquals($createTriggerStatement, $sql[3]);
     }
 }
