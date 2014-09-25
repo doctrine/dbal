@@ -1312,7 +1312,9 @@ class QueryBuilder
                     . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
                     . ' ON ' . ((string) $join['joinCondition']);
                 $knownAliases[$join['joinAlias']] = true;
+            }
 
+            foreach ($this->sqlParts['join'][$fromAlias] as $join) {
                 $sql .= $this->getSQLForJoins($join['joinAlias'], $knownAliases);
             }
         }

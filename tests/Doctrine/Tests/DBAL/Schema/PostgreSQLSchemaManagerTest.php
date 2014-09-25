@@ -5,7 +5,6 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\Tests\DBAL\Mocks;
 
 class PostgreSQLSchemaManagerTest extends \PHPUnit_Framework_TestCase
 {

@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks;
+use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -16,7 +16,7 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
 
     protected function setUp()
     {
-        $this->_platform = new \Doctrine\Tests\DBAL\Mocks\MockPlatform();
+        $this->_platform = new MockPlatform();
         $this->_type = Type::getType('date');
         $this->_tz = date_default_timezone_get();
     }

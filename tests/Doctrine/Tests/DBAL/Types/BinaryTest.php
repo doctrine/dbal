@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks;
+use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -24,7 +24,7 @@ class BinaryTest extends \Doctrine\Tests\DbalTestCase
      */
     protected function setUp()
     {
-        $this->platform = new \Doctrine\Tests\DBAL\Mocks\MockPlatform();
+        $this->platform = new MockPlatform();
         $this->type     = Type::getType('binary');
     }
 

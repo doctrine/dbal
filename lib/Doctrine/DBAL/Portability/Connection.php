@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL\Portability;
 
-use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 
 /**
