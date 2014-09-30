@@ -63,4 +63,20 @@ class MockPlatform extends AbstractPlatform
     {
 
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getInsertMaxRows()
+    {
+        return 10;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\Tests\DBAL\Mocks\KeywordsMock';
+    }
 }

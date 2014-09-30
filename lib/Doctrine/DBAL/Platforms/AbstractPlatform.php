@@ -601,6 +601,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the maximum number of rows that can be inserted in a single INSERT statement.
+     *
+     * @return integer
+     */
+    public function getInsertMaxRows()
+    {
+        return 0;
+    }
+
+    /**
      * Gets all SQL wildcard characters of the platform.
      *
      * @return array

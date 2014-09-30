@@ -1158,6 +1158,14 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getInsertMaxRows()
+    {
+        return 1000;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $field)
