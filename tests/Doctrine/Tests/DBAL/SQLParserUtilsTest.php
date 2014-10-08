@@ -47,6 +47,7 @@ AND baz = "\"quote\" me on it? \\" OR baz = ?
 SQLDATA
                 , true, array(58, 104)
             ),
+            array('SELECT * FROM foo WHERE foo = ? AND bar = ?', true, array(1 => 42, 0 => 30)), // explicit keys
 
             // named
             array('SELECT :foo FROM :bar', false, array(7 => 'foo', 17 => 'bar')),
@@ -137,6 +138,15 @@ SQLDATA
                 'SELECT * FROM Foo WHERE foo IN (NULL)',
                 array(),
                 array()
+            ),
+            // Positional: explicit keys for params and types
+            array(
+                "SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?",
+                array(1 => 'bar', 2 => 'baz', 0 => 1),
+                array(2 => \PDO::PARAM_STR, 1 => \PDO::PARAM_STR),
+                'SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?',
+                array(1 => 'bar', 0 => 1, 2 => 'baz'),
+                array(1 => \PDO::PARAM_STR, 2 => \PDO::PARAM_STR)
             ),
             //  Named parameters : Very simple with param int
             array(
