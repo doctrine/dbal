@@ -310,6 +310,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    /**
+     * @group DBAL-472
+     * @group DBAL-1001
+     */
     public function testAlterTableNotNULL()
     {
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
@@ -333,7 +337,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
 
         $expectedSql = array(
-            "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla' NULL, baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)",
+            "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)",
 	);
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }
