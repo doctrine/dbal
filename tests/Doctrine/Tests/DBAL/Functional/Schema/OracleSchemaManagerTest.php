@@ -61,6 +61,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     /**
      * @group DBAL-472
+     * @group DBAL-1001
      */
     public function testAlterTableColumnNotNull()
     {
@@ -70,6 +71,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
+        $table->addColumn('bar', 'string');
         $table->setPrimaryKey(array('id'));
 
         $this->_sm->dropAndCreateTable($table);
@@ -78,9 +80,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertTrue($columns['id']->getNotnull());
         $this->assertTrue($columns['foo']->getNotnull());
+        $this->assertTrue($columns['bar']->getNotnull());
 
         $diffTable = clone $table;
         $diffTable->changeColumn('foo', array('notnull' => false));
+        $diffTable->changeColumn('bar', array('length' => 1024));
 
         $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
 
@@ -88,6 +92,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertTrue($columns['id']->getNotnull());
         $this->assertFalse($columns['foo']->getNotnull());
+        $this->assertTrue($columns['bar']->getNotnull());
     }
 
     public function testListDatabases()

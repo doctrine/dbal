@@ -733,7 +733,7 @@ LEFT JOIN user_cons_columns r_cols
                 $columnInfo = $column->toArray();
 
                 if ( ! $columnDiff->hasChanged('notnull')) {
-                    $columnInfo['notnull'] = false;
+                    unset($columnInfo['notnull']);
                 }
 
                 $fields[] = $column->getQuotedName($this) . $this->getColumnDeclarationSQL('', $columnInfo);
@@ -799,7 +799,11 @@ LEFT JOIN user_cons_columns r_cols
         } else {
             $default = $this->getDefaultValueDeclarationSQL($field);
 
-            $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+            $notnull = '';
+
+            if (isset($field['notnull'])) {
+                $notnull = $field['notnull'] ? ' NOT NULL' : ' NULL';
+            }
 
             $unique = (isset($field['unique']) && $field['unique']) ?
                 ' ' . $this->getUniqueFieldDeclarationSQL() : '';
