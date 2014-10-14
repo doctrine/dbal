@@ -597,7 +597,7 @@ class Connection implements DriverConnection
      */
     public function close()
     {
-        unset($this->_conn);
+        $this->_conn = null;
 
         $this->_isConnected = false;
     }
