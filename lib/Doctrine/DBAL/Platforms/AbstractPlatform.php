@@ -1594,9 +1594,12 @@ abstract class AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
+        $tableName = new Identifier($tableName);
+        $columnName = new Identifier($columnName);
         $comment = $this->quoteStringLiteral($comment);
 
-        return "COMMENT ON COLUMN " . $tableName . "." . $columnName . " IS " . $comment;
+        return "COMMENT ON COLUMN " . $tableName->getQuotedName($this) . "." . $columnName->getQuotedName($this) .
+            " IS " . $comment;
     }
 
     /**

@@ -144,7 +144,11 @@ class SQLAnywherePlatform extends AbstractPlatform
             $comment = $this->getColumnComment($column);
 
             if (null !== $comment && '' !== $comment) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getQuotedName($this), $comment);
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $diff->getName($this)->getQuotedName($this),
+                    $column->getQuotedName($this),
+                    $comment
+                );
             }
         }
 
@@ -173,7 +177,7 @@ class SQLAnywherePlatform extends AbstractPlatform
                 $column = $columnDiff->column;
 
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
-                    $diff->name,
+                    $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
                     $this->getColumnComment($column)
                 );
@@ -363,9 +367,12 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
+        $tableName = new Identifier($tableName);
+        $columnName = new Identifier($columnName);
         $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
-        return "COMMENT ON COLUMN $tableName.$columnName IS $comment";
+        return "COMMENT ON COLUMN " . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
+            " IS $comment";
     }
 
     /**

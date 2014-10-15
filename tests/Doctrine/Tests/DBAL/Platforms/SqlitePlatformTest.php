@@ -596,4 +596,16 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE INDEX IDX_8C736521FDC58D6C ON "table" (fk2)',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            'COMMENT ON COLUMN foo.bar IS \'comment\'',
+            'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
+            'COMMENT ON COLUMN "select"."from" IS \'comment\'',
+        );
+    }
 }
