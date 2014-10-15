@@ -916,6 +916,28 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    /**
+     * @return array
+     *
+     * @see testGetCommentOnColumnSQL
+     */
+    abstract protected function getCommentOnColumnSQL();
+
+    /**
+     * @group DBAL-1004
+     */
+    public function testGetCommentOnColumnSQL()
+    {
+        $this->assertSame(
+            $this->getCommentOnColumnSQL(),
+            array(
+                $this->_platform->getCommentOnColumnSQL('foo', 'bar', 'comment'), // regular identifiers
+                $this->_platform->getCommentOnColumnSQL('`Foo`', '`BAR`', 'comment'), // explicitly quoted identifiers
+                $this->_platform->getCommentOnColumnSQL('select', 'from', 'comment'), // reserved keyword identifiers
+            )
+        );
+    }
+
     protected function getQuotedStringLiteralWithoutQuoteCharacter()
     {
         return "'No quote'";

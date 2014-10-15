@@ -629,4 +629,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             'ALTER TABLE `table` ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            "COMMENT ON COLUMN foo.bar IS 'comment'",
+            "COMMENT ON COLUMN `Foo`.`BAR` IS 'comment'",
+            "COMMENT ON COLUMN `select`.`from` IS 'comment'",
+        );
+    }
 }
