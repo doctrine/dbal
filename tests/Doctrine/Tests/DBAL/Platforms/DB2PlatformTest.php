@@ -471,4 +471,14 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE foo RENAME COLUMN bar TO baz',
+        );
+    }
 }

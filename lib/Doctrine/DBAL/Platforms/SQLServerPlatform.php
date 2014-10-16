@@ -506,7 +506,10 @@ class SQLServerPlatform extends AbstractPlatform
 
             // Recreate default constraint with new column name if necessary (for future reference).
             if ($column->getDefault() !== null) {
-                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($diff->name, $oldColumnName);
+                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
+                    $diff->name,
+                    $oldColumnName->getQuotedName($this)
+                );
                 $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $column);
             }
         }

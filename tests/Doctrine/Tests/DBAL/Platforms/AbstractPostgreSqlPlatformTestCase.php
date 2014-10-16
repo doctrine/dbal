@@ -672,4 +672,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         $this->assertSame('UUID', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE foo RENAME COLUMN bar TO baz',
+        );
+    }
 }
