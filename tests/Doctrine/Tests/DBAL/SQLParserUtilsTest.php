@@ -13,7 +13,7 @@ require_once __DIR__ . '/../TestInit.php';
  */
 class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
 {
-    static public function dataGetPlaceholderPositions()
+    public function dataGetPlaceholderPositions()
     {
         return array(
             // none
@@ -73,7 +73,7 @@ SQLDATA
         $this->assertEquals($expectedParamPos, $actualParamPos);
     }
 
-    static public function dataExpandListParameters()
+    public function dataExpandListParameters()
     {
         return array(
             // Positional: Very simple with one needle
@@ -147,6 +147,24 @@ SQLDATA
                 'SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?',
                 array(1 => 'bar', 0 => 1, 2 => 'baz'),
                 array(1 => \PDO::PARAM_STR, 2 => \PDO::PARAM_STR)
+            ),
+            // Positional: explicit keys for array params and array types
+            array(
+                "SELECT * FROM Foo WHERE foo IN (?) AND bar IN (?) AND baz = ?",
+                array(1 => array('bar1', 'bar2'), 2 => true, 0 => array(1, 2, 3)),
+                array(2 => \PDO::PARAM_BOOL, 1 => Connection::PARAM_STR_ARRAY, 0 => Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND bar IN (?, ?) AND baz = ?',
+                array(1, 2, 3, 'bar1', 'bar2', true),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_STR, \PDO::PARAM_BOOL)
+            ),
+            // Positional starts from 1: One non-list before and one after list-needle
+            array(
+                "SELECT * FROM Foo WHERE foo = ? AND bar IN (?) AND baz = ? AND foo IN (?)",
+                array(1 => 1, 2 => array(1, 2, 3), 3 => 4, 4 => array(5, 6)),
+                array(1 => \PDO::PARAM_INT, 2 => Connection::PARAM_INT_ARRAY, 3 => \PDO::PARAM_INT, 4 => Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?) AND baz = ? AND foo IN (?, ?)',
+                array(1, 1, 2, 3, 4, 5, 6),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
             //  Named parameters : Very simple with param int
             array(
@@ -339,7 +357,7 @@ SQLDATA
         $this->assertEquals($expectedTypes, $types, "Types dont match");
     }
 
-    public static function dataQueryWithMissingParameters()
+    public function dataQueryWithMissingParameters()
     {
         return array(
             array(

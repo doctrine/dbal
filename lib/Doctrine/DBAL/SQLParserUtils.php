@@ -90,6 +90,11 @@ class SQLParserUtils
         $arrayPositions = array();
         $bindIndex      = -1;
 
+        if ($isPositional) {
+            ksort($params);
+            ksort($types);
+        }
+
         foreach ($types as $name => $type) {
             ++$bindIndex;
 
@@ -113,6 +118,8 @@ class SQLParserUtils
         if ($isPositional) {
             $paramOffset = 0;
             $queryOffset = 0;
+            $params      = array_values($params);
+            $types       = array_values($types);
 
             foreach ($paramPos as $needle => $needlePos) {
                 if ( ! isset($arrayPositions[$needle])) {
