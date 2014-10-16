@@ -1574,8 +1574,10 @@ abstract class AbstractPlatform
         $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
         if ($this->supportsCommentOnStatement()) {
             foreach ($table->getColumns() as $column) {
-                if ($this->getColumnComment($column)) {
-                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getQuotedName($this), $this->getColumnComment($column));
+                $comment = $this->getColumnComment($column);
+
+                if (null !== $comment && '' !== $comment) {
+                    $sql[] = $this->getCommentOnColumnSQL($tableName, $column->getQuotedName($this), $comment);
                 }
             }
         }
@@ -2205,7 +2207,7 @@ abstract class AbstractPlatform
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
         }
 
-        if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment']) {
+        if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
             $columnDef .= " COMMENT " . $this->quoteStringLiteral($field['comment']);
         }
 

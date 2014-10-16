@@ -144,7 +144,9 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
                 'notnull'       => (bool) $tableColumn['notnull'],
                 'default'       => $default,
                 'autoincrement' => (bool) $tableColumn['autoincrement'],
-                'comment'       => $tableColumn['comment']
+                'comment'       => isset($tableColumn['comment']) && '' !== $tableColumn['comment']
+                    ? $tableColumn['comment']
+                    : null,
         ));
     }
 

@@ -1122,4 +1122,52 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('notnull', 'default', 'comment'), $comparator->diffColumn($column1, $column2));
         $this->assertEquals(array('notnull', 'default', 'comment'), $comparator->diffColumn($column2, $column1));
     }
+
+    /**
+     * @group DBAL-1009
+     *
+     * @dataProvider getCompareColumnComments
+     */
+    public function testCompareColumnComments($comment1, $comment2, $equals)
+    {
+        $column1 = new Column('foo', Type::getType('integer'), array('comment' => $comment1));
+        $column2 = new Column('foo', Type::getType('integer'), array('comment' => $comment2));
+
+        $comparator = new Comparator();
+
+        $expectedDiff = $equals ? array() : array('comment');
+
+        $actualDiff = $comparator->diffColumn($column1, $column2);
+
+        $this->assertSame($expectedDiff, $actualDiff);
+
+        $actualDiff = $comparator->diffColumn($column2, $column1);
+
+        $this->assertSame($expectedDiff, $actualDiff);
+    }
+
+    public function getCompareColumnComments()
+    {
+        return array(
+            array(null, null, true),
+            array('', '', true),
+            array(' ', ' ', true),
+            array('0', '0', true),
+            array('foo', 'foo', true),
+
+            array(null, '', true),
+            array(null, ' ', false),
+            array(null, '0', false),
+            array(null, 'foo', false),
+
+            array('', ' ', false),
+            array('', '0', false),
+            array('', 'foo', false),
+
+            array(' ', '0', false),
+            array(' ', 'foo', false),
+
+            array('0', 'foo', false),
+        );
+    }
 }

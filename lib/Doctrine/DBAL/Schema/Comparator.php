@@ -421,8 +421,11 @@ class Comparator
             }
         }
 
-        // only allow to delete comment if its set to '' not to null.
-        if ($properties1['comment'] !== null && $properties1['comment'] != $properties2['comment']) {
+        // A null value and an empty string are actually equal for a comment so they should not trigger a change.
+        if ($properties1['comment'] !== $properties2['comment'] &&
+            ! (null === $properties1['comment'] && '' === $properties2['comment']) &&
+            ! (null === $properties2['comment'] && '' === $properties1['comment'])
+        ) {
             $changedProperties[] = 'comment';
         }
 

@@ -887,4 +887,71 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $columns = $this->_sm->listTableColumns("my_table");
         $this->assertEquals("It's a comment with a quote", $columns['id']->getComment());
     }
+
+    /**
+     * @group DBAL-1009
+     *
+     * @dataProvider getAlterColumnComment
+     */
+    public function testAlterColumnComment($comment1, $expectedComment1, $comment2, $expectedComment2)
+    {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsInlineColumnComments() &&
+            ! $this->_conn->getDatabasePlatform()->supportsCommentOnStatement() &&
+            $this->_conn->getDatabasePlatform()->getName() != 'mssql') {
+            $this->markTestSkipped('Database does not support column comments.');
+        }
+
+        $offlineTable = new Table('alter_column_comment_test');
+        $offlineTable->addColumn('comment1', 'integer', array('comment' => $comment1));
+        $offlineTable->addColumn('comment2', 'integer', array('comment' => $comment2));
+        $offlineTable->addColumn('no_comment1', 'integer');
+        $offlineTable->addColumn('no_comment2', 'integer');
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails("alter_column_comment_test");
+
+        $this->assertSame($expectedComment1, $onlineTable->getColumn('comment1')->getComment());
+        $this->assertSame($expectedComment2, $onlineTable->getColumn('comment2')->getComment());
+        $this->assertNull($onlineTable->getColumn('no_comment1')->getComment());
+        $this->assertNull($onlineTable->getColumn('no_comment2')->getComment());
+
+        $onlineTable->changeColumn('comment1', array('comment' => $comment2));
+        $onlineTable->changeColumn('comment2', array('comment' => $comment1));
+        $onlineTable->changeColumn('no_comment1', array('comment' => $comment1));
+        $onlineTable->changeColumn('no_comment2', array('comment' => $comment2));
+
+        $comparator = new Comparator();
+
+        $tableDiff = $comparator->diffTable($offlineTable, $onlineTable);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+
+        $this->_sm->alterTable($tableDiff);
+
+        $onlineTable = $this->_sm->listTableDetails("alter_column_comment_test");
+
+        $this->assertSame($expectedComment2, $onlineTable->getColumn('comment1')->getComment());
+        $this->assertSame($expectedComment1, $onlineTable->getColumn('comment2')->getComment());
+        $this->assertSame($expectedComment1, $onlineTable->getColumn('no_comment1')->getComment());
+        $this->assertSame($expectedComment2, $onlineTable->getColumn('no_comment2')->getComment());
+    }
+
+    public function getAlterColumnComment()
+    {
+        return array(
+            array(null, null, ' ', ' '),
+            array(null, null, '0', '0'),
+            array(null, null, 'foo', 'foo'),
+
+            array('', null, ' ', ' '),
+            array('', null, '0', '0'),
+            array('', null, 'foo', 'foo'),
+
+            array(' ', ' ', '0', '0'),
+            array(' ', ' ', 'foo', 'foo'),
+
+            array('0', '0', 'foo', 'foo'),
+        );
+    }
 }
