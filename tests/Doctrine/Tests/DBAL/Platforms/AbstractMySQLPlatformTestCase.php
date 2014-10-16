@@ -604,4 +604,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            "ALTER TABLE foo CHANGE bar baz INT DEFAULT 666 NOT NULL COMMENT 'rename test'",
+        );
+    }
 }

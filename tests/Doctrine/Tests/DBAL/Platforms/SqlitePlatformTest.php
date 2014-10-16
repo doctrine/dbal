@@ -560,4 +560,18 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__foo AS SELECT bar FROM foo',
+            'DROP TABLE foo',
+            'CREATE TABLE foo (baz INTEGER DEFAULT 666 NOT NULL)',
+            'INSERT INTO foo (baz) SELECT bar FROM __temp__foo',
+            'DROP TABLE __temp__foo',
+        );
+    }
 }

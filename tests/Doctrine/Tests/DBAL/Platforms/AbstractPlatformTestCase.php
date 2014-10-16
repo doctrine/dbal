@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -956,4 +957,32 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $this->_platform->getGuidTypeDeclarationSQL(array());
     }
+
+    /**
+     * @group DBAL-1010
+     */
+    public function testGeneratesAlterTableRenameColumnSQL()
+    {
+        $table = new Table('foo');
+        $table->addColumn(
+            'bar',
+            'integer',
+            array('notnull' => true, 'default' => 666, 'comment' => 'rename test')
+        );
+
+        $tableDiff = new TableDiff('foo');
+        $tableDiff->fromTable = $table;
+        $tableDiff->renamedColumns['bar'] = new Column(
+            'baz',
+            Type::getType('integer'),
+            array('notnull' => true, 'default' => 666, 'comment' => 'rename test')
+        );
+
+        $this->assertSame($this->getAlterTableRenameColumnSQL(), $this->_platform->getAlterTableSQL($tableDiff));
+    }
+
+    /**
+     * @return array
+     */
+    abstract public function getAlterTableRenameColumnSQL();
 }

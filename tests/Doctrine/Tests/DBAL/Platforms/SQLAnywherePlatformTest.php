@@ -863,4 +863,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $this->assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE foo RENAME bar TO baz',
+        );
+    }
 }
