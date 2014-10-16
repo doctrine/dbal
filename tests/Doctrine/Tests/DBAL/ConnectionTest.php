@@ -402,6 +402,24 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $this->assertSame($result, $conn->fetchColumn($statement, $params, $column, $types));
     }
+     
+    public function testConnectionIsClosed()
+    {
+        $reflection = new \ReflectionObject($this->_conn);
+        $connProperty = $reflection->getProperty('_conn');
+        $connProperty->setAccessible(true);
+        $connProperty->setValue($this->_conn, new \stdClass);
+        
+        $connValue = $connProperty->getValue($this->_conn);
+        
+        $this->assertInstanceOf('stdClass', $connValue);
+        
+        $this->_conn->close();
+        
+        $connNewValue = $connProperty->getValue($this->_conn);
+        
+        $this->assertNull($connNewValue, 'Connection can\'t be closed.');
+    }
 
     public function testFetchAll()
     {
