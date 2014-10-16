@@ -525,11 +525,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
+        $table->addColumn('comment_with_string_literal_char', 'string', array('comment' => "O'Reilly"));
         $table->setPrimaryKey(array('id'));
 
         $this->assertEquals(
             array(
-                "CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))",
+                "CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_integer_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_float_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_string_0",
@@ -538,6 +539,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz comments for reserved keyword columns!', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [create]",
                 "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine array type.(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type_with_comment",
+                "EXEC sp_addextendedproperty N'MS_Description', N'O''Reilly', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_with_string_literal_char",
             ),
             $this->_platform->getCreateTableSQL($table)
         );
@@ -545,6 +547,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * @group DBAL-543
+     * @group DBAL-1011
      */
     public function testGeneratesAlterTableSQLWithColumnComments()
     {
@@ -561,6 +564,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
+        $table->addColumn('comment_with_string_literal_quote_char', 'array', array('comment' => "O'Reilly"));
         $table->setPrimaryKey(array('id'));
 
         $tableDiff = new TableDiff('mytable');
@@ -577,6 +581,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $tableDiff->addedColumns['select'] = new Column('select', Type::getType('integer'), array('comment' => '666'));
         $tableDiff->addedColumns['added_commented_type'] = new Column('added_commented_type', Type::getType('object'));
         $tableDiff->addedColumns['added_commented_type_with_comment'] = new Column('added_commented_type_with_comment', Type::getType('array'), array('comment' => '666'));
+        $tableDiff->addedColumns['added_comment_with_string_literal_char'] = new Column('added_comment_with_string_literal_char', Type::getType('string'), array('comment' => "''"));
 
         $tableDiff->renamedColumns['comment_float_0'] = new Column('comment_double_0', Type::getType('decimal'), array('comment' => 'Double for real!'));
 
@@ -660,6 +665,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             new Column('commented_type_with_comment', Type::getType('array'), array('comment' => 'Doctrine array type.'))
         );
 
+        // Change comment from comment with string literal char column.
+        $tableDiff->changedColumns['comment_with_string_literal_char'] = new ColumnDiff(
+            'comment_with_string_literal_char',
+            new Column('comment_with_string_literal_char', Type::getType('string'), array('comment' => "'")),
+            array('comment'),
+            new Column('comment_with_string_literal_char', Type::getType('array'), array('comment' => "O'Reilly"))
+        );
+
         $tableDiff->removedColumns['comment_integer_0'] = new Column('comment_integer_0', Type::getType('integer'), array('comment' => 0));
 
         $this->assertEquals(
@@ -680,6 +693,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "ALTER TABLE mytable ADD [select] INT NOT NULL",
                 "ALTER TABLE mytable ADD added_commented_type VARCHAR(MAX) NOT NULL",
                 "ALTER TABLE mytable ADD added_commented_type_with_comment VARCHAR(MAX) NOT NULL",
+                "ALTER TABLE mytable ADD added_comment_with_string_literal_char NVARCHAR(255) NOT NULL",
                 "ALTER TABLE mytable DROP COLUMN comment_integer_0",
                 "ALTER TABLE mytable ALTER COLUMN comment_null NVARCHAR(255) NOT NULL",
                 "ALTER TABLE mytable ALTER COLUMN comment_empty_string VARCHAR(MAX) NOT NULL",
@@ -696,6 +710,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_addextendedproperty N'MS_Description', N'666', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [select]",
                 "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_commented_type",
                 "EXEC sp_addextendedproperty N'MS_Description', N'666(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_commented_type_with_comment",
+                "EXEC sp_addextendedproperty N'MS_Description', N'''''', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_comment_with_string_literal_char",
 
                 // Changed columns.
                 "EXEC sp_addextendedproperty N'MS_Description', N'primary', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', id",
@@ -707,6 +722,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [create]",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'foo', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type_with_comment",
+                "EXEC sp_updateextendedproperty N'MS_Description', N'''', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_with_string_literal_char",
             ),
             $this->_platform->getAlterTableSQL($tableDiff)
         );

@@ -719,10 +719,10 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Name = null
     ) {
         return "EXEC sp_addextendedproperty " .
-            "N'" . $name . "', N'" . $value . "', " .
-            "N'" . $level0Type . "', " . $level0Name . ', ' .
-            "N'" . $level1Type . "', " . $level1Name . ', ' .
-            "N'" . $level2Type . "', " . $level2Name;
+            "N" . $this->quoteStringLiteral($name) . ", N" . $this->quoteStringLiteral($value) . ", " .
+            "N" . $this->quoteStringLiteral($level0Type) . ", " . $level0Name . ', ' .
+            "N" . $this->quoteStringLiteral($level1Type) . ", " . $level1Name . ', ' .
+            "N" . $this->quoteStringLiteral($level2Type) . ", " . $level2Name;
     }
 
     /**
@@ -750,10 +750,10 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Name = null
     ) {
         return "EXEC sp_dropextendedproperty " .
-        "N'" . $name . "', " .
-        "N'" . $level0Type . "', " . $level0Name . ', ' .
-        "N'" . $level1Type . "', " . $level1Name . ', ' .
-        "N'" . $level2Type . "', " . $level2Name;
+            "N" . $this->quoteStringLiteral($name) . ", " .
+            "N" . $this->quoteStringLiteral($level0Type) . ", " . $level0Name . ', ' .
+            "N" . $this->quoteStringLiteral($level1Type) . ", " . $level1Name . ', ' .
+            "N" . $this->quoteStringLiteral($level2Type) . ", " . $level2Name;
     }
 
     /**
@@ -783,10 +783,10 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Name = null
     ) {
         return "EXEC sp_updateextendedproperty " .
-        "N'" . $name . "', N'" . $value . "', " .
-        "N'" . $level0Type . "', " . $level0Name . ', ' .
-        "N'" . $level1Type . "', " . $level1Name . ', ' .
-        "N'" . $level2Type . "', " . $level2Name;
+        "N" . $this->quoteStringLiteral($name) . ", N" . $this->quoteStringLiteral($value) . ", " .
+        "N" . $this->quoteStringLiteral($level0Type) . ", " . $level0Name . ', ' .
+        "N" . $this->quoteStringLiteral($level1Type) . ", " . $level1Name . ', ' .
+        "N" . $this->quoteStringLiteral($level2Type) . ", " . $level2Name;
     }
 
     /**
