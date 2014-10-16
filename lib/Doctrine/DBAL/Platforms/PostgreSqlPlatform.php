@@ -454,7 +454,10 @@ class PostgreSqlPlatform extends AbstractPlatform
 
             $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
-            if ($comment = $this->getColumnComment($column)) {
+
+            $comment = $this->getColumnComment($column);
+
+            if (null !== $comment && '' !== $comment) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
         }
@@ -817,7 +820,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             }
         );
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -825,8 +828,8 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         if (in_array(strtolower($item), $this->booleanLiterals['false'], true)) {
             return false;
-        } 
-          
+        }
+
         return parent::convertFromBoolean($item);
     }
 

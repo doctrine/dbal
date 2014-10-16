@@ -46,7 +46,9 @@ class DrizzleSchemaManager extends AbstractSchemaManager
             'autoincrement' => (bool)$tableColumn['IS_AUTO_INCREMENT'],
             'scale' => (int)$tableColumn['NUMERIC_SCALE'],
             'precision' => (int)$tableColumn['NUMERIC_PRECISION'],
-            'comment' => (isset($tableColumn['COLUMN_COMMENT']) ? $tableColumn['COLUMN_COMMENT'] : null),
+            'comment' => isset($tableColumn['COLUMN_COMMENT']) && '' !== $tableColumn['COLUMN_COMMENT']
+                ? $tableColumn['COLUMN_COMMENT']
+                : null,
         );
 
         $column = new Column($tableColumn['COLUMN_NAME'], Type::getType($type), $options);

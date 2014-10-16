@@ -143,7 +143,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
             $comment = $this->getColumnComment($column);
 
-            if ($comment) {
+            if (null !== $comment && '' !== $comment) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getQuotedName($this), $comment);
             }
         }

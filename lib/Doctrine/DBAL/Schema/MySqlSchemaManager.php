@@ -187,7 +187,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
             'scale'         => null,
             'precision'     => null,
             'autoincrement' => (bool) (strpos($tableColumn['extra'], 'auto_increment') !== false),
-            'comment'       => isset($tableColumn['comment']) ? $tableColumn['comment'] : null,
+            'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
+                ? $tableColumn['comment']
+                : null,
         );
 
         if ($scale !== null && $precision !== null) {
