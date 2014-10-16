@@ -102,4 +102,23 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn->connect('slave');
         $this->assertFalse($conn->isConnectedToMaster());
     }
+
+    /**
+     * @group DBAL-335
+     */
+    public function testKeepSlaveInsertStaysOnMaster()
+    {
+        $conn = $this->createMasterSlaveConnection($keepSlave = true);
+        $conn->connect('slave');
+
+        $conn->insert('master_slave_table', array('test_int' => 30));
+
+        $this->assertTrue($conn->isConnectedToMaster());
+
+        $conn->connect();
+        $this->assertTrue($conn->isConnectedToMaster());
+
+        $conn->connect('slave');
+        $this->assertFalse($conn->isConnectedToMaster());
+    }
 }
