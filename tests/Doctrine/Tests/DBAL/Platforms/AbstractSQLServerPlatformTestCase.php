@@ -1125,4 +1125,16 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $this->assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            "sp_RENAME 'foo.bar', 'baz', 'COLUMN'",
+            'ALTER TABLE foo DROP CONSTRAINT DF_8C736521_76FF8CAA',
+            'ALTER TABLE foo ADD CONSTRAINT DF_8C736521_78240498 DEFAULT 666 FOR baz',
+        );
+    }
 }
