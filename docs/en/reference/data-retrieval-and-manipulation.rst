@@ -307,7 +307,7 @@ Prepare a given SQL statement and return the
     array(
       0 => array(
         'username' => 'jwage',
-        'password' => 'changeme
+        'password' => 'changeme'
       )
     )
     */
@@ -344,7 +344,7 @@ parameters to the execute method, then returning the statement:
     /*
     array(
       0 => 'jwage',
-      1 => 'changeme
+      1 => 'changeme'
     )
     */
 
@@ -367,7 +367,7 @@ Execute the query and fetch all results into an array:
     array(
       0 => array(
         'username' => 'jwage',
-        'password' => 'changeme
+        'password' => 'changeme'
       )
     )
     */
@@ -385,7 +385,7 @@ Numeric index retrieval of first result row of the given query:
     /*
     array(
       0 => 'jwage',
-      1 => 'changeme
+      1 => 'changeme'
     )
     */
 
@@ -412,7 +412,7 @@ Retrieve assoc row of the first result row.
     /*
     array(
       'username' => 'jwage',
-      'password' => 'changeme
+      'password' => 'changeme'
     )
     */
 
