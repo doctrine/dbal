@@ -155,10 +155,10 @@ class TableDiff
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Identifier
+     * @return \Doctrine\DBAL\Schema\Identifier|boolean
      */
     public function getNewName()
     {
-        return new Identifier($this->newName);
+        return $this->newName ? new Identifier($this->newName) : $this->newName;
     }
 }
