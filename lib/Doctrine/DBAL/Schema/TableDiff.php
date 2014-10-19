@@ -155,7 +155,7 @@ class TableDiff
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Identifier|false
+     * @return \Doctrine\DBAL\Schema\Identifier|boolean
      */
     public function getNewName()
     {
