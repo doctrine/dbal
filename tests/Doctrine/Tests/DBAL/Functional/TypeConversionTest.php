@@ -59,7 +59,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             array('datetime',   new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
             array('datetimetz', new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
             array('date',       new \DateTime('2010-04-05'), 'DateTime'),
-            array('time',       new \DateTime('10:10:10'), 'DateTime'),
+            array('time',       new \DateTime('1970-01-01 10:10:10'), 'DateTime'),
             array('text',       str_repeat('foo ', 1000), 'string'),
             array('array',      array('foo' => 'bar'), 'array'),
             array('json_array', array('foo' => 'bar'), 'array'),
