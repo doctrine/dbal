@@ -185,21 +185,27 @@ class SQLAnywherePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' .
+            $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' .
                 $this->getAlterTableRenameColumnClause($oldColumnName, $column);
         }
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ( ! empty($alterClauses)) {
-                $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' . implode(", ", $alterClauses);
+                $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' . implode(", ", $alterClauses);
             }
 
+            $sql = array_merge($sql, $commentsSQL);
+
             if ($diff->newName !== false) {
-                $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' .
+                $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' .
                     $this->getAlterTableRenameTableClause($diff->getNewName());
             }
 
-            $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
+            $sql = array_merge(
+                $this->getPreAlterTableIndexForeignKeySQL($diff),
+                $sql,
+                $this->getPostAlterTableIndexForeignKeySQL($diff)
+            );
         }
 
         return array_merge($sql, $tableSql, $columnSql);

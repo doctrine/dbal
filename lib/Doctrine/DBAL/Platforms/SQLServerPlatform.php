@@ -501,7 +501,8 @@ class SQLServerPlatform extends AbstractPlatform
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = "sp_RENAME '" . $diff->name . "." . $oldColumnName->getQuotedName($this) .
+            $sql[] = "sp_RENAME '" .
+                $diff->getName($this)->getQuotedName($this) . "." . $oldColumnName->getQuotedName($this) .
                 "', '" . $column->getQuotedName($this) . "', 'COLUMN'";
 
             // Recreate default constraint with new column name if necessary (for future reference).
@@ -521,13 +522,13 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($queryParts as $query) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
         }
 
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSql);
+        $sql = array_merge($sql, $commentsSql);
 
         if ($diff->newName !== false) {
-            $sql[] = "sp_RENAME '" . $diff->getName()->getQuotedName($this) . "', '" . $diff->getNewName()->getQuotedName($this) . "'";
+            $sql[] = "sp_RENAME '" . $diff->getName($this)->getQuotedName($this) . "', '" . $diff->getNewName()->getName() . "'";
 
             /**
              * Rename table's default constraints names
@@ -543,9 +544,15 @@ class SQLServerPlatform extends AbstractPlatform
                 "'" . $this->generateIdentifierName($diff->newName) . "') + ''', ''OBJECT'';' " .
                 "FROM sys.default_constraints dc " .
                 "JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
-                "WHERE tbl.name = '" . $diff->getNewName()->getQuotedName($this) . "';" .
+                "WHERE tbl.name = '" . $diff->getNewName()->getName() . "';" .
                 "EXEC sp_executesql @sql";
         }
+
+        $sql = array_merge(
+            $this->getPreAlterTableIndexForeignKeySQL($diff),
+            $sql,
+            $this->getPostAlterTableIndexForeignKeySQL($diff)
+        );
 
         return array_merge($sql, $tableSql, $columnSql);
     }

@@ -549,4 +549,22 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             ),
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE "foo" DROP CONSTRAINT fk1',
+            'ALTER TABLE "foo" DROP CONSTRAINT fk2',
+            'ALTER TABLE "foo" ADD (bloo NUMBER(10) NOT NULL)',
+            'ALTER TABLE "foo" MODIFY (bar NUMBER(10) DEFAULT NULL NULL)',
+            'ALTER TABLE "foo" RENAME COLUMN id TO war',
+            'ALTER TABLE "foo" DROP (baz)',
+            'ALTER TABLE "foo" RENAME TO "table"',
+            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
 }
