@@ -2016,7 +2016,7 @@ abstract class AbstractPlatform
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $tableName = $diff->getName()->getQuotedName($this);
+        $tableName = $diff->getName($this)->getQuotedName($this);
 
         $sql = array();
         if ($this->supportsForeignKeyConstraints()) {
@@ -2047,7 +2047,7 @@ abstract class AbstractPlatform
     {
         $tableName = (false !== $diff->newName)
             ? $diff->getNewName()->getQuotedName($this)
-            : $diff->getName()->getQuotedName($this);
+            : $diff->getName($this)->getQuotedName($this);
 
         $sql = array();
 

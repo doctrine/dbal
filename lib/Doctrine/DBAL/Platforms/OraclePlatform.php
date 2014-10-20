@@ -702,7 +702,7 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ADD (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ADD (' . implode(', ', $fields) . ')';
         }
 
         $fields = array();
@@ -749,7 +749,7 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' MODIFY (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -759,7 +759,7 @@ LEFT JOIN user_cons_columns r_cols
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) .
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) .
                 ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) .' TO ' . $column->getQuotedName($this);
         }
 
@@ -773,17 +773,23 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' DROP (' . implode(', ', $fields).')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' DROP (' . implode(', ', $fields).')';
         }
 
         $tableSql = array();
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
+            $sql = array_merge($sql, $commentsSQL);
+
             if ($diff->newName !== false) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' RENAME TO ' . $diff->getNewName()->getQuotedName($this);
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' RENAME TO ' . $diff->getNewName()->getQuotedName($this);
             }
 
-            $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
+            $sql = array_merge(
+                $this->getPreAlterTableIndexForeignKeySQL($diff),
+                $sql,
+                $this->getPostAlterTableIndexForeignKeySQL($diff)
+            );
         }
 
         return array_merge($sql, $tableSql, $columnSql);

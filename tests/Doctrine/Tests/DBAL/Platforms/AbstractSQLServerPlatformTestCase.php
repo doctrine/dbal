@@ -1137,4 +1137,26 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             'ALTER TABLE foo ADD CONSTRAINT DF_8C736521_78240498 DEFAULT 666 FOR baz',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE [foo] DROP CONSTRAINT fk1',
+            'ALTER TABLE [foo] DROP CONSTRAINT fk2',
+            "sp_RENAME '[foo].id', 'war', 'COLUMN'",
+            'ALTER TABLE [foo] ADD bloo INT NOT NULL',
+            'ALTER TABLE [foo] DROP COLUMN baz',
+            'ALTER TABLE [foo] ALTER COLUMN bar INT',
+            "sp_RENAME '[foo]', 'table'",
+            "DECLARE @sql NVARCHAR(MAX) = N''; " .
+            "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' + REPLACE(dc.name, '8C736521', 'F6298F46') + ''', " .
+            "''OBJECT'';' FROM sys.default_constraints dc JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
+            "WHERE tbl.name = 'table';EXEC sp_executesql @sql",
+            'ALTER TABLE [table] ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE [table] ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
 }
