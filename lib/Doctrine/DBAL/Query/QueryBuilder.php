@@ -591,7 +591,8 @@ class QueryBuilder
         }
 
         return $this->add('from', array(
-            'table' => $insert
+            'table' => $insert,
+            'alias' => $alias 
         ));
     }
 
@@ -1181,13 +1182,32 @@ class QueryBuilder
      *
      * @return string
      */
-    private function getSQLForInsert()
-    {
-        return 'INSERT INTO ' . $this->sqlParts['from']['table'] .
-        ' (' . implode(', ', array_keys($this->sqlParts['values'])) . ')' .
-        ' VALUES(' . implode(', ', $this->sqlParts['values']) . ')';
-    }
-
+	private function getSQLForInsert() {
+		$params = $this->getConnection ()->getParams ();
+		if ($params ['driver'] == 'ibm_db2') {
+			$table = $this->sqlParts ['from'] ['table'];
+			$fields = '';
+			$values = '';
+			$c = 0;
+			foreach ( $this->sqlParts ['set'] as $key => $value ) {
+				if ($c == 0) {
+					$sep = '';
+					$c ++;
+				} else {
+					$sep = ',';
+				}
+				$part = explode ( '=', $value );
+				$fields = $fields . $sep . trim ( $part [0] );
+				$values = $values . $sep . trim ( $part [1] );
+			}
+			$query = 'INSERT INTO ' . $table . ' (' . $fields . ') VALUES (' . $values . ')';
+		} else {
+			$table = $this->sqlParts ['from'] ['table'] . ($this->sqlParts ['from'] ['alias'] ? ' ' . $this->sqlParts ['from'] ['alias'] : '');
+			$query = 'INSERT INTO ' . $table . ' SET ' . implode ( ", ", $this->sqlParts ['set'] );
+		}
+		
+		return $query;
+	}
     /**
      * Converts this instance into an UPDATE string in SQL.
      *
