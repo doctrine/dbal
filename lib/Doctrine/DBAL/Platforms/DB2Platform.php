@@ -519,12 +519,16 @@ class DB2Platform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . implode(" ", $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(" ", $queryParts);
             }
 
             // Some table alteration operations require a table reorganization.
             if ( ! empty($diff->removedColumns) || ! empty($diff->changedColumns)) {
-                $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $diff->getName()->getQuotedName($this) . "')";
+                $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $diff->getName($this)->getQuotedName($this) . "')";
+            }
+
+            if ($diff->newName !== false) {
+                $sql[] =  'RENAME TABLE ' . $diff->getName($this)->getQuotedName($this) . ' TO ' . $diff->getNewName()->getQuotedName($this);
             }
 
             $sql = array_merge(
@@ -532,10 +536,6 @@ class DB2Platform extends AbstractPlatform
                 $sql,
                 $this->getPostAlterTableIndexForeignKeySQL($diff)
             );
-
-            if ($diff->newName !== false) {
-                $sql[] =  'RENAME TABLE ' . $diff->getName()->getQuotedName($this) . ' TO ' . $diff->getNewName()->getQuotedName($this);
-            }
         }
 
         return array_merge($sql, $tableSql, $columnSql);
@@ -547,7 +547,7 @@ class DB2Platform extends AbstractPlatform
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         $sql = array();
-        $table = $diff->getName()->getQuotedName($this);
+        $table = $diff->getName($this)->getQuotedName($this);
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
             foreach ($diff->addedIndexes as $addKey => $addIndex) {

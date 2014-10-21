@@ -873,4 +873,20 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE foo RENAME bar TO baz',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
+            'ALTER TABLE "foo" DROP FOREIGN KEY fk2',
+            'ALTER TABLE "foo" RENAME id TO war',
+            'ALTER TABLE "foo" ADD bloo INT NOT NULL, DROP baz, ALTER bar INT DEFAULT NULL',
+            'ALTER TABLE "foo" RENAME "table"',
+            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
 }

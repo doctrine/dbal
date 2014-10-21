@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * Table Diff.
  *
@@ -147,11 +149,15 @@ class TableDiff
     }
 
     /**
+     * @param AbstractPlatform $platform The platform to use for retrieving this table diff's name.
+     *
      * @return \Doctrine\DBAL\Schema\Identifier
      */
-    public function getName()
+    public function getName(AbstractPlatform $platform)
     {
-        return new Identifier($this->name);
+        return new Identifier(
+            $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name
+        );
     }
 
     /**

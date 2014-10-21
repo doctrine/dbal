@@ -645,13 +645,13 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         $sql = array();
-        $tableName = $diff->newName ?: $diff->name;
+        $tableName = $diff->newName ? $diff->getNewName(): $diff->getName($this);
         foreach ($this->getIndexesInAlteredTable($diff) as $index) {
             if ($index->isPrimary()) {
                 continue;
             }
 
-            $sql[] = $this->getCreateIndexSQL($index, $tableName);
+            $sql[] = $this->getCreateIndexSQL($index, $tableName->getQuotedName($this));
         }
 
         return $sql;
@@ -836,7 +836,7 @@ class SqlitePlatform extends AbstractPlatform
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             $dataTable = new Table('__temp__'.$table->getName());
 
-            $newTable = new Table($table->getName(), $columns, $this->getPrimaryIndexInAlteredTable($diff), $this->getForeignKeysInAlteredTable($diff), 0, $table->getOptions());
+            $newTable = new Table($table->getQuotedName($this), $columns, $this->getPrimaryIndexInAlteredTable($diff), $this->getForeignKeysInAlteredTable($diff), 0, $table->getOptions());
             $newTable->addOption('alter', true);
 
             $sql = $this->getPreAlterTableIndexForeignKeySQL($diff);
@@ -849,7 +849,7 @@ class SqlitePlatform extends AbstractPlatform
             $sql[] = $this->getDropTableSQL($dataTable);
 
             if ($diff->newName && $diff->newName != $diff->name) {
-                $renamedTable = new Identifier($diff->newName);
+                $renamedTable = $diff->getNewName();
                 $sql[] = 'ALTER TABLE '.$newTable->getQuotedName($this).' RENAME TO '.$renamedTable->getQuotedName($this);
             }
 
