@@ -4,8 +4,12 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 class DB2PlatformTest extends AbstractPlatformTestCase
 {
@@ -22,7 +26,15 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            "ALTER TABLE mytable ADD COLUMN quota INTEGER DEFAULT NULL DROP COLUMN foo ALTER bar baz VARCHAR(255) DEFAULT 'def' NOT NULL ALTER bloo bloo SMALLINT DEFAULT '0' NOT NULL",
+            "ALTER TABLE mytable ALTER COLUMN baz SET DATA TYPE VARCHAR(255)",
+            "ALTER TABLE mytable ALTER COLUMN baz SET NOT NULL",
+            "ALTER TABLE mytable ALTER COLUMN baz SET DEFAULT 'def'",
+            "ALTER TABLE mytable ALTER COLUMN bloo SET DATA TYPE SMALLINT",
+            "ALTER TABLE mytable ALTER COLUMN bloo SET NOT NULL",
+            "ALTER TABLE mytable ALTER COLUMN bloo SET DEFAULT '0'",
+            "ALTER TABLE mytable " .
+            "ADD COLUMN quota INTEGER DEFAULT NULL " .
+            "DROP COLUMN foo",
             "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
             'RENAME TABLE mytable TO userlist',
         );
@@ -101,8 +113,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT ALTER foo foo VARCHAR(255) NOT NULL ALTER bar baz VARCHAR(255) NOT NULL",
-            "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')"
+            "ALTER TABLE mytable " .
+            "ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT",
+            "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
+            "COMMENT ON COLUMN mytable.quota IS 'A comment'",
+            "COMMENT ON COLUMN mytable.foo IS ''",
+            "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }
 
@@ -490,12 +506,113 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return array(
             'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
             'ALTER TABLE "foo" DROP FOREIGN KEY fk2',
-            'ALTER TABLE "foo" ADD COLUMN bloo INTEGER NOT NULL WITH DEFAULT DROP COLUMN baz ' .
-            'ALTER bar bar INTEGER DEFAULT NULL RENAME COLUMN id TO war',
+            'ALTER TABLE "foo" ' .
+            'ADD COLUMN bloo INTEGER NOT NULL WITH DEFAULT ' .
+            'DROP COLUMN baz ' .
+            'ALTER COLUMN bar DROP NOT NULL ' .
+            'RENAME COLUMN id TO war',
             'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE "foo"\')',
             'RENAME TABLE "foo" TO "table"',
             'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
             'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            'COMMENT ON COLUMN foo.bar IS \'comment\'',
+            'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
+            'COMMENT ON COLUMN "select"."from" IS \'comment\'',
+        );
+    }
+
+    /**
+     * @group DBAL-944
+     *
+     * @dataProvider getGeneratesAlterColumnSQL
+     */
+    public function testGeneratesAlterColumnSQL($changedProperty, Column $column, $expectedSQLClause = null)
+    {
+        $tableDiff = new TableDiff('foo');
+        $tableDiff->fromTable = new Table('foo');
+        $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $column, array($changedProperty));
+
+        $expectedSQL = array();
+
+        if (null !== $expectedSQLClause) {
+            $expectedSQL[] = 'ALTER TABLE foo ALTER COLUMN bar ' . $expectedSQLClause;
+        }
+
+        $expectedSQL[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE foo')";
+
+        $this->assertSame($expectedSQL, $this->_platform->getAlterTableSQL($tableDiff));
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratesAlterColumnSQL()
+    {
+        return array(
+            array(
+                'columnDefinition',
+                new Column('bar', Type::getType('decimal'), array('columnDefinition' => 'MONEY NOT NULL')),
+                'MONEY NOT NULL'
+            ),
+            array(
+                'type',
+                new Column('bar', Type::getType('integer')),
+                'SET DATA TYPE INTEGER'
+            ),
+            array(
+                'length',
+                new Column('bar', Type::getType('string'), array('length' => 100)),
+                'SET DATA TYPE VARCHAR(100)'
+            ),
+            array(
+                'precision',
+                new Column('bar', Type::getType('decimal'), array('precision' => 10, 'scale' => 2)),
+                'SET DATA TYPE NUMERIC(10, 2)'
+            ),
+            array(
+                'scale',
+                new Column('bar', Type::getType('decimal'), array('precision' => 5, 'scale' => 4)),
+                'SET DATA TYPE NUMERIC(5, 4)'
+            ),
+            array(
+                'fixed',
+                new Column('bar', Type::getType('string'), array('length' => 20, 'fixed' => true)),
+                'SET DATA TYPE CHAR(20)'
+            ),
+            array(
+                'notnull',
+                new Column('bar', Type::getType('string'), array('notnull' => true)),
+                'SET NOT NULL'
+            ),
+            array(
+                'notnull',
+                new Column('bar', Type::getType('string'), array('notnull' => false)),
+                'DROP NOT NULL'
+            ),
+            array(
+                'default',
+                new Column('bar', Type::getType('string'), array('default' => 'foo')),
+                "SET DEFAULT 'foo'"
+            ),
+            array(
+                'default',
+                new Column('bar', Type::getType('integer'), array('autoincrement' => true, 'default' => 666)),
+                null
+            ),
+            array(
+                'default',
+                new Column('bar', Type::getType('string')),
+                "DROP DEFAULT"
+            ),
         );
     }
 }
