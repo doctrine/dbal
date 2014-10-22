@@ -17,6 +17,7 @@
  * <http://www.doctrine-project.org>.
  */
 
+
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Identifier;
@@ -80,7 +81,7 @@ class DB2Platform extends AbstractPlatform
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+            : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
 
     /**
@@ -498,10 +499,7 @@ class DB2Platform extends AbstractPlatform
                 continue;
             }
 
-            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
-            $column = $columnDiff->column;
-            $queryParts[] =  'ALTER ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $queryParts[] = $this->getChangedColumnAttributeAlterClauses($columnDiff);
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -644,7 +642,7 @@ class DB2Platform extends AbstractPlatform
 
         // Todo OVER() needs ORDER BY data!
         $sql = 'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* '.
-               'FROM (' . $query . ') db21) db22 WHERE db22.DC_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
+            'FROM (' . $query . ') db21) db22 WHERE db22.DC_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
 
         return $sql;
     }
@@ -733,5 +731,56 @@ class DB2Platform extends AbstractPlatform
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords';
+    }
+
+    /**
+     * Makes a partial sql string which will make changes to a single column.
+     * To be used as part of an "alter table myTable ..." statement.
+     *
+     * @param $columnDiff
+     * @return string
+     */
+    private function getChangedColumnAttributeAlterClauses($columnDiff)
+    {
+        // TODO: do column comments, like: comment on column mytab.col3 is 'This is column 3';
+        // But, this cannot be done as part of alter table.
+
+        /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
+        $column = $columnDiff->column;
+        $colAttrs = $column->toArray();
+        $clauses = array();
+        $alterCol = 'ALTER COLUMN ' . $columnDiff->getOldColumnName()->getQuotedName($this);
+
+        if (isset($colAttrs['columnDefinition'])) {
+            $clauses[] = $alterCol;
+            $clauses[] = $colAttrs['columnDefinition'];
+        } else {
+            if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('length')) {
+                /** @var \Doctrine\DBAL\Types\Type $type */
+                $type = $colAttrs['type'];
+                $clauses[] = $alterCol;
+                $clauses[] = 'SET DATA TYPE ' . $type->getSQLDeclaration($colAttrs, $this);
+            }
+
+            if ($columnDiff->hasChanged('notnull')) {
+                $clauses[] = $alterCol;
+                $clauses[] = empty($colAttrs['notnull']) ? 'DROP NOT NULL' : 'SET NOT NULL';
+            }
+
+            if ($columnDiff->hasChanged('default') || $columnDiff->hasChanged('notnull')) {
+                if (isset($colAttrs['default']) || isset($colAttrs['notnull'])) {
+                    $clause = $this->getDefaultValueDeclarationSQL($colAttrs);
+                    if (strlen(trim($clause))) {
+                        $clauses[] = $alterCol;
+                        $clauses[] = 'SET ' . $clause;
+                    }
+                } else {
+                    $clauses[] = $alterCol;
+                    $clauses[] = 'DROP DEFAULT';
+                }
+            }
+        }
+
+        return join(' ', $clauses);
     }
 }
