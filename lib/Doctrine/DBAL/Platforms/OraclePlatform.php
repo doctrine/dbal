@@ -697,7 +697,11 @@ LEFT JOIN user_cons_columns r_cols
 
             $fields[] = $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
             if ($comment = $this->getColumnComment($column)) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $diff->getName($this)->getQuotedName($this),
+                    $column->getQuotedName($this),
+                    $comment
+                );
             }
         }
 
@@ -741,8 +745,8 @@ LEFT JOIN user_cons_columns r_cols
 
             if ($columnHasChangedComment) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
-                    $diff->name,
-                    $column->getName(),
+                    $diff->getName($this)->getQuotedName($this),
+                    $column->getQuotedName($this),
                     $this->getColumnComment($column)
                 );
             }
