@@ -204,8 +204,18 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', array(1,3,4,7)));
     }
 
+    public function testInWithPlaceholder()
+    {
+        $this->assertEquals('u.groups IN (?)', $this->expr->in('u.groups', '?'));
+    }
+
     public function testNotIn()
     {
         $this->assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', array(1,3,4,7)));
+    }
+
+    public function testNotInWithPlaceholder()
+    {
+        $this->assertEquals('u.groups NOT IN (:values)', $this->expr->notIn('u.groups', ':values'));
     }
 }
