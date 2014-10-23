@@ -51,6 +51,18 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
+    public function exec($statement)
+    {
+        try {
+            return parent::exec($statement);
+        } catch (\PDOException $exception) {
+            throw new PDOException($exception);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getServerVersion()
     {
         return PDO::getAttribute(PDO::ATTR_SERVER_VERSION);
@@ -100,11 +112,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function quote($input, $type = \PDO::PARAM_STR)
     {
-        try {
-            return parent::quote($input, $type);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
+        return parent::quote($input, $type);
     }
 
     /**
@@ -112,11 +120,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function lastInsertId($name = null)
     {
-        try {
-            return parent::lastInsertId($name);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
+        return parent::lastInsertId($name);
     }
 
     /**
