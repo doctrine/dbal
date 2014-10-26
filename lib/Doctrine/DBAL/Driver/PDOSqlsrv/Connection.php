@@ -29,6 +29,23 @@ use Doctrine\DBAL\Driver\PDOConnection;
 class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
 {
     /**
+     * The driver options for PDO::prepare as documented in
+     * http://msdn.microsoft.com/en-us/library/ff628176.aspx
+     *
+     * @var array
+     */
+    protected $driverOptions;
+    
+    /**
+     * @override
+     */
+    public function __construct($dsn, $user = null, $password = null, array $options = null)
+    {
+        $this->driverOptions = $options;
+        parent::__construct($dsn, $user, $password, $options);
+    }
+	
+    /**
      * @override
      */
     public function quote($value, $type=\PDO::PARAM_STR)
@@ -41,5 +58,17 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
         }
 
         return $val;
+    }
+	
+    /**
+     * @override
+     */
+    public function prepare($prepareString, $driverOptions = array())
+    {
+        if(!is_null($this->driverOptions)) {
+            return parent::prepare($prepareString, $this->driverOptions);
+        } else {
+            return parent::prepare($prepareString);
+        }        
     }
 }
