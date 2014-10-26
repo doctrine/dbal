@@ -56,6 +56,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             case '1217':
             case '1451':
             case '1452':
+            case '1701':
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
 
             case '1062':
