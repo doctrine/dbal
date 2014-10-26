@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ConnectionException;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
@@ -222,5 +223,26 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->assertTrue($this->_conn->ping());
         $this->assertTrue($this->_conn->isConnected());
+    }
+
+    /**
+     * @group DBAL-1025
+     */
+    public function testConnectWithoutExplicitDatabaseName()
+    {
+        if (in_array($this->_conn->getDatabasePlatform()->getName(), array('oracle', 'db2'), true)) {
+            $this->markTestSkipped('Platform does not support connecting without database name.');
+        }
+
+        $params = $this->_conn->getParams();
+        unset($params['dbname']);
+
+        $connection = DriverManager::getConnection(
+            $params,
+            $this->_conn->getConfiguration(),
+            $this->_conn->getEventManager()
+        );
+
+        $this->assertTrue($connection->connect());
     }
 }
