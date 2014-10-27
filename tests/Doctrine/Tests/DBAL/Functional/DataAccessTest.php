@@ -767,6 +767,47 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(array(), $rows);
     }
 
+    /**
+     * @group DBAL-1028
+     */
+    public function testFetchColumnNullValue()
+    {
+        $this->_conn->executeUpdate(
+            'INSERT INTO fetch_table (test_int, test_string) VALUES (?, ?)',
+            array(1, 'foo')
+        );
+
+        $this->assertNull(
+            $this->_conn->fetchColumn('SELECT test_datetime FROM fetch_table WHERE test_int = ?', array(1))
+        );
+    }
+
+    /**
+     * @group DBAL-1028
+     */
+    public function testFetchColumnNonExistingIndex()
+    {
+        if ($this->_conn->getDriver()->getName() === 'pdo_sqlsrv') {
+            $this->markTestSkipped(
+                'Test does not work for pdo_sqlsrv driver as it throws a fatal error for a non-existing column index.'
+            );
+        }
+
+        $this->assertNull(
+            $this->_conn->fetchColumn('SELECT test_int FROM fetch_table WHERE test_int = ?', array(1), 1)
+        );
+    }
+
+    /**
+     * @group DBAL-1028
+     */
+    public function testFetchColumnNoResult()
+    {
+        $this->assertFalse(
+            $this->_conn->fetchColumn('SELECT test_int FROM fetch_table WHERE test_int = ?', array(-1))
+        );
+    }
+
     private function setupFixture()
     {
         $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
