@@ -34,6 +34,13 @@ class TimeTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    public function testDateFieldResetInPHPValue()
+    {
+        $time = $this->_type->convertToPHPValue('01:23:34', $this->_platform);
+        $this->assertEquals('01:23:34', $time->format('H:i:s'));
+        $this->assertEquals('1970-01-01', $time->format('Y-m-d'));
+    }
+
     public function testInvalidTimeFormatConversion()
     {
         $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');

@@ -275,27 +275,27 @@ class ExpressionBuilder
     /**
      * Creates a IN () comparison expression with the given arguments.
      *
-     * @param string $x The field in string format to be inspected by IN() comparison.
-     * @param array  $y The array of values to be used by IN() comparison.
+     * @param string       $x The field in string format to be inspected by IN() comparison.
+     * @param string|array $y The placeholder or the array of values to be used by IN() comparison.
      *
      * @return string
      */
-    public function in($x, array $y)
+    public function in($x, $y)
     {
-        return $this->comparison($x, 'IN', '('.implode(', ', $y).')');
+        return $this->comparison($x, 'IN', '('.implode(', ', (array) $y).')');
     }
 
     /**
      * Creates a NOT IN () comparison expression with the given arguments.
      *
-     * @param string $x The field in string format to be inspected by NOT IN() comparison.
-     * @param array $y  The array of values to be used by NOT IN() comparison.
+     * @param string       $x The field in string format to be inspected by NOT IN() comparison.
+     * @param string|array $y The placeholder or the array of values to be used by NOT IN() comparison.
      *
      * @return string
      */
-    public function notIn($x, array $y)
+    public function notIn($x, $y)
     {
-        return $this->comparison($x, 'NOT IN', '('.implode(', ', $y).')');
+        return $this->comparison($x, 'NOT IN', '('.implode(', ', (array) $y).')');
     }
 
     /**

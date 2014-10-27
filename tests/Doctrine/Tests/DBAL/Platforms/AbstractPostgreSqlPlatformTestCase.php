@@ -2,9 +2,11 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCase
 {
@@ -673,5 +675,68 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testReturnsGuidTypeDeclarationSQL()
     {
         $this->assertSame('UUID', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE foo RENAME COLUMN bar TO baz',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE "foo" DROP CONSTRAINT fk1',
+            'ALTER TABLE "foo" DROP CONSTRAINT fk2',
+            'ALTER TABLE "foo" ADD bloo INT NOT NULL',
+            'ALTER TABLE "foo" DROP baz',
+            'ALTER TABLE "foo" ALTER bar DROP NOT NULL',
+            'ALTER TABLE "foo" RENAME COLUMN id TO war',
+            'ALTER TABLE "foo" RENAME TO "table"',
+            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE ' .
+            'INITIALLY IMMEDIATE',
+            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE ' .
+            'INITIALLY IMMEDIATE',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            'COMMENT ON COLUMN foo.bar IS \'comment\'',
+            'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
+            'COMMENT ON COLUMN "select"."from" IS \'comment\'',
+        );
+    }
+
+    /**
+     * @group DBAL-1004
+     */
+    public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers()
+    {
+        $table1 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'))));
+        $table2 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'), array('comment' => 'baz'))));
+
+        $comparator = new Comparator();
+
+        $tableDiff = $comparator->diffTable($table1, $table2);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        $this->assertSame(
+            array(
+                'COMMENT ON COLUMN "foo"."bar" IS \'baz\'',
+            ),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
     }
 }

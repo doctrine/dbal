@@ -143,8 +143,12 @@ class SQLAnywherePlatform extends AbstractPlatform
 
             $comment = $this->getColumnComment($column);
 
-            if ($comment) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getQuotedName($this), $comment);
+            if (null !== $comment && '' !== $comment) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $diff->getName($this)->getQuotedName($this),
+                    $column->getQuotedName($this),
+                    $comment
+                );
             }
         }
 
@@ -173,7 +177,7 @@ class SQLAnywherePlatform extends AbstractPlatform
                 $column = $columnDiff->column;
 
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
-                    $diff->name,
+                    $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
                     $this->getColumnComment($column)
                 );
@@ -185,21 +189,27 @@ class SQLAnywherePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' .
+            $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' .
                 $this->getAlterTableRenameColumnClause($oldColumnName, $column);
         }
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ( ! empty($alterClauses)) {
-                $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' . implode(", ", $alterClauses);
+                $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' . implode(", ", $alterClauses);
             }
 
+            $sql = array_merge($sql, $commentsSQL);
+
             if ($diff->newName !== false) {
-                $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' .
+                $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' .
                     $this->getAlterTableRenameTableClause($diff->getNewName());
             }
 
-            $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
+            $sql = array_merge(
+                $this->getPreAlterTableIndexForeignKeySQL($diff),
+                $sql,
+                $this->getPostAlterTableIndexForeignKeySQL($diff)
+            );
         }
 
         return array_merge($sql, $tableSql, $columnSql);
@@ -357,9 +367,12 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
+        $tableName = new Identifier($tableName);
+        $columnName = new Identifier($columnName);
         $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
-        return "COMMENT ON COLUMN $tableName.$columnName IS $comment";
+        return "COMMENT ON COLUMN " . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
+            " IS $comment";
     }
 
     /**

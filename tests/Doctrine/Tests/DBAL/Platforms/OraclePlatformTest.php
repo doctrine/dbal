@@ -3,8 +3,10 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -144,12 +146,12 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals(
             'NUMBER(10)',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
-        ));
+            ));
         $this->assertEquals(
             'NUMBER(10)',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true)
-        ));
+            ));
     }
 
     public function testGeneratesTypeDeclarationsForStrings()
@@ -158,7 +160,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
                 array('length' => 10, 'fixed' => true)
-        ));
+            ));
         $this->assertEquals(
             'VARCHAR2(50)',
             $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
@@ -233,19 +235,19 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $column = $table->addColumn($columnName, 'integer');
         $column->setAutoincrement(true);
         $targets = array(
-          "CREATE TABLE {$tableName} ({$columnName} NUMBER(10) NOT NULL)",
-          "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '{$tableName}' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE {$tableName} ADD CONSTRAINT {$tableName}_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
-          "CREATE SEQUENCE {$tableName}_{$columnName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
-          "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_{$columnName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
+            "CREATE TABLE {$tableName} ({$columnName} NUMBER(10) NOT NULL)",
+            "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '{$tableName}' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE {$tableName} ADD CONSTRAINT {$tableName}_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
+            "CREATE SEQUENCE {$tableName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
+            "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
         );
         $statements = $this->_platform->getCreateTableSQL($table);
         //strip all the whitespace from the statements
         array_walk($statements, function(&$value){
-          $value = preg_replace('/\s+/', ' ',$value);
+            $value = preg_replace('/\s+/', ' ',$value);
         });
         foreach($targets as $key => $sql){
-          $this->assertArrayHasKey($key,$statements);
-          $this->assertEquals($sql, $statements[$key]);
+            $this->assertArrayHasKey($key,$statements);
+            $this->assertEquals($sql, $statements[$key]);
         }
     }
 
@@ -283,8 +285,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getBitOrComparisonExpressionSql($value1, $value2)
     {
         return '(' . $value1 . '-' .
-                $this->getBitAndComparisonExpressionSql($value1, $value2)
-                . '+' . $value2 . ')';
+        $this->getBitAndComparisonExpressionSql($value1, $value2)
+        . '+' . $value2 . ')';
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
@@ -310,6 +312,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    /**
+     * @group DBAL-472
+     * @group DBAL-1001
+     */
     public function testAlterTableNotNULL()
     {
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
@@ -333,8 +339,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
 
         $expectedSql = array(
-            "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla' NULL, baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)",
-	);
+            "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)",
+        );
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }
 
@@ -392,10 +398,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @group DBAL-563
+     * @group DBAL-831
      */
     public function testReturnsIdentitySequenceName()
     {
-        $this->assertSame('mytable_mycolumn_SEQ', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
+        $this->assertSame('MYTABLE_SEQ', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
+        $this->assertSame('"mytable_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
+        $this->assertSame('MYTABLE_SEQ', $this->_platform->getIdentitySequenceName('mytable', '"mycolumn"'));
+        $this->assertSame('"mytable_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
     }
 
     /**
@@ -491,5 +501,145 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function testReturnsGuidTypeDeclarationSQL()
     {
         $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE foo RENAME COLUMN bar TO baz',
+        );
+    }
+
+    /**
+     * @dataProvider getReturnsDropAutoincrementSQL
+     * @group DBAL-831
+     */
+    public function testReturnsDropAutoincrementSQL($table, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getDropAutoincrementSql($table));
+    }
+
+    public function getReturnsDropAutoincrementSQL()
+    {
+        return array(
+            array(
+                'myTable',
+                array(
+                    'DROP TRIGGER MYTABLE_AI_PK',
+                    'DROP SEQUENCE MYTABLE_SEQ',
+                    'ALTER TABLE MYTABLE DROP CONSTRAINT MYTABLE_AI_PK',
+                )
+            ),
+            array(
+                '"myTable"',
+                array(
+                    'DROP TRIGGER "myTable_AI_PK"',
+                    'DROP SEQUENCE "myTable_SEQ"',
+                    'ALTER TABLE "myTable" DROP CONSTRAINT "myTable_AI_PK"',
+                )
+            ),
+            array(
+                'table',
+                array(
+                    'DROP TRIGGER TABLE_AI_PK',
+                    'DROP SEQUENCE TABLE_SEQ',
+                    'ALTER TABLE "TABLE" DROP CONSTRAINT TABLE_AI_PK',
+                )
+            ),
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE "foo" DROP CONSTRAINT fk1',
+            'ALTER TABLE "foo" DROP CONSTRAINT fk2',
+            'ALTER TABLE "foo" ADD (bloo NUMBER(10) NOT NULL)',
+            'ALTER TABLE "foo" MODIFY (bar NUMBER(10) DEFAULT NULL NULL)',
+            'ALTER TABLE "foo" RENAME COLUMN id TO war',
+            'ALTER TABLE "foo" DROP (baz)',
+            'ALTER TABLE "foo" RENAME TO "table"',
+            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            'COMMENT ON COLUMN foo.bar IS \'comment\'',
+            'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
+            'COMMENT ON COLUMN "select"."from" IS \'comment\'',
+        );
+    }
+
+    /**
+     * @group DBAL-1004
+     */
+    public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers()
+    {
+        $table1 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'))));
+        $table2 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'), array('comment' => 'baz'))));
+
+        $comparator = new Comparator();
+
+        $tableDiff = $comparator->diffTable($table1, $table2);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        $this->assertSame(
+            array(
+                'COMMENT ON COLUMN "foo"."bar" IS \'baz\'',
+            ),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    public function testQuotedTableNames()
+    {
+        $table = new Table('"test"');
+        $table->addColumn('"id"', 'integer', array('autoincrement' => true));
+
+        // assert tabel
+        $this->assertTrue($table->isQuoted());
+        $this->assertEquals('test', $table->getName());
+        $this->assertEquals('"test"', $table->getQuotedName($this->_platform));
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals('CREATE TABLE "test" ("id" NUMBER(10) NOT NULL)', $sql[0]);
+        $this->assertEquals('CREATE SEQUENCE "test_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[2]);
+        $createTriggerStatement = <<<EOD
+CREATE TRIGGER "test_AI_PK"
+   BEFORE INSERT
+   ON "test"
+   FOR EACH ROW
+DECLARE
+   last_Sequence NUMBER;
+   last_InsertID NUMBER;
+BEGIN
+   SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
+   IF (:NEW."id" IS NULL OR :NEW."id" = 0) THEN
+      SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
+   ELSE
+      SELECT NVL(Last_Number, 0) INTO last_Sequence
+        FROM User_Sequences
+       WHERE Sequence_Name = 'test_SEQ';
+      SELECT :NEW."id" INTO last_InsertID FROM DUAL;
+      WHILE (last_InsertID > last_Sequence) LOOP
+         SELECT "test_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
+      END LOOP;
+   END IF;
+END;
+EOD;
+
+        $this->assertEquals($createTriggerStatement, $sql[3]);
     }
 }

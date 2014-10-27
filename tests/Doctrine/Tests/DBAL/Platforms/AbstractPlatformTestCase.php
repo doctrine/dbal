@@ -5,6 +5,8 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -914,6 +916,28 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    /**
+     * @return array
+     *
+     * @see testGetCommentOnColumnSQL
+     */
+    abstract protected function getCommentOnColumnSQL();
+
+    /**
+     * @group DBAL-1004
+     */
+    public function testGetCommentOnColumnSQL()
+    {
+        $this->assertSame(
+            $this->getCommentOnColumnSQL(),
+            array(
+                $this->_platform->getCommentOnColumnSQL('foo', 'bar', 'comment'), // regular identifiers
+                $this->_platform->getCommentOnColumnSQL('`Foo`', '`BAR`', 'comment'), // explicitly quoted identifiers
+                $this->_platform->getCommentOnColumnSQL('select', 'from', 'comment'), // reserved keyword identifiers
+            )
+        );
+    }
+
     protected function getQuotedStringLiteralWithoutQuoteCharacter()
     {
         return "'No quote'";
@@ -956,4 +980,74 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $this->_platform->getGuidTypeDeclarationSQL(array());
     }
+
+    /**
+     * @group DBAL-1010
+     */
+    public function testGeneratesAlterTableRenameColumnSQL()
+    {
+        $table = new Table('foo');
+        $table->addColumn(
+            'bar',
+            'integer',
+            array('notnull' => true, 'default' => 666, 'comment' => 'rename test')
+        );
+
+        $tableDiff = new TableDiff('foo');
+        $tableDiff->fromTable = $table;
+        $tableDiff->renamedColumns['bar'] = new Column(
+            'baz',
+            Type::getType('integer'),
+            array('notnull' => true, 'default' => 666, 'comment' => 'rename test')
+        );
+
+        $this->assertSame($this->getAlterTableRenameColumnSQL(), $this->_platform->getAlterTableSQL($tableDiff));
+    }
+
+    /**
+     * @return array
+     */
+    abstract public function getAlterTableRenameColumnSQL();
+
+    /**
+     * @group DBAL-1016
+     */
+    public function testQuotesTableIdentifiersInAlterTableSQL()
+    {
+        $table = new Table('"foo"');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('fk', 'integer');
+        $table->addColumn('fk2', 'integer');
+        $table->addColumn('fk3', 'integer');
+        $table->addColumn('bar', 'integer');
+        $table->addColumn('baz', 'integer');
+        $table->addForeignKeyConstraint('fk_table', array('fk'), array('id'), array(), 'fk1');
+        $table->addForeignKeyConstraint('fk_table', array('fk2'), array('id'), array(), 'fk2');
+
+        $tableDiff = new TableDiff('"foo"');
+        $tableDiff->fromTable = $table;
+        $tableDiff->newName = 'table';
+        $tableDiff->addedColumns['bloo'] = new Column('bloo', Type::getType('integer'));
+        $tableDiff->changedColumns['bar'] = new ColumnDiff(
+            'bar',
+            new Column('bar', Type::getType('integer'), array('notnull' => false)),
+            array('notnull'),
+            $table->getColumn('bar')
+        );
+        $tableDiff->renamedColumns['id'] = new Column('war', Type::getType('integer'));
+        $tableDiff->removedColumns['baz'] = new Column('baz', Type::getType('integer'));
+        $tableDiff->addedForeignKeys[] = new ForeignKeyConstraint(array('fk3'), 'fk_table', array('id'), 'fk_add');
+        $tableDiff->changedForeignKeys[] = new ForeignKeyConstraint(array('fk2'), 'fk_table2', array('id'), 'fk2');
+        $tableDiff->removedForeignKeys[] = new ForeignKeyConstraint(array('fk'), 'fk_table', array('id'), 'fk1');
+
+        $this->assertSame(
+            $this->getQuotesTableIdentifiersInAlterTableSQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    abstract protected function getQuotesTableIdentifiersInAlterTableSQL();
 }

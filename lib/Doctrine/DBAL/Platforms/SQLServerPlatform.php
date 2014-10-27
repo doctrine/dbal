@@ -501,12 +501,16 @@ class SQLServerPlatform extends AbstractPlatform
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = "sp_RENAME '" . $diff->name . "." . $oldColumnName->getQuotedName($this) .
+            $sql[] = "sp_RENAME '" .
+                $diff->getName($this)->getQuotedName($this) . "." . $oldColumnName->getQuotedName($this) .
                 "', '" . $column->getQuotedName($this) . "', 'COLUMN'";
 
             // Recreate default constraint with new column name if necessary (for future reference).
             if ($column->getDefault() !== null) {
-                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause($diff->name, $oldColumnName);
+                $queryParts[] = $this->getAlterTableDropDefaultConstraintClause(
+                    $diff->name,
+                    $oldColumnName->getQuotedName($this)
+                );
                 $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $column);
             }
         }
@@ -518,13 +522,13 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         foreach ($queryParts as $query) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
         }
 
-        $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSql);
+        $sql = array_merge($sql, $commentsSql);
 
         if ($diff->newName !== false) {
-            $sql[] = "sp_RENAME '" . $diff->getName()->getQuotedName($this) . "', '" . $diff->getNewName()->getQuotedName($this) . "'";
+            $sql[] = "sp_RENAME '" . $diff->getName($this)->getQuotedName($this) . "', '" . $diff->getNewName()->getName() . "'";
 
             /**
              * Rename table's default constraints names
@@ -540,9 +544,15 @@ class SQLServerPlatform extends AbstractPlatform
                 "'" . $this->generateIdentifierName($diff->newName) . "') + ''', ''OBJECT'';' " .
                 "FROM sys.default_constraints dc " .
                 "JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
-                "WHERE tbl.name = '" . $diff->getNewName()->getQuotedName($this) . "';" .
+                "WHERE tbl.name = '" . $diff->getNewName()->getName() . "';" .
                 "EXEC sp_executesql @sql";
         }
+
+        $sql = array_merge(
+            $this->getPreAlterTableIndexForeignKeySQL($diff),
+            $sql,
+            $this->getPostAlterTableIndexForeignKeySQL($diff)
+        );
 
         return array_merge($sql, $tableSql, $columnSql);
     }
@@ -719,10 +729,10 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Name = null
     ) {
         return "EXEC sp_addextendedproperty " .
-            "N'" . $name . "', N'" . $value . "', " .
-            "N'" . $level0Type . "', " . $level0Name . ', ' .
-            "N'" . $level1Type . "', " . $level1Name . ', ' .
-            "N'" . $level2Type . "', " . $level2Name;
+            "N" . $this->quoteStringLiteral($name) . ", N" . $this->quoteStringLiteral($value) . ", " .
+            "N" . $this->quoteStringLiteral($level0Type) . ", " . $level0Name . ', ' .
+            "N" . $this->quoteStringLiteral($level1Type) . ", " . $level1Name . ', ' .
+            "N" . $this->quoteStringLiteral($level2Type) . ", " . $level2Name;
     }
 
     /**
@@ -750,10 +760,10 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Name = null
     ) {
         return "EXEC sp_dropextendedproperty " .
-        "N'" . $name . "', " .
-        "N'" . $level0Type . "', " . $level0Name . ', ' .
-        "N'" . $level1Type . "', " . $level1Name . ', ' .
-        "N'" . $level2Type . "', " . $level2Name;
+            "N" . $this->quoteStringLiteral($name) . ", " .
+            "N" . $this->quoteStringLiteral($level0Type) . ", " . $level0Name . ', ' .
+            "N" . $this->quoteStringLiteral($level1Type) . ", " . $level1Name . ', ' .
+            "N" . $this->quoteStringLiteral($level2Type) . ", " . $level2Name;
     }
 
     /**
@@ -783,10 +793,10 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Name = null
     ) {
         return "EXEC sp_updateextendedproperty " .
-        "N'" . $name . "', N'" . $value . "', " .
-        "N'" . $level0Type . "', " . $level0Name . ', ' .
-        "N'" . $level1Type . "', " . $level1Name . ', ' .
-        "N'" . $level2Type . "', " . $level2Name;
+        "N" . $this->quoteStringLiteral($name) . ", N" . $this->quoteStringLiteral($value) . ", " .
+        "N" . $this->quoteStringLiteral($level0Type) . ", " . $level0Name . ', ' .
+        "N" . $this->quoteStringLiteral($level1Type) . ", " . $level1Name . ', ' .
+        "N" . $this->quoteStringLiteral($level2Type) . ", " . $level2Name;
     }
 
     /**
@@ -1175,7 +1185,7 @@ class SQLServerPlatform extends AbstractPlatform
         //Remove ORDER BY from $query (including nested parentheses in order by list).
         $query = preg_replace('/\s+ORDER\s+BY\s+([^()]+|\((?:(?:(?>[^()]+)|(?R))*)\))+/i', '', $query);
 
-        $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d';
+        $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum';
 
         // Pattern to match "main" SELECT ... FROM clause (including nested parentheses in select list).
         $selectFromPattern = '/^(\s*SELECT\s+(?:(.*)(?![^(]*\))))\sFROM\s/i';

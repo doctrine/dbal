@@ -623,4 +623,76 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
         $table->renameIndex('idx_id', 'idx_foo');
     }
+
+    /**
+     * @dataProvider getNormalizesAssetNames
+     * @group DBAL-831
+     */
+    public function testNormalizesColumnNames($assetName)
+    {
+        $table = new Table('test');
+
+        $table->addColumn($assetName, 'integer');
+        $table->addIndex(array($assetName), $assetName);
+        $table->addForeignKeyConstraint('test', array($assetName), array($assetName), array(), $assetName);
+
+        $this->assertTrue($table->hasColumn($assetName));
+        $this->assertTrue($table->hasColumn('foo'));
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\Column', $table->getColumn($assetName));
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\Column', $table->getColumn('foo'));
+
+        $this->assertTrue($table->hasIndex($assetName));
+        $this->assertTrue($table->hasIndex('foo'));
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\Index', $table->getIndex($assetName));
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\Index', $table->getIndex('foo'));
+
+        $this->assertTrue($table->hasForeignKey($assetName));
+        $this->assertTrue($table->hasForeignKey('foo'));
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $table->getForeignKey($assetName));
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $table->getForeignKey('foo'));
+
+        $table->renameIndex($assetName, $assetName);
+        $this->assertTrue($table->hasIndex($assetName));
+        $this->assertTrue($table->hasIndex('foo'));
+
+        $table->renameIndex($assetName, 'foo');
+        $this->assertTrue($table->hasIndex($assetName));
+        $this->assertTrue($table->hasIndex('foo'));
+
+        $table->renameIndex('foo', $assetName);
+        $this->assertTrue($table->hasIndex($assetName));
+        $this->assertTrue($table->hasIndex('foo'));
+
+        $table->renameIndex($assetName, 'bar');
+        $this->assertFalse($table->hasIndex($assetName));
+        $this->assertFalse($table->hasIndex('foo'));
+        $this->assertTrue($table->hasIndex('bar'));
+
+        $table->renameIndex('bar', $assetName);
+
+        $table->dropColumn($assetName);
+        $table->dropIndex($assetName);
+        $table->removeForeignKey($assetName);
+
+        $this->assertFalse($table->hasColumn($assetName));
+        $this->assertFalse($table->hasColumn('foo'));
+        $this->assertFalse($table->hasIndex($assetName));
+        $this->assertFalse($table->hasIndex('foo'));
+        $this->assertFalse($table->hasForeignKey($assetName));
+        $this->assertFalse($table->hasForeignKey('foo'));
+    }
+
+    public function getNormalizesAssetNames()
+    {
+        return array(
+            array('foo'),
+            array('FOO'),
+            array('`foo`'),
+            array('`FOO`'),
+            array('"foo"'),
+            array('"FOO"'),
+            array('"foo"'),
+            array('"FOO"'),
+        );
+    }
 }

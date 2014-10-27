@@ -498,8 +498,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE "table" (id INTEGER NOT NULL, PRIMARY KEY(id))',
             'INSERT INTO "table" (id) SELECT id FROM __temp__table',
             'DROP TABLE __temp__table',
-            'CREATE INDEX "select" ON table (id)',
-            'CREATE INDEX "bar" ON table (id)',
+            'CREATE INDEX "select" ON "table" (id)',
+            'CREATE INDEX "bar" ON "table" (id)',
         );
     }
 
@@ -559,5 +559,53 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testReturnsGuidTypeDeclarationSQL()
     {
         $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__foo AS SELECT bar FROM foo',
+            'DROP TABLE foo',
+            'CREATE TABLE foo (baz INTEGER DEFAULT 666 NOT NULL)',
+            'INSERT INTO foo (baz) SELECT bar FROM __temp__foo',
+            'DROP TABLE __temp__foo',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'DROP INDEX IDX_8C736521A81E660E',
+            'DROP INDEX IDX_8C736521FDC58D6C',
+            'CREATE TEMPORARY TABLE __temp__foo AS SELECT fk, fk2, id, fk3, bar FROM "foo"',
+            'DROP TABLE "foo"',
+            'CREATE TABLE "foo" (fk2 INTEGER NOT NULL, fk3 INTEGER NOT NULL, fk INTEGER NOT NULL, war INTEGER NOT NULL, ' .
+            'bar INTEGER DEFAULT NULL, bloo INTEGER NOT NULL, ' .
+            'CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
+            'CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE)',
+            'INSERT INTO "foo" (fk, fk2, war, fk3, bar) SELECT fk, fk2, id, fk3, bar FROM __temp__foo',
+            'DROP TABLE __temp__foo',
+            'ALTER TABLE "foo" RENAME TO "table"',
+            'CREATE INDEX IDX_8C736521A81E660E ON "table" (fk)',
+            'CREATE INDEX IDX_8C736521FDC58D6C ON "table" (fk2)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            'COMMENT ON COLUMN foo.bar IS \'comment\'',
+            'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
+            'COMMENT ON COLUMN "select"."from" IS \'comment\'',
+        );
     }
 }

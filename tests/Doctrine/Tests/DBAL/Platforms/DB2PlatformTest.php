@@ -471,4 +471,43 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE foo RENAME COLUMN bar TO baz',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
+            'ALTER TABLE "foo" DROP FOREIGN KEY fk2',
+            'ALTER TABLE "foo" ADD COLUMN bloo INTEGER NOT NULL WITH DEFAULT DROP COLUMN baz ' .
+            'ALTER bar bar INTEGER DEFAULT NULL RENAME COLUMN id TO war',
+            'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE "foo"\')',
+            'RENAME TABLE "foo" TO "table"',
+            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            'COMMENT ON COLUMN foo.bar IS \'comment\'',
+            'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
+            'COMMENT ON COLUMN "select"."from" IS \'comment\'',
+        );
+    }
 }

@@ -166,13 +166,13 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithOffset()
@@ -182,46 +182,46 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         }
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username DESC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username DESC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username ASC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username ASC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithLowercaseOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user order by username', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithDescOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username DESC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username DESC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithMultipleOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC, usereamil ASC', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username DESC, usereamil ASC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY username DESC, usereamil ASC) AS doctrine_rownum FROM user) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithSubSelect()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndOrder()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC) dctrn_result', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC) dctrn_result', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC) AS doctrine_rownum FROM (SELECT u.id, u.name) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC) AS doctrine_rownum FROM (SELECT u.id, u.name) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndMultipleOrder()
@@ -231,19 +231,19 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         }
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id uid, u.name uname ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id uid, u.name uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id uid, u.name uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
 
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id, u.name) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id, u.name) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithFromColumnNames()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT a.fromFoo, fromBar FROM foo', 10);
-        $this->assertEquals('SELECT * FROM (SELECT a.fromFoo, fromBar, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM foo) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT a.fromFoo, fromBar, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM foo) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     /**
@@ -263,7 +263,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $expected.= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) ';
         $expected.= 'AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) ';
         $expected.= 'AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)) ';
-        $expected.= 'AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10';
+        $expected.= 'AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum';
 
         $this->assertEquals($expected, $sql);
     }
@@ -278,7 +278,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         }
 
         $sql      = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
-        $expected = 'SELECT * FROM (SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2, ROW_NUMBER() OVER (ORDER BY m0_.FECHAINICIO DESC) AS doctrine_rownum FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ?) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15';
+        $expected = 'SELECT * FROM (SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2, ROW_NUMBER() OVER (ORDER BY m0_.FECHAINICIO DESC) AS doctrine_rownum FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ?) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum';
         $actual   = $this->_platform->modifyLimitQuery($sql, 10, 5);
 
         $this->assertEquals($expected, $actual);
@@ -310,7 +310,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum " .
             "FROM user u " .
             "WHERE u.status = 'disabled'" .
-            ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10",
+            ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum",
             $sql
         );
     }
@@ -347,7 +347,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "ROW_NUMBER() OVER (ORDER BY username DESC) AS doctrine_rownum " .
             "FROM user u " .
             "WHERE u.status = 'disabled'" .
-            ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15",
+            ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum",
             $sql
         );
     }
@@ -376,7 +376,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "ROW_NUMBER() OVER (ORDER BY MAX(heading_id) DESC) AS doctrine_rownum " .
             "FROM operator_model_operator " .
             "GROUP BY code" .
-            ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 1",
+            ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 1 ORDER BY doctrine_rownum",
             $sql
         );
     }
@@ -525,11 +525,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
+        $table->addColumn('comment_with_string_literal_char', 'string', array('comment' => "O'Reilly"));
         $table->setPrimaryKey(array('id'));
 
         $this->assertEquals(
             array(
-                "CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))",
+                "CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_integer_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_float_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_string_0",
@@ -538,6 +539,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine 0wnz comments for reserved keyword columns!', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [create]",
                 "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine array type.(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type_with_comment",
+                "EXEC sp_addextendedproperty N'MS_Description', N'O''Reilly', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_with_string_literal_char",
             ),
             $this->_platform->getCreateTableSQL($table)
         );
@@ -545,6 +547,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     /**
      * @group DBAL-543
+     * @group DBAL-1011
      */
     public function testGeneratesAlterTableSQLWithColumnComments()
     {
@@ -561,6 +564,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
+        $table->addColumn('comment_with_string_literal_quote_char', 'array', array('comment' => "O'Reilly"));
         $table->setPrimaryKey(array('id'));
 
         $tableDiff = new TableDiff('mytable');
@@ -577,6 +581,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $tableDiff->addedColumns['select'] = new Column('select', Type::getType('integer'), array('comment' => '666'));
         $tableDiff->addedColumns['added_commented_type'] = new Column('added_commented_type', Type::getType('object'));
         $tableDiff->addedColumns['added_commented_type_with_comment'] = new Column('added_commented_type_with_comment', Type::getType('array'), array('comment' => '666'));
+        $tableDiff->addedColumns['added_comment_with_string_literal_char'] = new Column('added_comment_with_string_literal_char', Type::getType('string'), array('comment' => "''"));
 
         $tableDiff->renamedColumns['comment_float_0'] = new Column('comment_double_0', Type::getType('decimal'), array('comment' => 'Double for real!'));
 
@@ -660,6 +665,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             new Column('commented_type_with_comment', Type::getType('array'), array('comment' => 'Doctrine array type.'))
         );
 
+        // Change comment from comment with string literal char column.
+        $tableDiff->changedColumns['comment_with_string_literal_char'] = new ColumnDiff(
+            'comment_with_string_literal_char',
+            new Column('comment_with_string_literal_char', Type::getType('string'), array('comment' => "'")),
+            array('comment'),
+            new Column('comment_with_string_literal_char', Type::getType('array'), array('comment' => "O'Reilly"))
+        );
+
         $tableDiff->removedColumns['comment_integer_0'] = new Column('comment_integer_0', Type::getType('integer'), array('comment' => 0));
 
         $this->assertEquals(
@@ -680,6 +693,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "ALTER TABLE mytable ADD [select] INT NOT NULL",
                 "ALTER TABLE mytable ADD added_commented_type VARCHAR(MAX) NOT NULL",
                 "ALTER TABLE mytable ADD added_commented_type_with_comment VARCHAR(MAX) NOT NULL",
+                "ALTER TABLE mytable ADD added_comment_with_string_literal_char NVARCHAR(255) NOT NULL",
                 "ALTER TABLE mytable DROP COLUMN comment_integer_0",
                 "ALTER TABLE mytable ALTER COLUMN comment_null NVARCHAR(255) NOT NULL",
                 "ALTER TABLE mytable ALTER COLUMN comment_empty_string VARCHAR(MAX) NOT NULL",
@@ -696,6 +710,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_addextendedproperty N'MS_Description', N'666', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [select]",
                 "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_commented_type",
                 "EXEC sp_addextendedproperty N'MS_Description', N'666(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_commented_type_with_comment",
+                "EXEC sp_addextendedproperty N'MS_Description', N'''''', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_comment_with_string_literal_char",
 
                 // Changed columns.
                 "EXEC sp_addextendedproperty N'MS_Description', N'primary', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', id",
@@ -707,6 +722,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', [create]",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'foo', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type_with_comment",
+                "EXEC sp_updateextendedproperty N'MS_Description', N'''', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_with_string_literal_char",
             ),
             $this->_platform->getAlterTableSQL($tableDiff)
         );
@@ -1108,5 +1124,51 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testReturnsGuidTypeDeclarationSQL()
     {
         $this->assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            "sp_RENAME 'foo.bar', 'baz', 'COLUMN'",
+            'ALTER TABLE foo DROP CONSTRAINT DF_8C736521_76FF8CAA',
+            'ALTER TABLE foo ADD CONSTRAINT DF_8C736521_78240498 DEFAULT 666 FOR baz',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE [foo] DROP CONSTRAINT fk1',
+            'ALTER TABLE [foo] DROP CONSTRAINT fk2',
+            "sp_RENAME '[foo].id', 'war', 'COLUMN'",
+            'ALTER TABLE [foo] ADD bloo INT NOT NULL',
+            'ALTER TABLE [foo] DROP COLUMN baz',
+            'ALTER TABLE [foo] ALTER COLUMN bar INT',
+            "sp_RENAME '[foo]', 'table'",
+            "DECLARE @sql NVARCHAR(MAX) = N''; " .
+            "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' + REPLACE(dc.name, '8C736521', 'F6298F46') + ''', " .
+            "''OBJECT'';' FROM sys.default_constraints dc JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
+            "WHERE tbl.name = 'table';EXEC sp_executesql @sql",
+            'ALTER TABLE [table] ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE [table] ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            "COMMENT ON COLUMN foo.bar IS 'comment'",
+            "COMMENT ON COLUMN [Foo].[BAR] IS 'comment'",
+            "COMMENT ON COLUMN [select].[from] IS 'comment'",
+        );
     }
 }
