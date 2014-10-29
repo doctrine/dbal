@@ -1171,4 +1171,19 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "COMMENT ON COLUMN [select].[from] IS 'comment'",
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReturnsForeignKeyReferentialActionSQL()
+    {
+        return array(
+            array('CASCADE', 'CASCADE'),
+            array('SET NULL', 'SET NULL'),
+            array('NO ACTION', 'NO ACTION'),
+            array('RESTRICT', 'NO ACTION'),
+            array('SET DEFAULT', 'SET DEFAULT'),
+            array('CaScAdE', 'CASCADE'),
+        );
+    }
 }
