@@ -58,6 +58,31 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals(str_repeat($c, 4), $this->_platform->quoteSingleIdentifier($c));
     }
 
+    /**
+     * @group DBAL-1029
+     *
+     * @dataProvider getReturnsForeignKeyReferentialActionSQL
+     */
+    public function testReturnsForeignKeyReferentialActionSQL($action, $expectedSQL)
+    {
+        $this->assertSame($expectedSQL, $this->_platform->getForeignKeyReferentialActionSQL($action));
+    }
+
+    /**
+     * @return array
+     */
+    public function getReturnsForeignKeyReferentialActionSQL()
+    {
+        return array(
+            array('CASCADE', 'CASCADE'),
+            array('SET NULL', 'SET NULL'),
+            array('NO ACTION', 'NO ACTION'),
+            array('RESTRICT', 'RESTRICT'),
+            array('SET DEFAULT', 'SET DEFAULT'),
+            array('CaScAdE', 'CASCADE'),
+        );
+    }
+
     public function testGetInvalidtForeignKeyReferentialActionSQL()
     {
         $this->setExpectedException('InvalidArgumentException');
