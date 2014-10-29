@@ -602,6 +602,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             array('no', 'false', 0, false),
             array('off', 'false', 0, false),
             array('0', 'false', 0, false),
+
+            array(null, 'NULL', null, null)
         );
     }
 
