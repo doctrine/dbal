@@ -49,7 +49,7 @@ class DateType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return ($value !== null)
+        return (is_object($value))
             ? $value->format($platform->getDateFormatString()) : null;
     }
 
