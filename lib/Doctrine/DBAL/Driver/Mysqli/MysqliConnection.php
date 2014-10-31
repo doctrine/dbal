@@ -43,9 +43,10 @@ class MysqliConnection implements Connection
     {
         $port = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
         $socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
+        $dbname = isset($params['dbname']) ? $params['dbname'] : null;
 
         $this->_conn = mysqli_init();
-        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket)) {
+        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket)) {
             throw new MysqliException($this->_conn->connect_error, $this->_conn->connect_errno);
         }
 
