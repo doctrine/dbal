@@ -873,7 +873,7 @@ class Connection implements DriverConnection
             throw CacheException::noResultDriverConfigured();
         }
 
-        list($cacheKey, $realKey) = $qcp->generateCacheKeys($query, $params, $types);
+        list($cacheKey, $realKey) = $qcp->generateCacheKeys($query, $params, $types, $this->getParams());
 
         // fetch the row pointers entry
         if ($data = $resultCache->fetch($cacheKey)) {
