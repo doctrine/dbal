@@ -892,12 +892,12 @@ class Connection implements DriverConnection
      *                           The function receives a single parameter, an array, that
      *                           represents a row of the result set.
      *
-     * @return mixed The projected result of the query.
+     * @return array The projected result of the query.
      */
     public function project($query, array $params, Closure $function)
     {
         $result = array();
-        $stmt = $this->executeQuery($query, $params ?: array());
+        $stmt = $this->executeQuery($query, $params);
 
         while ($row = $stmt->fetch()) {
             $result[] = $function($row);
