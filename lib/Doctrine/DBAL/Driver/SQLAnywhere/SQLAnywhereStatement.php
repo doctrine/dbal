@@ -266,11 +266,11 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     {
         $row = $this->fetch(PDO::FETCH_NUM);
 
-        if ($row && isset($row[$columnIndex])) {
-            return $row[$columnIndex];
+        if (false === $row) {
+            return false;
         }
 
-        return false;
+        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
     }
 
     /**

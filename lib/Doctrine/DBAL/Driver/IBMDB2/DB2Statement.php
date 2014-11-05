@@ -262,11 +262,12 @@ class DB2Statement implements \IteratorAggregate, Statement
     public function fetchColumn($columnIndex = 0)
     {
         $row = $this->fetch(\PDO::FETCH_NUM);
-        if ($row && isset($row[$columnIndex])) {
-            return $row[$columnIndex];
+
+        if (false === $row) {
+            return false;
         }
 
-        return false;
+        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
     }
 
     /**

@@ -289,7 +289,11 @@ class OCI8Statement implements \IteratorAggregate, Statement
     {
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
 
-        return isset($row[$columnIndex]) ? $row[$columnIndex] : false;
+        if (false === $row) {
+            return false;
+        }
+
+        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
     }
 
     /**
