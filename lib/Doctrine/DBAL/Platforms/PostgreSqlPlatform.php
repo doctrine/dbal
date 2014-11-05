@@ -343,7 +343,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         return "SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
                        pg_index.indkey, pg_index.indrelid,
-                       TRIM(BOTH '()' FROM pg_get_expr(indpred, indrelid)) AS where
+                       pg_get_expr(indpred, indrelid) AS where
                  FROM pg_class, pg_index
                  WHERE oid IN (
                     SELECT indexrelid

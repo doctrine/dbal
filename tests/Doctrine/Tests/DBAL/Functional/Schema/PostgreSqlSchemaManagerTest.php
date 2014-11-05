@@ -343,6 +343,25 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertFalse($foundTable, 'View "list_tables_excludes_views_test_view" must not be found in table list');
     }
+
+    public function testPartialIndexes()
+    {
+        $offlineTable = new Schema\Table('person');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('name', 'string');
+        $offlineTable->addColumn('email', 'string');
+        $offlineTable->addUniqueIndex(array('id', 'name'), 'simple_partial_index', array('where' => '(id IS NULL)'));
+        $offlineTable->addIndex(array('id', 'name'), 'complex_partial_index', array('where' => '(((id IS NOT NULL) AND (name IS NULL)) AND (email IS NULL))'));
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails('person');
+
+        $comparator = new Schema\Comparator();
+
+        $this->assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+    }
+
 }
 
 class MoneyType extends Type
