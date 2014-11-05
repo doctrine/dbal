@@ -67,6 +67,8 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
             case '1400':
                 return new Exception\NotNullConstraintViolationException($message, $exception);
 
+            case '2266':
+            case '2291':
             case '2292':
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
         }
@@ -129,7 +131,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
             if (isset($params['service']) && $params['service'] == true) {
                 $service = 'SERVICE_NAME=' . $serviceName;
             }
-            
+
             if (isset($params['instancename']) && ! empty($params['instancename'])) {
                 $instance = '(INSTANCE_NAME = ' . $params['instancename'] . ')';
             }

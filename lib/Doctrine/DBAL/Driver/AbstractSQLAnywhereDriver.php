@@ -55,6 +55,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
             case '-193':
             case '-196':
                 return new Exception\UniqueConstraintViolationException($message, $exception);
+            case '-194':
             case '-198':
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
             case '-144':
