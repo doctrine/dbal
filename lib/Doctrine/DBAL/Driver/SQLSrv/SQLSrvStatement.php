@@ -236,23 +236,23 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null)
     {
-        $args = func_get_args();
+        $args      = func_get_args();
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
-        if (isset(self::$fetchMap[$fetchMode])) {
-            $rows = sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]);
 
-            return $rows ?: false;
-        } elseif ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
+        if (isset(self::$fetchMap[$fetchMode])) {
+            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?: false;
+        }
+
+        if ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
             $className = $this->defaultFetchClass;
             $ctorArgs  = $this->defaultFetchClassCtorArgs;
+
             if (count($args) >= 2) {
                 $className = $args[1];
-                $ctorArgs = (isset($args[2])) ? $args[2] : array();
+                $ctorArgs  = (isset($args[2])) ? $args[2] : array();
             }
 
-            $rows = sqlsrv_fetch_object($this->stmt, $className, $ctorArgs);
-
-            return $rows ?: false;
+            return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
         }
 
         throw new SQLSrvException("Fetch mode is not supported!");
