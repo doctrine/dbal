@@ -46,6 +46,8 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
     public function convertException($message, DriverException $exception)
     {
         switch ($exception->getErrorCode()) {
+            case '-306':
+                return new Exception\DeadlockException($message, $exception);
             case '-100':
             case '-103':
             case '-832':
