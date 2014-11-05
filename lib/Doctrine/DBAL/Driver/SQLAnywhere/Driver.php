@@ -47,17 +47,13 @@ class Driver extends AbstractSQLAnywhereDriver
             throw new SQLAnywhereException("Missing 'server' in configuration for sqlanywhere driver.");
         }
 
-        if ( ! isset($params['dbname'])) {
-            throw new SQLAnywhereException("Missing 'dbname' in configuration for sqlanywhere driver.");
-        }
-
         try {
             return new SQLAnywhereConnection(
                 $this->buildDsn(
                     $params['host'],
                     isset($params['port']) ? $params['port'] : null,
                     $params['server'],
-                    $params['dbname'],
+                    isset($params['dbname']) ? $params['dbname'] : null,
                     $username,
                     $password,
                     $driverOptions
