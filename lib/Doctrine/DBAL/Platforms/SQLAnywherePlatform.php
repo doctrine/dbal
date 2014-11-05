@@ -652,17 +652,12 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getForeignKeyReferentialActionSQL($action)
     {
-        $action = strtoupper($action);
-
-        switch ($action) {
-            case 'CASCADE':
-            case 'SET NULL':
-            case 'SET DEFAULT':
-            case 'RESTRICT':
-                return $action;
-            default:
-                throw new \InvalidArgumentException('Invalid foreign key action: ' . $action);
+        // NO ACTION is not supported, therefore falling back to RESTRICT.
+        if (strtoupper($action) === 'NO ACTION') {
+            return 'RESTRICT';
         }
+
+        return parent::getForeignKeyReferentialActionSQL($action);
     }
 
     /**

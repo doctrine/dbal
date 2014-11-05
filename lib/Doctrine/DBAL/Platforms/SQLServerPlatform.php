@@ -1394,6 +1394,19 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getForeignKeyReferentialActionSQL($action)
+    {
+        // RESTRICT is not supported, therefore falling back to NO ACTION.
+        if (strtoupper($action) === 'RESTRICT') {
+            return 'NO ACTION';
+        }
+
+        return parent::getForeignKeyReferentialActionSQL($action);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function appendLockHint($fromClause, $lockMode)
