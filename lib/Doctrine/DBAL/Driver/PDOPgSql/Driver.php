@@ -23,6 +23,7 @@ use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\DBALException;
 use PDOException;
+use PDO;
 
 /**
  * Driver that connects through pdo_pgsql.
@@ -37,21 +38,18 @@ class Driver extends AbstractPostgreSQLDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         try {
-            $pdo = new PDOConnection(
+			if (PHP_VERSION_ID >= 50600 && !isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])) {
+				$driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] = true;
+			}
+            return new PDOConnection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,
                 $driverOptions
             );
-
-            if (PHP_VERSION_ID >= 50600) {
-                $pdo->setAttribute(\PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
-            }
         } catch (PDOException $e) {
             throw DBALException::driverException($this, $e);
         }
-
-        return $pdo;
     }
 
     /**
