@@ -235,7 +235,10 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListNamespacesSQL()
     {
-        return "SELECT nspname FROM pg_namespace WHERE nspname NOT LIKE 'pg_%' AND nspname != 'information_schema'";
+        return "SELECT schema_name AS nspname
+                FROM   information_schema.schemata
+                WHERE  schema_name NOT LIKE 'pg_%'
+                AND    schema_name != 'information_schema'";
     }
 
     /**
@@ -243,12 +246,11 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListSequencesSQL($database)
     {
-        return "SELECT
-                    c.relname, n.nspname AS schemaname
-                FROM
-                   pg_class c, pg_namespace n
-                WHERE relkind = 'S' AND n.oid = c.relnamespace AND
-                    (n.nspname NOT LIKE 'pg_%' AND n.nspname != 'information_schema')";
+        return "SELECT sequence_name AS relname,
+                       sequence_schema AS schemaname
+                FROM   information_schema.sequences
+                WHERE  sequence_schema NOT LIKE 'pg_%'
+                AND    sequence_schema != 'information_schema'";
     }
 
     /**
@@ -256,8 +258,13 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT quote_ident(tablename) AS table_name, schemaname AS schema_name
-                FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname != 'information_schema' AND tablename != 'geometry_columns' AND tablename != 'spatial_ref_sys'";
+        return "SELECT quote_ident(table_name) AS table_name,
+                       table_schema AS schema_name
+                FROM   information_schema.tables
+                WHERE  table_schema NOT LIKE 'pg_%'
+                AND    table_schema != 'information_schema'
+                AND    table_name != 'geometry_columns'
+                AND    table_name != 'spatial_ref_sys'";
     }
 
     /**
@@ -265,7 +272,11 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListViewsSQL($database)
     {
-        return 'SELECT quote_ident(viewname) as viewname, schemaname, definition FROM pg_views';
+        return 'SELECT quote_ident(table_name) AS viewname,
+                       table_schema AS schemaname,
+                       view_definition AS definition
+                FROM   information_schema.views
+                WHERE  view_definition IS NOT NULL';
     }
 
     /**
