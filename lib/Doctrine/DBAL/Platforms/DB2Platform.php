@@ -19,8 +19,11 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
 class DB2Platform extends AbstractPlatform
@@ -464,6 +467,7 @@ class DB2Platform extends AbstractPlatform
     {
         $sql = array();
         $columnSql = array();
+        $commentsSQL = array();
 
         $queryParts = array();
         foreach ($diff->addedColumns as $column) {
@@ -483,6 +487,16 @@ class DB2Platform extends AbstractPlatform
             }
 
             $queryParts[] = $queryPart;
+
+            $comment = $this->getColumnComment($column);
+
+            if (null !== $comment && '' !== $comment) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $diff->getName($this)->getQuotedName($this),
+                    $column->getQuotedName($this),
+                    $comment
+                );
+            }
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -498,10 +512,19 @@ class DB2Platform extends AbstractPlatform
                 continue;
             }
 
-            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
-            $column = $columnDiff->column;
-            $queryParts[] =  'ALTER ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
-                    . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            if ($columnDiff->hasChanged('comment')) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $diff->getName($this)->getQuotedName($this),
+                    $columnDiff->column->getQuotedName($this),
+                    $this->getColumnComment($columnDiff->column)
+                );
+
+                if (count($columnDiff->changedProperties) === 1) {
+                    continue;
+                }
+            }
+
+            $this->gatherAlterColumnSQL($diff->fromTable, $columnDiff, $sql, $queryParts);
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -527,6 +550,8 @@ class DB2Platform extends AbstractPlatform
                 $sql[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE " . $diff->getName($this)->getQuotedName($this) . "')";
             }
 
+            $sql = array_merge($sql, $commentsSQL);
+
             if ($diff->newName !== false) {
                 $sql[] =  'RENAME TABLE ' . $diff->getName($this)->getQuotedName($this) . ' TO ' . $diff->getNewName()->getQuotedName($this);
             }
@@ -539,6 +564,84 @@ class DB2Platform extends AbstractPlatform
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * Gathers the table alteration SQL for a given column diff.
+     *
+     * @param Table      $table      The table to gather the SQL for.
+     * @param ColumnDiff $columnDiff The column diff to evaluate.
+     * @param array      $sql        The sequence of table alteration statements to fill.
+     * @param array      $queryParts The sequence of column alteration clauses to fill.
+     */
+    private function gatherAlterColumnSQL(Table $table, ColumnDiff $columnDiff, array &$sql, array &$queryParts)
+    {
+        $alterColumnClauses = $this->getAlterColumnClausesSQL($columnDiff);
+
+        if (empty($alterColumnClauses)) {
+            return;
+        }
+
+        // If we have a single column alteration, we can append the clause to the main query.
+        if (count($alterColumnClauses) === 1) {
+            $queryParts[] = current($alterColumnClauses);
+
+            return;
+        }
+
+        // We have multiple alterations for the same column,
+        // so we need to trigger a complete ALTER TABLE statement
+        // for each ALTER COLUMN clause.
+        foreach ($alterColumnClauses as $alterColumnClause) {
+            $sql[] = 'ALTER TABLE ' . $table->getQuotedName($this) . ' ' . $alterColumnClause;
+        }
+    }
+
+    /**
+     * Returns the ALTER COLUMN SQL clauses for altering a column described by the given column diff.
+     *
+     * @param ColumnDiff $columnDiff The column diff to evaluate.
+     *
+     * @return array
+     */
+    private function getAlterColumnClausesSQL(ColumnDiff $columnDiff)
+    {
+        $column = $columnDiff->column->toArray();
+
+        $alterClause = 'ALTER COLUMN ' . $columnDiff->column->getQuotedName($this);
+
+        if ($column['columnDefinition']) {
+            return array($alterClause . ' ' . $column['columnDefinition']);
+        }
+
+        $clauses = array();
+
+        if ($columnDiff->hasChanged('type') ||
+            $columnDiff->hasChanged('length') ||
+            $columnDiff->hasChanged('precision') ||
+            $columnDiff->hasChanged('scale') ||
+            $columnDiff->hasChanged('fixed')
+        ) {
+            $clauses[] = $alterClause . ' SET DATA TYPE ' . $column['type']->getSQLDeclaration($column, $this);
+        }
+
+        if ($columnDiff->hasChanged('notnull')) {
+            $clauses[] = $column['notnull'] ? $alterClause . ' SET NOT NULL' : $alterClause . ' DROP NOT NULL';
+        }
+
+        if ($columnDiff->hasChanged('default')) {
+            if (isset($column['default'])) {
+                $defaultClause = $this->getDefaultValueDeclarationSQL($column);
+
+                if ($defaultClause) {
+                    $clauses[] = $alterClause . ' SET' . $defaultClause;
+                }
+            } else {
+                $clauses[] = $alterClause . ' DROP DEFAULT';
+            }
+        }
+
+        return $clauses;
     }
 
     /**
