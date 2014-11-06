@@ -411,12 +411,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->_platform->getForeignKeyMatchCLauseSQL(3);
     }
 
-    public function testCannotGenerateNoActionForeignKeyReferentialActionClauseSQL()
-    {
-        $this->setExpectedException('\InvalidArgumentException');
-        $this->_platform->getForeignKeyReferentialActionSQL('no action');
-    }
-
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyLocalColumns()
     {
         $this->setExpectedException('\InvalidArgumentException');
@@ -921,6 +915,21 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
                 'COMMENT ON COLUMN "foo"."bar" IS \'baz\'',
             ),
             $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReturnsForeignKeyReferentialActionSQL()
+    {
+        return array(
+            array('CASCADE', 'CASCADE'),
+            array('SET NULL', 'SET NULL'),
+            array('NO ACTION', 'RESTRICT'),
+            array('RESTRICT', 'RESTRICT'),
+            array('SET DEFAULT', 'SET DEFAULT'),
+            array('CaScAdE', 'CASCADE'),
         );
     }
 }

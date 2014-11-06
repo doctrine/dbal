@@ -151,7 +151,10 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function exec($statement)
     {
-        $this->_conn->query($statement);
+        if (false === $this->_conn->query($statement)) {
+            throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
+        }
+
         return $this->_conn->affected_rows;
     }
 
