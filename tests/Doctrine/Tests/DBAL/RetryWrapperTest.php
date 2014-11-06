@@ -130,16 +130,11 @@ class RetryCallableExample
     }
 }
 
-class DummyDriverException implements DriverException
+class DummyDriverException extends \Exception implements DriverException
 {
     public function getErrorCode()
     {
         return 'code';
-    }
-
-    public function getMessage()
-    {
-        return 'message';
     }
 
     public function getSQLState()
