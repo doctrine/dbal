@@ -26,6 +26,6 @@ namespace Doctrine\DBAL\Exception;
  * @link   www.doctrine-project.org
  * @since  2.6
  */
-class DeadlockException extends RetryableException
+class DeadlockException extends ServerException implements RetryableException
 {
 }

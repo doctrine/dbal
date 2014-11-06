@@ -102,8 +102,9 @@ class RetryWrapper
      * The callable is only re-executed for temporary database errors where retrying
      * the failed transaction after a short delay usually resolves the problem. Such
      * errors are for example deadlocks and lock wait timeouts. Internally the raised
-     * exception must extend RetryableException. Other exceptions like syntax errors
-     * or constraint violations will not cause the callable to be re-executed.
+     * exception must implement the marker interface RetryableException. Other exceptions
+     * like syntax errors or constraint violations will not cause the callable to be
+     * re-executed.
      *
      * All arguments given will be passed through to the wrapped callable.
      *

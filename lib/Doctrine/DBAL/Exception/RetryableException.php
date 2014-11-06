@@ -20,12 +20,12 @@
 namespace Doctrine\DBAL\Exception;
 
 /**
- * Base class for all exceptions where retrying the transaction makes sense.
+ * Marker interface for all exceptions where retrying the transaction makes sense.
  *
  * @author Tobias Schultze <http://tobion.de>
  * @link   www.doctrine-project.org
  * @since  2.6
  */
-abstract class RetryableException extends ServerException
+interface RetryableException
 {
 }
