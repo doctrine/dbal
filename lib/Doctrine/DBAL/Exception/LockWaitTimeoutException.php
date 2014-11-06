@@ -24,7 +24,7 @@ namespace Doctrine\DBAL\Exception;
  *
  * @author Tobias Schultze <http://tobion.de>
  * @link   www.doctrine-project.org
- * @since  2.5
+ * @since  2.6
  */
 class LockWaitTimeoutException extends RetryableException
 {

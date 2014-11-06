@@ -32,7 +32,6 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Driver\PingableConnection;
-use Doctrine\DBAL\Exception\RetryableException;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
@@ -1109,43 +1108,6 @@ class Connection implements DriverConnection
             $this->rollBack();
             throw $e;
         }
-    }
-
-    /**
-     * Executes a function and retries it in case of a temporary database error.
-     *
-     * The function gets passed this Connection instance as an (optional) parameter.
-     *
-     * The function is only re-executed for temporary database errors where retrying
-     * the failed transaction after a short delay usually resolves the problem. Such
-     * errors are for example deadlocks and lock wait timeouts. Internally the raised
-     * exception must extend RetryableException. Other exceptions like syntax errors
-     * or constraint violations will not cause the closure to be re-executed.
-     *
-     * @param Closure $func       The function to execute that can be retried on failure.
-     * @param integer $maxRetries Maximum number of retries.
-     * @param integer $retryDelay Delay between retries in milliseconds to give the blocking
-     *                            transaction time to finish.
-     *
-     * @return mixed The return value of the closure
-     *
-     * @throws \Exception If an exception has been raised where retrying makes no sense
-     *                    or a RetryableException after max retries has been reached.
-     */
-    public function retryable(Closure $func, $maxRetries = 3, $retryDelay = 100)
-    {
-        do {
-            try {
-                return $func($this);
-            } catch (RetryableException $e) {
-                if ($maxRetries > 0) {
-                    $maxRetries--;
-                    usleep($retryDelay * 1000);
-                } else {
-                    throw $e;
-                }
-            }
-        } while (true);
     }
 
     /**
