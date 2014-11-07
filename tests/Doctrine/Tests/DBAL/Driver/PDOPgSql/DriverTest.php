@@ -36,6 +36,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             $this->assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
+            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
         }
     }
 
@@ -62,6 +63,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             $this->assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
+            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
         }
     }
 
@@ -88,6 +90,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             $this->assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
+            $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
         }
     }
 
