@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Driver\PDOPgSql;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
 use PDO;
+use PDOException;
 
 class DriverTest extends AbstractPostgreSQLDriverTest
 {
@@ -30,7 +31,12 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
 
         $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
-        $this->assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+
+        try {
+            $this->assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+        } catch (PDOException $ignored) {
+            /** @link https://bugs.php.net/bug.php?id=68371 */
+        }
     }
 
     /**
@@ -51,7 +57,12 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
 
         $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
-        $this->assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+
+        try {
+            $this->assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+        } catch (PDOException $ignored) {
+            /** @link https://bugs.php.net/bug.php?id=68371 */
+        }
     }
 
     /**
@@ -72,7 +83,12 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         );
 
         $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
-        $this->assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+
+        try {
+            $this->assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+        } catch (PDOException $ignored) {
+            /** @link https://bugs.php.net/bug.php?id=68371 */
+        }
     }
 
     /**
