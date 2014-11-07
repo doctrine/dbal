@@ -22,9 +22,8 @@ class DriverTest extends AbstractPostgreSQLDriverTest
 
         $connection = $this->createDriver()->connect(
             array(
-                'host'   => $GLOBALS['db_host'],
-                'dbname' => $GLOBALS['db_name'],
-                'port'   => $GLOBALS['db_port']
+                'host' => $GLOBALS['db_host'],
+                'port' => $GLOBALS['db_port']
             ),
             $GLOBALS['db_username'],
             $GLOBALS['db_password']
@@ -43,9 +42,8 @@ class DriverTest extends AbstractPostgreSQLDriverTest
 
         $connection = $this->createDriver()->connect(
             array(
-                'host'   => $GLOBALS['db_host'],
-                'dbname' => $GLOBALS['db_name'],
-                'port'   => $GLOBALS['db_port']
+                'host' => $GLOBALS['db_host'],
+                'port' => $GLOBALS['db_port']
             ),
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
@@ -65,9 +63,8 @@ class DriverTest extends AbstractPostgreSQLDriverTest
 
         $connection = $this->createDriver()->connect(
             array(
-                'host'   => $GLOBALS['db_host'],
-                'dbname' => $GLOBALS['db_name'],
-                'port'   => $GLOBALS['db_port']
+                'host' => $GLOBALS['db_host'],
+                'port' => $GLOBALS['db_port']
             ),
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
@@ -95,7 +92,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             $this->markTestSkipped('Test requires PHP 5.6+');
         }
 
-        if ($GLOBALS['db_type'] !== 'pdo_pgsql') {
+        if (! (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'pdo_pgsql')) {
             $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
         }
     }
