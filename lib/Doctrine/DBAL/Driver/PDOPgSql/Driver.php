@@ -38,16 +38,22 @@ class Driver extends AbstractPostgreSQLDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         try {
-            if (PHP_VERSION_ID >= 50600 && ! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])) {
-                $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] = true;
-            }
-
-            return new PDOConnection(
+            $pdo = new PDOConnection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,
                 $driverOptions
             );
+
+            if (PHP_VERSION_ID >= 50600
+                && (! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
+                    || true === $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES]
+                )
+            ) {
+                $pdo->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
+            }
+
+            return $pdo;
         } catch (PDOException $e) {
             throw DBALException::driverException($this, $e);
         }
