@@ -466,4 +466,20 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $this->assertTrue($conn->isConnected(), "Connection is not connected after passing external PDO");
     }
+
+    public function testCallingDeleteWithNoDeletionCriteriaResultsInSqlWithoutWhereClause()
+    {
+        $pdoMock = $this->getMock('Doctrine\DBAL\Driver\Connection');
+
+        $pdoMock->expects($this->once())
+            ->method('exec')
+            ->with($this->equalTo('DELETE FROM kittens'));
+
+        $conn = new Connection(
+            array('pdo' => $pdoMock),
+            $this->getMock('Doctrine\DBAL\Driver')
+        );
+
+        $conn->delete('kittens', array());
+    }
 }
