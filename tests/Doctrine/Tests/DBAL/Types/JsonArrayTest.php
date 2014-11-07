@@ -48,6 +48,11 @@ class JsonArrayTest extends \Doctrine\Tests\DbalTestCase
         $this->assertSame(array(), $this->type->convertToPHPValue(null, $this->platform));
     }
 
+    public function testJsonEmptyStringConvertsToPHPValue()
+    {
+        $this->assertSame(array(), $this->type->convertToPHPValue('', $this->platform));
+    }
+
     public function testJsonStringConvertsToPHPValue()
     {
         $value         = array('foo' => 'bar', 'bar' => 'foo');
