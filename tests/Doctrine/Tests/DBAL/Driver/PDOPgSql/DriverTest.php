@@ -15,17 +15,9 @@ class DriverTest extends AbstractPostgreSQLDriverTest
 
     public function testConnectionDisablesPreparesOnPhp56()
     {
-        if (PHP_VERSION_ID < 50600) {
-            $this->markTestSkipped('Test requires PHP 5.6+');
-        }
+        $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
-        if ($GLOBALS['db_type'] !== 'pdo_pgsql') {
-            $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
-        }
-
-        $driver = $this->createDriver();
-
-        $connection = $driver->connect(
+        $connection = $this->createDriver()->connect(
             array(
                 'host'   => $GLOBALS['db_host'],
                 'dbname' => $GLOBALS['db_name'],
@@ -45,5 +37,19 @@ class DriverTest extends AbstractPostgreSQLDriverTest
     protected function createDriver()
     {
         return new Driver();
+    }
+
+    /**
+     * @throws \PHPUnit_Framework_SkippedTestError
+     */
+    private function skipWhenNotUsingPhp56AndPdoPgsql()
+    {
+        if (PHP_VERSION_ID < 50600) {
+            $this->markTestSkipped('Test requires PHP 5.6+');
+        }
+
+        if ($GLOBALS['db_type'] !== 'pdo_pgsql') {
+            $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
+        }
     }
 }
