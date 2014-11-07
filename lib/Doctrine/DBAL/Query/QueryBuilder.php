@@ -198,7 +198,7 @@ class QueryBuilder
      * Uses {@see Connection::executeQuery} for select statements and {@see Connection::executeUpdate}
      * for insert, update and delete statements.
      *
-     * @return mixed
+     * @return \Doctrine\DBAL\Driver\Statement|int
      */
     public function execute()
     {
