@@ -242,6 +242,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
+    protected function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 VARCHAR(255) NOT NULL, INDEX `key` (column1)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
+        );
+    }
+
     protected function getQuotedColumnInForeignKeySQL()
     {
         return array(

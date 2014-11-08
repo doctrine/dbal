@@ -539,6 +539,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract protected function getQuotedColumnInPrimaryKeySQL();
     abstract protected function getQuotedColumnInIndexSQL();
+    abstract protected function getQuotedNameInIndexSQL();
     abstract protected function getQuotedColumnInForeignKeySQL();
 
     /**
@@ -552,6 +553,16 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $sql = $this->_platform->getCreateTableSQL($table);
         $this->assertEquals($this->getQuotedColumnInIndexSQL(), $sql);
+    }
+
+    public function testQuotedNameInIndexSQL()
+    {
+        $table = new Table('test');
+        $table->addColumn('column1', 'string');
+        $table->addIndex(array('column1'), '`key`');
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals($this->getQuotedNameInIndexSQL(), $sql);
     }
 
     /**
