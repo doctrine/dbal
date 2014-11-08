@@ -292,6 +292,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    protected function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
+            'CREATE INDEX "create" ON test (column1)',
+        );
+    }
+
     protected function getQuotedColumnInForeignKeySQL()
     {
         return array(

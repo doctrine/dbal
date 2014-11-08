@@ -353,4 +353,12 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable ALTER COLUMN name NCHAR(2) NOT NULL',
         );
     }
+
+    protected function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 NVARCHAR(255) NOT NULL)',
+            'CREATE INDEX [create] ON test (column1)',
+        );
+    }
 }
