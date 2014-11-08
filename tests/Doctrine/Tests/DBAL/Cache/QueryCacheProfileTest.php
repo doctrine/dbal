@@ -20,10 +20,7 @@ class QueryCacheProfileTest extends DbalTestCase
         $this->queryCacheProfile = new QueryCacheProfile(self::LIFETIME, self::CACHE_KEY);
     }
 
-    /**
-     * @test
-     */
-    public function it_should_use_the_given_cache_key_if_present()
+    public function testShouldUseTheGivenCacheKeyIfPresent()
     {
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = array(666);
@@ -37,20 +34,17 @@ class QueryCacheProfileTest extends DbalTestCase
             'driver' => 'database_driver'
         );
 
-        $expectedRealCacheKey = 'query=SELECT * FROM foo WHERE bar = ?&params=a:1:{i:0;i:666;}&types=a:1:{i:0;'
-            . 'i:1;}a:5:{s:6:"dbname";s:13:"database_name";s:4:"user";s:13:"database_user";s:8:"password";s:17:"'
-            . 'database_password";s:4:"host";s:13:"database_host";s:6:"driver";s:15:"database_driver";}';
+        $generatedKeys = $this->queryCacheProfile->generateCacheKeys(
+            $query,
+            $params,
+            $types,
+            $connectionParams
+        );
 
-        $cacheKeysResult = $this->queryCacheProfile->generateCacheKeys($query, $params, $types, $connectionParams);
-
-        $this->assertEquals(self::CACHE_KEY, $cacheKeysResult[0], 'The returned cached key should match the given one');
-        $this->assertEquals($expectedRealCacheKey, $cacheKeysResult[1]);
+        $this->assertEquals(self::CACHE_KEY, $generatedKeys[0], 'The returned cached key should match the given one');
     }
 
-    /**
-     * @test
-     */
-    public function it_should_generate_an_automatic_key_if_no_key_has_been_specified()
+    public function testShouldGenerateAnAutomaticKeyIfNoKeyHasBeenGiven()
     {
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = array(666);
@@ -63,16 +57,92 @@ class QueryCacheProfileTest extends DbalTestCase
             'host' => 'database_host',
             'driver' => 'database_driver'
         );
-
-        $expectedRealCacheKey = 'query=SELECT * FROM foo WHERE bar = ?&params=a:1:{i:0;i:666;}&types=a:1:{i:0;'
-            . 'i:1;}a:5:{s:6:"dbname";s:13:"database_name";s:4:"user";s:13:"database_user";s:8:"password";s:17:"'
-            . 'database_password";s:4:"host";s:13:"database_host";s:6:"driver";s:15:"database_driver";}';
 
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
-        $cacheKeysResult = $this->queryCacheProfile->generateCacheKeys($query, $params, $types, $connectionParams);
+        $generatedKeys = $this->queryCacheProfile->generateCacheKeys(
+            $query,
+            $params,
+            $types,
+            $connectionParams
+        );
 
-        $this->assertEquals('8f74136f51719d57f4da9b6d2ba955b42189bb81', $cacheKeysResult[0]);
-        $this->assertEquals($expectedRealCacheKey, $cacheKeysResult[1]);
+        $this->assertNotEmpty($generatedKeys[0], 'The generated cache key should not be empty');
+    }
+
+    public function testShouldGenerateDifferentKeysForSameQueryAndParamsAndDifferentConnections()
+    {
+        $query  = 'SELECT * FROM foo WHERE bar = ?';
+        $params = array(666);
+        $types  = array(\PDO::PARAM_INT);
+
+        $connectionParams = array(
+            'dbname' => 'database_name',
+            'user' => 'database_user',
+            'password' => 'database_password',
+            'host' => 'database_host',
+            'driver' => 'database_driver'
+        );
+
+        $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
+
+        $generatedKeys = $this->queryCacheProfile->generateCacheKeys(
+            $query,
+            $params,
+            $types,
+            $connectionParams
+        );
+
+        $firstCacheKey = $generatedKeys[0];
+
+        $connectionParams['host'] = 'a_different_host';
+
+        $generatedKeys = $this->queryCacheProfile->generateCacheKeys(
+            $query,
+            $params,
+            $types,
+            $connectionParams
+        );
+
+        $secondCacheKey = $generatedKeys[0];
+
+        $this->assertNotEquals($firstCacheKey, $secondCacheKey, 'Cache keys should be different');
+    }
+
+    public function testShouldGenerateSameKeysIfNoneOfTheParamsChanges()
+    {
+        $query  = 'SELECT * FROM foo WHERE bar = ?';
+        $params = array(666);
+        $types  = array(\PDO::PARAM_INT);
+
+        $connectionParams = array(
+            'dbname' => 'database_name',
+            'user' => 'database_user',
+            'password' => 'database_password',
+            'host' => 'database_host',
+            'driver' => 'database_driver'
+        );
+
+        $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
+
+        $generatedKeys = $this->queryCacheProfile->generateCacheKeys(
+            $query,
+            $params,
+            $types,
+            $connectionParams
+        );
+
+        $firstCacheKey = $generatedKeys[0];
+
+        $generatedKeys = $this->queryCacheProfile->generateCacheKeys(
+            $query,
+            $params,
+            $types,
+            $connectionParams
+        );
+
+        $secondCacheKey = $generatedKeys[0];
+
+        $this->assertEquals($firstCacheKey, $secondCacheKey, 'Cache keys should be the same');
     }
 }

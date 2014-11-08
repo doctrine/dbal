@@ -482,4 +482,38 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $conn->delete('kittens', array());
     }
+
+    public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery()
+    {
+        $resultCacheDriverMock = $this->getMock('Doctrine\Common\Cache\Cache');
+
+        $resultCacheDriverMock->expects($this->any())
+            ->method('fetch')
+            ->will($this->returnValue(array('realKey' => array())));
+
+        $query = 'SELECT * FROM foo WHERE bar = ?';
+        $params = array(666);
+        $types = array(\PDO::PARAM_INT);
+
+        $queryCacheProfileMock = $this->getMock('Doctrine\DBAL\Cache\QueryCacheProfile');
+
+        $queryCacheProfileMock->expects($this->any())
+            ->method('getResultCacheDriver')
+            ->will($this->returnValue($resultCacheDriverMock));
+
+        // This is our main expectation
+        $queryCacheProfileMock->expects($this->once())
+            ->method('generateCacheKeys')
+            ->with($query, $params, $types, $this->params)
+            ->will($this->returnValue(array('cacheKey', 'realKey')));
+
+        $conn = new Connection(
+            $this->params,
+            $this->getMock('Doctrine\DBAL\Driver')
+        );
+
+        $result = $conn->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Cache\ArrayStatement', $result);
+    }
 }
