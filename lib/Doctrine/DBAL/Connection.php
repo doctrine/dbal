@@ -575,13 +575,11 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
-        $query = 'DELETE FROM ' . $tableExpression . $this->getWhereSql($identifier);
-
-        if (is_string(key($types))) {
-            $types = $this->extractTypeValues($identifier, $types);
-        }
-
-        return $this->executeUpdate($query, array_values($identifier), $types);
+        return $this->executeUpdate(
+            'DELETE FROM ' . $tableExpression . $this->getWhereSql($identifier),
+            array_values($identifier),
+            is_string(key($types)) ? $this->extractTypeValues($identifier, $types) : $types
+        );
     }
 
     /**
