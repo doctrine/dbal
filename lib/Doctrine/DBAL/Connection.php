@@ -575,19 +575,31 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
+        return $this->executeUpdate(
+            'DELETE FROM ' . $tableExpression . $this->getWhereSql($identifier),
+            array_values($identifier),
+            is_string(key($types)) ? $this->extractTypeValues($identifier, $types) : $types
+        );
+    }
+
+    /**
+     * @param array $identifier An associative array containing column-value pairs.
+     *
+     * @return string
+     */
+    private function getWhereSql(array $identifier)
+    {
+        if (empty($identifier)) {
+            return '';
+        }
+
         $criteria = array();
 
         foreach (array_keys($identifier) as $columnName) {
             $criteria[] = $columnName . ' = ?';
         }
 
-        if (is_string(key($types))) {
-            $types = $this->extractTypeValues($identifier, $types);
-        }
-
-        $query = 'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $criteria);
-
-        return $this->executeUpdate($query, array_values($identifier), $types);
+        return ' WHERE ' . implode(' AND ', $criteria);
     }
 
     /**
