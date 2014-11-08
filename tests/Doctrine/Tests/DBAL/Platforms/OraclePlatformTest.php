@@ -302,6 +302,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    protected function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 VARCHAR2(255) NOT NULL)',
+            'CREATE INDEX "key" ON test (column1)',
+        );
+    }
+
     protected function getQuotedColumnInForeignKeySQL()
     {
         return array(

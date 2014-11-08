@@ -78,6 +78,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    protected function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
+            'CREATE INDEX "key" ON test (column1)',
+        );
+    }
+
     protected function getQuotedColumnInPrimaryKeySQL()
     {
         return array(
