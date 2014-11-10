@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Platforms\ConfigurablePlatform;
 use PDO;
 use Closure;
 use Exception;
@@ -363,6 +364,10 @@ class Connection implements DriverConnection
             $this->detectDatabasePlatform();
         }
 
+        if ($this->platform instanceof ConfigurablePlatform) {
+            $this->platform->setConnectionParams($this->_params);
+        }
+
         if (false === $this->autoCommit) {
             $this->beginTransaction();
         }
@@ -385,10 +390,10 @@ class Connection implements DriverConnection
     private function detectDatabasePlatform()
     {
         if ( ! isset($this->_params['platform'])) {
-            $version = $this->getDatabasePlatformVersion();
+            $this->getDatabasePlatformVersion();
 
-            if (null !== $version) {
-                $this->platform = $this->_driver->createDatabasePlatformForVersion($version);
+            if (null !== $this->_params['serverVersion']) {
+                $this->platform = $this->_driver->createDatabasePlatformForVersion($this->_params['serverVersion']);
             } else {
                 $this->platform = $this->_driver->getDatabasePlatform();
             }
@@ -415,7 +420,7 @@ class Connection implements DriverConnection
     {
         // Driver does not support version specific platforms.
         if ( ! $this->_driver instanceof VersionAwarePlatformDriver) {
-            return null;
+            return $this->_params['serverVersion'] = null;
         }
 
         // Explicit platform version requested (supersedes auto-detection).
@@ -428,15 +433,15 @@ class Connection implements DriverConnection
             $this->connect();
         }
 
-        // Automatic platform version detection.
+        // Automatic platform version detection. Setting it to params for further needs.
         if ($this->_conn instanceof ServerInfoAwareConnection &&
             ! $this->_conn->requiresQueryForServerVersion()
         ) {
-            return $this->_conn->getServerVersion();
+            return $this->_params['serverVersion'] = $this->_conn->getServerVersion();
         }
 
         // Unable to detect platform version.
-        return null;
+        return $this->_params['serverVersion'] = null;
     }
 
     /**

@@ -36,7 +36,7 @@ use Doctrine\DBAL\Types\TextType;
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  * @todo   Rename: MySQLPlatform
  */
-class MySqlPlatform extends AbstractPlatform
+class MySqlPlatform extends AbstractPlatform implements ConfigurablePlatform
 {
     const LENGTH_LIMIT_TINYTEXT   = 255;
     const LENGTH_LIMIT_TEXT       = 65535;
@@ -45,6 +45,16 @@ class MySqlPlatform extends AbstractPlatform
     const LENGTH_LIMIT_TINYBLOB   = 255;
     const LENGTH_LIMIT_BLOB       = 65535;
     const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
+
+    /**
+     * @var array
+     */
+    protected $_connectionParams = array();
+
+    /**
+     * @var bool
+     */
+    private $_shouldDisableFkChecks;
 
     /**
      * Adds MySQL-specific LIMIT clause to the query
@@ -911,5 +921,54 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         return 'LONGBLOB';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setConnectionParams(Array $connectionParams)
+    {
+        $this->_connectionParams = $connectionParams;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Disable FK checks on Truncate for versions higher then 5.5.7 if the connection param
+     * `disable_fk_checks` is set to true
+     */
+    public function getTruncateTableSQL($tableName, $cascade = false)
+    {
+        $template = "%s";
+
+        if ($this->shouldDisableFKChecks()) {
+            $template = "SET FOREIGN_KEY_CHECKS=0;%s;SET FOREIGN_KEY_CHECKS=1;";
+        }
+
+        return sprintf($template, parent::getTruncateTableSQL($tableName, $cascade));
+    }
+
+    /**
+     * @return bool
+     */
+    protected function shouldDisableFKChecks()
+    {
+        // If the check was already run, return the value
+        if (null !== $this->_shouldDisableFkChecks) {
+            return $this->_shouldDisableFkChecks;
+        }
+
+        $this->_shouldDisableFkChecks = false;
+
+        if (
+            isset($this->_connectionParams['serverVersion'])
+            && version_compare((string) $this->_connectionParams['serverVersion'], '5.5.7', '>=')
+            && isset($this->_connectionParams['disable_fk_checks'])
+            && true === $this->_connectionParams['disable_fk_checks']
+        ) {
+            $this->_shouldDisableFkChecks = true;
+        }
+
+        return $this->_shouldDisableFkChecks;
     }
 }
