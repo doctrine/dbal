@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Cache;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\Tests\DbalTestCase;
 
@@ -41,7 +39,7 @@ class QueryCacheProfileTest extends DbalTestCase
             $connectionParams
         );
 
-        $this->assertEquals(self::CACHE_KEY, $generatedKeys[0], 'The returned cached key should match the given one');
+        $this->assertEquals(self::CACHE_KEY, $generatedKeys[0], 'The returned cache key should match the given one');
     }
 
     public function testShouldGenerateAnAutomaticKeyIfNoKeyHasBeenGiven()
@@ -65,6 +63,12 @@ class QueryCacheProfileTest extends DbalTestCase
             $params,
             $types,
             $connectionParams
+        );
+
+        $this->assertNotEquals(
+            self::CACHE_KEY,
+            $generatedKeys[0],
+            'The returned cache key should be generated automatically'
         );
 
         $this->assertNotEmpty($generatedKeys[0], 'The generated cache key should not be empty');

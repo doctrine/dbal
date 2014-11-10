@@ -487,8 +487,9 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
     {
         $resultCacheDriverMock = $this->getMock('Doctrine\Common\Cache\Cache');
 
-        $resultCacheDriverMock->expects($this->any())
+        $resultCacheDriverMock->expects($this->atLeastOnce())
             ->method('fetch')
+            ->with('cacheKey')
             ->will($this->returnValue(array('realKey' => array())));
 
         $query = 'SELECT * FROM foo WHERE bar = ?';
@@ -512,8 +513,8 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
             $this->getMock('Doctrine\DBAL\Driver')
         );
 
-        $result = $conn->executeCacheQuery($query, $params, $types, $queryCacheProfileMock);
-
-        $this->assertInstanceOf('Doctrine\DBAL\Cache\ArrayStatement', $result);
+        $this->assertInstanceOf('Doctrine\DBAL\Cache\ArrayStatement',
+            $conn->executeCacheQuery($query, $params, $types, $queryCacheProfileMock)
+        );
     }
 }

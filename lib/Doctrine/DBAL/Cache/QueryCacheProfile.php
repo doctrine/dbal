@@ -97,7 +97,7 @@ class QueryCacheProfile
      *
      * @return array
      */
-    public function generateCacheKeys($query, $params, $types, $connectionParams = array())
+    public function generateCacheKeys($query, $params, $types, array $connectionParams = array())
     {
         $realCacheKey = 'query=' . $query .
             '&params=' . serialize($params) .
