@@ -126,4 +126,17 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn->connect('slave');
         $this->assertFalse($conn->isConnectedToMaster());
     }
+
+    public function testMasterSlaveConnectionCloseAndReconnect()
+    {
+        $conn = $this->createMasterSlaveConnection();
+        $conn->connect('master');
+        $this->assertTrue($conn->isConnectedToMaster());
+
+        $conn->close();
+        $this->assertFalse($conn->isConnectedToMaster());
+
+        $conn->connect('master');
+        $this->assertTrue($conn->isConnectedToMaster());
+    }
 }

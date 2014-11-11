@@ -290,6 +290,9 @@ class MasterSlaveConnection extends Connection
         unset($this->connections['slave']);
 
         parent::close();
+
+        $this->_conn = null;
+        $this->connections = array('master' => null, 'slave' => null);
     }
 
     /**
