@@ -467,19 +467,19 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $this->assertTrue($conn->isConnected(), "Connection is not connected after passing external PDO");
     }
 
-    public function testCallingDeleteWithNoDeletionCriteriaResultsInSqlWithoutWhereClause()
+    public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException()
     {
+        /* @var $driver \Doctrine\DBAL\Driver */
+        $driver  = $this->getMock('Doctrine\DBAL\Driver');
         $pdoMock = $this->getMock('Doctrine\DBAL\Driver\Connection');
 
-        $pdoMock->expects($this->once())
-            ->method('exec')
-            ->with($this->equalTo('DELETE FROM kittens'));
+        // should never execute queries with invalid arguments
+        $pdoMock->expects($this->never())->method('exec');
+        $pdoMock->expects($this->never())->method('prepare');
 
-        $conn = new Connection(
-            array('pdo' => $pdoMock),
-            $this->getMock('Doctrine\DBAL\Driver')
-        );
+        $conn = new Connection(array('pdo' => $pdoMock), $driver);
 
+        $this->setExpectedException('Doctrine\DBAL\Exception\InvalidArgumentException');
         $conn->delete('kittens', array());
     }
 }

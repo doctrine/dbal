@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use PDO;
 use Closure;
 use Exception;
@@ -570,28 +571,16 @@ class Connection implements DriverConnection
      * @param array  $types      The types of identifiers.
      *
      * @return integer The number of affected rows.
+     *
+     * @throws InvalidArgumentException
      */
     public function delete($tableExpression, array $identifier, array $types = array())
     {
-        $this->connect();
-
-        return $this->executeUpdate(
-            'DELETE FROM ' . $tableExpression . $this->getWhereSql($identifier),
-            array_values($identifier),
-            is_string(key($types)) ? $this->extractTypeValues($identifier, $types) : $types
-        );
-    }
-
-    /**
-     * @param array $identifier An associative array containing column-value pairs.
-     *
-     * @return string
-     */
-    private function getWhereSql(array $identifier)
-    {
         if (empty($identifier)) {
-            return '';
+            throw InvalidArgumentException::fromEmptyCriteria();
         }
+
+        $this->connect();
 
         $criteria = array();
 
@@ -599,7 +588,11 @@ class Connection implements DriverConnection
             $criteria[] = $columnName . ' = ?';
         }
 
-        return ' WHERE ' . implode(' AND ', $criteria);
+        return $this->executeUpdate(
+            'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $criteria),
+            array_values($identifier),
+            is_string(key($types)) ? $this->extractTypeValues($identifier, $types) : $types
+        );
     }
 
     /**
