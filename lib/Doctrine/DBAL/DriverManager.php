@@ -226,7 +226,7 @@ final class DriverManager
     private static function _parseDatabaseUrl(array $params)
     {
         if (!isset($params['url'])) {
-            return;
+            return $params;
         }
         
         // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
@@ -272,5 +272,7 @@ final class DriverManager
             parse_str($url['query'], $query); // simply ingest query as extra params, e.g. charset or sslmode
             $params = array_merge($params, $query); // parse_str wipes existing array elements
         }
+        
+        return $params;
     }
 }
