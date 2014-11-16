@@ -234,7 +234,7 @@ final class DriverManager
         
         $url = parse_url($params['url']);
         
-        if($url === false) {
+        if ($url === false) {
             throw new DBALException('Malformed parameter "url".');
         }
         
