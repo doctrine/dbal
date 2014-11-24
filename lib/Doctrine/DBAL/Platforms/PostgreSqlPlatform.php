@@ -264,7 +264,8 @@ class PostgreSqlPlatform extends AbstractPlatform
                 WHERE  table_schema NOT LIKE 'pg_%'
                 AND    table_schema != 'information_schema'
                 AND    table_name != 'geometry_columns'
-                AND    table_name != 'spatial_ref_sys'";
+                AND    table_name != 'spatial_ref_sys'
+                AND    table_type != 'VIEW'";
     }
 
     /**

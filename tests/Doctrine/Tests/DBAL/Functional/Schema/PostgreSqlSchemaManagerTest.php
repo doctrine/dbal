@@ -319,6 +319,30 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertFalse($comparator->diffTable($offlineTable, $onlineTable));
     }
+
+    public function testListTablesExcludesViews()
+    {
+        $this->createTestTable('list_tables_excludes_views');
+
+        $name = "list_tables_excludes_views_test_view";
+        $sql = "SELECT * from list_tables_excludes_views";
+
+        $view = new Schema\View($name, $sql);
+
+        $this->_sm->dropAndCreateView($view);
+
+        $tables = $this->_sm->listTables();
+
+        $foundTable = false;
+        foreach ($tables as $table) {
+            $this->assertInstanceOf('Doctrine\DBAL\Schema\Table', $table, 'No Table instance was found in tables array.');
+            if (strtolower($table->getName()) == 'list_tables_excludes_views_test_view') {
+                $foundTable = true;
+            }
+        }
+
+        $this->assertFalse($foundTable, 'View "list_tables_excludes_views_test_view" must not be found in table list');
+    }
 }
 
 class MoneyType extends Type
