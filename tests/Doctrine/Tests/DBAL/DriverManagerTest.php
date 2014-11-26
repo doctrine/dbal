@@ -114,4 +114,79 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
         $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $conn->getDriver());
     }
+    
+    /**
+     * @dataProvider databaseUrls
+     */
+    public function testDatabaseUrl($url, $expected)
+    {
+        $options = is_array($url) ? $url : array(
+            'url' => $url,
+        );
+        
+        if ($expected === false) {
+            $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        }
+        
+        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
+        
+        if ($expected === false) {
+            return;
+        }
+        
+        $params = $conn->getParams();
+        foreach ($expected as $key => $value) {
+            if ($key == 'driver') {
+                $this->assertInstanceOf($value, $conn->getDriver());
+            } else {
+                $this->assertEquals($value, $params[$key]);
+            }
+        }
+    }
+    
+    public function databaseUrls()
+    {
+        return array(
+            'simple URL' => array(
+                'mysql://foo:bar@localhost/baz',
+                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
+            ),
+            'simple URL with port' => array(
+                'mysql://foo:bar@localhost:11211/baz',
+                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'port' => 11211, 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
+            ),
+            'sqlite relative URL with host' => array(
+                'sqlite://localhost/foo/dbname.sqlite',
+                array('dbname' => 'foo/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+            ),
+            'sqlite absolute URL with host' => array(
+                'sqlite://localhost//tmp/dbname.sqlite',
+                array('dbname' => '/tmp/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+            ),
+            'sqlite relative URL without host' => array(
+                'sqlite:///foo/dbname.sqlite',
+                array('dbname' => 'foo/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+            ),
+            'sqlite absolute URL without host' => array(
+                'sqlite:////tmp/dbname.sqlite',
+                array('dbname' => '/tmp/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+            ),
+            'sqlite memory' => array(
+                'sqlite:///:memory:',
+                array('dbname' => ':memory:', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+            ),
+            'params parsed from URL override individual params' => array(
+                array('url' => 'mysql://foo:bar@localhost/baz', 'password' => 'lulz'),
+                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
+            ),
+            'params not parsed from URL but individual params are preserved' => array(
+                array('url' => 'mysql://foo:bar@localhost/baz', 'port' => 1234),
+                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'port' => 1234, 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
+            ),
+            'query params from URL are used as extra params' => array(
+                'url' => 'mysql://foo:bar@localhost/dbname?charset=UTF-8',
+                array('charset' => 'UTF-8'),
+            ),
+        );
+    }
 }
