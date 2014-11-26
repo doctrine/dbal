@@ -175,6 +175,10 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
                 'sqlite:///:memory:',
                 array('dbname' => ':memory:', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
             ),
+            'sqlite memory with host' => array(
+                'sqlite://localhost/:memory:',
+                array('dbname' => ':memory:', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+            ),
             'params parsed from URL override individual params' => array(
                 array('url' => 'mysql://foo:bar@localhost/baz', 'password' => 'lulz'),
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
@@ -186,6 +190,14 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
             'query params from URL are used as extra params' => array(
                 'url' => 'mysql://foo:bar@localhost/dbname?charset=UTF-8',
                 array('charset' => 'UTF-8'),
+            ),
+            'simple URL with fallthrough scheme not defined in map' => array(
+                'sqlsrv://foo:bar@localhost/baz',
+                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\SQLSrv\Driver'),
+            ),
+            'simple URL with fallthrough scheme containing underscores fails' => array(
+                'drizzle_pdo_mysql://foo:bar@localhost/baz',
+                false,
             ),
         );
     }
