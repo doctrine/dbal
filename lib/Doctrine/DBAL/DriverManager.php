@@ -238,6 +238,7 @@ final class DriverManager
         }
         
         if (isset($url['scheme'])) {
+            $url['scheme'] = str_replace('-', '_', $url['scheme']); // URL schemes must not contain underscores, but dashes are ok
             if (isset(self::$_driverSchemeAliases[$url['scheme']])) {
                 $params['driver'] = self::$_driverSchemeAliases[$url['scheme']]; // use alias
             } else {
