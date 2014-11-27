@@ -125,7 +125,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
         
         if ($expected === false) {
-            $this->setExpectedException('\Doctrine\DBAL\DBALException');
+            $this->setExpectedException('Doctrine\DBAL\DBALException');
         }
         
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
