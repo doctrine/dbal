@@ -54,7 +54,7 @@ final class DriverManager
     /**
      * List of URL schemes from a database URL and their mappings to driver.
      */
-    private static $_driverSchemeAliases = array(
+    private static $driverSchemeAliases = array(
         'db2'        => 'ibm_db2',
         'mssql'      => 'pdo_sqlsrv',
         'mysql'      => 'pdo_mysql',
@@ -239,8 +239,8 @@ final class DriverManager
         
         if (isset($url['scheme'])) {
             $url['scheme'] = str_replace('-', '_', $url['scheme']); // URL schemes must not contain underscores, but dashes are ok
-            if (isset(self::$_driverSchemeAliases[$url['scheme']])) {
-                $params['driver'] = self::$_driverSchemeAliases[$url['scheme']]; // use alias
+            if (isset(self::$driverSchemeAliases[$url['scheme']])) {
+                $params['driver'] = self::$driverSchemeAliases[$url['scheme']]; // use alias
             } else {
                 $params['driver'] = $url['scheme']; // let's see what checkParams() says about it later
             }
