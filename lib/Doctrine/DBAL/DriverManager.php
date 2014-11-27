@@ -238,11 +238,9 @@ final class DriverManager
         }
         
         if (isset($url['scheme'])) {
-            $url['scheme'] = str_replace('-', '_', $url['scheme']); // URL schemes must not contain underscores, but dashes are ok
-            if (isset(self::$driverSchemeAliases[$url['scheme']])) {
-                $params['driver'] = self::$driverSchemeAliases[$url['scheme']]; // use alias
-            } else {
-                $params['driver'] = $url['scheme']; // let's see what checkParams() says about it later
+            $params['driver'] = str_replace('-', '_', $url['scheme']); // URL schemes must not contain underscores, but dashes are ok
+            if (isset(self::$driverSchemeAliases[$params['driver']])) {
+                $params['driver'] = self::$driverSchemeAliases[$params['driver']]; // use alias like "postgres", else we just let checkParams decide later if the driver exists (for literal "pdo-pgsql" etc)
             }
         }
         
