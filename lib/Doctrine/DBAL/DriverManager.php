@@ -141,7 +141,7 @@ final class DriverManager
             $eventManager = new EventManager();
         }
 
-        $params = self::AMQPChanneltabaseUrl($params);
+        $params = self::parseDatabaseUrl($params);
         
         // check for existing pdo object
         if (isset($params['pdo']) && ! $params['pdo'] instanceof \PDO) {
