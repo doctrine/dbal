@@ -130,10 +130,6 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
         
-        if ($expected === false) {
-            return;
-        }
-        
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {
             if ($key == 'driver') {
