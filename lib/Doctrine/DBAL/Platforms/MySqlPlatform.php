@@ -392,14 +392,14 @@ class MySqlPlatform extends AbstractPlatform
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
             foreach ($options['uniqueConstraints'] as $index => $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($index, $definition);
+                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($definition->getQuotedName($this), $definition);
             }
         }
 
         // add all indexes
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index => $definition) {
-                $queryFields .= ', ' . $this->getIndexDeclarationSQL($index, $definition);
+                $queryFields .= ', ' . $this->getIndexDeclarationSQL($definition->getQuotedName($this), $definition);
             }
         }
 
