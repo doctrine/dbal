@@ -26,6 +26,20 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $this->assertEquals('CREATE TABLE Foo (Bar INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB', array_shift($sql));
     }
 
+    public function testReservedKeywordInIndexGeneratedTableSql()
+    {
+        $table = new Table("Foo");
+        $table->addColumn("user_name", "string");
+        $table->addColumn("last_login", "date");
+        $table->addIndex(array('user_name', 'last_login'), 'key');
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals(
+            'CREATE TABLE Foo (user_name VARCHAR(255) NOT NULL, last_login DATE NOT NULL, INDEX `key` (user_name, last_login)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB',
+            array_shift($sql)
+        );
+    }
+
     public function getGenerateTableSql()
     {
         return 'CREATE TABLE test (id INT AUTO_INCREMENT NOT NULL, test VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB';
