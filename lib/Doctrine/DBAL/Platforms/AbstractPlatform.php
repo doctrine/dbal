@@ -1617,10 +1617,7 @@ abstract class AbstractPlatform
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
             foreach ($options['uniqueConstraints'] as $name => $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL(
-                        $definition->getQuotedName($this),
-                        $definition
-                    );
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
             }
         }
 
@@ -1630,7 +1627,7 @@ abstract class AbstractPlatform
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index => $definition) {
-                $columnListSql .= ', ' . $this->getIndexDeclarationSQL($definition->getQuotedName($this), $definition);
+                $columnListSql .= ', ' . $this->getIndexDeclarationSQL($index, $definition);
             }
         }
 
