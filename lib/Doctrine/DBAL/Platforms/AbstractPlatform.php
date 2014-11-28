@@ -1617,7 +1617,10 @@ abstract class AbstractPlatform
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
             foreach ($options['uniqueConstraints'] as $name => $definition) {
-                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
+                $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL(
+                        $definition->getQuotedName($this),
+                        $definition
+                    );
             }
         }
 
@@ -1627,7 +1630,7 @@ abstract class AbstractPlatform
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index => $definition) {
-                $columnListSql .= ', ' . $this->getIndexDeclarationSQL($index, $definition);
+                $columnListSql .= ', ' . $this->getIndexDeclarationSQL($definition->getQuotedName($this), $definition);
             }
         }
 
@@ -2313,7 +2316,7 @@ abstract class AbstractPlatform
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return 'CONSTRAINT ' . $name . ' UNIQUE ('
+        return 'CONSTRAINT ' . $index->getQuotedName($this) . ' UNIQUE ('
              . $this->getIndexFieldDeclarationListSQL($columns)
              . ')' . $this->getPartialIndexSQL($index);
     }
@@ -2337,7 +2340,7 @@ abstract class AbstractPlatform
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ('
+        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $index->getQuotedName($this) . ' ('
             . $this->getIndexFieldDeclarationListSQL($columns)
             . ')' . $this->getPartialIndexSQL($index);
     }
