@@ -62,7 +62,6 @@ abstract class AbstractSchemaManager
     {
         $this->_conn     = $conn;
         $this->_platform = $platform ?: $this->_conn->getDatabasePlatform();
-        $this->_prefix   = null;
     }
 
     /**
