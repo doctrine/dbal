@@ -53,11 +53,6 @@ abstract class AbstractSchemaManager
     protected $_platform;
 
     /**
-     * String for filtering tables/sequences by prefix
-     */
-    protected $_prefix;
-    
-    /**
      * Constructor. Accepts the Connection instance to manage the schema for.
      *
      * @param \Doctrine\DBAL\Connection                      $conn
@@ -68,28 +63,6 @@ abstract class AbstractSchemaManager
         $this->_conn     = $conn;
         $this->_platform = $platform ?: $this->_conn->getDatabasePlatform();
         $this->_prefix   = null;
-    }
-
-    /**
-     * Set the string to filtering tables/sequences by prefix.
-     * 
-     * @param string|null $pfx
-     */
-    public function setPrefixFilterString($pfx)
-    {
-        $this->_prefix=null;
-        if(is_string($pfx))
-            $this->_prefix=$pfx;
-    }
-
-    /**
-     * Returns the string to filtering tables/sequences by prefix.
-     * 
-     * @return string|null
-     */
-    public function getPrefixFilterString()
-    {
-        return $this->_prefix;
     }
 
     /**
@@ -172,16 +145,7 @@ abstract class AbstractSchemaManager
 
         $sequences = $this->_conn->fetchAll($sql);
 
-        $_sequences=array();
-        foreach($sequences as $seq) {
-            if(($this->_prefix===null)||
-                    ($this->_prefix==="")||
-                    (strstr($seq['relname'],$this->_prefix)!==false))
-                $_sequences[]=$seq;
-        }
-        $sequences=$_sequences;
-
-        return $this->filterAssetNames($this->_getPortableSequencesList($sequences));
+        return $this->_getPortableSequencesList($this->filterAssetNames($sequences));
     }
 
     /**
@@ -256,15 +220,6 @@ abstract class AbstractSchemaManager
         $tables = $this->_conn->fetchAll($sql);
         $tableNames = $this->_getPortableTablesList($tables);
 
-        $_tableNames=array();
-        foreach($tableNames as $tbl) {
-            if(($this->_prefix===null)||
-                    ($this->_prefix==="")||
-                    (strstr($tbl,$this->_prefix)!==false))
-                $_tableNames[]=$tbl;
-        }
-	    $tableNames=$_tableNames;
-
         return $this->filterAssetNames($tableNames);
     }
 
@@ -286,6 +241,9 @@ abstract class AbstractSchemaManager
         return array_values (
             array_filter($assetNames, function ($assetName) use ($filterExpr) {
                 $assetName = ($assetName instanceof AbstractAsset) ? $assetName->getName() : $assetName;
+		$assetName = (is_array($assetName)&&array_key_exists('relname',$assetName)) ? $assetName['relname'] : $assetName;
+		if(!is_string($assetName))
+		    return false;
                 return preg_match($filterExpr, $assetName);
             })
         );
