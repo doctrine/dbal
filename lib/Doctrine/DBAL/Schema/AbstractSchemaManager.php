@@ -62,6 +62,7 @@ abstract class AbstractSchemaManager
     {
         $this->_conn     = $conn;
         $this->_platform = $platform ?: $this->_conn->getDatabasePlatform();
+        $this->_prefix   = null;
     }
 
     /**
@@ -144,7 +145,7 @@ abstract class AbstractSchemaManager
 
         $sequences = $this->_conn->fetchAll($sql);
 
-        return $this->filterAssetNames($this->_getPortableSequencesList($sequences));
+        return $this->_getPortableSequencesList($this->filterAssetNames($sequences));
     }
 
     /**
@@ -240,6 +241,9 @@ abstract class AbstractSchemaManager
         return array_values (
             array_filter($assetNames, function ($assetName) use ($filterExpr) {
                 $assetName = ($assetName instanceof AbstractAsset) ? $assetName->getName() : $assetName;
+		$assetName = (is_array($assetName)&&array_key_exists('relname',$assetName)) ? $assetName['relname'] : $assetName;
+		if(!is_string($assetName))
+		    return false;
                 return preg_match($filterExpr, $assetName);
             })
         );
