@@ -813,7 +813,8 @@ class SQLServerPlatform extends AbstractPlatform
     public function getListTablesSQL()
     {
         // "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
-        return "SELECT name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' ORDER BY name";
+        // Category 2 must be ignored as it is "MS SQL Server 'pseudo-system' object[s]" for replication
+        return "SELECT name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
     }
 
     /**
