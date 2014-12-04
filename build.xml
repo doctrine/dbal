@@ -92,6 +92,7 @@
         <sequential>
             <exec executable="git">
                 <arg value="tag" />
+                <arg value="-s" />
                 <arg value="-m" />
                 <arg value="v@{version}" />
                 <arg value="v@{version}" />
