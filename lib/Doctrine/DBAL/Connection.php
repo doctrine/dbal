@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use PDO;
 use Closure;
 use Exception;
@@ -570,9 +571,15 @@ class Connection implements DriverConnection
      * @param array  $types      The types of identifiers.
      *
      * @return integer The number of affected rows.
+     *
+     * @throws InvalidArgumentException
      */
     public function delete($tableExpression, array $identifier, array $types = array())
     {
+        if (empty($identifier)) {
+            throw InvalidArgumentException::fromEmptyCriteria();
+        }
+
         $this->connect();
 
         $criteria = array();
@@ -581,13 +588,11 @@ class Connection implements DriverConnection
             $criteria[] = $columnName . ' = ?';
         }
 
-        if (is_string(key($types))) {
-            $types = $this->extractTypeValues($identifier, $types);
-        }
-
-        $query = 'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $criteria);
-
-        return $this->executeUpdate($query, array_values($identifier), $types);
+        return $this->executeUpdate(
+            'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $criteria),
+            array_values($identifier),
+            is_string(key($types)) ? $this->extractTypeValues($identifier, $types) : $types
+        );
     }
 
     /**
