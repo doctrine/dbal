@@ -95,6 +95,29 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertContains('test_create_database', $databases);
     }
 
+    /**
+     * @group DBAL-1058
+     */
+    public function testListNamespaceNames()
+    {
+        if (!$this->_sm->getDatabasePlatform()->supportsSchemas()) {
+            $this->markTestSkipped('Platform does not support schemas.');
+        }
+
+        // Currently dropping schemas is not supported, so we have to workaround here.
+        $namespaces = $this->_sm->listNamespaceNames();
+        $namespaces = array_map('strtolower', $namespaces);
+
+        if (!in_array('test_create_schema', $namespaces)) {
+            $this->_conn->executeUpdate($this->_sm->getDatabasePlatform()->getCreateSchemaSQL('test_create_schema'));
+
+            $namespaces = $this->_sm->listNamespaceNames();
+            $namespaces = array_map('strtolower', $namespaces);
+        }
+
+        $this->assertContains('test_create_schema', $namespaces);
+    }
+
     public function testListTables()
     {
         $this->createTestTable('list_tables_test');
