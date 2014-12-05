@@ -675,7 +675,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListDatabasesSQL()
     {
-        return 'SELECT * FROM SYS.DATABASES';
+        return 'SELECT * FROM sys.databases';
     }
 
     /**
@@ -848,7 +848,7 @@ class SQLServerPlatform extends AbstractPlatform
 
                 $pattern    = sprintf('/%s\.(%s)\s*(AS)?\s*([^,\s\)]*)/i', $column['table'], $column['column']);
                 $overColumn = preg_match($pattern, $query, $matches)
-                    ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column'] 
+                    ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column']
                     : $column['column'];
 
                 if (isset($column['sort'])) {
