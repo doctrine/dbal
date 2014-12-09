@@ -11,6 +11,9 @@
         {"name": "Benjamin Eberlei", "email": "kontakt@beberlei.de"},
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
     ],
+    "scripts": {
+        "test": "phpunit --configuration tests/travis/$DB.travis.xml"
+    },
     "require": {
         "php": ">=5.3.2",
         "doctrine/common": ">=2.4,<2.6-dev"
