@@ -482,7 +482,7 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $this->setExpectedException('Doctrine\DBAL\Exception\InvalidArgumentException');
         $conn->delete('kittens', array());
     }
-    
+
     public function testExecuteQueryInvalidQuery()
     {
         $driver  = $this->getMock('Doctrine\DBAL\Driver');
@@ -491,7 +491,6 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $this->setExpectedException('Doctrine\DBAL\DBALException');
 
-        $query = 'Some invalid SQL.';
-        $conn->executeQuery($query);
+        $conn->executeQuery(null);
     }
 }
