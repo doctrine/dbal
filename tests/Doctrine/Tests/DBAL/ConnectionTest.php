@@ -485,11 +485,15 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
     public function testExecuteQueryInvalidQuery()
     {
+        $errorMsg = array('some connection error');
+
         $driver  = $this->getMock('Doctrine\DBAL\Driver');
         $pdoMock = $this->getMock('Doctrine\DBAL\Driver\Connection');
+        $pdoMock->method('errorInfo')
+                ->willReturn($errorMsg);
         $conn = new Connection(array('pdo' => $pdoMock), $driver);
 
-        $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $this->setExpectedException('Doctrine\DBAL\DBALException', $errorMsg);
 
         $conn->executeQuery(null);
     }
