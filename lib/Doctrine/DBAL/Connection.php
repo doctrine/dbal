@@ -833,6 +833,9 @@ class Connection implements DriverConnection
                 }
             } else {
                 $stmt = $this->_conn->query($query);
+                if (!$stmt) {
+                    throw new DBALException(var_export($this->_conn->errorInfo(), true));
+                }
             }
         } catch (\Exception $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
