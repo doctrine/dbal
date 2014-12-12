@@ -2308,12 +2308,13 @@ abstract class AbstractPlatform
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
         $columns = $index->getQuotedColumns($this);
+        $name = new Identifier($name);
 
         if (count($columns) === 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return 'CONSTRAINT ' . $name . ' UNIQUE ('
+        return 'CONSTRAINT ' . $name->getQuotedName($this) . ' UNIQUE ('
              . $this->getIndexFieldDeclarationListSQL($columns)
              . ')' . $this->getPartialIndexSQL($index);
     }
@@ -2332,12 +2333,13 @@ abstract class AbstractPlatform
     public function getIndexDeclarationSQL($name, Index $index)
     {
         $columns = $index->getQuotedColumns($this);
+        $name = new Identifier($name);
 
         if (count($columns) === 0) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ('
+        return $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name->getQuotedName($this) . ' ('
             . $this->getIndexFieldDeclarationListSQL($columns)
             . ')' . $this->getPartialIndexSQL($index);
     }

@@ -641,4 +641,20 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "COMMENT ON COLUMN `select`.`from` IS 'comment'",
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT `select` UNIQUE (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return 'INDEX `select` (foo)';
+    }
 }

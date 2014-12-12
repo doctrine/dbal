@@ -1358,7 +1358,8 @@ class SQLAnywherePlatform extends AbstractPlatform
         $flags = '';
 
         if ( ! empty($name)) {
-            $sql .= 'CONSTRAINT ' . $name . ' ';
+            $name = new Identifier($name);
+            $sql .= 'CONSTRAINT ' . $name->getQuotedName($this) . ' ';
         }
 
         if ($constraint->hasFlag('clustered')) {

@@ -615,4 +615,28 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             ),
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT "select" UNIQUE (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return ''; // not supported by this platform
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsInlineIndexDeclaration()
+    {
+        return false;
+    }
 }
