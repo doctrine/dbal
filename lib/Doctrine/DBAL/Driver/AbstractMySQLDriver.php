@@ -127,6 +127,10 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             );
         }
 
+        if (false !== stripos($version, 'mariadb')) {
+            return $this->getDatabasePlatform();
+        }
+
         $majorVersion = $versionParts['major'];
         $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
         $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
