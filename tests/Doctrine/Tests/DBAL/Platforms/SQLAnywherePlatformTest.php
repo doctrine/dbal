@@ -817,11 +817,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
-    {
-        $this->markTestSkipped('Index declaration in statements like CREATE TABLE is not supported.');
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -931,5 +926,29 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             array('SET DEFAULT', 'SET DEFAULT'),
             array('CaScAdE', 'CASCADE'),
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT "select" UNIQUE (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return ''; // not supported by this platform
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsInlineIndexDeclaration()
+    {
+        return false;
     }
 }

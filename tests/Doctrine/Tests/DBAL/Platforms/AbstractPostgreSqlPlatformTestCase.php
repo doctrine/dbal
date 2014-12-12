@@ -739,4 +739,20 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             $this->_platform->getAlterTableSQL($tableDiff)
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT "select" UNIQUE (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return 'INDEX "select" (foo)';
+    }
 }

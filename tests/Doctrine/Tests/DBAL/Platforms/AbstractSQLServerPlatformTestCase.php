@@ -1186,4 +1186,20 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             array('CaScAdE', 'CASCADE'),
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT [select] UNIQUE (foo) WHERE foo IS NOT NULL';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return 'INDEX [select] (foo)';
+    }
 }
