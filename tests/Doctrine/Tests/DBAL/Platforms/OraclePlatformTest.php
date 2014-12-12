@@ -642,4 +642,20 @@ EOD;
 
         $this->assertEquals($createTriggerStatement, $sql[3]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT "select" UNIQUE (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return 'INDEX "select" (foo)';
+    }
 }

@@ -167,12 +167,17 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $where = 'test IS NULL AND test2 IS NOT NULL';
         $indexDef = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), false, false, array(), array('where' => $where));
+        $uniqueIndex = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), true, false, array(), array('where' => $where));
 
         $expected = ' WHERE ' . $where;
 
         $actuals = array();
-        $actuals []= $this->_platform->getIndexDeclarationSQL('name', $indexDef);
-        $actuals []= $this->_platform->getUniqueConstraintDeclarationSQL('name', $indexDef);
+
+        if ($this->supportsInlineIndexDeclaration()) {
+            $actuals []= $this->_platform->getIndexDeclarationSQL('name', $indexDef);
+        }
+
+        $actuals []= $this->_platform->getUniqueConstraintDeclarationSQL('name', $uniqueIndex);
         $actuals []= $this->_platform->getCreateIndexSQL($indexDef, 'table');
 
         foreach ($actuals as $actual) {
@@ -585,6 +590,54 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $sql = $this->_platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS);
         $this->assertEquals($this->getQuotedColumnInForeignKeySQL(), $sql);
+    }
+
+    /**
+     * @group DBAL-1051
+     */
+    public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        $index = new Index('select', array('foo'), true);
+
+        $this->assertSame(
+            $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(),
+            $this->_platform->getUniqueConstraintDeclarationSQL('select', $index)
+        );
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL();
+
+    /**
+     * @group DBAL-1051
+     */
+    public function testQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        $index = new Index('select', array('foo'));
+
+        if (! $this->supportsInlineIndexDeclaration()) {
+            $this->setExpectedException('Doctrine\DBAL\DBALException');
+        }
+
+        $this->assertSame(
+            $this->getQuotesReservedKeywordInIndexDeclarationSQL(),
+            $this->_platform->getIndexDeclarationSQL('select', $index)
+        );
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getQuotesReservedKeywordInIndexDeclarationSQL();
+
+    /**
+     * @return boolean
+     */
+    protected function supportsInlineIndexDeclaration()
+    {
+        return true;
     }
 
     /**
