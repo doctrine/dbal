@@ -94,6 +94,25 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertTrue($indexes['s_index']->hasFlag('spatial'));
     }
 
+    public function testDuplicateIndexFromExistingDatabase()
+    {
+        $this->_conn->executeQuery(<<<EOS
+CREATE TABLE duplicate_index (
+    id int(11) NOT NULL AUTO_INCREMENT,
+    test VARCHAR(80) NOT NULL,
+    PRIMARY KEY (id),
+    KEY text_idx (test),
+    KEY duplicate (test)
+)
+EOS
+        );
+
+        $indexes = $this->_sm->listTableIndexes('duplicate_index');
+        $this->assertCount(3, $indexes);
+        $table = $this->_sm->listTableDetails('duplicate_index');
+        $this->assertCount(3, $table->getIndexes());
+    }
+
     /**
      * @group DBAL-400
      */
