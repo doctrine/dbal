@@ -404,7 +404,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . "FROM table_parent t1 "
             . "LEFT JOIN join_table t2 ON t1.id = t2.table_id) "
             . "dctrn_result) AS doctrine_tbl "
-            . "WHERE doctrine_rownum BETWEEN 1 AND 5"
+            . "WHERE doctrine_rownum BETWEEN 1 AND 5 ORDER BY doctrine_rownum"
             ,$sql
         );
     }
@@ -433,7 +433,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . "FROM table_parent t1 "
             . "LEFT JOIN join_table t2 ON t1.id = t2.table_id) "
             . "dctrn_result) AS doctrine_tbl "
-            . "WHERE doctrine_rownum BETWEEN 1 AND 5"
+            . "WHERE doctrine_rownum BETWEEN 1 AND 5 ORDER BY doctrine_rownum"
             ,$sql
         );
     }
@@ -462,7 +462,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . "FROM table_parent t1 "
             . "LEFT JOIN join_table t2 ON t1.id = t2.table_id) "
             . "dctrn_result) AS doctrine_tbl "
-            . "WHERE doctrine_rownum BETWEEN 1 AND 5"
+            . "WHERE doctrine_rownum BETWEEN 1 AND 5 ORDER BY doctrine_rownum"
             ,$sql
         );
     }
@@ -479,7 +479,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . "(SELECT DISTINCT id_0, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum "
             . "FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 "
             . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result) AS doctrine_tbl "
-            . "WHERE doctrine_rownum BETWEEN 1 AND 20",
+            . "WHERE doctrine_rownum BETWEEN 1 AND 20 ORDER BY doctrine_rownum",
             $sql
         );
     }
