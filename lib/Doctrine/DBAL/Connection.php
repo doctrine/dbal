@@ -804,8 +804,6 @@ class Connection implements DriverConnection
      * @return \Doctrine\DBAL\Driver\Statement The executed statement.
      *
      * @throws \Doctrine\DBAL\DBALException
-     *
-     * @internal PERF: Directly prepares a driver statement, not a wrapper.
      */
     public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
     {
@@ -969,8 +967,6 @@ class Connection implements DriverConnection
      * @return integer The number of affected rows.
      *
      * @throws \Doctrine\DBAL\DBALException
-     *
-     * @internal PERF: Directly prepares a driver statement, not a wrapper.
      */
     public function executeUpdate($query, array $params = array(), array $types = array())
     {
