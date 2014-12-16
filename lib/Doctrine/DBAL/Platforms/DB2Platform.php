@@ -703,7 +703,7 @@ class DB2Platform extends AbstractPlatform
         }
 
         if (isset($field['version']) && $field['version']) {
-            if ((string)$field['type'] != "DateTime") {
+            if ((string) $field['type'] != "DateTime") {
                 $field['default'] = "1";
             }
         }
@@ -744,8 +744,8 @@ class DB2Platform extends AbstractPlatform
             return $query;
         }
 
-        $limit = (int)$limit;
-        $offset = (int)(($offset)?:0);
+        $limit = (int) $limit;
+        $offset = (int) (($offset)?:0);
 
         // Todo OVER() needs ORDER BY data!
         $sql = 'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* '.
