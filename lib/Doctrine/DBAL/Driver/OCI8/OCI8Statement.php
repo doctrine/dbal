@@ -272,7 +272,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
             }
 
             oci_fetch_all($this->_sth, $result, 0, -1,
-                    self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
+                self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
 
             if ($fetchMode == PDO::FETCH_COLUMN) {
                 $result = $result[0];

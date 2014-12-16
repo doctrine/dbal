@@ -99,8 +99,8 @@ class Column extends AbstractAsset
      * Creates a new Column.
      *
      * @param string $columnName
-     * @param Type $type
-     * @param array $options
+     * @param Type   $type
+     * @param array  $options
      */
     public function __construct($columnName, Type $type, array $options=array())
     {
@@ -134,6 +134,7 @@ class Column extends AbstractAsset
     public function setType(Type $type)
     {
         $this->_type = $type;
+
         return $this;
     }
 
@@ -145,7 +146,7 @@ class Column extends AbstractAsset
     public function setLength($length)
     {
         if ($length !== null) {
-            $this->_length = (int)$length;
+            $this->_length = (int) $length;
         } else {
             $this->_length = null;
         }
@@ -164,7 +165,7 @@ class Column extends AbstractAsset
             $precision = 10; // defaults to 10 when no valid precision is given.
         }
 
-        $this->_precision = (int)$precision;
+        $this->_precision = (int) $precision;
 
         return $this;
     }
@@ -180,7 +181,7 @@ class Column extends AbstractAsset
             $scale = 0;
         }
 
-        $this->_scale = (int)$scale;
+        $this->_scale = (int) $scale;
 
         return $this;
     }
@@ -192,7 +193,7 @@ class Column extends AbstractAsset
      */
     public function setUnsigned($unsigned)
     {
-        $this->_unsigned = (bool)$unsigned;
+        $this->_unsigned = (bool) $unsigned;
 
         return $this;
     }
@@ -204,7 +205,7 @@ class Column extends AbstractAsset
      */
     public function setFixed($fixed)
     {
-        $this->_fixed = (bool)$fixed;
+        $this->_fixed = (bool) $fixed;
 
         return $this;
     }
@@ -216,7 +217,7 @@ class Column extends AbstractAsset
      */
     public function setNotnull($notnull)
     {
-        $this->_notnull = (bool)$notnull;
+        $this->_notnull = (bool) $notnull;
 
         return $this;
     }
@@ -386,6 +387,7 @@ class Column extends AbstractAsset
     public function setAutoincrement($flag)
     {
         $this->_autoincrement = $flag;
+
         return $this;
     }
 

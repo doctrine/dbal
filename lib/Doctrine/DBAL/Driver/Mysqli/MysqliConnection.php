@@ -135,6 +135,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $sql = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
+
         return $stmt;
     }
 
@@ -172,6 +173,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function beginTransaction()
     {
         $this->_conn->query('START TRANSACTION');
+
         return true;
     }
 

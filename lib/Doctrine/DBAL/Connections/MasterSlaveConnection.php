@@ -121,7 +121,7 @@ class MasterSlaveConnection extends Connection
             $params['slaves'][$slaveKey]['driver'] = $params['driver'];
         }
 
-        $this->keepSlave = isset($params['keepSlave']) ? (bool)$params['keepSlave'] : false;
+        $this->keepSlave = isset($params['keepSlave']) ? (bool) $params['keepSlave'] : false;
 
         parent::__construct($params, $driver, $config, $eventManager);
     }

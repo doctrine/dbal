@@ -40,12 +40,12 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         $tableColumn['COLUMN_COMMENT'] = $this->removeDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
 
         $options = array(
-            'notnull' => !(bool)$tableColumn['IS_NULLABLE'],
-            'length' => (int)$tableColumn['CHARACTER_MAXIMUM_LENGTH'],
+            'notnull' => !(bool) $tableColumn['IS_NULLABLE'],
+            'length' => (int) $tableColumn['CHARACTER_MAXIMUM_LENGTH'],
             'default' => isset($tableColumn['COLUMN_DEFAULT']) ? $tableColumn['COLUMN_DEFAULT'] : null,
-            'autoincrement' => (bool)$tableColumn['IS_AUTO_INCREMENT'],
-            'scale' => (int)$tableColumn['NUMERIC_SCALE'],
-            'precision' => (int)$tableColumn['NUMERIC_PRECISION'],
+            'autoincrement' => (bool) $tableColumn['IS_AUTO_INCREMENT'],
+            'scale' => (int) $tableColumn['NUMERIC_SCALE'],
+            'precision' => (int) $tableColumn['NUMERIC_PRECISION'],
             'comment' => isset($tableColumn['COLUMN_COMMENT']) && '' !== $tableColumn['COLUMN_COMMENT']
                 ? $tableColumn['COLUMN_COMMENT']
                 : null,
@@ -86,15 +86,15 @@ class DrizzleSchemaManager extends AbstractSchemaManager
             $columns[] = trim($value, ' `');
         }
 
-        $ref_columns = array();
+        $refColumns = array();
         foreach (explode(',', $tableForeignKey['REFERENCED_TABLE_COLUMNS']) as $value) {
-            $ref_columns[] = trim($value, ' `');
+            $refColumns[] = trim($value, ' `');
         }
 
         return new ForeignKeyConstraint(
             $columns,
             $tableForeignKey['REFERENCED_TABLE_NAME'],
-            $ref_columns,
+            $refColumns,
             $tableForeignKey['CONSTRAINT_NAME'],
             array(
                 'onUpdate' => $tableForeignKey['UPDATE_RULE'],
@@ -110,7 +110,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     {
         $indexes = array();
         foreach ($tableIndexes as $k) {
-            $k['primary'] = (boolean)$k['primary'];
+            $k['primary'] = (boolean) $k['primary'];
             $indexes[] = $k;
         }
 

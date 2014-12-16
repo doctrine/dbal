@@ -118,7 +118,7 @@ EOT
         /* @var $conn \Doctrine\DBAL\Connection */
         $conn = $this->getHelper('db')->getConnection();
 
-        $keywordLists = (array)$input->getOption('list');
+        $keywordLists = (array) $input->getOption('list');
         if ( ! $keywordLists) {
             $keywordLists = array(
                 'mysql',
