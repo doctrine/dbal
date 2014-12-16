@@ -86,7 +86,7 @@ class SQLAzureShardManager implements ShardManager
         $this->federationName = $params['sharding']['federationName'];
         $this->distributionKey = $params['sharding']['distributionKey'];
         $this->distributionType = $params['sharding']['distributionType'];
-        $this->filteringEnabled = (isset($params['sharding']['filteringEnabled'])) ? (bool)$params['sharding']['filteringEnabled'] : false;
+        $this->filteringEnabled = (isset($params['sharding']['filteringEnabled'])) ? (bool) $params['sharding']['filteringEnabled'] : false;
     }
 
     /**
@@ -128,7 +128,7 @@ class SQLAzureShardManager implements ShardManager
      */
     public function setFilteringEnabled($flag)
     {
-        $this->filteringEnabled = (bool)$flag;
+        $this->filteringEnabled = (bool) $flag;
     }
 
     /**
@@ -191,6 +191,7 @@ class SQLAzureShardManager implements ShardManager
                       FROM sys.federation_member_distributions d
                       INNER JOIN sys.federations f ON f.federation_id = d.federation_id
                       WHERE f.name = " . $this->conn->quote($this->federationName);
+
         return $this->conn->fetchAll($sql);
     }
 
