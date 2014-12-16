@@ -102,4 +102,62 @@ class SQLServer2012Platform extends SQLServer2008Platform
     {
         return 'Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords';
     }
+
+    /**
+     * Adds SQL Server 2012 specific LIMIT clause to the query
+     * @inheritdoc
+     */
+    protected function doModifyLimitQuery($query, $limit, $offset = NULL)
+    {
+        if($limit === null && $offset === null) {
+            return $query;
+        }
+
+        // Queries using OFFSET... FETCH MUST have an ORDER BY clause
+        if (!preg_match("/ORDER BY ([a-z0-9\.\[\], \t_]|[a-z_]+\([a-z0-9\.\[\], \t_]+\))+\s*$/i", $query)) {
+            $query .= " ORDER BY dctrn_ver";
+
+            $from = $this->findOuterFrom($query);
+            //TODO handle $from === false
+
+            $query = substr_replace($query, ", @@version as dctrn_ver", $from, 0);
+        }
+
+        // This looks like MYSQL, but limit/offset are in inverse positions
+        // Supposedly SQL:2008 core standard.
+        if ($offset !== null) {
+            $query .= " OFFSET " . (int)$offset . " ROWS";
+            if ($limit !== null) {
+                $query .= " FETCH NEXT " . (int)$limit . " ROWS ONLY";
+            }
+        } elseif ($limit !== null) {
+            // Can't have FETCH NEXT n ROWS ONLY without OFFSET n ROWS - per TSQL spec
+            $query .= " OFFSET 0 ROWS FETCH NEXT " . (int)$limit . " ROWS ONLY";
+        }
+
+        return $query;
+    }
+
+    /**
+     * recursive function to find the outermost FROM clause in a SELECT query
+     *
+     * @param string $query the SQL query
+     * @param int $pos position of previous FROM instance, if any
+     * @return bool|int
+     */
+    protected function findOuterFrom($query, $pos = 0)
+    {
+        $needle = " from ";
+        if(false === ($found = stripos($query, $needle, $pos)))
+            return false;
+
+        $before = substr_count($query, "(", 0, $found) - substr_count($query, ")", 0, $found);
+        $after = substr_count($query, "(", $found + strlen($needle)) - substr_count($query, ")", $found + strlen($needle));
+
+        // $needle was found outside any parens.
+        if(!$before && !$after) {
+            return $found;
+        }
+        return $this->findOuterFrom($query, $found + strlen($needle));
+    }
 }
