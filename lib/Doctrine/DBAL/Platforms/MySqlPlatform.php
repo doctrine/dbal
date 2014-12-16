@@ -106,6 +106,7 @@ class MySqlPlatform extends AbstractPlatform
     public function getConcatExpression()
     {
         $args = func_get_args();
+
         return 'CONCAT(' . join(', ', (array) $args) . ')';
     }
 
@@ -298,7 +299,7 @@ class MySqlPlatform extends AbstractPlatform
      *
      * @deprecated Deprecated since version 2.5, Use {@link self::getColumnCollationDeclarationSQL()} instead.
      *
-     * @param string $collation   name of the collation
+     * @param string $collation name of the collation
      *
      * @return string  DBMS specific SQL code portion needed to set the COLLATION
      *                 of a field declaration.
@@ -736,6 +737,7 @@ class MySqlPlatform extends AbstractPlatform
             $query .= ' MATCH ' . $foreignKey->getOption('match');
         }
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
+
         return $query;
     }
 

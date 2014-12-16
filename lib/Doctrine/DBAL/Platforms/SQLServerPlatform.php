@@ -272,6 +272,7 @@ class SQLServerPlatform extends AbstractPlatform
         if ($index->hasFlag('nonclustered')) {
             $flags = ' NONCLUSTERED';
         }
+
         return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index->getQuotedColumns($this)) . ')';
     }
 
@@ -560,8 +561,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL clause for adding a default constraint in an ALTER TABLE statement.
      *
-     * @param  string $tableName The name of the table to generate the clause for.
-     * @param  Column $column    The column to generate the clause for.
+     * @param string $tableName The name of the table to generate the clause for.
+     * @param Column $column    The column to generate the clause for.
      *
      * @return string
      */
@@ -576,8 +577,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Returns the SQL clause for dropping an existing default constraint in an ALTER TABLE statement.
      *
-     * @param  string $tableName  The name of the table to generate the clause for.
-     * @param  string $columnName The name of the column to generate the clause for.
+     * @param string $tableName  The name of the table to generate the clause for.
+     * @param string $columnName The name of the column to generate the clause for.
      *
      * @return string
      */
@@ -594,7 +595,7 @@ class SQLServerPlatform extends AbstractPlatform
      * in a column's type require dropping the default constraint first before being to
      * alter the particular column to the new definition.
      *
-     * @param  ColumnDiff $columnDiff The column diff to evaluate.
+     * @param ColumnDiff $columnDiff The column diff to evaluate.
      *
      * @return boolean True if the column alteration requires dropping its default constraint first, false otherwise.
      */
@@ -915,8 +916,8 @@ class SQLServerPlatform extends AbstractPlatform
      * Returns the where clause to filter schema and table name in a query.
      *
      * @param string $table        The full qualified name of the table.
-     * @param string $tableColumn  The name of the column to compare the schema to in the where clause.
-     * @param string $schemaColumn The name of the column to compare the table to in the where clause.
+     * @param string $schemaColumn The name of the column to compare the schema to in the where clause.
+     * @param string $tableColumn  The name of the column to compare the table to in the where clause.
      *
      * @return string
      */

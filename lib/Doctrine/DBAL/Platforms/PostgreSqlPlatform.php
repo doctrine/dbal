@@ -76,7 +76,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function setUseBooleanTrueFalseStrings($flag)
     {
-        $this->useBooleanTrueFalseStrings = (bool)$flag;
+        $this->useBooleanTrueFalseStrings = (bool) $flag;
     }
 
     /**
@@ -694,6 +694,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ($sequence instanceof Sequence) {
             $sequence = $sequence->getQuotedName($this);
         }
+
         return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
     }
 
@@ -792,7 +793,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      * and passes them to the given callback function to be reconverted
      * into any custom representation.
      *
-     * @param mixed $item        The value(s) to convert.
+     * @param mixed    $item     The value(s) to convert.
      * @param callable $callback The callback function to use for converting the real boolean value(s).
      *
      * @return mixed
@@ -907,6 +908,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ( ! empty($field['autoincrement'])) {
             return 'BIGSERIAL';
         }
+
         return 'BIGINT';
     }
 
