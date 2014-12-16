@@ -126,7 +126,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function bindValue($param, $value, $type = null)
     {
-        return $this->bindParam($param, $value, $type,null);
+        return $this->bindParam($param, $value, $type, null);
     }
 
     /**

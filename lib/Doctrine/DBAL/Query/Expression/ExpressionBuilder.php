@@ -263,7 +263,7 @@ class ExpressionBuilder
      * Creates a NOT LIKE() comparison expression with the given arguments.
      *
      * @param string $x Field in string format to be inspected by NOT LIKE() comparison.
-     * @param mixed $y Argument to be used in NOT LIKE() comparison.
+     * @param mixed  $y Argument to be used in NOT LIKE() comparison.
      *
      * @return string
      */

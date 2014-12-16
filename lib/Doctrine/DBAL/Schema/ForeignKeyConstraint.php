@@ -231,6 +231,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     public function getUnqualifiedForeignTableName()
     {
         $parts = explode(".", $this->_foreignTableName->getName());
+
         return strtolower(end($parts));
     }
 

@@ -103,7 +103,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     {
         $this->createSequenceQueries = array_merge(
             $this->createSequenceQueries,
-            (array)$this->platform->getCreateSequenceSQL($sequence)
+            (array) $this->platform->getCreateSequenceSQL($sequence)
         );
     }
 

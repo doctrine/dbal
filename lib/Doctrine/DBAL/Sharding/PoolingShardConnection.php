@@ -151,10 +151,11 @@ class PoolingShardConnection extends Connection
             throw new ShardingException("Cannot switch shard when transaction is active.");
         }
 
-        $this->activeShardId = (int)$shardId;
+        $this->activeShardId = (int) $shardId;
 
         if (isset($this->activeConnections[$this->activeShardId])) {
             $this->_conn = $this->activeConnections[$this->activeShardId];
+
             return false;
         }
 

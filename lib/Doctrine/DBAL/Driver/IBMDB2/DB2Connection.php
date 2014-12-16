@@ -78,6 +78,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         if ( ! $stmt) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
+
         return new DB2Statement($stmt);
     }
 
@@ -90,6 +91,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         $sql = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
+
         return $stmt;
     }
 
@@ -113,6 +115,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
+
         return $stmt->rowCount();
     }
 

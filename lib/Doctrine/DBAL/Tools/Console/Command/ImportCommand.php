@@ -63,7 +63,7 @@ EOT
     {
         $conn = $this->getHelper('db')->getConnection();
 
-        if (($fileNames = $input->getArgument('file')) !== null)  {
+        if (($fileNames = $input->getArgument('file')) !== null) {
             foreach ((array) $fileNames as $fileName) {
                 $filePath = realpath($fileName);
 

@@ -1293,6 +1293,7 @@ class QueryBuilder
     {
         $this->boundCounter++;
         $this->setParameter($this->boundCounter, $value, $type);
+
         return "?";
     }
 

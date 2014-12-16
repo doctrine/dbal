@@ -63,7 +63,7 @@ class SchemaConfig
      */
     public function setExplicitForeignKeyIndexes($flag)
     {
-        $this->hasExplicitForeignKeyIndexes = (bool)$flag;
+        $this->hasExplicitForeignKeyIndexes = (bool) $flag;
     }
 
     /**
@@ -73,7 +73,7 @@ class SchemaConfig
      */
     public function setMaxIdentifierLength($length)
     {
-        $this->maxIdentifierLength = (int)$length;
+        $this->maxIdentifierLength = (int) $length;
     }
 
     /**
