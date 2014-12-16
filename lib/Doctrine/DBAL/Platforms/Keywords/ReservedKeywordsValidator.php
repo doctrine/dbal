@@ -72,6 +72,7 @@ class ReservedKeywordsValidator implements Visitor
                 $keywordLists[] = $keywordList->getName();
             }
         }
+
         return $keywordLists;
     }
 

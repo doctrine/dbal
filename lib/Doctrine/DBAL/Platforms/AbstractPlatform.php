@@ -164,7 +164,7 @@ abstract class AbstractPlatform
     /**
      * Sets the EventManager used by the Platform.
      *
-     * @param \Doctrine\Common\EventManager
+     * @param \Doctrine\Common\EventManager $eventManager
      */
     public function setEventManager(EventManager $eventManager)
     {
@@ -901,7 +901,7 @@ abstract class AbstractPlatform
      */
     public function getConcatExpression()
     {
-        return join(' || ' , func_get_args());
+        return join(' || ', func_get_args());
     }
 
     /**
@@ -2253,9 +2253,9 @@ abstract class AbstractPlatform
                     $default = " DEFAULT ".$field['default'];
                 } elseif (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getCurrentTimestampSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimestampSQL();
-                } elseif ((string)$field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
+                } elseif ((string) $field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimeSQL();
-                } elseif ((string)$field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
+                } elseif ((string) $field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
                     $default = " DEFAULT ".$this->getCurrentDateSQL();
                 } elseif ((string) $field['type'] == 'Boolean') {
                     $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
@@ -2298,8 +2298,8 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a unique
      * constraint declaration to be used in statements like CREATE TABLE.
      *
-     * @param string                       $name  The name of the unique constraint.
-     * @param \Doctrine\DBAL\Schema\Index  $index The index definition.
+     * @param string                      $name  The name of the unique constraint.
+     * @param \Doctrine\DBAL\Schema\Index $index The index definition.
      *
      * @return string DBMS specific SQL code portion needed to set a constraint.
      *
@@ -2323,8 +2323,8 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param string                       $name  The name of the index.
-     * @param \Doctrine\DBAL\Schema\Index  $index The index definition.
+     * @param string                      $name  The name of the index.
+     * @param \Doctrine\DBAL\Schema\Index $index The index definition.
      *
      * @return string DBMS specific SQL code portion needed to set an index.
      *
@@ -2583,6 +2583,7 @@ abstract class AbstractPlatform
      * This method should handle the literal case
      *
      * @param mixed $item A boolean or an array of them.
+     *
      * @return mixed A boolean database value or an array of them.
      */
     public function convertBooleans($item)
@@ -2621,6 +2622,7 @@ abstract class AbstractPlatform
      * Note: if the input is not a boolean the original input might be returned.
      *
      * @param mixed $item A boolean or an array of them.
+     *
      * @return mixed A boolean database value or an array of them.
      */
     public function convertBooleansToDatabaseValue($item)
@@ -3300,11 +3302,11 @@ abstract class AbstractPlatform
     final public function modifyLimitQuery($query, $limit, $offset = null)
     {
         if ($limit !== null) {
-            $limit = (int)$limit;
+            $limit = (int) $limit;
         }
 
         if ($offset !== null) {
-            $offset = (int)$offset;
+            $offset = (int) $offset;
 
             if ($offset < 0) {
                 throw new DBALException("LIMIT argument offset=$offset is not valid");
@@ -3320,7 +3322,7 @@ abstract class AbstractPlatform
     /**
      * Adds an driver-specific LIMIT clause to the query.
      *
-     * @param string  $query
+     * @param string       $query
      * @param integer|null $limit
      * @param integer|null $offset
      *
