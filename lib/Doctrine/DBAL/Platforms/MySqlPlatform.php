@@ -805,6 +805,14 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getFloatDeclarationSQL(array $field)
+    {
+        return 'DOUBLE PRECISION' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
