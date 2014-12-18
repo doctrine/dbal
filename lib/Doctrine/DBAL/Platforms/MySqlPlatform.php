@@ -813,6 +813,15 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getDecimalTypeDeclarationSQL(array $columnDef)
+    {
+        $declaration = parent::getDecimalTypeDeclarationSQL($columnDef);
+        return $declaration . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
