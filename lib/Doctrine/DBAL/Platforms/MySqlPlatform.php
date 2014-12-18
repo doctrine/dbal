@@ -830,7 +830,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     private function getUnsignedDeclaration(array $columnDef)
     {
-        return (isset($columnDef['unsigned']) && $columnDef['unsigned']) ? ' UNSIGNED' : '';
+        return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
 
     /**
