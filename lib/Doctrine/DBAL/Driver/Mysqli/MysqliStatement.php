@@ -300,7 +300,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex];
+        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
     }
 
     /**
