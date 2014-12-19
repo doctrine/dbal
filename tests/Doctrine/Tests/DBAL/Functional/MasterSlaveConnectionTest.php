@@ -41,12 +41,16 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     public function createMasterSlaveConnection($keepSlave = false)
     {
         $params = $this->_conn->getParams();
-        $params['master']       = $params;
-        $params['slaves']       = array($params, $params);
-        $params['keepSlave']    = $keepSlave;
-        $params['wrapperClass'] = 'Doctrine\DBAL\Connections\MasterSlaveConnection';
 
-        return DriverManager::getConnection($params);
+        $masterSlaveParams = array(
+            'driver' => $params['driver'],
+            'master' => $params,
+            'slaves' => array($params, $params),
+            'keepSlave' => $keepSlave,
+            'wrapperClass' => 'Doctrine\DBAL\Connections\MasterSlaveConnection',
+        );
+
+        return DriverManager::getConnection($masterSlaveParams);
     }
 
     public function testMasterOnConnect()
@@ -138,5 +142,34 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
         $conn->connect('master');
         $this->assertTrue($conn->isConnectedToMaster());
+    }
+
+    public function testMasterSlaveConnectionParams()
+    {
+        $test = function($connectionName, $_this, $expected) {
+            $conn = $_this->createMasterSlaveConnection();
+            $conn->connect($connectionName);
+
+            $params = array(
+                $conn->getHost(),
+                $conn->getUsername(),
+                $conn->getPassword(),
+                $conn->getDatabase(),
+            );
+
+            foreach ($expected as $key => $value) {
+                $_this->assertEquals($value, $params[$key]);
+            }
+        };
+
+        $expected = array(
+            $this->_conn->getHost(),
+            $this->_conn->getUsername(),
+            $this->_conn->getPassword(),
+            $this->_conn->getDatabase(),
+        );
+
+        $test('master', $this, $expected);
+        $test('slave', $this, $expected);
     }
 }

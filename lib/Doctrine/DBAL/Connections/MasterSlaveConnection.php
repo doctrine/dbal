@@ -98,6 +98,14 @@ class MasterSlaveConnection extends Connection
     protected $keepSlave = false;
 
     /**
+     * This property holds the parameters of the chosen connection.
+     * It can store the master params or any slave params at any time.
+     *
+     * @var array
+     */
+    private $chosenParams = array();
+
+    /**
      * Creates Master Slave Connection.
      *
      * @param array                              $params
@@ -225,10 +233,10 @@ class MasterSlaveConnection extends Connection
     protected function chooseConnectionConfiguration($connectionName, $params)
     {
         if ($connectionName === 'master') {
-            return $params['master'];
+            return $this->chosenParams = $params['master'];
         }
 
-        return $params['slaves'][array_rand($params['slaves'])];
+        return $this->chosenParams = $params['slaves'][array_rand($params['slaves'])];
     }
 
     /**
@@ -387,4 +395,45 @@ class MasterSlaveConnection extends Connection
 
         return parent::prepare($statement);
     }
+
+    /**
+     * Gets the hostname of the currently connected database.
+     *
+     * @return string|null
+     */
+    public function getHost()
+    {
+        return isset($this->chosenParams['host']) ? $this->chosenParams['host'] : null ;
+    }
+
+    /**
+     * Gets the port of the currently connected database.
+     *
+     * @return mixed
+     */
+    public function getPort()
+    {
+        return isset($this->chosenParams['port']) ? $this->chosenParams['port'] : null ;
+    }
+
+    /**
+     * Gets the username used by the current connection.
+     *
+     * @return string|null
+     */
+    public function getUsername()
+    {
+        return isset($this->chosenParams['user']) ? $this->chosenParams['user'] : null ;
+    }
+
+    /**
+     * Gets the password used by the current connection.
+     *
+     * @return string|null
+     */
+    public function getPassword()
+    {
+        return isset($this->chosenParams['password']) ? $this->chosenParams['password'] : null ;
+    }
+    
 }
