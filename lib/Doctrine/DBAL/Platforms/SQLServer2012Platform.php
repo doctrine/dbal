@@ -24,7 +24,8 @@ use Doctrine\DBAL\Schema\Sequence;
 /**
  * Platform to ensure compatibility of Doctrine with Microsoft SQL Server 2012 version.
  *
- * Differences to SQL Server 2008 and before are that sequences are introduced.
+ * Differences to SQL Server 2008 and before are that sequences are introduced,
+ * and support for the new OFFSET... FETCH syntax for result pagination has been added.
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  */
@@ -104,12 +105,11 @@ class SQLServer2012Platform extends SQLServer2008Platform
     }
 
     /**
-     * Adds SQL Server 2012 specific LIMIT clause to the query
      * @inheritdoc
      */
-    protected function doModifyLimitQuery($query, $limit, $offset = NULL)
+    protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        if($limit === null && $offset === null) {
+        if ($limit === null && $offset === null) {
             return $query;
         }
 
@@ -123,16 +123,17 @@ class SQLServer2012Platform extends SQLServer2008Platform
             $query = substr_replace($query, ", @@version as dctrn_ver", $from, 0);
         }
 
-        // This looks like MYSQL, but limit/offset are in inverse positions
+        if ($offset === null) {
+            $offset = 0;
+        }
+
+        // This looks somewhat like MYSQL, but limit/offset are in inverse positions
         // Supposedly SQL:2008 core standard.
-        if ($offset !== null) {
-            $query .= " OFFSET " . (int)$offset . " ROWS";
-            if ($limit !== null) {
-                $query .= " FETCH NEXT " . (int)$limit . " ROWS ONLY";
-            }
-        } elseif ($limit !== null) {
-            // Can't have FETCH NEXT n ROWS ONLY without OFFSET n ROWS - per TSQL spec
-            $query .= " OFFSET 0 ROWS FETCH NEXT " . (int)$limit . " ROWS ONLY";
+        // Per TSQL spec, FETCH NEXT n ROWS ONLY is not valid without OFFSET n ROWS.
+        $query .= " OFFSET " . (int)$offset . " ROWS";
+
+        if ($limit !== null) {
+            $query .= " FETCH NEXT " . (int)$limit . " ROWS ONLY";
         }
 
         return $query;
@@ -145,17 +146,22 @@ class SQLServer2012Platform extends SQLServer2008Platform
      * @param int $pos position of previous FROM instance, if any
      * @return bool|int
      */
-    protected function findOuterFrom($query, $pos = 0)
+    private function findOuterFrom($query, $pos = 0)
     {
         $needle = " from ";
-        if(false === ($found = stripos($query, $needle, $pos)))
+        if (false === ($found = stripos($query, $needle, $pos))) {
             return false;
+        }
 
         $before = substr_count($query, "(", 0, $found) - substr_count($query, ")", 0, $found);
-        $after = substr_count($query, "(", $found + strlen($needle)) - substr_count($query, ")", $found + strlen($needle));
+        $after = substr_count($query, "(", $found + strlen($needle)) - substr_count(
+                $query,
+                ")",
+                $found + strlen($needle)
+            );
 
         // $needle was found outside any parens.
-        if(!$before && !$after) {
+        if (!$before && !$after) {
             return $found;
         }
         return $this->findOuterFrom($query, $found + strlen($needle));

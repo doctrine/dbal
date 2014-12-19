@@ -58,10 +58,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
     public function testModifyLimitQueryWithOffset()
     {
-        if ( ! $this->_platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
-        }
-
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10, 5);
         $this->assertEquals('SELECT * FROM user ORDER BY username DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
@@ -107,10 +103,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
     public function testModifyLimitQueryWithSubSelectAndMultipleOrder()
     {
-        if ( ! $this->_platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
-        }
-
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC, uid ASC', 10, 5);
         $this->assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY uname DESC, uid ASC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
 
@@ -154,10 +146,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
      */
     public function testModifyLimitQueryWithOrderByClause()
     {
-        if ( ! $this->_platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
-        }
-
         $sql      = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
         $expected = 'SELECT m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY';
         $actual   = $this->_platform->modifyLimitQuery($sql, 10, 5);
@@ -200,10 +188,6 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
      */
     public function testModifyLimitQueryWithSubSelectInSelectListAndOrderByClause()
     {
-        if ( ! $this->_platform->supportsLimitOffset()) {
-            $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
-        }
-
         $sql = $this->_platform->modifyLimitQuery(
             "SELECT " .
             "u.id, " .
