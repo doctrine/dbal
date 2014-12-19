@@ -171,5 +171,6 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
         $test('master', $this, $expected);
         $test('slave', $this, $expected);
+        $test(null, $this, $expected);
     }
 }
