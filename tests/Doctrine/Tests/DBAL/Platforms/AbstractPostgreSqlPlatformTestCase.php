@@ -757,7 +757,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @todo add issue ticket number as phpunit group
+     * @group DBAL-1090
      */
     public function testAlterStringToFixedString()
     {
