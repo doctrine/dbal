@@ -29,8 +29,6 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
-
-
         } catch(\Exception $e) {
         }
 
@@ -42,10 +40,18 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         $params = $this->_conn->getParams();
 
+        $slaveParams = array(
+            'host' => $GLOBALS['slave_db_host'],
+            'port' => $GLOBALS['slave_db_port'],
+            'user' => $GLOBALS['slave_db_username'],
+            'password' => $GLOBALS['slave_db_password'],
+            'dbname' => $GLOBALS['slave_db_name'],
+        );
+
         $masterSlaveParams = array(
             'driver' => $params['driver'],
             'master' => $params,
-            'slaves' => array($params, $params),
+            'slaves' => array($slaveParams, $slaveParams),
             'keepSlave' => $keepSlave,
             'wrapperClass' => 'Doctrine\DBAL\Connections\MasterSlaveConnection',
         );
@@ -146,31 +152,37 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
     public function testMasterSlaveConnectionParams()
     {
-        $test = function($connectionName, $_this, $expected) {
-            $conn = $_this->createMasterSlaveConnection();
+        $test = function($connectionName, $conn, $that, $expected) {
             $conn->connect($connectionName);
 
             $params = array(
                 $conn->getHost(),
+                $conn->getPort(),
                 $conn->getUsername(),
                 $conn->getPassword(),
-                $conn->getDatabase(),
             );
 
-            foreach ($expected as $key => $value) {
-                $_this->assertEquals($value, $params[$key]);
-            }
+            $that->assertSame($params, $expected);
         };
 
-        $expected = array(
-            $this->_conn->getHost(),
-            $this->_conn->getUsername(),
-            $this->_conn->getPassword(),
-            $this->_conn->getDatabase(),
+        $expectedMaster = array(
+            $GLOBALS['db_host'],
+            $GLOBALS['db_port'],
+            $GLOBALS['db_username'],
+            $GLOBALS['db_password'],
         );
 
-        $test('master', $this, $expected);
-        $test('slave', $this, $expected);
-        $test(null, $this, $expected);
+        $expectedSlave = array(
+            $GLOBALS['slave_db_host'],
+            $GLOBALS['slave_db_port'],
+            $GLOBALS['slave_db_username'],
+            $GLOBALS['slave_db_password'],
+        );
+
+        $conn = $this->createMasterSlaveConnection();
+
+        $test(null, $conn, $this, $expectedSlave);
+        $test('slave', $conn, $this, $expectedSlave);
+        $test('master', $conn, $this, $expectedMaster);
     }
 }

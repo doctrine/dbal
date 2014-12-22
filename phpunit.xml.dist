@@ -24,14 +24,22 @@
 >
   <php>
     <!-- "Real" test database -->
+
     <!-- Uncomment, otherwise SQLite runs
     <var name="db_type" value="pdo_mysql"/>
-    <var name="db_host" value="localhost" />
+    <var name="db_host" value="127.0.0.1" />
     <var name="db_username" value="root" />
     <var name="db_password" value="" />
     <var name="db_name" value="doctrine_tests" />
     <var name="db_port" value="3306"/>
+
+    <var name="slave_db_host" value="127.0.0.2" />
+    <var name="slave_db_username" value="root" />
+    <var name="slave_db_password" value="" />
+    <var name="slave_db_name" value="doctrine_tests" />
+    <var name="slave_db_port" value="3306"/>
     -->
+
     <!--<var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit">-->
     
     <!-- Database for temporary connections (i.e. to drop/create the main database) -->
