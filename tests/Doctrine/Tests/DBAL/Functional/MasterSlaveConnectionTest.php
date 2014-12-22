@@ -160,6 +160,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
                 $conn->getPort(),
                 $conn->getUsername(),
                 $conn->getPassword(),
+                $conn->getDatabase(),
             );
 
             $that->assertSame($params, $expected);
@@ -170,6 +171,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
             $GLOBALS['db_port'],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
+            $GLOBALS['db_name'],
         );
 
         $expectedSlave = array(
@@ -177,6 +179,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
             $GLOBALS['slave_db_port'],
             $GLOBALS['slave_db_username'],
             $GLOBALS['slave_db_password'],
+            $GLOBALS['slave_db_name'],
         );
 
         $conn = $this->createMasterSlaveConnection();

@@ -435,5 +435,14 @@ class MasterSlaveConnection extends Connection
     {
         return isset($this->chosenParams['password']) ? $this->chosenParams['password'] : null ;
     }
-    
+
+    /**
+     * Gets the name of the database this Connection is connected to.
+     *
+     * @return string
+     */
+    public function getDatabase()
+    {
+        return isset($this->chosenParams['dbname']) ? $this->chosenParams['dbname'] : null ;
+    }
 }
