@@ -105,7 +105,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
@@ -114,13 +114,14 @@ class SQLServer2012Platform extends SQLServer2008Platform
         }
 
         // Queries using OFFSET... FETCH MUST have an ORDER BY clause
-        if (!preg_match("/ORDER BY ([a-z0-9\.\[\], \t_]|[a-z_]+\([a-z0-9\.\[\], \t_]+\))+\s*$/i", $query)) {
-            $query .= " ORDER BY dctrn_ver";
-
-            $from = $this->findOuterFrom($query);
-            //TODO handle $from === false
-
-            $query = substr_replace($query, ", @@version as dctrn_ver", $from, 0);
+        // Find the position of the last instance of ORDER BY and ensure it is not within a parenthetical statement
+        $orderByPos = strripos($query, "ORDER BY");
+        if ($orderByPos === false
+            || substr_count($query, "(", $orderByPos) - substr_count($query, ")", $orderByPos)
+        ) {
+            // In another DBMS, we could do ORDER BY 0, but SQL Server gets angry if you use constant expressions in
+            // the order by list.
+            $query .= " ORDER BY (SELECT 0)";
         }
 
         if ($offset === null) {
@@ -130,40 +131,12 @@ class SQLServer2012Platform extends SQLServer2008Platform
         // This looks somewhat like MYSQL, but limit/offset are in inverse positions
         // Supposedly SQL:2008 core standard.
         // Per TSQL spec, FETCH NEXT n ROWS ONLY is not valid without OFFSET n ROWS.
-        $query .= " OFFSET " . (int)$offset . " ROWS";
+        $query .= " OFFSET " . (int) $offset . " ROWS";
 
         if ($limit !== null) {
-            $query .= " FETCH NEXT " . (int)$limit . " ROWS ONLY";
+            $query .= " FETCH NEXT " . (int) $limit . " ROWS ONLY";
         }
 
         return $query;
-    }
-
-    /**
-     * recursive function to find the outermost FROM clause in a SELECT query
-     *
-     * @param string $query the SQL query
-     * @param int $pos position of previous FROM instance, if any
-     * @return bool|int
-     */
-    private function findOuterFrom($query, $pos = 0)
-    {
-        $needle = " from ";
-        if (false === ($found = stripos($query, $needle, $pos))) {
-            return false;
-        }
-
-        $before = substr_count($query, "(", 0, $found) - substr_count($query, ")", 0, $found);
-        $after = substr_count($query, "(", $found + strlen($needle)) - substr_count(
-                $query,
-                ")",
-                $found + strlen($needle)
-            );
-
-        // $needle was found outside any parens.
-        if (!$before && !$after) {
-            return $found;
-        }
-        return $this->findOuterFrom($query, $found + strlen($needle));
     }
 }

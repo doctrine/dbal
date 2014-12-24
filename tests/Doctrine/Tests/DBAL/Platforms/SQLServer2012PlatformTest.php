@@ -47,13 +47,13 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
-        $this->assertEquals('SELECT *, @@version as dctrn_ver FROM user ORDER BY dctrn_ver OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+        $this->assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
-        $this->assertEquals('SELECT *, @@version as dctrn_ver FROM user ORDER BY dctrn_ver OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+        $this->assertEquals('SELECT * FROM user ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithOffset()
@@ -89,7 +89,7 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     public function testModifyLimitQueryWithSubSelect()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result', 10);
-        $this->assertEquals('SELECT *, @@version as dctrn_ver FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY dctrn_ver OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+        $this->assertEquals('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndOrder()
@@ -116,7 +116,7 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     public function testModifyLimitQueryWithFromColumnNames()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT a.fromFoo, fromBar FROM foo', 10);
-        $this->assertEquals('SELECT a.fromFoo, fromBar, @@version as dctrn_ver FROM foo ORDER BY dctrn_ver OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
+        $this->assertEquals('SELECT a.fromFoo, fromBar FROM foo ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY', $sql);
     }
 
     /**
@@ -131,11 +131,11 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
         $sql = $this->_platform->modifyLimitQuery($query, 10);
 
-        $expected = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8, @@version as dctrn_ver FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
+        $expected = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
         $expected.= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
         $expected.= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
         $expected.= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8) ';
-        $expected.= 'ORDER BY dctrn_ver OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+        $expected.= 'ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
 
 
         $this->assertEquals($expected, $sql);
@@ -175,10 +175,10 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
             "u.id, " .
             "(u.foo/2) foodiv, " .
             "CONCAT(u.bar, u.baz) barbaz, " .
-            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count, @@version as dctrn_ver " .
+            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
             "FROM user u " .
             "WHERE u.status = 'disabled' " .
-            "ORDER BY dctrn_ver OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY",
+            "ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY",
             $sql
         );
     }
@@ -247,7 +247,7 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     {
         $sql = $this->_platform->modifyLimitQuery("SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result", 10);
 
-        $expected = "SELECT DISTINCT id_0, @@version as dctrn_ver FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY dctrn_ver OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
+        $expected = "SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
 
         $this->assertEquals($sql, $expected);
     }
@@ -257,6 +257,15 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $sql = $this->_platform->modifyLimitQuery("SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC", 10);
 
         $expected = "SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
+
+        $this->assertEquals($sql, $expected);
+    }
+
+    public function testModifyLimitQueryWithComplexOrderByExpression()
+    {
+        $sql = $this->_platform->modifyLimitQuery("SELECT * FROM table ORDER BY (table.x * table.y) DESC", 10);
+
+        $expected = "SELECT * FROM table ORDER BY (table.x * table.y) DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
 
         $this->assertEquals($sql, $expected);
     }
