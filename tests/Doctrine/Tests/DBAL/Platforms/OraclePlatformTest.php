@@ -668,4 +668,14 @@ EOD;
             'ALTER TABLE mytable MODIFY (name CHAR(2) DEFAULT NULL)',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'ALTER INDEX idx_foo RENAME TO idx_foo_renamed',
+        );
+    }
 }
