@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 5.7 database platform.
@@ -30,6 +31,22 @@ use Doctrine\DBAL\Schema\Index;
  */
 class MySQL57Platform extends MySqlPlatform
 {
+    /**
+     * {@inheritdoc}
+     */
+    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    {
+        return array();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    {
+        return array();
+    }
+
     /**
      * {@inheritdoc}
      */

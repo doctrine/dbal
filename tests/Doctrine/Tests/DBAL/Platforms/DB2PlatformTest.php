@@ -650,4 +650,14 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE mytable\')',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'RENAME INDEX idx_foo TO idx_foo_renamed',
+        );
+    }
 }

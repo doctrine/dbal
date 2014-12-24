@@ -55,4 +55,14 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
             'ALTER TABLE `schema`.`table` RENAME INDEX `foo` TO `bar`',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed',
+        );
+    }
 }

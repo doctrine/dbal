@@ -638,4 +638,22 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'DROP TABLE __temp__mytable',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'DROP INDEX idx_foo',
+            'DROP INDEX idx_bar',
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT foo, bar, baz FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (foo INTEGER NOT NULL, bar INTEGER NOT NULL, baz INTEGER NOT NULL, CONSTRAINT fk_foo FOREIGN KEY (foo) REFERENCES foreign_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT fk_bar FOREIGN KEY (bar) REFERENCES foreign_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE)',
+            'INSERT INTO mytable (foo, bar, baz) SELECT foo, bar, baz FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
+            'CREATE INDEX idx_bar ON mytable (bar)',
+            'CREATE INDEX idx_foo_renamed ON mytable (foo)',
+        );
+    }
 }
