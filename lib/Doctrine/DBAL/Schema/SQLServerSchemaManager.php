@@ -206,13 +206,13 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
         try {
             $tableIndexes = $this->_conn->fetchAll($sql);
-        } catch(\PDOException $e) {
+        } catch (\PDOException $e) {
             if ($e->getCode() == "IMSSP") {
                 return array();
             } else {
                 throw $e;
             }
-        } catch(SQLSrvException $e) {
+        } catch (SQLSrvException $e) {
             if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
                 return array();
             } else {

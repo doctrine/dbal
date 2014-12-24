@@ -172,6 +172,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             if ($a['pk'] == $b['pk']) {
                 return $a['cid'] - $b['cid'];
             }
+
             return $a['pk'] - $b['pk'];
         });
         foreach ($indexArray as $indexColumnRow) {
@@ -286,7 +287,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $fixed = false;
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
         $default = $tableColumn['dflt_value'];
-        if  ($default == 'NULL') {
+        if ($default == 'NULL') {
             $default = null;
         }
         if ($default !== null) {

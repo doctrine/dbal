@@ -47,7 +47,7 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
         foreach ($sql as $s) {
             try {
                 $this->conn->exec($s);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
 
             }
         }

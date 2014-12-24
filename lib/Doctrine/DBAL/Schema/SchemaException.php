@@ -176,6 +176,6 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      */
     static public function alterTableChangeNotSupported($changeName)
     {
-        return new self ("Alter table change not supported, given '$changeName'");
+        return new self("Alter table change not supported, given '$changeName'");
     }
 }
