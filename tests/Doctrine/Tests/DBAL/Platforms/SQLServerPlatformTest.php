@@ -343,4 +343,14 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
             array(LockMode::PESSIMISTIC_WRITE, ' WITH (UPDLOCK, ROWLOCK)'),
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable ALTER COLUMN name NCHAR(2) NOT NULL',
+        );
+    }
 }

@@ -302,4 +302,18 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE)',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT name FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (name CHAR(2) NOT NULL)',
+            'INSERT INTO mytable (name) SELECT name FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
+        );
+    }
 }

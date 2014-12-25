@@ -378,4 +378,14 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable CHANGE name name CHAR(2) NOT NULL',
+        );
+    }
 }

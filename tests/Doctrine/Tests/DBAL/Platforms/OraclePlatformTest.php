@@ -330,4 +330,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 	);
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable MODIFY (name  CHAR(2) DEFAULT NULL)',
+        );
+    }
 }
