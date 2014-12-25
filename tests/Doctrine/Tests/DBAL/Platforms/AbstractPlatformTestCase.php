@@ -1128,4 +1128,35 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      * @return array
      */
     abstract protected function getQuotesTableIdentifiersInAlterTableSQL();
+
+    /**
+     * @group DBAL-1090
+     */
+    public function testAlterStringToFixedString()
+    {
+
+        $table = new Table('mytable');
+        $table->addColumn('name', 'string', array('length' => 2));
+
+        $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = $table;
+
+        $tableDiff->changedColumns['name'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'name', new \Doctrine\DBAL\Schema\Column(
+                'name', \Doctrine\DBAL\Types\Type::getType('string'), array('fixed' => true, 'length' => 2)
+            ),
+            array('fixed')
+        );
+
+        $sql = $this->_platform->getAlterTableSQL($tableDiff);
+
+        $expectedSql = $this->getAlterStringToFixedStringSQL();
+
+        $this->assertEquals($expectedSql, $sql);
+    }
+
+    /**
+     * @return array
+     */
+    abstract protected function getAlterStringToFixedStringSQL();
 }

@@ -639,4 +639,15 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return false;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable ALTER COLUMN name SET DATA TYPE CHAR(2)',
+            'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE mytable\')',
+        );
+    }
 }

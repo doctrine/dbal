@@ -658,4 +658,14 @@ EOD;
     {
         return 'INDEX "select" (foo)';
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable MODIFY (name CHAR(2) DEFAULT NULL)',
+        );
+    }
 }
