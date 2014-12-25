@@ -757,30 +757,12 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     }
 
     /**
-     * @group DBAL-1090
+     * {@inheritdoc}
      */
-    public function testAlterStringToFixedString()
+    protected function getAlterStringToFixedStringSQL()
     {
-
-        $table = new Table('mytable');
-        $table->addColumn('name', 'string', array('length' => 2));
-
-        $tableDiff = new TableDiff('mytable');
-        $tableDiff->fromTable = $table;
-
-        $tableDiff->changedColumns['dloo1'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'name', new \Doctrine\DBAL\Schema\Column(
-                'name', \Doctrine\DBAL\Types\Type::getType('string'), array('fixed' => true, 'length' => 2)
-            ),
-            array('fixed')
-        );
-
-        $sql = $this->_platform->getAlterTableSQL($tableDiff);
-
-        $expectedSql = array(
+        return array(
             'ALTER TABLE mytable ALTER name TYPE CHAR(2)',
         );
-
-        $this->assertEquals($expectedSql, $sql);
     }
 }

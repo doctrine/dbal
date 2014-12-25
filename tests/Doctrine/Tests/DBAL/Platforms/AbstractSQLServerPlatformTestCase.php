@@ -1202,4 +1202,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         return 'INDEX [select] (foo)';
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable ALTER COLUMN name NCHAR(2) NOT NULL',
+        );
+    }
 }
