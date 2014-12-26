@@ -765,4 +765,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             'ALTER TABLE mytable ALTER name TYPE CHAR(2)',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'ALTER INDEX idx_foo RENAME TO idx_foo_renamed',
+        );
+    }
 }

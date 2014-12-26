@@ -961,4 +961,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable ALTER name CHAR(2) NOT NULL',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'ALTER INDEX idx_foo ON mytable RENAME TO idx_foo_renamed',
+        );
+    }
 }
