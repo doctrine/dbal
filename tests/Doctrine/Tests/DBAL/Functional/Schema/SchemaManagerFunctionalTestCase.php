@@ -558,6 +558,47 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
+     * @group DBAL-1062
+     */
+    public function testRenameIndexUsedInForeignKeyConstraint()
+    {
+        if (! $this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
+        }
+
+        $primaryTable = new Table('test_rename_index_primary');
+        $primaryTable->addColumn('id', 'integer');
+        $primaryTable->setPrimaryKey(array('id'));
+
+        $foreignTable = new Table('test_rename_index_foreign');
+        $foreignTable->addColumn('fk', 'integer');
+        $foreignTable->addIndex(array('fk'), 'rename_index_fk_idx');
+        $foreignTable->addForeignKeyConstraint(
+            'test_rename_index_primary',
+            array('fk'),
+            array('id'),
+            array(),
+            'fk_constraint'
+        );
+
+        $this->_sm->dropAndCreateTable($primaryTable);
+        $this->_sm->dropAndCreateTable($foreignTable);
+
+        $foreignTable2 = clone $foreignTable;
+        $foreignTable2->renameIndex('rename_index_fk_idx', 'renamed_index_fk_idx');
+
+        $comparator = new Comparator();
+
+        $this->_sm->alterTable($comparator->diffTable($foreignTable, $foreignTable2));
+
+        $foreignTable = $this->_sm->listTableDetails('test_rename_index_foreign');
+
+        $this->assertFalse($foreignTable->hasIndex('rename_index_fk_idx'));
+        $this->assertTrue($foreignTable->hasIndex('renamed_index_fk_idx'));
+        $this->assertTrue($foreignTable->hasForeignKey('fk_constraint'));
+    }
+
+    /**
      * @group DBAL-42
      */
     public function testGetColumnComment()

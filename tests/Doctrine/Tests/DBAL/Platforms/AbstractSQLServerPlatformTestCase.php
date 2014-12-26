@@ -1212,4 +1212,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             'ALTER TABLE mytable ALTER COLUMN name NCHAR(2) NOT NULL',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            "EXEC sp_RENAME N'mytable.idx_foo', N'idx_foo_renamed', N'INDEX'",
+        );
+    }
 }

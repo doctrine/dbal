@@ -1159,4 +1159,37 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      * @return array
      */
     abstract protected function getAlterStringToFixedStringSQL();
+
+    /**
+     * @group DBAL-1062
+     */
+    public function testGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        $foreignTable = new Table('foreign_table');
+        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->setPrimaryKey(array('id'));
+
+        $primaryTable = new Table('mytable');
+        $primaryTable->addColumn('foo', 'integer');
+        $primaryTable->addColumn('bar', 'integer');
+        $primaryTable->addColumn('baz', 'integer');
+        $primaryTable->addIndex(array('foo'), 'idx_foo');
+        $primaryTable->addIndex(array('bar'), 'idx_bar');
+        $primaryTable->addForeignKeyConstraint($foreignTable, array('foo'), array('id'), array(), 'fk_foo');
+        $primaryTable->addForeignKeyConstraint($foreignTable, array('bar'), array('id'), array(), 'fk_bar');
+
+        $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = $primaryTable;
+        $tableDiff->renamedIndexes['idx_foo'] = new Index('idx_foo_renamed', array('foo'));
+
+        $this->assertSame(
+            $this->getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    abstract protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL();
 }
