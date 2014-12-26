@@ -624,4 +624,18 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         return 'INDEX "select" (foo)';
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT name FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (name CHAR(2) NOT NULL)',
+            'INSERT INTO mytable (name) SELECT name FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
+        );
+    }
 }

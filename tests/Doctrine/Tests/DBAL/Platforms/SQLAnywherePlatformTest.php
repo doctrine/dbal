@@ -951,4 +951,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         return false;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable ALTER name CHAR(2) NOT NULL',
+        );
+    }
 }

@@ -657,4 +657,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         return 'INDEX `select` (foo)';
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable CHANGE name name CHAR(2) NOT NULL',
+        );
+    }
 }
