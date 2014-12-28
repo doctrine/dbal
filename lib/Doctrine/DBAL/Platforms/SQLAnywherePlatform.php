@@ -891,6 +891,7 @@ class SQLAnywherePlatform extends AbstractPlatform
                 ON       idx.table_id = tbl.table_id
                 WHERE    tbl.table_name = '$table'
                 AND      tbl.creator = USER_ID($user)
+                AND      idx.index_category != 2 -- exclude indexes implicitly created by foreign key constraints
                 ORDER BY idx.index_id ASC, idxcol.sequence ASC";
     }
 
