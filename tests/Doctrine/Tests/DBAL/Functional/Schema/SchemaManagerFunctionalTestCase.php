@@ -995,4 +995,34 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             array('0', '0', 'foo', 'foo'),
         );
     }
+
+    /**
+     * @group DBAL-1095
+     */
+    public function testDoesNotListIndexesImplicitlyCreatedByForeignKeys()
+    {
+        if (! $this->_sm->getDatabasePlatform()->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
+        }
+
+        $primaryTable = new Table('test_list_index_implicit_primary');
+        $primaryTable->addColumn('id', 'integer');
+        $primaryTable->setPrimaryKey(array('id'));
+
+        $foreignTable = new Table('test_list_index_implicit_foreign');
+        $foreignTable->addColumn('fk1', 'integer');
+        $foreignTable->addColumn('fk2', 'integer');
+        $foreignTable->addIndex(array('fk1'), 'explicit_fk1_idx');
+        $foreignTable->addForeignKeyConstraint('test_list_index_implicit_primary', array('fk1'), array('id'));
+        $foreignTable->addForeignKeyConstraint('test_list_index_implicit_primary', array('fk2'), array('id'));
+
+        $this->_sm->dropAndCreateTable($primaryTable);
+        $this->_sm->dropAndCreateTable($foreignTable);
+
+        $indexes = $this->_sm->listTableIndexes('test_list_index_implicit_foreign');
+
+        $this->assertCount(2, $indexes);
+        $this->assertArrayHasKey('explicit_fk1_idx', $indexes);
+        $this->assertArrayHasKey('idx_6d88c7b4fdc58d6c', $indexes);
+    }
 }
