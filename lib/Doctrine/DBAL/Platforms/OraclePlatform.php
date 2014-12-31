@@ -568,6 +568,44 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
+    {
+        $referentialAction = null;
+
+        if ($foreignKey->hasOption('onDelete')) {
+            $referentialAction = $this->getForeignKeyReferentialActionSQL($foreignKey->getOption('onDelete'));
+        }
+
+        return $referentialAction ? ' ON DELETE ' . $referentialAction : '';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getForeignKeyReferentialActionSQL($action)
+    {
+        $action = strtoupper($action);
+
+        switch ($action) {
+            case 'RESTRICT': // RESTRICT is not supported, therefore falling back to NO ACTION.
+            case 'NO ACTION':
+                // NO ACTION cannot be declared explicitly,
+                // therefore returning empty string to indicate to OMIT the referential clause.
+                return '';
+
+            case 'CASCADE':
+            case 'SET NULL':
+                return $action;
+
+            default:
+                // SET DEFAULT is not supported, throw exception instead.
+                throw new \InvalidArgumentException('Invalid foreign key action: ' . $action);
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getDropDatabaseSQL($database)
