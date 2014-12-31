@@ -18,16 +18,21 @@ class PostgreSQLSchemaManagerTest extends \PHPUnit_Framework_TestCase
      */
     private $connection;
 
+    /**
+     * @var \Doctrine\DBAL\Platforms\PostgreSqlPlatform|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $platform;
+
     protected function setUp()
     {
         $driverMock = $this->getMock('Doctrine\DBAL\Driver');
-        $platform = $this->getMock('Doctrine\DBAL\Platforms\PostgreSqlPlatform');
+        $this->platform = $this->getMock('Doctrine\DBAL\Platforms\PostgreSqlPlatform');
         $this->connection = $this->getMock(
             'Doctrine\DBAL\Connection',
             array(),
-            array(array('platform' => $platform), $driverMock)
+            array(array('platform' => $this->platform), $driverMock)
         );
-        $this->schemaManager = new PostgreSqlSchemaManager($this->connection, $platform);
+        $this->schemaManager = new PostgreSqlSchemaManager($this->connection, $this->platform);
     }
 
     /**
@@ -71,5 +76,44 @@ class PostgreSQLSchemaManagerTest extends \PHPUnit_Framework_TestCase
             ),
             $this->schemaManager->listSequences('database')
         );
+    }
+
+    /**
+     * @group DBAL-1087
+     */
+    public function testListTableColumnsBpcharLength()
+    {
+        $this->connection->expects($this->atLeastOnce())
+            ->method('getDatabase')
+            ->will($this->returnValue('pg_db_name'));
+
+        $fetchedColumns = array(
+            array(
+                'attnum' => 1,
+                'field' => 'name',
+                'type' => 'bpchar',
+                'complete_type' => 'character(2)',
+                'collation' => '',
+                'domain_type' => null,
+                'domain_complete_type' => null,
+                'isnotnull' => true,
+                'pri' => null,
+                'default' => null,
+                'comment' => null,
+            ),
+        );
+
+        $this->connection->expects($this->atLeastOnce())
+            ->method('fetchAll')
+            ->will($this->returnValue($fetchedColumns));
+
+        $this->platform->expects($this->atLeastOnce())
+            ->method('getDoctrineTypeMapping')
+            ->with('bpchar')
+            ->will($this->returnValue('string'));
+
+        $columns = $this->schemaManager->listTableColumns('test');
+
+        $this->assertSame(2, $columns['name']->getLength());
     }
 }
