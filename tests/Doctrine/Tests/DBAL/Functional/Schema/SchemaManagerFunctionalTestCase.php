@@ -195,6 +195,26 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInternalType('array',  $columns['baz3']->getPlatformOptions());
     }
 
+    /**
+     * @group DBAL-1078
+     */
+    public function testListTableColumnsWithFixedStringColumn()
+    {
+        $tableName = 'test_list_table_fixed_string';
+
+        $table = new Table($tableName);
+        $table->addColumn('column_char', 'string', array('fixed' => true, 'length' => 2));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertArrayHasKey('column_char', $columns);
+        $this->assertInstanceOf('Doctrine\DBAL\Types\StringType', $columns['column_char']->getType());
+        $this->assertTrue($columns['column_char']->getFixed());
+        $this->assertSame(2, $columns['column_char']->getLength());
+    }
+
     public function testListTableColumnsDispatchEvent()
     {
         $table = $this->createListTableColumns();
