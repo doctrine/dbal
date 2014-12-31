@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
@@ -201,6 +202,47 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getGenerateForeignKeySql()
     {
         return 'ALTER TABLE test ADD FOREIGN KEY (fk_name_id) REFERENCES other_table (id)';
+    }
+
+    /**
+     * @group DBAL-1097
+     *
+     * @dataProvider getGeneratesAdvancedForeignKeyOptionsSQLData
+     */
+    public function testGeneratesAdvancedForeignKeyOptionsSQL(array $options, $expectedSql)
+    {
+        $foreignKey = new ForeignKeyConstraint(array('foo'), 'foreign_table', array('bar'), null, $options);
+
+        $this->assertSame($expectedSql, $this->_platform->getAdvancedForeignKeyOptionsSQL($foreignKey));
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratesAdvancedForeignKeyOptionsSQLData()
+    {
+        return array(
+            array(array(), ''),
+            array(array('onUpdate' => 'CASCADE'), ''),
+            array(array('onDelete' => 'CASCADE'), ' ON DELETE CASCADE'),
+            array(array('onDelete' => 'NO ACTION'), ''),
+            array(array('onDelete' => 'RESTRICT'), ''),
+            array(array('onUpdate' => 'SET NULL', 'onDelete' => 'SET NULL'), ' ON DELETE SET NULL'),
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReturnsForeignKeyReferentialActionSQL()
+    {
+        return array(
+            array('CASCADE', 'CASCADE'),
+            array('SET NULL', 'SET NULL'),
+            array('NO ACTION', ''),
+            array('RESTRICT', ''),
+            array('CaScAdE', 'CASCADE'),
+        );
     }
 
     public function testModifyLimitQuery()
