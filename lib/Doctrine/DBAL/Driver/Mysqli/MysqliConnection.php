@@ -65,21 +65,15 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
         $this->setDriverOptions($driverOptions);
 
-        $previousHandler = set_error_handler(function () {
-        });
+        set_error_handler(function () {});
 
         if ( ! $this->_conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
-            set_error_handler($previousHandler);
+            restore_error_handler();
 
-            $sqlState = 'HY000';
-            if (@$this->_conn->sqlstate) {
-                $sqlState = $this->_conn->sqlstate;
-            }
-
-            throw new MysqliException($this->_conn->connect_error, $sqlState, $this->_conn->connect_errno);
+            throw new MysqliException($this->_conn->connect_error, @$this->_conn->sqlstate ?: 'HY000', $this->_conn->connect_errno);
         }
 
-        set_error_handler($previousHandler);
+        restore_error_handler();
 
         if (isset($params['charset'])) {
             $this->_conn->set_charset($params['charset']);
