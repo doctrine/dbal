@@ -405,7 +405,7 @@ using deserialization or ``null`` if no data is present.
 
 .. warning::
 
-    Because the build-in ``text`` type of PostgreSQL does not support NULL bytes,
+    Because the built-in ``text`` type of PostgreSQL does not support NULL bytes,
     the object type will cause deserialization errors on PostgreSQL. A workaround is
     to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()`` PHP objects and store
     them into a ``text`` field manually.
