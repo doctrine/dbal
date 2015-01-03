@@ -279,4 +279,46 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             "No differences should be detected with the offline vs online schema."
         );
     }
+
+    /**
+     * @group DBAL-1082
+     */
+    public function testListDecimalTypeColumns()
+    {
+        $tableName = 'test_list_decimal_columns';
+        $table = new Table($tableName);
+
+        $table->addColumn('col', 'decimal');
+        $table->addColumn('col_unsigned', 'decimal', array('unsigned' => true));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertArrayHasKey('col', $columns);
+        $this->assertArrayHasKey('col_unsigned', $columns);
+        $this->assertFalse($columns['col']->getUnsigned());
+        $this->assertTrue($columns['col_unsigned']->getUnsigned());
+    }
+
+    /**
+     * @group DBAL-1082
+     */
+    public function testListFloatTypeColumns()
+    {
+        $tableName = 'test_list_float_columns';
+        $table = new Table($tableName);
+
+        $table->addColumn('col', 'float');
+        $table->addColumn('col_unsigned', 'float', array('unsigned' => true));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertArrayHasKey('col', $columns);
+        $this->assertArrayHasKey('col_unsigned', $columns);
+        $this->assertFalse($columns['col']->getUnsigned());
+        $this->assertTrue($columns['col_unsigned']->getUnsigned());
+    }
 }

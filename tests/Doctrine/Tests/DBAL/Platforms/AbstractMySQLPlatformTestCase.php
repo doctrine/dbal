@@ -680,4 +680,34 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             'ALTER TABLE mytable ADD CONSTRAINT fk_foo FOREIGN KEY (foo) REFERENCES foreign_table (id)',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGeneratesDecimalTypeDeclarationSQL()
+    {
+        return array(
+            array(array(), 'NUMERIC(10, 0)'),
+            array(array('unsigned' => true), 'NUMERIC(10, 0) UNSIGNED'),
+            array(array('unsigned' => false), 'NUMERIC(10, 0)'),
+            array(array('precision' => 5), 'NUMERIC(5, 0)'),
+            array(array('scale' => 5), 'NUMERIC(10, 5)'),
+            array(array('precision' => 8, 'scale' => 2), 'NUMERIC(8, 2)'),
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGeneratesFloatDeclarationSQL()
+    {
+        return array(
+            array(array(), 'DOUBLE PRECISION'),
+            array(array('unsigned' => true), 'DOUBLE PRECISION UNSIGNED'),
+            array(array('unsigned' => false), 'DOUBLE PRECISION'),
+            array(array('precision' => 5), 'DOUBLE PRECISION'),
+            array(array('scale' => 5), 'DOUBLE PRECISION'),
+            array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
+        );
+    }
 }
