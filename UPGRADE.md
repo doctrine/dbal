@@ -1,13 +1,32 @@
+# Upgrade to 2.5.1
+
+## MINOR BC BREAK: Doctrine\DBAL\Schema\Table
+
+When adding indexes to ``Doctrine\DBAL\Schema\Table`` via ``addIndex()`` or ``addUniqueIndex()``,
+duplicate indexes are not silently ignored/dropped anymore (based on semantics, not naming!).
+Duplicate indexes are considered indexes that pass ``isFullfilledBy()`` or ``overrules()``
+in ``Doctrine\DBAL\Schema\Index``.
+This is required to make the index renaming feature introduced in 2.5.0 work properly and avoid
+issues in the ORM schema tool / DBAL schema manager which pretends users from updating
+their schemas and migrate to DBAL 2.5.*.
+Additionally it offers more flexibility in declaring indexes for the user and potentially fixes
+related issues in the ORM.
+With this change, the responsibility to decide which index is a "duplicate" is completely deferred
+to the user.
+Please also note that adding foreign key constraints to a table via ``addForeignKeyConstraint()``,
+``addUnnamedForeignKeyConstraint()`` or ``addNamedForeignKeyConstraint()`` now first checks if an
+appropriate index is already present and avoids adding an additional auto-generated one eventually.
+
 # Upgrade to 2.5
 
 ## BC BREAK: time type resets date fields to UNIX epoch
 
-When mapping `time` type field to PHP's `DateTime` instance all unused date fields are 
-reset to UNIX epoch (i.e. 1970-01-01). This might break any logic which relies on comparing 
-`DateTime` instances with date fields set to the current date. 
+When mapping `time` type field to PHP's `DateTime` instance all unused date fields are
+reset to UNIX epoch (i.e. 1970-01-01). This might break any logic which relies on comparing
+`DateTime` instances with date fields set to the current date.
 
 Use `!` format prefix (see http://php.net/manual/en/datetime.createfromformat.php) for parsing
-time strings to prevent having different date fields when comparing user input and `DateTime` 
+time strings to prevent having different date fields when comparing user input and `DateTime`
 instances as mapped by Doctrine.
 
 ## BC BREAK: Doctrine\DBAL\Schema\Table

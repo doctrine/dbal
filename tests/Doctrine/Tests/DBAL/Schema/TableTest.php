@@ -354,19 +354,6 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @group DBAL-50
      */
-    public function testAddIndexTwice_IgnoreSecond()
-    {
-        $table = new Table("foo.bar");
-        $table->addColumn('baz', 'integer', array());
-        $table->addIndex(array('baz'));
-        $table->addIndex(array('baz'));
-
-        $this->assertEquals(1, count($table->getIndexes()));
-    }
-
-    /**
-     * @group DBAL-50
-     */
     public function testAddForeignKeyIndexImplicitly()
     {
         $table = new Table("foo");
@@ -386,9 +373,56 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @group DBAL-50
+     * @group DBAL-1063
      */
-    public function testOverruleIndex()
+    public function testAddForeignKeyDoesNotCreateDuplicateIndex()
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+        $table->addIndex(array('bar'), 'bar_idx');
+
+        $foreignTable = new Table('bar');
+        $foreignTable->addColumn('foo', 'integer');
+
+        $table->addForeignKeyConstraint($foreignTable, array('bar'), array('foo'));
+
+        $this->assertCount(1, $table->getIndexes());
+        $this->assertTrue($table->hasIndex('bar_idx'));
+        $this->assertSame(array('bar'), $table->getIndex('bar_idx')->getColumns());
+    }
+
+    /**
+     * @group DBAL-1063
+     */
+    public function testAddForeignKeyAddsImplicitIndexIfIndexColumnsDoNotSpan()
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+        $table->addColumn('baz', 'string');
+        $table->addColumn('bloo', 'string');
+        $table->addIndex(array('baz', 'bar'), 'composite_idx');
+        $table->addIndex(array('bar', 'baz', 'bloo'), 'full_idx');
+
+        $foreignTable = new Table('bar');
+        $foreignTable->addColumn('foo', 'integer');
+        $foreignTable->addColumn('baz', 'string');
+
+        $table->addForeignKeyConstraint($foreignTable, array('bar', 'baz'), array('foo', 'baz'));
+
+        $this->assertCount(3, $table->getIndexes());
+        $this->assertTrue($table->hasIndex('composite_idx'));
+        $this->assertTrue($table->hasIndex('full_idx'));
+        $this->assertTrue($table->hasIndex('idx_8c73652176ff8caa78240498'));
+        $this->assertSame(array('baz', 'bar'), $table->getIndex('composite_idx')->getColumns());
+        $this->assertSame(array('bar', 'baz', 'bloo'), $table->getIndex('full_idx')->getColumns());
+        $this->assertSame(array('bar', 'baz'), $table->getIndex('idx_8c73652176ff8caa78240498')->getColumns());
+    }
+
+    /**
+     * @group DBAL-50
+     * @group DBAL-1063
+     */
+    public function testOverrulingIndexDoesNotDropOverruledIndex()
     {
         $table = new Table("bar");
         $table->addColumn('baz', 'integer', array());
@@ -399,23 +433,62 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $index = current($indexes);
 
         $table->addUniqueIndex(array('baz'));
-        $this->assertEquals(1, count($table->getIndexes()));
-        $this->assertFalse($table->hasIndex($index->getName()));
+        $this->assertEquals(2, count($table->getIndexes()));
+        $this->assertTrue($table->hasIndex($index->getName()));
     }
 
-    public function testPrimaryKeyOverrulesUniqueIndex()
+    /**
+     * @group DBAL-1063
+     */
+    public function testAllowsAddingDuplicateIndexesBasedOnColumns()
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+        $table->addIndex(array('bar'), 'bar_idx');
+        $table->addIndex(array('bar'), 'duplicate_idx');
+
+        $this->assertCount(2, $table->getIndexes());
+        $this->assertTrue($table->hasIndex('bar_idx'));
+        $this->assertTrue($table->hasIndex('duplicate_idx'));
+        $this->assertSame(array('bar'), $table->getIndex('bar_idx')->getColumns());
+        $this->assertSame(array('bar'), $table->getIndex('duplicate_idx')->getColumns());
+    }
+
+    /**
+     * @group DBAL-1063
+     */
+    public function testAllowsAddingFulfillingIndexesBasedOnColumns()
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+        $table->addColumn('baz', 'string');
+        $table->addIndex(array('bar'), 'bar_idx');
+        $table->addIndex(array('bar', 'baz'), 'fulfilling_idx');
+
+        $this->assertCount(2, $table->getIndexes());
+        $this->assertTrue($table->hasIndex('bar_idx'));
+        $this->assertTrue($table->hasIndex('fulfilling_idx'));
+        $this->assertSame(array('bar'), $table->getIndex('bar_idx')->getColumns());
+        $this->assertSame(array('bar', 'baz'), $table->getIndex('fulfilling_idx')->getColumns());
+    }
+
+    /**
+     * @group DBAL-50
+     * @group DBAL-1063
+     */
+    public function testPrimaryKeyOverrulingUniqueIndexDoesNotDropUniqueIndex()
     {
         $table = new Table("bar");
         $table->addColumn('baz', 'integer', array());
-        $table->addUniqueIndex(array('baz'));
+        $table->addUniqueIndex(array('baz'), 'idx_unique');
 
         $table->setPrimaryKey(array('baz'));
 
         $indexes = $table->getIndexes();
-        $this->assertEquals(1, count($indexes), "Table should only contain the primary key table index, not the unique one anymore, because it was overruled.");
+        $this->assertEquals(2, count($indexes), "Table should only contain both the primary key table index and the unique one, even though it was overruled.");
 
-        $index = current($indexes);
-        $this->assertTrue($index->isPrimary());
+        $this->assertTrue($table->hasPrimaryKey());
+        $this->assertTrue($table->hasIndex('idx_unique'));
     }
 
     /**

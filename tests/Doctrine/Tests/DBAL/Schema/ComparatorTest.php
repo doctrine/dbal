@@ -708,6 +708,59 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($tableDiff->renamedColumns), "no renamings should take place.");
     }
 
+    /**
+     * @group DBAL-1063
+     */
+    public function testDetectRenameIndex()
+    {
+        $table1 = new Table('foo');
+        $table1->addColumn('foo', 'integer');
+
+        $table2 = clone $table1;
+
+        $table1->addIndex(array('foo'), 'idx_foo');
+
+        $table2->addIndex(array('foo'), 'idx_bar');
+
+        $comparator = new Comparator();
+        $tableDiff = $comparator->diffTable($table1, $table2);
+
+        $this->assertCount(0, $tableDiff->addedIndexes);
+        $this->assertCount(0, $tableDiff->removedIndexes);
+        $this->assertArrayHasKey('idx_foo', $tableDiff->renamedIndexes);
+        $this->assertEquals('idx_bar', $tableDiff->renamedIndexes['idx_foo']->getName());
+    }
+
+    /**
+     * You can easily have ambiguities in the index renaming. If these
+     * are detected no renaming should take place, instead adding and dropping
+     * should be used exclusively.
+     *
+     * @group DBAL-1063
+     */
+    public function testDetectRenameIndexAmbiguous()
+    {
+        $table1 = new Table('foo');
+        $table1->addColumn('foo', 'integer');
+
+        $table2 = clone $table1;
+
+        $table1->addIndex(array('foo'), 'idx_foo');
+        $table1->addIndex(array('foo'), 'idx_bar');
+
+        $table2->addIndex(array('foo'), 'idx_baz');
+
+        $comparator = new Comparator();
+        $tableDiff = $comparator->diffTable($table1, $table2);
+
+        $this->assertCount(1, $tableDiff->addedIndexes);
+        $this->assertArrayHasKey('idx_baz', $tableDiff->addedIndexes);
+        $this->assertCount(2, $tableDiff->removedIndexes);
+        $this->assertArrayHasKey('idx_foo', $tableDiff->removedIndexes);
+        $this->assertArrayHasKey('idx_bar', $tableDiff->removedIndexes);
+        $this->assertCount(0, $tableDiff->renamedIndexes);
+    }
+
     public function testDetectChangeIdentifierType()
     {
         $this->markTestSkipped('DBAL-2 was reopened, this test cannot work anymore.');
