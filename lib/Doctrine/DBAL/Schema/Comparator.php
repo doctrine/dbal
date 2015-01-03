@@ -238,36 +238,36 @@ class Comparator
         $table1Indexes = $table1->getIndexes();
         $table2Indexes = $table2->getIndexes();
 
-        foreach ($table2Indexes as $index2Name => $index2Definition) {
-            foreach ($table1Indexes as $index1Name => $index1Definition) {
-                if ($this->diffIndex($index1Definition, $index2Definition) === false) {
-                    if ( ! $index1Definition->isPrimary() && $index1Name != $index2Name) {
-                        $tableDifferences->renamedIndexes[$index1Name] = $index2Definition;
-                        $changes++;
-                    }
+        /* See if all the indexes in table 1 exist in table 2 */
+        foreach ($table2Indexes as $indexName => $index) {
+            if (($index->isPrimary() && $table1->hasPrimaryKey()) || $table1->hasIndex($indexName)) {
+                continue;
+            }
 
-                    unset($table1Indexes[$index1Name]);
-                    unset($table2Indexes[$index2Name]);
-                } else {
-                    if ($index1Name == $index2Name) {
-                        $tableDifferences->changedIndexes[$index2Name] = $table2Indexes[$index2Name];
-                        unset($table1Indexes[$index1Name]);
-                        unset($table2Indexes[$index2Name]);
-                        $changes++;
-                    }
-                }
+            $tableDifferences->addedIndexes[$indexName] = $index;
+            $changes++;
+        }
+        /* See if there are any removed indexes in table 2 */
+        foreach ($table1Indexes as $indexName => $index) {
+            // See if index is removed in table 2.
+            if (($index->isPrimary() && ! $table2->hasPrimaryKey()) ||
+                ! $index->isPrimary() && ! $table2->hasIndex($indexName)
+            ) {
+                $tableDifferences->removedIndexes[$indexName] = $index;
+                $changes++;
+                continue;
+            }
+
+            // See if index has changed in table 2.
+            $table2Index = $index->isPrimary() ? $table2->getPrimaryKey() : $table2->getIndex($indexName);
+
+            if ($this->diffIndex($index, $table2Index)) {
+                $tableDifferences->changedIndexes[$indexName] = $table2Index;
+                $changes++;
             }
         }
 
-        foreach ($table1Indexes as $index1Name => $index1Definition) {
-            $tableDifferences->removedIndexes[$index1Name] = $index1Definition;
-            $changes++;
-        }
-
-        foreach ($table2Indexes as $index2Name => $index2Definition) {
-            $tableDifferences->addedIndexes[$index2Name] = $index2Definition;
-            $changes++;
-        }
+        $this->detectIndexRenamings($tableDifferences);
 
         $fromFkeys = $table1->getForeignKeys();
         $toFkeys = $table2->getForeignKeys();
@@ -330,6 +330,47 @@ class Comparator
                     $tableDifferences->renamedColumns[$removedColumnName] = $addedColumn;
                     unset($tableDifferences->addedColumns[$addedColumnName]);
                     unset($tableDifferences->removedColumns[$removedColumnName]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Try to find indexes that only changed their name, rename operations maybe cheaper than add/drop
+     * however ambiguities between different possibilities should not lead to renaming at all.
+     *
+     * @param \Doctrine\DBAL\Schema\TableDiff $tableDifferences
+     *
+     * @return void
+     */
+    private function detectIndexRenamings(TableDiff $tableDifferences)
+    {
+        $renameCandidates = array();
+
+        // Gather possible rename candidates by comparing each added and removed index based on semantics.
+        foreach ($tableDifferences->addedIndexes as $addedIndexName => $addedIndex) {
+            foreach ($tableDifferences->removedIndexes as $removedIndex) {
+                if (! $this->diffIndex($addedIndex, $removedIndex)) {
+                    $renameCandidates[$addedIndex->getName()][] = array($removedIndex, $addedIndex, $addedIndexName);
+                }
+            }
+        }
+
+        foreach ($renameCandidates as $candidateIndexes) {
+            // If the current rename candidate contains exactly one semantically equal index,
+            // we can safely rename it.
+            // Otherwise it is unclear if a rename action is really intended,
+            // therefore we let those ambiguous indexes be added/dropped.
+            if (count($candidateIndexes) === 1) {
+                list($removedIndex, $addedIndex) = $candidateIndexes[0];
+
+                $removedIndexName = strtolower($removedIndex->getName());
+                $addedIndexName = strtolower($addedIndex->getName());
+
+                if (! isset($tableDifferences->renamedIndexes[$removedIndexName])) {
+                    $tableDifferences->renamedIndexes[$removedIndexName] = $addedIndex;
+                    unset($tableDifferences->addedIndexes[$addedIndexName]);
+                    unset($tableDifferences->removedIndexes[$removedIndexName]);
                 }
             }
         }
