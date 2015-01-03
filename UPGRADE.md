@@ -1,3 +1,9 @@
+# Upgrade to 2.6
+
+## PHP Version requirement change
+
+As of version 2.6.0, PHP versions below 5.4.0 will not be supported anymore.
+
 # Upgrade to 2.5
 
 ## BC BREAK: time type resets date fields to UNIX epoch
