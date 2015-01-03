@@ -354,7 +354,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlineTable->addColumn('name', 'string');
         $offlineTable->addColumn('email', 'string');
         $offlineTable->addUniqueIndex(array('id', 'name'), 'simple_partial_index', array('where' => '(id IS NULL)'));
-        $offlineTable->addIndex(array('id', 'name'), 'complex_partial_index', array('where' => '(((id IS NOT NULL) AND (name IS NULL)) AND (email IS NULL))'));
+        $offlineTable->addIndex(array('id', 'name'), 'complex_partial_index', array(), array('where' => '(((id IS NOT NULL) AND (name IS NULL)) AND (email IS NULL))'));
 
         $this->_sm->dropAndCreateTable($offlineTable);
 
