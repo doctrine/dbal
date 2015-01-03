@@ -244,5 +244,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         );
 
         $this->assertTrue($connection->connect());
+
+        $connection->close();
     }
 }
