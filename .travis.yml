@@ -13,6 +13,9 @@ env:
   - DB=pgsql POSTGRESQL_VERSION=9.1
   - DB=pgsql POSTGRESQL_VERSION=9.2
   - DB=pgsql POSTGRESQL_VERSION=9.3
+  - DB=pgsql POSTGRESQL_VERSION=9.1 ENABLE_POSTGIS=true
+  - DB=pgsql POSTGRESQL_VERSION=9.2 ENABLE_POSTGIS=true
+  - DB=pgsql POSTGRESQL_VERSION=9.3 ENABLE_POSTGIS=true
   - DB=sqlite
   - DB=mysqli
 
@@ -24,6 +27,7 @@ install:
 
 before_script:
   - sh -c "if [ '$DB' = 'pgsql' ]; then sudo service postgresql stop; sudo service postgresql start $POSTGRESQL_VERSION; fi"
+  - sh -c "if [ '$ENABLE_POSTGIS' = true ]; then psql -c 'create extension postgis;' -U postgres; fi"
 
 script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 
@@ -35,6 +39,12 @@ matrix:
         env: DB=pgsql POSTGRESQL_VERSION=9.2
       - php: hhvm
         env: DB=pgsql POSTGRESQL_VERSION=9.3
+      - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.1 ENABLE_POSTGIS=true
+      - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.2 ENABLE_POSTGIS=true
+      - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.3 ENABLE_POSTGIS=true
       - php: hhvm
         env: DB=sqlite
       - php: hhvm
@@ -53,3 +63,15 @@ matrix:
         env: DB=pgsql POSTGRESQL_VERSION=9.2 # driver currently unsupported by HHVM
       - php: hhvm-nightly
         env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
+      - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.1 ENABLE_POSTGIS=true # driver currently unsupported by HHVM
+      - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.2 ENABLE_POSTGIS=true # driver currently unsupported by HHVM
+      - php: hhvm
+        env: DB=pgsql POSTGRESQL_VERSION=9.3 ENABLE_POSTGIS=true # driver currently unsupported by HHVM
+      - php: hhvm-nightly
+        env: DB=pgsql POSTGRESQL_VERSION=9.1 ENABLE_POSTGIS=true # driver currently unsupported by HHVM
+      - php: hhvm-nightly
+        env: DB=pgsql POSTGRESQL_VERSION=9.2 ENABLE_POSTGIS=true # driver currently unsupported by HHVM
+      - php: hhvm-nightly
+        env: DB=pgsql POSTGRESQL_VERSION=9.3 ENABLE_POSTGIS=true # driver currently unsupported by HHVM
