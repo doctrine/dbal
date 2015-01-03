@@ -489,25 +489,11 @@ class Table extends AbstractAsset
      */
     protected function _addIndex(Index $indexCandidate)
     {
-        // check for duplicates
-        foreach ($this->_indexes as $existingIndex) {
-            if ($indexCandidate->isFullfilledBy($existingIndex)) {
-                return $this;
-            }
-        }
-
         $indexName = $indexCandidate->getName();
         $indexName = $this->normalizeIdentifier($indexName);
 
         if (isset($this->_indexes[$indexName]) || ($this->_primaryKeyName != false && $indexCandidate->isPrimary())) {
             throw SchemaException::indexAlreadyExists($indexName, $this->_name);
-        }
-
-        // remove overruled indexes
-        foreach ($this->_indexes as $idxKey => $existingIndex) {
-            if ($indexCandidate->overrules($existingIndex)) {
-                unset($this->_indexes[$idxKey]);
-            }
         }
 
         if ($indexCandidate->isPrimary()) {
@@ -538,9 +524,23 @@ class Table extends AbstractAsset
         $name = $this->normalizeIdentifier($name);
 
         $this->_fkConstraints[$name] = $constraint;
+
         // add an explicit index on the foreign key columns. If there is already an index that fulfils this requirements drop the request.
         // In the case of __construct calling this method during hydration from schema-details all the explicitly added indexes
         // lead to duplicates. This creates computation overhead in this case, however no duplicate indexes are ever added (based on columns).
+        $indexName = $this->_generateIdentifierName(
+            array_merge(array($this->getName()), $constraint->getColumns()),
+            "idx",
+            $this->_getMaxIdentifierLength()
+        );
+        $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, false, false);
+
+        foreach ($this->_indexes as $existingIndex) {
+            if ($indexCandidate->isFullfilledBy($existingIndex)) {
+                return;
+            }
+        }
+
         $this->addIndex($constraint->getColumns());
     }
 
