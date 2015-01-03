@@ -344,6 +344,9 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertFalse($foundTable, 'View "list_tables_excludes_views_test_view" must not be found in table list');
     }
 
+    /**
+     * @group DBAL-1033
+     */
     public function testPartialIndexes()
     {
         $offlineTable = new Schema\Table('person');
