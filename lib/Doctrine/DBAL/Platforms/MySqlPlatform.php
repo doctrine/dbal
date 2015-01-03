@@ -817,8 +817,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getDecimalTypeDeclarationSQL(array $columnDef)
     {
-        $declaration = parent::getDecimalTypeDeclarationSQL($columnDef);
-        return $declaration . $this->getUnsignedDeclaration($columnDef);
+        return parent::getDecimalTypeDeclarationSQL($columnDef) . $this->getUnsignedDeclaration($columnDef);
     }
 
     /**
