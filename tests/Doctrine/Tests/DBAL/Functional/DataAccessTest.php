@@ -642,6 +642,43 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     }
 
     /**
+     * @group DBAL-1091
+     */
+    public function testFetchAllStyleObject()
+    {
+        $driverName = $this->_conn->getDriver()->getName();
+
+        if (in_array($driverName, array('oci8'), true)) {
+            $this->markTestSkipped(sprintf('Driver "%s" does not support hydrating data to an object.', $driverName));
+        }
+
+        $this->setupFixture();
+
+        $sql = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
+        $stmt = $this->_conn->prepare($sql);
+
+        $stmt->execute();
+
+        $results = $stmt->fetchAll(\PDO::FETCH_OBJ);
+
+        $this->assertCount(1, $results);
+        $this->assertInstanceOf('stdClass', $results[0]);
+
+        $this->assertEquals(
+            1,
+            property_exists($results[0], 'test_int') ? $results[0]->test_int : $results[0]->TEST_INT
+        );
+        $this->assertEquals(
+            'foo',
+            property_exists($results[0], 'test_string') ? $results[0]->test_string : $results[0]->TEST_STRING
+        );
+        $this->assertStringStartsWith(
+            '2010-01-01 10:10:10',
+            property_exists($results[0], 'test_datetime') ? $results[0]->test_datetime : $results[0]->TEST_DATETIME
+        );
+    }
+
+    /**
      * @group DBAL-196
      */
     public function testFetchAllSupportFetchClass()
