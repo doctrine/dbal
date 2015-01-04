@@ -261,13 +261,15 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 $ret = array_combine($this->_columnNames, $values);
                 $ret += $values;
                 return $ret;
-                
+
             case PDO::FETCH_OBJ:
                 $assoc = array_combine($this->_columnNames, $values);
                 $ret = new \stdClass();
+
                 foreach ($assoc as $column => $value) {
                     $ret->$column = $value;
                 }
+
                 return $ret;
 
             default:
