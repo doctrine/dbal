@@ -115,10 +115,10 @@ The following options are not completely portable but are supported by most of t
 vendors:
 
 -  **unsigned** (boolean): Whether a ``smallint``, ``integer`` or ``bigint`` Doctrine
-   type column should allow unsigned values only. Supported by MySQL, SQL Anywhere
-   and Drizzle. Defaults to ``false``.
+   type column should allow unsigned values only. Supported by MySQL and SQL Anywhere.
+   Defaults to ``false``.
 -  **comment** (integer|string): The column comment. Supported by MySQL, PostgreSQL,
-   Oracle, SQL Server, SQL Anywhere and Drizzle. Defaults to ``null``.
+   Oracle, SQL Server and SQL Anywhere. Defaults to ``null``.
 
 Vendor specific options
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -133,7 +133,7 @@ The following options are completely vendor specific and absolutely not portable
    supported by some vendors but not portable:
 
    -  **charset** (string): The character set to use for the column. Currently only supported
-      on MySQL and Drizzle.
+      on MySQL.
    -  **collate** (string): The collation to use for the column. Currently only supported on
       SQL Server.
    -  **check** (string): The check constraint clause to add to the column.

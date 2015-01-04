@@ -114,7 +114,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
         $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $conn->getDriver());
     }
-    
+
     /**
      * @dataProvider databaseUrls
      */
@@ -123,13 +123,13 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $options = is_array($url) ? $url : array(
             'url' => $url,
         );
-        
+
         if ($expected === false) {
             $this->setExpectedException('Doctrine\DBAL\DBALException');
         }
-        
+
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        
+
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {
             if ($key == 'driver') {
@@ -139,7 +139,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
             }
         }
     }
-    
+
     public function databaseUrls()
     {
         return array(
@@ -190,14 +190,6 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
             'simple URL with fallthrough scheme not defined in map' => array(
                 'sqlsrv://foo:bar@localhost/baz',
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\SQLSrv\Driver'),
-            ),
-            'simple URL with fallthrough scheme containing underscores fails' => array(
-                'drizzle_pdo_mysql://foo:bar@localhost/baz',
-                false,
-            ),
-            'simple URL with fallthrough scheme containing dashes works' => array(
-                'drizzle-pdo-mysql://foo:bar@localhost/baz',
-                array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver'),
             ),
         );
     }
