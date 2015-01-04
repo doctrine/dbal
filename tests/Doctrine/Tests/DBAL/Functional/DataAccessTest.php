@@ -646,12 +646,6 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testFetchAllStyleObject()
     {
-        $driverName = $this->_conn->getDriver()->getName();
-
-        if (in_array($driverName, array('oci8'), true)) {
-            $this->markTestSkipped(sprintf('Driver "%s" does not support hydrating data to an object.', $driverName));
-        }
-
         $this->setupFixture();
 
         $sql = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
