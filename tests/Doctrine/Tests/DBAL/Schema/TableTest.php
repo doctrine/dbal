@@ -491,6 +491,78 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $this->assertTrue($table->hasIndex('idx_unique'));
     }
 
+    public function testAddingFulfillingRegularIndexOverridesImplicitForeignKeyConstraintIndex()
+    {
+        $foreignTable = new Table('foreign');
+        $foreignTable->addColumn('id', 'integer');
+
+        $localTable = new Table('local');
+        $localTable->addColumn('id', 'integer');
+        $localTable->addForeignKeyConstraint($foreignTable, array('id'), array('id'));
+
+        $this->assertCount(1, $localTable->getIndexes());
+
+        $localTable->addIndex(array('id'), 'explicit_idx');
+
+        $this->assertCount(1, $localTable->getIndexes());
+        $this->assertTrue($localTable->hasIndex('explicit_idx'));
+    }
+
+    public function testAddingFulfillingUniqueIndexOverridesImplicitForeignKeyConstraintIndex()
+    {
+        $foreignTable = new Table('foreign');
+        $foreignTable->addColumn('id', 'integer');
+
+        $localTable = new Table('local');
+        $localTable->addColumn('id', 'integer');
+        $localTable->addForeignKeyConstraint($foreignTable, array('id'), array('id'));
+
+        $this->assertCount(1, $localTable->getIndexes());
+
+        $localTable->addUniqueIndex(array('id'), 'explicit_idx');
+
+        $this->assertCount(1, $localTable->getIndexes());
+        $this->assertTrue($localTable->hasIndex('explicit_idx'));
+    }
+
+    public function testAddingFulfillingPrimaryKeyOverridesImplicitForeignKeyConstraintIndex()
+    {
+        $foreignTable = new Table('foreign');
+        $foreignTable->addColumn('id', 'integer');
+
+        $localTable = new Table('local');
+        $localTable->addColumn('id', 'integer');
+        $localTable->addForeignKeyConstraint($foreignTable, array('id'), array('id'));
+
+        $this->assertCount(1, $localTable->getIndexes());
+
+        $localTable->setPrimaryKey(array('id'), 'explicit_idx');
+
+        $this->assertCount(1, $localTable->getIndexes());
+        $this->assertTrue($localTable->hasIndex('explicit_idx'));
+    }
+
+    public function testAddingFulfillingExplicitIndexOverridingImplicitForeignKeyConstraintIndexWithSameNameDoesNotThrowException()
+    {
+        $foreignTable = new Table('foreign');
+        $foreignTable->addColumn('id', 'integer');
+
+        $localTable = new Table('local');
+        $localTable->addColumn('id', 'integer');
+        $localTable->addForeignKeyConstraint($foreignTable, array('id'), array('id'));
+
+        $this->assertCount(1, $localTable->getIndexes());
+        $this->assertTrue($localTable->hasIndex('IDX_8BD688E8BF396750'));
+
+        $implicitIndex = $localTable->getIndex('IDX_8BD688E8BF396750');
+
+        $localTable->addIndex(array('id'), 'IDX_8BD688E8BF396750');
+
+        $this->assertCount(1, $localTable->getIndexes());
+        $this->assertTrue($localTable->hasIndex('IDX_8BD688E8BF396750'));
+        $this->assertNotSame($implicitIndex, $localTable->getIndex('IDX_8BD688E8BF396750'));
+    }
+
     /**
      * @group DBAL-64
      */
