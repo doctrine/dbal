@@ -45,6 +45,11 @@ class Table extends AbstractAsset
     /**
      * @var Index[]
      */
+    private $implicitIndexes = array();
+
+    /**
+     * @var Index[]
+     */
     protected $_indexes = array();
 
     /**
@@ -491,9 +496,22 @@ class Table extends AbstractAsset
     {
         $indexName = $indexCandidate->getName();
         $indexName = $this->normalizeIdentifier($indexName);
+        $replacedImplicitIndexes = array();
 
-        if (isset($this->_indexes[$indexName]) || ($this->_primaryKeyName != false && $indexCandidate->isPrimary())) {
+        foreach ($this->implicitIndexes as $name => $implicitIndex) {
+            if ($implicitIndex->isFullfilledBy($indexCandidate) && isset($this->_indexes[$name])) {
+                $replacedImplicitIndexes[] = $name;
+            }
+        }
+
+        if ((isset($this->_indexes[$indexName]) && ! in_array($indexName, $replacedImplicitIndexes, true)) ||
+            ($this->_primaryKeyName != false && $indexCandidate->isPrimary())
+        ) {
             throw SchemaException::indexAlreadyExists($indexName, $this->_name);
+        }
+
+        foreach ($replacedImplicitIndexes as $name) {
+            unset($this->_indexes[$name], $this->implicitIndexes[$name]);
         }
 
         if ($indexCandidate->isPrimary()) {
@@ -541,7 +559,8 @@ class Table extends AbstractAsset
             }
         }
 
-        $this->addIndex($constraint->getColumns());
+        $this->_addIndex($indexCandidate);
+        $this->implicitIndexes[$this->normalizeIdentifier($indexName)] = $indexCandidate;
     }
 
     /**
