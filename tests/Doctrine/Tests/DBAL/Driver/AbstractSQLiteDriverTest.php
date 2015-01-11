@@ -71,6 +71,7 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
             self::EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION => array(
                 array(null, null, 'must be unique'),
                 array(null, null, 'is not unique'),
+                array(null, null, 'are not unique'),
             ),
         );
     }

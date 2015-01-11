@@ -42,6 +42,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     {
         if (strpos($exception->getMessage(), 'must be unique') !== false ||
             strpos($exception->getMessage(), 'is not unique') !== false ||
+            strpos($exception->getMessage(), 'are not unique') !== false ||
             strpos($exception->getMessage(), 'UNIQUE constraint failed') !== false
         ) {
             return new Exception\UniqueConstraintViolationException($message, $exception);
