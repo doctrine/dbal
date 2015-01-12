@@ -1028,7 +1028,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListDatabasesSQL()
     {
-        return 'SELECT * FROM SYS.DATABASES';
+        return 'SELECT * FROM sys.databases';
     }
 
     /**
@@ -1036,7 +1036,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListNamespacesSQL()
     {
-        return "SELECT name FROM SYS.SCHEMAS WHERE name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')";
+        return "SELECT name FROM sys.schemas WHERE name NOT IN('guest', 'INFORMATION_SCHEMA', 'sys')";
     }
 
     /**
