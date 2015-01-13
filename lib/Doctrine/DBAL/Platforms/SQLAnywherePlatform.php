@@ -405,7 +405,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getCreateDatabaseSQL($database)
     {
-        return "CREATE DATABASE '$database'";
+        $database = new Identifier($database);
+
+        return "CREATE DATABASE '" . $database->getName() . "'";
     }
 
     /**
@@ -537,7 +539,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($database)
     {
-        return "DROP DATABASE '$database'";
+        $database = new Identifier($database);
+
+        return "DROP DATABASE '" . $database->getName() . "'";
     }
 
     /**
@@ -1025,7 +1029,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getStartDatabaseSQL($database)
     {
-        return "START DATABASE '$database' AUTOSTOP OFF";
+        $database = new Identifier($database);
+
+        return "START DATABASE '" . $database->getName() . "' AUTOSTOP OFF";
     }
 
     /**
@@ -1042,7 +1048,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getStopDatabaseSQL($database)
     {
-        return 'STOP DATABASE "' . $database . '" UNCONDITIONALLY';
+        $database = new Identifier($database);
+
+        return 'STOP DATABASE "' . $database->getName() . '" UNCONDITIONALLY';
     }
 
     /**
