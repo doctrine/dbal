@@ -233,6 +233,38 @@ or ``null`` if no data is present.
     bit data type if necessary to ensure the least possible data storage
     requirements are met.
 
+enum
+^^^^
+
+Maps and convert enum type
+An ENUM value must be one of those listed in the column definition, or the internal
+numeric equivalent thereof.
+You can specify allowed values in ``values`` in ``options`` @Column annotation
+For example:
+
+.. code-block:: php
+
+    /**
+     * @Column(name="filed", type="enum", options={"values"="'value1','value2'"})
+     */
+    private $field;
+
+set type
+^^^^^^^^
+
+Maps and converts set data.
+A SET is a string object that can have zero or more values, each of which
+must be chosen from a list of permitted values specified when the table is created.
+You can specify allowed values in ``values`` in ``options`` @Column annotation
+For example:
+
+.. code-block:: php
+
+    /**
+     * @Column(name="another_filed", type="set", options={"values"="'value1','value2'"})
+     */
+    private $anotherField;
+
 Date and time types
 ~~~~~~~~~~~~~~~~~~~
 

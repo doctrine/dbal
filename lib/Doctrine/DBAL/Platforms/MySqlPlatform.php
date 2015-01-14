@@ -956,7 +956,8 @@ class MySqlPlatform extends AbstractPlatform
             'tinyblob'      => 'blob',
             'binary'        => 'binary',
             'varbinary'     => 'binary',
-            'set'           => 'simple_array',
+            'set'           => 'set',
+            'enum'          => 'enum'
         );
     }
 
