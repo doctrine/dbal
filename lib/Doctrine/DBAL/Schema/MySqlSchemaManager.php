@@ -122,6 +122,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $scale = null;
         $precision = null;
+        $values = null;
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
 
@@ -174,6 +175,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'year':
                 $length = null;
                 break;
+            case 'enum':
+            case 'set':
+                strtok($tableColumn['type'],'()');
+                $values = strtok('()');
+                break;
         }
 
         $length = ((int) $length == 0) ? null : (int) $length;
@@ -195,6 +201,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
         if ($scale !== null && $precision !== null) {
             $options['scale'] = $scale;
             $options['precision'] = $precision;
+        }
+
+        if ($values) {
+            $options['customSchemaOptions'] = array('values' => $values);
         }
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
