@@ -22,8 +22,6 @@ namespace Doctrine\Tests\DBAL;
 use Doctrine\DBAL\Configuration;
 use Doctrine\Tests\DbalTestCase;
 
-require_once __DIR__ . '/../TestInit.php';
-
 /**
  * Unit tests for the configuration container.
  *

@@ -6,8 +6,6 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function setUp()

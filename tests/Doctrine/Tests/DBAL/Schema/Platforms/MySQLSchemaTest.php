@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Schema\Platforms;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 use Doctrine\DBAL\Schema\Table;
 
 class MySQLSchemaTest extends \PHPUnit_Framework_TestCase

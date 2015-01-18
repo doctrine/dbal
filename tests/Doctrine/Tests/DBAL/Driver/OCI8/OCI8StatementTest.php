@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
 {
     public function setUp()

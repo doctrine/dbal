@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL;
 
-require_once __DIR__ . '/../TestInit.php';
-
 class UtilTest extends \Doctrine\Tests\DbalTestCase
 {
     static public function dataConvertPositionalToNamedParameters()

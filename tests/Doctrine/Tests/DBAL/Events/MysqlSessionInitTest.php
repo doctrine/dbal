@@ -7,8 +7,6 @@ use Doctrine\DBAL\Event\Listeners\MysqlSessionInit;
 use Doctrine\DBAL\Events;
 use Doctrine\Tests\DbalTestCase;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class MysqlSessionInitTest extends DbalTestCase
 {
     public function testPostConnect()
