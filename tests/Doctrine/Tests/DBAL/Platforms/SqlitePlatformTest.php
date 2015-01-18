@@ -9,8 +9,6 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
     public function createPlatform()

@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\SQLParserUtils;
 
-require_once __DIR__ . '/../TestInit.php';
-
 /**
  * @group DBAL-78
  * @group DDC-1372

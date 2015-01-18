@@ -7,8 +7,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use PDO;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     static private $generated = false;

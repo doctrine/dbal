@@ -9,8 +9,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
     static public function dataValidIdentifiers()

@@ -8,8 +8,6 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function setUp()
