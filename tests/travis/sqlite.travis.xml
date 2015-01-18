@@ -2,7 +2,7 @@
 <phpunit bootstrap="../Doctrine/Tests/TestInit.php">
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
-            <directory>./../Doctrine/Tests/DBAL</directory>
+            <directory>../Doctrine/Tests/DBAL</directory>
         </testsuite>
     </testsuites>
     <groups>
