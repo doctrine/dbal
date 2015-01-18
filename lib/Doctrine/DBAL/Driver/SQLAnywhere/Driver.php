@@ -35,24 +35,15 @@ class Driver extends AbstractSQLAnywhereDriver
      * {@inheritdoc}
      *
      * @throws \Doctrine\DBAL\DBALException if there was a problem establishing the connection.
-     * @throws SQLAnywhereException         if a mandatory connection parameter is missing.
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        if ( ! isset($params['host'])) {
-            throw new SQLAnywhereException("Missing 'host' in configuration for sqlanywhere driver.");
-        }
-
-        if ( ! isset($params['server'])) {
-            throw new SQLAnywhereException("Missing 'server' in configuration for sqlanywhere driver.");
-        }
-
         try {
             return new SQLAnywhereConnection(
                 $this->buildDsn(
-                    $params['host'],
+                    isset($params['host']) ? $params['host'] : null,
                     isset($params['port']) ? $params['port'] : null,
-                    $params['server'],
+                    isset($params['server']) ? $params['server'] : null,
                     isset($params['dbname']) ? $params['dbname'] : null,
                     $username,
                     $password,
@@ -90,11 +81,16 @@ class Driver extends AbstractSQLAnywhereDriver
      */
     private function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = array())
     {
+        $host = $host ?: 'localhost';
         $port = $port ?: 2638;
 
+        if (! empty($server)) {
+            $server = ';ServerName=' . $server;
+        }
+
         return
-            'LINKS=tcpip(HOST=' . $host . ';PORT=' . $port . ';DoBroadcast=Direct)' .
-            ';ServerName=' . $server .
+            'HOST=' . $host . ':' . $port .
+            $server .
             ';DBN=' . $dbname .
             ';UID=' . $username .
             ';PWD=' . $password .
