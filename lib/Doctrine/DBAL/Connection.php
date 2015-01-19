@@ -32,6 +32,7 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Driver\PingableConnection;
+use Doctrine\DBAL\Exception\DriverException;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
@@ -424,9 +425,14 @@ class Connection implements DriverConnection
             return $this->_params['serverVersion'];
         }
 
-        // If not connected, we need to connect now to determine the platform version.
+        // If not connected, try to connect now to determine the platform version.
         if (null === $this->_conn) {
-            $this->connect();
+            try {
+                $this->connect();
+            } catch (DriverException $e) {
+                // Unable to detect platform version.
+                return null;
+            }
         }
 
         // Automatic platform version detection.
