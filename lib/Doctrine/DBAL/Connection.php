@@ -424,9 +424,12 @@ class Connection implements DriverConnection
             return $this->_params['serverVersion'];
         }
 
-        // If not connected, we need to connect now to determine the platform version.
+        // If not connected, we can't figure out the server version. If
+        // we try to connect, it may fail (e.g. no database), which would
+        // cause an error in our application when determining the platform
+        // version is not mission-critical
         if (null === $this->_conn) {
-            $this->connect();
+            return null;
         }
 
         // Automatic platform version detection.
