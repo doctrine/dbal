@@ -290,6 +290,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
 
+    public function testModifyLimitQueryWithOffsetAndEmptyLimit()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', null, 10);
+        $this->assertEquals('SELECT * FROM user LIMIT -1 OFFSET 10', $sql);
+    }
+
     public function getGenerateAlterTableSql()
     {
         return array(
