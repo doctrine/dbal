@@ -598,6 +598,18 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    protected function doModifyLimitQuery($query, $limit, $offset)
+    {
+        if (null === $limit && null !== $offset) {
+            return $query . ' LIMIT -1 OFFSET ' . $offset;
+        }
+
+        return parent::doModifyLimitQuery($query, $limit, $offset);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'BLOB';
