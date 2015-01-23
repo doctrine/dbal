@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use PDO;
 use Closure;
@@ -429,7 +430,12 @@ class Connection implements DriverConnection
         // cause an error in our application when determining the platform
         // version is not mission-critical
         if (null === $this->_conn) {
-            return null;
+            try {
+                $this->connect();
+            } catch (DriverException $e) {
+                // i.e. connection params are invalid or db doesn't exist
+                return null;
+            }
         }
 
         // Automatic platform version detection.
