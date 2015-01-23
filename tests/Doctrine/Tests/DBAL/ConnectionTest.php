@@ -405,7 +405,7 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
     {
         $this->_conn->close();
 
-        $this->setExpectedException('Doctrine\\DBAL\\Exception\\DriverException');
+        //$this->setExpectedException('Doctrine\\DBAL\\Exception\\DriverException');
 
         $this->_conn->quoteIdentifier('Bug');
     }
