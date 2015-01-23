@@ -403,15 +403,6 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $this->assertSame($result, $conn->fetchColumn($statement, $params, $column, $types));
     }
 
-    public function testConnectionIsClosed()
-    {
-        $this->_conn->close();
-
-        $this->setExpectedException('Doctrine\\DBAL\\Exception\\DriverException');
-
-        $this->_conn->quoteIdentifier('Bug');
-    }
-
     public function testGetPlatformVersionDoesNotFailOnBadConnection()
     {
         // the connection uses bogus connection requirements, so connecting
