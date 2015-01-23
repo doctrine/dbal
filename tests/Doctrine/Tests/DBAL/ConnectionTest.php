@@ -412,6 +412,14 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $this->_conn->quoteIdentifier('Bug');
     }
 
+    public function testGetPlatformVersionDoesNotFailOnBadConnection()
+    {
+        // the connection uses bogus connection requirements, so connecting
+        // *will* fail. We should be able to call this without connection
+        // and causing that exception
+        $this->_conn->getDatabasePlatform();
+    }
+
     public function testFetchAll()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
