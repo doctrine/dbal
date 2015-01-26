@@ -654,6 +654,24 @@ class MySqlPlatform extends AbstractPlatform
             }
         }
 
+        // handle columns that are removed from changed indexes
+        foreach ($diff->changedIndexes as $chgKey => $chgIndex) {
+            // Dropping primary keys requires to unset autoincrement attribute on the particular column first
+            if ($chgIndex->isPrimary() && $diff->fromTable instanceof Table) {
+
+                foreach ($diff->fromTable->getIndex($chgIndex->getName())->getColumns() as $columnName) {
+                    $column = $diff->fromTable->getColumn($columnName);
+
+                    if ($column->getAutoincrement() === true && in_array($columnName, $chgIndex->getColumns()) === false) {
+                        $column->setAutoincrement(false);
+
+                        $sql[] = 'ALTER TABLE ' . $table . ' MODIFY ' .
+                            $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                    }
+                }
+            }
+        }
+
         $engine = 'INNODB';
 
         if ($diff->fromTable instanceof Table && $diff->fromTable->hasOption('engine')) {
