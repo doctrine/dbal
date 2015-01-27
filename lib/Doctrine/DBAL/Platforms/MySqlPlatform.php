@@ -625,6 +625,9 @@ class MySqlPlatform extends AbstractPlatform
 
                         $sql[] = 'ALTER TABLE ' . $table . ' MODIFY ' .
                             $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+
+                        // original autoincrement information might be needed later on by other parts of the table alteration
+                        $column->setAutoincrement(true);
                     }
                 }
             }
@@ -668,6 +671,9 @@ class MySqlPlatform extends AbstractPlatform
 
                         $sql[] = 'ALTER TABLE ' . $table . ' MODIFY ' .
                             $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+
+                        // original autoincrement information might be needed later on by other parts of the table alteration
+                        $column->setAutoincrement(true);
                     }
                 }
             }
