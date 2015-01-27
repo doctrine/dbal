@@ -339,7 +339,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testAlterPrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("drop_primary_key");
-        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->addColumn('foo', 'integer');
         $table->setPrimaryKey(array('id'));
 
@@ -365,8 +365,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testDropPrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("drop_primary_key");
-        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
-        $table->addColumn('foo', 'integer', array('primary' => true));
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'integer');
         $table->setPrimaryKey(array('id', 'foo'));
 
