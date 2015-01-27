@@ -659,7 +659,8 @@ class MySqlPlatform extends AbstractPlatform
             // Dropping primary keys requires to unset autoincrement attribute on the particular column first
             if ($chgIndex->isPrimary() && $diff->fromTable instanceof Table) {
 
-                foreach ($diff->fromTable->getIndex($chgIndex->getName())->getColumns() as $columnName) {
+                // when chgIndex->isPrimary we can be sure fromTable->hasPrimaryKey is true
+                foreach ($diff->fromTable->getPrimaryKeyColumns() as $columnName) {
                     $column = $diff->fromTable->getColumn($columnName);
 
                     if ($column->getAutoincrement() === true && in_array($columnName, $chgIndex->getColumns()) === false) {
