@@ -89,6 +89,11 @@ class SQLParserUtils
         $isPositional   = is_int(key($params));
         $arrayPositions = array();
         $bindIndex      = -1;
+        $relevantArrayTypes = array(
+            Connection::PARAM_INT_ARRAY,
+            Connection::PARAM_STR_ARRAY,
+            Connection::PARAM_LOB_ARRAY,
+        );
 
         if ($isPositional) {
             ksort($params);
@@ -98,7 +103,7 @@ class SQLParserUtils
         foreach ($types as $name => $type) {
             ++$bindIndex;
 
-            if ($type !== Connection::PARAM_INT_ARRAY && $type !== Connection::PARAM_STR_ARRAY) {
+            if (!in_array($type, $relevantArrayTypes)) {
                 continue;
             }
 
