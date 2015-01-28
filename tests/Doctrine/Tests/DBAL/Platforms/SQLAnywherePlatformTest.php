@@ -301,10 +301,18 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesDDLSnippets()
     {
         $this->assertEquals("CREATE DATABASE 'foobar'", $this->_platform->getCreateDatabaseSQL('foobar'));
+        $this->assertEquals("CREATE DATABASE 'foobar'", $this->_platform->getCreateDatabaseSQL('"foobar"'));
+        $this->assertEquals("CREATE DATABASE 'create'", $this->_platform->getCreateDatabaseSQL('create'));
         $this->assertEquals("DROP DATABASE 'foobar'", $this->_platform->getDropDatabaseSQL('foobar'));
+        $this->assertEquals("DROP DATABASE 'foobar'", $this->_platform->getDropDatabaseSQL('"foobar"'));
+        $this->assertEquals("DROP DATABASE 'create'", $this->_platform->getDropDatabaseSQL('create'));
         $this->assertEquals('CREATE GLOBAL TEMPORARY TABLE', $this->_platform->getCreateTemporaryTableSnippetSQL());
         $this->assertEquals("START DATABASE 'foobar' AUTOSTOP OFF", $this->_platform->getStartDatabaseSQL('foobar'));
+        $this->assertEquals("START DATABASE 'foobar' AUTOSTOP OFF", $this->_platform->getStartDatabaseSQL('"foobar"'));
+        $this->assertEquals("START DATABASE 'create' AUTOSTOP OFF", $this->_platform->getStartDatabaseSQL('create'));
         $this->assertEquals('STOP DATABASE "foobar" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('foobar'));
+        $this->assertEquals('STOP DATABASE "foobar" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('"foobar"'));
+        $this->assertEquals('STOP DATABASE "create" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('create'));
         $this->assertEquals('TRUNCATE TABLE foobar', $this->_platform->getTruncateTableSQL('foobar'));
         $this->assertEquals('TRUNCATE TABLE foobar', $this->_platform->getTruncateTableSQL('foobar'), true);
 
