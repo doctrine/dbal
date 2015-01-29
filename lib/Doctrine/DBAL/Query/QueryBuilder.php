@@ -1308,9 +1308,9 @@ class QueryBuilder
         $sql = '';
 
         if (isset($this->sqlParts['join'][$fromAlias])) {
-			if (array_key_exists($join['joinAlias'], $knownAliases)) {
-				throw QueryException::aliasNotUnique($join['joinAlias']);
-			}
+            if (array_key_exists($join['joinAlias'], $knownAliases)) {
+                throw QueryException::notUniqueAlias($join['joinAlias'], $knownAliases);
+            }
             foreach ($this->sqlParts['join'][$fromAlias] as $join) {
                 $sql .= ' ' . strtoupper($join['joinType'])
                     . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
