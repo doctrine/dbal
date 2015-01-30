@@ -11,6 +11,16 @@ use PDO;
 class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
 
+    /**
+     * @var string
+     */
+    private $binaryData;
+
+    /**
+     * @var string
+     */
+    private $otherBinary;
+
     public function ticketProvider()
     {
         return array(
@@ -19,9 +29,18 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 array('foo'=>1,'bar'=> array(1, 2, 3)),
                 array('foo'=>PDO::PARAM_INT,'bar'=> Connection::PARAM_INT_ARRAY,),
                 array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
+                    array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$this->binaryData),
+                    array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$this->otherBinary),
+                    array('id'=>3,'foo'=>1,'bar'=>3,'baz'=>$this->binaryData),
+                )
+            ),
+
+            array(
+                'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar IN (:bar) AND f.baz = :baz',
+                array('foo'=>1,'bar'=> array(1, 2, 3),'baz'=>$this->otherBinary),
+                array('foo'=>PDO::PARAM_INT,'bar'=>Connection::PARAM_INT_ARRAY,PDO::PARAM_LOB),
+                array(
+                    array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$this->otherBinary),
                 )
             ),
 
@@ -30,9 +49,19 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 array('foo'=>1,'bar'=> array(1, 2, 3)),
                 array('bar'=> Connection::PARAM_INT_ARRAY,'foo'=>PDO::PARAM_INT),
                 array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
+                    array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$this->binaryData),
+                    array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$this->otherBinary),
+                    array('id'=>3,'foo'=>1,'bar'=>3,'baz'=>$this->binaryData),
+                )
+            ),
+
+            array(
+                'SELECT * FROM ddc1372_foobar f WHERE f.bar = :bar AND f.baz IN (:baz)',
+                array('bar'=>1,'baz'=> array($this->binaryData, $this->otherBinary)),
+                array('bar'=>Connection::PARAM_INT_ARRAY,'baz'=>Connection::PARAM_LOB_ARRAY),
+                array(
+                    array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$this->binaryData),
+                    array('id'=>5,'foo'=>1,'bar'=>1,'baz'=>$this->binaryData),
                 )
             ),
 
@@ -41,9 +70,9 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 array('foo'=>1,'bar'=> array(1, 2, 3)),
                 array('bar'=> Connection::PARAM_INT_ARRAY,'foo'=>PDO::PARAM_INT),
                 array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
+                    array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$this->binaryData),
+                    array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$this->otherBinary),
+                    array('id'=>3,'foo'=>1,'bar'=>3,'baz'=>$this->binaryData),
                 )
             ),
 
@@ -52,9 +81,9 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 array('foo'=>1,'bar'=> array('1', '2', '3')),
                 array('bar'=> Connection::PARAM_STR_ARRAY,'foo'=>PDO::PARAM_INT),
                 array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
+                    array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$this->binaryData),
+                    array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$this->otherBinary),
+                    array('id'=>3,'foo'=>1,'bar'=>3,'baz'=>$this->binaryData),
                 )
             ),
 
@@ -63,10 +92,10 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 array('foo'=>array('1'),'bar'=> array(1, 2, 3,4)),
                 array('bar'=> Connection::PARAM_STR_ARRAY,'foo'=>Connection::PARAM_INT_ARRAY),
                 array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
-                    array('id'=>4,'foo'=>1,'bar'=>4),
+                    array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$this->binaryData),
+                    array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$this->otherBinary),
+                    array('id'=>3,'foo'=>1,'bar'=>3,'baz'=>$this->binaryData),
+                    array('id'=>4,'foo'=>1,'bar'=>4,'baz'=>$this->otherBinary),
                 )
             ),
 
@@ -75,7 +104,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 array('foo'=>1,'bar'=> 2),
                 array('bar'=>PDO::PARAM_INT,'foo'=>PDO::PARAM_INT),
                 array(
-                    array('id'=>2,'foo'=>1,'bar'=>2),
+                    array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$this->otherBinary),
                 )
             ),
 
@@ -84,7 +113,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 array('arg'=>'1'),
                 array('arg'=>PDO::PARAM_STR),
                 array(
-                    array('id'=>5,'foo'=>2,'bar'=>1),
+                    array('id'=>5,'foo'=>2,'bar'=>1,'baz'=>$this->binaryData),
                 )
             ),
 
@@ -93,8 +122,8 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 array('arg'=>array(1, 2)),
                 array('arg'=>Connection::PARAM_INT_ARRAY),
                 array(
-                    array('id'=>3,'foo'=>1,'bar'=>3),
-                    array('id'=>4,'foo'=>1,'bar'=>4),
+                    array('id'=>3,'foo'=>1,'bar'=>3,'baz'=>$this->binaryData),
+                    array('id'=>4,'foo'=>1,'bar'=>4,'baz'=>$this->otherBinary),
                 )
             ),
 
@@ -113,29 +142,29 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $table->addColumn('bar','string');
                 $table->addColumn('baz','binary');
                 $table->setPrimaryKey(array('id'));
-                $binaryData  = pack("nvc*", 0x1234, 0x5678, 65, 66);
-                $otherBinary = pack("nvc*", 0x1234, 0x5678, 64, 67, 68);
+                $this->binaryData  = pack("nvc*", 0x1234, 0x5678, 65, 66);
+                $this->otherBinary = pack("nvc*", 0x1234, 0x5678, 64, 67, 68);
 
                 $sm = $this->_conn->getSchemaManager();
                 $sm->createTable($table);
 
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 1, 'foo'   => 1,  'bar'   => 1, 'baz' => $binaryData
+                        'id'    => 1, 'foo'   => 1,  'bar'   => 1, 'baz' => $this->binaryData
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 2, 'foo'   => 1,  'bar'   => 2, 'baz' => $otherBinary
+                        'id'    => 2, 'foo'   => 1,  'bar'   => 2, 'baz' => $this->otherBinary
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 3, 'foo'   => 1,  'bar'   => 3, 'baz' => $binaryData
+                        'id'    => 3, 'foo'   => 1,  'bar'   => 3, 'baz' => $this->binaryData
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 4, 'foo'   => 1,  'bar'   => 4, 'baz' => $otherBinary
+                        'id'    => 4, 'foo'   => 1,  'bar'   => 4, 'baz' => $this->otherBinary
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 5, 'foo'   => 2,  'bar'   => 1, 'baz' => $binaryData
+                        'id'    => 5, 'foo'   => 2,  'bar'   => 1, 'baz' => $this->binaryData
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 6, 'foo'   => 2,  'bar'   => 2, 'baz' => $otherBinary
+                        'id'    => 6, 'foo'   => 2,  'bar'   => 2, 'baz' => $this->otherBinary
                 ));
             } catch(\Exception $e) {
                 $this->fail($e->getMessage());
