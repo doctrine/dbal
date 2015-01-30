@@ -1309,6 +1309,9 @@ class QueryBuilder
 
         if (isset($this->sqlParts['join'][$fromAlias])) {
             foreach ($this->sqlParts['join'][$fromAlias] as $join) {
+                if (array_key_exists($join['joinAlias'], $knownAliases)) {
+                    throw QueryException::nonUniqueAlias($join['joinAlias'], array_keys($knownAliases));
+                }
                 $sql .= ' ' . strtoupper($join['joinType'])
                     . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
                     . ' ON ' . ((string) $join['joinCondition']);

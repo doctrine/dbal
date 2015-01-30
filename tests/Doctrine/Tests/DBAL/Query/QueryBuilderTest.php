@@ -863,4 +863,23 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertSame(array('name' => \PDO::PARAM_STR, 'isActive' => \PDO::PARAM_BOOL), $qb->getParameterTypes());
     }
+
+    /**
+     * @group DBAL-1137
+     */
+    public function testJoinWithNonUniqueAliasThrowsException()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('a.id')
+            ->from('table_a', 'a')
+            ->join('a', 'table_b', 'a', 'a.fk_b = a.id');
+
+        $this->setExpectedException(
+            'Doctrine\DBAL\Query\QueryException',
+            "The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a."
+        );
+
+        $qb->getSQL();
+    }
 }
