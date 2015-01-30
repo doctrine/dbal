@@ -900,13 +900,13 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * this test runs well
+     * however this test runs well
      */
     public function testDoubleFromWithJoinInversed()
     {
         $qb = new QueryBuilder($this->conn);
 
-        $qb->select('a.id, b.id, c.id, bb.id')
+        $qb->select('a.id, b.id, c.id')
             ->from('table_b', 'b')
             ->from('table_a', 'a')
             ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
@@ -915,46 +915,40 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertSame('SELECT a.id, b.id, c.id FROM table_b b, table_a a INNER JOIN table_c c ON a.fk_c = c.id WHERE a.fk_b = b.id', $qb->getSQL());
     }
 
-    public function testDuplicateAliases()
+    public function testNonUniqueAliasThrowsException()
     {
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('a.id, b.id, c.id')
-            ->from('table_b', 'b')
             ->from('table_a', 'a')
+            ->from('table_b', 'b')
             ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
             ->leftJoin('a', 'table_b', 'b', 'a.fk_b = b.id')
             ->andWhere('a.fk_b = b.id');
 
-        $this->assertSame('dumb string', $qb->getSQL());
+        $this->setExpectedException(
+            'Doctrine\DBAL\Query\QueryException',
+            "The given alias 'b' is not unique in FROM and JOIN clause table. The currently registered aliases are: a, b, c."
+        );
+
+        $qb->getSQL();
     }
 
-    /*
-    public function testDuplicateAliases2()
+    public function testDuplicateFromAliasThrowsException()
     {
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('a.id, b.id, c.id')
             ->from('table_a', 'a')
-            ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
-            ->leftJoin('b', 'table_c', 'c', 'b.fk_c = c.id')
-            ->leftJoin('c', 'table_a', 'a', 'c.fk_a = a.id')
-            ->andWhere('a.fk_b = b.id');
-
-        $this->assertSame('dumb string', $qb->getSQL());
-    }
-    */
-
-    public function testDuplicateAliases3()
-    {
-        $qb = new QueryBuilder($this->conn);
-
-        $qb->select('a.id, b.id, c.id')
             ->from('table_b', 'b')
-            ->from('table_a', 'a')
-            ->from('table_a', 'a')
+            ->from('table_aa', 'a')
             ->andWhere('a.fk_b = b.id');
 
-        $this->assertSame('dumb string', $qb->getSQL());
+        $this->setExpectedException(
+            'Doctrine\DBAL\Query\QueryException',
+            "The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a, b."
+        );
+
+        $qb->getSQL();
     }
 }
