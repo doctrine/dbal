@@ -111,29 +111,31 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $table->addColumn('id', 'integer');
                 $table->addColumn('foo','string');
                 $table->addColumn('bar','string');
+                $table->addColumn('baz','binary');
                 $table->setPrimaryKey(array('id'));
-
+                $binaryData  = pack("nvc*", 0x1234, 0x5678, 65, 66);
+                $otherBinary = pack("nvc*", 0x1234, 0x5678, 64, 67, 68);
 
                 $sm = $this->_conn->getSchemaManager();
                 $sm->createTable($table);
 
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 1, 'foo'   => 1,  'bar'   => 1
+                        'id'    => 1, 'foo'   => 1,  'bar'   => 1, 'baz' => $binaryData
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 2, 'foo'   => 1,  'bar'   => 2
+                        'id'    => 2, 'foo'   => 1,  'bar'   => 2, 'baz' => $otherBinary
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 3, 'foo'   => 1,  'bar'   => 3
+                        'id'    => 3, 'foo'   => 1,  'bar'   => 3, 'baz' => $binaryData
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 4, 'foo'   => 1,  'bar'   => 4
+                        'id'    => 4, 'foo'   => 1,  'bar'   => 4, 'baz' => $otherBinary
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 5, 'foo'   => 2,  'bar'   => 1
+                        'id'    => 5, 'foo'   => 2,  'bar'   => 1, 'baz' => $binaryData
                 ));
                 $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 6, 'foo'   => 2,  'bar'   => 2
+                        'id'    => 6, 'foo'   => 2,  'bar'   => 2, 'baz' => $otherBinary
                 ));
             } catch(\Exception $e) {
                 $this->fail($e->getMessage());
