@@ -934,7 +934,7 @@ END;';
         $table = new Identifier($tableName);
 
         // No usage of column name to preserve BC compatibility with <2.5
-        $identitySequenceName = $table->getName() . '_SEQ';
+        $identitySequenceName = $table->getName() . ((string)$columnName !== '' ? '_' . $columnName : '') . '_SEQ';
 
         if ($table->isQuoted()) {
             $identitySequenceName = '"' . $identitySequenceName . '"';
