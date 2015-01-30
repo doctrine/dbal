@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Query;
 
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Query\QueryException;
 
 require_once __DIR__ . '/../../TestInit.php';
 
@@ -880,7 +879,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->join('a', 'table_b', 'b', 'a.fk_b = b.id')
             ->join('b', 'table_a', 'a', 'a.fk_b = b.id');
 
-        $this->setExpectedException('QueryException');
+        $this->setExpectedException('Doctrine\DBAL\Query\QueryException');
         $this->assertEquals(
             'dumb string',
             $qb->getSQL()
