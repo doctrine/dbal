@@ -52,6 +52,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 array('bar'=>PDO::PARAM_INT,'baz'=>Connection::PARAM_LOB_ARRAY),
                 array(
                     array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$binaryData),
+                    array('id'=>5,'foo'=>2,'bar'=>1,'baz'=>$binaryData),
                 )
             ),
 
