@@ -636,7 +636,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->join('a', 'table_b', 'b', 'a.fk_b = b.id')
             ->join('b', 'table_a', 'a', 'a.fk_b = b.id');
 
-        $this->setExpectedException('QueryException');
+        $this->setExpectedException('Doctrine\DBAL\Query\QueryException');
         $this->assertEquals(
             'dumb string',
             $qb->getSQL()
