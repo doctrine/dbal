@@ -894,7 +894,21 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->leftJoin('a', 'table_b', 'bb', 'a.fk_b = bb.id')
             ->where('a.fk_b = b.id');
 
-        $this->assertSame('SELECT a.id, b.id, c.id, bb.id FROM table_b b, table_a a INNER JOIN table_c c ON a.fk_c = c.id LEFT JOIN table_b bb ON a.fk_b = bb.id, table_b b WHERE a.fk_b = b.id', $qb->getSQL());
+        $this->assertSame('SELECT a.id, b.id, c.id, bb.id FROM table_b b, table_a a INNER JOIN table_c c ON a.fk_c = c.id LEFT JOIN table_b bb ON a.fk_b = bb.id WHERE a.fk_b = b.id', $qb->getSQL());
+    }
+
+    public function testNonDuplicatedAliases2()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('a.id, b.id, c.id, bb.id')
+            ->from('table_a', 'a')
+            ->from('table_b', 'b')
+            ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
+            ->leftJoin('a', 'table_b', 'bb', 'a.fk_b = bb.id')
+            ->where('a.fk_b = b.id');
+
+        $this->assertSame('SELECT a.id, b.id, c.id, bb.id FROM table_a a, table_b b INNER JOIN table_c c ON a.fk_c = c.id LEFT JOIN table_b bb ON a.fk_b = bb.id WHERE a.fk_b = b.id', $qb->getSQL());
     }
 
     public function testDuplicateAliases()
@@ -911,6 +925,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertSame('dumb string', $qb->getSQL());
     }
 
+    /*
     public function testDuplicateAliases2()
     {
         $qb = new QueryBuilder($this->conn);
@@ -920,6 +935,20 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
             ->leftJoin('b', 'table_c', 'c', 'b.fk_c = c.id')
             ->leftJoin('c', 'table_a', 'a', 'c.fk_a = a.id')
+            ->andWhere('a.fk_b = b.id');
+
+        $this->assertSame('dumb string', $qb->getSQL());
+    }
+    */
+
+    public function testDuplicateAliases3()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('a.id, b.id, c.id')
+            ->from('table_b', 'b')
+            ->from('table_a', 'a')
+            ->from('table_a', 'a')
             ->andWhere('a.fk_b = b.id');
 
         $this->assertSame('dumb string', $qb->getSQL());
