@@ -880,7 +880,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->setExpectedException('QueryException');
         $this->assertEquals(
             'dumb string',
-            $qb->getSQL(),
+            $qb->getSQL()
         );
     }
 }
