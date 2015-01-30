@@ -863,4 +863,23 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertSame(array('name' => \PDO::PARAM_STR, 'isActive' => \PDO::PARAM_BOOL), $qb->getParameterTypes());
     }
+
+    /**
+     * @group DBAL-790
+     */
+    public function testSelectWithJoinsWithNotUniqueAliases()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('a.id, b.id')
+            ->from('table_a', 'a')
+            ->join('a', 'table_b', 'b', 'a.fk_b = b.id')
+            ->join('a', 'table_b', 'b', 'a.fk_b = b.id')
+            ->join('b', 'table_a', 'a', 'a.fk_b = b.id');
+
+        $this->assertEquals(
+            'dumb string',
+            (string) $qb
+        ); //you will get out of memory anyway
+    }
 }
