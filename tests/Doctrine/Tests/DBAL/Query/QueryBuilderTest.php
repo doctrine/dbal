@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Query;
 
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Query\QueryException;
 
 require_once __DIR__ . '/../../TestInit.php';
 
