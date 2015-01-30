@@ -911,7 +911,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertSame('dumb string', $qb->getSQL());
     }
 
-    public function testDuplicateAliases()
+    public function testDuplicateAliases2()
     {
         $qb = new QueryBuilder($this->conn);
 
