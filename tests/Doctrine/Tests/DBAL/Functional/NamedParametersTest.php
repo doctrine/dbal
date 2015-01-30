@@ -50,7 +50,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar = :bar AND f.baz IN (:baz)',
                 array('bar'=>1,'baz'=> array($binaryData, $otherBinary)),
-                array('bar'=>Connection::PARAM_INT_ARRAY,'baz'=>Connection::PARAM_LOB_ARRAY),
+                array('bar'=>PDO::PARAM_INT,'baz'=>Connection::PARAM_LOB_ARRAY),
                 array(
                     array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$binaryData),
                     array('id'=>5,'foo'=>1,'bar'=>1,'baz'=>$binaryData),
