@@ -223,7 +223,7 @@ SQLDATA
             array(
                 "SELECT * FROM Foo WHERE foo IN (:foo)",
                 array('foo'=>array($binaryData, $binaryData, $binaryData)),
-                array('foo'=>Connection::PARAM_INT_ARRAY),
+                array('foo'=>Connection::PARAM_LOB_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
                 array($binaryData, $binaryData, $binaryData),
                 array(\PDO::PARAM_LOB, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
@@ -261,7 +261,7 @@ SQLDATA
                 array('b'=>array(4, 5),'a'=>array(1, 2, 3), 'c'=>array($binaryData)),
                 array('a'=>Connection::PARAM_INT_ARRAY, 'b'=>Connection::PARAM_INT_ARRAY, 'c'=>Connection::PARAM_LOB_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?, ?)',
-                array(1, 2, 3, 4, 5),
+                array(1, 2, 3, 4, 5, $binaryData),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_LOB)
             ),
             //  Named parameters : With the same name arg type string
