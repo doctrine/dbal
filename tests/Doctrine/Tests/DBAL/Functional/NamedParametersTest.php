@@ -10,7 +10,6 @@ use PDO;
  */
 class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-
     public function ticketProvider()
     {
         $binaryData  = pack("nvc*", 0x1234, 0x5678, 65, 66);
@@ -19,7 +18,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             array(
                 'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar IN (:bar)',
                 array('foo'=>1,'bar'=> array(1, 2, 3)),
-                array('foo'=>PDO::PARAM_INT,'bar'=> Connection::PARAM_INT_ARRAY,),
+                array('foo'=>PDO::PARAM_INT,'bar'=> Connection::PARAM_INT_ARRAY),
                 array(
                     array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$binaryData),
                     array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$otherBinary),
@@ -28,9 +27,9 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             ),
 
             array(
-                'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar IN (:bar) AND f.baz = :baz',
-                array('foo'=>1,'bar'=> array(1, 2, 3),'baz'=>$otherBinary),
-                array('foo'=>PDO::PARAM_INT,'bar'=>Connection::PARAM_INT_ARRAY,PDO::PARAM_LOB),
+                'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar IN (:bar) AND BINARY f.baz = :baz',
+                array('foo' => 1,'bar' => array(1, 2, 3), 'baz' => $otherBinary),
+                array('foo'=>PDO::PARAM_INT,'bar'=>Connection::PARAM_INT_ARRAY, 'baz'=>PDO::PARAM_LOB),
                 array(
                     array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$otherBinary),
                 )
@@ -48,7 +47,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             ),
 
             array(
-                'SELECT * FROM ddc1372_foobar f WHERE f.bar = :bar AND f.baz IN (:baz)',
+                'SELECT * FROM ddc1372_foobar f WHERE f.bar = :bar AND BINARY f.baz IN (:baz)',
                 array('bar'=>1,'baz'=> array($binaryData, $otherBinary)),
                 array('bar'=>PDO::PARAM_INT,'baz'=>Connection::PARAM_LOB_ARRAY),
                 array(
@@ -125,7 +124,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function setUp()
     {
         parent::setUp();
-        
+
         if (!$this->_conn->getSchemaManager()->tablesExist("ddc1372_foobar")) {
             try {
                 $table = new \Doctrine\DBAL\Schema\Table("ddc1372_foobar");
