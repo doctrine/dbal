@@ -277,8 +277,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $targets = array(
             "CREATE TABLE {$tableName} ({$columnName} NUMBER(10) NOT NULL)",
             "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '{$tableName}' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE {$tableName} ADD CONSTRAINT {$tableName}_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
-            "CREATE SEQUENCE {$tableName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
-            "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
+            "CREATE SEQUENCE {$tableName}_{$columnName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
+            "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_{$columnName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_{$columnName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
         );
         $statements = $this->_platform->getCreateTableSQL($table);
         //strip all the whitespace from the statements
@@ -450,10 +450,20 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsIdentitySequenceName()
     {
+        /*
         $this->assertSame('MYTABLE_SEQ', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
         $this->assertSame('"mytable_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
         $this->assertSame('MYTABLE_SEQ', $this->_platform->getIdentitySequenceName('mytable', '"mycolumn"'));
         $this->assertSame('"mytable_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
+        */
+
+        $this->assertSame('MYTABLE_MYCOLUMN_SEQ', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
+        $this->assertSame('"mytable_mycolumn_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
+        $this->assertSame('MYTABLE_MYCOLUMN_SEQ', $this->_platform->getIdentitySequenceName('mytable', '"mycolumn"'));
+        $this->assertSame('"mytable_mycolumn_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
+
+        $this->assertSame('MYTABLE_SEQ', $this->_platform->getIdentitySequenceName('mytable', ''));
+        $this->assertSame('"mytable_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', ''));
     }
 
     /**
@@ -663,7 +673,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         $sql = $this->_platform->getCreateTableSQL($table);
         $this->assertEquals('CREATE TABLE "test" ("id" NUMBER(10) NOT NULL)', $sql[0]);
-        $this->assertEquals('CREATE SEQUENCE "test_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[2]);
+        $this->assertEquals('CREATE SEQUENCE "test_id_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[2]);
         $createTriggerStatement = <<<EOD
 CREATE TRIGGER "test_AI_PK"
    BEFORE INSERT
@@ -673,16 +683,16 @@ DECLARE
    last_Sequence NUMBER;
    last_InsertID NUMBER;
 BEGIN
-   SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
+   SELECT "test_id_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
    IF (:NEW."id" IS NULL OR :NEW."id" = 0) THEN
-      SELECT "test_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
+      SELECT "test_id_SEQ".NEXTVAL INTO :NEW."id" FROM DUAL;
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
         FROM User_Sequences
-       WHERE Sequence_Name = 'test_SEQ';
+       WHERE Sequence_Name = 'test_id_SEQ';
       SELECT :NEW."id" INTO last_InsertID FROM DUAL;
       WHILE (last_InsertID > last_Sequence) LOOP
-         SELECT "test_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
+         SELECT "test_id_SEQ".NEXTVAL INTO last_Sequence FROM DUAL;
       END LOOP;
    END IF;
 END;
