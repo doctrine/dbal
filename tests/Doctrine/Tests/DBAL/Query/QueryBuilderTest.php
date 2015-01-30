@@ -889,7 +889,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('*')
             ->from('table_a', 'a')
-            ->andFrom('table_b', 'b')
+            ->from('table_b', 'b')
             ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
             ->leftJoin('a', 'table_b', 'bb', 'a.fk_b = bb.id')
             ->where('a.fk_b = b.id');
@@ -904,7 +904,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('*')
             ->from('table_a', 'a')
-            ->From('table_b', 'b')
+            ->from('table_b', 'b')
             ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
             ->leftJoin('a', 'table_b', 'b', 'a.fk_b = b.id')
             ->andWhere('a.fk_b = b.id');
