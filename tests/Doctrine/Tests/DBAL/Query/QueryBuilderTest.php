@@ -882,4 +882,34 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->getSQL();
     }
+
+    public function testJoinsWithSameAliases()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('*')
+            ->from('table_a', 'a')
+            ->andFrom('table_b', 'b')
+            ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
+            ->leftJoin('a', 'table_b', 'bb', 'a.fk_b = bb.id')
+            ->where('a.fk_b = b.id');
+
+        $sql = (string) $qb;
+        $this->assertTrue((bool) $sql);
+    }
+
+    public function testJoinsWithSameDuplicateAliases()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('*')
+            ->from('table_a', 'a')
+            ->andFrom('table_b', 'b')
+            ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
+            ->leftJoin('a', 'table_b', 'b', 'a.fk_b = b.id')
+            ->where('a.fk_b = b.id');
+
+        $sql = (string) $qb;
+        $this->assertFalse((bool) $sql);
+    }
 }
