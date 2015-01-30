@@ -888,11 +888,25 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('a.id, b.id, c.id, bb.id')
-            ->from('table_a', 'a')
             ->from('table_b', 'b')
+            ->from('table_a', 'a')
             ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
             ->leftJoin('a', 'table_b', 'bb', 'a.fk_b = bb.id')
             ->where('a.fk_b = b.id');
+
+        $this->assertSame('SELECT a.id, b.id, c.id, bb.id FROM table_b b, table_a a INNER JOIN table_c c ON a.fk_c = c.id LEFT JOIN table_b bb ON a.fk_b = bb.id, table_b b WHERE a.fk_b = b.id', $qb->getSQL());
+    }
+
+    public function testDuplicateAliases()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('a.id, b.id, c.id')
+            ->from('table_b', 'b')
+            ->from('table_a', 'a')
+            ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
+            ->leftJoin('a', 'table_b', 'b', 'a.fk_b = b.id')
+            ->andWhere('a.fk_b = b.id');
 
         $this->assertSame('dumb string', $qb->getSQL());
     }
@@ -903,9 +917,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('a.id, b.id, c.id')
             ->from('table_a', 'a')
-            ->from('table_b', 'b')
             ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
-            ->leftJoin('a', 'table_b', 'b', 'a.fk_b = b.id')
+            ->leftJoin('b', 'table_c', 'c', 'b.fk_c = c.id')
+            ->leftJoin('c', 'table_a', 'a', 'c.fk_a = a.id')
             ->andWhere('a.fk_b = b.id');
 
         $this->assertSame('dumb string', $qb->getSQL());
