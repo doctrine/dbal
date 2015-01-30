@@ -865,9 +865,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @group DBAL-790
+     * @group DBAL-1137
      */
-    public function testSelectWithJoinsWithNotUniqueAliases()
+    public function testSelectWithJoinsWithNonUniqueAliases()
     {
         $qb = new QueryBuilder($this->conn);
 
@@ -877,10 +877,11 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->join('a', 'table_b', 'b', 'a.fk_b = b.id')
             ->join('b', 'table_a', 'a', 'a.fk_b = b.id');
 
-        $this->setExpectedException('Doctrine\DBAL\Query\QueryException');
-        $this->assertEquals(
-            'dumb string',
-            $qb->getSQL()
+        $this->setExpectedException(
+            'Doctrine\DBAL\Query\QueryException',
+            "The given alias 'b' is not unique in FROM and JOIN clause table. The currently registered aliases are: a, b."
         );
+
+        $qb->getSQL();
     }
 }
