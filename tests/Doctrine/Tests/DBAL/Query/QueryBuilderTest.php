@@ -867,7 +867,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @group DBAL-1137
      */
-    public function testSelectWithJoinWithNonUniqueAlias()
+    public function testJoinWithNonUniqueAliasThrowsException()
     {
         $qb = new QueryBuilder($this->conn);
 
