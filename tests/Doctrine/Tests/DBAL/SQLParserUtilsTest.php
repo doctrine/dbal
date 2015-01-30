@@ -73,6 +73,7 @@ SQLDATA
 
     public function dataExpandListParameters()
     {
+        $binaryData = pack("nvc*", 0x1234, 0x5678, 65, 66);
         return array(
             // Positional: Very simple with one needle
             array(
@@ -82,6 +83,15 @@ SQLDATA
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
                 array(1, 2, 3),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+            // Positional: Simple select with one LOB parameter
+            array(
+                'SELECT * FROM Foo WHERE foo IN (?)',
+                array(array($binaryData)),
+                array(Connection::PARAM_LOB_ARRAY),
+                "SELECT * FROM Foo WHERE foo IN (?)",
+                array($binaryData),
+                array(\PDO::PARAM_LOB)
             ),
             // Positional: One non-list before d one after list-needle
             array(
@@ -137,6 +147,15 @@ SQLDATA
                 array(),
                 array()
             ),
+            // Positional: Empty "lob" array DDC-1978
+            array(
+                "SELECT * FROM Foo WHERE foo IN (?)",
+                array(array()),
+                array(Connection::PARAM_LOB_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (NULL)',
+                array(),
+                array()
+            ),
             // Positional: explicit keys for params and types
             array(
                 "SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?",
@@ -173,7 +192,15 @@ SQLDATA
                 array(1),
                 array(\PDO::PARAM_INT)
             ),
-
+            //  Named parameters : Very simple with param lob
+            array(
+                "SELECT * FROM Foo WHERE foo = :foo",
+                array('foo'=>$binaryData),
+                array('foo'=>\PDO::PARAM_LOB),
+                'SELECT * FROM Foo WHERE foo = ?',
+                array($binaryData),
+                array(\PDO::PARAM_LOB)
+            ),
              //  Named parameters : Very simple with param int and string
             array(
                 "SELECT * FROM Foo WHERE foo = :foo AND bar = :bar",
@@ -191,6 +218,15 @@ SQLDATA
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
                 array(1, 2, 3),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+            //  Named parameters : Very simple with one needle that is LOB
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo)",
+                array('foo'=>array($binaryData, $binaryData, $binaryData)),
+                array('foo'=>Connection::PARAM_INT_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
+                array($binaryData, $binaryData, $binaryData),
+                array(\PDO::PARAM_LOB, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
             ),
             // Named parameters: One non-list before d one after list-needle
             array(
@@ -219,14 +255,14 @@ SQLDATA
                 array(1, 1, 2, 3, 4),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
-            // Named parameters: Two lists
+            // Named parameters: Three lists
             array(
-                "SELECT * FROM Foo WHERE foo IN (:a, :b)",
-                array('b'=>array(4, 5),'a'=>array(1, 2, 3)),
-                array('a'=>Connection::PARAM_INT_ARRAY, 'b'=>Connection::PARAM_INT_ARRAY),
-                'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
+                "SELECT * FROM Foo WHERE foo IN (:a, :b, :c)",
+                array('b'=>array(4, 5),'a'=>array(1, 2, 3), 'c'=>array($binaryData)),
+                array('a'=>Connection::PARAM_INT_ARRAY, 'b'=>Connection::PARAM_INT_ARRAY, 'c'=>Connection::PARAM_LOB_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?, ?)',
                 array(1, 2, 3, 4, 5),
-                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_LOB)
             ),
             //  Named parameters : With the same name arg type string
             array(
@@ -270,6 +306,15 @@ SQLDATA
                 "SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)",
                 array('foo'=>array(), 'bar'=>array()),
                 array('foo'=>Connection::PARAM_STR_ARRAY, 'bar'=>Connection::PARAM_STR_ARRAY),
+                'SELECT * FROM Foo WHERE foo IN (NULL) OR bar IN (NULL)',
+                array(),
+                array()
+            ),
+             //  Named parameters : Two empty "lob" arrays
+            array(
+                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)",
+                array('foo'=>array(), 'bar'=>array()),
+                array('foo'=>Connection::PARAM_LOB_ARRAY, 'bar'=>Connection::PARAM_LOB_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (NULL) OR bar IN (NULL)',
                 array(),
                 array()
