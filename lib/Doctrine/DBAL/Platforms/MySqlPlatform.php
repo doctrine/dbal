@@ -290,7 +290,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
-        return 'TINYINT(1)';
+        return 'TINYINT(1)' . (!empty($field['unsigned']) ? ' UNSIGNED' : '');
     }
 
     /**
