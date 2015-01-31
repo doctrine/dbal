@@ -1071,6 +1071,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'bool'          => 'boolean',
             'boolean'       => 'boolean',
             'text'          => 'text',
+            'tsvector'      => 'text',
             'varchar'       => 'string',
             'interval'      => 'string',
             '_varchar'      => 'string',
