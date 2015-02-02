@@ -402,6 +402,7 @@ SQLDATA
 
     public function dataQueryWithMissingParameters()
     {
+        $binaryData = pack("nvc*", 0x1234, 0x5678, 65, 66);
         return array(
             array(
                 "SELECT * FROM foo WHERE bar = :param",
@@ -432,6 +433,11 @@ SQLDATA
                 "SELECT * FROM foo WHERE bar = :param",
                 array('bar' => 'value'),
                 array('bar' => Connection::PARAM_INT_ARRAY),
+            ),
+             array(
+                "SELECT * FROM foo WHERE bar = :param",
+                array('bar' => $binaryData),
+                array('bar' => Connection::PARAM_LOB_ARRAY),
             ),
         );
     }

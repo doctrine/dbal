@@ -21,6 +21,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('test_int', 'integer');
             $table->addColumn('test_string', 'string');
             $table->addColumn('test_datetime', 'datetime', array('notnull' => false));
+            $table->addColumn('test_binary', 'binary', array('notnull' => false));
             $table->setPrimaryKey(array('test_int'));
 
             $sm = $this->_conn->getSchemaManager();
@@ -441,11 +442,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
 
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_binary IN (?)',
-            array(array($binaryValue)), array(Connection::PARAM_LOB_ARRAY));
+            array(array($binaryValue)), array(Connection::PARAM_STR_ARRAY));
 
         $data = $stmt->fetchAll(PDO::FETCH_NUM);
-        $this->assertEquals(5, count($data));
-        $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
+        $this->assertEquals(10, count($data));
+        $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104), array(105), array(106), array(107), array(108), array(109)), $data);
     }
 
     /**
