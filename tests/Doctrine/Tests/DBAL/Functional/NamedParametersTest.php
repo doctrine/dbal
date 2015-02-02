@@ -27,9 +27,9 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             ),
 
             array(
-                'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar IN (:bar) AND BINARY f.baz = :baz',
+                'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar IN (:bar) AND f.baz = :baz',
                 array('foo' => 1,'bar' => array(1, 2, 3), 'baz' => $otherBinary),
-                array('foo'=>PDO::PARAM_INT,'bar'=>Connection::PARAM_INT_ARRAY, 'baz'=>PDO::PARAM_LOB),
+                array('foo'=>PDO::PARAM_INT,'bar'=>Connection::PARAM_INT_ARRAY, 'baz'=>PDO::PARAM_STR),
                 array(
                     array('id'=>2,'foo'=>1,'bar'=>2,'baz'=>$otherBinary),
                 )
@@ -47,9 +47,9 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             ),
 
             array(
-                'SELECT * FROM ddc1372_foobar f WHERE f.bar = :bar AND BINARY f.baz IN (:baz)',
+                'SELECT * FROM ddc1372_foobar f WHERE f.bar = :bar AND f.baz IN (:baz)',
                 array('bar'=>1,'baz'=> array($binaryData, $otherBinary)),
-                array('bar'=>PDO::PARAM_INT,'baz'=>Connection::PARAM_LOB_ARRAY),
+                array('bar'=>PDO::PARAM_INT,'baz'=>Connection::PARAM_STR_ARRAY),
                 array(
                     array('id'=>1,'foo'=>1,'bar'=>1,'baz'=>$binaryData),
                     array('id'=>5,'foo'=>2,'bar'=>1,'baz'=>$binaryData),
