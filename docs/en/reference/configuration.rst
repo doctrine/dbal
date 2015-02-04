@@ -254,6 +254,8 @@ pdo\_pgsql
    a SSL TCP/IP connection will be negotiated with the server.
    See the list of available modes:
    `http://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLMODE`
+-  ``application_name`` (string): Name of the application that is
+   connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
 
 PostgreSQL behaves differently with regard to booleans when you use
 ``PDO::ATTR_EMULATE_PREPARES`` or not. To switch from using ``'true'``
@@ -285,7 +287,7 @@ pdo\_oci / oci8
    database.
 -  ``instancename`` (string): Optional parameter, complete whether to
    add the INSTANCE_NAME parameter in the connection. It is generally used
-   to connect to an Oracle RAC server to select the name of a particular instance.   
+   to connect to an Oracle RAC server to select the name of a particular instance.
 
 
 pdo\_sqlsrv / sqlsrv
