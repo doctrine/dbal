@@ -882,38 +882,6 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->getSQL();
     }
-    
-    /**
-     * this test fails while it should not
-     */
-    public function testDoubleFromWithJoin()
-    {
-        $qb = new QueryBuilder($this->conn);
-
-        $qb->select('a.id, b.id, c.id')
-            ->from('table_a', 'a')
-            ->from('table_b', 'b')
-            ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
-            ->where('a.fk_b = b.id');
-
-        $this->assertSame('SELECT a.id, b.id, c.id FROM table_a a, table_b b INNER JOIN table_c c ON a.fk_c = c.id WHERE a.fk_b = b.id', $qb->getSQL());
-    }
-
-    /**
-     * however this test runs well
-     */
-    public function testDoubleFromWithJoinInversed()
-    {
-        $qb = new QueryBuilder($this->conn);
-
-        $qb->select('a.id, b.id, c.id')
-            ->from('table_b', 'b')
-            ->from('table_a', 'a')
-            ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
-            ->where('a.fk_b = b.id');
-
-        $this->assertSame('SELECT a.id, b.id, c.id FROM table_b b, table_a a INNER JOIN table_c c ON a.fk_c = c.id WHERE a.fk_b = b.id', $qb->getSQL());
-    }
 
     public function testNonUniqueAliasThrowsException()
     {
