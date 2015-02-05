@@ -896,7 +896,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $this->setExpectedException(
             'Doctrine\DBAL\Query\QueryException',
-            "The given alias 'b' is not unique in FROM and JOIN clause table. The currently registered aliases are: a, b, c."
+            "The given alias 'b' is not unique in FROM and JOIN clause table. The currently registered aliases are: a, c, b."
         );
 
         $qb->getSQL();
