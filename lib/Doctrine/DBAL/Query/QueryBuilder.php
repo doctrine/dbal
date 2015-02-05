@@ -1140,6 +1140,9 @@ class QueryBuilder
                 $tableSql = $from['table'];
                 $tableReference = $from['table'];
             } else {
+                if (array_key_exists($from['alias'], $knownAliases)) {
+                    throw QueryException::nonUniqueAlias($from['alias'], array_keys($knownAliases));
+                }
                 $tableSql = $from['table'] . ' ' . $from['alias'];
                 $tableReference = $from['alias'];
             }
