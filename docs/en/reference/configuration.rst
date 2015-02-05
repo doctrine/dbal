@@ -57,6 +57,7 @@ with a hyphen (to make them legal in URL scheme names), or one of the
 following simplified driver names that serve as aliases:
 
 -  ``db2``: alias for ``ibm_db2``
+-  ``informix``: alias for ``pdo_informix``
 -  ``mssql``: alias for ``pdo_sqlsrv``
 -  ``mysql``/``mysql2``: alias for ``pdo_mysql``
 -  ``pgsql``/``postgres``/``postgresql``: alias for ``pdo_pgsql``

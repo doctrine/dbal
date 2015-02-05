@@ -57,6 +57,7 @@ final class DriverManager
      */
     private static $driverSchemeAliases = array(
         'db2'        => 'ibm_db2',
+        'informix'   => 'pdo_informix',
         'mssql'      => 'pdo_sqlsrv',
         'mysql'      => 'pdo_mysql',
         'mysql2'     => 'pdo_mysql', // Amazon RDS, for some weird reason
