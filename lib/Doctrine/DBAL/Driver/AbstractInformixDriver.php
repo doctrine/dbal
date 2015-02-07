@@ -76,7 +76,9 @@ abstract class AbstractInformixDriver implements Driver, ExceptionConverterDrive
             case '-310':
                 return new Exception\TableExistsException($message, $exception);
 
+            case '-691':
             case '-692':
+            case '-26018':
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
 
             case '-391':
