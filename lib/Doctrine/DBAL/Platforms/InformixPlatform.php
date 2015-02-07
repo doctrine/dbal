@@ -23,6 +23,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
@@ -1096,13 +1097,14 @@ class InformixPlatform extends AbstractPlatform
     public function getUniqueConstraintDeclarationSQL($name, Index $index)
     {
         $columns = $index->getQuotedColumns($this);
+        $name    = new Identifier($name);
 
         if ( count($columns) === 0 ) {
             throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return ' UNIQUE (' . $this->getIndexFieldDeclarationListSQL($columns)
-            . ') CONSTRAINT ' . $name;
+        return 'UNIQUE (' . $this->getIndexFieldDeclarationListSQL($columns)
+            . ') CONSTRAINT ' . $name->getQuotedName($this);
     }
 
     /**
