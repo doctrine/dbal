@@ -930,11 +930,17 @@ class InformixPlatform extends AbstractPlatform
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
             }
 
-            $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff));
-
             if ( $diff->newName !== false ) {
-                $sql[] =  'RENAME TABLE ' . $diff->name . ' TO ' . $diff->newName;
+                $sql[] =  'RENAME TABLE '
+                    . $diff->getName($this)->getQuotedName($this) . ' TO '
+                    . $diff->getNewName()->getQuotedName($this);
             }
+
+            $sql = array_merge(
+                $this->getPreAlterTableIndexForeignKeySQL($diff),
+                $sql,
+                $this->getPostAlterTableIndexForeignKeySQL($diff)
+            );
         }
 
         return array_merge($sql, $tableSql, $columnSql);
@@ -947,7 +953,7 @@ class InformixPlatform extends AbstractPlatform
     {
       $tableName = (false !== $diff->newName)
           ? $diff->getNewName()->getQuotedName($this)
-          : $diff->getName()->getQuotedName($this);
+          : $diff->getName($this)->getQuotedName($this);
 
       $sql = array();
 
