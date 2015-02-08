@@ -979,6 +979,16 @@ class InformixPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
+    {
+        return array(
+            'RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getCreateTemporaryTableSnippetSQL()
     {
         return 'CREATE ' . $this->getTemporaryTableSQL() . ' TABLE';
