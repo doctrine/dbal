@@ -35,7 +35,7 @@ class InformixPlatformTest extends AbstractPlatformTestCase
     public function getGenerateIndexSql()
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
-    } 
+    }
 
     public function getGenerateUniqueIndexSql()
     {
@@ -125,32 +125,32 @@ class InformixPlatformTest extends AbstractPlatformTestCase
     public function testReturnsBinaryTypeDeclarationSQL()
     {
         $this->assertSame(
-            'BYTE', 
+            'BYTE',
             $this->_platform->getBinaryTypeDeclarationSQL(array())
         );
 
         $this->assertSame(
-            'BYTE', 
+            'BYTE',
             $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0))
         );
 
         $this->assertSame(
-            'BYTE', 
+            'BYTE',
             $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 9999999))
         );
 
         $this->assertSame(
-            'BYTE', 
+            'BYTE',
             $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true))
         );
 
         $this->assertSame(
-            'BYTE', 
+            'BYTE',
             $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0))
         );
 
         $this->assertSame(
-            'BYTE', 
+            'BYTE',
             $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 9999999))
         );
     }
@@ -427,7 +427,7 @@ class InformixPlatformTest extends AbstractPlatformTestCase
         $index = new Index('idx1', array('col1', 'col2'), false);
 
         $this->assertEquals(
-            ' UNIQUE (col1, col2) CONSTRAINT idx1',
+            'UNIQUE (col1, col2) CONSTRAINT idx1',
             $this->_platform->getUniqueConstraintDeclarationSQL('idx1', $index)
         );
     }
@@ -632,5 +632,96 @@ class InformixPlatformTest extends AbstractPlatformTestCase
         foreach ($actuals as $actual) {
             $this->assertStringEndsNotWith($expected, $actual, 'WHERE clause should NOT be present');
         }
+    }
+
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertEquals(
+            'CHAR(36)',
+            $this->_platform->getGuidTypeDeclarationSQL(array())
+        );
+    }
+
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'RENAME COLUMN foo.bar TO baz'
+        );
+    }
+
+    public function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE "foo" DROP CONSTRAINT fk1',
+            'ALTER TABLE "foo" DROP CONSTRAINT fk2',
+            'RENAME COLUMN "foo".id TO war',
+            'ALTER TABLE "foo" ADD bloo INTEGER NOT NULL, DROP baz, MODIFY bar INTEGER DEFAULT NULL',
+            'RENAME TABLE "foo" TO "table"',
+            'ALTER TABLE "table" ADD CONSTRAINT FOREIGN KEY (fk3) REFERENCES fk_table (id) CONSTRAINT fk_add',
+            'ALTER TABLE "table" ADD CONSTRAINT FOREIGN KEY (fk2) REFERENCES fk_table2 (id) CONSTRAINT fk2',
+        );
+    }
+
+    public function getCommentOnColumnSQL()
+    {
+        return array('', '', '');
+    }
+
+    public function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
+            'CREATE INDEX "key" ON test (column1)'
+        );
+    }
+
+    public function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'UNIQUE (foo) CONSTRAINT "select"';
+    }
+
+    public function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+    }
+
+    public function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable MODIFY "name" CHAR(2) NOT NULL'
+        );
+    }
+
+    protected function getAlterTableRenameIndexSQL()
+    {
+        return array(
+            'RENAME INDEX idx_foo TO idx_bar'
+        );
+    }
+
+    protected function getQuotedAlterTableRenameIndexSQL()
+    {
+        return array(
+            'RENAME INDEX "create" TO "select"',
+            'RENAME INDEX "foo" TO "bar"',
+        );
+    }
+
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'RENAME INDEX idx_foo TO idx_bar'
+        );
+    }
+
+    public function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'RENAME INDEX idx_foo TO idx_foo_renamed'
+        );
+    }
+
+    public function supportsInlineIndexDeclaration()
+    {
+        return false;
     }
 }
