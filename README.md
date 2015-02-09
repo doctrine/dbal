@@ -1,5 +1,7 @@
 # Doctrine DBAL
 
+[![Join the chat at https://gitter.im/doctrine/dbal](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/doctrine/dbal?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Powerful database abstraction layer with many features for database schema introspection, schema management and PDO abstraction.
 
 * Master: [![Build Status](https://secure.travis-ci.org/doctrine/dbal.png?branch=master)](http://travis-ci.org/doctrine/dbal) [![Dependency Status](https://www.versioneye.com/php/doctrine:dbal/dev-master/badge.png)](https://www.versioneye.com/php/doctrine:dbal/dev-master)
