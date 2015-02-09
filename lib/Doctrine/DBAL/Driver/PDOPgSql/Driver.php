@@ -90,6 +90,10 @@ class Driver extends AbstractPostgreSQLDriver
             $dsn .= 'sslmode=' . $params['sslmode'] . ' ';
         }
 
+        if (isset($params['connect_timeout'])) {
+            $dsn .= 'connect_timeout=' . $params['connect_timeout'] . ' ';
+        }
+
         return $dsn;
     }
 
