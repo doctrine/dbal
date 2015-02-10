@@ -330,7 +330,7 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
      */
     public function testAlterPrimaryKeyWithAutoincrementColumn()
     {
-        $table = new Table("drop_primary_key");
+        $table = new Table("alter_primary_key");
         $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->addColumn('foo', 'integer');
         $table->setPrimaryKey(array('id'));
@@ -343,9 +343,9 @@ class MySqlPlatformTest extends AbstractPlatformTestCase
 
         $this->assertEquals(
             array(
-                'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
-                'ALTER TABLE drop_primary_key DROP PRIMARY KEY',
-                'ALTER TABLE drop_primary_key ADD PRIMARY KEY (foo)'
+                'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
+                'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
+                'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)'
             ),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
