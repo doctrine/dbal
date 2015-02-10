@@ -328,6 +328,8 @@ class Table extends AbstractAsset
     /**
      * Renames a Column.
      *
+     * @deprecated Please use a manual SQL ALTER TABLE query to rename a column.
+     *
      * @param string $oldColumnName
      * @param string $newColumnName
      *
