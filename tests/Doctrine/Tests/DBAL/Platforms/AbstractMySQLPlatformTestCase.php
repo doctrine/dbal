@@ -334,7 +334,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /**
-     * @group DBAL-464
+     * @group DBAL-1132
      */
     public function testAlterPrimaryKeyWithAutoincrementColumn()
     {
