@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Column;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class InformixSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
 

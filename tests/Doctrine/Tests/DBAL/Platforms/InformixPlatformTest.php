@@ -8,8 +8,6 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class InformixPlatformTest extends AbstractPlatformTestCase
 {
 
