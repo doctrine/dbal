@@ -534,7 +534,8 @@ class InformixPlatform extends AbstractPlatform
         /*
          * We list first the indexes created by the user excluding the
          * internal indexes created automaticly by Informix, then we
-         * list the constraints that have indexes.
+         * list the constraints that have indexes excluding implicit
+         * indexes created for referential constraints.
          */
         return 'SELECT st.tabname, si.idxname, si.idxtype, '
             . 'NULL::VARCHAR(128) constrname, NULL::CHAR(1) constrtype, '
@@ -628,7 +629,8 @@ class InformixPlatform extends AbstractPlatform
             . 'LEFT OUTER JOIN syscolumns sc16 '
             . '    ON (ABS(si.part16)= sc16.colno AND si.tabid = sc16.tabid) '
             . 'WHERE UPPER(st.tabname) = UPPER(\'' . $table . '\') '
-            . 'AND ctr.idxname IS NOT NULL ';
+            . 'AND ctr.idxname IS NOT NULL '
+            . 'AND ctr.constrtype <> \'R\' ';
     }
 
     /**
