@@ -334,13 +334,39 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /**
+     * @group DBAL-1132
+     */
+    public function testAlterPrimaryKeyWithAutoincrementColumn()
+    {
+        $table = new Table("alter_primary_key");
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
+        $table->setPrimaryKey(array('id'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+
+        $diffTable->dropPrimaryKey();
+        $diffTable->setPrimaryKey(array('foo'));
+
+        $this->assertEquals(
+            array(
+                'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
+                'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
+                'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)'
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
+    }
+
+    /**
      * @group DBAL-464
      */
     public function testDropPrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("drop_primary_key");
-        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
-        $table->addColumn('foo', 'integer', array('primary' => true));
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'integer');
         $table->setPrimaryKey(array('id', 'foo'));
 
