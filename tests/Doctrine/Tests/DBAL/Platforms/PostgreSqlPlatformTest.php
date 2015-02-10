@@ -15,11 +15,4 @@ class PostgreSqlPlatformTest extends AbstractPostgreSqlPlatformTestCase
     {
         $this->assertTrue($this->_platform->supportsPartialIndexes());
     }
-
-    public function testInitializesTsvectorTypeMapping()
-    {
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('tsvector'));
-        $this->assertEquals('text', $this->_platform->getDoctrineTypeMapping('tsvector'));
-    }
-
 }
