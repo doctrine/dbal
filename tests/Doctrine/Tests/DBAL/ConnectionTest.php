@@ -480,4 +480,39 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $this->setExpectedException('Doctrine\DBAL\Exception\InvalidArgumentException');
         $conn->delete('kittens', array());
     }
+
+    public function dataCallConnectOnce()
+    {
+        return array(
+            array('delete', array('tbl', array('id' => 12345))),
+            array('insert', array('tbl', array('data' => 'foo'))),
+            array('update', array('tbl', array('data' => 'bar'), array('id' => 12345))),
+            array('prepare', array('select * from dual')),
+            array('executeUpdate', array('insert into tbl (id) values (?)'), array(123)),
+        );
+    }
+
+    /**
+     * @dataProvider dataCallConnectOnce
+     */
+    public function testCallConnectOnce($method, $params)
+    {
+        $driverMock   = $this->getMock('Doctrine\DBAL\Driver');
+        $pdoMock      = $this->getMock('Doctrine\DBAL\Driver\Connection');
+        $platformMock = new Mocks\MockPlatform();
+        $stmtMock     = $this->getMock('Doctrine\DBAL\Driver\Statement');
+
+        $pdoMock->expects($this->any())
+            ->method('prepare')
+            ->will($this->returnValue($stmtMock));
+
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setConstructorArgs(array(array('pdo' => $pdoMock, 'platform' => $platformMock), $driverMock))
+            ->setMethods(array('connect'))
+            ->getMock();
+
+        $conn->expects($this->once())->method('connect');
+
+        call_user_func_array(array($conn, $method), $params);
+    }
 }
