@@ -192,7 +192,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
                     ALTER TABLE " . $table . " DROP CONSTRAINT " . $index . "
-                ELSE
+                ELSE IF EXISTS (SELECT name FROM sysindexes WHERE name = '$index')
                     DROP INDEX " . $index . " ON " . $table;
     }
 
