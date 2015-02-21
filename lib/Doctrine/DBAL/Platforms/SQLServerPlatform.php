@@ -1190,7 +1190,7 @@ class SQLServerPlatform extends AbstractPlatform
         $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum';
 
         // Pattern to match "main" SELECT ... FROM clause (including nested parentheses in select list).
-        $selectFromPattern = '/^(\s*SELECT\s+(?:(.*)(?![^(]*\))))\sFROM\s/i';
+        $selectFromPattern = '/^(\s*SELECT\s+(?:(.*)(?![^(]*\))))\sFROM\s/iU';
 
         if ( ! $orderBy) {
             //Replace only "main" FROM with OVER to prevent changing FROM also in subqueries.
