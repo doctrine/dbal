@@ -385,6 +385,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      * This test should address a bug on subrequests containing aggregates
      * Complete description available at http://www.doctrine-project.org/jira/browse/DBAL-1077
      *
+     *@Overriden in SQLServer2012PlatformTest for specific new T-SQL language features implemented
      */
     public function testModifyLimitQueryWithSubSelectContainingAggregate()
     {

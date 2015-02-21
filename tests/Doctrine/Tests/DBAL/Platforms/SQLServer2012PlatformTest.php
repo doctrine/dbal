@@ -269,4 +269,24 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
         $this->assertEquals($sql, $expected);
     }
+    
+	/**
+     * This test should address a bug on subrequests containing aggregates
+     * Complete description available at http://www.doctrine-project.org/jira/browse/DBAL-1077
+     *
+     *WARNING:
+     * @Overrides from AbstractSQLServerPlatformTest for specific new T-SQL language features implemented
+     * 						This test, for SqlServer 2012, is not necessary as the bug spotted for 2005/2008 versions of Sql server
+     * 							does not impact this new version (the pattern modifier /U implemented has no changing effect on 
+     * 							query limit behavior in this case!
+     */
+    public function testModifyLimitQueryWithSubSelectContainingAggregate()
+    {
+    	$underTestQuery = 'SELECT son.label AS Name FROM SqlObjectName son WHERE ( SELECT COUNT(eso.identifier) FROM ExtractedSqlObject eso INNER JOIN ProductionDbName pdn ON eso.ref_ProductionDbName_ID = pdn.identifier AND (pdn.label IN (?, ?)) WHERE eso.ref_SqlObjectName_ID = son.identifier) > 0 ORDER BY son.identifier DESC';
+    	$actualModifiedQuery = $this->_platform->modifyLimitQuery($underTestQuery, 1, 0);
+    	
+    	$expectedQuery 						= 'SELECT son.label AS Name FROM SqlObjectName son WHERE ( SELECT COUNT(eso.identifier) FROM ExtractedSqlObject eso INNER JOIN ProductionDbName pdn ON eso.ref_ProductionDbName_ID = pdn.identifier AND (pdn.label IN (?, ?)) WHERE eso.ref_SqlObjectName_ID = son.identifier) > 0 ORDER BY son.identifier DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLLY';
+    	//$beforePatchFaultyResult 	= 'N/A result was correct';
+    	$this->assertEquals($expectedQuery, $actualModifiedQuery);
+    }
 }
