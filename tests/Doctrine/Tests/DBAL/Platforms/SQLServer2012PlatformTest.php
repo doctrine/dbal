@@ -285,7 +285,7 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     	$underTestQuery = 'SELECT son.label AS Name FROM SqlObjectName son WHERE ( SELECT COUNT(eso.identifier) FROM ExtractedSqlObject eso INNER JOIN ProductionDbName pdn ON eso.ref_ProductionDbName_ID = pdn.identifier AND (pdn.label IN (?, ?)) WHERE eso.ref_SqlObjectName_ID = son.identifier) > 0 ORDER BY son.identifier DESC';
     	$actualModifiedQuery = $this->_platform->modifyLimitQuery($underTestQuery, 1, 0);
     	
-    	$expectedQuery 						= 'SELECT son.label AS Name FROM SqlObjectName son WHERE ( SELECT COUNT(eso.identifier) FROM ExtractedSqlObject eso INNER JOIN ProductionDbName pdn ON eso.ref_ProductionDbName_ID = pdn.identifier AND (pdn.label IN (?, ?)) WHERE eso.ref_SqlObjectName_ID = son.identifier) > 0 ORDER BY son.identifier DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLLY';
+    	$expectedQuery 						= 'SELECT son.label AS Name FROM SqlObjectName son WHERE ( SELECT COUNT(eso.identifier) FROM ExtractedSqlObject eso INNER JOIN ProductionDbName pdn ON eso.ref_ProductionDbName_ID = pdn.identifier AND (pdn.label IN (?, ?)) WHERE eso.ref_SqlObjectName_ID = son.identifier) > 0 ORDER BY son.identifier DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY';
     	//$beforePatchFaultyResult 	= 'N/A result was correct';
     	$this->assertEquals($expectedQuery, $actualModifiedQuery);
     }
