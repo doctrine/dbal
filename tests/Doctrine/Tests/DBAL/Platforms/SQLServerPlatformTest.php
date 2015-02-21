@@ -235,6 +235,21 @@ class SQLServerPlatformTest extends AbstractPlatformTestCase
 
         $this->assertEquals($expected, $actual);
     }
+    
+    /**
+     * 	This test should address a bug on  subrequests containing aggregates
+     * 	Complete description available at http://www.doctrine-project.org/jira/browse/DBAL-1077
+     * 
+     */
+    public function testModifyLimitQueryWithSubSelectContainingAggregate()
+    {
+    	$underTestQuery = 'SELECT son.label AS Name FROM SqlObjectName son WHERE ( SELECT COUNT(eso.identifier) FROM ExtractedSqlObject eso INNER JOIN ProductionDbName pdn ON eso.ref_ProductionDbName_ID = pdn.identifier AND (pdn.label IN (?, ?)) WHERE eso.ref_SqlObjectName_ID = son.identifier) > 0 ORDER BY son.identifier DESC';
+    	$actualModifiedQuery = $this->_platform->modifyLimitQuery($underTestQuery, 1, 0);
+    	
+    	$expectedQuery 						= 'SELECT * FROM (SELECT son.label AS Name, ROW_NUMBER() OVER (ORDER BY son.identifier DESC) AS doctrine_rownum FROM SqlObjectName son WHERE ( SELECT COUNT(eso.identifier) FROM ExtractedSqlObject eso INNER JOIN ProductionDbName pdn ON eso.ref_ProductionDbName_ID = pdn.identifier AND (pdn.label IN (?, ?)) WHERE eso.ref_SqlObjectName_ID = son.identifier) > 0) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 1';
+    	//$beforePatchFaultyResult	= 'SELECT * FROM (SELECT son.label AS Name FROM SqlObjectName son WHERE ( SELECT COUNT(eso.identifier), ROW_NUMBER() OVER (ORDER BY son.identifier DESC) AS doctrine_rownum FROM ExtractedSqlObject eso INNER JOIN ProductionDbName pdn ON eso.ref_ProductionDbName_ID = pdn.identifier AND (pdn.label IN (?, ?)) WHERE eso.ref_SqlObjectName_ID = son.identifier) > 0) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 1
+    	$this->assertEquals($expectedQuery, $actualModifiedQuery);
+    }
 
     /**
      * @group DDC-1360
