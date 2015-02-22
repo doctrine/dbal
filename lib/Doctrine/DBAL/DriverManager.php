@@ -45,6 +45,7 @@ final class DriverManager
          'oci8'               => 'Doctrine\DBAL\Driver\OCI8\Driver',
          'ibm_db2'            => 'Doctrine\DBAL\Driver\IBMDB2\DB2Driver',
          'pdo_sqlsrv'         => 'Doctrine\DBAL\Driver\PDOSqlsrv\Driver',
+         'pdo_dblib'          => 'Doctrine\DBAL\Driver\PDODblib\Driver',
          'mysqli'             => 'Doctrine\DBAL\Driver\Mysqli\Driver',
          'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
          'sqlanywhere'        => 'Doctrine\DBAL\Driver\SQLAnywhere\Driver',
@@ -56,6 +57,7 @@ final class DriverManager
      */
     private static $driverSchemeAliases = array(
         'db2'        => 'ibm_db2',
+        'dblib'      => 'pdo_dblib',
         'mssql'      => 'pdo_sqlsrv',
         'mysql'      => 'pdo_mysql',
         'mysql2'     => 'pdo_mysql', // Amazon RDS, for some weird reason
