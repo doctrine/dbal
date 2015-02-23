@@ -55,7 +55,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testDefaultContraints()
     {
-        $table = new Table('sqlsrv_df_constraints');
+        $table = new Table('sqlsrv_default_constraints');
         $table->addColumn('no_default', 'string');
         $table->addColumn('df_integer', 'integer', array('default' => 666));
         $table->addColumn('df_string_1', 'string', array('default' => 'foobar'));
@@ -65,7 +65,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('df_boolean', 'boolean', array('default' => true));
 
         $this->_sm->createTable($table);
-        $columns = $this->_sm->listTableColumns('sqlsrv_df_constraints');
+        $columns = $this->_sm->listTableColumns('sqlsrv_default_constraints');
 
         $this->assertNull($columns['no_default']->getDefault());
         $this->assertEquals(666, $columns['df_integer']->getDefault());
@@ -75,7 +75,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals(1, $columns['df_boolean']->getDefault());
 
         $diff = new TableDiff(
-            'sqlsrv_df_constraints',
+            'sqlsrv_default_constraints',
             array(
                 new Column('df_current_timestamp', Type::getType('datetime'), array('default' => 'CURRENT_TIMESTAMP'))
             ),
