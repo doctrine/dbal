@@ -230,12 +230,9 @@ class SQLServerPlatform extends AbstractPlatform
             }
         }
 
-        if (isset($options['primary']) && !empty($options['primary'])) {
-            $flags = '';
-            if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
-                $flags = ' NONCLUSTERED';
-            }
-            $columnListSql .= ', PRIMARY KEY' . $flags . ' (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+        $primaryIndexSql = $this->getCreateTablePrimaryKeySQL($options);
+        if (!empty($primaryIndexSql)) {
+            $columnListSql .= ", $primaryIndexSql";
         }
 
         $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
@@ -268,12 +265,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
-        $flags = '';
-        if ($index->hasFlag('nonclustered')) {
-            $flags = ' NONCLUSTERED';
-        }
-
-        return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY' . $flags . ' (' . $this->getIndexFieldDeclarationListSQL($index->getQuotedColumns($this)) . ')';
+        return 'ALTER TABLE ' . $table . ' ADD ' . $this->getPrimaryKeyConstraintSQL($index);
     }
 
     /**
@@ -1550,5 +1542,63 @@ class SQLServerPlatform extends AbstractPlatform
         $identifier = new Identifier($identifier);
 
         return strtoupper(dechex(crc32($identifier->getName())));
+    }
+
+    /**
+     * Build primary key constraint definition SQL
+     *
+     * @param Index $index index definition for the primary key
+     * @param array $columns columns for which to create the index
+     *
+     * @return string
+     */
+    private function getPrimaryKeyConstraintSQL(Index $index, $columns = array())
+    {
+        $constraintNamePreamble = '';
+        $flags = $this->getCreatePrimaryKeySQLFlags($index);
+        $columns = !empty($columns) ? $columns : $index->getColumns();
+        if ($index->getName() != 'primary') {
+            $constraintNamePreamble = "CONSTRAINT " . $index->getQuotedName($this) . " ";
+        }
+        return $constraintNamePreamble . 'PRIMARY KEY' . $flags
+        . ' (' . implode(', ', array_unique(array_values($columns))) . ')';
+    }
+
+    /**
+     * Build SQL for creating a primary key constraint inside a create table statement
+     *
+     * @param array $options
+     *
+     * @return string
+     */
+    private function getCreateTablePrimaryKeySQL($options)
+    {
+        if (isset($options['primary']) && !empty($options['primary'])) {
+            if (isset($options['primary_index'])) {
+                return $this->getPrimaryKeyConstraintSQL($options['primary_index'], $options['primary']);
+            }
+
+            return 'PRIMARY KEY (' . implode(', ', array_unique(array_values($options['primary']))) . ')';
+        }
+        return '';
+    }
+
+    /**
+     * Builds the flags for a primary key constraint
+     *
+     * @param Index $index
+     *
+     * @return string
+     */
+    private function getCreatePrimaryKeySQLFlags(Index $index)
+    {
+        $type = '';
+
+        if ($index->hasFlag('nonclustered')) {
+            $type .= ' NONCLUSTERED';
+        }
+        // No need to add UNIQUE or CLUSTERED flag, as primary keys are unique and clustered by default.
+
+        return $type;
     }
 }
