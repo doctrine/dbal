@@ -349,7 +349,9 @@ class Connection implements DriverConnection
      */
     public function connect()
     {
-        if ($this->_isConnected) return false;
+        if ($this->_isConnected) {
+            return false;
+        }
 
         $driverOptions = isset($this->_params['driverOptions']) ?
                 $this->_params['driverOptions'] : array();
@@ -580,8 +582,6 @@ class Connection implements DriverConnection
             throw InvalidArgumentException::fromEmptyCriteria();
         }
 
-        $this->connect();
-
         $criteria = array();
 
         foreach (array_keys($identifier) as $columnName) {
@@ -649,7 +649,6 @@ class Connection implements DriverConnection
      */
     public function update($tableExpression, array $data, array $identifier, array $types = array())
     {
-        $this->connect();
         $set = array();
 
         foreach ($data as $columnName => $value) {
@@ -682,8 +681,6 @@ class Connection implements DriverConnection
      */
     public function insert($tableExpression, array $data, array $types = array())
     {
-        $this->connect();
-
         if (empty($data)) {
             return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' ()' . ' VALUES ()');
         }
@@ -749,6 +746,7 @@ class Connection implements DriverConnection
         $this->connect();
 
         list($value, $bindingType) = $this->getBindingInfo($input, $type);
+
         return $this->_conn->quote($value, $bindingType);
     }
 
@@ -771,14 +769,12 @@ class Connection implements DriverConnection
      *
      * @param string $statement The SQL statement to prepare.
      *
-     * @return \Doctrine\DBAL\Driver\Statement The prepared statement.
+     * @return \Doctrine\DBAL\Statement The prepared statement.
      *
      * @throws \Doctrine\DBAL\DBALException
      */
     public function prepare($statement)
     {
-        $this->connect();
-
         try {
             $stmt = new Statement($statement, $this);
         } catch (\Exception $ex) {
