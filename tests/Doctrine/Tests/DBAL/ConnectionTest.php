@@ -573,8 +573,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $connection = $this->getMock(
             'Doctrine\DBAL\Connection',
-            ['connect'],
-            [$params, $driverMock]
+            array('connect'),
+            array($params, $driverMock)
         );
 
         $connection->expects($this->never())
