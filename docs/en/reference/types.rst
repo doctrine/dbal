@@ -820,7 +820,7 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
     {
         const MONEY = 'money'; // modify to match your type name
 
-        public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+        public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
         {
             return 'MyMoney';
         }
