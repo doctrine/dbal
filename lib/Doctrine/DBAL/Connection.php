@@ -489,7 +489,9 @@ class Connection implements DriverConnection
      * Sets the fetch mode.
      *
      * @param integer $fetchMode
-     *
+     * @param mixed $arg2
+     * @param mixed $arg3
+     * 
      * @return void
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
