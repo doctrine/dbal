@@ -2206,7 +2206,7 @@ abstract class AbstractPlatform
             $check = (isset($field['check']) && $field['check']) ?
                     ' ' . $field['check'] : '';
 
-            $typeDecl = $field['type']->getSqlDeclaration($field, $this);
+            $typeDecl = $field['type']->getSQLDeclaration($field, $this);
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
         }
 
