@@ -103,7 +103,7 @@ Which is, again, identical to supplying ignored user/pass/authority::
 
     sqlite://notused:inthis@case//usr/local/var/db.sqlite
 
-To connect to an in-memory SQLite instance, use ``:memory::`` as the
+To connect to an in-memory SQLite instance, use ``:memory:`` as the
 database name::
 
     sqlite:///:memory:
