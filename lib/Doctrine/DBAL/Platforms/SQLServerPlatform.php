@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
@@ -488,7 +489,7 @@ class SQLServerPlatform extends AbstractPlatform
             $columnDef = $column->toArray();
 
             $queryParts[] = 'ALTER COLUMN ' .
-                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
+                $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
             if (isset($columnDef['default']) && ($requireDropDefaultConstraint || $columnDiff->hasChanged('default'))) {
                 $queryParts[] = $this->getAlterTableAddDefaultConstraintClause($diff->name, $column);
@@ -1182,77 +1183,34 @@ class SQLServerPlatform extends AbstractPlatform
 
         $start   = $offset + 1;
         $end     = $offset + $limit;
-        $orderBy = stristr($query, 'ORDER BY');
 
-        //Remove ORDER BY from $query (including nested parentheses in order by list).
-        $query = preg_replace('/\s+ORDER\s+BY\s+([^()]+|\((?:(?:(?>[^()]+)|(?R))*)\))+/i', '', $query);
+        // Decompose the passed query into parts
+        $sqlParts = $this->getSQLParts($query);
 
+        // Get the order by clause from the query parts
+        $orderByParts = $this->getOrderByClauseFromSqlPartArray($sqlParts);
+        $orderBy = null;
+
+        // Compose the ROW_NUMBER() OVER(ORDER BY ...) AS doctrine_rownum statement so we can limit
+        $rowNumberSelectItem = $this->composeRowNumberOverOrderByPart($orderByParts);
+
+        // Strip existing ORDER BY clauses out of the query
+        $sqlParts = $this->stripOrderByFromSqlParts($sqlParts);
+
+        // Add the row number statement to the select list of the query
+        $sqlParts['selectList'][] = $rowNumberSelectItem;
+
+        // Gentlemen, we can rebuild it. We have the technology. We can make it better than it was.
+        // Better, strong, fa.. No, the best we can do is make it not suck so hard.
+
+        // Rebuild the query with the order by clauses stripped and with the new row number select
+        $recomposedQuery = $this->rebuildSqlQueryFromParts($sqlParts);
+
+        // Compose the final query to limit the resultset
         $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum';
+        $modifiedQuery = sprintf($format, $recomposedQuery, $start, $end);
 
-        // Pattern to match "main" SELECT ... FROM clause (including nested parentheses in select list).
-        $selectFromPattern = '/^(\s*SELECT\s+(?:(.*)(?![^(]*\))))\sFROM\s/i';
-
-        if ( ! $orderBy) {
-            //Replace only "main" FROM with OVER to prevent changing FROM also in subqueries.
-            $query = preg_replace(
-                $selectFromPattern,
-                '$1, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM ',
-                $query,
-                1
-            );
-
-            return sprintf($format, $query, $start, $end);
-        }
-
-        //Clear ORDER BY
-        $orderBy        = preg_replace('/ORDER\s+BY\s+(.*)/i', '$1', $orderBy);
-        $orderByParts   = explode(',', $orderBy);
-        $orderByColumns = array();
-
-        //Split ORDER BY into parts
-        foreach ($orderByParts as &$part) {
-
-            if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', trim($part), $matches)) {
-                $orderByColumns[] = array(
-                    'column'    => $matches[3],
-                    'hasTable'  => ( ! empty($matches[2])),
-                    'sort'      => isset($matches[4]) ? $matches[4] : null,
-                    'table'     => empty($matches[2]) ? '[^\.\s]*' : $matches[2]
-                );
-            }
-        }
-
-        $isWrapped = (preg_match('/SELECT DISTINCT .* FROM \(.*\) dctrn_result/', $query)) ? true : false;
-
-        $overColumns = array();
-
-        //Find alias for each column used in ORDER BY
-        if ( ! empty($orderByColumns)) {
-            foreach ($orderByColumns as $column) {
-                $pattern = sprintf('/%s\.%s\s+(?:AS\s+)?([^,\s)]+)/i', $column['table'], $column['column']);
-
-                if ($isWrapped) {
-                    $overColumn = preg_match($pattern, $query, $matches)
-                        ? $matches[1] : '';
-                } else {
-                    $overColumn = preg_match($pattern, $query, $matches)
-                        ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column']
-                        : $column['column'];
-                }
-
-                if (isset($column['sort'])) {
-                    $overColumn .= ' ' . $column['sort'];
-                }
-
-                $overColumns[] = $overColumn;
-            }
-        }
-
-        //Replace only first occurrence of FROM with $over to prevent changing FROM also in subqueries.
-        $over  = 'ORDER BY ' . implode(', ', $overColumns);
-        $query = preg_replace($selectFromPattern, "$1, ROW_NUMBER() OVER ($over) AS doctrine_rownum FROM ", $query, 1);
-
-        return sprintf($format, $query, $start, $end);
+        return $modifiedQuery;
     }
 
     /**
@@ -1551,4 +1509,767 @@ class SQLServerPlatform extends AbstractPlatform
 
         return strtoupper(dechex(crc32($identifier->getName())));
     }
+
+    /**
+     * Breaks down a SQL statement into logical parts
+     *
+     * @param string $sql
+     *
+     * @return array (
+     *  ['selectList'] => an array of items in the select list as returned by the reprocessSelectList method
+     *  ['fromTable'] => a table/view name or subquery expression - a subquery expression will have the same array structure as this array.
+     *  ['fromAlias'] => an alias for the fromTable expression,
+     *  ['fromHint'] => table hints (if any) for the fromTable,
+     *  ['joins'] => an integer-indexed array of join clauses,
+     *  ['where'] => $where,
+     *  ['orderBy'] => $orderBy
+     * )
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    private function getSQLParts($sql) {
+        // Walk the sql and break it into a hierarchy according to parens.
+        $parts = $this->walkSQLByParens($sql);
+
+        $newParts = array();
+        $matches = null;
+        foreach ($parts as $part) {
+
+            if (is_array($part)) {
+                $newParts[] = $part;
+                continue;
+            }
+            $part = trim($part);
+            if (strtoupper(substr($part, 0, 6)) == 'SELECT') {
+                $newParts[] = 'SELECT';
+                $part = trim(substr($part, 6));
+            }
+            if (!!preg_match("/(.*)(?:^|\s+)from(?:\s+|$)(.*)/i", $part, $matches)) {
+                if(!empty($matches[1])) {
+                    $newParts[] = trim($matches[1]);
+                }
+                $newParts[] = 'FROM';
+                if (empty($matches[2])) {
+                    continue;
+                }
+
+                $part = $matches[2];
+            }
+            if (preg_match("/(.*)(order by .*)/i", $part, $matches)) {
+                if(!empty($matches[1])) {
+                    $newParts[] = trim($matches[1]);
+                }
+                if(!empty($matches[2])) {
+                    $newParts[] = trim($matches[2]);
+                }
+                continue;
+            }
+            $newParts[] = trim($part);
+        }
+
+        $selectList = array();
+        $fromTable = $fromAlias = $orderBy = $joins = $where = $fromHint = null;
+        $buildSelectList = false;
+        $foundFromTable = false;
+        foreach ($newParts as $part) {
+            if ($part == 'SELECT') {
+                // Start building select list
+                $buildSelectList = true;
+                continue;
+            }
+            if ($part == 'FROM') {
+                // End building select list
+                $buildSelectList = false;
+                continue;
+            }
+            if ($buildSelectList && $part != 'FROM') {
+                // Keep building select list, haven't found FROM yet
+                $selectList[] = $part;// " " . (is_array($part)?trim($this->implodeSubqueryRecursive($part)):$part);
+                continue;
+            }
+            if (!is_array($part) && preg_match("/^order by/i", $part)) {
+                // Found ORDER BY
+                $orderBy = $part;
+                continue;
+            }
+            if(is_array($part)) {
+                $fromTable = $this->getSQLParts($part[0]);
+                $foundFromTable = true;
+                continue;
+            }
+            if ($foundFromTable) {
+                $where = $this->resolveWhereClauseInQueryFragment($part);
+                $joins = $this->resolveJoinsInQueryFragment($part);
+                $fromAlias = trim($part);
+                continue;
+            }
+
+            $where = $this->resolveWhereClauseInQueryFragment($part);
+            $joins = $this->resolveJoinsInQueryFragment($part);
+            $from = explode(" ", trim($part));
+            if (count($from) == 1) {
+                $fromTable = $from[0];
+                continue;
+            }
+            if (count($from) == 2) {
+                $fromTable = $from[0];
+                $fromAlias = $from[1];
+                continue;
+            }
+            if (count($from) == 3 && strtolower($from[1]) == "as") {
+                $fromTable = $from[0];
+                $fromAlias = $from[2];
+                continue;
+            }
+            if (count($from) > 3) {
+                $fromTable = array_shift($from);
+                $fromAlias = array_shift($from);
+                if(strtolower($fromAlias) == 'as') {
+                    $fromAlias .= " " . array_shift($from);
+                }
+                $fromHint = implode(" ", $from);
+                continue;
+            }
+
+            //Todo should this throw an exception or just accept the part as the from table?
+            //throw new DBALException("Could not parse FROM clause: " . $part);
+            $fromTable = $part;
+        }
+
+        return array(
+            "selectList" => $this->reprocessSelectList($selectList),
+            "fromTable" => $fromTable,
+            "fromAlias" => $fromAlias,
+            "fromHint" => $fromHint,
+            "joins" => $joins,
+            "where" => $where,
+            "orderBy" => $orderBy
+        );
+    }
+
+    /**
+     * Processes an array of fragments of a SQL select list into an array of logically
+     * broken down select list items.
+     *
+     * @param array $selectList array of fragments of the select list
+     *
+     * @return array integer-indexed array. each item consists of one of the following:
+     *      a string in the case of a modifier such as DISTINCT
+     *      an array in the case of a column expression, of the format:
+     *          array(
+     *              "select" => column to select,
+     *              "as" => 'AS' keyword if it exists in the original query, otherwise null,
+     *              "alias" => column alias if specified, otherwise null
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    private function reprocessSelectList($selectList)
+    {
+        $selectParts = $this->parseListParts($this->rejoinSelectList($selectList), array("DISTINCT" => true, "ALL" => true));
+        foreach($selectParts as $i => $part) {
+            if(is_array($part)) {
+                $newPart = array(
+                    "select" => null,
+                    "as" => null,
+                    "alias" => null
+                );
+                if(count($part) == 1) {
+                    $newPart["select"] = $part[0];
+                } elseif (count($part) == 2) {
+                    $newPart["select"] = $part[0];
+                    $newPart["alias"] = $part[1];
+                } elseif (count($part) == 3) {
+                    $newPart["select"] = $part[0];
+                    $newPart["as"] = $part[1];
+                    $newPart["alias"] = $part[2];
+                } else {
+                    throw new DBALException("Could not parse select list item.");
+                }
+                $selectParts[$i] = $newPart;
+            }
+        }
+
+        return $selectParts;
+    }
+
+    /**
+     * Converts an array of fragments of a select list into a single complete string
+     *
+     * @param array $selectList fragments of a select list
+     * @return string complete select list string
+     */
+    private function rejoinSelectList($selectList) {
+        $return = array();
+        foreach($selectList as $item) {
+            if(is_array($item)) {
+                $item = $this->implodeSubqueryRecursive($item);
+            }
+            $return[] = $item;
+        }
+        return implode(" ", $return);
+    }
+
+    /**
+     * Removes a WHERE clause from the passed-by-reference string, and returns
+     * the WHERE clause, if found.
+     *
+     * @param string $fragment query fragment in which to search
+     *
+     * @return string|bool WHERE clause if found, otherwise false
+     */
+    private function resolveWhereClauseInQueryFragment(&$fragment) {
+        $pattern = "/(WHERE (?!.* JOIN ).*)/i";
+        $matches = null;
+        if(preg_match($pattern, $fragment, $matches)) {
+            $fragment = trim(str_replace($matches[1], "", $fragment));
+            return $matches[1];
+        }
+        return false;
+    }
+
+    /**
+     * Removes any JOIN clauses from the passed-by-reference string and returns an array of
+     * the JOIN clauses found, each decomposed into component parts.
+     *
+     * @param string $fragment query fragment in which to look for JOINs
+     *
+     * @return array an indexed array of join clauses, each decomposed into components.
+     *      format is as returned by decomposeJoinClause method
+     */
+    private function resolveJoinsInQueryFragment(&$fragment) {
+        $pattern = "/(?:FULL|)(?:LEFT|RIGHT|INNER) JOIN(?:.(?!(?:FULL|)(?:LEFT|RIGHT|INNER) JOIN))*/i";
+        $matches = null;
+        preg_match_all($pattern, $fragment, $matches);
+        if(!isset($matches[0])) {
+            return array();
+        }
+        $fragment = preg_replace($pattern, "", $fragment);
+
+        return array_map(array($this, "decomposeJoinClause"), $matches[0]);
+    }
+
+    /**
+     * Decomposes a join clause into its component parts
+     *
+     * @param string $joinClause JOIN clause
+     *
+     * @return array an associative array of parts of the join clause. format:
+     *  array(
+     *    ['join'] => join type as (FULL|)(LEFT|RIGHT|INNER) JOIN,
+     *    ['joinTable'] => join table,
+     *    ['joinAlias'] => join table alias,
+     *    ['on'] => join ON condition
+     *  )
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    private function decomposeJoinClause($joinClause)
+    {
+        // Todo handle subquery as join table
+        $matches = null;
+        $pattern = "/((?:FULL|)(?:LEFT|RIGHT|INNER) JOIN) ((?:.(?! on ))*.)\son\s(.*)/i";
+        if(!preg_match($pattern, $joinClause, $matches)) {
+            throw new DBALException("Unrecognized join fragment: $joinClause");
+        }
+        $join = $matches[1];
+        $joinTable = $matches[2];
+        $on = $matches[3];
+
+        $pattern = "/(.*) ([a-zA-Z0-9_]*)/i";
+        if (!preg_match($pattern, $joinTable, $matches)) {
+            throw new DBALException("Unrecognized table expression in join fragment: $joinClause");
+        }
+        $joinTable = $matches[1];
+        $joinAlias = $matches[2];
+        return array(
+            "join" => $join,
+            "joinTable" => $joinTable,
+            "joinAlias" => $joinAlias,
+            "on" => $on
+        );
+    }
+
+    /**
+     * Reassembles a join clause from parts
+     *
+     * @param array $joinClause associative array of the format returned by decomposeJoinClause
+     *
+     * @return string reassembled join clause string
+     */
+    private function recomposeJoinClause($joinClause)
+    {
+        return "{$joinClause['join']} {$joinClause['joinTable']} {$joinClause['joinAlias']} ON {$joinClause['on']}";
+    }
+
+    /**
+     * Reassembles an indexed hierarchical array of query parts into a string.
+     * This is used to reassemble query parts that don't need to be analyzed further.
+     *
+     * @param array $parts hierarchical indexed array of query parts as separated by parentheses
+     *
+     * @return string reassembled query fragment
+     */
+    private function implodeSubqueryRecursive($parts) {
+        $sql = "(";
+        foreach($parts as $part) {
+            if(is_array($part)) {
+                $sql .= " " . $this->implodeSubqueryRecursive($part);
+            } else {
+                $sql .= trim($part);
+            }
+        }
+        return $sql . ") ";
+    }
+
+    /**
+     * Decomposes a SQL string by parentheses into a hierarchical indexed array.
+     * Only decomposes subqueries within FROM clause table expressions.
+     *
+     * Example transformation:
+     * SELECT *, (SELECT * FROM (SELECT * FROM foobar) baz) as qux FROM (SELECT * FROM (SELECT 1, 2, 3) foo) bar
+     * Becomes:
+     * array(
+     *  [0] => 'SELECT *, (SELECT * FROM (SELECT * FROM foobar) baz) as qux FROM ',
+     *  [1] => array(
+     *      [0] => 'SELECT * FROM ',
+     *      [1] => array(
+     *          [0] => 'SELECT 1, 2, 3'
+     *      ),
+     *      [2] => ' foo'
+     *  ),
+     *  [2] => ' bar'
+     * )
+     *
+     * @param string|array $sql SQL string or char array to decompose
+     * @param int $offset integer character offset in the SQL string
+     * @return array decomposed array of SQL parts
+     */
+    private function walkSQLByParens($sql, &$offset = 0) {
+        $parts = array();
+        $part = "";
+        if (is_string($sql)) {
+            $sql = str_split($sql, 1);
+        }
+        $len = count($sql);
+
+        /**
+         * If this isn't a subquery in a from clause, we don't need to walk deeper and analyze
+         * it to achieve the goals of the doModifyLimitQuery method. So we detect if
+         * the subquery directly follows the FROM keyword. If it does not directly follow a
+         * FROM keyword, the readToCloseParenOnSameLevel func reads until the matching close paren
+         * and returns the read part intact, ignoring parens within the part. This is a fragile
+         * method of detecting this, but it correctly covers SQL generated by the queryBuild
+         * and the ORM.
+         */
+        if($offset > 6) {
+            $bit = implode(array_slice($sql, $offset-6, 12));
+            if (!preg_match("/FROM \(SELECT/i", $bit)) {
+                return $this->readToCloseParenOnSameLevel($sql, $offset);
+            }
+        }
+
+        for($i = &$offset; $i < $len; $i++) {
+            $chr = $sql[$i];
+            switch ($chr) {
+                case "(":
+                    // Store the string we just grabbed prior to the open paren
+                    $i++;
+                    // Recurse
+                    $nextPart = $this->walkSQLByParens($sql, $offset);
+                    if (is_array($nextPart)) {
+                        $parts[] = $part;
+                        $parts[] = $nextPart;
+                        $part = "";
+                    } else {
+                        $part .= $nextPart;
+                    }
+                    break;
+                case ")":
+                    // Walk up a level
+                    $parts[] = $part;
+                    return $parts;
+                default:
+                    // Add to the part
+                    $part .= $chr;
+                    break;
+            }
+        }
+        if(!empty($part)) {
+            $parts[] = $part;
+        }
+
+        return $parts;
+    }
+
+    /**
+     * Reads a complete parenthetical statement, ignoring nested parentheticals within it.
+     *
+     * @param array $sql array of characters
+     * @param int $offset current position within the character array
+     *
+     * @return string complete parenthetical statement, including opening and closing parentheses
+     */
+    private function readToCloseParenOnSameLevel($sql, &$offset) {
+        // If we're in this method, then we've found an open-paren already,
+        // and we're logically at a depth of 1.
+        $depth = 1;
+        $fragment = "(";
+        $len = count($sql);
+
+        // Read characters until either the close paren for depth 1 or EOT
+        for($i = &$offset; $i < $len; $i++) {
+            $chr = $sql[$i];
+            switch ($chr) {
+                case "(":
+                    $depth++;
+                    break;
+                case ")":
+                    $depth--;
+                    break;
+            }
+            $fragment .= $chr;
+
+            if ($depth == 0) {
+                break;
+            }
+        }
+
+        return $fragment;
+    }
+
+    /**
+     * Gets the ORDER BY clause from the $sqlParts passed, decomposes it, and returns it.
+     * If there is no ORDER BY clause in the query, it checks if the FROM table expression
+     * is a subquery, and if so, decomposes and reprocesses the ORDER BY clause from that
+     * subquery to be valid in the outer query, and returns that. All this so we can stick
+     * the ORDER BY clause into the ROW_NUMBER() OVER() statement and do a limit query...
+     *
+     * @param array $sqlParts associative array of SQL parts as returned by getSQLParts
+     *
+     * @return array descriptive array of ORDER BY clause parts as returned by resolveOrderByParts
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    private function getOrderByClauseFromSqlPartArray($sqlParts)
+    {
+        $orderByIsFromSubquery = false;
+        if (isset($sqlParts['orderBy']) && !empty($sqlParts['orderBy'])) {
+            $orderBy = $sqlParts['orderBy'];
+            $selectList = $sqlParts['selectList'];
+        } elseif (isset($sqlParts['fromTable']) && is_array($sqlParts['fromTable'])
+            && isset($sqlParts['fromTable']['orderBy']) && !empty($sqlParts['fromTable']['orderBy'])) {
+            // Todo parse from subquery select list to get aliases.
+            $orderByIsFromSubquery = true;
+            $orderBy = $sqlParts['fromTable']['orderBy'];
+            $selectList = $sqlParts['fromTable']['selectList'];
+        } else {
+            return array();
+        }
+        // Build array of descriptions of each part of the found ORDER BY clause.
+        $orderByParts = $this->parseOrderByParts($orderBy);
+        $orderByParts = $this->resolveOrderByParts($orderByParts);
+
+        /**
+         * If the orderBy clause was pulled from a subquery, the orderBy column names
+         * need to be changed to use the aliases from the subquery's select list, otherwise
+         * we cannot safely rebuild the orderBy clause into a ROW_NUMBER() OVER(ORDER BY ...)
+         * select list item in the outer query. If there is no matching alias, but a wildcard
+         * is used, then we can safely assume the column will exist in the outer query.
+         */
+        if($orderByIsFromSubquery) {
+            //
+            $orderByParts = $this->resolveAliasesInOrderByParts($orderByParts, $selectList);
+        }
+
+        return $orderByParts;
+    }
+
+    /**
+     * converts an array of items in an ORDER BY clause into an array of arrays describing each
+     * item in the ORDER BY clause
+     *
+     * @param array $orderByParts array of items parsed from an ORDER BY clause
+     *
+     * @return array array of arrays, each describing an item parsed from an ORDER BY clause. Format is:
+     * array(
+     *  [0] => array(
+     *      'column' => column name
+     *      'order' => direction, ASC or DESC
+     *  ),
+     *  [1] => ...
+     * )
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    private function resolveOrderByParts($orderByParts)
+    {
+        $newParts = array();
+
+        foreach($orderByParts as $part) {
+            $newPart = array(
+                "column" => null,
+                "order" => null
+            );
+            if(count($part) == 1) {
+                $newPart['column'] = $part[0];
+            } elseif (count($part) == 2) {
+                $newPart['column'] = $part[0];
+                if(preg_match("/^(asc|desc)$/i", $part[1])) {
+                    $newPart['order'] = $part[1];
+                }
+            } else {
+                throw new DBALException("Cannot parse order by list.");
+            }
+            $newParts[] = $newPart;
+        }
+        return $newParts;
+    }
+
+    /**
+     * Replaces column names in an array of order by parts with the matching column aliases
+     * from the select list.
+     *
+     * @param array $orderByParts array of descriptors of parts of an ORDER BY clause as
+     *      returned by resolveOrderByParts
+     * @param array $selectList array of select list items in the format returned by reprocessSelectList
+     *
+     * @return array identical to input array $orderByParts, except the column member of each
+     *      item is replaced by the column alias if it is found in the selectlist.
+     */
+    private function resolveAliasesInOrderByParts($orderByParts, $selectList)
+    {
+        $newOrderByParts = array();
+        foreach($orderByParts as $part) {
+            // Try and find column in select list that matches, and grab the alias
+            foreach($selectList as $item) {
+                if(is_array($item)) {
+                    if($item['alias'] == $part['column']) {
+                        //Alias already matches.
+                        break;
+                    }
+                    if(!empty($item['alias'])) {
+                        if (preg_match("/^(|[^.]*\.)" . preg_quote($part['column']) . "$/", $item['select'])) {
+                            // Alias doesn't match the order by column
+                            // but the selected column matches exactly, OR the column name on a FQCN matches
+                            $part['column'] = $item['alias'];
+                            break;
+                        }
+                    }
+                }
+            }
+            if(preg_match("/\./", $part['column'])) {
+                $exploded = explode(".", $part['column']);
+                $part['column'] = end($exploded);
+            }
+            $newOrderByParts[] = $part;
+        }
+        return $newOrderByParts;
+    }
+
+    /**
+     * parses a comma-separated list into an array. Handles a list that may contain
+     * parenthetical statements with embedded commas. The list may also contain modifiers
+     * such as DISTINCT or ALL ($atomicTokens) that will not be treated as part of the list
+     * item they modify, but will be returned as individual items in the returned array.
+     *
+     * @param string $list comma-separated list
+     * @param array $atomicTokens strings to be treated as atomic
+     *
+     * @return array array of items parsed from the list
+     */
+    private function parseListParts($list, $atomicTokens = array())
+    {
+        $listParts = array();
+        $list = str_split($list, 1);
+        $currentPart = array();
+        $currentSubpart = "";
+        $len = count($list);
+        for($i = 0; $i< $len; $i++) {
+            $chr = $list[$i];
+            switch($chr) {
+                case "(":
+                    $i++;
+                    $currentSubpart .= $this->readToCloseParenOnSameLevel($list, $i);
+                    break;
+                case ",":
+                    $currentPart[] = $currentSubpart;
+                    $listParts[] = $currentPart;
+                    $currentSubpart = "";
+                    $currentPart = array();
+                    break;
+                case " ":
+                    if (!empty($currentSubpart)) {
+                        //Check if we want to treat the current token as atomic (like DISTINCT or ALL modifiers in SELECT lists)
+                        if (isset($atomicTokens[strtoupper($currentSubpart)])) {
+                            if (!empty($currentPart)) {
+                                $listParts[] = $currentPart;
+                                $currentPart = array();
+                            }
+                            $listParts[] = $currentSubpart;
+                        } else {
+                            $currentPart[] = $currentSubpart;
+                        }
+                        $currentSubpart = "";
+                    }
+                    break;
+                default:
+                    $currentSubpart .= $chr;
+                    break;
+            }
+        }
+        if(!empty($currentSubpart)) {
+            $currentPart[] = $currentSubpart;
+        }
+        if(!empty($currentPart)) {
+            $listParts[] = $currentPart;
+        }
+
+        return $listParts;
+    }
+
+    /**
+     * parses an ORDER BY clause into an array of its component expressions
+     *
+     * Example transformation:
+     * ORDER BY foo ASC, bar
+     * returns:
+     * array(
+     *  [0] => "foo ASC",
+     *  [1] => "bar"
+     * )
+     *
+     * @param string $orderBy ORDER BY clause
+     *
+     * @return array indexed array of component expressions
+     */
+    private function parseOrderByParts($orderBy)
+    {
+        $orderBy = preg_replace("/^\s*order by\s*/i", "", $orderBy);
+        return $this->parseListParts($orderBy);
+    }
+
+    /**
+     * removes ORDER BY clauses from an array of SQL parts
+     *
+     * @param array $sqlParts associative array of SQL parts as returned by getSQLParts
+     *
+     * @return array same as input, but with ORDER BY clauses stripped
+     */
+    private function stripOrderByFromSqlParts($sqlParts)
+    {
+        if(!empty($sqlParts['orderBy'])) {
+            $sqlParts['orderBy'] = null;
+        }
+        if (is_array($sqlParts['fromTable']) && !empty($sqlParts['fromTable']['orderBy'])) {
+            $sqlParts['fromTable']['orderBy'] = null;
+        }
+        return $sqlParts;
+    }
+
+    /**
+     * Composes a select list item to select a row number using the ORDER BY clause of the query
+     * if it exists.
+     *
+     * @param array|null $orderBy orderBy clause parts as returned by resolveOrderByParts
+     *
+     * @return array a select list item
+     */
+    private function composeRowNumberOverOrderByPart($orderBy)
+    {
+        if (empty($orderBy)) {
+            $orderByClause = "(SELECT 0)";
+        } else {
+            $orderByClause = trim(implode(", ", array_map(function($item) {return implode(" ", $item);}, $orderBy)));
+        }
+        return array(
+            "select" => "ROW_NUMBER() OVER (ORDER BY $orderByClause)",
+            "as" => "AS",
+            "alias" => "doctrine_rownum"
+        );
+    }
+
+    /**
+     * Reassembles a SQL query from parts
+     *
+     * @param array $sqlParts associative array of SQL parts as returned by getSQLParts
+     *
+     * @return string reassembled SQL query
+     */
+    private function rebuildSqlQueryFromParts($sqlParts)
+    {
+        $query = "SELECT "
+            . $this->recomposeSelectList($sqlParts['selectList'])
+            . " FROM ";
+        if (is_array($sqlParts['fromTable'])) {
+            $query .= "(" . $this->rebuildSqlQueryFromParts($sqlParts['fromTable']) . ") ";
+        } else {
+            $query .= "{$sqlParts['fromTable']} ";
+        }
+
+        if (!empty($sqlParts['fromAlias'])) {
+            $query .= "{$sqlParts['fromAlias']} ";
+        }
+
+        if (!empty($sqlParts['fromHint'])) {
+            $query .= "{$sqlParts['fromHint']} ";
+        }
+
+        if (!empty($sqlParts['joins'])) {
+            $query .= implode(" ", array_map(array($this, "recomposeJoinClause"), $sqlParts['joins'])) . " ";
+        }
+
+        if (!empty($sqlParts['where'])) {
+            $query .= "{$sqlParts['where']} ";
+        }
+
+        if (!empty($sqlParts['orderBy'])) {
+            $query .= $sqlParts['orderBy'];
+        }
+        return trim($query);
+    }
+
+    /**
+     * Reassembles a SELECT list from parts
+     *
+     * @param array $selectList array of select list items as returned by reprocessSelectList
+     *
+     * @return string reassembled SELECT list
+     */
+    private function recomposeSelectList($selectList)
+    {
+        $recomposed = "";
+        foreach ($selectList as $item) {
+            if(!is_array($item)) {
+                $recomposed .= "$item ";
+            } else {
+                $recomposed .= $this->recomposeSelectListItem($item) . ', ';
+            }
+        }
+        return rtrim($recomposed, ", ");
+    }
+
+    /**
+     * reassembles a select list item from parts
+     *
+     * @param array $item array of parts of the select list item. format:
+     *  array(
+     *      'select' => column name or subquery expression,
+     *      'as' => string literal 'AS' or 'as'
+     *      'alias' => column alias
+     *  )
+     *
+     * @return string reassembled select list item
+     */
+    private function recomposeSelectListItem($item)
+    {
+        $return = $item['select'];
+        if(!empty($item['as'])) {
+            $return .= " {$item['as']}";
+        }
+        if(!empty($item['alias'])) {
+            $return .= " {$item['alias']}";
+        }
+        return $return;
+    }
+
 }

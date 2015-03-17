@@ -211,17 +211,17 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testModifyLimitQueryWithSubSelect()
     {
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user u) dctrn_result', 10);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndOrder()
     {
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC) dctrn_result', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user u ORDER BY u.name DESC) dctrn_result', 10);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY uname DESC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
 
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC) dctrn_result', 10);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC) AS doctrine_rownum FROM (SELECT u.id, u.name) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name FROM user u ORDER BY u.name DESC) dctrn_result', 10);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC) AS doctrine_rownum FROM (SELECT u.id, u.name FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndMultipleOrder()
@@ -230,14 +230,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
         }
 
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id as uid, u.name as uname FROM user u ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY uname DESC, uid ASC) AS doctrine_rownum FROM (SELECT u.id as uid, u.name as uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
 
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id uid, u.name uname ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY u.name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id uid, u.name uname) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id uid, u.name uname FROM user u ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY uname DESC, uid ASC) AS doctrine_rownum FROM (SELECT u.id uid, u.name uname FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
 
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
-        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id, u.name) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM (SELECT u.id, u.name FROM user u ORDER BY u.name DESC, id ASC) dctrn_result', 10, 5);
+        $this->assertEquals('SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY name DESC, id ASC) AS doctrine_rownum FROM (SELECT u.id, u.name FROM user u) dctrn_result) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum', $sql);
     }
 
     public function testModifyLimitQueryWithFromColumnNames()
@@ -344,7 +344,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "(u.foo/2) foodiv, " .
             "CONCAT(u.bar, u.baz) barbaz, " .
             "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count, " .
-            "ROW_NUMBER() OVER (ORDER BY username DESC) AS doctrine_rownum " .
+            "ROW_NUMBER() OVER (ORDER BY u.username DESC) AS doctrine_rownum " .
             "FROM user u " .
             "WHERE u.status = 'disabled'" .
             ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 6 AND 15 ORDER BY doctrine_rownum",
@@ -377,6 +377,109 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "FROM operator_model_operator " .
             "GROUP BY code" .
             ") AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 1 ORDER BY doctrine_rownum",
+            $sql
+        );
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            "SELECT DISTINCT id_0, name_1 "
+            . "FROM ("
+            . "SELECT t1.id AS id_0, t2.name AS name_1 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id "
+            . "ORDER BY t1.id ASC"
+            . ") dctrn_result "
+            . "ORDER BY id_0 ASC"
+            ,5
+        );
+        $this->assertEquals(
+            "SELECT * FROM ("
+            . "SELECT DISTINCT id_0, name_1, ROW_NUMBER() OVER (ORDER BY id_0 ASC) AS doctrine_rownum "
+            . "FROM (" . "SELECT t1.id AS id_0, t2.name AS name_1 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id) "
+            . "dctrn_result) AS doctrine_tbl "
+            . "WHERE doctrine_rownum BETWEEN 1 AND 5 ORDER BY doctrine_rownum"
+            ,$sql
+        );
+    }
+
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            "SELECT DISTINCT id_0, name_1 "
+            . "FROM ("
+            . "SELECT t1.id AS id_0, t2.name AS name_1 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id "
+            . "ORDER BY t2.name ASC"
+            . ") dctrn_result "
+            . "ORDER BY name_1 ASC"
+            ,5
+        );
+        $this->assertEquals(
+            "SELECT * FROM ("
+            . "SELECT DISTINCT id_0, name_1, ROW_NUMBER() OVER (ORDER BY name_1 ASC) AS doctrine_rownum "
+            . "FROM (" . "SELECT t1.id AS id_0, t2.name AS name_1 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id) "
+            . "dctrn_result) AS doctrine_tbl "
+            . "WHERE doctrine_rownum BETWEEN 1 AND 5 ORDER BY doctrine_rownum"
+            ,$sql
+        );
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            "SELECT DISTINCT id_0, name_1, foo_2 "
+            . "FROM ("
+            . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id "
+            . "ORDER BY t2.name ASC, t2.foo DESC"
+            . ") dctrn_result "
+            . "ORDER BY name_1 ASC, foo_2 DESC"
+            ,5
+        );
+        $this->assertEquals(
+            "SELECT * FROM ("
+            . "SELECT DISTINCT id_0, name_1, foo_2, "
+            . "ROW_NUMBER() OVER (ORDER BY name_1 ASC, foo_2 DESC) AS doctrine_rownum "
+            . "FROM (" . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id) "
+            . "dctrn_result) AS doctrine_tbl "
+            . "WHERE doctrine_rownum BETWEEN 1 AND 5 ORDER BY doctrine_rownum"
+            ,$sql
+        );
+    }
+
+    public function testModifyLimitSubquerySimple()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            "SELECT DISTINCT id_0 FROM "
+            . "(SELECT k0_.id AS id_0, k0_.field AS field_1 "
+            . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result"
+            , 20);
+        $this->assertEquals(
+            "SELECT * FROM "
+            . "(SELECT DISTINCT id_0, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum "
+            . "FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 "
+            . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result) AS doctrine_tbl "
+            . "WHERE doctrine_rownum BETWEEN 1 AND 20 ORDER BY doctrine_rownum",
             $sql
         );
     }
