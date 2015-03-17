@@ -269,4 +269,85 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 
         $this->assertEquals($sql, $expected);
     }
+
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable()
+    {
+        $querySql = "SELECT DISTINCT id_0, name_1 "
+            . "FROM ("
+            . "SELECT t1.id AS id_0, t2.name AS name_1 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
+            . ") dctrn_result "
+            . "ORDER BY id_0 ASC";
+        $alteredSql = "SELECT DISTINCT id_0, name_1 "
+            . "FROM ("
+            . "SELECT t1.id AS id_0, t2.name AS name_1 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
+            . ") dctrn_result "
+            . "ORDER BY id_0 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
+        $sql = $this->_platform->modifyLimitQuery($querySql, 5);
+        $this->assertEquals($alteredSql, $sql);
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable()
+    {
+        $querySql = "SELECT DISTINCT id_0, name_1 "
+            . "FROM ("
+            . "SELECT t1.id AS id_0, t2.name AS name_1 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
+            . ") dctrn_result "
+            . "ORDER BY name_1 ASC";
+        $alteredSql = "SELECT DISTINCT id_0, name_1 "
+            . "FROM ("
+            . "SELECT t1.id AS id_0, t2.name AS name_1 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
+            . ") dctrn_result "
+            . "ORDER BY name_1 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
+        $sql = $this->_platform->modifyLimitQuery($querySql, 5);
+        $this->assertEquals($alteredSql, $sql);
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables()
+    {
+        $querySql = "SELECT DISTINCT id_0, name_1, foo_2 "
+            . "FROM ("
+            . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
+            . ") dctrn_result "
+            . "ORDER BY name_1 ASC, foo_2 DESC";
+        $alteredSql = "SELECT DISTINCT id_0, name_1, foo_2 "
+            . "FROM ("
+            . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
+            . "FROM table_parent t1 "
+            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
+            . ") dctrn_result "
+            . "ORDER BY name_1 ASC, foo_2 DESC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
+        $sql = $this->_platform->modifyLimitQuery($querySql, 5);
+        $this->assertEquals($alteredSql, $sql);
+    }
+
+    public function testModifyLimitSubquerySimple()
+    {
+        $querySql = "SELECT DISTINCT id_0 FROM "
+            . "(SELECT k0_.id AS id_0, k0_.field AS field_1 "
+            . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result";
+        $alteredSql = "SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 "
+            . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
+        $sql = $this->_platform->modifyLimitQuery($querySql, 20);
+        $this->assertEquals($alteredSql, $sql);
+    }
 }
