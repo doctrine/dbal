@@ -41,6 +41,11 @@ use Doctrine\DBAL\Schema\Constraint;
 class SqlitePlatform extends AbstractPlatform
 {
     /**
+     * @var bool
+     */
+    protected $supportsForeignKeyConstraints = false;
+
+    /**
      * {@inheritDoc}
      */
     public function getRegexpExpression()
@@ -331,7 +336,7 @@ class SqlitePlatform extends AbstractPlatform
             $queryFields.= ', PRIMARY KEY('.implode(', ', $keyColumns).')';
         }
 
-        if (isset($options['foreignKeys'])) {
+        if (isset($options['foreignKeys']) && $this->supportsForeignKeyConstraints) {
             foreach ($options['foreignKeys'] as $foreignKey) {
                 $queryFields.= ', '.$this->getForeignKeyDeclarationSQL($foreignKey);
             }
@@ -474,6 +479,24 @@ class SqlitePlatform extends AbstractPlatform
         $query .= ' INITIALLY ' . (($foreignKey->hasOption('deferred') && $foreignKey->getOption('deferred') !== false) ? 'DEFERRED' : 'IMMEDIATE');
 
         return $query;
+    }
+
+    /**
+     * Dynamically enable foreign key constraint support
+     *
+     * @param bool
+     */
+    public function setForeignKeyConstraintsSupport($bool)
+    {
+        $this->supportsForeignKeyConstraints = (bool) $bool;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function supportsForeignKeyConstraints()
+    {
+        return $this->supportsForeignKeyConstraints;
     }
 
     /**
@@ -699,14 +722,6 @@ class SqlitePlatform extends AbstractPlatform
     public function canEmulateSchemas()
     {
         return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function supportsForeignKeyConstraints()
-    {
-        return false;
     }
 
     /**

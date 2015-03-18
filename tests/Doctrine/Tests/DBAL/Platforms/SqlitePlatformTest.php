@@ -382,6 +382,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE INDEX IDX_8D93D6493D8E604F ON user (parent)',
         );
 
+        $this->_platform->setForeignKeyConstraintsSupport(true);
         $this->assertEquals($sql, $this->_platform->getCreateTableSQL($table));
     }
 
@@ -426,7 +427,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE INDEX IDX_8D93D6495A8A6C8D ON client (comment)',
         );
 
+        $this->_platform->setForeignKeyConstraintsSupport(true);
         $this->assertEquals($sql, $this->_platform->getAlterTableSQL($diff));
+    }
+
+    public function testQuotedColumnInForeignKeyPropagation()
+    {
+        $this->_platform->setForeignKeyConstraintsSupport(true);
+        parent::testQuotedColumnInForeignKeyPropagation();
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
@@ -571,6 +579,18 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     public function testReturnsGuidTypeDeclarationSQL()
     {
         $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
+
+    public function testQuotesTableIdentifiersInAlterTableSQL()
+    {
+        $this->_platform->setForeignKeyConstraintsSupport(true);
+        parent::testQuotesTableIdentifiersInAlterTableSQL();
+    }
+
+    public function testGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        $this->_platform->setForeignKeyConstraintsSupport(true);
+        parent::testGeneratesAlterTableRenameIndexUsedByForeignKeySQL();
     }
 
     /**
