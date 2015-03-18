@@ -742,21 +742,43 @@ class DB2IBMiPlatform extends AbstractPlatform
         $limit = (int) $limit;
         $offset = (int) (($offset)?:0);
 
-        // Todo OVER() needs ORDER BY data!
-
         $orderBy = stristr($query, 'ORDER BY');
-        $query   = preg_replace('/\s+ORDER\s+BY\s+([^\)]*)/', '', $query); //Remove ORDER BY from $query
+
+        //Remove ORDER BY from $query (including nested parentheses in order by list).
+        $query = preg_replace('/\s+ORDER\s+BY\s+([^()]+|\((?:(?:(?>[^()]+)|(?R))*)\))+/i', '', $query);
+
+        $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum';
+
+        $orderByBlocks = preg_split('/\s*ORDER\s+BY/', $orderBy );
+
+        //Reversing arrays beacause external order by is more important
+        $orderByBlocks = array_reverse($orderByBlocks);
+
+        //Splitting ORDER BY
+        $orderByParts = array();
+        foreach($orderByBlocks as $orderByBlock){
+            $blockArray   = explode(',', $orderByBlock);
+            foreach($blockArray as $block){
+                $block = trim($block);
+                if(!empty($block)) {
+                    $orderByParts[] = $block;
+                }
+            }
+        }
 
         //Clear ORDER BY
-        $orderBy        = preg_replace('/ORDER\s+BY\s+([^\)]*)(.*)/', '$1', $orderBy);
-        $orderByParts   = explode(',', $orderBy);
-        $orderbyColumns = array();
+        foreach ($orderByParts as &$orderByPart) {
+
+            $orderByPart = preg_replace('/ORDER\s+BY\s+([^\)]*)(.*)/', '$1', 'ORDER BY '.$orderByPart);
+        }
+
+        $orderByColumns = array();
 
         //Split ORDER BY into parts
         foreach ($orderByParts as &$part) {
 
             if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', trim($part), $matches)) {
-                $orderbyColumns[] = array(
+                $orderByColumns[] = array(
                     'column'    => $matches[3],
                     'hasTable'  => ( ! empty($matches[2])),
                     'sort'      => isset($matches[4]) ? $matches[4] : null,
@@ -766,10 +788,10 @@ class DB2IBMiPlatform extends AbstractPlatform
         }
 
         //Find alias for each colum used in ORDER BY
-        if ( ! empty($orderbyColumns)) {
-            foreach ($orderbyColumns as $column) {
+        if ( ! empty($orderByColumns)) {
+            foreach ($orderByColumns as $column) {
 
-                $pattern    = sprintf('/%s\.(%s)\s*(AS)?\s*([^,\s\)]*)/i', $column['table'], $column['column']);
+                $pattern = sprintf('/%s\.%s\s+(?:AS\s+)?([^,\s)]+)/i', $column['table'], $column['column']);
                 $overColumn = preg_match($pattern, $query, $matches)
                     ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column']
                     : $column['column'];
