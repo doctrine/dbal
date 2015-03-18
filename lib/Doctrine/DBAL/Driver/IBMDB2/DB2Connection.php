@@ -175,4 +175,18 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
             1 => $this->errorCode(),
         );
     }
+
+    /**
+     *
+     * Retrieves ibm_db2 native resource handle.
+     *
+     * Could be used if part of your application is not using DBAL.
+     *
+     * @return resource
+     */
+    public function getConn() //getWrappedResourceHandle
+    {
+        return $this->_conn;
+    }
+
 }
