@@ -747,8 +747,6 @@ class DB2IBMiPlatform extends AbstractPlatform
         //Remove ORDER BY from $query (including nested parentheses in order by list).
         $query = preg_replace('/\s+ORDER\s+BY\s+([^()]+|\((?:(?:(?>[^()]+)|(?R))*)\))+/i', '', $query);
 
-        $format  = 'SELECT * FROM (%s) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum';
-
         $orderByBlocks = preg_split('/\s*ORDER\s+BY/', $orderBy );
 
         //Reversing arrays beacause external order by is more important
@@ -813,8 +811,8 @@ class DB2IBMiPlatform extends AbstractPlatform
             $over  = 'ORDER BY ' . implode(', ', $overColumns);
         }
 
-        $sql = 'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER('.$over.') AS DC_ROWNUM, db21.* '.
-            'FROM (' . $query . ') db21) db22 WHERE db22.DC_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
+        $sql = 'SELECT DOCTRINE_TBL.* FROM (SELECT ROW_NUMBER() OVER('.$over.') AS DOCTRINE_ROWNUM, DOCTRINE_TBL1.* '.
+            'FROM (' . $query . ') DOCTRINE_TBL1) DOCTRINE_TBL WHERE DOCTRINE_TBL.DOCTRINE_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
 
         return $sql;
     }
