@@ -31,13 +31,15 @@ class DB2iSeriesSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
+
     public function listTableNames()
     {
-        $sql = $this->_platform->getListTablesSQL();
+        $sql = $this->_platform->getListTablesSQL($this->_conn->getDatabase());
 
         $tables = $this->_conn->fetchAll($sql);
+        $tableNames = $this->_getPortableTablesList($tables);
 
-        return $this->_getPortableTablesList($tables);
+        return $this->filterAssetNames($tableNames);
     }
 
     /**
@@ -61,24 +63,39 @@ class DB2iSeriesSchemaManager extends AbstractSchemaManager
 
         $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
 
+        $length = $tableColumn['length'];
+
         switch (strtolower($tableColumn['typename'])) {
-            case 'varchar':
-                $length = $tableColumn['length'];
-                $fixed = false;
+            case 'smallint':
                 break;
-            case 'character':
-                $length = $tableColumn['length'];
+            case 'bigint':
+                break;
+            case 'integer':
+                break;
+            case 'time':
+                break;
+            case 'date':
+                break;
+            case 'string':
                 $fixed = true;
                 break;
-            case 'clob':
-                $length = $tableColumn['length'];
+            case 'binary':
+                break;
+            case 'text':
+                break;
+            case 'blob':
                 break;
             case 'decimal':
-            case 'double':
-            case 'real':
                 $scale = $tableColumn['scale'];
                 $precision = $tableColumn['length'];
                 break;
+            case 'float':
+                $scale = $tableColumn['scale'];
+                $precision = $tableColumn['length'];
+                break;
+            case 'datetime':
+                break;
+            default:
         }
 
         $options = array(

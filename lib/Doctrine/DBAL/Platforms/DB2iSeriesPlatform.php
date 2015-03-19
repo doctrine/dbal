@@ -263,9 +263,6 @@ class DB2iSeriesPlatform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        // We do the funky subquery and join QSYS2.columns.default this crazy way because
-        // as of db2 v10, the column is CLOB(64k) and the distinct operator won't allow a CLOB,
-        // it wants shorter stuff like a varchar.
         return "
         SELECT DISTINCT
            c.column_default as default,
@@ -301,25 +298,41 @@ class DB2iSeriesPlatform extends AbstractPlatform
          	c.TABLE_NAME = ck.TABLE_NAME AND
           	c.COLUMN_NAME = ck.COLUMN_NAME
          WHERE UPPER(c.TABLE_NAME) = UPPER('" . $table . "')
-         /*". (!is_null($database) ? "AND c.TABLE_SCHEMA = UPPER('$database')" : '') ."*/
-         ORDER BY c.ordinal_position
+         ". (!is_null($database) ? "AND c.TABLE_SCHEMA = UPPER('$database')" : '') ."
+         ORDER BY ck.COLUMN_POSITION
         ";
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getListTablesSQL()
+    public function getListTablesSQL($database = null)
     {
-        return "SELECT DISTINCT NAME FROM QSYS2.systables";
+        return "
+            SELECT
+              DISTINCT NAME
+            FROM QSYS2.systables t
+            WHERE
+              table_type='T'
+              ". (!is_null($database) ? "AND t.TABLE_SCHEMA = UPPER('$database')" : '') ."
+            ORDER BY NAME
+        ";
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getListViewsSQL($database)
+    public function getListViewsSQL($database = null)
     {
-        return "SELECT NAME, TEXT FROM QSYS2.sysviews";
+        return "
+            SELECT
+              DISTINCT NAME,
+              TEXT
+            FROM QSYS2.sysviews v
+            WHERE 1=1
+            ". (!is_null($database) ? "AND v.TABLE_SCHEMA = UPPER('$database')" : '') ."
+            ORDER BY NAME
+        ";
     }
 
     /**
@@ -327,25 +340,24 @@ class DB2iSeriesPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $database = null)
     {
-        return "
-        SELECT
-            idx.INDEX_NAME AS key_name,
-            idxcol.COLNAME AS column_name,
-            /*idxcol.ORDINAL_POSITION,*/
-            CASE
-                WHEN idx.IS_UNIQUE = 'P' THEN 1
-                ELSE 0
-            END AS primary,
-            CASE
-                WHEN idx.IS_UNIQUE = 'D' THEN 1
-                ELSE 0
-            END AS non_unique
-        FROM QSYS2.sysindexes AS idx
-        LEFT JOIN QSYS2.syskeys AS idxcol ON
-            idx.TABLE_SCHEMA = idxcol.INDEX_SCHEMA AND idx.INDEX_NAME = idxcol.INDEX_NAME
-        WHERE idx.TABLE_NAME = UPPER('" . $table . "')
-        /*". (!is_null($database) ? "AND idx.TABLE_SCHEMA = UPPER('$database')" : '') ."*/
-        ORDER BY idxcol.ORDINAL_POSITION ASC
+        return  "
+            SELECT
+                  scc.CONSTRAINT_NAME as key_name,
+                  scc.COLUMN_NAME as column_name,
+                  CASE
+                      WHEN sc.CONSTRAINT_TYPE = 'PRIMARY KEY' THEN 1
+                      ELSE 0
+                  END AS primary,
+                  CASE
+                      WHEN sc.CONSTRAINT_TYPE = 'UNIQUE' THEN 0
+                      ELSE 1
+                  END AS non_unique
+              FROM
+              QSYS2.syscstcol scc
+              LEFT JOIN QSYS2.syscst sc ON
+                  scc.TABLE_SCHEMA = sc.TABLE_SCHEMA AND scc.TABLE_NAME = sc.TABLE_NAME AND scc.CONSTRAINT_NAME = sc.CONSTRAINT_NAME
+            WHERE scc.TABLE_NAME = UPPER('" . $table . "')
+            ". (!is_null($database) ? "AND scc.TABLE_SCHEMA = UPPER('$database')" : '') ."
         ";
     }
 
