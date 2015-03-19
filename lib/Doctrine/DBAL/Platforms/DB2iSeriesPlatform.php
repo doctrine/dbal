@@ -32,7 +32,7 @@ use Doctrine\DBAL\Schema\TableDiff;
  *
  * @author Cassiano Vailati <c.vailati@esconsulting.it>
  */
-class DB2IBMiPlatform extends AbstractPlatform
+class DB2iSeriesPlatform extends AbstractPlatform
 {
     /**
      * {@inheritdoc}
@@ -68,18 +68,27 @@ class DB2IBMiPlatform extends AbstractPlatform
             'smallint'      => 'smallint',
             'bigint'        => 'bigint',
             'integer'       => 'integer',
+            'rowid'         => 'integer',
             'time'          => 'time',
             'date'          => 'date',
             'varchar'       => 'string',
             'character'     => 'string',
+            'char'          => 'string',
+            'varg'          => 'string',
+            'graphic'       => 'string',
             'varbinary'     => 'binary',
             'binary'        => 'binary',
+            'varbin'        => 'binary',
             'clob'          => 'text',
+            'dbclob'        => 'text',
             'blob'          => 'blob',
             'decimal'       => 'decimal',
+            'numeric'       => 'float',
             'double'        => 'float',
             'real'          => 'float',
+            'float'         => 'float',
             'timestamp'     => 'datetime',
+            'timestmp'      => 'datetime',
         );
     }
 
@@ -254,11 +263,12 @@ class DB2IBMiPlatform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        // We do the funky subquery and join qsys2.columns.default this crazy way because
+        // We do the funky subquery and join QSYS2.columns.default this crazy way because
         // as of db2 v10, the column is CLOB(64k) and the distinct operator won't allow a CLOB,
         // it wants shorter stuff like a varchar.
         return "
         SELECT DISTINCT
+           c.column_default as default,
            c.table_schema as tabschema,
            c.table_name as tabname,
            c.column_name as colname,
@@ -268,21 +278,30 @@ class DB2IBMiPlatform extends AbstractPlatform
            c.length,
            c.scale,
            c.identity,
-           --tc.type AS tabconsttype,
-           --k.colseq,
+           ck.CONSTRAINT_TYPE AS tabconsttype,
+           ck.COLUMN_POSITION as colseq,
            CASE
-           WHEN c.generated = 'BY DEFAULT' THEN 1
-           ELSE 0
-           END     AS autoincrement
-         FROM qsys2/syscolumns c
-           /*LEFT JOIN (qsys2/syskeys k JOIN qsys2/syskeycst tc
-               ON (k.table_schema = tc.table_schema
-                   AND k.tabname = tc.tabname
-                   AND tc.type = 'P'))
-             ON (c.tabschema = k.tabschema
-                 AND c.tabname = k.tabname
-                 AND c.colname = k.colname)*/
-         WHERE UPPER(c.table_name) = UPPER('" . $table . "')
+               WHEN c.generated = 'BY DEFAULT' THEN 1
+               ELSE 0
+           END AS autoincrement
+         FROM QSYS2.syscolumns c
+         LEFT JOIN
+         (
+			SELECT
+			skc.TABLE_NAME,
+			skc.COLUMN_NAME,
+			skc.COLUMN_POSITION,
+			sc.CONSTRAINT_TYPE
+			FROM QSYS2.syscst sc
+			LEFT JOIN QSYS2.syskeycst skc ON
+				sc.CONSTRAINT_SCHEMA = skc.CONSTRAINT_SCHEMA AND
+				sc.CONSTRAINT_NAME = skc.CONSTRAINT_NAME
+			WHERE CONSTRAINT_TYPE = 'PRIMARY KEY'
+         ) ck ON
+         	c.TABLE_NAME = ck.TABLE_NAME AND
+          	c.COLUMN_NAME = ck.COLUMN_NAME
+         WHERE UPPER(c.TABLE_NAME) = UPPER('" . $table . "')
+         /*". (!is_null($database) ? "AND c.TABLE_SCHEMA = UPPER('$database')" : '') ."*/
          ORDER BY c.ordinal_position
         ";
     }
@@ -292,7 +311,7 @@ class DB2IBMiPlatform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT DISTINCT NAME FROM qsys2/systables";
+        return "SELECT DISTINCT NAME FROM QSYS2.systables";
     }
 
     /**
@@ -300,29 +319,34 @@ class DB2IBMiPlatform extends AbstractPlatform
      */
     public function getListViewsSQL($database)
     {
-        return "SELECT NAME, TEXT FROM qsys2/sysviews";
+        return "SELECT NAME, TEXT FROM QSYS2.sysviews";
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getListTableIndexesSQL($table, $currentDatabase = null)
+    public function getListTableIndexesSQL($table, $database = null)
     {
-        return "SELECT   idx.INDNAME AS key_name,
-                         idxcol.COLNAME AS column_name,
-                         CASE
-                             WHEN idx.UNIQUERULE = 'P' THEN 1
-                             ELSE 0
-                         END AS primary,
-                         CASE
-                             WHEN idx.UNIQUERULE = 'D' THEN 1
-                             ELSE 0
-                         END AS non_unique
-                FROM     SYSCAT.INDEXES AS idx
-                JOIN     SYSCAT.INDEXCOLUSE AS idxcol
-                ON       idx.INDSCHEMA = idxcol.INDSCHEMA AND idx.INDNAME = idxcol.INDNAME
-                WHERE    idx.TABNAME = UPPER('" . $table . "')
-                ORDER BY idxcol.COLSEQ ASC";
+        return "
+        SELECT
+            idx.INDEX_NAME AS key_name,
+            idxcol.COLNAME AS column_name,
+            /*idxcol.ORDINAL_POSITION,*/
+            CASE
+                WHEN idx.IS_UNIQUE = 'P' THEN 1
+                ELSE 0
+            END AS primary,
+            CASE
+                WHEN idx.IS_UNIQUE = 'D' THEN 1
+                ELSE 0
+            END AS non_unique
+        FROM QSYS2.sysindexes AS idx
+        LEFT JOIN QSYS2.syskeys AS idxcol ON
+            idx.TABLE_SCHEMA = idxcol.INDEX_SCHEMA AND idx.INDEX_NAME = idxcol.INDEX_NAME
+        WHERE idx.TABLE_NAME = UPPER('" . $table . "')
+        /*". (!is_null($database) ? "AND idx.TABLE_SCHEMA = UPPER('$database')" : '') ."*/
+        ORDER BY idxcol.ORDINAL_POSITION ASC
+        ";
     }
 
     /**
@@ -330,31 +354,23 @@ class DB2IBMiPlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table)
     {
-        return "SELECT   fkcol.COLNAME AS local_column,
-                         fk.REFTABNAME AS foreign_table,
-                         pkcol.COLNAME AS foreign_column,
-                         fk.CONSTNAME AS index_name,
-                         CASE
-                             WHEN fk.UPDATERULE = 'R' THEN 'RESTRICT'
-                             ELSE NULL
-                         END AS on_update,
-                         CASE
-                             WHEN fk.DELETERULE = 'C' THEN 'CASCADE'
-                             WHEN fk.DELETERULE = 'N' THEN 'SET NULL'
-                             WHEN fk.DELETERULE = 'R' THEN 'RESTRICT'
-                             ELSE NULL
-                         END AS on_delete
-                FROM     SYSCAT.REFERENCES AS fk
-                JOIN     SYSCAT.KEYCOLUSE AS fkcol
-                ON       fk.CONSTNAME = fkcol.CONSTNAME
-                AND      fk.TABSCHEMA = fkcol.TABSCHEMA
-                AND      fk.TABNAME = fkcol.TABNAME
-                JOIN     SYSCAT.KEYCOLUSE AS pkcol
-                ON       fk.REFKEYNAME = pkcol.CONSTNAME
-                AND      fk.REFTABSCHEMA = pkcol.TABSCHEMA
-                AND      fk.REFTABNAME = pkcol.TABNAME
-                WHERE    fk.TABNAME = UPPER('" . $table . "')
-                ORDER BY fkcol.COLSEQ ASC";
+        return "
+            SELECT DISTINCT
+                fk.COLUMN_NAME AS local_column,
+                pk.TABLE_NAME AS foreign_table,
+                pk.COLUMN_NAME AS foreign_column,
+                fk.CONSTRAINT_NAME AS index_name,
+                rc.UPDATE_RULE AS on_update,
+                rc.DELETE_RULE AS on_delete
+            FROM QSYS2.REFERENTIAL_CONSTRAINTS rc
+            LEFT JOIN QSYS2.SYSCSTCOL fk ON
+                rc.CONSTRAINT_SCHEMA = fk.CONSTRAINT_SCHEMA AND
+                rc.CONSTRAINT_NAME = fk.CONSTRAINT_NAME
+            LEFT JOIN QSYS2.SYSCSTCOL pk ON
+                rc.UNIQUE_CONSTRAINT_SCHEMA = pk.CONSTRAINT_SCHEMA AND
+                rc.UNIQUE_CONSTRAINT_NAME = pk.CONSTRAINT_NAME
+            WHERE fk.TABLE_NAME = UPPER('" . $table . "')
+        ";
     }
 
     /**
@@ -378,7 +394,7 @@ class DB2IBMiPlatform extends AbstractPlatform
      */
     public function getCreateDatabaseSQL($database)
     {
-        return "CREATE DATABASE ".$database;
+        return "CREATE COLLECTION ".$database;
     }
 
     /**

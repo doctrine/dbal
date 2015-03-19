@@ -26,7 +26,7 @@ namespace Doctrine\DBAL\Schema;
  * @since  1.0
  * @author Cassiano Vailati <c.vailati@esconsulting.it> extending work of Benjamin Eberlei <kontakt@beberlei.de>
  */
-class DB2IBMiSchemaManager extends AbstractSchemaManager
+class DB2iSeriesSchemaManager extends AbstractSchemaManager
 {
     /**
      * {@inheritdoc}
