@@ -27,7 +27,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * @var resource
      */
-    private $_conn = null;
+    protected $_conn = null;
 
     /**
      * @param array  $params
@@ -41,10 +41,12 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     {
         $isPersistant = (isset($params['persistent']) && $params['persistent'] == true);
 
+        $dbName = PHP_OS == 'AIX' ? '*LOCAL' : $params['dbname'];
+
         if ($isPersistant) {
-            $this->_conn = db2_pconnect($params['dbname'], $username, $password, $driverOptions);
+            $this->_conn = db2_pconnect($dbName, $username, $password, $driverOptions);
         } else {
-            $this->_conn = db2_connect($params['dbname'], $username, $password, $driverOptions);
+            $this->_conn = db2_connect($dbName, $username, $password, $driverOptions);
         }
         if ( ! $this->_conn) {
             throw new DB2Exception(db2_conn_errormsg());
