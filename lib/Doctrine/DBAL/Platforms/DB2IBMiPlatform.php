@@ -744,9 +744,6 @@ class DB2IBMiPlatform extends AbstractPlatform
 
         $orderBy = stristr($query, 'ORDER BY');
 
-        //Remove ORDER BY from $query (including nested parentheses in order by list).
-        $query = preg_replace('/\s+ORDER\s+BY\s+([^()]+|\((?:(?:(?>[^()]+)|(?R))*)\))+/i', '', $query);
-
         $orderByBlocks = preg_split('/\s*ORDER\s+BY/', $orderBy );
 
         //Reversing arrays beacause external order by is more important
