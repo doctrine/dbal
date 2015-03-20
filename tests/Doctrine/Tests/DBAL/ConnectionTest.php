@@ -403,11 +403,20 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
     public function testConnectionIsClosed()
     {
+        // set the internal _conn to some value
+        $reflection = new \ReflectionObject($this->_conn);
+        $connProperty = $reflection->getProperty('_conn');
+        $connProperty->setAccessible(true);
+        $connProperty->setValue($this->_conn, new \stdClass);
+        $connValue = $connProperty->getValue($this->_conn);
+        $this->assertInstanceOf('stdClass', $connValue);
+
+        // close the connection
         $this->_conn->close();
 
-        //$this->setExpectedException('Doctrine\\DBAL\\Exception\\DriverException');
-
-        $this->_conn->quoteIdentifier('Bug');
+        // make sure the _conn has be set to null (but not unset)
+        $connNewValue = $connProperty->getValue($this->_conn);
+        $this->assertNull($connNewValue, 'Connection can\'t be closed.');
     }
 
     public function testFetchAll()
