@@ -29,6 +29,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * IBMi Db2 Schema Manager.
+ * More documentation about iSeries schema at https://www-01.ibm.com/support/knowledgecenter/ssw_ibm_i_72/db2/rbafzcatsqlcolumns.htm
  *
  * @author Cassiano Vailati <c.vailati@esconsulting.it>
  */
