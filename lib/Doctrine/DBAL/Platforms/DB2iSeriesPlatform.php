@@ -74,12 +74,18 @@ class DB2iSeriesPlatform extends AbstractPlatform
             'varchar'       => 'string',
             'character'     => 'string',
             'char'          => 'string',
+            'nvarchar'          => 'string',
+            'nchar'          => 'string',
+            'char () for bit data' => 'string',
+            'varchar () for bit data' => 'string',
             'varg'          => 'string',
+            'vargraphic'          => 'string',
             'graphic'       => 'string',
             'varbinary'     => 'binary',
             'binary'        => 'binary',
             'varbin'        => 'binary',
             'clob'          => 'text',
+            'nclob'          => 'text',
             'dbclob'        => 'text',
             'blob'          => 'blob',
             'decimal'       => 'decimal',
@@ -98,7 +104,7 @@ class DB2iSeriesPlatform extends AbstractPlatform
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+            : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
 
     /**
@@ -264,42 +270,49 @@ class DB2iSeriesPlatform extends AbstractPlatform
     public function getListTableColumnsSQL($table, $database = null)
     {
         return "
-        SELECT DISTINCT
-           c.column_default as default,
-           c.table_schema as tabschema,
-           c.table_name as tabname,
-           c.column_name as colname,
-           c.ordinal_position as colno,
-           c.data_type as typename,
-           c.nulls,
-           c.length,
-           c.scale,
-           c.identity,
-           ck.CONSTRAINT_TYPE AS tabconsttype,
-           ck.COLUMN_POSITION as colseq,
-           CASE
-               WHEN c.generated = 'BY DEFAULT' THEN 1
-               ELSE 0
-           END AS autoincrement
-         FROM QSYS2.syscolumns c
-         LEFT JOIN
-         (
-			SELECT
-			skc.TABLE_NAME,
-			skc.COLUMN_NAME,
-			skc.COLUMN_POSITION,
-			sc.CONSTRAINT_TYPE
-			FROM QSYS2.syscst sc
-			LEFT JOIN QSYS2.syskeycst skc ON
-				sc.CONSTRAINT_SCHEMA = skc.CONSTRAINT_SCHEMA AND
-				sc.CONSTRAINT_NAME = skc.CONSTRAINT_NAME
-			WHERE CONSTRAINT_TYPE = 'PRIMARY KEY'
-         ) ck ON
-         	c.TABLE_NAME = ck.TABLE_NAME AND
-          	c.COLUMN_NAME = ck.COLUMN_NAME
-         WHERE UPPER(c.TABLE_NAME) = UPPER('" . $table . "')
-         ". (!is_null($database) ? "AND c.TABLE_SCHEMA = UPPER('$database')" : '') ."
-         ORDER BY ck.COLUMN_POSITION
+            SELECT DISTINCT
+               c.column_def as default,
+               c.table_schem as tabschema,
+               c.table_name as tabname,
+               c.column_name as colname,
+               c.ordinal_position as colno,
+               c.type_name as typename,
+               c.is_nullable as nulls,
+               c.column_size as length,
+               c.decimal_digits as scale,
+               CASE
+                   WHEN c.pseudo_column = 2 THEN 'YES'
+                   ELSE 'NO'
+               END as identity,
+               pk.constraint_type AS tabconsttype,
+               pk.key_seq as colseq,
+               CASE
+                   WHEN c.HAS_DEFAULT = 'J' THEN 1
+                   ELSE 0
+               END AS autoincrement
+             FROM SYSIBM.sqlcolumns as c
+             LEFT JOIN
+             (
+                SELECT
+                tc.TABLE_SCHEMA,
+                tc.TABLE_NAME,
+                tc.CONSTRAINT_TYPE,
+                spk.COLUMN_NAME,
+                spk.KEY_SEQ
+                FROM SYSIBM.TABLE_CONSTRAINTS tc
+                LEFT JOIN SYSIBM.SQLPRIMARYKEYS spk
+                    ON tc.CONSTRAINT_NAME = spk.PK_NAME AND tc.TABLE_SCHEMA = spk.TABLE_SCHEM AND tc.TABLE_NAME = spk.TABLE_NAME
+                WHERE CONSTRAINT_TYPE = 'PRIMARY KEY'
+                AND UPPER(tc.TABLE_NAME) = UPPER('" . $table . "')
+                ". (!is_null($database) ? "AND tc.TABLE_SCHEMA = UPPER('$database')" : '') ."
+             ) pk ON
+                c.TABLE_SCHEM = pk.TABLE_SCHEMA
+                AND c.TABLE_NAME = pk.TABLE_NAME
+                AND c.COLUMN_NAME = pk.COLUMN_NAME
+             WHERE
+                UPPER(c.TABLE_NAME) = UPPER('" . $table . "')
+                ". (!is_null($database) ? "AND c.TABLE_SCHEM = UPPER('$database')" : '') ."
+             ORDER BY c.ordinal_position
         ";
     }
 
@@ -311,9 +324,10 @@ class DB2iSeriesPlatform extends AbstractPlatform
         return "
             SELECT
               DISTINCT NAME
-            FROM QSYS2.systables t
+            FROM
+                SYSIBM.tables t
             WHERE
-              table_type='T'
+              table_type='BASE TABLE'
               ". (!is_null($database) ? "AND t.TABLE_SCHEMA = UPPER('$database')" : '') ."
             ORDER BY NAME
         ";
