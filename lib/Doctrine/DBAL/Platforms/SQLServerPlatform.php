@@ -815,7 +815,21 @@ class SQLServerPlatform extends AbstractPlatform
     {
         // "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
         // Category 2 must be ignored as it is "MS SQL Server 'pseudo-system' object[s]" for replication
-        return "SELECT name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
+        // Table names are returned with the schema name IF and only if the schema
+        // is not the default schema for the user accessing the database.
+        return "SELECT CASE 
+        WHEN s.NAME <> p.default_schema_name
+            THEN '[' + s.NAME + '].[' + t.NAME + ']'
+        ELSE t.NAME
+        END AS name
+FROM sysobjects t
+LEFT JOIN sys.schemas s ON s.schema_id = uid
+LEFT JOIN sys.database_principals p ON p.principal_id = s.principal_id
+WHERE t.type = 'U'
+    AND t.NAME != 'sysdiagrams'
+    AND t.category != 2
+    AND p.principal_id = DATABASE_PRINCIPAL_ID()
+ORDER BY t.NAME";
     }
 
     /**
@@ -1449,7 +1463,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function quoteSingleIdentifier($str)
     {
-        return "[" . str_replace("]", "][", $str) . "]";
+        return "[" . str_replace("]", "]]", $str) . "]";
     }
 
     /**

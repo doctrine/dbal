@@ -99,7 +99,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             'comment'       => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
         );
 
-        $column = new Column($tableColumn['name'], Type::getType($type), $options);
+        $column = new Column($this->quoteIncomingIdentifier($tableColumn['name']), Type::getType($type), $options);
 
         if (isset($tableColumn['collation']) && $tableColumn['collation'] !== 'NULL') {
             $column->setPlatformOption('collation', $tableColumn['collation']);
@@ -118,9 +118,9 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         foreach ($tableForeignKeys as $tableForeignKey) {
             if ( ! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
                 $foreignKeys[$tableForeignKey['ForeignKey']] = array(
-                    'local_columns' => array($tableForeignKey['ColumnName']),
-                    'foreign_table' => $tableForeignKey['ReferenceTableName'],
-                    'foreign_columns' => array($tableForeignKey['ReferenceColumnName']),
+                    'local_columns' => array($this->quoteIncomingIdentifier($tableForeignKey['ColumnName'])),
+                    'foreign_table' => $this->quoteIncomingIdentifier($tableForeignKey['ReferenceTableName']),
+                    'foreign_columns' => array($this->quoteIncomingIdentifier($tableForeignKey['ReferenceColumnName'])),
                     'name' => $tableForeignKey['ForeignKey'],
                     'options' => array(
                         'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
@@ -128,8 +128,10 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                     )
                 );
             } else {
-                $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][] = $tableForeignKey['ColumnName'];
-                $foreignKeys[$tableForeignKey['ForeignKey']]['foreign_columns'][] = $tableForeignKey['ReferenceColumnName'];
+                $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][]
+                    = $this->quoteIncomingIdentifier($tableForeignKey['ColumnName']);
+                $foreignKeys[$tableForeignKey['ForeignKey']]['foreign_columns'][]
+                    = $this->quoteIncomingIdentifier($tableForeignKey['ReferenceColumnName']);
             }
         }
 
@@ -169,7 +171,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableDefinition($table)
     {
-        return $table['name'];
+        return $this->quoteIncomingIdentifier($table['name']);
     }
 
     /**
@@ -257,5 +259,33 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             INNER JOIN SysColumns Col ON Col.[ColID] = DefCons.[parent_column_id] AND Col.[ID] = Tab.[ID]
             WHERE Col.[Name] = " . $this->_conn->quote($column) ." AND Tab.[Name] = " . $this->_conn->quote($table) . "
             ORDER BY Col.[Name]";
+    }
+
+    /**
+     * Checks an identifier resolved from schema information retrieved from the
+     * database. If the identifier is not quoted, and is not a valid identifier
+     * for the platform, the identifier will be quoted.
+     *
+     * @param string $name incoming identifer to be examined and quoted if necessary
+     *
+     * @return string Quoted or validated identifier
+     */
+    private function quoteIncomingIdentifier($name)
+    {
+        return $this->isIncomingIdentifierValid($name)
+            ? $name
+            : $this->_platform->quoteIdentifier($name);
+    }
+
+    /**
+     * Checks to see if the identifer is valid as-is
+     *
+     * @todo this should probably support unicode identifiers as well, since
+     *       tsql does, but there's as of now no easy way to be sure PCRE is
+     *       compiled with UTF8 support.
+     */
+    private function isIncomingIdentifierValid($name)
+    {
+        return (bool)preg_match('/^(?:[_@#[:alpha:]][$@#_[:alnum:]]*|".*"|\[.*\])$/i', $name);
     }
 }
