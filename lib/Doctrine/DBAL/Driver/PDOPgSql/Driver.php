@@ -83,7 +83,7 @@ class Driver extends AbstractPostgreSQLDriver
         }
 
         if (isset($params['charset'])) {
-            $dsn .= "options='--client_encoding=" . $params['charset'] . "'";
+            $dsn .= 'client_encoding=' . $params['charset'] . ' ';
         }
 
         if (isset($params['sslmode'])) {
