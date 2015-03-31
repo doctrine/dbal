@@ -120,9 +120,17 @@ class SQLServer2012Platform extends SQLServer2008Platform
         if ($orderByPos === false
             || substr_count($query, "(", $orderByPos) - substr_count($query, ")", $orderByPos)
         ) {
-            // In another DBMS, we could do ORDER BY 0, but SQL Server gets angry if you use constant expressions in
-            // the order by list.
-            $query .= " ORDER BY (SELECT 0)";
+            if (strtoupper(substr($query, 0, 15)) == 'SELECT DISTINCT') {
+                // SQL Server won't let us order by a non-selected column in a DISTINCT query,
+                // so we have to do this madness. This says, select 0 as column one, and order
+                // by column one.
+                $query = 'SELECT DISTINCT 0,' . substr($query, 15);
+                $query .= " ORDER BY 1";
+            } else {
+                // In another DBMS, we could do ORDER BY 0, but SQL Server gets angry if you use constant expressions in
+                // the order by list.
+                $query .= " ORDER BY (SELECT 0)";
+            }
         }
 
         if ($offset === null) {
