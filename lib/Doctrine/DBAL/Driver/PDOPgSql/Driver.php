@@ -53,6 +53,11 @@ class Driver extends AbstractPostgreSQLDriver
                 $pdo->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
             }
 
+            /* define charset via SET NAMES to avoid inconsistent DSN support */
+            if (isset($params['charset'])) {
+              $pdo->query('SET NAMES \''.$params['charset'].'\'');
+            }
+
             return $pdo;
         } catch (PDOException $e) {
             throw DBALException::driverException($this, $e);
@@ -80,10 +85,6 @@ class Driver extends AbstractPostgreSQLDriver
 
         if (isset($params['dbname'])) {
             $dsn .= 'dbname=' . $params['dbname'] . ' ';
-        }
-
-        if (isset($params['charset'])) {
-            $dsn .= 'client_encoding=' . $params['charset'] . ' ';
         }
 
         if (isset($params['sslmode'])) {
