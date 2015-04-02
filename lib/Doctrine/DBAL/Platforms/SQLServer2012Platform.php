@@ -122,13 +122,14 @@ class SQLServer2012Platform extends SQLServer2008Platform
         ) {
             if (strtoupper(substr($query, 0, 15)) == 'SELECT DISTINCT') {
                 // SQL Server won't let us order by a non-selected column in a DISTINCT query,
-                // so we have to do this madness. This says, select 0 as column one, and order
-                // by column one.
-                $query = 'SELECT DISTINCT 0,' . substr($query, 15);
+                // so we have to do this madness. This says, order by the first column in the
+                // result. SQL Server's docs say that a nonordered query's result order is non-
+                // deterministic anyway, so this won't do anything that a bunch of update and
+                // deletes to the table wouldn't do anyway.
                 $query .= " ORDER BY 1";
             } else {
-                // In another DBMS, we could do ORDER BY 0, but SQL Server gets angry if you use constant expressions in
-                // the order by list.
+                // In another DBMS, we could do ORDER BY 0, but SQL Server gets angry if you
+                // use constant expressions in the order by list.
                 $query .= " ORDER BY (SELECT 0)";
             }
         }

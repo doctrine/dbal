@@ -247,7 +247,7 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     {
         $sql = $this->_platform->modifyLimitQuery("SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result", 10);
 
-        $expected = "SELECT DISTINCT 0, id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
+        $expected = "SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
 
         $this->assertEquals($sql, $expected);
     }
