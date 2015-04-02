@@ -53,7 +53,10 @@ class Driver extends AbstractPostgreSQLDriver
                 $pdo->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
             }
 
-            /* define charset via SET NAMES to avoid inconsistent DSN support */
+            /* defining client_encoding via SET NAMES to avoid inconsistent DSN support
+             * - the 'client_encoding' connection param only works with postgres >= 9.1
+             * - also, padding client_encoding via the 'options' param breaks pgbouncer support
+             */
             if (isset($params['charset'])) {
               $pdo->query('SET NAMES \''.$params['charset'].'\'');
             }
