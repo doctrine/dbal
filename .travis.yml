@@ -45,6 +45,8 @@ matrix:
         env: DB=sqlite
       - php: hhvm
         env: DB=mysql
+      - php: hhvm
+        env: DB=mysqli
       - php: hhvm-nightly
   exclude:
       - php: hhvm
