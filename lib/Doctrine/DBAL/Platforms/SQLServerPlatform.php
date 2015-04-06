@@ -824,7 +824,7 @@ class SQLServerPlatform extends AbstractPlatform
         END AS name
 FROM sysobjects t
 LEFT JOIN sys.schemas s ON s.schema_id = uid
-LEFT JOIN sys.database_principals p ON p.principal_id = s.principal_id
+CROSS JOIN sys.database_principals p
 WHERE t.type = 'U'
     AND t.NAME != 'sysdiagrams'
     AND t.category != 2
