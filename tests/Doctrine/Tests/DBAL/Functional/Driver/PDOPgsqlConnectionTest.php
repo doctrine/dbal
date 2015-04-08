@@ -5,7 +5,6 @@ namespace Doctrine\Tests\DBAL\Functional\Driver;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
-use Doctrine\Tests\TestUtil;
 
 class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
 {
