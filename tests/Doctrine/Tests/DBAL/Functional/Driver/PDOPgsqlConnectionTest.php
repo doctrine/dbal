@@ -25,7 +25,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
      * @group DBAL-1183
      * @group DBAL-1189
      *
-     * @dataProvider charset
+     * @dataProvider getValidCharsets
      *
      * @param string $charset
      */
@@ -43,7 +43,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
         $this->assertEquals($charset, $connection->query("SHOW client_encoding")->fetch(\PDO::FETCH_COLUMN));
     }
 
-    public function charset()
+    public function getValidCharsets()
     {
        return array(
            array("UTF8"),
