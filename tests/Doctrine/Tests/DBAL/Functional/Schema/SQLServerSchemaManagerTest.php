@@ -177,7 +177,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table('sqlsrv_pk_ordering');
         $table->addColumn('colA', 'integer', array('notnull' => true));
         $table->addColumn('colB', 'integer', array('notnull' => true));
-        $table->setPrimaryKey(['colB', 'colA']);
+        $table->setPrimaryKey(array('colB', 'colA'));
         $this->_sm->createTable($table);
 
         $indexes = $this->_sm->listTableIndexes('sqlsrv_pk_ordering');
