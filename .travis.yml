@@ -14,6 +14,7 @@ env:
   - DB=pgsql POSTGRESQL_VERSION=9.1
   - DB=pgsql POSTGRESQL_VERSION=9.2
   - DB=pgsql POSTGRESQL_VERSION=9.3
+  - DB=pgsql POSTGRESQL_VERSION=9.4
   - DB=sqlite
   - DB=mysqli
 
@@ -38,9 +39,13 @@ matrix:
     - php: hhvm
       env: DB=pgsql POSTGRESQL_VERSION=9.3
     - php: hhvm
+      env: DB=pgsql POSTGRESQL_VERSION=9.4
+    - php: hhvm
       env: DB=sqlite
     - php: hhvm
       env: DB=mysql
+    - php: hhvm
+      env: DB=mysqli
     - php: hhvm-nightly
   exclude:
     - php: hhvm
@@ -49,9 +54,16 @@ matrix:
       env: DB=pgsql POSTGRESQL_VERSION=9.2 # driver currently unsupported by HHVM
     - php: hhvm
       env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
+    - php: hhvm
+      env: DB=pgsql POSTGRESQL_VERSION=9.4 # driver currently unsupported by HHVM
     - php: hhvm-nightly
       env: DB=pgsql POSTGRESQL_VERSION=9.1 # driver currently unsupported by HHVM
     - php: hhvm-nightly
       env: DB=pgsql POSTGRESQL_VERSION=9.2 # driver currently unsupported by HHVM
     - php: hhvm-nightly
       env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
+    - php: hhvm-nightly
+      env: DB=pgsql POSTGRESQL_VERSION=9.4 # driver currently unsupported by HHVM
+
+addons:
+  postgresql: '9.4'
