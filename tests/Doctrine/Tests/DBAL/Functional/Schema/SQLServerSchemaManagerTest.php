@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -328,5 +329,30 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('666', $columns['[select]']->getComment());
         $this->assertNull($columns['added_commented_type']->getComment());
         $this->assertEquals('666', $columns['added_commented_type_with_comment']->getComment());
+    }
+
+    public function testNamedPrimaryKeyConstraint()
+    {
+        $primaryTable = new Table("primary_related_table");
+        $primaryTable->addColumn("id", "integer", array('autoincrement' => true));
+        $primaryTable->setPrimaryKey(array('id'), "pk_primary_related_table");
+        $this->_sm->createTable($primaryTable);
+
+        $childTable = new Table("child_related_table");
+        $childTable->addColumn("id", "integer");
+        $childTable->addColumn("id_zone", "integer");
+        $childTable->setPrimaryKey(array('id_zone', 'id'), "pk_child_related_table");
+        $this->_sm->createTable($childTable);
+
+        $childTable = $this->_sm->listTableDetails("child_related_table");
+
+        $tableDiff = new TableDiff("child_related_table");
+        $tableDiff->fromTable = $childTable;
+        $tableDiff->changedIndexes["pk_child_related_table"] = new Index("pk_child_related_table", array('id'), true, true, array("clustered", true));
+        $this->_sm->alterTable($tableDiff);
+        $childTableIndexes = $this->_sm->listTableIndexes("child_related_table");
+        $this->assertArrayHasKey("primary", $childTableIndexes);
+        $this->assertEquals("pk_child_related_table", $childTableIndexes['primary']->getName());
+        $this->assertEquals(1, count($childTableIndexes['primary']->getColumns()));
     }
 }

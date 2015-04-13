@@ -431,13 +431,13 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
         $idx->addFlag('nonclustered');
-        $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->_platform->getCreatePrimaryKeySQL($idx, 'tbl'));
+        $this->assertEquals('ALTER TABLE tbl ADD CONSTRAINT idx PRIMARY KEY NONCLUSTERED (id)', $this->_platform->getCreatePrimaryKeySQL($idx, 'tbl'));
     }
 
     public function testAlterAddPrimaryKey()
     {
         $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
-        $this->assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
+        $this->assertEquals('ALTER TABLE tbl ADD CONSTRAINT idx PRIMARY KEY (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
