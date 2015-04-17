@@ -21,6 +21,11 @@ namespace Doctrine\DBAL\Driver\Ibase;
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
 
+/**
+ * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
+ * @experimental
+ */
+
 class IbaseException extends AbstractDriverException
 {
     /**

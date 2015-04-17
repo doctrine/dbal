@@ -98,6 +98,8 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testModifyLimitQuerySubSelect()
     {
+        $this->skipOnDriverOrPlatform('firebird', 'Invalid syntax on firebird (* may not be used if other fields are specified)');
+        
         $this->_conn->insert('modify_limit_table', array('test_int' => 1));
         $this->_conn->insert('modify_limit_table', array('test_int' => 2));
         $this->_conn->insert('modify_limit_table', array('test_int' => 3));

@@ -14,6 +14,8 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function setUp()
     {
         parent::setUp();
+        
+//        $this->skipOnDriverOrPlatform('firebird', 'TableGenerator does not work - Needs to be figured out why', true);
 
         $platform = $this->_conn->getDatabasePlatform();
         if ($platform->getName() == "sqlite") {

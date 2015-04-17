@@ -21,12 +21,12 @@
 namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
- * Firebird Keywordlist
+ * Keyword list for Firebird and Interbase
  *
  * @license  BSD http://www.opensource.org/licenses/bsd-license.php
  * @author      Andreas Prucha <prucha@helicon.co.at>
  */
-class FirebirdKeywords extends \Doctrine\DBAL\Platforms\Keywords\KeywordList
+class FbIbKeywords extends \Doctrine\DBAL\Platforms\Keywords\KeywordList
 {
 
     public function getName()
@@ -203,7 +203,15 @@ class FirebirdKeywords extends \Doctrine\DBAL\Platforms\Keywords\KeywordList
             'WHERE',
             'WHILE',
             'WITH',
-            'YEAR');
+            'YEAR',
+            // the following keywords are not reserved in 2.5, but propabply in 3.0
+            'BOOLEAN',
+            'DETERMINISTIC',
+            'OVER',
+            'RETURN',
+            'SCROLL',
+            'SQLSTATE',
+            );
     }
 
 }

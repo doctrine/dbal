@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -19,14 +20,27 @@
 
 namespace Doctrine\DBAL\Driver\PDOFirebird;
 
-
 /**
  * PDO Firebird driver.
+ * 
+ * <b>This driver is EXPERIMENTAL. It's strongly recommended to use ibase_firebird instead.</b>
  *
- * @since 2.0
+ * The Firebird PDO driver currently suffers from the following limitations and bugs:
+ *
+ * <b>Savepoints</b>: Firebird supports savepoints. These are used to simulate nested transactions in Doctrine. 
+ * The Firebird PDO driver raises an exception if savepoints are used.
+ * 
+ * <b>BLOBs</b>: The Firebird PDO driver runs into memory leaks quite quickly if BLOBs are used.
+ * 
+ * <b>Transaction isolation</b>: There is no way to configure the transaction isolation level.
+ * 
+ * In order to workaround the limitations, this driver calls FirebirdPlatform->setInPdoContext(true) to configure the platform to disable savepoints and use varchars instead of blobs. * 
+ * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
+ * @experimental
  */
-class Driver extends \Doctrine\DBAL\Driver\AbstractFirebirdDriver
+class Driver extends \Doctrine\DBAL\Driver\AbstractFbIbDriver
 {
+
     /**
      * Attempts to establish a connection with the underlying driver.
      *
@@ -38,17 +52,9 @@ class Driver extends \Doctrine\DBAL\Driver\AbstractFirebirdDriver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        try {
             return new \Doctrine\DBAL\Driver\PDOFirebird\PDOConnection(
-                $this->constructPdoDsn($params),
-                $username,
-                $password,
-                $driverOptions
+                    $this->constructPdoDsn($params), $username, $password, $driverOptions
             );
-        } catch (\PDOException $e) {
-            throw \Doctrine\DBAL\DBALException::driverException($this, $e);
-        }
-        return $conn;
     }
 
     /**
@@ -59,13 +65,12 @@ class Driver extends \Doctrine\DBAL\Driver\AbstractFirebirdDriver
     protected function constructPdoDsn(array $params)
     {
         $dsn = 'firebird:dbname=';
-        if (isset($params['host']))
-        {
-          $dsn .= $params['host'].':';
+        if (isset($params['host'])) {
+            $dsn .= $params['host'] . ':';
         }
 //        $dsn .= '10.10.21.127:';
         if (isset($params['dbname'])) {
-          $dsn .= $params['dbname'].';';
+            $dsn .= $params['dbname'] . ';';
         }
         if (isset($params['charset'])) {
             $dsn .= 'charset=' . $params['charset'] . ';';
@@ -87,4 +92,11 @@ class Driver extends \Doctrine\DBAL\Driver\AbstractFirebirdDriver
         return $params['dbname'];
     }
     
+    public function getDatabasePlatform()
+    {
+        $result = parent::getDatabasePlatform();
+        $result->setInPdoContext(true);
+        return $result;
+    }
+
 }

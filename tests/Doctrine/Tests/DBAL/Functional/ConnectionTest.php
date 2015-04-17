@@ -228,7 +228,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testConnectWithoutExplicitDatabaseName()
     {
-        if (in_array($this->_conn->getDatabasePlatform()->getName(), array('oracle', 'db2'), true)) {
+        if (in_array($this->_conn->getDatabasePlatform()->getName(), array('oracle', 'db2', 'firebird'), true)) {
             $this->markTestSkipped('Platform does not support connecting without database name.');
         }
 

@@ -156,6 +156,8 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testNotNullConstraintViolationException()
     {
+        $this->skipOnDriverOrPlatform('firebird', 'Ambigious error code and use of reserved word "value" in this test', true);
+        
         $schema = new \Doctrine\DBAL\Schema\Schema();
 
         $table = $schema->createTable("notnull_table");

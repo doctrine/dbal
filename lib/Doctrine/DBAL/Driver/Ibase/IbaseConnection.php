@@ -26,46 +26,199 @@ use Doctrine\DBAL\Platforms\FirebirdPlatform;
 
 /**
  * ibase-api implementation of the Connection interface.
+ * 
+ * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
+ * @experimental
  */
 class IbaseConnection implements Connection, ServerInfoAwareConnection
 {
 
     /**
-     * @var ressource ibase api connection ressource
+     * Attribute to set the default transaction isolation level.
+     * 
+     * @see \Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED
+     * @see \Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED
+     * @see \Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ
+     * @see \Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE
+     * 
      */
-    protected $dbh;
+    const ATTR_DOCTRINE_DEFAULT_TRANS_ISOLATION_LEVEL = 'doctrineTransactionIsolationLevel';
 
     /**
-     * Count the number of nested transactions
-     * This is used to simulate autocommit;
-     * @var integer 
+     * Transaction wait timeout in case of an locking conflict
+     */
+    const ATTR_DOCTRINE_DEFAULT_TRANS_WAIT = 'doctrineTransactionWait';
+
+    protected $dbs;
+    protected $username;
+    protected $password;
+    protected $driverOptions = array();
+
+    /**
+     * @var ressource ibase api connection ressource
+     */
+    protected $ibaseConnectionRc;
+
+    /**
+     * @var int Transaction Depth. Should never be > 1
      */
     protected $transactionDepth = 0;
 
     /**
+     * @var ressource Ressource of the active transaction. 
+     */
+    protected $ibaseActiveTransactionRc = null;
+
+    /**
+     * Isolation level used when a transaction is started
+     * @var integer 
+     */
+    protected $attrDcTransIsolationLevel = \Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED;
+
+    /**
+     * Wait timeout used in transactions
+     * 
+     * @var integer  Number of seconds to wait.
+     */
+    protected $attrDcTransWait = 5;
+
+    /**
+     * True if auto-commit is enabled
+     * @var boolean 
+     */
+    protected $attrAutoCommit = true;
+
+    /**
+     * {@inheritDoc}
      * @param array  $params
      * @param string $username
      * @param string $password
      * @param array  $driverOptions
+     * 
+     * <b>driverOptions</b>
+     * 'TRANSACTION_FLAGS'. 
      *
      * @throws \Doctrine\DBAL\Driver\Ibase\IbaseException
      */
     public function __construct(array $params, $username, $password, array $driverOptions = array())
     {
-        $dbs = $this->makeDbString($params);
-
-        $this->dbh = ibase_connect($dbs, $username, $password);
+        $this->ibaseConnectionRc = null;
+        $this->dbs = $this->makeDbString($params);
+        $this->username = $username;
+        $this->password = $password;
+        foreach ($driverOptions as $k => $v) {
+            $this->setAttribute($k, $v);
+        }
+        $this->getActiveTransactionIbaseRes();
     }
 
     public function __destruct()
     {
-        if (is_resource($this->dbh)) {
-            @ibase_commit($this->dbh);
-            @ibase_close($this->dbh);
-            $this->dbh = null;
+        if ($this->transactionDepth > 0) {
+            // Auto-Rollback explicite transactions
+            $this->rollback();
+        }
+        $this->autoCommit();
+        @ibase_close($this->ibaseConnectionRc);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * Additionally to the standard driver attributes, the attribute 
+     * {@link self::ATTR_DOCTRINE_DEFAULT_TRANS_ISOLATION_LEVEL} can be used to control 
+     * the isolation level used for transactions
+     * 
+     * @param type $attribute
+     * @param type $value
+     * @return type
+     */
+    public function setAttribute($attribute, $value)
+    {
+        switch ($attribute) {
+            case self::ATTR_DOCTRINE_DEFAULT_TRANS_ISOLATION_LEVEL: {
+                    $this->attrDcTransIsolationLevel = $value;
+                    break;
+                }
+            case self::ATTR_DOCTRINE_DEFAULT_TRANS_WAIT: {
+                    $this->attrDcTransWait = $value;
+                    break;
+                }
+            case \PDO::ATTR_AUTOCOMMIT: {
+                    $this->attrAutoCommit = $value;
+                }
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @param type $attribute
+     * @return type
+     */
+    public function getAttribute($attribute)
+    {
+        switch ($attribute) {
+            case self::ATTR_DOCTRINE_DEFAULT_TRANS_ISOLATION_LEVEL: {
+                    return $this->attrDcTransIsolationLevel;
+                }
+            case self::ATTR_DOCTRINE_DEFAULT_TRANS_WAIT: {
+                    return $this->attrDcTransWait;
+                }
+            case \PDO::ATTR_AUTOCOMMIT: {
+                    return $this->attrAutoCommit;
+                }
+        }
+    }
+
+    /**
+     * Checks ibase_error and raises an exception if an error occured
+     * 
+     * @throws IbaseException
+     */
+    protected function checkLastApiCall()
+    {
+        $lastError = $this->errorInfo();
+        if (isset($lastError['code']) && $lastError['code']) {
+            throw IbaseException::fromErrorInfo($lastError);
+        }
+    }
+
+    /**
+     * Returns the current transaction context resource
+     * 
+     * Inside an active transaction, the current transaction resource ({@link $activeTransactionIbaseRes}) is returned,
+     * Otherwise the function returns the connection resource ({@link $connectionIbaseRes}).
+     * 
+     * If the connection is not open, it gets opened.
+     * 
+     * @return resource|null
+     */
+    public function getActiveTransactionIbaseRes()
+    {
+        if (!$this->ibaseConnectionRc || !is_resource($this->ibaseConnectionRc)) {
+            $this->ibaseConnectionRc = @ibase_connect($this->dbs, $this->username, $this->password);
+            if (!is_resource($this->ibaseConnectionRc)) {
+                $this->checkLastApiCall();
+            }
+
+            if (!is_resource($this->ibaseConnectionRc)) {
+                throw IbaseException::fromErrorInfo($this->errorInfo());
+            }
+
+            $this->ibaseActiveTransactionRc = $this->internalBeginTransaction(true);
+        }
+        if ($this->ibaseActiveTransactionRc && is_resource($this->ibaseActiveTransactionRc)) {
+            return $this->ibaseActiveTransactionRc;
+        }
+    }
+
+    /**
+     * Constructs an connection string for {@link PHP_MANUAL#ibase_connect}
+     * 
+     * @param type $params
+     * @return type
+     */
     protected function makeDbString($params)
     {
         $result = '';
@@ -98,7 +251,7 @@ class IbaseConnection implements Connection, ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        return ibase_server_info($this->dbh, IBASE_SVC_SERVER_VERSION);
+        return ibase_server_info($this->ibaseConnectionRc, IBASE_SVC_SERVER_VERSION);
     }
 
     /**
@@ -114,7 +267,7 @@ class IbaseConnection implements Connection, ServerInfoAwareConnection
      */
     public function prepare($prepareString)
     {
-        return new IbaseStatement($this->dbh, $prepareString, $this);
+        return new IbaseStatement($this, $prepareString);
     }
 
     /**
@@ -124,7 +277,7 @@ class IbaseConnection implements Connection, ServerInfoAwareConnection
     {
         $args = func_get_args();
         $sql = $args[0];
-        //$fetchMode = $args[1];
+//$fetchMode = $args[1];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
@@ -149,26 +302,10 @@ class IbaseConnection implements Connection, ServerInfoAwareConnection
      */
     public function exec($statement)
     {
-        
-        $inExpliciateTransaction = $this->transactionDepth > 0;
-        
-        try {
-            $stmt = $this->prepare($statement);
-            $stmt->execute();
-            $result = $stmt->rowCount();
-            
-            if (!$inExpliciateTransaction) {
-                ibase_commit_ret($this->dbh);
-            }
-        } catch (\Exception $ex) {
-            if (!$inExpliciateTransaction) {
-                @ibase_rollback_ret($this->dbh);
-            }
-            throw $ex;
-        }
+        $stmt = $this->prepare($statement);
+        $stmt->execute();
 
-
-        return $result;
+        return $stmt->rowCount();
     }
 
     /**
@@ -180,17 +317,11 @@ class IbaseConnection implements Connection, ServerInfoAwareConnection
             return false;
         }
 
-        Interbase / FirebirdPlatform::assertValidIdentifier($name);
-
-        $sql = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
+        $sql = 'SELECT GEN_ID(' . $name . ', 0) LAST_VAL FROM RDB$DATABASE';
         $stmt = $this->query($sql);
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetchColumn(0);
 
-        if ($result === false || !isset($result['CURRVAL'])) {
-            throw new IbaseException("lastInsertId failed: Query was executed but no result was returned.");
-        }
-
-        return (int) $result['CURRVAL'];
+        return $result;
     }
 
     /**
@@ -204,16 +335,64 @@ class IbaseConnection implements Connection, ServerInfoAwareConnection
     }
 
     /**
+     * Generates an SET TRANSACTION statement used to start an transaction
+     * 
+     * @param type $isolationLevel
+     * @param type $timeout
+     * @return string
+     */
+    public function getStartTransactionSql($isolationLevel, $timeout = 5)
+    {
+        switch ($isolationLevel) {
+            case \Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED: {
+                    $result .= 'SET TRANSACTION READ WRITE ISOLATION LEVEL READ COMMITTED RECORD_VERSION';
+                    break;
+                }
+            case \Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED: {
+                    $result .= 'SET TRANSACTION READ WRITE ISOLATION LEVEL READ COMMITTED RECORD_VERSION';
+                    break;
+                }
+            case \Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ: {
+                    $result .= 'SET TRANSACTION READ WRITE ISOLATION LEVEL SNAPSHOT ';
+                    break;
+                }
+            case \Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE: {
+                    $result .= 'SET TRANSACTION READ WRITE ISOLATION LEVEL SNAPSHOT TABLE STABILITY';
+                    break;
+                }
+        }
+        $result .= ($this->attrDcTransWait > 0) ? ' WAIT LOCK TIMEOUT ' . $this->attrDcTransWait : ' NO WAIT';
+        return $result;
+    }
+
+    /**
+     * Starts a new transaction and returns the transaction handle
+     * 
+     * @param resource $commitDefaultTransaction
+     */
+    protected function internalBeginTransaction($commitDefaultTransaction = true)
+    {
+        if ($commitDefaultTransaction) {
+            @ibase_commit($this->ibaseConnectionRc);
+        }
+        $result = @ibase_query($this->ibaseConnectionRc, $this->getStartTransactionSql($this->attrDcTransIsolationLevel));
+        if (is_resource($result)) {
+            $this->checkLastApiCall();
+        }
+
+        return $result;
+    }
+
+    /**
      * {@inheritdoc}
+     * 
      */
     public function beginTransaction()
     {
-        if (!ibase_trans(IBASE_READ | IBASE_WRITE | IBASE_REC_VERSION | IBASE_NOWAIT, $this->dbh)) {
-            throw IbaseException::fromErrorInfo($this->errorInfo());
+        if ($this->transactionDepth < 1) {
+            $this->ibaseActiveTransactionRc = $this->internalBeginTransaction(true);
+            $this->transactionDepth++;
         }
-
-        $this->transactionDepth++;
-
         return true;
     }
 
@@ -222,26 +401,40 @@ class IbaseConnection implements Connection, ServerInfoAwareConnection
      */
     public function commit()
     {
-        if (!ibase_commit($this->dbh)) {
-            throw IbaseException::fromErrorInfo($this->errorInfo());
+        if ($this->transactionDepth > 0) {
+            $res = @ibase_commit($this->ibaseActiveTransactionRc);
+            if (!$res) {
+                $this->checkLastApiCall();
+            }
+            $this->transactionDepth--;
         }
-
-        $this->transactionDepth--;
-
+        $this->ibaseActiveTransactionRc = $this->internalBeginTransaction(true);
         return true;
+    }
+
+    /**
+     * commits the transaction if autocommit is enabled no explicte transaction has been started
+     */
+    public function autoCommit()
+    {
+        if ($this->attrAutoCommit && $this->transactionDepth < 1) {
+            @ibase_commit_ret($this->getActiveTransactionIbaseRes());
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function rollBack()
+    public function rollback()
     {
-        if (!ibase_rollback($this->dbh)) {
-            throw IbaseException::fromErrorInfo($this->errorInfo());
+        if ($this->transactionDepth > 0) {
+            $res = @ibase_rollback($this->ibaseActiveTransactionRc);
+            if (!$res) {
+                $this->checkLastApiCall();
+            }
+            $this->transactionDepth--;
         }
-
-        $this->transactionDepth--;
-
+        $this->ibaseActiveTransactionRc = $this->internalBeginTransaction(true);
         return true;
     }
 
@@ -258,9 +451,14 @@ class IbaseConnection implements Connection, ServerInfoAwareConnection
      */
     public function errorInfo()
     {
-        return array(
-            'code' => $this->errorCode(),
-            'message' => ibase_errmsg());
+        $errorCode = $this->errorCode();
+        if ($errorCode) {
+            return array(
+                'code' => $this->errorCode(),
+                'message' => ibase_errmsg());
+        } else {
+            return array('code' => 0, 'message' => null);
+        }
     }
 
 }

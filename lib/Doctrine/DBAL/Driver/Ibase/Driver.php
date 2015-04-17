@@ -26,13 +26,14 @@ use Doctrine\DBAL\DBALException;
  *
  * @author Andreas Prucha <prucha@helicon.co.at>
  */
-class Driver extends \Doctrine\DBAL\Driver\AbstractFirebirdDriver
+class Driver extends \Doctrine\DBAL\Driver\AbstractFbIbDriver
 {
     /**
      * {@inheritdoc}
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
+        parent::connect($params, $username, $password, $driverOptions);
         try {
             return new IbaseConnection(
                 $params,
@@ -51,4 +52,5 @@ class Driver extends \Doctrine\DBAL\Driver\AbstractFirebirdDriver
     {
         return 'ibase';
     }
+    
 }

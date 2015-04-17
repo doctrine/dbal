@@ -144,6 +144,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testPrepareWithQuoted()
     {
+        $this->skipOnDriverOrPlatform('firebird', 'Firebird uses uppercase identifiers if not quoted');
+        
         $table = 'fetch_table';
         $paramInt = 1;
         $paramStr = 'foo';

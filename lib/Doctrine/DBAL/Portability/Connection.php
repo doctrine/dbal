@@ -44,6 +44,7 @@ class Connection extends \Doctrine\DBAL\Connection
     const PORTABILITY_DRIZZLE           = 13;
     const PORTABILITY_SQLANYWHERE       = 13;
     const PORTABILITY_SQLSRV            = 13;
+    const PORTABILITY_FIREBIRD          = 13;
 
     /**
      * @var integer
@@ -77,6 +78,8 @@ class Connection extends \Doctrine\DBAL\Connection
                 } elseif ($this->getDatabasePlatform()->getName() === 'db2') {
                     $params['portability'] = self::PORTABILITY_DB2;
                 } elseif ($this->getDatabasePlatform()->getName() === 'mssql') {
+                    $params['portability'] = $params['portability'] & self::PORTABILITY_SQLSRV;
+                } elseif ($this->getDatabasePlatform()->getName() === 'firebird') {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLSRV;
                 } else {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_OTHERVENDORS;

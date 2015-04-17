@@ -15,6 +15,14 @@ class DbalFunctionalTestCase extends DbalTestCase
      * @var \Doctrine\DBAL\Connection
      */
     protected $_conn;
+    
+    /**
+     * {@inheritDoc}
+     */
+    protected function skipOnDriverOrPlatform($driverOrPlatformName, $message = null, $markIncomplete = false, $checkbase = null)
+    {
+        return parent::skipOnDriverOrPlatform($driverOrPlatformName, $message, $markIncomplete, $this->_conn);
+    }
 
     /**
      * @var \Doctrine\DBAL\Logging\DebugStack
