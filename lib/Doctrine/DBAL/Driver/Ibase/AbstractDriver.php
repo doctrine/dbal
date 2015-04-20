@@ -17,22 +17,41 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\IbaseFirebird;
+namespace Doctrine\DBAL\Driver\Ibase;
 
 use Doctrine\DBAL\DBALException;
 
 /**
- * A Doctrine DBAL driver for Firebird based on the Ibase-APi
+ * A Doctrine DBAL driver for Interbase/Firebird based on the ibase-api (ibase)
+ * 
+ * NOTE: This driver can theoretically be used for Firebird and Interbase, but the used Platform class
+ * is untested for Interbase at the moment
  *
  * @author Andreas Prucha <prucha@helicon.co.at>
  */
-class Driver extends \Doctrine\DBAL\Driver\Ibase\Driver
+abstract class AbstractDriver extends \Doctrine\DBAL\Driver\AbstractFbIbDriver
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return 'ibase_firebird';
+        parent::connect($params, $username, $password, $driverOptions);
+        try {
+            $connectionClass = $this->getDriverConnectionClass();
+            return new $connectionClass(
+                $params,
+                $username,
+                $password,
+                $driverOptions);
+        } catch (IbaseException $e) {
+            throw DBALException::driverException($this, $e);
+        }
     }
+    
+    /**
+     * @return string Class name of the Connection object used in this driver
+     */
+    abstract protected function getDriverConnectionClass();
+    
 }

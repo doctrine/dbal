@@ -36,7 +36,7 @@ class PDOStatement extends \Doctrine\DBAL\Driver\PDOStatement
     protected $defaultFetchInto = null;
 
     /**
-     * @var \Doctrine\DBAL\Driver\IBase\IbaseConnection
+     * @var \Doctrine\DBAL\Driver\IBase\AbstractIbaseConnection
      */
     protected $connection;
 

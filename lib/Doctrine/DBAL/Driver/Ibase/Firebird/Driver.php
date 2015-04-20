@@ -17,10 +17,31 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\IbaseFirebird;
+namespace Doctrine\DBAL\Driver\Ibase\Firebird;
 
-use Doctrine\DBAL\Driver\AbstractDriverException;
+use Doctrine\DBAL\DBALException;
 
-class IbaseFirebirdException extends \Doctrine\DBAL\Driver\Ibase\IbaseException
+/**
+ * A Doctrine DBAL driver for Firebird based on the Ibase-API (ibase_firebird)
+ *
+ * @author Andreas Prucha <prucha@helicon.co.at>
+ */
+class Driver extends \Doctrine\DBAL\Driver\Ibase\AbstractDriver
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'ibase_firebird';
+    }
+    
+    /**
+     * @return string Class name of the Connection object used in this driver
+     */
+    protected function getDriverConnectionClass()
+    {
+        return '\Doctrine\DBAL\Driver\Ibase\Firebird\IbaseFirebirdConnection';
+    }
+    
 }

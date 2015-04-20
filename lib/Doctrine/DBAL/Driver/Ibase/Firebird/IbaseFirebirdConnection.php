@@ -17,40 +17,23 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\Ibase;
-
-use Doctrine\DBAL\DBALException;
+namespace Doctrine\DBAL\Driver\Ibase\Firebird;
 
 /**
- * A Doctrine DBAL driver for Interbase/Firebird based on the ibase-api
- *
- * @author Andreas Prucha <prucha@helicon.co.at>
+ * ibase-api implementation of the Connection interface.
  */
-class Driver extends \Doctrine\DBAL\Driver\AbstractFbIbDriver
+class IbaseFirebirdConnection extends \Doctrine\DBAL\Driver\Ibase\AbstractIbaseConnection
 {
+    
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     * 
+     * @param string $prepareString SQL Statement
+     * @return \Doctrine\DBAL\Driver\Ibase\IbaseFirebirdStatement
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
+    public function prepare($prepareString)
     {
-        parent::connect($params, $username, $password, $driverOptions);
-        try {
-            return new IbaseConnection(
-                $params,
-                $username,
-                $password,
-                $driverOptions);
-        } catch (IbaseException $e) {
-            throw DBALException::driverException($this, $e);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'ibase';
+        return new \Doctrine\DBAL\Driver\Ibase\Firebird\IbaseFirebirdStatement($this, $prepareString);
     }
     
 }

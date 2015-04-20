@@ -17,11 +17,15 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\IbaseFirebird;
+namespace Doctrine\DBAL\Driver\Ibase\Firebird;
+
+use PDO;
+use IteratorAggregate;
+use Doctrine\DBAL\Driver\Statement;
 
 /**
- * ibase-api implementation of the Connection interface.
+ * The Interbase/Firebird implementation of the Statement interface.
  */
-class IbaseFirebirdConnection extends \Doctrine\DBAL\Driver\Ibase\IbaseConnection
+class IbaseFirebirdStatement extends \Doctrine\DBAL\Driver\Ibase\AbstractIbaseStatement
 {
 }

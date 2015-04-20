@@ -30,7 +30,7 @@ use Doctrine\DBAL\Platforms\FirebirdPlatform;
  * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
  * @experimental
  */
-class IbaseConnection implements Connection, ServerInfoAwareConnection
+abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareConnection
 {
 
     /**
@@ -263,12 +263,14 @@ class IbaseConnection implements Connection, ServerInfoAwareConnection
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
+     * 
+     * Creates a new instance of AbstractIbaseStatement
+     * 
+     * @param string $prepareString SQL Statement
+     * @return \Doctrine\DBAL\Driver\Ibase\AbstractIbaseStatement
      */
-    public function prepare($prepareString)
-    {
-        return new IbaseStatement($this, $prepareString);
-    }
+    abstract public function prepare($prepareString);
 
     /**
      * {@inheritdoc}

@@ -7,6 +7,10 @@ class AbstractFbIbDriverTest extends \Doctrine\Tests\DbalFunctionalTestCase
     protected function setUp()
     {
         parent::setUp();
+        
+        if ( ! $this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\AbstractFbIbDriver) {
+            $this->markTestSkipped('AbstractFbIbDriver connection only test.');
+        }
 
         if ($this->_conn->getSchemaManager()->tablesExist('TEST_FBIB_DRIVER_TRNS')) {
             $this->_conn->executeQuery('DELETE FROM TEST_FBIB_DRIVER_TRNS');

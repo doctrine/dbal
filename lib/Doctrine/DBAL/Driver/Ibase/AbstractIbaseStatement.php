@@ -30,7 +30,7 @@ use Doctrine\DBAL\Driver\Statement;
  * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
  * @experimental
  */
-class IbaseStatement implements \IteratorAggregate, Statement
+abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
 {
 
     /**
@@ -44,7 +44,7 @@ class IbaseStatement implements \IteratorAggregate, Statement
     protected $ibaseStatementRc;
 
     /**
-     * @var \Doctrine\DBAL\Driver\IBase\IbaseConnection
+     * @var \Doctrine\DBAL\Driver\IBase\AbstractIbaseConnection
      */
     protected $connection;
 
@@ -88,9 +88,9 @@ class IbaseStatement implements \IteratorAggregate, Statement
      *
      * @param resource                                  $dbh       The connection handle.
      * @param string                                    $statement The SQL statement.
-     * @param \Doctrine\DBAL\Driver\IBase\IbaseConnection $conn
+     * @param \Doctrine\DBAL\Driver\IBase\AbstractIbaseConnection $conn
      */
-    public function __construct(IbaseConnection $connection, $statement)
+    public function __construct(AbstractIbaseConnection $connection, $statement)
     {
         $this->connection = $connection;
         $this->statement = $statement;
