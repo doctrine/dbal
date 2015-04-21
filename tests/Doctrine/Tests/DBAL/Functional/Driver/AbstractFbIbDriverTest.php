@@ -77,4 +77,37 @@ class AbstractFbIbDriverTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->executeUpdate('INSERT INTO TEST_FBIB_DRIVER_TRNS VALUES (?, ?)', array(12, 1));
         $this->assertEquals(12, $this->_conn->query('SELECT COUNT(*) FROM TEST_FBIB_DRIVER_TRNS')->fetchColumn());
     }
+    
+    public function testStatementNamedParameters()
+    {
+        $stmt = $this->_conn->prepare('INSERT INTO TEST_FBIB_DRIVER_TRNS VALUES (1, 999)');
+        $this->_conn->beginTransaction();
+        $stmt->execute();
+        $this->_conn->commit();
+        
+        $qryStm = $this->_conn->prepare('select item_value from TEST_FBIB_DRIVER_TRNS where id=:lookfor_id and item_value=:lookfor_item_value');
+        $qryStm->bindValue(':lookfor_id', 1);
+        $qryStm->bindValue(':lookfor_item_value', 999);
+        $qryStm->execute();
+        $this->assertEquals(999, $qryStm->fetchColumn());
+    }
+    
+    public function testStatementNamedParameters2()
+    {
+        $stmt = $this->_conn->prepare('INSERT INTO TEST_FBIB_DRIVER_TRNS VALUES (1, 999)');
+        $this->_conn->beginTransaction();
+        $stmt->execute();
+        $this->_conn->commit();
+        
+        $qryStm = $this->_conn->prepare('select item_value from TEST_FBIB_DRIVER_TRNS where '
+                . '(id=:lookfor_id or id=:lookfor_item_value) and '
+                . '(item_value=:lookfor_item_value or item_value in (:lookfor_item_value_array))');
+        $qryStm->bindValue(':lookfor_id', 1);
+        $qryStm->bindValue(':lookfor_item_value', 0);
+        $qryStm->bindValue(':lookfor_item_value_array', array(1, 2, 3, 999));
+        $qryStm->execute();
+        $this->assertEquals(999, $qryStm->fetchColumn());
+    }
+    
+    
 }

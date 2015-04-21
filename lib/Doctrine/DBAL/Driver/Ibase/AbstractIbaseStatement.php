@@ -54,22 +54,27 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
     public $ibaseResultRc = null;
 
     /**
-     * List of query param bindings
-     * @var array
-     */
-    protected $queryParamBindings = array();
-
-    /**
      * The SQL or DDL statement
      * @var string 
      */
     protected $statement = null;
 
     /**
-     * List of query param binding types
+     * Zero-Based List of parameter bindings
+     * @var array
+     */
+    protected $queryParamBindings = array();
+
+    /**
+     * Zero-Based List of parameter binding types
      * @var array
      */
     protected $queryParamTypes = array();
+
+    /**
+     * @var bool Indicates if a list query parameter is set
+     */
+    protected $hasListQueryParam = false;
     protected $defaultFetchMode = \PDO::FETCH_BOTH;
     protected $defaultFetchClass = '\stdClass';
     protected $defaultFetchColumn = 0;
@@ -84,6 +89,15 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
     protected $numFields = false;
 
     /**
+     * Mapping between parameter names and positions
+     * 
+     * The map is indexed by parameter name including the leading ':'.
+     * 
+     * Each item contains an array of zero-based parameter positions.
+     */
+    protected $namedParamsMap = array();
+
+    /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
      * @param resource                                  $dbh       The connection handle.
@@ -93,10 +107,40 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
     public function __construct(AbstractIbaseConnection $connection, $statement)
     {
         $this->connection = $connection;
-        $this->statement = $statement;
         $this->ibaseStatementRc = null;
         $this->affectedRows = false;
         $this->numFields = false;
+        $this->setStatement($statement);
+    }
+
+    /**
+     * Sets and analyzes the statement
+     * 
+     * @param string $statement
+     */
+    protected function setStatement($statement)
+    {
+        $this->statement = $statement;
+        $this->namedParamsMap = array();
+
+        $pp = \Doctrine\DBAL\SQLParserUtils::getPlaceholderPositions($statement, false);
+        if (!empty($pp)) {
+            $pidx = 0; // index-position of the parameter
+            $le = 0; // substr start position
+            $convertedStatement = '';
+            foreach ($pp as $ppos => $pname) {
+                $convertedStatement .= substr($statement, $le, $ppos - $le) . '?';
+                if (!isset($this->namedParamsMap[':' . $pname])) {
+                    $this->namedParamsMap[':' . $pname] = Array($pidx);
+                } else {
+                    $this->namedParamsMap[':' . $pname][] = $pidx;
+                }
+                $le = $ppos + strlen($pname) + 1; // Continue at position after :name
+                $pidx++;
+            }
+            $convertedStatement .= substr($statement, $le);
+            $this->statement = $convertedStatement;
+        }
     }
 
     /**
@@ -379,16 +423,29 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = null, $length = null)
     {
-        if (!is_numeric($column)) {
-            throw new IbaseException("ibase does not support named parameters to queries, use question mark (?) placeholders instead.");
+        if (is_array($variable))
+        {
+            isset($type) || $type = \Doctrine\DBAL\Connection::PARAM_STR_ARRAY;
+            $this->hasListQueryParam = true;
         }
 
         if (is_object($variable)) {
             $variable = (string) $variable;
         }
 
-        $this->queryParamBindings[$column - 1] = &$variable;
-        $this->queryParamTypes[$column - 1] = $type;
+        if (is_numeric($column)) {
+            $this->queryParamBindings[$column - 1] = &$variable;
+            $this->queryParamTypes[$column - 1] = $type;
+        } else {
+            if (isset($this->namedParamsMap[$column])) {
+                foreach ($this->namedParamsMap[$column] as $pp) /* @var integer $pp *zero* based Parameter index */ {
+                    $this->queryParamBindings[$pp] = &$variable;
+                    $this->queryParamTypes[$pp] = $type;
+                }
+            } else {
+                throw new IbaseException('Cannot bind to unknown parameter ' . $column, null);
+            }
+        }
     }
 
     /**
@@ -411,35 +468,74 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
     }
 
     /**
+     * Prepares the statement for further use and executes it
+     * @result resource|boolean
+     */
+    protected function doDirectExec()
+    {
+        $callArgs = $this->queryParamBindings;
+        array_unshift($callArgs, $this->connection->getActiveTransactionIbaseRes(), $this->statement);
+        return @call_user_func_array('ibase_query', $callArgs);
+    }
+
+    /**
+     * Executes the statement directly after rewriting it using the SQLParserUtils
+     * @result resource|boolean
+     */
+    protected function doDirectExecWithLists()
+    {
+        list($q, $callArgs, $t) = \Doctrine\DBAL\SQLParserUtils::expandListParameters($this->statement, $this->queryParamBindings, $this->queryParamTypes);
+        array_unshift($callArgs, $this->connection->getActiveTransactionIbaseRes(), $q);
+        return @call_user_func_array('ibase_query', $callArgs);
+    }
+
+    /**
+     * Prepares the statement for further use and executes it
+     * @result resource|boolean
+     */
+    protected function doExecPrepared()
+    {
+        if (!$this->ibaseStatementRc || !is_resource($this->ibaseStatementRc)) {
+            $this->ibaseStatementRc = @ibase_prepare($this->connection->getActiveTransactionIbaseRes(), $this->statement);
+            if (!$this->ibaseStatementRc || !is_resource($this->ibaseStatementRc))
+                $this->checkLastApiCall();
+        }
+        $callArgs = $this->queryParamBindings;
+        array_unshift($callArgs, $this->ibaseStatementRc);
+        return @call_user_func_array('ibase_execute', $callArgs);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function execute($params = null)
     {
         $this->affectedRows = 0;
-        if (count($params) > 0 || count($this->queryParamBindings) > 0) {
-            // Statement has parameters - use ibase_prepare and ibase_execute
+        
+        // Bind passed parameters
 
-            if (!$this->ibaseStatementRc || !is_resource($this->ibaseStatementRc)) {
-                $this->ibaseStatementRc = @ibase_prepare($this->connection->getActiveTransactionIbaseRes(), $this->statement);
-                if (!$this->ibaseStatementRc || !is_resource($this->ibaseStatementRc))
-                    $this->checkLastApiCall();
+        if (is_array($params) && !empty($params)) {
+            $idxShift = array_key_exists(0, $params) ? 1 : 0;
+            $hasZeroIndex = array_key_exists(0, $params);
+            foreach ($params as $key => $val) {
+                $key = (is_numeric($key)) ? $key + $idxShift : $key;
+                $this->bindValue($key, $val);
             }
-
-            if ($params) {
-                $idxShift = array_key_exists(0, $params) ? 1 : 0;
-                $hasZeroIndex = array_key_exists(0, $params);
-                foreach ($params as $key => $val) {
-                    $key = (is_numeric($key)) ? $key + $idxShift : $key;
-                    $this->bindValue($key, $val);
-                }
-            }
-
-            $callArgs = $this->queryParamBindings;
-            array_unshift($callArgs, $this->ibaseStatementRc);
-            $this->ibaseResultRc = @call_user_func_array('ibase_execute', $callArgs);
-        } else {
-            $this->ibaseResultRc = @ibase_query($this->connection->getActiveTransactionIbaseRes(), $this->statement); // Returns #rows or result-rc or false
         }
+        
+        // Execute statement
+
+        if (count($this->queryParamBindings) > 0) {
+            if ($this->hasListQueryParam)
+                $this->ibaseResultRc = $this->doDirectExecWithLists();
+            else
+                $this->ibaseResultRc = $this->doExecPrepared();
+        } else {
+            $this->ibaseResultRc = $this->doDirectExec();
+        }
+        
+        // Check result
+        
         if ($this->ibaseResultRc !== false) {
             // Result seems ok - is either #rows or result handle
             if (is_numeric($this->ibaseResultRc)) {
