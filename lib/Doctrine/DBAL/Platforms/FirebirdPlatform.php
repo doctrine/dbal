@@ -22,10 +22,11 @@ namespace Doctrine\DBAL\Platforms;
 
 
 /**
- * Description of FirebirdPlatform
+ * Platform implementation for Firebird 2.5 and higher 
+ * 
+ * <b>This Driver/Platform is in Beta state</b>
  *
  * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
- * @experimental
  */
 class FirebirdPlatform extends \Doctrine\DBAL\Platforms\AbstractFbIbPlatform
 {

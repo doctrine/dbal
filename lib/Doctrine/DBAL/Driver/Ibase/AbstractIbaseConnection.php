@@ -27,8 +27,9 @@ use Doctrine\DBAL\Platforms\FirebirdPlatform;
 /**
  * ibase-api implementation of the Connection interface.
  * 
+ * <b>This Driver/Platform is in Beta state</b>
+ * 
  * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
- * @experimental
  */
 abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareConnection
 {

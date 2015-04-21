@@ -25,10 +25,16 @@ use Doctrine\DBAL\Platforms\AbstractPlatform,
     Doctrine\DBAL\Schema\Table;
 
 /**
- * Base platform implementation for Firebird and Interbase
+ * Abstract base platform implementation for Firebird and Interbase
  *
+ * <b>This Driver/Platform is in Beta state</b>
+ * 
+ * This platform implementation is based on the featureset of Firebird 2.5.
+ * 
+ * <b>ATTENTION:</b> It should be possible to use this platform implementation with Interbase, but It's currently
+ * tested with Firebird only. 
+ * 
  * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
- * @experimental
  */
 abstract class AbstractFbIbPlatform extends AbstractPlatform
 {

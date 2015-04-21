@@ -27,8 +27,9 @@ use Doctrine\DBAL\Driver\Statement;
 /**
  * The Interbase/Firebird implementation of the Statement interface based on the ibase-api.
  * 
+ * <b>This Driver/Platform is in Beta state</b>
+ * 
  * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
- * @experimental
  */
 abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
 {

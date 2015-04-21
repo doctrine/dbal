@@ -25,6 +25,10 @@ use Doctrine\DBAL\Driver\Statement;
 
 /**
  * The Interbase/Firebird implementation of the Statement interface.
+ * 
+ * <b>This Driver/Platform is in Beta state</b>
+ * 
+ * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
  */
 class IbaseFirebirdStatement extends \Doctrine\DBAL\Driver\Ibase\AbstractIbaseStatement
 {

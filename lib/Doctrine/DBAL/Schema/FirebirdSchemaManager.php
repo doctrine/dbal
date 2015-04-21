@@ -24,8 +24,9 @@ namespace Doctrine\DBAL\Schema;
 /**
  * Schema manager for Firebird
  *
+ * <b>This Driver/Platform is in Beta state</b>
+ *
  * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
- * @experimental
  */
 class FirebirdSchemaManager extends AbstractFbIbSchemaManager
 {

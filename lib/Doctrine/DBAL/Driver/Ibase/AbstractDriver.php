@@ -24,10 +24,12 @@ use Doctrine\DBAL\DBALException;
 /**
  * A Doctrine DBAL driver for Interbase/Firebird based on the ibase-api (ibase)
  * 
+ * <b>This Driver/Platform is in Beta state</b>
+ * 
  * NOTE: This driver can theoretically be used for Firebird and Interbase, but the used Platform class
  * is untested for Interbase at the moment
  *
- * @author Andreas Prucha <prucha@helicon.co.at>
+ * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
  */
 abstract class AbstractDriver extends \Doctrine\DBAL\Driver\AbstractFbIbDriver
 {

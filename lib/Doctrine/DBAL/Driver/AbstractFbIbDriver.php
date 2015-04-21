@@ -21,9 +21,11 @@
 namespace Doctrine\DBAL\Driver;
 
 /**
- * PDO Firebird driver.
+ * Abstract Firebird/Interbase driver.
  *
- * @since 2.0
+ * <b>This Driver/Platform is in Beta state</b>
+ * 
+ * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
  */
 abstract class AbstractFbIbDriver implements \Doctrine\DBAL\Driver, ExceptionConverterDriver
 {

@@ -23,8 +23,10 @@ use Doctrine\DBAL\DBALException;
 
 /**
  * A Doctrine DBAL driver for Firebird based on the Ibase-API (ibase_firebird)
+ * 
+ * <b>This Driver/Platform is in Beta state</b>
  *
- * @author Andreas Prucha <prucha@helicon.co.at>
+ * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
  */
 class Driver extends \Doctrine\DBAL\Driver\Ibase\AbstractDriver
 {

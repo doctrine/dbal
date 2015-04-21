@@ -21,6 +21,10 @@ namespace Doctrine\DBAL\Driver\Ibase\Firebird;
 
 /**
  * ibase-api implementation of the Connection interface.
+ * 
+ * <b>This Driver/Platform is in Beta state</b>
+ * 
+ * @author Andreas Prucha, Helicon Software Development <prucha@helicon.co.at>
  */
 class IbaseFirebirdConnection extends \Doctrine\DBAL\Driver\Ibase\AbstractIbaseConnection
 {
