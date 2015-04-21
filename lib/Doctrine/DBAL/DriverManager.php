@@ -49,8 +49,7 @@ final class DriverManager
          'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
          'sqlanywhere'        => 'Doctrine\DBAL\Driver\SQLAnywhere\Driver',
          'sqlsrv'             => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
-         'ibase_firebird'     => 'Doctrine\DBAL\Driver\Ibase\Firebird\Driver',
-         'pdo_firebird'     => 'Doctrine\DBAL\Driver\PDOFirebird\Driver',
+         'ibase_firebird'     => 'Doctrine\DBAL\Driver\Ibase\Firebird\Driver'
     );
 
     /**
