@@ -740,15 +740,75 @@ class DB2Platform extends AbstractPlatform
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        if ($limit === null && $offset === null) {
+        if ($limit === null) {
             return $query;
         }
 
-        $limit = (int) $limit;
-        $offset = (int) (($offset)?:0);
+        $start   = $offset + 1;
+        $end     = $offset + $limit;
+        $orderBy = stristr($query, 'ORDER BY');
+
+        //Remove ORDER BY from $query (including nested parentheses in order by list).
+        $query = preg_replace('/\s+ORDER\s+BY\s+([^()]+|\((?:(?:(?>[^()]+)|(?R))*)\))+/i', '', $query);
+
+        if ( ! $orderBy) {
+            $sql = 'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* '.
+               'FROM (' . $query . ') db21) db22 WHERE db22.DC_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
+
+            return $sql;
+
+            // return sprintf($format, $query, $start, $end);
+        }
+
+        //Clear ORDER BY
+        $orderBy        = preg_replace('/ORDER\s+BY\s+(.*)/i', '$1', $orderBy);
+        $orderByParts   = explode(',', $orderBy);
+        $orderByColumns = array();
+
+        //Split ORDER BY into parts
+        foreach ($orderByParts as &$part) {
+
+            if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', trim($part), $matches)) {
+                $orderByColumns[] = array(
+                    'column'    => $matches[3],
+                    'hasTable'  => ( ! empty($matches[2])),
+                    'sort'      => isset($matches[4]) ? $matches[4] : null,
+                    'table'     => empty($matches[2]) ? '[^\.\s]*' : $matches[2]
+                );
+            }
+        }
+
+        $isWrapped = (preg_match('/SELECT DISTINCT .* FROM \(.*\) dctrn_result/', $query)) ? true : false;
+
+        $overColumns = array();
+
+        //Find alias for each column used in ORDER BY
+        if ( ! empty($orderByColumns)) {
+            foreach ($orderByColumns as $column) {
+                $pattern = sprintf('/%s\.%s\s+(?:AS\s+)?([^,\s)]+)/i', $column['table'], $column['column']);
+
+                if ($isWrapped) {
+                    $overColumn = preg_match($pattern, $query, $matches)
+                        ? $matches[1] : '';
+                } else {
+                    $overColumn = preg_match($pattern, $query, $matches)
+                        ? ($column['hasTable'] ? $column['table']  . '.' : '') . $column['column']
+                        : $column['column'];
+                }
+
+                if (isset($column['sort'])) {
+                    $overColumn .= ' ' . $column['sort'];
+                }
+
+                $overColumns[] = $overColumn;
+            }
+        }
+
+        //Replace only first occurrence of FROM with $over to prevent changing FROM also in subqueries.
+        $over  = 'ORDER BY ' . implode(', ', $overColumns);
 
         // Todo OVER() needs ORDER BY data!
-        $sql = 'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* '.
+        $sql = 'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER(' . $over . ') AS DC_ROWNUM, db21.* '.
                'FROM (' . $query . ') db21) db22 WHERE db22.DC_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
 
         return $sql;
