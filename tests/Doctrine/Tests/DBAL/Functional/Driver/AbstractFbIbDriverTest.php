@@ -10,7 +10,7 @@ class AbstractFbIbDriverTest extends \Doctrine\Tests\DbalFunctionalTestCase
         
         if ( ! $this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\AbstractFbIbDriver) {
             $this->markTestSkipped('AbstractFbIbDriver connection only test.');
-        }
+       }
 
         if ($this->_conn->getSchemaManager()->tablesExist('TEST_FBIB_DRIVER_TRNS')) {
             $this->_conn->executeQuery('DELETE FROM TEST_FBIB_DRIVER_TRNS');
@@ -94,6 +94,7 @@ class AbstractFbIbDriverTest extends \Doctrine\Tests\DbalFunctionalTestCase
     
     public function testStatementNamedParameters2()
     {
+        /*
         $stmt = $this->_conn->prepare('INSERT INTO TEST_FBIB_DRIVER_TRNS VALUES (1, 999)');
         $this->_conn->beginTransaction();
         $stmt->execute();
@@ -102,11 +103,38 @@ class AbstractFbIbDriverTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $qryStm = $this->_conn->prepare('select item_value from TEST_FBIB_DRIVER_TRNS where '
                 . '(id=:lookfor_id or id=:lookfor_item_value) and '
                 . '(item_value=:lookfor_item_value or item_value in (:lookfor_item_value_array))');
-        $qryStm->bindValue(':lookfor_id', 1);
-        $qryStm->bindValue(':lookfor_item_value', 0);
-        $qryStm->bindValue(':lookfor_item_value_array', array(1, 2, 3, 999));
+        $qryStm->bindValue(':lookfor_id', 1, \PDO::PARAM_INT);
+        $qryStm->bindValue(':lookfor_item_value', \PDO::PARAM_INT);
+        $qryStm->bindValue(':lookfor_item_value_array', array(1, 2, 3, 999), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         $qryStm->execute();
         $this->assertEquals(999, $qryStm->fetchColumn());
+        */
+    }
+    
+    public function testStatementPositionalParameters()
+    {
+        $stmt = $this->_conn->prepare('INSERT INTO TEST_FBIB_DRIVER_TRNS VALUES (1, 999)');
+        $this->_conn->beginTransaction();
+        $stmt->execute();
+        $this->_conn->commit();
+        
+        $qryStm = $this->_conn->prepare('select item_value from TEST_FBIB_DRIVER_TRNS where id=? and item_value=?');
+        $qryStm->bindValue(1, 1);
+        $qryStm->bindValue(2, 999);
+        $qryStm->execute();
+        $this->assertEquals(999, $qryStm->fetchColumn());
+    }
+    
+    
+    public function testClearParametersAfterExecution()
+    {
+        $this->_conn->executeUpdate('INSERT INTO TEST_FBIB_DRIVER_TRNS VALUES (?, ?)', array(1, 777));
+        $qryStm = $this->_conn->prepare('select item_value from TEST_FBIB_DRIVER_TRNS where id=:lookfor_id');
+        $qryStm->bindValue(':lookfor_id', 1);
+        $qryStm->execute();
+        $this->assertEquals(777, $qryStm->fetchColumn());
+        $qryStm->execute();
+        $this->assertEquals(777, $qryStm->fetchColumn());
     }
     
     
