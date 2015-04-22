@@ -366,6 +366,28 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    /**
+     * @group DBAL-1200
+     */
+    public function testModifiesLimitQueryWithOrderBy()
+    {
+        $this->assertEquals(
+            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER(ORDER BY username DESC) AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 5',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 0, 5)
+        );
+    }
+
+    /**
+     * @group DBAL-1200
+     */
+    public function testModifiesLimitQueryWithMultipleOrderBys()
+    {
+        $this->assertEquals(
+            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER(ORDER BY username DESC, email ASC) AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 5',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC, email ASC', 0, 5)
+        );
+    }
+
     public function testPrefersIdentityColumns()
     {
         $this->assertTrue($this->_platform->prefersIdentityColumns());
