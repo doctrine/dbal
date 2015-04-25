@@ -49,6 +49,7 @@ final class DriverManager
          'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
          'sqlanywhere'        => 'Doctrine\DBAL\Driver\SQLAnywhere\Driver',
          'sqlsrv'             => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
+         'sqlite3'            => 'Doctrine\DBAL\Driver\SQLite3\Driver',
     );
 
     /**
