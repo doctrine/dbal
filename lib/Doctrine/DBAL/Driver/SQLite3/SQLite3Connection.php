@@ -64,9 +64,9 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function prepare($prepareString)
     {
-        $statement = $this->call(function() use ($prepareString) {
-            return $this->sqlite3->prepare($prepareString);
-        });
+        $statement = @ $this->sqlite3->prepare($prepareString);
+
+        $this->throwExceptionOnError();
 
         return new SQLite3Statement($this->sqlite3, $statement);
     }
@@ -97,9 +97,8 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function exec($statement)
     {
-        $this->call(function() use ($statement) {
-            $this->sqlite3->exec($statement);
-        });
+        @ $this->sqlite3->exec($statement);
+        $this->throwExceptionOnError();
 
         return $this->sqlite3->changes();
     }
@@ -117,9 +116,8 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function beginTransaction()
     {
-        $this->call(function() {
-            $this->sqlite3->exec('BEGIN');
-        });
+        @ $this->sqlite3->exec('BEGIN');
+        $this->throwExceptionOnError();
 
         return true;
     }
@@ -129,9 +127,8 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function commit()
     {
-        $this->call(function() {
-            $this->sqlite3->exec('COMMIT');
-        });
+        @ $this->sqlite3->exec('COMMIT');
+        $this->throwExceptionOnError();
 
         return true;
     }
@@ -141,9 +138,8 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function rollBack()
     {
-        $this->call(function() {
-            $this->sqlite3->exec('ROLLBACK');
-        });
+        @ $this->sqlite3->exec('ROLLBACK');
+        $this->throwExceptionOnError();
 
         return true;
     }

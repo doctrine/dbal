@@ -30,29 +30,16 @@ abstract class SQLite3Abstract
     protected $sqlite3;
 
     /**
-     * Runs code interacting with native SQLite3 objects, and catches errors to throw a proper exception.
+     * @return void
      *
-     * @param \Closure $function A function calling native SQLite3 objects.
-     *
-     * @return mixed The return value of the given function.
-     *
-     * @throws SQLite3Exception If an error occurs.
+     * @throws SQLite3Exception
      */
-    protected function call(\Closure $function)
+    protected function throwExceptionOnError()
     {
-        // Temporary set the error reporting level to 0 to avoid any warning
-        $errorReportingLevel = error_reporting(0);
-
-        // Call the function containing SQLite3 code to execute
-        $result = $function();
-
-        // Restore the original error reporting level
-        error_reporting($errorReportingLevel);
-
         $errorCode = $this->sqlite3->lastErrorCode();
 
         if ($errorCode === 0) {
-            return $result;
+            return;
         }
 
         $errorMessage = $this->sqlite3->lastErrorMsg();

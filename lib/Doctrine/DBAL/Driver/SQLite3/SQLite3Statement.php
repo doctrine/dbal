@@ -137,10 +137,10 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
             }
         }
 
-        $this->call(function() {
-            $this->result = $this->stmt->execute();
-        });
+        $result = @ $this->stmt->execute();
+        $this->throwExceptionOnError();
 
+        $this->result   = $result;
         $this->rowCount = $this->sqlite3->changes();
 
         return true;
