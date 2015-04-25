@@ -1104,7 +1104,7 @@ class Connection implements DriverConnection
             $func($this);
             $this->commit();
         } catch (Exception $e) {
-            $this->rollback();
+            $this->rollBack();
             throw $e;
         }
     }
@@ -1268,7 +1268,7 @@ class Connection implements DriverConnection
                 $logger->startQuery('"ROLLBACK"');
             }
             $this->_transactionNestingLevel = 0;
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
             $this->_isRollbackOnly = false;
             if ($logger) {
                 $logger->stopQuery();

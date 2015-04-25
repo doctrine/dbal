@@ -49,6 +49,12 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * Adds MySQL-specific LIMIT clause to the query
      * 18446744073709551615 is 2^64-1 maximum of unsigned BIGINT the biggest limit possible
+     *
+     * @param string  $query
+     * @param integer $limit
+     * @param integer $offset
+     *
+     * @return string
      */
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
@@ -346,6 +352,9 @@ class MySqlPlatform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTablesSQL()
     {
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
