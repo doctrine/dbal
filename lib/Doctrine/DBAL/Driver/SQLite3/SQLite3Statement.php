@@ -48,7 +48,7 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
     private $rowCount = 0;
 
     /**
-     * The default fetch mode, one of the \PDO::FETCH_* constants.
+     * The default fetch mode, one of the PDO::FETCH_* constants.
      *
      * @var integer
      */
@@ -73,6 +73,20 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
      * @var array|null
      */
     private $fetchCtorArgs;
+
+    /**
+     * The error code for the last execution of the statement.
+     *
+     * @var integer
+     */
+    private $lastErrorCode = 0;
+
+    /**
+     * The error message for the last execution of the statement.
+     *
+     * @var string
+     */
+    private $lastErrorMessage = 'not an error';
 
     /**
      * Class constructor.
@@ -115,7 +129,7 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
      */
     public function errorCode()
     {
-        return '';
+        return $this->lastErrorCode;
     }
 
     /**
@@ -123,7 +137,11 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
      */
     public function errorInfo()
     {
-        return [];
+        return [
+            null,
+            $this->lastErrorCode,
+            $this->lastErrorMessage
+        ];
     }
 
     /**
@@ -138,6 +156,10 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
         }
 
         $result = @ $this->stmt->execute();
+
+        $this->lastErrorCode    = $this->sqlite3->lastErrorCode();
+        $this->lastErrorMessage = $this->sqlite3->lastErrorMsg();
+
         $this->throwExceptionOnError();
 
         $this->result   = $result;
