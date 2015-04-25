@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit bootstrap="../Doctrine/Tests/TestInit.php">
+    <php>
+        <var name="db_type" value="sqlite3"/>
+        <var name="tmpdb_type" value="sqlite3"/>
+    </php>
+
+    <testsuites>
+        <testsuite name="Doctrine DBAL Test Suite">
+            <directory>../Doctrine/Tests/DBAL</directory>
+        </testsuite>
+    </testsuites>
+    <groups>
+        <exclude>
+            <group>performance</group>
+            <group>locking_functional</group>
+        </exclude>
+    </groups>
+</phpunit>
+

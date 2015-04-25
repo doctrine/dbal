@@ -15,6 +15,7 @@ env:
   - DB=pgsql POSTGRESQL_VERSION=9.3
   - DB=pgsql POSTGRESQL_VERSION=9.4
   - DB=sqlite
+  - DB=sqlite3
   - DB=mysqli
 
 before_install:

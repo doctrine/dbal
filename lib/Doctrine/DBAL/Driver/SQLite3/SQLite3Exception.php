@@ -17,38 +17,28 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Types;
+namespace Doctrine\DBAL\Driver\SQLite3;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Driver\DriverException;
 
 /**
- * Type that maps an SQL DECIMAL to a PHP string.
- *
- * @since 2.0
+ * Exception thrown by SQLite3Connection.
  */
-class DecimalType extends Type
+class SQLite3Exception extends \RuntimeException implements DriverException
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getErrorCode()
     {
-        return Type::DECIMAL;
+        return $this->getCode();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLState()
     {
-        return $platform->getDecimalTypeDeclarationSQL($fieldDeclaration);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
-    {
-        return (null === $value) ? null : (string) $value;
+        return null;
     }
 }
