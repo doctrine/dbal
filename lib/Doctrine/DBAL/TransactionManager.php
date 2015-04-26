@@ -55,20 +55,20 @@ class TransactionManager
             $this->connection->setTransactionIsolation($configuration[TransactionBuilder::ISOLATION_LEVEL]);
         }
 
-        $transaction = new Transaction($this, $configuration);
-        $this->activeTransactions[] = $transaction;
-
         $logger = $this->connection->getConfiguration()->getSQLLogger();
 
-        if (count($this->activeTransactions) === 1) {
+        if (count($this->activeTransactions) === 0) {
             $logger && $logger->startQuery('"START TRANSACTION"');
             $this->connection->getWrappedConnection()->beginTransaction();
             $logger && $logger->stopQuery();
         } elseif ($this->nestTransactionsWithSavepoints) {
             $logger && $logger->startQuery('"SAVEPOINT"');
-            $this->connection->createSavepoint($this->getNestedTransactionSavePointName());
+            $this->connection->createSavepoint($this->getNestedTransactionSavePointName(true));
             $logger && $logger->stopQuery();
         }
+
+        $transaction = new Transaction($this, $configuration);
+        $this->activeTransactions[] = $transaction;
 
         return $transaction;
     }
@@ -242,11 +242,20 @@ class TransactionManager
     /**
      * Returns the savepoint name to use for nested transactions.
      *
+     * @param boolean $begin Whether this method is called from beginTransaction().
+     *                       In this case, the transaction has not been added to the list of active transactions yet.
+     *
      * @return string
      */
-    private function getNestedTransactionSavePointName()
+    private function getNestedTransactionSavePointName($begin = false)
     {
-        return self::SAVEPOINT_PREFIX . count($this->activeTransactions);
+        $index = count($this->activeTransactions);
+
+        if ($begin) {
+            $index++;
+        }
+
+        return self::SAVEPOINT_PREFIX . $index;
     }
 
     /**
