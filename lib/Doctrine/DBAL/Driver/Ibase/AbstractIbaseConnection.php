@@ -50,10 +50,20 @@ abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareCon
      */
     const ATTR_DOCTRINE_DEFAULT_TRANS_WAIT = 'doctrineTransactionWait';
 
+    /**
+     * @var string Full database identifier passed to ibase_connect
+     */
     protected $dbs;
+
+    /**
+     * @var string Connection Username
+     */
     protected $username;
+
+    /**
+     * @var string Connection Password
+     */
     protected $password;
-    protected $driverOptions = array();
 
     /**
      * @var ressource ibase api connection ressource
@@ -416,12 +426,18 @@ abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareCon
     }
 
     /**
-     * commits the transaction if autocommit is enabled no explicte transaction has been started
+     * Commits the transaction if autocommit is enabled no explicte transaction has been started
      */
     public function autoCommit()
     {
         if ($this->attrAutoCommit && $this->transactionDepth < 1) {
-            @ibase_commit_ret($this->getActiveTransactionIbaseRes());
+            $result = @ibase_commit_ret($this->getActiveTransactionIbaseRes());
+            if (!$result) {
+                $this->checkLastApiCall();
+            }
+            return $result;
+        } else {
+            return null;
         }
     }
 

@@ -519,7 +519,7 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
         $result .= ' AS ';
         if (is_array($variableDeclarations)) {
             foreach ($variableDeclarations as $variableName => $variableDeclaration) {
-                $result = 'DECLARE ' . $variableName . ' ' . $variableDeclaration . '; ';
+                $result .= 'DECLARE ' . $variableName . ' ' . $variableDeclaration . '; ';
             }
         }
         $result .= "BEGIN \n" . $this->getCombinedSqlStatements($sql, $aStatementSeparator) . "\n END";
@@ -553,8 +553,8 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
      */
     public function getDropAllViewsOfTablePSqlSnippet($table, $inBlock = false)
     {
-        $result = 'SELECT TRIM(v.RDB$VIEW_NAME) ' .
-                'FROM RDB$VIEW_RELATIONS v, RDB$RELATIONS r ' .
+        $result = 'FOR SELECT TRIM(v.RDB$VIEW_NAME) ' .
+                  'FROM RDB$VIEW_RELATIONS v, RDB$RELATIONS r ' .
                 'WHERE ' .
                 'TRIM(UPPER(v.RDB$RELATION_NAME)) = TRIM(UPPER(' . $this->quoteStringLiteral($this->unquotedIdentifierName($table)) . ')) AND ' .
                 'v.RDB$RELATION_NAME = r.RDB$RELATION_NAME AND ' .

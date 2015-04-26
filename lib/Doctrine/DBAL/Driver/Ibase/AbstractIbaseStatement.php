@@ -35,11 +35,6 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
 {
 
     /**
-     * @var resource
-     */
-    protected $_dbh;
-
-    /**
      * @var resource|null   Ressource of the prepared statement
      */
     protected $ibaseStatementRc;
@@ -73,13 +68,24 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
     protected $queryParamTypes = array();
 
     /**
-     * @var bool Indicates if a list query parameter is set
+     * @var integer Default fetch mode set by setFetchMode
      */
-    protected $hasListQueryParam = false;
     protected $defaultFetchMode = \PDO::FETCH_BOTH;
+    /**
+     * @var string  Default class to be used by FETCH_CLASS or FETCH_OBJ
+     */
     protected $defaultFetchClass = '\stdClass';
+    /**
+     * @var integer Default column to fetch by FETCH_COLUMN
+     */
     protected $defaultFetchColumn = 0;
+    /**
+     * @var array   Parameters to be passed to constructor in FETCH_CLASS 
+     */
     protected $defaultFetchClassConstructorArgs = array();
+    /**
+     * @var Object  Object used as target by FETCH_INTO  
+     */
     protected $defaultFetchInto = null;
 
     /**
@@ -108,10 +114,19 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
     public function __construct(AbstractIbaseConnection $connection, $statement)
     {
         $this->connection = $connection;
-        $this->ibaseStatementRc = null;
-        $this->affectedRows = false;
-        $this->numFields = false;
         $this->setStatement($statement);
+    }
+    
+    /**
+     * Frees the ressources
+     */
+    public function __destruct()
+    {
+        $this->closeCursor();
+        if ($this->ibaseStatementRc && is_resource($this->ibaseStatementRc)) {
+            @ibase_free_query($this->ibaseStatementRc);
+            $this->ibaseStatementRc = null;
+        }
     }
 
     /**
@@ -132,7 +147,7 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
             foreach ($pp as $ppos => $pname) {
                 $convertedStatement .= substr($statement, $le, $ppos - $le) . '?';
                 if (!isset($this->namedParamsMap[':' . $pname])) {
-                    $this->namedParamsMap[':' . $pname] = Array($pidx);
+                    $this->namedParamsMap[':' . $pname] = (array)$pidx;
                 } else {
                     $this->namedParamsMap[':' . $pname][] = $pidx;
                 }
@@ -141,18 +156,6 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
             }
             $convertedStatement .= substr($statement, $le);
             $this->statement = $convertedStatement;
-        }
-    }
-
-    /**
-     * Frees the ressources
-     */
-    public function __destruct()
-    {
-        $this->closeCursor();
-        if ($this->ibaseStatementRc && is_resource($this->ibaseStatementRc)) {
-            @ibase_free_query($this->ibaseStatementRc);
-            $this->ibaseStatementRc = null;
         }
     }
 
@@ -405,7 +408,7 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
     protected function internalFetchBoth()
     {
         $tmpData = ibase_fetch_assoc($this->ibaseResultRc, IBASE_TEXT);
-        if (!$tmpData === FALSE)
+        if ($tmpData !== FALSE)
             return array_merge(array_values($tmpData), $tmpData);
         else
             return FALSE;
@@ -424,12 +427,6 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = null, $length = null)
     {
-        if (is_array($variable))
-        {
-            isset($type) || $type = \Doctrine\DBAL\Connection::PARAM_STR_ARRAY;
-            $this->hasListQueryParam = true;
-        }
-
         if (is_object($variable)) {
             $variable = (string) $variable;
         }
@@ -480,17 +477,6 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
     }
 
     /**
-     * Executes the statement directly after rewriting it using the SQLParserUtils
-     * @result resource|boolean
-     */
-    protected function doDirectExecWithLists()
-    {
-        list($q, $callArgs, $t) = \Doctrine\DBAL\SQLParserUtils::expandListParameters($this->statement, $this->queryParamBindings, $this->queryParamTypes);
-        array_unshift($callArgs, $this->connection->getActiveTransactionIbaseRes(), $q);
-        return @call_user_func_array('ibase_query', $callArgs);
-    }
-
-    /**
      * Prepares the statement for further use and executes it
      * @result resource|boolean
      */
@@ -527,10 +513,7 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
         // Execute statement
 
         if (count($this->queryParamBindings) > 0) {
-            if ($this->hasListQueryParam)
-                $this->ibaseResultRc = $this->doDirectExecWithLists();
-            else
-                $this->ibaseResultRc = $this->doExecPrepared();
+           $this->ibaseResultRc = $this->doExecPrepared();
         } else {
             $this->ibaseResultRc = $this->doDirectExec();
         }
@@ -548,6 +531,8 @@ abstract class AbstractIbaseStatement implements \IteratorAggregate, Statement
                 $this->numFields = @ibase_num_fields($this->ibaseResultRc);
             }
 
+            // As the ibase-api does not have an auto-commit-mode, autocommit is simulated by calling the
+            // function autoCommit of the connection
             $this->connection->autoCommit();
         } else {
             // Error

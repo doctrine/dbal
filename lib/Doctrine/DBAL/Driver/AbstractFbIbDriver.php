@@ -108,50 +108,6 @@ abstract class AbstractFbIbDriver implements \Doctrine\DBAL\Driver, ExceptionCon
 
         return new \Doctrine\DBAL\Exception\DriverException($message, $exception);
 
-
-        switch ($exception->getErrorCode()) {
-            case '0A000':
-                // Foreign key constraint violations during a TRUNCATE operation
-                // are considered "feature not supported" in PostgreSQL.
-                if (strpos($exception->getMessage(), 'truncate') !== false) {
-                    return new Exception\ForeignKeyConstraintViolationException($message, $exception);
-                }
-
-                break;
-            case '23502':
-                return new Exception\NotNullConstraintViolationException($message, $exception);
-
-            case '23503':
-                return new Exception\ForeignKeyConstraintViolationException($message, $exception);
-
-            case '23505':
-                return new Exception\UniqueConstraintViolationException($message, $exception);
-
-            case '42601':
-                return new Exception\SyntaxErrorException($message, $exception);
-
-            case '42702':
-                return new Exception\NonUniqueFieldNameException($message, $exception);
-
-            case '42703':
-                return new Exception\InvalidFieldNameException($message, $exception);
-
-
-            case '42P07':
-                return new Exception\TableExistsException($message, $exception);
-
-            case '7':
-                // In some case (mainly connection errors) the PDO exception does not provide a SQLSTATE via its code.
-                // The exception code is always set to 7 here.
-                // We have to match against the SQLSTATE in the error message in these cases.
-                if (strpos($exception->getMessage(), 'SQLSTATE[08006]') !== false) {
-                    return new Exception\ConnectionException($message, $exception);
-                }
-
-                break;
-        }
-
-        return new Exception\DriverException('Error ' . $exception->getErrorCode() . ': ' . $message, $exception);
     }
 
     /**

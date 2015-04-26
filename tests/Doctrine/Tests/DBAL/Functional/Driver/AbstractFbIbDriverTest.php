@@ -94,7 +94,6 @@ class AbstractFbIbDriverTest extends \Doctrine\Tests\DbalFunctionalTestCase
     
     public function testStatementNamedParameters2()
     {
-        /*
         $stmt = $this->_conn->prepare('INSERT INTO TEST_FBIB_DRIVER_TRNS VALUES (1, 999)');
         $this->_conn->beginTransaction();
         $stmt->execute();
@@ -102,13 +101,11 @@ class AbstractFbIbDriverTest extends \Doctrine\Tests\DbalFunctionalTestCase
         
         $qryStm = $this->_conn->prepare('select item_value from TEST_FBIB_DRIVER_TRNS where '
                 . '(id=:lookfor_id or id=:lookfor_item_value) and '
-                . '(item_value=:lookfor_item_value or item_value in (:lookfor_item_value_array))');
-        $qryStm->bindValue(':lookfor_id', 1, \PDO::PARAM_INT);
-        $qryStm->bindValue(':lookfor_item_value', \PDO::PARAM_INT);
-        $qryStm->bindValue(':lookfor_item_value_array', array(1, 2, 3, 999), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+                . '(item_value=:lookfor_item_value)');
+        $qryStm->bindValue(':lookfor_id', 1);
+        $qryStm->bindValue(':lookfor_item_value', 999);
         $qryStm->execute();
         $this->assertEquals(999, $qryStm->fetchColumn());
-        */
     }
     
     public function testStatementPositionalParameters()
@@ -135,6 +132,15 @@ class AbstractFbIbDriverTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(777, $qryStm->fetchColumn());
         $qryStm->execute();
         $this->assertEquals(777, $qryStm->fetchColumn());
+    }
+    
+    public function testQuotesInQuotes()
+    {
+//        $params = \Doctrine\DBAL\SQLParserUtils::getPlaceholderPositions
+//                ('select \'quoted1 \'\' :not_a_param1 quoted2 "\'\':not_a_param2\'\'" \'\'\' foo from rdb$database', false);
+        $params = \Doctrine\DBAL\SQLParserUtils::getPlaceholderPositions
+                ('select \'quoted1 \'\' :not_a_param1 quoted2 \'\':not_a_param2\'\' \'\'\' foo from rdb$database', false);
+        print_r($params);
     }
     
     
