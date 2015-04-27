@@ -53,6 +53,19 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT foo::date as date FROM Foo WHERE bar > :start_date AND baz > :start_date', false, array(46 => 'start_date', 68 =>  'start_date')), // Ticket GH-259
             array('SELECT `d.ns:col_name` FROM my_table d WHERE `d.date` >= :param1', false, array(57 => 'param1')), // Ticket DBAL-552
             array('SELECT [d.ns:col_name] FROM my_table d WHERE [d.date] >= :param1', false, array(57 => 'param1')), // Ticket DBAL-552
+            array(
+<<<'SQLDATA'
+SELECT * FROM foo WHERE 
+bar = ':not_a_param1 ''":not_a_param2"'''
+OR bar=:a_param1
+OR bar=:a_param2||':not_a_param3'
+OR bar=':not_a_param4 '':not_a_param5'' :not_a_param6'
+OR bar=''
+OR bar=':a_param3
+SQLDATA
+                , false, array(74 => 'a_param1', 91 => 'a_param2', 191 => 'a_param3')
+            ),
+            
         );
     }
 
@@ -333,6 +346,15 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
                 'INSERT INTO Foo (foo, bar) values (?, ?)',
                 array(1, null),
                 array(\PDO::PARAM_INT, \PDO::PARAM_NULL)
+            ),
+            // DBAL-1205 - Escaped single quotes SQL- and C-Style
+            array(
+                "SELECT * FROM Foo WHERE foo = :foo||''':not_a_param''\\'' OR bar = ''':not_a_param''\\'':bar",
+                array(':foo' => 1, ':bar' => 2),
+                array(':foo' => \PDO::PARAM_INT, 'bar' => \PDO::PARAM_INT),
+                'SELECT * FROM Foo WHERE foo = ?||\'\'\':not_a_param\'\'\\\'\' OR bar = \'\'\':not_a_param\'\'\\\'\'?',
+                array(1, 2),
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
         );
     }
