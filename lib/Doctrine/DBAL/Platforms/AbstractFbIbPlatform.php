@@ -536,7 +536,7 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
             }
         }
         $result .= "BEGIN" . $break;
-        foreach ((array)$params['statements'] as $stm) {
+        foreach ((array) $params['statements'] as $stm) {
             $result .= $indent . $stm . $break;
         }
         $result .= "END" . $break;
@@ -587,7 +587,9 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
                 'EXECUTE STATEMENT \'DROP VIEW "\'||:TMP_VIEW_NAME||\'"\'; END';
 
         if ($inBlock) {
-            $result = $this->getExecuteBlockSql(array('statements' => $result, 'formatLineBreak' => false));
+            $result = $this->getExecuteBlockSql(array('statements' => $result,
+                'formatLineBreak' => false,
+                'blockVars' => array('TMP_VIEW_NAME' => 'varchar(255)')));
         }
 
         return $result;
@@ -770,10 +772,8 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
                         $dropTriggerIfExistsPSql,
                         $dropRelatedViewsPSql,
                         $dropTableSql,
-        ),
-            'blockVars' => array(
-                'TMP_VIEW_NAME' => 'VARCHAR(255)'
-            )));
+                    ),
+        ));
     }
 
     /**
