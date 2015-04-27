@@ -134,14 +134,5 @@ class AbstractFbIbDriverTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(777, $qryStm->fetchColumn());
     }
     
-    public function testQuotesInQuotes()
-    {
-//        $params = \Doctrine\DBAL\SQLParserUtils::getPlaceholderPositions
-//                ('select \'quoted1 \'\' :not_a_param1 quoted2 "\'\':not_a_param2\'\'" \'\'\' foo from rdb$database', false);
-        $params = \Doctrine\DBAL\SQLParserUtils::getPlaceholderPositions
-                ('select \'quoted1 \'\' :not_a_param1 quoted2 \'\':not_a_param2\'\' \'\'\' foo from rdb$database', false);
-        print_r($params);
-    }
-    
     
 }

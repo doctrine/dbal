@@ -43,7 +43,6 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
      * @param Bool Set to true, if the platform is used in the context of the pdo-driver
      * @see setInPdoContext();
      */
-
     protected $inPdoContext = false;
 
     /**
@@ -66,7 +65,7 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
     {
         $this->inPdoContext = $value;
     }
-    
+
     /**
      * Returns if the platform is used in the context of the PDO-Driver
      * 
@@ -502,27 +501,45 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
      * @param array|string $sql
      * @return string
      */
-    protected function getExecuteBlockSql($sql, $aStatementSeparator = ' ', $paramDeclarations = array(), $variableDeclarations = array())
+    protected function getExecuteBlockSql(array $params = array())
     {
+        $params = array_merge(array(
+            'blockParams' => array(),
+            'blockVars' => array(),
+            'statements' => array(),
+            'formatLineBreak' => true,
+                ), $params);
+
+        if ($params['formatLineBreak']) {
+            $break = "\n";
+            $indent = '  ';
+        } else {
+            $break = ' ';
+            $indent = '';
+        }
         $result = 'EXECUTE BLOCK ';
-        if (!empty($paramDeclarations)) {
+        if (!empty($params['blockParams'])) {
             $result .= '(';
             $n = 0;
-            foreach ($paramDeclarations as $paramName => $paramDelcaration) {
+            foreach ($params['blockParams'] as $paramName => $paramDelcaration) {
                 if ($n > 0)
                     $result .= ', ';
                 $result .= $paramName . ' ' . $paramDelcaration;
                 $n++;
             }
-            $result .= ') ';
+            $result .= ') ' . $break;
         }
-        $result .= ' AS ';
-        if (is_array($variableDeclarations)) {
-            foreach ($variableDeclarations as $variableName => $variableDeclaration) {
-                $result .= 'DECLARE ' . $variableName . ' ' . $variableDeclaration . '; ';
+        $result .= 'AS' . $break;
+        if (is_array($params['blockVars'])) {
+            foreach ($params['blockVars'] as $variableName => $variableDeclaration) {
+                $result .= $indent . 'DECLARE ' . $variableName . ' ' . $variableDeclaration . '; ' . $break;
             }
         }
-        $result .= "BEGIN \n" . $this->getCombinedSqlStatements($sql, $aStatementSeparator) . "\n END";
+        $result .= "BEGIN" . $break;
+        foreach ((array)$params['statements'] as $stm) {
+            $result .= $indent . $stm . $break;
+        }
+        $result .= "END" . $break;
         return $result;
     }
 
@@ -534,13 +551,20 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
      * @param array $variableDeclarations
      * @return type
      */
-    protected function getExecuteBlockWithExecuteStatementsSql($sql, $paramDeclarations = array(), $variableDeclarations = array())
+    protected function getExecuteBlockWithExecuteStatementsSql(array $params = array())
     {
+        $params = array_merge(array(
+            'blockParams' => array(),
+            'blockVars' => array(),
+            'statements' => array(),
+            'formatLineBreak' => true,
+                ), $params);
         $statements = array();
-        foreach ((array) $sql as $s) {
-            $statements[] = $this->getExecuteStatementPSql($s);
+        foreach ((array) $params['statements'] as $s) {
+            $statements[] = $this->getExecuteStatementPSql($s) . ';';
         }
-        return $this->getExecuteBlockSql($statements, '; ', $variableDeclarations);
+        $params['statements'] = $statements;
+        return $this->getExecuteBlockSql($params);
     }
 
     /**
@@ -554,7 +578,7 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
     public function getDropAllViewsOfTablePSqlSnippet($table, $inBlock = false)
     {
         $result = 'FOR SELECT TRIM(v.RDB$VIEW_NAME) ' .
-                  'FROM RDB$VIEW_RELATIONS v, RDB$RELATIONS r ' .
+                'FROM RDB$VIEW_RELATIONS v, RDB$RELATIONS r ' .
                 'WHERE ' .
                 'TRIM(UPPER(v.RDB$RELATION_NAME)) = TRIM(UPPER(' . $this->quoteStringLiteral($this->unquotedIdentifierName($table)) . ')) AND ' .
                 'v.RDB$RELATION_NAME = r.RDB$RELATION_NAME AND ' .
@@ -563,9 +587,7 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
                 'EXECUTE STATEMENT \'DROP VIEW "\'||:TMP_VIEW_NAME||\'"\'; END';
 
         if ($inBlock) {
-            $result = $this->getExecuteBlockSql(array($result), ' ', array(), array(
-                'TMP_VIEW_NAME' => 'VARCHAR(255)'
-            ));
+            $result = $this->getExecuteBlockSql(array('statements' => $result, 'formatLineBreak' => false));
         }
 
         return $result;
@@ -618,29 +640,14 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
         return 'DROP TRIGGER ' . $this->getQuotedNameOf($aTrigger);
     }
 
-    protected function getDropTriggerIfExistsPSqlSnippet($aTrigger, $inBlock = false)
+    protected function getDropTriggerIfExistsPSql($aTrigger, $inBlock = false)
     {
         $result = 'IF (EXISTS (SELECT 1 FROM RDB$TRIGGERS WHERE ' . $this->makeSimpleMetadataSelectExpression(array(
                     'RDB$TRIGGER_NAME' => $aTrigger,
                     'RDB$SYSTEM_FLAG' => 0
                 )) . ')) THEN BEGIN ' . $this->getExecuteStatementPSql($this->getDropTriggerSql($aTrigger)) . '; END';
         if ($inBlock)
-            return $this->getExecuteBlockSql(array($result));
-        else
-            return $result;
-    }
-
-    protected function getDropSequenceIfExistsPSql($sequence, $inBlock = false)
-    {
-        if ($sequence instanceof \Doctrine\DBAL\Schema\Sequence) {
-            $sequence = $sequence->getQuotedName($this);
-        }
-        $result = 'IF (EXISTS (SELECT 1 FROM RDB$GENERATORS WHERE ' . $this->makeSimpleMetadataSelectExpression(array(
-                    'RDB$GENERATOR_NAME' => $sequence,
-                    'RDB$SYSTEM_FLAG' => 0
-                )) . ')) THEN BEGIN ' . $this->getExecuteStatementSql($this->getPlainDropSequenceSQL($sequence)) . ' END';
-        if ($inBlock)
-            return $this->getExecuteBlockSql(array($result));
+            return $this->getExecuteBlockSql(array('statements' => $result, 'formatLineBreak' => false));
         else
             return $result;
     }
@@ -670,8 +677,9 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
             // Seems to be a autoinc-sequence. Try to drop trigger before
             $triggerName = str_replace('_D2IS', '_D2IT', $sequence);
             return $this->getExecuteBlockWithExecuteStatementsSql(array(
-                        $this->getDropTriggerIfExistsPSqlSnippet($triggerName, true),
-                        $this->getPlainDropSequenceSQL($sequence)));
+                        'statements' => array(
+                            $this->getDropTriggerIfExistsPSql($triggerName, true),
+                            $this->getPlainDropSequenceSQL($sequence))));
         } else {
             return $this->getPlainDropSequenceSQL($sequence);
         }
@@ -718,6 +726,7 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
      */
     public function getSetTransactionIsolationSQL($level)
     {
+        
     }
 
     /**
@@ -753,15 +762,18 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
      */
     public function getDropTableSQL($table)
     {
-        $dropTriggerIfExistsPSql = $this->getDropTriggerIfExistsPSqlSnippet($this->getIdentitySequenceTriggerName($table, null), true);
+        $dropTriggerIfExistsPSql = $this->getDropTriggerIfExistsPSql($this->getIdentitySequenceTriggerName($table, null), true);
         $dropRelatedViewsPSql = $this->getDropAllViewsOfTablePSqlSnippet($table, true);
         $dropTableSql = parent::getDropTableSQL($table);
-        return $this->getExecuteBlockWithExecuteStatementsSql(
-                        array(
-                    $dropTriggerIfExistsPSql,
-//                    $dropRelatedViewsPSql,
-                    $dropTableSql,
-                        ), ' ', array(), array());
+        return $this->getExecuteBlockWithExecuteStatementsSql(array(
+                    'statements' => array(
+                        $dropTriggerIfExistsPSql,
+                        $dropRelatedViewsPSql,
+                        $dropTableSql,
+        ),
+            'blockVars' => array(
+                'TMP_VIEW_NAME' => 'VARCHAR(255)'
+            )));
     }
 
     /**
