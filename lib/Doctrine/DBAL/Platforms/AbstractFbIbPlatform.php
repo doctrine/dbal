@@ -40,44 +40,6 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
 {
 
     /**
-     * @param Bool Set to true, if the platform is used in the context of the pdo-driver
-     * @see setInPdoContext();
-     */
-    protected $inPdoContext = false;
-
-    /**
-     * Configures the Platform for the PDO-Driver
-     * 
-     * If the platform object is created by the Firebird PDO-Driver, this option is set automatically.
-     * 
-     * The purpose of this option is to workaround some bugs and limitations of the native
-     * pdo_firebird driver:
-     * 
-     * <b>Savepoints</b>: Firebird supports savepoints, but using them with the PDO driver causes exceptions, 
-     * thus savepoints (nested transactions) are disabled if the platform is used in the pdo-context.
-     * 
-     * <b>Blobs</b>: The Firebird PDO-Driver seems to have a memory leak causing errors when BLOBs are used.
-     * Thus the platform tries to avoid BLOBs in the context of the PDO-Driver and uses VARCHARs character set binary
-     * for BLOBS < 32K instead if used in PDO-Context
-     * 
-     */
-    public function setInPdoContext($value)
-    {
-        $this->inPdoContext = $value;
-    }
-
-    /**
-     * Returns if the platform is used in the context of the PDO-Driver
-     * 
-     * @return bool
-     * @see setInPdoContext();
-     */
-    public function getInPdoContext()
-    {
-        return $this->inPdoContext;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function getMaxIdentifierLength()
@@ -357,12 +319,10 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     * 
-     * @todo FIREBIRD: Firebird *does* support savepoints, but somehow it does not work as expected. 
      */
     public function supportsSavepoints()
     {
-        return $this->inPdoContext ? false : true;
+        return true;
     }
 
     /**
@@ -970,7 +930,7 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
      */
     public function getBinaryMaxLength()
     {
-        return ($this->inPdoContext) ? 32765 : 8190;
+        return 8190;
     }
 
     /**

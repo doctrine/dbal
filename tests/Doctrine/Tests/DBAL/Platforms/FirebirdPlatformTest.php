@@ -116,20 +116,6 @@ class FirebirdPlatformTest extends \Doctrine\Tests\DBAL\Platforms\AbstractPlatfo
         $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
 
-    public function testSupportsSavepointsInPdoContext()
-    {
-        $pf = $this->createPlatform();
-        $pf->setInPdoContext(true);
-        $this->assertSame(false, $pf->supportsSavepoints(), 'supportsSavepoints() must return FALSE in PDO-Context');
-    }
-
-    public function testGetBinaryMaxLengthSupportsInPdoContext()
-    {
-        $pf = $this->createPlatform();
-        $pf->setInPdoContext(true);
-        $this->assertSame(32765, $pf->getBinaryMaxLength(), 'getBinaryMaxLength() should be 32K in PDO-Context');
-    }
-
     /**
      * {@inheritdoc}
      */
