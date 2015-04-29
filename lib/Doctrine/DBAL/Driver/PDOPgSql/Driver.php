@@ -60,6 +60,9 @@ class Driver implements \Doctrine\DBAL\Driver
         if (isset($params['dbname'])) {
             $dsn .= 'dbname=' . $params['dbname'] . ' ';
         }
+        else {
+            $dsn .= 'dbname=template1' . ' ';
+        }
 
         return $dsn;
     }
