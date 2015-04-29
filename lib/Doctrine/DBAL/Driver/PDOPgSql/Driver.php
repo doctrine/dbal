@@ -89,6 +89,9 @@ class Driver extends AbstractPostgreSQLDriver
         if (isset($params['dbname'])) {
             $dsn .= 'dbname=' . $params['dbname'] . ' ';
         }
+        else {
+            $dsn .= 'dbname=template1' . ' ';
+        }
 
         if (isset($params['sslmode'])) {
             $dsn .= 'sslmode=' . $params['sslmode'] . ' ';
