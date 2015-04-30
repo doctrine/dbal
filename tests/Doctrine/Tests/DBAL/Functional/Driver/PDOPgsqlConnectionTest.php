@@ -29,7 +29,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
      *
      * @param string $charset
      */
-    public function testPdoPgsqlConnectionWithCharset($charset)
+    public function testConnectsWithValidCharsetOption($charset)
     {
         $params = $this->_conn->getParams();
         $params['charset'] = $charset;
