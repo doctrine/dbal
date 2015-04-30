@@ -12,7 +12,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
      *
      * @var \Doctrine\DBAL\Driver
      */
-    private $driver;
+    protected $driver;
 
     protected function setUp()
     {
