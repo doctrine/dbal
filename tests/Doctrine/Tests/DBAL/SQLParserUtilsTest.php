@@ -69,9 +69,9 @@ OR bar=:a_param1
 OR bar=:a_param2||':not_a_param3'
 OR bar=':not_a_param4 '':not_a_param5'' :not_a_param6'
 OR bar=''
-OR bar=':a_param3
+OR bar=:a_param3
 SQLDATA
-                , false, array(74 => 'a_param1', 91 => 'a_param2', 191 => 'a_param3')
+                , false, array(74 => 'a_param1', 91 => 'a_param2', 190 => 'a_param3')
             ),
             
         );
