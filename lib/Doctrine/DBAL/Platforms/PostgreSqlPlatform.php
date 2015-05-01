@@ -421,6 +421,34 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * Returns the SQL statement for disallowing new connections on the given database.
+     *
+     * This is useful to force DROP DATABASE operations which could fail because of active connections.
+     *
+     * @param string $database The name of the database to disallow new connections for.
+     *
+     * @return string
+     */
+    public function getDisallowDatabaseConnectionsSQL($database)
+    {
+        return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = '$database'";
+    }
+
+    /**
+     * Returns the SQL statement for closing currently active connections on the given database.
+     *
+     * This is useful to force DROP DATABASE operations which could fail because of active connections.
+     *
+     * @param string $database The name of the database to close currently active connections for.
+     *
+     * @return string
+     */
+    public function getCloseActiveDatabaseConnectionsSQL($database)
+    {
+        return "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = '$database'";
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getAdvancedForeignKeyOptionsSQL(\Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey)
