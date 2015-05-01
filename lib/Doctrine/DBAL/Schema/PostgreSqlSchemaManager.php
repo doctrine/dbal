@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Types\Type;
 
 /**
@@ -98,6 +99,33 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $this->existingSchemaPaths = array_filter($paths, function ($v) use ($names) {
             return in_array($v, $names);
         });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dropDatabase($database)
+    {
+        try {
+            parent::dropDatabase($database);
+        } catch (DriverException $exception) {
+            // If we have a SQLSTATE 55006, the drop database operation failed
+            // because of active connections on the database.
+            // To force dropping the database, we first have to close all active connections
+            // on that database and issue the drop database operation again.
+            if ($exception->getSQLState() !== '55006') {
+                throw $exception;
+            }
+
+            $this->_execSql(
+                array(
+                    $this->_platform->getDisallowDatabaseConnectionsSQL($database),
+                    $this->_platform->getCloseActiveDatabaseConnectionsSQL($database),
+                )
+            );
+
+            parent::dropDatabase($database);
+        }
     }
 
     /**

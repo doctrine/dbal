@@ -43,6 +43,36 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
+     * @group DBAL-1220
+     */
+    public function testDropsDatabaseWithActiveConnections()
+    {
+        if (! $this->_sm->getDatabasePlatform()->supportsCreateDropDatabase()) {
+            $this->markTestSkipped('Cannot drop Database client side with this Driver.');
+        }
+
+        $this->_sm->dropAndCreateDatabase('test_drop_database');
+
+        $this->assertContains('test_drop_database', $this->_sm->listDatabases());
+
+        $params = $this->_conn->getParams();
+        $params['dbname'] = 'test_drop_database';
+
+        $user = isset($params['user']) ? $params['user'] : null;
+        $password = isset($params['password']) ? $params['password'] : null;
+
+        $connection = $this->_conn->getDriver()->connect($params, $user, $password);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
+
+        $this->_sm->dropDatabase('test_drop_database');
+
+        $this->assertNotContains('test_drop_database', $this->_sm->listDatabases());
+
+        unset($connection);
+    }
+
+    /**
      * @group DBAL-195
      */
     public function testDropAndCreateSequence()

@@ -783,4 +783,26 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             'ALTER INDEX idx_foo RENAME TO idx_foo_renamed',
         );
     }
+
+    /**
+     * @group DBAL-1220
+     */
+    public function testReturnsDisallowDatabaseConnectionsSQL()
+    {
+        $this->assertSame(
+            "UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'foo'",
+            $this->_platform->getDisallowDatabaseConnectionsSQL('foo')
+        );
+    }
+
+    /**
+     * @group DBAL-1220
+     */
+    public function testReturnsCloseActiveDatabaseConnectionsSQL()
+    {
+        $this->assertSame(
+            "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = 'foo'",
+            $this->_platform->getCloseActiveDatabaseConnectionsSQL('foo')
+        );
+    }
 }
