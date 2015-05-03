@@ -401,22 +401,27 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $this->assertSame($result, $conn->fetchColumn($statement, $params, $column, $types));
     }
 
-    public function testConnectionIsClosed()
+    public function testConnectionIsClosedButNotUnset()
     {
-        // set the internal _conn to some value
-        $reflection = new \ReflectionObject($this->_conn);
+        // mock Connection, and make connect() purposefully do nothing
+        $connection = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->disableOriginalConstructor()
+            ->setMethods(array('connect'))
+            ->getMock();
+
+        // artificially set the wrapped connection to non-null
+        $reflection = new \ReflectionObject($connection);
         $connProperty = $reflection->getProperty('_conn');
         $connProperty->setAccessible(true);
-        $connProperty->setValue($this->_conn, new \stdClass);
-        $connValue = $connProperty->getValue($this->_conn);
-        $this->assertInstanceOf('stdClass', $connValue);
+        $connProperty->setValue($connection, new \stdClass);
 
-        // close the connection
-        $this->_conn->close();
+        // close the connection (should nullify the wrapped connection)
+        $connection->close();
 
-        // make sure the _conn has be set to null (but not unset)
-        $connNewValue = $connProperty->getValue($this->_conn);
-        $this->assertNull($connNewValue, 'Connection can\'t be closed.');
+        // the wrapped connection should be null
+        // (and since connect() does nothing, this will not reconnect)
+        // this will also fail if this _conn property was unset instead of set to null
+        $this->assertNull($connection->getWrappedConnection());
     }
 
     public function testFetchAll()
