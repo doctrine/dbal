@@ -169,6 +169,6 @@ by passing the driver option "charset" to Doctrine PDO MySQL driver. Using SET N
     <?php    
     $conn = DriverManager::getConnection(array(
         'driver' => 'pdo_mysql',
-        'charset' => 'UTF8',
+        'charset' => 'utf8mb4',  // May need 'utf8' for MySQL < 5.5.3
     ));
 
