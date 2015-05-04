@@ -476,14 +476,14 @@ class MySqlPlatform extends AbstractPlatform
 
         // Charset
         if ( ! isset($options['charset'])) {
-            $options['charset'] = 'utf8';
+            $options['charset'] = 'utf8mb4';
         }
 
         $tableOptions[] = sprintf('DEFAULT CHARACTER SET %s', $options['charset']);
 
         // Collate
         if ( ! isset($options['collate'])) {
-            $options['collate'] = 'utf8_unicode_ci';
+            $options['collate'] = 'utf8mb4_unicode_ci';
         }
 
         $tableOptions[] = sprintf('COLLATE %s', $options['collate']);
