@@ -287,4 +287,36 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     }
 
+    public function testMysqlUtf8Truncates()
+    {
+        $platform = $this->_conn->getDatabasePlatform();
+
+        if (!in_array($platform->getName(), array('mysql'))) {
+            $this->markTestSkipped('Related to MySQL only');
+        }
+
+        $table = new \Doctrine\DBAL\Schema\Table('truncation_test');
+        $table->addColumn('bad', 'string', array('charset' => 'utf8'));
+        $table->addColumn('good', 'string', array('charset' => 'utf8mb4'));
+
+        try {
+            $this->_conn->getSchemaManager()->dropTable($table);
+        } catch(\Exception $e) { }
+
+        foreach ($platform->getCreateTableSQL($table) as $sql) {
+            $this->_conn->exec($sql);
+        }
+        // F09D8C86 = UTF8 bytes for codepoint U+1D306, Center Tetragram
+        $fragment = "CONCAT('foo',UNHEX('F09D8C86'),'bar')";
+        $this->_conn->exec("INSERT INTO truncation_test (`bad`,`good`) VALUES ($fragment,$fragment);");
+
+        $lengths = $this->_conn->fetchAssoc('SELECT LENGTH(good) as good, LENGTH(bad) as bad FROM truncation_test');
+
+
+        $this->assertEquals(7, $lengths['good']);
+        // This is due to MySQL truncating the 4-byte character
+        $this->assertEquals(3, $lengths['bad']);
+
+    }
+
 }
