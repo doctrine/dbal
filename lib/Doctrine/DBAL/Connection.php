@@ -1589,11 +1589,17 @@ class Connection implements DriverConnection
             return $this->_conn->ping();
         }
 
+        set_error_handler(function ($severity, $message) {
+            throw new \PDOException($message, $severity);
+        });
+
         try {
             $this->query($this->platform->getDummySelectSQL());
+            restore_error_handler();
 
             return true;
         } catch (DBALException $e) {
+            restore_error_handler();
             return false;
         }
     }
