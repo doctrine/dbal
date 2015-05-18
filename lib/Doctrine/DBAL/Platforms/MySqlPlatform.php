@@ -185,6 +185,8 @@ class MySqlPlatform extends AbstractPlatform
 
         if ($database) {
             $sql .= " AND k.table_schema = '$database' /*!50116 AND c.constraint_schema = '$database' */";
+        } else {
+            $sql .= " AND k.table_schema = DATABASE() /*!50116 AND c.constraint_schema = DATABASE() */";
         }
 
         $sql .= " AND k.`REFERENCED_COLUMN_NAME` is not NULL";
