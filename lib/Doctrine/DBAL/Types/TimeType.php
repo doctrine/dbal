@@ -49,7 +49,7 @@ class TimeType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return ($value !== null)
+        return ($value !== null && $value instanceof \DateTime)
             ? $value->format($platform->getTimeFormatString()) : null;
     }
 
