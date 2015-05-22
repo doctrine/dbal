@@ -691,6 +691,11 @@ EOD;
         $this->assertEquals($createTriggerStatement, $sql[3]);
     }
 
+    public function testGetRandomFunctionSQL()
+    {
+        $this->assertEquals('DBMS_RANDOM.VALUE', $this->_platform->getRandomFunctionSQL());
+    }
+
     /**
      * {@inheritdoc}
      */

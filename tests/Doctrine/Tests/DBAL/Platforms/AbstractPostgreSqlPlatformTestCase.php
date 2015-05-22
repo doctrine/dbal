@@ -792,4 +792,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('tsvector'));
         $this->assertEquals('text', $this->_platform->getDoctrineTypeMapping('tsvector'));
     }
+
+    public function testGetRandomFunctionSQL()
+    {
+        $this->assertEquals('random()', $this->_platform->getRandomFunctionSQL());
+    }
 }
