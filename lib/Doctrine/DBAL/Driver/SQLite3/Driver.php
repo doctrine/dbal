@@ -32,7 +32,7 @@ class Driver extends AbstractSQLiteDriver
     /**
      * @var array
      */
-    protected $_userDefinedFunctions = array(
+    private $userDefinedFunctions = array(
         'sqrt' => array('callback' => array('Doctrine\DBAL\Platforms\SqlitePlatform', 'udfSqrt'), 'numArgs' => 1),
         'mod'  => array('callback' => array('Doctrine\DBAL\Platforms\SqlitePlatform', 'udfMod'), 'numArgs' => 2),
         'locate'  => array('callback' => array('Doctrine\DBAL\Platforms\SqlitePlatform', 'udfLocate'), 'numArgs' => -1),
@@ -44,8 +44,8 @@ class Driver extends AbstractSQLiteDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         if (isset($driverOptions['userDefinedFunctions'])) {
-            $this->_userDefinedFunctions = array_merge(
-                $this->_userDefinedFunctions, $driverOptions['userDefinedFunctions']);
+            $this->userDefinedFunctions = array_merge(
+                $this->userDefinedFunctions, $driverOptions['userDefinedFunctions']);
             unset($driverOptions['userDefinedFunctions']);
         }
 
@@ -61,7 +61,7 @@ class Driver extends AbstractSQLiteDriver
 
         $sqlite3 = $connection->getSQLite3();
 
-        foreach ($this->_userDefinedFunctions as $fn => $data) {
+        foreach ($this->userDefinedFunctions as $fn => $data) {
             $sqlite3->createFunction($fn, $data['callback'], $data['numArgs']);
         }
 
