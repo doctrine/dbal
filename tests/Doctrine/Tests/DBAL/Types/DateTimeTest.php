@@ -60,4 +60,14 @@ class DateTimeTest extends \Doctrine\Tests\DbalTestCase
 
         $this->assertEquals('1985-09-01 10:10:10', $actual->format('Y-m-d H:i:s'));
     }
+
+    public function testConvertZeroDateTimeToDatabaseValue()
+    {
+        $value = '0000-00-00 00:00:00';
+        $date = new \DateTime($value);
+
+        $result = $this->_type->convertToDatabaseValue($date, $this->_platform);
+
+        $this->assertEquals($value, $result);
+    }
 }

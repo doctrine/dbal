@@ -49,8 +49,12 @@ class DateTimeType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return ($value !== null)
-            ? $value->format($platform->getDateTimeFormatString()) : null;
+        if($value === null) {
+            return null;
+        }
+
+        $value = $value->format($platform->getDateTimeFormatString());
+        return $value === '-0001-11-30 00:00:00' ? '0000-00-00 00:00:00' : $value;
     }
 
     /**
