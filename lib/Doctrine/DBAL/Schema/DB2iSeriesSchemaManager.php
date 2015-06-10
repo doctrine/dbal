@@ -26,18 +26,119 @@ namespace Doctrine\DBAL\Schema;
  * @since  1.0
  * @author Cassiano Vailati <c.vailati@esconsulting.it> extending work of Benjamin Eberlei <kontakt@beberlei.de>
  */
-class DB2IBMiSchemaManager extends AbstractSchemaManager
+class DB2iSeriesSchemaManager extends AbstractSchemaManager
 {
     /**
      * {@inheritdoc}
      */
+
     public function listTableNames()
     {
-        $sql = $this->_platform->getListTablesSQL();
+        $sql = $this->_platform->getListTablesSQL($this->getDatabase());
 
         $tables = $this->_conn->fetchAll($sql);
+        $tableNames = $this->_getPortableTablesList($tables);
 
-        return $this->_getPortableTablesList($tables);
+        return $this->filterAssetNames($tableNames);
+    }
+
+
+    /**
+     * Lists the available sequences for this connection.
+     *
+     * @param string|null $database
+     *
+     * @return \Doctrine\DBAL\Schema\Sequence[]
+     */
+    public function listSequences($database = null)
+    {
+        if (is_null($database)) {
+            $database = $this->getDatabase();
+        }
+        $sql = $this->_platform->getListSequencesSQL($database);
+
+        $sequences = $this->_conn->fetchAll($sql);
+
+        return $this->filterAssetNames($this->_getPortableSequencesList($sequences));
+    }
+
+    /**
+     * Lists the columns for a given table.
+     *
+     * In contrast to other libraries and to the old version of Doctrine,
+     * this column definition does try to contain the 'primary' field for
+     * the reason that it is not portable accross different RDBMS. Use
+     * {@see listTableIndexes($tableName)} to retrieve the primary key
+     * of a table. We're a RDBMS specifies more details these are held
+     * in the platformDetails array.
+     *
+     * @param string      $table    The name of the table.
+     * @param string|null $database
+     *
+     * @return \Doctrine\DBAL\Schema\Column[]
+     */
+    public function listTableColumns($table, $database = null)
+    {
+        if ( ! $database) {
+            $database = $this->getDatabase();
+        }
+
+        $sql = $this->_platform->getListTableColumnsSQL($table, $database);
+
+        $tableColumns = $this->_conn->fetchAll($sql);
+
+        return $this->_getPortableTableColumnList($table, $database, $tableColumns);
+    }
+
+    /**
+     * Lists the indexes for a given table returning an array of Index instances.
+     *
+     * Keys of the portable indexes list are all lower-cased.
+     *
+     * @param string $table The name of the table.
+     *
+     * @return \Doctrine\DBAL\Schema\Index[]
+     */
+    public function listTableIndexes($table)
+    {
+        $sql = $this->_platform->getListTableIndexesSQL($table, $this->getDatabase());
+
+        $tableIndexes = $this->_conn->fetchAll($sql);
+
+        return $this->_getPortableTableIndexesList($tableIndexes, $table);
+    }
+
+    /**
+     * Lists the views this connection has.
+     *
+     * @return \Doctrine\DBAL\Schema\View[]
+     */
+    public function listViews()
+    {
+        $database = $this->getDatabase();
+        $sql = $this->_platform->getListViewsSQL($database);
+        $views = $this->_conn->fetchAll($sql);
+
+        return $this->_getPortableViewsList($views);
+    }
+
+    /**
+     * Lists the foreign keys for the given table.
+     *
+     * @param string      $table    The name of the table.
+     * @param string|null $database
+     *
+     * @return \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     */
+    public function listTableForeignKeys($table, $database = null)
+    {
+        if (is_null($database)) {
+            $database = $this->getDatabase();
+        }
+        $sql = $this->_platform->getListTableForeignKeysSQL($table, $database);
+        $tableForeignKeys = $this->_conn->fetchAll($sql);
+
+        return $this->_getPortableTableForeignKeysList($tableForeignKeys);
     }
 
     /**
@@ -61,24 +162,39 @@ class DB2IBMiSchemaManager extends AbstractSchemaManager
 
         $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
 
+        $length = $tableColumn['length'];
+
         switch (strtolower($tableColumn['typename'])) {
-            case 'varchar':
-                $length = $tableColumn['length'];
-                $fixed = false;
+            case 'smallint':
                 break;
-            case 'character':
-                $length = $tableColumn['length'];
+            case 'bigint':
+                break;
+            case 'integer':
+                break;
+            case 'time':
+                break;
+            case 'date':
+                break;
+            case 'string':
                 $fixed = true;
                 break;
-            case 'clob':
-                $length = $tableColumn['length'];
+            case 'binary':
+                break;
+            case 'text':
+                break;
+            case 'blob':
                 break;
             case 'decimal':
-            case 'double':
-            case 'real':
                 $scale = $tableColumn['scale'];
                 $precision = $tableColumn['length'];
                 break;
+            case 'float':
+                $scale = $tableColumn['scale'];
+                $precision = $tableColumn['length'];
+                break;
+            case 'datetime':
+                break;
+            default:
         }
 
         $options = array(
@@ -202,5 +318,22 @@ class DB2IBMiSchemaManager extends AbstractSchemaManager
         }
 
         return new View($view['name'], $sql);
+    }
+
+    /**
+     * Returns database name
+     */
+    protected function getDatabase()
+    {
+        //In iSeries systems, with SQL naming, the default database name is specified in driverOptions['i5_lib']
+        $dbParams = $this->_conn->getParams();
+        if(array_key_exists('driverOptions', $dbParams) && array_key_exists('i5_lib', $dbParams['driverOptions']))
+        {
+            return $dbParams['driverOptions']['i5_lib'];
+        }
+        else
+        {
+            return null;
+        }
     }
 }

@@ -20,9 +20,9 @@
 namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Platforms\DB2IBMiPlatform;
+use Doctrine\DBAL\Platforms\DB2iSeriesPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
-use Doctrine\DBAL\Schema\DB2IBMiSchemaManager;
+use Doctrine\DBAL\Schema\DB2iSeriesSchemaManager;
 use Doctrine\DBAL\Schema\DB2SchemaManager;
 
 /**
@@ -50,7 +50,7 @@ abstract class AbstractDB2Driver implements Driver
     public function getDatabasePlatform()
     {
         if(PHP_OS === 'AIX')
-            return new DB2IBMiPlatform();
+            return new DB2iSeriesPlatform();
         else
             return new DB2Platform();
     }
@@ -61,7 +61,7 @@ abstract class AbstractDB2Driver implements Driver
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
         if(PHP_OS === 'AIX')
-            return new DB2IBMiSchemaManager($conn);
+            return new DB2iSeriesSchemaManager($conn);
         else
             return new DB2SchemaManager($conn);
     }

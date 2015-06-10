@@ -27,7 +27,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * @var resource
      */
-    private $_conn = null;
+    protected $_conn = null;
 
     /**
      * @param array  $params
