@@ -73,6 +73,15 @@ type therefore behave like the DateTime type.
 Sqlite
 ------
 
+Buffered Queries and Isolation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Careful if you execute a ``SELECT`` query and do not iterate over the
+statements results directly. ``UPDATE`` statements executed before iteration
+affect only the rows that have not been buffered into PHP memory yet. This
+breaks the SERIALIZABLE transction isolation property that SQLite supposedly
+has.
+
 DateTime
 ~~~~~~~~~~
 
