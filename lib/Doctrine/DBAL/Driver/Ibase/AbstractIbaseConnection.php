@@ -356,6 +356,7 @@ abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareCon
      */
     public function getStartTransactionSql($isolationLevel, $timeout = 5)
     {
+        $result = "";
         switch ($isolationLevel) {
             case \Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED: {
                     $result .= 'SET TRANSACTION READ WRITE ISOLATION LEVEL READ COMMITTED RECORD_VERSION';
@@ -374,7 +375,7 @@ abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareCon
                     break;
                 }
         }
-        $result .= ($this->attrDcTransWait > 0) ? ' WAIT LOCK TIMEOUT ' . $this->attrDcTransWait : ' NO WAIT';
+        $result .= ($this->attrDcTransWait > 0) ? ' WAIT ' : ' NO WAIT';
         return $result;
     }
 
@@ -389,7 +390,7 @@ abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareCon
             @ibase_commit($this->ibaseConnectionRc);
         }
         $result = @ibase_query($this->ibaseConnectionRc, $this->getStartTransactionSql($this->attrDcTransIsolationLevel));
-        if (is_resource($result)) {
+        if (!is_resource($result)) {
             $this->checkLastApiCall();
         }
 
