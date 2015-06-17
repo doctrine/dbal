@@ -48,4 +48,10 @@
             <directory>./tests/Doctrine/Tests/DBAL</directory>
         </testsuite>
     </testsuites>
+
+    <groups>
+        <exclude>
+            <group>performance</group>
+        </exclude>
+    </groups>
 </phpunit>

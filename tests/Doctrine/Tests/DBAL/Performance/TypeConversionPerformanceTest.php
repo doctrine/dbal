@@ -9,6 +9,7 @@ use Doctrine\Tests\DbalPerformanceTestCase;
  * Class TypeConversionPerformanceTest
  * @package Doctrine\Tests\DBAL\Performance
  * @author Bill Schaller
+ * @group performance
  */
 class TypeConversionPerformanceTest extends DbalPerformanceTestCase
 {
