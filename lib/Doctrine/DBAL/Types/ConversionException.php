@@ -65,4 +65,29 @@ class ConversionException extends \Doctrine\DBAL\DBALException
             $toType . '. Expected format: ' . $expectedFormat
         );
     }
+
+    /**
+     * Thrown when the PHP value passed to the converter was not of the expected type.
+     *
+     * @param mixed $value
+     * @param string $fromType
+     *
+     * @return \Doctrine\DBAL\Types\ConversionException
+     */
+    static public function conversionFailedInvalidType($value, $toType, $fromType)
+    {
+        $actualType = gettype($value);
+        if ($actualType === 'object') {
+            $actualType .= " (" . get_class($value) . ")";
+            if (!method_exists($value, '__toString')) {
+                $value = 'object';
+            }
+        }
+        $value = (string)$value;
+        $value = (strlen($value) > 32) ? substr($value, 0, 20) . "..." : $value;
+
+        return new self(
+            "Could not convert PHP value '$value' of type '$actualType' to type $toType. Expected type: $fromType"
+        );
+    }
 }

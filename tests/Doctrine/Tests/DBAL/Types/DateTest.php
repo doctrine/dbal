@@ -31,6 +31,24 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    /**
+     * @expectedException \Doctrine\DBAL\Types\ConversionException
+     */
+    public function testInvalidDateTimeValueInteger()
+    {
+        $date = 27;
+        $this->_type->convertToDatabaseValue($date, $this->_platform);
+    }
+
+    /**
+     * @expectedException \Doctrine\DBAL\Types\ConversionException
+     */
+    public function testInvalidDateTimeValueStdClass()
+    {
+        $date = new \stdClass();
+        $this->_type->convertToDatabaseValue($date, $this->_platform);
+    }
+
     public function testDateConvertsToPHPValue()
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)

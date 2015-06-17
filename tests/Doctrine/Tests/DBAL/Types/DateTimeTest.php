@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
@@ -25,6 +26,24 @@ class DateTimeTest extends \Doctrine\Tests\DbalTestCase
         $actual = $this->_type->convertToDatabaseValue($date, $this->_platform);
 
         $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @expectedException \Doctrine\DBAL\Types\ConversionException
+     */
+    public function testInvalidDateTimeValueInteger()
+    {
+        $date = 27;
+        $this->_type->convertToDatabaseValue($date, $this->_platform);
+    }
+
+    /**
+     * @expectedException \Doctrine\DBAL\Types\ConversionException
+     */
+    public function testInvalidDateTimeValueStdClass()
+    {
+        $date = new \stdClass();
+        $this->_type->convertToDatabaseValue($date, $this->_platform);
     }
 
     public function testDateTimeConvertsToPHPValue()
