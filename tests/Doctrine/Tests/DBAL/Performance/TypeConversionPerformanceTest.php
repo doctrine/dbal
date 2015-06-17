@@ -13,9 +13,6 @@ use Doctrine\Tests\DbalPerformanceTestCase;
  */
 class TypeConversionPerformanceTest extends DbalPerformanceTestCase
 {
-    /**
-     * MAXIMUM TIME: 2 seconds
-     */
     public function testDateTimeTypeConversionPerformance100000Items()
     {
         $value = new \DateTime;
