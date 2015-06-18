@@ -20,7 +20,6 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
     public function testDateIntervalConvertsToDatabaseValue()
     {
         $interval = new \DateInterval('P2Y1DT1H2M3S');
-
         $expected = '0002-00-01 01:02:03';
         $actual = $this->_type->convertToDatabaseValue($interval, $this->_platform);
 
