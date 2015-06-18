@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
