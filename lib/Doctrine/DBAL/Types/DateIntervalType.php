@@ -10,8 +10,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class DateIntervalType extends Type
 {
-    const DATEINTERVAL_PATTERN = '#(?P<date>\d{4}-\d{2}-\d{2}).(?P<time>\d{2}:\d{2}:\d{2})#';
-
     /**
      * {@inheritdoc}
      */
@@ -33,19 +31,8 @@ class DateIntervalType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        $spec = null;
-        if ($value !== null) {
-            /** @var \DateInterval $value */
-            $spec = str_pad($value->y, 4, '0', STR_PAD_LEFT) . '-'
-                . $value->format('%M') . '-'
-                . $value->format('%D') . ' '
-                . $value->format('%H') . ':'
-                . $value->format('%I') . ':'
-                . $value->format('%S')
-            ;
-        }
-
-        return $spec;
+        return ($value !== null)
+            ? $value->format('P%yY%mM%dDT%hH%iM%sS') : null;
     }
 
     /**
@@ -57,13 +44,10 @@ class DateIntervalType extends Type
             return $value;
         }
 
-        if (preg_match(self::DATEINTERVAL_PATTERN, $value, $parts) !== 1) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), 'Y-m-d H:i:s');
-        }
         try {
-            $interval = new \DateInterval('P' . $parts['date'] . 'T' . $parts['time']);
+            $interval = new \DateInterval($value);
         } catch (\Exception $e) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), 'PY-m-dTH:i:s');
+            throw ConversionException::conversionFailedFormat($value, $this->getName(), 'PxYxMxDTxHxMxS');
 
         }
 
