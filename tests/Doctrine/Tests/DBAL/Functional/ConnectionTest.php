@@ -209,6 +209,14 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         });
     }
 
+    public function testTransactionalReturnValue()
+    {
+        $res = $this->_conn->transactional(function($conn) {
+            return 42;
+        });
+        $this->assertEquals(42, $res);
+    }
+
     /**
      * Tests that the quote function accepts DBAL and PDO types.
      */
