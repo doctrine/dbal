@@ -18,10 +18,10 @@ env:
   - DB=mysqli
 
 before_install:
-  - composer self-update
+  - travis_retry composer self-update
 
 install:
-  - composer update --prefer-source
+  - travis_retry composer update --prefer-source
 
 before_script:
   - if [ '$DB' = 'pgsql' ]; then sudo service postgresql stop; sudo service postgresql start $POSTGRESQL_VERSION; fi
