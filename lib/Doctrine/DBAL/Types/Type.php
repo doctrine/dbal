@@ -291,10 +291,11 @@ abstract class Type
      *
      * @param string                                    $sqlExpr
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     * @param string                                    $columnName
      *
      * @return string
      */
-    public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform)
+    public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform, $columnName = null)
     {
         return $sqlExpr;
     }
