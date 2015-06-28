@@ -77,6 +77,10 @@ class ColumnDiff
      */
     public function getOldColumnName()
     {
-        return new Identifier($this->oldColumnName);
+        if ($this->column->isQuoted()) {
+            return new Identifier('"' . $this->oldColumnName . '"');
+        } else {
+            return new Identifier($this->oldColumnName);
+        }
     }
 }
