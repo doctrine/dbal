@@ -375,7 +375,15 @@ abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareCon
                     break;
                 }
         }
-        $result .= ($this->attrDcTransWait > 0) ? ' WAIT ' : ' NO WAIT';
+
+        if (($this->attrDcTransWait > 0)) {
+            $result .= ' WAIT LOCK TIMEOUT ' . $this->attrDcTransWait;
+        } elseif  (($this->attrDcTransWait === -1)) {
+            $result .= ' WAIT';
+        } else {
+            $result .= ' NO WAIT';
+        }
+
         return $result;
     }
 
