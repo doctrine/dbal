@@ -106,4 +106,18 @@ class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
             ->expects($this->exactly(1))
             ->method('fetchAll');
     }
+
+    public function testStatementsWithFetchResultPrintsResult()
+    {
+        $this->expectConnectionFetchAll();
+
+        $this->commandTester->execute(array(
+            'command' => $this->command->getName(),
+            'sql' => '"WITH bar as (SELECT 1) SELECT * FROM bar',
+            '--fetch-result' => true,
+        ));
+
+        $this->assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
+        $this->assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+    }
 }
