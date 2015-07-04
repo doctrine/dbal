@@ -3,7 +3,6 @@ logs/
 reports/
 dist/
 download/
-lib/Doctrine/Common/
 vendor/
 *.phpunit.xml
 composer.lock
