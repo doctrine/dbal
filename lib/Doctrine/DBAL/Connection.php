@@ -1590,7 +1590,7 @@ class Connection implements DriverConnection
         }
 
         try {
-            $this->query($this->platform->getDummySelectSQL());
+            $this->query($this->getDatabasePlatform()->getDummySelectSQL());
 
             return true;
         } catch (DBALException $e) {
