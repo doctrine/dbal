@@ -18,6 +18,7 @@ env:
   - DB=mysqli
 
 before_install:
+  - sudo sh -c "echo 'precedence ::ffff:0:0/96 100' >> /etc/gai.conf"
   - composer self-update
 
 install:
