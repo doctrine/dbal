@@ -60,7 +60,7 @@ class SQLServerPlatform extends AbstractPlatform
                 if ($c == ')') {
                     $openBrackets--;
                 } else {
-                    if (($openBrackets == 0) && (strtoupper(substr($query, $i, 6) == ' FROM '))) {
+                    if (($openBrackets == 0) && (strtoupper(substr($query, $i, 6)) == ' FROM ')) {
                         return substr($query, 0, $i) . $prepend . substr($query, $i);
                     }
                 }
