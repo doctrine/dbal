@@ -44,3 +44,5 @@ matrix:
 
 addons:
   postgresql: '9.4'
+
+sudo: false
