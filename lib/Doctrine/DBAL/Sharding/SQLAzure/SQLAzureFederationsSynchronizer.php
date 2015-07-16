@@ -290,7 +290,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     private function getCreateFederationStatement()
     {
         $federationType = Type::getType($this->shardManager->getDistributionType());
-        $federationTypeSql = $federationType->getSqlDeclaration(array(), $this->conn->getDatabasePlatform());
+        $federationTypeSql = $federationType->getSQLDeclaration(array(), $this->conn->getDatabasePlatform());
 
         return "--Create Federation\n" .
                "CREATE FEDERATION " . $this->shardManager->getFederationName() . " (" . $this->shardManager->getDistributionKey() . " " . $federationTypeSql ."  RANGE)";

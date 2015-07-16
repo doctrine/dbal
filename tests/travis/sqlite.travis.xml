@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit>
+<phpunit bootstrap="../Doctrine/Tests/TestInit.php">
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
-            <directory>./../Doctrine/Tests/DBAL</directory>
+            <directory>../Doctrine/Tests/DBAL</directory>
         </testsuite>
     </testsuites>
     <groups>

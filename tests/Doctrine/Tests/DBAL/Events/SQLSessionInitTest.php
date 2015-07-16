@@ -7,8 +7,6 @@ use Doctrine\DBAL\Event\Listeners\SQLSessionInit;
 use Doctrine\DBAL\Events;
 use Doctrine\Tests\DbalTestCase;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 /**
  * @group DBAL-169
  */

@@ -20,7 +20,6 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;

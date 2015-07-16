@@ -218,9 +218,10 @@ final class DriverManager
      *
      * @param array $params The list of parameters.
      *
-     * @param array A modified list of parameters with info from a database
-     *              URL extracted into indidivual parameter parts.
+     * @return array A modified list of parameters with info from a database
+     *               URL extracted into indidivual parameter parts.
      *
+     * @throws DBALException
      */
     private static function parseDatabaseUrl(array $params)
     {

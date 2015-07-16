@@ -26,9 +26,12 @@
     "autoload": {
         "psr-0": { "Doctrine\\DBAL\\": "lib/" }
     },
+    "autoload-dev": {
+        "psr-0": { "Doctrine\\Tests\\": "tests/" }
+    },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.5.x-dev"
+            "dev-master": "2.6.x-dev"
         }
     },
     "archive": {

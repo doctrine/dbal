@@ -783,4 +783,13 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             'ALTER INDEX idx_foo RENAME TO idx_foo_renamed',
         );
     }
+
+    /**
+     * @group DBAL-1142
+     */
+    public function testInitializesTsvectorTypeMapping()
+    {
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('tsvector'));
+        $this->assertEquals('text', $this->_platform->getDoctrineTypeMapping('tsvector'));
+    }
 }

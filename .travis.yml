@@ -5,14 +5,15 @@ php:
   - 5.4
   - 5.5
   - 5.6
+  - 7.0
   - hhvm
-  - hhvm-nightly
 
 env:
   - DB=mysql
   - DB=pgsql POSTGRESQL_VERSION=9.1
   - DB=pgsql POSTGRESQL_VERSION=9.2
   - DB=pgsql POSTGRESQL_VERSION=9.3
+  - DB=pgsql POSTGRESQL_VERSION=9.4
   - DB=sqlite
   - DB=mysqli
 
@@ -23,41 +24,23 @@ install:
   - composer update --prefer-source
 
 before_script:
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'DROP DATABASE IF EXISTS doctrine_tests;' -U postgres; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'DROP DATABASE IF EXISTS doctrine_tests_tmp;' -U postgres; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database doctrine_tests;' -U postgres; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database doctrine_tests_tmp;' -U postgres; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then sudo service postgresql stop; sudo service postgresql start $POSTGRESQL_VERSION; fi"
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database IF NOT EXISTS doctrine_tests_tmp;create database IF NOT EXISTS doctrine_tests;'; fi"
-  - sh -c "if [ '$DB' = 'mysqli' ]; then mysql -e 'create database IF NOT EXISTS doctrine_tests_tmp;create database IF NOT EXISTS doctrine_tests;'; fi"
+  - if [ '$DB' = 'pgsql' ]; then sudo service postgresql stop; sudo service postgresql start $POSTGRESQL_VERSION; fi
 
 script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 
 matrix:
   allow_failures:
-      - php: hhvm
-        env: DB=pgsql POSTGRESQL_VERSION=9.1
-      - php: hhvm
-        env: DB=pgsql POSTGRESQL_VERSION=9.2
-      - php: hhvm
-        env: DB=pgsql POSTGRESQL_VERSION=9.3
-      - php: hhvm
-        env: DB=sqlite
-      - php: hhvm
-        env: DB=mysql
-      - php: hhvm
-        env: DB=mysqli
-      - php: hhvm-nightly
+    - php: 7.0
+    - php: hhvm
   exclude:
-      - php: hhvm
-        env: DB=pgsql POSTGRESQL_VERSION=9.1 # driver currently unsupported by HHVM
-      - php: hhvm
-        env: DB=pgsql POSTGRESQL_VERSION=9.2 # driver currently unsupported by HHVM
-      - php: hhvm
-        env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
-      - php: hhvm-nightly
-        env: DB=pgsql POSTGRESQL_VERSION=9.1 # driver currently unsupported by HHVM
-      - php: hhvm-nightly
-        env: DB=pgsql POSTGRESQL_VERSION=9.2 # driver currently unsupported by HHVM
-      - php: hhvm-nightly
-        env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
+    - php: hhvm
+      env: DB=pgsql POSTGRESQL_VERSION=9.1 # driver currently unsupported by HHVM
+    - php: hhvm
+      env: DB=pgsql POSTGRESQL_VERSION=9.2 # driver currently unsupported by HHVM
+    - php: hhvm
+      env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
+    - php: hhvm
+      env: DB=pgsql POSTGRESQL_VERSION=9.4 # driver currently unsupported by HHVM
+
+addons:
+  postgresql: '9.4'

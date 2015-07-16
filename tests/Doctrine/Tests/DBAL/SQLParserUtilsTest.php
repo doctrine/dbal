@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\SQLParserUtils;
 
-require_once __DIR__ . '/../TestInit.php';
-
 /**
  * @group DBAL-78
  * @group DDC-1372
@@ -40,13 +38,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT "Doctrine\DBAL?" FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
             array('SELECT `Doctrine\DBAL?` FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
             array('SELECT [Doctrine\DBAL?] FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
-            array(
-<<<'SQLDATA'
-SELECT * FROM foo WHERE bar = 'it\'s a trap? \\' OR bar = ?
-AND baz = "\"quote\" me on it? \\" OR baz = ?
-SQLDATA
-                , true, array(58, 104)
-            ),
+            array("SELECT * FROM FOO WHERE bar = 'it\\'s a trap? \\\\' OR bar = ?\nAND baz = \"\\\"quote\\\" me on it? \\\\\" OR baz = ?", true, array(58, 104)),
             array('SELECT * FROM foo WHERE foo = ? AND bar = ?', true, array(1 => 42, 0 => 30)), // explicit keys
 
             // named

@@ -1302,6 +1302,8 @@ class QueryBuilder
      * @param array  $knownAliases
      *
      * @return string
+     *
+     * @throws QueryException
      */
     private function getSQLForJoins($fromAlias, array &$knownAliases)
     {

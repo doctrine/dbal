@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class SmallIntTest extends \Doctrine\Tests\DbalTestCase
 {
     protected

@@ -405,7 +405,7 @@ using deserialization or ``null`` if no data is present.
 
 .. warning::
 
-    Because the build-in ``text`` type of PostgreSQL does not support NULL bytes,
+    Because the built-in ``text`` type of PostgreSQL does not support NULL bytes,
     the object type will cause deserialization errors on PostgreSQL. A workaround is
     to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()`` PHP objects and store
     them into a ``text`` field manually.
@@ -469,9 +469,9 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **SQLite**               | *all*   | ``INTEGER`` [16]_                                        |
 +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-| **decimal** [7]_  | ``string``    | **MySQL**                | *all*   | ``NUMERIC(p, s)``                                        |
-|                   | [9]_          +--------------------------+         |                                                          |
-|                   |               | **PostgreSQL**           |         |                                                          |
+| **decimal** [7]_  | ``string``    | **MySQL**                | *all*   | ``NUMERIC(p, s)`` ``UNSIGNED`` [10]_                     |
+|                   | [9]_          +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``NUMERIC(p, s)``                                        |
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **Oracle**               |         |                                                          |
 |                   |               +--------------------------+         |                                                          |
@@ -483,9 +483,9 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **Drizzle**              |         |                                                          |
 +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-| **float**         | ``float``     | **MySQL**                | *all*   | ``DOUBLE PRECISION``                                     |
-|                   |               +--------------------------+         |                                                          |
-|                   |               | **PostgreSQL**           |         |                                                          |
+| **float**         | ``float``     | **MySQL**                | *all*   | ``DOUBLE PRECISION`` ``UNSIGNED`` [10]_                  |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **PostgreSQL**           | *all*   | ``DOUBLE PRECISION``                                     |
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **Oracle**               |         |                                                          |
 |                   |               +--------------------------+         |                                                          |
@@ -820,7 +820,7 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
     {
         const MONEY = 'money'; // modify to match your type name
 
-        public function getSqlDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+        public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
         {
             return 'MyMoney';
         }

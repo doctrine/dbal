@@ -1203,4 +1203,54 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      * @return array
      */
     abstract protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL();
+
+    /**
+     * @group DBAL-1082
+     *
+     * @dataProvider getGeneratesDecimalTypeDeclarationSQL
+     */
+    public function testGeneratesDecimalTypeDeclarationSQL(array $column, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getDecimalTypeDeclarationSQL($column));
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratesDecimalTypeDeclarationSQL()
+    {
+        return array(
+            array(array(), 'NUMERIC(10, 0)'),
+            array(array('unsigned' => true), 'NUMERIC(10, 0)'),
+            array(array('unsigned' => false), 'NUMERIC(10, 0)'),
+            array(array('precision' => 5), 'NUMERIC(5, 0)'),
+            array(array('scale' => 5), 'NUMERIC(10, 5)'),
+            array(array('precision' => 8, 'scale' => 2), 'NUMERIC(8, 2)'),
+        );
+    }
+
+    /**
+     * @group DBAL-1082
+     *
+     * @dataProvider getGeneratesFloatDeclarationSQL
+     */
+    public function testGeneratesFloatDeclarationSQL(array $column, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getFloatDeclarationSQL($column));
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratesFloatDeclarationSQL()
+    {
+        return array(
+            array(array(), 'DOUBLE PRECISION'),
+            array(array('unsigned' => true), 'DOUBLE PRECISION'),
+            array(array('unsigned' => false), 'DOUBLE PRECISION'),
+            array(array('precision' => 5), 'DOUBLE PRECISION'),
+            array(array('scale' => 5), 'DOUBLE PRECISION'),
+            array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
+        );
+    }
 }

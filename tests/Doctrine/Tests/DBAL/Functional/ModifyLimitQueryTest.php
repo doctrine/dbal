@@ -2,8 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     private static $tableCreated = false;

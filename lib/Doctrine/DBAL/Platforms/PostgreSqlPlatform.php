@@ -504,7 +504,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                 $type = $column->getType();
 
                 // here was a server version check before, but DBAL API does not support this anymore.
-                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSqlDeclaration($column->toArray(), $this);
+                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($column->toArray(), $this);
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
@@ -517,7 +517,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             }
 
             if ($columnDiff->hasChanged('notnull')) {
-                $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotNull() ? 'SET' : 'DROP') . ' NOT NULL';
+                $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
@@ -546,7 +546,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             }
 
             if ($columnDiff->hasChanged('length')) {
-                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $column->getType()->getSqlDeclaration($column->toArray(), $this);
+                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $column->getType()->getSQLDeclaration($column->toArray(), $this);
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
         }
@@ -1071,6 +1071,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'bool'          => 'boolean',
             'boolean'       => 'boolean',
             'text'          => 'text',
+            'tsvector'      => 'text',
             'varchar'       => 'string',
             'interval'      => 'string',
             '_varchar'      => 'string',
