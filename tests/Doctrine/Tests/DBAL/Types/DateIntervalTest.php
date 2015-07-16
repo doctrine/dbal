@@ -21,7 +21,7 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
     {
         $interval = new \DateInterval('P2Y1DT1H2M3S');
 
-        $expected = '0002-00-01 01:02:03';
+        $expected = 'P0002-00-01T01:02:03';
         $actual = $this->_type->convertToDatabaseValue($interval, $this->_platform);
 
         $this->assertEquals($expected, $actual);
@@ -29,7 +29,7 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
 
     public function testDateIntervalConvertsToPHPValue()
     {
-        $date = $this->_type->convertToPHPValue('0002-00-01 01:02:03', $this->_platform);
+        $date = $this->_type->convertToPHPValue('P0002-00-01T01:02:03', $this->_platform);
         $this->assertInstanceOf('DateInterval', $date);
         $this->assertEquals('P2Y0M1DT1H2M3S', $date->format('P%yY%mM%dDT%hH%iM%sS'));
     }
