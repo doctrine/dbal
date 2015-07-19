@@ -73,11 +73,8 @@ full driver name::
 
     pdo-mysql://localhost:4486/foo?charset=UTF-8
 
-If you wanted to use the ``drizzle_pdo__mysql`` driver instead::
 
-    drizzle-pdo-mysql://localhost:4486/foo?charset=UTF-8
-
-In the two last example above, mind the dashes instead of the
+In the example above, mind the dashes instead of the
 underscores in the URL schemes.
 
 For connecting to an SQLite database, the authority portion of the
@@ -129,8 +126,6 @@ interfaces to use. It can be configured in one of three ways:
    following drivers are currently available:
 
    -  ``pdo_mysql``: A MySQL driver that uses the pdo\_mysql PDO
-      extension.
-   -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo\_mysql PDO
       extension.
    -  ``mysqli``: A MySQL driver that uses the mysqli extension.
    -  ``pdo_sqlite``: An SQLite driver that uses the pdo\_sqlite PDO
@@ -203,23 +198,6 @@ pdo\_mysql
 -  ``charset`` (string): The charset used when connecting to the
    database.
 
-drizzle\_pdo\_mysql
-^^^^^^^^^^^^^^^^^^^
-
-**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to be enabled.
-On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
-or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled daemon.
-
--  ``user`` (string): Username to use when connecting to the
-   database. Only needed if authentication is configured for drizzled.
--  ``password`` (string): Password to use when connecting to the
-   database. Only needed if authentication is configured for drizzled.
--  ``host`` (string): Hostname of the database to connect to.
--  ``port`` (integer): Port of the database to connect to.
--  ``dbname`` (string): Name of the database/schema to connect to.
--  ``unix_socket`` (string): Name of the socket used to connect to
-   the database.
-
 mysqli
 ^^^^^^
 
@@ -285,7 +263,7 @@ pdo\_oci / oci8
    database.
 -  ``instancename`` (string): Optional parameter, complete whether to
    add the INSTANCE_NAME parameter in the connection. It is generally used
-   to connect to an Oracle RAC server to select the name of a particular instance.   
+   to connect to an Oracle RAC server to select the name of a particular instance.
 
 
 pdo\_sqlsrv / sqlsrv

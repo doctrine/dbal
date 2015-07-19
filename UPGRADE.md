@@ -1,3 +1,10 @@
+# Upgrade to 2.6
+
+## BC BREAK: Drizzle support have been removed.
+
+Project is dead. Development have stopped and project pages like http://docs.drizzle.org/ has
+been down in a very long time.
+
 # Upgrade to 2.5.1
 
 ## MINOR BC BREAK: Doctrine\DBAL\Schema\Table
