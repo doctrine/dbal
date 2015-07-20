@@ -181,12 +181,17 @@ abstract class AbstractSchemaManager
      * Keys of the portable indexes list are all lower-cased.
      *
      * @param string $table The name of the table.
+     * @param string|null $database
      *
      * @return \Doctrine\DBAL\Schema\Index[]
      */
-    public function listTableIndexes($table)
+    public function listTableIndexes($table, $database = null)
     {
-        $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
+        if ( ! $database) {
+            $database = $this->_conn->getDatabase();
+        }
+
+        $sql = $this->_platform->getListTableIndexesSQL($table, $database);
 
         $tableIndexes = $this->_conn->fetchAll($sql);
 
@@ -273,17 +278,22 @@ abstract class AbstractSchemaManager
 
     /**
      * @param string $tableName
+     * @param string|null $database
      *
      * @return \Doctrine\DBAL\Schema\Table
      */
-    public function listTableDetails($tableName)
+    public function listTableDetails($tableName, $database = null)
     {
-        $columns = $this->listTableColumns($tableName);
+        if ( ! $database) {
+            $database = $this->_conn->getDatabase();
+        }
+
+        $columns = $this->listTableColumns($tableName, $database);
         $foreignKeys = array();
         if ($this->_platform->supportsForeignKeyConstraints()) {
-            $foreignKeys = $this->listTableForeignKeys($tableName);
+            $foreignKeys = $this->listTableForeignKeys($tableName, $database);
         }
-        $indexes = $this->listTableIndexes($tableName);
+        $indexes = $this->listTableIndexes($tableName, $database);
 
         return new Table($tableName, $columns, $indexes, $foreignKeys, false, array());
     }
