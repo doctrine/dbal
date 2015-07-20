@@ -870,6 +870,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
 
+    public function testGetRandomFunctionSQL()
+    {
+        $this->assertEquals('RAND()', $this->_platform->getRandomFunctionSQL());
+    }
+
     /**
      * {@inheritdoc}
      */

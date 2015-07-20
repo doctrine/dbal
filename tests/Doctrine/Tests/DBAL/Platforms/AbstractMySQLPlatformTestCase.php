@@ -196,6 +196,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $this->assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array()));
     }
 
+    public function testGetRandomFunctionSQL()
+    {
+        $this->assertEquals('RAND()', $this->_platform->getRandomFunctionSQL());
+    }
+
     public function getCreateTableColumnCommentsSQL()
     {
         return array("CREATE TABLE test (id INT NOT NULL COMMENT 'This is a comment', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB");

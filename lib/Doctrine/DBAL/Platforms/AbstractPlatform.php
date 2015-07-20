@@ -2661,6 +2661,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL specifier for the platform to get a random number
+     *
+     * @return string
+     */
+    public function getRandomFunctionSQL()
+    {
+        return 'RAND()';
+    }
+
+    /**
      * Returns the SQL for a given transaction isolation level Connection constant.
      *
      * @param integer $level

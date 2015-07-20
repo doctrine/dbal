@@ -466,6 +466,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getRandomFunctionSQL()
+    {
+        return 'random()';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getAdvancedForeignKeyOptionsSQL(ForeignKeyConstraint $foreignKey)
     {
         $query = parent::getAdvancedForeignKeyOptionsSQL($foreignKey);

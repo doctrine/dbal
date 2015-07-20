@@ -481,6 +481,14 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getRandomFunctionSQL()
+    {
+        return 'DBMS_RANDOM.VALUE';
+    }
+
+    /**
      * @param string  $name
      * @param string  $table
      * @param integer $start

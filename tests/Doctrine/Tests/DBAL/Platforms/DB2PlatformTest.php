@@ -624,6 +624,11 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testGetRandomFunctionSQL()
+    {
+        $this->assertEquals('RAND()', $this->_platform->getRandomFunctionSQL());
+    }
+
     /**
      * {@inheritdoc}
      */
