@@ -105,7 +105,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->createTable($table);
 
         $comparator = new Comparator();
-        $diffTable  = clone $table;
+        $diffTable = clone $table;
 
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(array('id'));
@@ -318,5 +318,120 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertArrayHasKey('col_unsigned', $columns);
         $this->assertFalse($columns['col']->getUnsigned());
         $this->assertTrue($columns['col_unsigned']->getUnsigned());
+    }
+
+    public function testListTableIndexes2Db()
+    {
+        $conn1 = $this->_conn;
+        $sm1 = $this->_sm;
+
+        $conn2 = \Doctrine\Tests\TestUtil::getTempConnection();
+        $sm2 = $conn2->getSchemaManager();
+
+        $table1 = new Table('test_list_table_indexes_2db_1');
+        $table1->addColumn('id', 'integer');
+        $table1->addColumn('name', 'string');
+        $table1->addColumn('param1', 'integer');
+        $table1->addColumn('created', 'datetime');
+        $table1->setPrimaryKey(array('id'));
+        $table1->addUniqueIndex(array('name'));
+        $table1->addIndex(array('param1'));
+        $indexes1 = $table1->getIndexes();
+        $sm1->dropAndCreateTable($table1);
+
+        $table2 = new Table('test_list_table_indexes_2db_2');
+        $table2->addColumn('id', 'integer');
+        $table2->addColumn('name', 'string');
+        $table2->addColumn('param2', 'integer');
+        $table2->addColumn('created', 'datetime');
+        $table2->setPrimaryKey(array('id'));
+        $table2->addUniqueIndex(array('name'));
+        $table2->addIndex(array('param2'));
+        $indexes2 = $table2->getIndexes();
+        $sm2->dropAndCreateTable($table2);
+
+        // listTableIndexes 1
+        $indexesFetched = $sm1->listTableIndexes($table1->getName());
+        $diff = array_diff(array_keys($indexes1), array_keys($indexesFetched));
+        $this->assertEmpty($diff, "indexes: no changes expected: 11");
+
+        $indexesFetched = $sm1->listTableIndexes($table1->getName(), $conn1->getDatabase());
+        $diff = array_diff(array_keys($indexes1), array_keys($indexesFetched));
+        $this->assertEmpty($diff, "indexes: no changes expected: 12");
+
+        $indexesFetched = $sm2->listTableIndexes($table1->getName(), $conn1->getDatabase());
+        $diff = array_diff(array_keys($indexes1), array_keys($indexesFetched));
+        $this->assertEmpty($diff, "indexes: no changes expected: 13");
+
+        // listTableIndexes 2
+        $indexesFetched = $sm2->listTableIndexes($table2->getName());
+        $diff = array_diff(array_keys($indexes2), array_keys($indexesFetched));
+        $this->assertEmpty($diff, "indexes: no changes expected: 21");
+
+        $indexesFetched = $sm2->listTableIndexes($table2->getName(), $conn2->getDatabase());
+        $diff = array_diff(array_keys($indexes2), array_keys($indexesFetched));
+        $this->assertEmpty($diff, "indexes: no changes expected: 22");
+
+        $indexesFetched = $sm1->listTableIndexes($table2->getName(), $conn2->getDatabase());
+        $diff = array_diff(array_keys($indexes2), array_keys($indexesFetched));
+        $this->assertEmpty($diff, "indexes: no changes expected: 23");
+    }
+
+    public function testListTableDetails2Db()
+    {
+        $conn1 = $this->_conn;
+        $sm1 = $this->_sm;
+
+        $conn2 = \Doctrine\Tests\TestUtil::getTempConnection();
+        $sm2 = $conn2->getSchemaManager();
+
+        $comparator = new \Doctrine\DBAL\Schema\Comparator();
+
+        $table1 = new Table('test_list_table_details_2db_1');
+        $table1->addColumn('id', 'integer');
+        $table1->addColumn('name', 'string');
+        $table1->addColumn('param1', 'integer');
+        $table1->addColumn('created', 'datetime');
+        $table1->setPrimaryKey(array('id'));
+        $table1->addUniqueIndex(array('name'));
+        $table1->addIndex(array('param1'));
+        $sm1->dropAndCreateTable($table1);
+
+        $table2 = new Table('test_list_table_details_2db_2');
+        $table2->addColumn('id', 'integer');
+        $table2->addColumn('name', 'string');
+        $table2->addColumn('param2', 'integer');
+        $table2->addColumn('created', 'datetime');
+        $table2->setPrimaryKey(array('id'));
+        $table2->addUniqueIndex(array('name'));
+        $table2->addIndex(array('param2'));
+        $sm2->dropAndCreateTable($table2);
+
+
+        // listTableDetails 1
+        $tableFetched = $sm1->listTableDetails($table1->getName());
+        $diff = $comparator->diffTable($tableFetched, $table1);
+        $this->assertFalse($diff, "tables: no changes expected: 11");
+
+        $tableFetched = $sm1->listTableDetails($table1->getName(), $conn1->getDatabase());
+        $diff = $comparator->diffTable($tableFetched, $table1);
+        $this->assertFalse($diff, "tables: no changes expected: 12");
+
+        $tableFetched = $sm2->listTableDetails($table1->getName(), $conn1->getDatabase());
+        $diff = $comparator->diffTable($tableFetched, $table1);
+        $this->assertFalse($diff, "tables: no changes expected: 13");
+
+        // listTableDetails 2
+        $tableFetched = $sm2->listTableDetails($table2->getName());
+        $diff = $comparator->diffTable($tableFetched, $table2);
+        $this->assertFalse($diff, "tables: no changes expected: 21");
+
+        $tableFetched = $sm2->listTableDetails($table2->getName(), $conn2->getDatabase());
+        $diff = $comparator->diffTable($tableFetched, $table2);
+        $this->assertFalse($diff, "tables: no changes expected: 22");
+
+        $tableFetched = $sm1->listTableDetails($table2->getName(), $conn2->getDatabase());
+        $diff = $comparator->diffTable($tableFetched, $table2);
+        $this->assertFalse($diff, "tables: no changes expected: 23");
     }
 }
