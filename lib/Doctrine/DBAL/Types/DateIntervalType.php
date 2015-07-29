@@ -22,6 +22,9 @@ class DateIntervalType extends Type
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
+        $fieldDeclaration['length'] = 20;
+        $fieldDeclaration['fixed']  = true;
+
         return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
     }
 
