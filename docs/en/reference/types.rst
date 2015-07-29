@@ -289,6 +289,15 @@ without date, time and timezone information, you should consider using this type
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
 
+dateinterval
+^^^^^^^^^^^^
+
+Maps and converts date and time difference data without timezone information.
+If you know that the data to be stored is the difference between two date and time values,
+you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``\DateInterval`` object
+or ``null`` if no data is present.
+
 .. note::
 
     See the `Known Vendor Issue <./known-vendor-issues>`_ section
