@@ -22,7 +22,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
- * Marker interface for contraints.
+ * Marker interface for constraints.
  *
  * @link   www.doctrine-project.org
  * @since  2.0
