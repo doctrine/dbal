@@ -69,6 +69,13 @@ class JsonArrayTest extends \Doctrine\Tests\DbalTestCase
         $this->assertSame($value, $phpValue);
     }
 
+    public function testConversionFailure()
+    {
+        error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
+        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->type->convertToPHPValue('{', $this->platform);
+    }
+
     public function testRequiresSQLCommentHint()
     {
         $this->assertTrue($this->type->requiresSQLCommentHint($this->platform));

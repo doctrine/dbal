@@ -63,8 +63,13 @@ class JsonArrayType extends Type
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
+        $val = json_decode($value, true);
 
-        return json_decode($value, true);
+        if ($val === null && json_last_error() !== 0) {
+            throw ConversionException::conversionFailed($value, $this->getName());
+        }
+
+        return $val;
     }
 
     /**
