@@ -368,6 +368,25 @@ using comma delimited ``explode()`` or ``null`` if no data is present.
     This basically means that every array item other than ``string``
     will loose its type awareness.
 
+json
+^^^^
+
+Maps and converts array data based on PHP's JSON encoding functions.
+If you know that the data to be stored always is in a valid UTF-8
+encoded JSON format string, you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``array`` or 
+``null`` types using PHP's ``json_decode()`` function.
+
+.. note::
+
+    Some vendors have a native JSON type and Doctrine will use it if possible
+    and otherwise silently fall back to the vendor's ``text`` type to ensure
+    the most efficient storage requirements.
+    If the vendor does not have a native JSON type, this type requires a SQL
+    column comment hint so that it can be reverse engineered from the database.
+    Doctrine cannot map back this type properly on vendors not supporting column
+    comments and will fall back to ``text`` type instead.
+
 json_array
 ^^^^^^^^^^
 
