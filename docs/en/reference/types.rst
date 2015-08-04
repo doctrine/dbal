@@ -390,6 +390,10 @@ Values retrieved from the database are always converted to PHP's ``array`` or
 json_array
 ^^^^^^^^^^
 
+.. warning::
+
+    This type is deprecated since 2.6, you should use ``json`` instead.
+
 Maps and converts array data based on PHP's JSON encoding functions.
 If you know that the data to be stored always is in a valid UTF-8
 encoded JSON format string, you should consider using this type.
