@@ -37,10 +37,13 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testInsert()
     {
-        $ret = $this->_conn->insert('blob_table',
+        $this->_conn->insert('blob_table',
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
             array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
+
+        $ret = $this->_conn->query('SELECT COUNT(*) FROM blob_table WHERE id = 1')->fetchColumn(0);
+
         $this->assertEquals(1, $ret);
     }
 

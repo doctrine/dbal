@@ -14,6 +14,11 @@ class PDOConnectionTest extends DbalFunctionalTestCase
      */
     protected $driverConnection;
 
+    /**
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
+     */
+    protected $platform;
+
     protected function setUp()
     {
         if ( ! extension_loaded('PDO')) {
@@ -23,6 +28,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         parent::setUp();
 
         $this->driverConnection = $this->_conn->getWrappedConnection();
+        $this->platform = $this->_conn->getDatabasePlatform();
 
         if ( ! $this->driverConnection instanceof PDOConnection) {
             $this->markTestSkipped('PDO connection only test.');
@@ -31,7 +37,20 @@ class PDOConnectionTest extends DbalFunctionalTestCase
 
     public function testDoesNotRequireQueryForServerVersion()
     {
+        if ( $this->platform->getName() == 'informix' ) {
+            $this->markTestSkipped('This test does not apply to PDO_INFORMIX');
+        }
+
         $this->assertFalse($this->driverConnection->requiresQueryForServerVersion());
+    }
+
+    public function testRequireQueryForServerVersion()
+    {
+        if ( $this->platform->getName() != 'informix' ) {
+            $this->markTestSkipped('This test only applies to PDO_INFORMIX');
+        }
+
+        $this->assertTrue($this->driverConnection->requiresQueryForServerVersion());
     }
 
     /**

@@ -49,6 +49,7 @@ final class DriverManager
          'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
          'sqlanywhere'        => 'Doctrine\DBAL\Driver\SQLAnywhere\Driver',
          'sqlsrv'             => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
+         'pdo_informix'       => 'Doctrine\DBAL\Driver\PDOInformix\Driver',
     );
 
     /**
@@ -56,6 +57,7 @@ final class DriverManager
      */
     private static $driverSchemeAliases = array(
         'db2'        => 'ibm_db2',
+        'informix'   => 'pdo_informix',
         'mssql'      => 'pdo_sqlsrv',
         'mysql'      => 'pdo_mysql',
         'mysql2'     => 'pdo_mysql', // Amazon RDS, for some weird reason
@@ -93,6 +95,7 @@ final class DriverManager
      *     sqlsrv
      *     ibm_db2 (unstable)
      *     drizzle_pdo_mysql
+     *     pdo_informix
      *
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.

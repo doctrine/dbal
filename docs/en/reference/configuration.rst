@@ -57,6 +57,7 @@ with a hyphen (to make them legal in URL scheme names), or one of the
 following simplified driver names that serve as aliases:
 
 -  ``db2``: alias for ``ibm_db2``
+-  ``informix``: alias for ``pdo_informix``
 -  ``mssql``: alias for ``pdo_sqlsrv``
 -  ``mysql``/``mysql2``: alias for ``pdo_mysql``
 -  ``pgsql``/``postgres``/``postgresql``: alias for ``pdo_pgsql``
@@ -145,6 +146,7 @@ interfaces to use. It can be configured in one of three ways:
    -  ``sqlsrv``: A Microsoft SQL Server driver that uses the sqlsrv PHP extension.
    -  ``oci8``: An Oracle driver that uses the oci8 PHP extension.
    -  ``sqlanywhere``: A SAP Sybase SQL Anywhere driver that uses the sqlanywhere PHP extension.
+   -  ``pdo_informix``: A IBM Informix driver that uses the pdo\_informix PDO extension.
 
 -  ``driverClass``: Specifies a custom driver implementation if no
    'driver' is specified. This allows the use of custom drivers that
@@ -326,6 +328,21 @@ platform version here:
 - `SQL Anywhere 12.0.0 <http://dcx.sybase.com/index.html#1200/en/dbadmin/da-conparm.html>`_
 - `SQL Anywhere 12.0.1 <http://dcx.sybase.com/index.html#1201/en/dbadmin/da-conparm.html>`_
 - `SAP Sybase SQL Anywhere 16.0 <http://dcx.sybase.com/index.html#sa160/en/dbadmin/da-conparm.html>`_
+
+pdo\_informix
+^^^^^^^^^^^^^
+
+
+-  ``user`` (string): Username to use when connecting to the
+   database.
+-  ``password`` (string): Password to use when connecting to the
+   database.
+-  ``server`` (string): Name of a running database server to connect to.
+-  ``host`` (string): Hostname of the database to connect to.
+-  ``port`` (integer): The port of the database to connecto to (optional,
+   some protocols do not use port, e.g. ipcshm).
+-  ``dbname`` (string): Name of the database to connect to.
+-  ``protocol`` (string): The protocol to use in the connection.
 
 Automatic platform version detection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
