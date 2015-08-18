@@ -129,6 +129,54 @@ class PoolingShardConnection extends Connection
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getParams()
+    {
+        return $this->activeShardId ? $this->connections[$this->activeShardId] : parent::getParams();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHost()
+    {
+        $params = $this->getParams();
+
+        return isset($params['host']) ? $params['host'] : parent::getHost();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPort()
+    {
+        $params = $this->getParams();
+
+        return isset($params['port']) ? $params['port'] : parent::getPort();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUsername()
+    {
+        $params = $this->getParams();
+
+        return isset($params['user']) ? $params['user'] : parent::getUsername();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPassword()
+    {
+        $params = $this->getParams();
+
+        return isset($params['password']) ? $params['password'] : parent::getPassword();
+    }
+
+    /**
      * Connects to a given shard.
      *
      * @param mixed $shardId
