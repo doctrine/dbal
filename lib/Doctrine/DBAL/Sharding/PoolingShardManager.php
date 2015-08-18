@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Sharding;
 
+use Doctrine\DBAL\Sharding\ShardChoser\ShardChoser;
+
 /**
  * Shard Manager for the Connection Pooling Shard Strategy
  *
@@ -27,12 +29,12 @@ namespace Doctrine\DBAL\Sharding;
 class PoolingShardManager implements ShardManager
 {
     /**
-     * @var \Doctrine\DBAL\Sharding\PoolingShardConnection
+     * @var PoolingShardConnection
      */
     private $conn;
 
     /**
-     * @var \Doctrine\DBAL\Sharding\ShardChoser\ShardChoser
+     * @var ShardChoser
      */
     private $choser;
 
@@ -42,7 +44,7 @@ class PoolingShardManager implements ShardManager
     private $currentDistributionValue;
 
     /**
-     * @param \Doctrine\DBAL\Sharding\PoolingShardConnection $conn
+     * @param PoolingShardConnection $conn
      */
     public function __construct(PoolingShardConnection $conn)
     {
