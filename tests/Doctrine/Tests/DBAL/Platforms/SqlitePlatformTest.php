@@ -31,7 +31,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesSqlSnippets()
     {
-        $this->assertEquals('RLIKE', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
+        $this->assertEquals('REGEXP', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
         $this->assertEquals('SUBSTR(column, 5, LENGTH(column))', $this->_platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
         $this->assertEquals('SUBSTR(column, 0, 5)', $this->_platform->getSubstringExpression('column', 0, 5), 'Substring expression with length is not correct');
     }
