@@ -13,7 +13,6 @@ Powerful database abstraction layer with many features for database schema intro
 * [Website](http://www.doctrine-project.org/projects/dbal.html)
 * [Documentation](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/)
 * [Issue Tracker](http://www.doctrine-project.org/jira/browse/DBAL)
-* [Downloads](http://github.com/doctrine/dbal/downloads)
 
 
   [Master image]: https://img.shields.io/travis/doctrine/dbal/master.svg?style=flat-square
