@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
 
@@ -372,6 +373,23 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
+    public function testJsonbColumn()
+    {
+        if (!$this->_sm->getDatabasePlatform() instanceof PostgreSQL94Platform) {
+            $this->markTestSkipped("Requires PostgresSQL 9.4+");
+            return;
+        }
+
+        $table = new Schema\Table('test_jsonb');
+        $table->addColumn('foo', 'json_array')->setPlatformOption('jsonb', true);
+        $this->_sm->dropAndCreateTable($table);
+
+        /** @var Schema\Column[] $columns */
+        $columns = $this->_sm->listTableColumns('test_jsonb');
+
+        $this->assertEquals('json_array', $columns['foo']->getType()->getName());
+        $this->assertEquals(true, $columns['foo']->getPlatformOption('jsonb'));
+    }
 }
 
 class MoneyType extends Type
