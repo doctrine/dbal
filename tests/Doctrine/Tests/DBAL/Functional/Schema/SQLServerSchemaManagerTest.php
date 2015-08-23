@@ -53,7 +53,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals($collation, $columns[$columnName]->getPlatformOption('collation'));
     }
 
-    public function testDefaultContraints()
+    public function testDefaultConstraints()
     {
         $table = new Table('sqlsrv_default_constraints');
         $table->addColumn('no_default', 'string');
@@ -179,7 +179,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('comment_float_0', 'integer', array('comment' => 0.0));
         $table->addColumn('comment_string_0', 'integer', array('comment' => '0'));
         $table->addColumn('comment', 'integer', array('comment' => 'Doctrine 0wnz you!'));
-        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitely quoted columns!'));
+        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'));
         $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
@@ -197,7 +197,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('0', $columns['comment_float_0']->getComment());
         $this->assertEquals('0', $columns['comment_string_0']->getComment());
         $this->assertEquals('Doctrine 0wnz you!', $columns['comment']->getComment());
-        $this->assertEquals('Doctrine 0wnz comments for explicitely quoted columns!', $columns['comment_quoted']->getComment());
+        $this->assertEquals('Doctrine 0wnz comments for explicitly quoted columns!', $columns['comment_quoted']->getComment());
         $this->assertEquals('Doctrine 0wnz comments for reserved keyword columns!', $columns['[create]']->getComment());
         $this->assertNull($columns['commented_type']->getComment());
         $this->assertEquals('Doctrine array type.', $columns['commented_type_with_comment']->getComment());

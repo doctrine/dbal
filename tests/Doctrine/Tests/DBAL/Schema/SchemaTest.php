@@ -24,7 +24,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($schema->hasTable($tableName));
     }
 
-    public function testTableMatchingCaseInsenstive()
+    public function testTableMatchingCaseInsensitive()
     {
         $table = new Table("Foo");
 

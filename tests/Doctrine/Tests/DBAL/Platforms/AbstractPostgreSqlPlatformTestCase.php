@@ -303,7 +303,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      * @dataProvider pgBooleanProvider
      *
      * @param string $databaseValue
-     * @param string $prepareStatementValue
+     * @param string $preparedStatementValue
      * @param integer $integerValue
      * @param boolean $booleanValue
      */
@@ -338,7 +338,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      * @dataProvider pgBooleanProvider
      *
      * @param string $databaseValue
-     * @param string $prepareStatementValue
+     * @param string $preparedStatementValue
      * @param integer $integerValue
      * @param boolean $booleanValue
      */
