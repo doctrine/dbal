@@ -56,7 +56,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
-    public function testForeignKeyContraintViolationExceptionOnInsert()
+    public function testForeignKeyConstraintViolationExceptionOnInsert()
     {
         if ( ! $this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped("Only fails on platforms with foreign key constraints.");
@@ -80,7 +80,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->tearDownForeignKeyConstraintViolationExceptionTest();
     }
 
-    public function testForeignKeyContraintViolationExceptionOnUpdate()
+    public function testForeignKeyConstraintViolationExceptionOnUpdate()
     {
         if ( ! $this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped("Only fails on platforms with foreign key constraints.");
@@ -104,7 +104,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->tearDownForeignKeyConstraintViolationExceptionTest();
     }
 
-    public function testForeignKeyContraintViolationExceptionOnDelete()
+    public function testForeignKeyConstraintViolationExceptionOnDelete()
     {
         if ( ! $this->_conn->getDatabasePlatform()->supportsForeignKeyConstraints()) {
             $this->markTestSkipped("Only fails on platforms with foreign key constraints.");
@@ -128,7 +128,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->tearDownForeignKeyConstraintViolationExceptionTest();
     }
 
-    public function testForeignKeyContraintViolationExceptionOnTruncate()
+    public function testForeignKeyConstraintViolationExceptionOnTruncate()
     {
         $platform = $this->_conn->getDatabasePlatform();
 

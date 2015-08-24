@@ -570,7 +570,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertSchemaTableChangeCount($diff, 1, 0, 1);
     }
 
-    public function testSequencesCaseInsenstive()
+    public function testSequencesCaseInsensitive()
     {
         $schemaA = new Schema();
         $schemaA->createSequence('foo');
@@ -680,7 +680,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * You can easily have ambiguouties in the column renaming. If these
+     * You can easily have ambiguities in the column renaming. If these
      * are detected no renaming should take place, instead adding and dropping
      * should be used exclusively.
      *
@@ -700,7 +700,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, count($tableDiff->addedColumns), "'baz' should be added, not created through renaming!");
         $this->assertArrayHasKey('baz', $tableDiff->addedColumns, "'baz' should be added, not created through renaming!");
-        $this->assertEquals(2, count($tableDiff->removedColumns), "'foo' and 'bar' should both be dropped, an ambigouty exists which one could be renamed to 'baz'.");
+        $this->assertEquals(2, count($tableDiff->removedColumns), "'foo' and 'bar' should both be dropped, an ambiguity exists which one could be renamed to 'baz'.");
         $this->assertArrayHasKey('foo', $tableDiff->removedColumns, "'foo' should be removed.");
         $this->assertArrayHasKey('bar', $tableDiff->removedColumns, "'bar' should be removed.");
         $this->assertEquals(0, count($tableDiff->renamedColumns), "no renamings should take place.");
@@ -840,7 +840,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @group DBAL-204
      */
-    public function testFqnSchemaComparision()
+    public function testFqnSchemaComparison()
     {
         $config = new SchemaConfig();
         $config->setName("foo");
@@ -887,7 +887,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @group DBAL-204
      */
-    public function testFqnSchemaComparisionDifferentSchemaNameButSameTableNoDiff()
+    public function testFqnSchemaComparisonDifferentSchemaNameButSameTableNoDiff()
     {
         $config = new SchemaConfig();
         $config->setName("foo");
@@ -907,7 +907,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @group DBAL-204
      */
-    public function testFqnSchemaComparisionNoSchemaSame()
+    public function testFqnSchemaComparisonNoSchemaSame()
     {
         $config = new SchemaConfig();
         $config->setName("foo");
@@ -926,7 +926,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @group DDC-1657
      */
-    public function testAutoIncremenetSequences()
+    public function testAutoIncrementSequences()
     {
         $oldSchema = new Schema();
         $table = $oldSchema->createTable("foo");
@@ -950,7 +950,7 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
      * Check that added autoincrement sequence is not populated in newSequences
      * @group DBAL-562
      */
-    public function testAutoIncremenetNoSequences()
+    public function testAutoIncrementNoSequences()
     {
         $oldSchema = new Schema();
         $table = $oldSchema->createTable("foo");
