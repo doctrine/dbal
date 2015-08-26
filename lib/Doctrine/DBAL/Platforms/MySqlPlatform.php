@@ -189,10 +189,9 @@ class MySqlPlatform extends AbstractPlatform
                "  c.constraint_name = k.constraint_name AND ".
                "  c.table_name = '$table' */ WHERE k.table_name = '$table'";
 
-        if ($database) {
-            $sql .= " AND k.table_schema = '$database' /*!50116 AND c.constraint_schema = '$database' */";
-        }
+        $databaseNameSql = null === $database ? "'$database'" : 'DATABASE()';
 
+        $sql .= " AND k.table_schema = $databaseNameSql /*!50116 AND c.constraint_schema = $databaseNameSql */";
         $sql .= " AND k.`REFERENCED_COLUMN_NAME` is not NULL";
 
         return $sql;
@@ -1044,7 +1043,7 @@ class MySqlPlatform extends AbstractPlatform
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         } elseif (!is_string($table)) {
-            throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+            throw new \InvalidArgumentException('getDropTemporaryTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
         return 'DROP TEMPORARY TABLE ' . $table;

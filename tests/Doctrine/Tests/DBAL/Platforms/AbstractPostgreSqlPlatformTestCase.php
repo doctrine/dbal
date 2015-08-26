@@ -303,7 +303,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      * @dataProvider pgBooleanProvider
      *
      * @param string $databaseValue
-     * @param string $prepareStatementValue
+     * @param string $preparedStatementValue
      * @param integer $integerValue
      * @param boolean $booleanValue
      */
@@ -338,7 +338,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      * @dataProvider pgBooleanProvider
      *
      * @param string $databaseValue
-     * @param string $prepareStatementValue
+     * @param string $preparedStatementValue
      * @param integer $integerValue
      * @param boolean $booleanValue
      */
@@ -791,5 +791,27 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('tsvector'));
         $this->assertEquals('text', $this->_platform->getDoctrineTypeMapping('tsvector'));
+    }
+
+    /**
+     * @group DBAL-1220
+     */
+    public function testReturnsDisallowDatabaseConnectionsSQL()
+    {
+        $this->assertSame(
+            "UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'foo'",
+            $this->_platform->getDisallowDatabaseConnectionsSQL('foo')
+        );
+    }
+
+    /**
+     * @group DBAL-1220
+     */
+    public function testReturnsCloseActiveDatabaseConnectionsSQL()
+    {
+        $this->assertSame(
+            "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = 'foo'",
+            $this->_platform->getCloseActiveDatabaseConnectionsSQL('foo')
+        );
     }
 }

@@ -17,59 +17,38 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver;
+namespace Doctrine\DBAL\Platforms\Keywords;
 
 /**
- * Abstract base implementation of the {@link DriverException} interface.
+ * PostgreSQL 9.4 reserved keywords list.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
+ * @author Matteo Beccati <matteo@beccati.com>
  * @link   www.doctrine-project.org
- * @since  2.5
+ * @since  2.6
  */
-abstract class AbstractDriverException extends \Exception implements DriverException
+class PostgreSQL94Keywords extends PostgreSQL92Keywords
 {
     /**
-     * The driver specific error code.
-     *
-     * @var integer|string|null
+     * {@inheritdoc}
      */
-    private $errorCode;
-
-    /**
-     * The SQLSTATE of the driver.
-     *
-     * @var string|null
-     */
-    private $sqlState;
-
-    /**
-     * Constructor.
-     *
-     * @param string              $message   The driver error message.
-     * @param string|null         $sqlState  The SQLSTATE the driver is in at the time the error occurred, if any.
-     * @param integer|string|null $errorCode The driver specific error code if any.
-     */
-    public function __construct($message, $sqlState = null, $errorCode = null)
+    public function getName()
     {
-        parent::__construct($message);
-
-        $this->errorCode = $errorCode;
-        $this->sqlState  = $sqlState;
+        return 'PostgreSQL94';
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @link http://www.postgresql.org/docs/9.4/static/sql-keywords-appendix.html
      */
-    public function getErrorCode()
+    protected function getKeywords()
     {
-        return $this->errorCode;
-    }
+        $parentKeywords = array_diff(parent::getKeywords(), array(
+            'OVER',
+        ));
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSQLState()
-    {
-        return $this->sqlState;
+        return array_merge($parentKeywords, array(
+            'LATERAL',
+        ));
     }
 }

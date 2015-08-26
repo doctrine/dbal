@@ -63,7 +63,11 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
             array('9.2', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'),
             array('9.2.0', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'),
             array('9.2.1', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'),
-            array('10', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'),
+            array('9.3.6', 'Doctrine\DBAL\Platforms\PostgreSQL92Platform'),
+            array('9.4', 'Doctrine\DBAL\Platforms\PostgreSQL94Platform'),
+            array('9.4.0', 'Doctrine\DBAL\Platforms\PostgreSQL94Platform'),
+            array('9.4.1', 'Doctrine\DBAL\Platforms\PostgreSQL94Platform'),
+            array('10', 'Doctrine\DBAL\Platforms\PostgreSQL94Platform'),
         );
     }
 

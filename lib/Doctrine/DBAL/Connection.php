@@ -1093,7 +1093,7 @@ class Connection implements DriverConnection
      *
      * @param \Closure $func The function to execute transactionally.
      *
-     * @return void
+     * @return mixed The value returned by $func
      *
      * @throws \Exception
      */
@@ -1101,8 +1101,9 @@ class Connection implements DriverConnection
     {
         $this->beginTransaction();
         try {
-            $func($this);
+            $res = $func($this);
             $this->commit();
+            return $res;
         } catch (Exception $e) {
             $this->rollBack();
             throw $e;
@@ -1590,7 +1591,7 @@ class Connection implements DriverConnection
         }
 
         try {
-            $this->query($this->platform->getDummySelectSQL());
+            $this->query($this->getDatabasePlatform()->getDummySelectSQL());
 
             return true;
         } catch (DBALException $e) {

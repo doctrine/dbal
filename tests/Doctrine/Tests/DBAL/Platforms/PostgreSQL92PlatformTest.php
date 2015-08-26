@@ -56,4 +56,15 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
         $this->assertEquals('json_array', $this->_platform->getDoctrineTypeMapping('json'));
     }
+
+    /**
+     * @group DBAL-1220
+     */
+    public function testReturnsCloseActiveDatabaseConnectionsSQL()
+    {
+        $this->assertSame(
+            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foo'",
+            $this->_platform->getCloseActiveDatabaseConnectionsSQL('foo')
+        );
+    }
 }

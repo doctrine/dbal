@@ -533,11 +533,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('2010-01-08', date('Y-m-d', strtotime($row['add_weeks'])), "Adding week should end up on 2010-01-08");
         $this->assertEquals('2009-12-25', date('Y-m-d', strtotime($row['sub_weeks'])), "Subtracting week should end up on 2009-12-25");
         $this->assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");
-        $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Substracting month should end up on 2009-11-01");
+        $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Subtracting month should end up on 2009-11-01");
         $this->assertEquals('2010-10-01', date('Y-m-d', strtotime($row['add_quarters'])), "Adding quarters should end up on 2010-04-01");
-        $this->assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), "Substracting quarters should end up on 2009-10-01");
+        $this->assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), "Subtracting quarters should end up on 2009-10-01");
         $this->assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])), "Adding years should end up on 2016-01-01");
-        $this->assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), "Substracting years should end up on 2004-01-01");
+        $this->assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), "Subtracting years should end up on 2004-01-01");
     }
 
     public function testLocateExpression()

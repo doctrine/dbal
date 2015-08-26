@@ -20,40 +20,24 @@
 namespace Doctrine\DBAL\Platforms;
 
 /**
- * Provides the behavior, features and SQL dialect of the PostgreSQL 9.2 database platform.
+ * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4 database platform.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
+ * @author Matteo Beccati <matteo@beccati.com>
  * @link   www.doctrine-project.org
- * @since  2.5
+ * @since  2.6
  */
-class PostgreSQL92Platform extends PostgreSQL91Platform
+class PostgreSQL94Platform extends PostgreSQL92Platform
 {
     /**
      * {@inheritdoc}
      */
     public function getJsonTypeDeclarationSQL(array $field)
     {
-        return 'JSON';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSmallIntTypeDeclarationSQL(array $field)
-    {
-        if ( ! empty($field['autoincrement'])) {
-            return 'SMALLSERIAL';
+        if (!empty($field['jsonb'])) {
+            return 'JSONB';
         }
 
-        return parent::getSmallIntTypeDeclarationSQL($field);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasNativeJsonType()
-    {
-        return true;
+        return 'JSON';
     }
 
     /**
@@ -61,7 +45,7 @@ class PostgreSQL92Platform extends PostgreSQL91Platform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords';
+        return 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords';
     }
 
     /**
@@ -70,14 +54,6 @@ class PostgreSQL92Platform extends PostgreSQL91Platform
     protected function initializeDoctrineTypeMappings()
     {
         parent::initializeDoctrineTypeMappings();
-        $this->doctrineTypeMapping['json'] = 'json_array';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCloseActiveDatabaseConnectionsSQL($database)
-    {
-        return "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$database'";
+        $this->doctrineTypeMapping['jsonb'] = 'json_array';
     }
 }
