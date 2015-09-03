@@ -114,12 +114,17 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
         $foreignKeys = array();
+        $defaultSchema = $this->getDefaultSchemaName();
 
         foreach ($tableForeignKeys as $tableForeignKey) {
             if ( ! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
                 $foreignKeys[$tableForeignKey['ForeignKey']] = array(
                     'local_columns' => array($this->quoteIncomingIdentifier($tableForeignKey['ColumnName'])),
-                    'foreign_table' => $this->quoteIncomingIdentifier($tableForeignKey['ReferenceTableName']),
+                    'foreign_table' => (
+                        $tableForeignKey['ReferenceSchemaName'] == $defaultSchema
+                            ? ''
+                            : $this->quoteIncomingIdentifier($tableForeignKey['ReferenceSchemaName']) . '.'
+                        ) . $this->quoteIncomingIdentifier($tableForeignKey['ReferenceTableName']),
                     'foreign_columns' => array($this->quoteIncomingIdentifier($tableForeignKey['ReferenceColumnName'])),
                     'name' => $tableForeignKey['ForeignKey'],
                     'options' => array(
@@ -171,7 +176,22 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableDefinition($table)
     {
-        return $this->quoteIncomingIdentifier($table['name']);
+        $defaultSchema = $this->getDefaultSchemaName();
+        if ($table['schema_name'] == $defaultSchema) {
+            return $this->quoteIncomingIdentifier($table['table_name']);
+        }
+        return $this->quoteIncomingIdentifier($table['schema_name']) . '.' . $this->quoteIncomingIdentifier($table['table_name']);
+    }
+
+    /**
+     * Gets the current user's default schema
+     * @return mixed
+     */
+    protected function getDefaultSchemaName()
+    {
+        return $this->_conn->fetchColumn("SELECT p.default_schema_name
+        FROM sys.database_principals p
+        WHERE p.principal_id = DATABASE_PRINCIPAL_ID()");
     }
 
     /**

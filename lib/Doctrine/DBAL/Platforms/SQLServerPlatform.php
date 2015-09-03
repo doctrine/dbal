@@ -817,19 +817,14 @@ class SQLServerPlatform extends AbstractPlatform
         // Category 2 must be ignored as it is "MS SQL Server 'pseudo-system' object[s]" for replication
         // Table names are returned with the schema name IF and only if the schema
         // is not the default schema for the user accessing the database.
-        return "SELECT CASE 
-        WHEN s.NAME <> p.default_schema_name
-            THEN '[' + s.NAME + '].[' + t.NAME + ']'
-        ELSE t.NAME
-        END AS name
+        return "SELECT t.NAME AS table_name,
+        s.NAME AS schema_name
 FROM sysobjects t
 LEFT JOIN sys.schemas s ON s.schema_id = uid
-CROSS JOIN sys.database_principals p
 WHERE t.type = 'U'
     AND t.NAME != 'sysdiagrams'
     AND t.category != 2
-    AND p.principal_id = DATABASE_PRINCIPAL_ID()
-ORDER BY t.NAME";
+ORDER BY s.NAME, t.NAME";
     }
 
     /**
