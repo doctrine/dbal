@@ -10,22 +10,39 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @var MockPlatform
      */
-    private $_platform;
+    private $platform;
 
     /**
      * @var \Doctrine\DBAL\Types\DateType
      */
-    private $_type;
+    private $type;
 
+    /**
+     * @var string
+     */
+    private $currentTimezone;
+
+    /**
+     * {@inheritDoc}
+     */
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('date');
+        $this->platform        = new MockPlatform();
+        $this->type            = Type::getType('date');
+        $this->currentTimezone = date_default_timezone_get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function tearDown()
+    {
+        date_default_timezone_set($this->currentTimezone);
     }
 
     public function testDateConvertsToDatabaseValue()
     {
-        $this->assertInternalType('string', $this->_type->convertToDatabaseValue(new \DateTime(), $this->_platform));
+        $this->assertInternalType('string', $this->type->convertToDatabaseValue(new \DateTime(), $this->platform));
     }
 
     /**
@@ -37,21 +54,21 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
     {
         $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
 
-        $this->_type->convertToDatabaseValue($value, $this->_platform);
+        $this->type->convertToDatabaseValue($value, $this->platform);
     }
 
     public function testDateConvertsToPHPValue()
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
         $this->assertTrue(
-            $this->_type->convertToPHPValue('1985-09-01', $this->_platform)
+            $this->type->convertToPHPValue('1985-09-01', $this->platform)
             instanceof \DateTime
         );
     }
 
     public function testDateResetsNonDatePartsToZeroUnixTimeValues()
     {
-        $date = $this->_type->convertToPHPValue('1985-09-01', $this->_platform);
+        $date = $this->type->convertToPHPValue('1985-09-01', $this->platform);
 
         $this->assertEquals('00:00:00', $date->format('H:i:s'));
     }
@@ -60,11 +77,11 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
     {
         date_default_timezone_set('Europe/Berlin');
 
-        $date = $this->_type->convertToPHPValue('2009-08-01', $this->_platform);
+        $date = $this->type->convertToPHPValue('2009-08-01', $this->platform);
         $this->assertEquals('00:00:00', $date->format('H:i:s'));
         $this->assertEquals('2009-08-01', $date->format('Y-m-d'));
 
-        $date = $this->_type->convertToPHPValue('2009-11-01', $this->_platform);
+        $date = $this->type->convertToPHPValue('2009-11-01', $this->platform);
         $this->assertEquals('00:00:00', $date->format('H:i:s'));
         $this->assertEquals('2009-11-01', $date->format('Y-m-d'));
     }
@@ -72,18 +89,18 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
     public function testInvalidDateFormatConversion()
     {
         $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
-        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
+        $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
     public function testNullConversion()
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        $this->assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testConvertDateTimeToPHPValue()
     {
         $date = new \DateTime("now");
-        $this->assertSame($date, $this->_type->convertToPHPValue($date, $this->_platform));
+        $this->assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
     }
 
     /**
