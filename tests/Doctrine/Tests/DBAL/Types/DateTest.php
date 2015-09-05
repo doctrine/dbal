@@ -25,9 +25,7 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
 
     public function testDateConvertsToDatabaseValue()
     {
-        $this->assertTrue(
-            is_string($this->_type->convertToDatabaseValue(new \DateTime(), $this->_platform))
-        );
+        $this->assertInternalType('string', $this->_type->convertToDatabaseValue(new \DateTime(), $this->_platform));
     }
 
     /**

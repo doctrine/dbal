@@ -25,9 +25,7 @@ class TimeTest extends \Doctrine\Tests\DbalTestCase
 
     public function testTimeConvertsToDatabaseValue()
     {
-        $this->assertTrue(
-            is_string($this->_type->convertToDatabaseValue(new \DateTime(), $this->_platform))
-        );
+        $this->assertInternalType('string', $this->_type->convertToDatabaseValue(new \DateTime(), $this->_platform));
     }
 
     /**
