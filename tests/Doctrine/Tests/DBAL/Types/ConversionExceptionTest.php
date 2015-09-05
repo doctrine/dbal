@@ -23,7 +23,41 @@ class ConversionExceptionTest extends PHPUnit_Framework_TestCase
             $exception->getMessage()
         );
     }
+    /**
+     * @dataProvider nonScalarsProvider
+     *
+     * @param mixed $nonScalar
+     */
+    public function testConversionFailedInvalidTypeWithNonScalar($nonScalar)
+    {
+        $exception = ConversionException::conversionFailedInvalidType($nonScalar, 'foo', ['bar', 'baz']);
 
+        $this->assertInstanceOf('Doctrine\DBAL\Types\ConversionException', $exception);
+        $this->assertRegExp(
+            '/^Could not convert PHP value of type \'(.*)\' to type \'foo\'. '
+            . 'Expected one of the following types: bar, baz$/',
+            $exception->getMessage()
+        );
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public function nonScalarsProvider()
+    {
+        return [
+            [[]],
+            [['foo']],
+            [null],
+            [$this],
+            [new \stdClass()],
+            [tmpfile()],
+        ];
+    }
+
+    /**
+     * @return mixed[][]
+     */
     public function scalarsProvider()
     {
         return [
