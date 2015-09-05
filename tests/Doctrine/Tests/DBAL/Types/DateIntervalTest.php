@@ -44,4 +44,12 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
     {
         $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
     }
+
+    /**
+     * @group DBAL-1288
+     */
+    public function testRequiresSQLCommentHint()
+    {
+        $this->assertTrue($this->_type->requiresSQLCommentHint($this->_platform));
+    }
 }
