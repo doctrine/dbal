@@ -77,19 +77,20 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      */
     static public function conversionFailedInvalidType($value, $toType, array $possibleTypes)
     {
-        $actualType = gettype($value);
-        if ($actualType === 'object') {
-            $actualType .= ' (' . get_class($value) . ')';
-            if (!method_exists($value, '__toString')) {
-                $value = 'object';
-            }
+        $actualType = is_object($value) ? get_class($value) : gettype($value);
+
+        if (is_scalar($value)) {
+            return new self(sprintf(
+                "Could not convert PHP value '%s' of type '%s' to type '%s'. Expected one of the following types: %s",
+                $value,
+                $actualType,
+                $toType,
+                implode(', ', $possibleTypes)
+            ));
         }
-        $value = (string)$value;
-        $value = (strlen($value) > 32) ? substr($value, 0, 20) . "..." : $value;
 
         return new self(sprintf(
-            "Could not convert PHP value '%s' of type '%s' to type '%s'. Expected one of the following: %s",
-            $value,
+            "Could not convert PHP value of type '%s' to type '%s'. Expected one of the following types: %s",
             $actualType,
             $toType,
             implode(', ', $possibleTypes)
