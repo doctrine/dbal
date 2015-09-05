@@ -29,10 +29,6 @@ script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 
 matrix:
   include:
-    - php: 5.3
-      env: DB=mariadb
-      addons:
-        mariadb: 5.5
     - php: 5.4
       env: DB=mariadb
       addons:
@@ -54,10 +50,6 @@ matrix:
       addons:
         mariadb: 5.5
 
-    - php: 5.3
-      env: DB=mariadb
-      addons:
-        mariadb: 10.0
     - php: 5.4
       env: DB=mariadb
       addons:
@@ -79,10 +71,6 @@ matrix:
       addons:
         mariadb: 10.0
 
-    - php: 5.3
-      env: DB=mariadb
-      addons:
-        mariadb: 10.1
     - php: 5.4
       env: DB=mariadb
       addons:
