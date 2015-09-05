@@ -7,9 +7,15 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class TimeTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /**
+     * @var MockPlatform
+     */
+    private $_platform;
+
+    /**
+     * @var \Doctrine\DBAL\Types\TimeType
+     */
+    private $_type;
 
     protected function setUp()
     {
@@ -24,22 +30,18 @@ class TimeTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\Types\ConversionException
-     */
     public function testInvalidDateTimeValueInteger()
     {
-        $date = 27;
-        $this->_type->convertToDatabaseValue($date, $this->_platform);
+        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+
+        $this->_type->convertToDatabaseValue(27, $this->_platform);
     }
 
-    /**
-     * @expectedException \Doctrine\DBAL\Types\ConversionException
-     */
     public function testInvalidDateTimeValueStdClass()
     {
-        $date = new \stdClass();
-        $this->_type->convertToDatabaseValue($date, $this->_platform);
+        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+
+        $this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform);
     }
 
     public function testTimeConvertsToPHPValue()
