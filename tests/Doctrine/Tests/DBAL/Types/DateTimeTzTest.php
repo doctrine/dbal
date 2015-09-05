@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
-use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class DateTimeTzTestCase extends BaseDateTypeTestCase
 {
