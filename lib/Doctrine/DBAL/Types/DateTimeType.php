@@ -57,7 +57,7 @@ class DateTimeType extends Type
             return $value->format($platform->getDateTimeFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), 'DateTime');
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**

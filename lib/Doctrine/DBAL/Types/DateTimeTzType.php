@@ -75,7 +75,7 @@ class DateTimeTzType extends Type
             return $value->format($platform->getDateTimeTzFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), 'DateTime');
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
