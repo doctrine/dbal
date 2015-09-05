@@ -33,18 +33,16 @@ class DateTimeTzTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testInvalidDateTimeValueInteger()
+    /**
+     * @dataProvider invalidPHPValuesProvider
+     *
+     * @param mixed $value
+     */
+    public function testInvalidTypeConversionToDatabaseValue($value)
     {
         $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
 
-        $this->_type->convertToDatabaseValue(27, $this->_platform);
-    }
-
-    public function testInvalidDateTimeValueStdClass()
-    {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
-
-        $this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform);
+        $this->_type->convertToDatabaseValue($value, $this->_platform);
     }
 
     public function testDateTimeConvertsToPHPValue()
@@ -70,5 +68,27 @@ class DateTimeTzTest extends \Doctrine\Tests\DbalTestCase
     {
         $date = new \DateTime("now");
         $this->assertSame($date, $this->_type->convertToPHPValue($date, $this->_platform));
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public function invalidPHPValuesProvider()
+    {
+        return [
+            [0],
+            [''],
+            ['foo'],
+            ['10:11:12'],
+            ['2015-01-31'],
+            ['2015-01-31 10:11:12'],
+            [new \stdClass()],
+            [$this],
+            [27],
+            [-1],
+            [1.2],
+            [[]],
+            [['an array']],
+        ];
     }
 }

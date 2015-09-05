@@ -7,21 +7,20 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class DateTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
-        $_type,
-        $_tz;
+    /**
+     * @var MockPlatform
+     */
+    private $_platform;
+
+    /**
+     * @var \Doctrine\DBAL\Types\DateType
+     */
+    private $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
         $this->_type = Type::getType('date');
-        $this->_tz = date_default_timezone_get();
-    }
-
-    public function tearDown()
-    {
-        date_default_timezone_set($this->_tz);
     }
 
     public function testDateConvertsToDatabaseValue()
@@ -31,18 +30,16 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
-    public function testInvalidDateTimeValueInteger()
+    /**
+     * @dataProvider invalidPHPValuesProvider
+     *
+     * @param mixed $value
+     */
+    public function testInvalidTypeConversionToDatabaseValue($value)
     {
         $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
 
-        $this->_type->convertToDatabaseValue(27, $this->_platform);
-    }
-
-    public function testInvalidDateTimeValueStdClass()
-    {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
-
-        $this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform);
+        $this->_type->convertToDatabaseValue($value, $this->_platform);
     }
 
     public function testDateConvertsToPHPValue()
@@ -89,5 +86,27 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
     {
         $date = new \DateTime("now");
         $this->assertSame($date, $this->_type->convertToPHPValue($date, $this->_platform));
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public function invalidPHPValuesProvider()
+    {
+        return [
+            [0],
+            [''],
+            ['foo'],
+            ['10:11:12'],
+            ['2015-01-31'],
+            ['2015-01-31 10:11:12'],
+            [new \stdClass()],
+            [$this],
+            [27],
+            [-1],
+            [1.2],
+            [[]],
+            [['an array']],
+        ];
     }
 }

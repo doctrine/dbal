@@ -32,6 +32,7 @@ class TimeTest extends \Doctrine\Tests\DbalTestCase
 
     /**
      * @dataProvider invalidPHPValuesProvider
+     *
      * @param mixed $value
      */
     public function testInvalidTypeConversionToDatabaseValue($value)
@@ -83,6 +84,8 @@ class TimeTest extends \Doctrine\Tests\DbalTestCase
             [''],
             ['foo'],
             ['10:11:12'],
+            ['2015-01-31'],
+            ['2015-01-31 10:11:12'],
             [new \stdClass()],
             [$this],
             [27],
