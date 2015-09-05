@@ -5,56 +5,16 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
-class DateTest extends \Doctrine\Tests\DbalTestCase
+class DateTestCase extends BaseDateTypeTestCase
 {
-    /**
-     * @var MockPlatform
-     */
-    private $platform;
-
-    /**
-     * @var \Doctrine\DBAL\Types\DateType
-     */
-    private $type;
-
-    /**
-     * @var string
-     */
-    private $currentTimezone;
-
     /**
      * {@inheritDoc}
      */
     protected function setUp()
     {
-        $this->platform        = new MockPlatform();
-        $this->type            = Type::getType('date');
-        $this->currentTimezone = date_default_timezone_get();
-    }
+        $this->type = Type::getType('date');
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function tearDown()
-    {
-        date_default_timezone_set($this->currentTimezone);
-    }
-
-    public function testDateConvertsToDatabaseValue()
-    {
-        $this->assertInternalType('string', $this->type->convertToDatabaseValue(new \DateTime(), $this->platform));
-    }
-
-    /**
-     * @dataProvider invalidPHPValuesProvider
-     *
-     * @param mixed $value
-     */
-    public function testInvalidTypeConversionToDatabaseValue($value)
-    {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
-
-        $this->type->convertToDatabaseValue($value, $this->platform);
+        parent::setUp();
     }
 
     public function testDateConvertsToPHPValue()
@@ -90,38 +50,5 @@ class DateTest extends \Doctrine\Tests\DbalTestCase
     {
         $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
         $this->type->convertToPHPValue('abcdefg', $this->platform);
-    }
-
-    public function testNullConversion()
-    {
-        $this->assertNull($this->type->convertToPHPValue(null, $this->platform));
-    }
-
-    public function testConvertDateTimeToPHPValue()
-    {
-        $date = new \DateTime("now");
-        $this->assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
-    }
-
-    /**
-     * @return mixed[][]
-     */
-    public function invalidPHPValuesProvider()
-    {
-        return [
-            [0],
-            [''],
-            ['foo'],
-            ['10:11:12'],
-            ['2015-01-31'],
-            ['2015-01-31 10:11:12'],
-            [new \stdClass()],
-            [$this],
-            [27],
-            [-1],
-            [1.2],
-            [[]],
-            [['an array']],
-        ];
     }
 }
