@@ -67,4 +67,12 @@ class DateIntervalType extends Type
 
         return $interval;
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
+    }
 }
