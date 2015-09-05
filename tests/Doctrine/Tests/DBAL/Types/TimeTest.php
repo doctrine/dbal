@@ -88,6 +88,8 @@ class TimeTest extends \Doctrine\Tests\DbalTestCase
             [27],
             [-1],
             [1.2],
+            [[]],
+            [['an array']],
         ];
     }
 }
