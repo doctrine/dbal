@@ -286,9 +286,10 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped("Only fails this way on sqlite");
         }
 
-        $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection.db');
+        $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection_'.$mode.'.db');
 
         if (file_exists($filename)) {
+            chmod($filename, 0200); // make the file writable again, so it can be removed on Windows
             unlink($filename);
         }
 
@@ -314,7 +315,8 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function getSqLiteOpenConnection()
     {
         return array(
-            array(0000, '\Doctrine\DBAL\Exception\ConnectionException'),
+            // mode 0 is considered read-only on Windows
+            array(0000, defined('PHP_WINDOWS_VERSION_BUILD') ? '\Doctrine\DBAL\Exception\ReadOnlyException' : '\Doctrine\DBAL\Exception\ConnectionException'),
             array(0444, '\Doctrine\DBAL\Exception\ReadOnlyException'),
         );
     }
