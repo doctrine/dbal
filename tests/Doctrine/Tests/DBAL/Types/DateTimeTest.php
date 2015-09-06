@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
 
-class DateTimeTestCase extends BaseDateTypeTestCase
+class DateTimeTest extends BaseDateTypeTestCase
 {
     /**
      * {@inheritDoc}
