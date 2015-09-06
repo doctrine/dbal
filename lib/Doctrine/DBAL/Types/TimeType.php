@@ -49,12 +49,15 @@ class TimeType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if ($value !== null && !$value instanceof \DateTime) {
-            throw ConversionException::conversionFailedInvalidType($value, $this->getName(), "DateTime");
+        if (null === $value) {
+            return $value;
         }
 
-        return ($value !== null)
-            ? $value->format($platform->getTimeFormatString()) : null;
+        if ($value instanceof \DateTime) {
+            return $value->format($platform->getTimeFormatString());
+        }
+
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
