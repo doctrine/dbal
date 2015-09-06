@@ -40,6 +40,16 @@ class ConversionExceptionTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testConversionFailedFormatPreservesPreviousException()
+    {
+        $previous = new \Exception();
+
+        $exception = ConversionException::conversionFailedFormat('foo', 'bar', 'baz', $previous);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Types\ConversionException', $exception);
+        $this->assertSame($previous, $exception->getPrevious());
+    }
+
     /**
      * @return mixed[][]
      */
