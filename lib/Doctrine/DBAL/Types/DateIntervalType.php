@@ -59,7 +59,6 @@ class DateIntervalType extends Type
             $interval = new \DateInterval($value);
         } catch (\Exception $e) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), 'PY-m-dTH:i:s');
-
         }
 
         return $interval;
