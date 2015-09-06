@@ -24,6 +24,8 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
     {
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('dateinterval');
+
+        $this->assertInstanceOf('Doctrine\DBAL\Types\DateIntervalType', $this->type);
     }
 
     public function testDateIntervalConvertsToDatabaseValue()
