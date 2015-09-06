@@ -93,6 +93,9 @@ class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
                 array('-193', null, null),
                 array('-196', null, null),
             ),
+            self::EXCEPTION_DEADLOCK => array(
+                array('-306', null, null),
+            ),
         );
     }
 }
