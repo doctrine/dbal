@@ -64,14 +64,24 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
-        $this->_conn->insert("constraint_error_table", array('id' => 1));
-        $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+        try {
+            $this->_conn->insert("constraint_error_table", array('id' => 1));
+            $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+        } catch (\Exception $exception) {
+            $this->tearDownForeignKeyConstraintViolationExceptionTest();
+
+            throw $exception;
+        }
 
         $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException');
 
         try {
             $this->_conn->insert('owning_table', array('id' => 2, 'constraint_id' => 2));
         } catch (ForeignKeyConstraintViolationException $exception) {
+            $this->tearDownForeignKeyConstraintViolationExceptionTest();
+
+            throw $exception;
+        } catch (\Exception $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
             throw $exception;
@@ -88,14 +98,24 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
-        $this->_conn->insert("constraint_error_table", array('id' => 1));
-        $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+        try {
+            $this->_conn->insert("constraint_error_table", array('id' => 1));
+            $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+        } catch (\Exception $exception) {
+            $this->tearDownForeignKeyConstraintViolationExceptionTest();
+
+            throw $exception;
+        }
 
         $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException');
 
         try {
             $this->_conn->update('constraint_error_table', array('id' => 2), array('id' => 1));
         } catch (ForeignKeyConstraintViolationException $exception) {
+            $this->tearDownForeignKeyConstraintViolationExceptionTest();
+
+            throw $exception;
+        } catch (\Exception $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
             throw $exception;
@@ -112,14 +132,24 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
-        $this->_conn->insert("constraint_error_table", array('id' => 1));
-        $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+        try {
+            $this->_conn->insert("constraint_error_table", array('id' => 1));
+            $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+        } catch (\Exception $exception) {
+            $this->tearDownForeignKeyConstraintViolationExceptionTest();
+
+            throw $exception;
+        }
 
         $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException');
 
         try {
             $this->_conn->delete('constraint_error_table', array('id' => 1));
         } catch (ForeignKeyConstraintViolationException $exception) {
+            $this->tearDownForeignKeyConstraintViolationExceptionTest();
+
+            throw $exception;
+        } catch (\Exception $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
             throw $exception;
@@ -132,20 +162,30 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $platform = $this->_conn->getDatabasePlatform();
 
-        if ( ! $platform->supportsForeignKeyConstraints()) {
+        if (!$platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped("Only fails on platforms with foreign key constraints.");
         }
 
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
-        $this->_conn->insert("constraint_error_table", array('id' => 1));
-        $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+        try {
+            $this->_conn->insert("constraint_error_table", array('id' => 1));
+            $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+        } catch (\Exception $exception) {
+            $this->tearDownForeignKeyConstraintViolationExceptionTest();
+
+            throw $exception;
+        }
 
         $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException');
 
         try {
             $this->_conn->executeUpdate($platform->getTruncateTableSQL('constraint_error_table'));
         } catch (ForeignKeyConstraintViolationException $exception) {
+            $this->tearDownForeignKeyConstraintViolationExceptionTest();
+
+            throw $exception;
+        } catch (\Exception $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
             throw $exception;
