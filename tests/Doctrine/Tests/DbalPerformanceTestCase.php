@@ -3,60 +3,70 @@
 namespace Doctrine\Tests;
 
 /**
- * Class DbalPerformanceTestCase
+ * Base class for all DBAL performance tests.
+ * 
+ * Tests implemented in this class must call startTiming at the beginning
+ * and stopTiming at the end of all tests. Tests that do not start or stop
+ * timing will fail.
+ *
  * @package Doctrine\Tests\DBAL
  * @author Bill Schaller
- * @author robo
  */
 class DbalPerformanceTestCase extends DbalFunctionalTestCase
 {
     /**
-     * @var integer
+     * time the test started
+     *
+     * @var float
      */
-    protected $maxRunningTime = 0;
+    private $startTime;
 
     /**
-     * @return void
+     * elapsed run time of the last test
+     *
+     * @var float
      */
-    protected function runTest()
+    private $lastRunTime;
+
+    public function setUp()
     {
-        $s = microtime(true);
-        parent::runTest();
-        $time = microtime(true) - $s;
+        parent::setUp();
 
-        if ($this->maxRunningTime != 0 && $time > $this->maxRunningTime) {
-            $this->fail(
-                sprintf(
-                    'expected running time: <= %s but was: %s',
-
-                    $this->maxRunningTime,
-                    $time
-                )
-            );
-        }
+        // Reset timing vars
+        $this->startTime = $this->lastRunTime = null;
     }
 
     /**
-     * @param integer $maxRunningTime
-     *
-     * @return void
-     *
-     * @throws \InvalidArgumentException
+     * {@inheritdoc}
      */
-    public function setMaxRunningTime($maxRunningTime)
+    protected function assertPostConditions()
     {
-        if (is_integer($maxRunningTime) && $maxRunningTime >= 0) {
-            $this->maxRunningTime = $maxRunningTime;
-        } else {
-            throw new \InvalidArgumentException;
-        }
+        // If a perf test doesn't start or stop, it fails.
+        $this->assertNotNull($this->startTime, "Test timing was started");
+        $this->assertNotNull($this->lastRunTime, "Test timing was stopped");
     }
 
     /**
-     * @return integer
+     * begin timing
      */
-    public function getMaxRunningTime()
+    protected function startTiming()
     {
-        return $this->maxRunningTime;
+        $this->startTime = microtime(true);
+    }
+
+    /**
+     * end timing
+     */
+    protected function stopTiming()
+    {
+        $this->lastRunTime = microtime(true) - $this->startTime;
+    }
+
+    /**
+     * @return float elapsed test execution time
+     */
+    public function getTime()
+    {
+        return $this->lastRunTime;
     }
 }

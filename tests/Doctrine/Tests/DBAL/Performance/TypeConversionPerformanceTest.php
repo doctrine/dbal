@@ -13,15 +13,29 @@ use Doctrine\Tests\DbalPerformanceTestCase;
  */
 class TypeConversionPerformanceTest extends DbalPerformanceTestCase
 {
-    public function testDateTimeTypeConversionPerformance100000Items()
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     * @dataProvider itemCountProvider
+     */
+    public function testDateTimeTypeConversionPerformance($count)
     {
         $value = new \DateTime;
-        $start = microtime(true);
         $type = Type::getType("datetime");
         $platform = $this->_conn->getDatabasePlatform();
-        for ($i = 0; $i < 100000; $i++) {
+        $this->startTiming();
+        for ($i = 0; $i < $count; $i++) {
             $type->convertToDatabaseValue($value, $platform);
         }
-        echo __FUNCTION__ . " - " . (microtime(true) - $start) . " seconds" . PHP_EOL;
+        $this->stopTiming();
+    }
+
+    public function itemCountProvider()
+    {
+        return [
+            '100 items' => [100],
+            '1000 items' => [1000],
+            '10000 items' => [10000],
+            '100000 items' => [100000],
+        ];
     }
 }
