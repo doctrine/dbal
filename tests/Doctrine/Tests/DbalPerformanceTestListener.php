@@ -46,7 +46,7 @@ class DbalPerformanceTestListener extends \PHPUnit_Framework_BaseTestListener
             foreach($this->timings as $class => $tests) {
                 printf("%s:\n", $class);
                 foreach($tests as $test => $time) {
-                    printf("\t%s: %.3f\n", $test, $time);
+                    printf(	"\t%s: %.3f seconds\n", $test, $time);
                 }
             }
         }
