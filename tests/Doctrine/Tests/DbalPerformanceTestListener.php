@@ -19,11 +19,15 @@ class DbalPerformanceTestListener extends \PHPUnit_Framework_BaseTestListener
         // This listener only applies to performance tests.
         if ($test instanceof \Doctrine\Tests\DbalPerformanceTestCase)
         {
-            // Identify perf tests by class, method, and dataset
+            // we identify perf tests by class, method, and dataset
             $class = str_replace('Doctrine\Tests\DBAL\Performance\\', '', get_class($test));
 
+            if (!isset($this->timings[$class])) {
+                $this->timings[$class] = [];
+            }
+
             // Store timing data for each test in the order they were run.
-            $this->timings[$class . "::" . $test->getName(true)] = $test->getTime();
+            $this->timings[$class][$test->getName(true)] = $test->getTime();
         }
     }
 
@@ -37,10 +41,13 @@ class DbalPerformanceTestListener extends \PHPUnit_Framework_BaseTestListener
     {
         if (!empty($this->timings)) {
             // Report timings.
-            print("\n\nPerformance test results:\n\n");
+            print("\nPerformance test results:\n\n");
 
-            foreach($this->timings as $test => $time) {
-                printf("%s: %.3f\n", $test, $time);
+            foreach($this->timings as $class => $tests) {
+                printf("%s:\n", $class);
+                foreach($tests as $test => $time) {
+                    printf("\t%s: %.3f\n", $test, $time);
+                }
             }
         }
     }
