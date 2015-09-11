@@ -179,9 +179,11 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableDefinition($table)
     {
         $defaultSchema = $this->getDefaultSchemaName();
+
         if ($table['schema_name'] == $defaultSchema) {
             return $this->quoteIncomingIdentifier($table['table_name']);
         }
+        
         return $this->quoteIncomingIdentifier($table['schema_name']) . '.' . $this->quoteIncomingIdentifier($table['table_name']);
     }
 
