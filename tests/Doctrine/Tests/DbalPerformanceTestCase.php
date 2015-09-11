@@ -26,15 +26,7 @@ class DbalPerformanceTestCase extends DbalFunctionalTestCase
      *
      * @var float
      */
-    private $lastRunTime;
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        // Reset timing vars
-        $this->startTime = $this->lastRunTime = null;
-    }
+    private $runTime;
 
     /**
      * {@inheritdoc}
@@ -43,7 +35,7 @@ class DbalPerformanceTestCase extends DbalFunctionalTestCase
     {
         // If a perf test doesn't start or stop, it fails.
         $this->assertNotNull($this->startTime, "Test timing was started");
-        $this->assertNotNull($this->lastRunTime, "Test timing was stopped");
+        $this->assertNotNull($this->runTime, "Test timing was stopped");
     }
 
     /**
@@ -59,7 +51,7 @@ class DbalPerformanceTestCase extends DbalFunctionalTestCase
      */
     protected function stopTiming()
     {
-        $this->lastRunTime = microtime(true) - $this->startTime;
+        $this->runTime = microtime(true) - $this->startTime;
     }
 
     /**
@@ -67,6 +59,6 @@ class DbalPerformanceTestCase extends DbalFunctionalTestCase
      */
     public function getTime()
     {
-        return $this->lastRunTime;
+        return $this->runTime;
     }
 }
