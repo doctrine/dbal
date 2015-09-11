@@ -118,13 +118,15 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
         foreach ($tableForeignKeys as $tableForeignKey) {
             if ( ! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
+                $foreignTable = $this->quoteIncomingIdentifier($tableForeignKey['ReferenceTableName']);
+                if ($tableForeignKey['ReferenceSchemaName'] != $defaultSchema) {
+                    $foreignTable = $this->quoteIncomingIdentifier($tableForeignKey['ReferenceSchemaName'])
+                        . '.'
+                        . $foreignTable;
+                }
                 $foreignKeys[$tableForeignKey['ForeignKey']] = array(
                     'local_columns' => array($this->quoteIncomingIdentifier($tableForeignKey['ColumnName'])),
-                    'foreign_table' => (
-                        $tableForeignKey['ReferenceSchemaName'] == $defaultSchema
-                            ? ''
-                            : $this->quoteIncomingIdentifier($tableForeignKey['ReferenceSchemaName']) . '.'
-                        ) . $this->quoteIncomingIdentifier($tableForeignKey['ReferenceTableName']),
+                    'foreign_table' => $foreignTable,
                     'foreign_columns' => array($this->quoteIncomingIdentifier($tableForeignKey['ReferenceColumnName'])),
                     'name' => $tableForeignKey['ForeignKey'],
                     'options' => array(
@@ -185,13 +187,14 @@ class SQLServerSchemaManager extends AbstractSchemaManager
 
     /**
      * Gets the current user's default schema
-     * @return mixed
+     *
+     * Reference: https://msdn.microsoft.com/en-us/library/ms175068.aspx
+     *
+     * @return string
      */
     protected function getDefaultSchemaName()
     {
-        return $this->_conn->fetchColumn("SELECT p.default_schema_name
-        FROM sys.database_principals p
-        WHERE p.principal_id = DATABASE_PRINCIPAL_ID()");
+        return $this->_conn->fetchColumn("SELECT SCHEMA_NAME()");
     }
 
     /**
