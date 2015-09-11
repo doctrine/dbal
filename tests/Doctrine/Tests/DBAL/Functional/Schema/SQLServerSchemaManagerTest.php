@@ -361,7 +361,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testTableWithSchema()
     {
-        $this->_conn->exec('CREATE SCHEMA nested');
+        $this->_conn->exec($this->_conn->getDatabasePlatform()->getCreateSchemaSQL('nested'));
 
         $nestedRelatedTable = new \Doctrine\DBAL\Schema\Table('nested.schemarelated');
         $column = $nestedRelatedTable->addColumn('id', 'integer');
