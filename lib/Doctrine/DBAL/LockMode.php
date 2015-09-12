@@ -33,6 +33,7 @@ class LockMode
     const OPTIMISTIC = 1;
     const PESSIMISTIC_READ = 2;
     const PESSIMISTIC_WRITE = 4;
+    const OPTIMISTIC_FORCE_INCREMENT = 5;
 
     /**
      * Private constructor. This class cannot be instantiated.
