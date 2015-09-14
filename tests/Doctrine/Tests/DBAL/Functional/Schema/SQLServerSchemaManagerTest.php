@@ -389,4 +389,32 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $relatedFk = array_pop($relatedFks);
         $this->assertEquals("nested.schemarelated", $relatedFk->getForeignTableName());
     }
+
+    /**
+     * @param string $name
+     * @dataProvider invalidNamesProvider
+     */
+    public function testTablesWithInvalidNames($name, $expected)
+    {
+        $table = new Table($name);
+        $idColumn = $table->addColumn('id', 'integer');
+        $idColumn->setAutoincrement(true);
+        $otherColumn = $table->addColumn('other', 'integer');
+        $otherColumn->setDefault(1);
+        $this->_sm->createTable($table);
+        $tables = $this->_sm->listTableNames();
+        $this->assertContains($expected, $tables, "The table name should be detected with quotes.");
+    }
+
+    public function invalidNamesProvider()
+    {
+        return [
+            ['`fo]o`', '[fo]]o]'],
+            ['`fo[o`', '[fo[o]'],
+            ['`!foo`', '[!foo]'],
+            ['`drop`', '[drop]'],
+            ['`!`', '[!]'],
+            ['`1foo`', '[1foo]']
+        ];
+    }
 }
