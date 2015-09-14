@@ -394,7 +394,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * @param string $name
      * @dataProvider invalidNamesProvider
      */
-    public function testTablesWithInvalidNames($name, $expected)
+    public function testTablesWithInvalidNames($name)
     {
         $table = new Table($name);
         $idColumn = $table->addColumn('id', 'integer');
@@ -403,18 +403,18 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $otherColumn->setDefault(1);
         $this->_sm->createTable($table);
         $tables = $this->_sm->listTableNames();
-        $this->assertContains($expected, $tables, "The table name should be detected with quotes.");
+        $this->assertContains($name, $tables, "The table name should be detected with quotes.");
     }
 
     public function invalidNamesProvider()
     {
         return [
-            ['`fo]o`', '[fo]]o]'],
-            ['`fo[o`', '[fo[o]'],
-            ['`!foo`', '[!foo]'],
-            ['`drop`', '[drop]'],
-            ['`!`', '[!]'],
-            ['`1foo`', '[1foo]']
+            ['`fo]o`'],
+            ['`fo[o`'],
+            ['`!foo`'],
+            ['`and`'],
+            ['`!`'],
+            ['`1foo`']
         ];
     }
 }
