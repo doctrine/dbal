@@ -183,7 +183,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         if ($table['schema_name'] == $defaultSchema) {
             return $this->quoteIncomingIdentifier($table['table_name']);
         }
-        
+
         return $this->quoteIncomingIdentifier($table['schema_name']) . '.' . $this->quoteIncomingIdentifier($table['table_name']);
     }
 
@@ -311,6 +311,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     private function isIncomingIdentifierValid($name)
     {
-        return (bool)preg_match('/^(?:[_@#[:alpha:]][$@#_[:alnum:]]*|".*"|\[.*\])$/i', $name);
+        return !($this->_platform->getReservedKeywordsList()->isKeyword($name))
+            && (bool)preg_match('/^(?:[_@#[:alpha:]][$@#_[:alnum:]]*|".*"|\[.*\])$/i', $name);
     }
 }
