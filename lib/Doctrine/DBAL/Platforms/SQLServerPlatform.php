@@ -323,13 +323,12 @@ class SQLServerPlatform extends AbstractPlatform
             throw new \InvalidArgumentException("Incomplete column definition. 'default' required.");
         }
 
-        $columnName = new Identifier($column['name']);
-
+        //Table and column name are already quoted.
         return
             ' CONSTRAINT ' .
             $this->generateDefaultConstraintName($table, $column['name']) .
             $this->getDefaultValueDeclarationSQL($column) .
-            ' FOR ' . $columnName->getQuotedName($this);
+            ' FOR ' . $column['name'];
     }
 
     /**
