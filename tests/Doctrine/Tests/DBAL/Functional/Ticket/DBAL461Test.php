@@ -12,10 +12,13 @@ class DBAL461Test extends \PHPUnit_Framework_TestCase
     public function testIssue()
     {
         $conn = $this->getMock('Doctrine\DBAL\Connection', array(), array(), '', false);
-        $platform = $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform');
-        $platform->registerDoctrineTypeMapping('numeric', 'decimal');
+        $platformMock = $this->getMock('Doctrine\DBAL\Platforms\SQLServerPlatform');
+        $platformMock->expects($this->exactly(1))
+            ->method('getDoctrineTypeMapping')
+            ->with($this->isType('string'))
+            ->will($this->returnValue('decimal'));
 
-        $schemaManager = new SQLServerSchemaManager($conn, $platform);
+        $schemaManager = new SQLServerSchemaManager($conn, $platformMock);
 
         $reflectionMethod = new \ReflectionMethod($schemaManager, '_getPortableTableColumnDefinition');
         $reflectionMethod->setAccessible(true);
