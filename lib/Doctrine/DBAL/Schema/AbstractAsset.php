@@ -59,15 +59,24 @@ abstract class AbstractAsset
      */
     protected function _setName($name)
     {
+        if (strpos($name, ".") !== false) {
+            $parts = explode(".", $name);
+            $schema = $parts[0];
+
+            if ($this->isIdentifierQuoted($schema)) {
+                $this->_quoted = true;
+                $schema = $this->trimQuotes($schema);
+            }
+
+            $this->_namespace = $schema;
+            $name = $parts[1];
+        }
+
         if ($this->isIdentifierQuoted($name)) {
             $this->_quoted = true;
             $name = $this->trimQuotes($name);
         }
-        if (strpos($name, ".") !== false) {
-            $parts = explode(".", $name);
-            $this->_namespace = $parts[0];
-            $name = $parts[1];
-        }
+
         $this->_name = $name;
     }
 
@@ -167,7 +176,8 @@ abstract class AbstractAsset
      */
     protected function trimQuotes($identifier)
     {
-        return str_replace(array('`', '"', '[', ']'), '', $identifier);
+        //TODO need to "unquote" the identifier.
+        return trim($identifier, "`\"[]");
     }
 
     /**
