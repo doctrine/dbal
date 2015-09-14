@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -403,18 +404,96 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $otherColumn->setDefault(1);
         $this->_sm->createTable($table);
         $tables = $this->_sm->listTableNames();
-        $this->assertContains($name, $tables, "The table name should be detected with quotes.");
+        $this->assertContains($name, $tables, "The table name should be detected properly.");
+    }
+
+    /**
+     * @param string $name
+     * @dataProvider invalidNamesProvider
+     */
+    public function testColumnsWithInvalidNames($name, $expected)
+    {
+        $expected = $this->_conn->getDatabasePlatform()->quoteSingleIdentifier($expected);
+        $table = new Table("invalid_colname");
+        $idColumn = $table->addColumn('id', 'integer');
+        $idColumn->setAutoincrement(true);
+        $otherColumn = $table->addColumn($name, 'integer');
+        $otherColumn->setDefault(1);
+        // Test create table
+        $this->_sm->createTable($table);
+        $columns = $this->_sm->listTableColumns("invalid_colname");
+        $this->assertArrayHasKey($expected, $columns, "The column name should be detected.");
+
+        // Check drop column
+        $tableDiff = new TableDiff("invalid_colname", [], [], [$otherColumn]);
+        $this->_sm->alterTable($tableDiff);
+        $columns = $this->_sm->listTableColumns("invalid_colname");
+        $this->assertArrayNotHasKey($expected, $columns, "The column should be dropped.");
+
+        // Check add column
+        $tableDiff = new TableDiff("invalid_colname", [$otherColumn]);
+        $this->_sm->alterTable($tableDiff);
+        $columns = $this->_sm->listTableColumns("invalid_colname");
+        $this->assertArrayHasKey($expected, $columns, "The column should be added.");
+
+        // Clean up
+        $this->_sm->dropTable("invalid_colname");
+    }
+
+    /**
+     * @param string $name
+     * @dataProvider invalidNamesProvider
+     */
+    public function testCreateIndexesOnColumnsWithInvalidNames($name, $expected)
+    {
+        $table = new Table("invalid_colname_index");
+        $idColumn = $table->addColumn('id', 'integer');
+        $idColumn->setAutoincrement(true);
+        $otherColumn = $table->addColumn($name, 'integer');
+        $otherColumn->setDefault(1);
+        $index = $table->addIndex([$name], 'idx_test_invalid_colname')
+            ->getIndex('idx_test_invalid_colname');
+
+        // Test create table
+        $this->_sm->createTable($table);
+        $indexes = $this->_sm->listTableIndexes('invalid_colname_index');
+        $this->assertCount(1, $indexes, "Table should have one index.");
+
+        /** @var Index $firstIndex */
+        $firstIndex = current($indexes);
+        $this->assertCount(1, $firstIndex->getColumns());
+        $this->assertEquals($expected, $firstIndex->getUnquotedColumns()[0]);
+
+        // Check drop index
+        $tableDiff = new TableDiff("invalid_colname_index", [], [], [], [], [], [$index]);
+        $this->_sm->alterTable($tableDiff);
+        $indexes = $this->_sm->listTableIndexes('invalid_colname_index');
+        $this->assertCount(0, $indexes, "Table should have no indexes.");
+
+        // Check add index
+        $tableDiff = new TableDiff("invalid_colname_index", [], [], [], [$index]);
+        $this->_sm->alterTable($tableDiff);
+        $indexes = $this->_sm->listTableIndexes('invalid_colname_index');
+        $this->assertCount(1, $indexes, "Table should have one index.");
+
+        /** @var Index $firstIndex */
+        $firstIndex = current($indexes);
+        $this->assertCount(1, $firstIndex->getColumns());
+        $this->assertEquals($expected, $firstIndex->getUnquotedColumns()[0]);
+
+        // Clean up
+        $this->_sm->dropTable("invalid_colname_index");
     }
 
     public function invalidNamesProvider()
     {
         return [
-            ['`fo]o`'],
-            ['`fo[o`'],
-            ['`!foo`'],
-            ['`and`'],
-            ['`!`'],
-            ['`1foo`']
+            ['`fo]o`', 'fo]o'],
+            ['`fo[o`', 'fo[o'],
+            ['`!foo`', '!foo'],
+            ['`and`', 'and'],
+            ['`!`', '!'],
+            ['`1foo`', '1foo']
         ];
     }
 }
