@@ -956,15 +956,16 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL()
     {
+        // Default constraint generation assumes identifiers are already quoted.
         return array(
             // Unquoted identifiers non-reserved keywords.
             array('mytable', array('name' => 'mycolumn', 'default' => 'foo'), " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn"),
             // Quoted identifiers non-reserved keywords.
-            array('`mytable`', array('name' => '`mycolumn`', 'default' => 'foo'), " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]"),
+            array('`mytable`', array('name' => '[mycolumn]', 'default' => 'foo'), " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]"),
             // Unquoted identifiers reserved keywords.
-            array('table', array('name' => 'select', 'default' => 'foo'), " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"),
+            array('table', array('name' => '[select]', 'default' => 'foo'), " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"),
             // Quoted identifiers reserved keywords.
-            array('`table`', array('name' => '`select`', 'default' => 'foo'), " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"),
+            array('`table`', array('name' => '[select]', 'default' => 'foo'), " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"),
         );
     }
 

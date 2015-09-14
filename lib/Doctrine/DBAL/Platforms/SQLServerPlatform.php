@@ -311,7 +311,7 @@ class SQLServerPlatform extends AbstractPlatform
      * Returns the SQL snippet for declaring a default constraint.
      *
      * @param string $table  Name of the table to return the default constraint declaration for.
-     * @param array  $column Column definition.
+     * @param array  $column Column definition. Note: The column name in the column definition should be quoted.
      *
      * @return string
      *
