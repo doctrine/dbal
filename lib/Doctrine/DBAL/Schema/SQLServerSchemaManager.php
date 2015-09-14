@@ -299,7 +299,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     {
         return $this->isIncomingIdentifierValid($name)
             ? $name
-            : $this->_platform->quoteIdentifier($name);
+            : "`" . $name . "`";
     }
 
     /**
