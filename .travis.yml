@@ -122,6 +122,8 @@ matrix:
         env: DB=mysql
       - php: hhvm
         env: DB=mysqli
+      - php: hhvm
+        env: DB=mariadb
       - php: hhvm-nightly
   exclude:
       - php: hhvm
