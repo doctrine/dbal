@@ -111,17 +111,13 @@ matrix:
         mariadb: 10.1
   allow_failures:
       - php: hhvm
-        env: DB=pgsql POSTGRESQL_VERSION=9.1
-      - php: hhvm
-        env: DB=pgsql POSTGRESQL_VERSION=9.2
-      - php: hhvm
-        env: DB=pgsql POSTGRESQL_VERSION=9.3
-      - php: hhvm
         env: DB=sqlite
       - php: hhvm
         env: DB=mysql
       - php: hhvm
         env: DB=mysqli
+      - php: hhvm
+        env: DB=mariadb
       - php: hhvm-nightly
   exclude:
       - php: hhvm
