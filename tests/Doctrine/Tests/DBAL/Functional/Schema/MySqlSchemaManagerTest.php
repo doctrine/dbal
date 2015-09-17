@@ -199,6 +199,25 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('utf8_general_ci', $columns['bar']->getPlatformOption('collation'));
     }
 
+    public function testColumnCharset()
+    {
+        $table = new Table('test_charset');
+        $table->addOption('collate', $collation = 'latin1_swedish_ci');
+        $table->addOption('charset', 'latin1');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('text', 'text');
+        $table->addColumn('foo', 'text')->setPlatformOption('charset', 'latin1');
+        $table->addColumn('bar', 'text')->setPlatformOption('charset', 'utf8');
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns('test_charset');
+
+        $this->assertArrayNotHasKey('charset', $columns['id']->getPlatformOptions());
+        $this->assertEquals('latin1', $columns['text']->getPlatformOption('charset'));
+        $this->assertEquals('latin1', $columns['foo']->getPlatformOption('charset'));
+        $this->assertEquals('utf8', $columns['bar']->getPlatformOption('charset'));
+    }
+
     /**
      * @group DBAL-843
      */

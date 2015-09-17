@@ -10,4 +10,12 @@ class MySqlPlatformTest extends AbstractMySQLPlatformTestCase
     {
         return new MysqlPlatform;
     }
+
+    public function testColumnCharsetDeclarationSQL()
+    {
+        $this->assertEquals(
+            'CHARACTER SET utf8',
+            $this->_platform->getColumnCharsetDeclarationSQL('utf8')
+        );
+    }
 }

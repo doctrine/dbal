@@ -1080,4 +1080,12 @@ class MySqlPlatform extends AbstractPlatform
 
         return 'LONGBLOB';
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnCharsetDeclarationSQL($charset)
+    {
+        return 'CHARACTER SET ' . $charset;
+    }
 }
