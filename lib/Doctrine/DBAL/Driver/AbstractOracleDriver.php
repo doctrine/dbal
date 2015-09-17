@@ -118,19 +118,26 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
                 $params['port'] = 1521;
             }
 
-            $serviceName = $params['dbname'];
+            $serviceName = '';
 
             if ( ! empty($params['servicename'])) {
                 $serviceName = $params['servicename'];
+            } elseif(isset($params['dbname'])) {
+                $serviceName = $params['dbname'];
             }
 
-            $service = 'SID=' . $serviceName;
-            $pooled  = '';
-            $instance = '';
+            if (empty($serviceName)) {
+                throw new \InvalidArgumentException('No service name provided for Easy Connect String.');
+            }
 
             if (isset($params['service']) && $params['service'] == true) {
-                $service = 'SERVICE_NAME=' . $serviceName;
+                $service = '(SERVICE_NAME=' . $serviceName . ')';
+            } else {
+                $service = '(SID=' . $serviceName . ')';
             }
+
+            $pooled = '';
+            $instance = '';
 
             if (isset($params['instancename']) && ! empty($params['instancename'])) {
                 $instance = '(INSTANCE_NAME = ' . $params['instancename'] . ')';
@@ -142,7 +149,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 
             return '(DESCRIPTION=' .
                      '(ADDRESS=(PROTOCOL=TCP)(HOST=' . $params['host'] . ')(PORT=' . $params['port'] . '))' .
-                     '(CONNECT_DATA=(' . $service . ')' . $instance . $pooled . '))';
+                     '(CONNECT_DATA=' . $service . $instance . $pooled . '))';
 
         }
 
