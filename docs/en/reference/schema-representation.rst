@@ -134,7 +134,7 @@ The following options are completely vendor specific and absolutely not portable
 
    -  **charset** (string): The character set to use for the column. Currently only supported
       on MySQL and Drizzle.
-   -  **collate** (string): The collation to use for the column. Currently only supported on
-      SQL Server.
+   -  **collation** (string): The collation to use for the column. Supported by MySQL, PostgreSQL,
+      Sqlite, SQL Server and Drizzle.
    -  **check** (string): The check constraint clause to add to the column.
       Defaults to ``null``.
