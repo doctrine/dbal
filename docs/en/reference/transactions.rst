@@ -120,7 +120,7 @@ to avoid nesting transaction blocks. If this is not possible
 because the nested transaction blocks are in a third-party API
 you're out of luck.
 
-All that is guaruanteed to the inner transaction is that it still
+All that is guaranteed to the inner transaction is that it still
 happens atomically, all or nothing, the transaction just gets a
 wider scope and the control is handed to the outer scope.
 
