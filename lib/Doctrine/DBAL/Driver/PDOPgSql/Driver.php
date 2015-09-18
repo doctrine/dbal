@@ -99,6 +99,10 @@ class Driver extends AbstractPostgreSQLDriver
             $dsn .= 'sslmode=' . $params['sslmode'] . ' ';
         }
 
+        if (isset($params['application_name'])) {
+            $dsn .= 'application_name=' . $params['application_name'] . ' ';
+        }
+
         return $dsn;
     }
 
