@@ -123,14 +123,14 @@ class DB2iSeriesPlatform extends DB2Platform
                     ON tc.CONSTRAINT_NAME = spk.PK_NAME AND tc.TABLE_SCHEMA = spk.TABLE_SCHEM AND tc.TABLE_NAME = spk.TABLE_NAME
                 WHERE CONSTRAINT_TYPE = 'PRIMARY KEY'
                 AND UPPER(tc.TABLE_NAME) = UPPER('" . $table . "')
-                ". (!is_null($database) ? "AND tc.TABLE_SCHEMA = UPPER('$database')" : '') ."
+                ". ($database !== null ? "AND tc.TABLE_SCHEMA = UPPER('" . $database . "')" : '') ."
              ) pk ON
                 c.TABLE_SCHEM = pk.TABLE_SCHEMA
                 AND c.TABLE_NAME = pk.TABLE_NAME
                 AND c.COLUMN_NAME = pk.COLUMN_NAME
              WHERE
                 UPPER(c.TABLE_NAME) = UPPER('" . $table . "')
-                ". (!is_null($database) ? "AND c.TABLE_SCHEM = UPPER('$database')" : '') ."
+                ". ($database  !== null ? "AND c.TABLE_SCHEM = UPPER('" . $database . "')" : '') ."
              ORDER BY c.ordinal_position
         ";
     }
@@ -147,7 +147,7 @@ class DB2iSeriesPlatform extends DB2Platform
                 SYSIBM.tables t
             WHERE
               table_type='BASE TABLE'
-              ". (!is_null($database) ? "AND t.TABLE_SCHEMA = UPPER('$database')" : '') ."
+              ". ($database !== null ? "AND t.TABLE_SCHEMA = UPPER('" . $database . "')" : '') ."
             ORDER BY NAME
         ";
     }
@@ -163,7 +163,7 @@ class DB2iSeriesPlatform extends DB2Platform
               TEXT
             FROM QSYS2.sysviews v
             WHERE 1=1
-            ". (!is_null($database) ? "AND v.TABLE_SCHEMA = UPPER('$database')" : '') ."
+            ". ($database !== null ? "AND v.TABLE_SCHEMA = UPPER('" . $database . "')" : '') ."
             ORDER BY NAME
         ";
     }
@@ -190,7 +190,7 @@ class DB2iSeriesPlatform extends DB2Platform
               LEFT JOIN QSYS2.syscst sc ON
                   scc.TABLE_SCHEMA = sc.TABLE_SCHEMA AND scc.TABLE_NAME = sc.TABLE_NAME AND scc.CONSTRAINT_NAME = sc.CONSTRAINT_NAME
             WHERE scc.TABLE_NAME = UPPER('" . $table . "')
-            ". (!is_null($database) ? "AND scc.TABLE_SCHEMA = UPPER('$database')" : '') ."
+            ". ($database !== null ? "AND scc.TABLE_SCHEMA = UPPER('" . $database . "')" : '') ."
         ";
     }
 
@@ -247,9 +247,9 @@ class DB2iSeriesPlatform extends DB2Platform
 
         //Splitting ORDER BY
         $orderByParts = array();
-        foreach($orderByBlocks as $orderByBlock){
+        foreach ($orderByBlocks as $orderByBlock){
             $blockArray   = explode(',', $orderByBlock);
-            foreach($blockArray as $block){
+            foreach ($blockArray as $block) {
                 $block = trim($block);
                 if (!empty($block)) {
                     $orderByParts[] = $block;
@@ -271,7 +271,7 @@ class DB2iSeriesPlatform extends DB2Platform
             if (preg_match('/(([^\s]*)\.)?([^\.\s]*)\s*(ASC|DESC)?/i', trim($part), $matches)) {
                 $orderByColumns[] = array(
                     'column'    => $matches[3],
-                    'hasTable'  => ( ! empty($matches[2])),
+                    'hasTable'  => ( !empty($matches[2])),
                     'sort'      => isset($matches[4]) ? $matches[4] : null,
                     'table'     => empty($matches[2]) ? '[^\.\s]*' : $matches[2]
                 );
