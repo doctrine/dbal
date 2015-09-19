@@ -184,7 +184,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      *
      * @return resource
      */
-    public function getConn() //getWrappedResourceHandle
+    public function getWrappedResourceHandle()
     {
         return $this->_conn;
     }
