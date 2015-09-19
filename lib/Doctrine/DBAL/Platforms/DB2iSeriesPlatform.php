@@ -251,7 +251,7 @@ class DB2iSeriesPlatform extends DB2Platform
             $blockArray   = explode(',', $orderByBlock);
             foreach($blockArray as $block){
                 $block = trim($block);
-                if(!empty($block)) {
+                if (!empty($block)) {
                     $orderByParts[] = $block;
                 }
             }

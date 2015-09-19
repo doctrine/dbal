@@ -223,12 +223,9 @@ class DB2iSeriesSchemaManager extends DB2SchemaManager
     {
         //In iSeries systems, with SQL naming, the default database name is specified in driverOptions['i5_lib']
         $dbParams = $this->_conn->getParams();
-        if(array_key_exists('driverOptions', $dbParams) && array_key_exists('i5_lib', $dbParams['driverOptions']))
-        {
+        if (array_key_exists('driverOptions', $dbParams) && array_key_exists('i5_lib', $dbParams['driverOptions'])) {
             return $dbParams['driverOptions']['i5_lib'];
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
