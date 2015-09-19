@@ -54,7 +54,10 @@ class DB2Driver extends AbstractDB2Driver
             $password = null;
         }
 
-        return new DB2Connection($params, $username, $password, $driverOptions);
+        if(PHP_OS === 'AIX')
+            return new DB2iSeriesConnection($params, $username, $password, $driverOptions);
+        else
+            return new DB2Connection($params, $username, $password, $driverOptions);
     }
 
     /**
