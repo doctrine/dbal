@@ -19,6 +19,12 @@
 
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
+/**
+ * IBMi Db2 Connection.
+ * More documentation about iSeries schema at https://www-01.ibm.com/support/knowledgecenter/ssw_ibm_i_72/db2/rbafzcatsqlcolumns.htm
+ *
+ * @author Cassiano Vailati <c.vailati@esconsulting.it>
+ */
 class DB2iSeriesConnection extends DB2Connection
 {
     protected $driverOptions = array();
