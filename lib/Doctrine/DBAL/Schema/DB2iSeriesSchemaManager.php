@@ -30,7 +30,6 @@ class DB2iSeriesSchemaManager extends DB2SchemaManager
     /**
      * {@inheritdoc}
      */
-
     public function listTableNames()
     {
         $sql = $this->_platform->getListTablesSQL($this->getDatabase());
@@ -43,11 +42,7 @@ class DB2iSeriesSchemaManager extends DB2SchemaManager
 
 
     /**
-     * Lists the available sequences for this connection.
-     *
-     * @param string|null $database
-     *
-     * @return \Doctrine\DBAL\Schema\Sequence[]
+     * {@inheritdoc}
      */
     public function listSequences($database = null)
     {
@@ -62,19 +57,7 @@ class DB2iSeriesSchemaManager extends DB2SchemaManager
     }
 
     /**
-     * Lists the columns for a given table.
-     *
-     * In contrast to other libraries and to the old version of Doctrine,
-     * this column definition does try to contain the 'primary' field for
-     * the reason that it is not portable accross different RDBMS. Use
-     * {@see listTableIndexes($tableName)} to retrieve the primary key
-     * of a table. We're a RDBMS specifies more details these are held
-     * in the platformDetails array.
-     *
-     * @param string      $table    The name of the table.
-     * @param string|null $database
-     *
-     * @return \Doctrine\DBAL\Schema\Column[]
+     * {@inheritdoc}
      */
     public function listTableColumns($table, $database = null)
     {
@@ -90,13 +73,7 @@ class DB2iSeriesSchemaManager extends DB2SchemaManager
     }
 
     /**
-     * Lists the indexes for a given table returning an array of Index instances.
-     *
-     * Keys of the portable indexes list are all lower-cased.
-     *
-     * @param string $table The name of the table.
-     *
-     * @return \Doctrine\DBAL\Schema\Index[]
+     * {@inheritdoc}
      */
     public function listTableIndexes($table)
     {
@@ -108,9 +85,7 @@ class DB2iSeriesSchemaManager extends DB2SchemaManager
     }
 
     /**
-     * Lists the views this connection has.
-     *
-     * @return \Doctrine\DBAL\Schema\View[]
+     * {@inheritdoc}
      */
     public function listViews()
     {
@@ -122,12 +97,7 @@ class DB2iSeriesSchemaManager extends DB2SchemaManager
     }
 
     /**
-     * Lists the foreign keys for the given table.
-     *
-     * @param string      $table    The name of the table.
-     * @param string|null $database
-     *
-     * @return \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     * {@inheritdoc}
      */
     public function listTableForeignKeys($table, $database = null)
     {
