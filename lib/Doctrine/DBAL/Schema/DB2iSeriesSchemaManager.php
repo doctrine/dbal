@@ -23,10 +23,9 @@ namespace Doctrine\DBAL\Schema;
  * IBMi Db2 Schema Manager.
  *
  * @link   www.doctrine-project.org
- * @since  1.0
  * @author Cassiano Vailati <c.vailati@esconsulting.it> extending work of Benjamin Eberlei <kontakt@beberlei.de>
  */
-class DB2iSeriesSchemaManager extends AbstractSchemaManager
+class DB2iSeriesSchemaManager extends DB2SchemaManager
 {
     /**
      * {@inheritdoc}
@@ -215,109 +214,6 @@ class DB2iSeriesSchemaManager extends AbstractSchemaManager
         }
 
         return new Column($tableColumn['colname'], \Doctrine\DBAL\Types\Type::getType($type), $options);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableTablesList($tables)
-    {
-        $tableNames = array();
-        foreach ($tables as $tableRow) {
-            $tableRow = array_change_key_case($tableRow, \CASE_LOWER);
-            $tableNames[] = $tableRow['name'];
-        }
-
-        return $tableNames;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
-    {
-        foreach ($tableIndexRows as &$tableIndexRow) {
-            $tableIndexRow = array_change_key_case($tableIndexRow, \CASE_LOWER);
-            $tableIndexRow['primary'] = (boolean) $tableIndexRow['primary'];
-        }
-
-        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
-    {
-        return new ForeignKeyConstraint(
-            $tableForeignKey['local_columns'],
-            $tableForeignKey['foreign_table'],
-            $tableForeignKey['foreign_columns'],
-            $tableForeignKey['name'],
-            $tableForeignKey['options']
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
-    {
-        $foreignKeys = array();
-
-        foreach ($tableForeignKeys as $tableForeignKey) {
-            $tableForeignKey = array_change_key_case($tableForeignKey, \CASE_LOWER);
-
-            if (!isset($foreignKeys[$tableForeignKey['index_name']])) {
-                $foreignKeys[$tableForeignKey['index_name']] = array(
-                    'local_columns'   => array($tableForeignKey['local_column']),
-                    'foreign_table'   => $tableForeignKey['foreign_table'],
-                    'foreign_columns' => array($tableForeignKey['foreign_column']),
-                    'name'            => $tableForeignKey['index_name'],
-                    'options'         => array(
-                        'onUpdate' => $tableForeignKey['on_update'],
-                        'onDelete' => $tableForeignKey['on_delete'],
-                    )
-                );
-            } else {
-                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][] = $tableForeignKey['local_column'];
-                $foreignKeys[$tableForeignKey['index_name']]['foreign_columns'][] = $tableForeignKey['foreign_column'];
-            }
-        }
-
-        return parent::_getPortableTableForeignKeysList($foreignKeys);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableForeignKeyRuleDef($def)
-    {
-        if ($def == "C") {
-            return "CASCADE";
-        } elseif ($def == "N") {
-            return "SET NULL";
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function _getPortableViewDefinition($view)
-    {
-        $view = array_change_key_case($view, \CASE_LOWER);
-        // sadly this still segfaults on PDO_IBM, see http://pecl.php.net/bugs/bug.php?id=17199
-        //$view['text'] = (is_resource($view['text']) ? stream_get_contents($view['text']) : $view['text']);
-        if (!is_resource($view['text'])) {
-            $pos = strpos($view['text'], ' AS ');
-            $sql = substr($view['text'], $pos+4);
-        } else {
-            $sql = '';
-        }
-
-        return new View($view['name'], $sql);
     }
 
     /**
