@@ -34,6 +34,8 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
  */
 abstract class AbstractDB2Driver implements Driver
 {
+    const SYSTEM_IBMI = 'AIX';
+
     /**
      * {@inheritdoc}
      */
@@ -49,7 +51,7 @@ abstract class AbstractDB2Driver implements Driver
      */
     public function getDatabasePlatform()
     {
-        if (PHP_OS === 'AIX') {
+        if (PHP_OS === static::SYSTEM_IBMI) {
             return new DB2iSeriesPlatform();
         } else {
             return new DB2Platform();
@@ -61,7 +63,7 @@ abstract class AbstractDB2Driver implements Driver
      */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
-        if (PHP_OS === 'AIX') {
+        if (PHP_OS === static::SYSTEM_IBMI) {
             return new DB2iSeriesSchemaManager($conn);
         } else {
             return new DB2SchemaManager($conn);
