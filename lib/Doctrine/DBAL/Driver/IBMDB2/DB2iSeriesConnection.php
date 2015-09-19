@@ -66,7 +66,7 @@ class DB2iSeriesConnection extends DB2Connection
     public function getSchemaSeparatorSymbol()
     {
         // if "i5 naming" is on, use '/' to separate schema and table. Otherwise use '.'
-        if ($this->driverOptions['i5_naming']) {
+        if (array_key_exists('i5_naming', $this->driverOptions) && $this->driverOptions['i5_naming']) {
 
             // "i5 naming" mode requires a slash
             $schemaSepSymbol = '/';
