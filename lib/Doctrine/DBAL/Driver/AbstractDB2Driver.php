@@ -49,10 +49,11 @@ abstract class AbstractDB2Driver implements Driver
      */
     public function getDatabasePlatform()
     {
-        if(PHP_OS === 'AIX')
+        if (PHP_OS === 'AIX') {
             return new DB2iSeriesPlatform();
-        else
+        } else {
             return new DB2Platform();
+        }
     }
 
     /**
@@ -60,9 +61,10 @@ abstract class AbstractDB2Driver implements Driver
      */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
-        if(PHP_OS === 'AIX')
+        if (PHP_OS === 'AIX') {
             return new DB2iSeriesSchemaManager($conn);
-        else
+        } else {
             return new DB2SchemaManager($conn);
+        }
     }
 }
