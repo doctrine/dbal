@@ -69,13 +69,11 @@ class DB2iSeriesConnection extends DB2Connection
         if (array_key_exists('i5_naming', $this->driverOptions) && $this->driverOptions['i5_naming']) {
 
             // "i5 naming" mode requires a slash
-            $schemaSepSymbol = '/';
+            return '/';
 
         } else {
             // SQL naming requires a dot
-            $schemaSepSymbol = '.';
+            return '.';
         }
-
-        return $schemaSepSymbol;
     }
 }
