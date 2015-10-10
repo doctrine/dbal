@@ -952,6 +952,7 @@ class MySqlPlatform extends AbstractPlatform
             'text'          => 'text',
             'varchar'       => 'string',
             'string'        => 'string',
+            'enum'          => 'string',
             'char'          => 'string',
             'date'          => 'date',
             'datetime'      => 'datetime',
