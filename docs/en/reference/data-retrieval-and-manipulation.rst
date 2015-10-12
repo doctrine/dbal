@@ -327,7 +327,7 @@ returns the affected rows count:
 The ``$types`` variable contains the PDO or Doctrine Type constants
 to perform necessary type conversions between actual input
 parameters and expected database values. See the
-`Types <./types#type-conversion>`_ section for more information.
+`Types <./types#mapping-matrix>`_ section for more information.
 
 executeQuery()
 ~~~~~~~~~~~~~~
@@ -351,7 +351,7 @@ parameters to the execute method, then returning the statement:
 The ``$types`` variable contains the PDO or Doctrine Type constants
 to perform necessary type conversions between actual input
 parameters and expected database values. See the
-`Types <./types#type-conversion>`_ section for more information.
+`Types <./types#mapping-matrix>`_ section for more information.
 
 fetchAll()
 ~~~~~~~~~~
