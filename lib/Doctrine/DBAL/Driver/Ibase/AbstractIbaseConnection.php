@@ -66,6 +66,11 @@ abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareCon
     protected $password;
 
     /**
+     * @var string Charset
+     */
+    protected $charset = null;
+
+    /**
      * @var ressource ibase api connection ressource
      */
     protected $ibaseConnectionRc;
@@ -117,6 +122,9 @@ abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareCon
         $this->dbs = $this->makeDbString($params);
         $this->username = $username;
         $this->password = $password;
+        if (isset($params['charset'])) {
+            $this->charset = $params['charset'];
+        }
         foreach ($driverOptions as $k => $v) {
             $this->setAttribute($k, $v);
         }
@@ -208,7 +216,7 @@ abstract class AbstractIbaseConnection implements Connection, ServerInfoAwareCon
     public function getActiveTransactionIbaseRes()
     {
         if (!$this->ibaseConnectionRc || !is_resource($this->ibaseConnectionRc)) {
-            $this->ibaseConnectionRc = @ibase_connect($this->dbs, $this->username, $this->password);
+            $this->ibaseConnectionRc = @ibase_connect($this->dbs, $this->username, $this->password, $this->charset);
             if (!is_resource($this->ibaseConnectionRc)) {
                 $this->checkLastApiCall();
             }
