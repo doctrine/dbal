@@ -141,7 +141,7 @@ class PoolingShardConnection extends Connection
      */
     public function getParams()
     {
-        return $this->activeShardId ? $this->connections[$this->activeShardId] : parent::getParams();
+        return $this->activeShardId ? $this->connections[$this->activeShardId] : $this->connections[0];
     }
 
     /**
