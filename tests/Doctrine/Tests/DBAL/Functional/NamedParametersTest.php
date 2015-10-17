@@ -101,7 +101,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
         );
     }
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\Type;
 
 class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
         try {
@@ -17,7 +17,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         if ($this->_conn) {
             try {

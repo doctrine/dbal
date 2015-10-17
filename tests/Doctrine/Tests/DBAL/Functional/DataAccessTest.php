@@ -11,7 +11,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     static private $generated = false;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

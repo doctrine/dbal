@@ -12,7 +12,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     private $expectedResult = array(array('test_int' => 100, 'test_string' => 'foo'), array('test_int' => 200, 'test_string' => 'bar'), array('test_int' => 300, 'test_string' => 'baz'));
     private $sqlLogger;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

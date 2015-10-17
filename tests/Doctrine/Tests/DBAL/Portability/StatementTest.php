@@ -25,7 +25,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp()
     {
         $this->wrappedStmt = $this->createWrappedStatement();
         $this->conn        = $this->createConnection();

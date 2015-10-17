@@ -28,7 +28,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
     private $conn;
     private $synchronizer;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->conn = DriverManager::getConnection(array(
             'driver' => 'pdo_sqlite',

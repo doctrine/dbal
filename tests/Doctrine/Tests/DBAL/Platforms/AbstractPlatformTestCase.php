@@ -23,7 +23,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract public function createPlatform();
 
-    public function setUp()
+    protected function setUp()
     {
         $this->_platform = $this->createPlatform();
     }
