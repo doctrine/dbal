@@ -243,8 +243,8 @@ class AbstractFbIbSchemaManager extends \Doctrine\DBAL\Schema\AbstractSchemaMana
                     'onUpdate' => $value['on_update'],
                 );
             }
-            $list[$value['constraint_name']]['local'][] = $value['field_name'];
-            $list[$value['constraint_name']]['foreign'][] = $value['references_field'];
+            $list[$value['constraint_name']]['local'][] = strtolower($value['field_name']);
+			$list[$value['constraint_name']]['foreign'][] = strtolower($value['references_field']);
         }
 
         $result = array();
@@ -282,7 +282,7 @@ class AbstractFbIbSchemaManager extends \Doctrine\DBAL\Schema\AbstractSchemaMana
                 $mangledItem['options']['descending'] = true;
             }
 
-            $mangledItem['column_name'] = $tableIndex['field_name'];
+            $mangledItem['column_name'] = strtolower($tableIndex['field_name']);
 
             $mangledData[] = $mangledItem;
             }
