@@ -8,4 +8,3 @@ build.properties export-ignore
 build.xml export-ignore
 phpunit.xml.dist export-ignore
 run-all.sh export-ignore
-composer.lock export-ignore
