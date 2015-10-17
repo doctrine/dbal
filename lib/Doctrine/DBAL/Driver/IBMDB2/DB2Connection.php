@@ -39,9 +39,9 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function __construct(array $params, $username, $password, $driverOptions = array())
     {
-        $isPersistant = (isset($params['persistent']) && $params['persistent'] == true);
+        $isPersistent = (isset($params['persistent']) && $params['persistent'] == true);
 
-        if ($isPersistant) {
+        if ($isPersistent) {
             $this->_conn = db2_pconnect($params['dbname'], $username, $password, $driverOptions);
         } else {
             $this->_conn = db2_connect($params['dbname'], $username, $password, $driverOptions);

@@ -116,7 +116,11 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
     {
         $params = $conn->getParams();
 
-        return $params['dbname'];
+        if (isset($params['dbname'])) {
+            return $params['dbname'];
+        }
+
+        return $conn->query('SELECT DB_NAME()')->fetchColumn();
     }
 
     /**

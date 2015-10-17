@@ -45,7 +45,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getRegexpExpression()
     {
-        return 'RLIKE';
+        return 'REGEXP';
     }
 
     /**

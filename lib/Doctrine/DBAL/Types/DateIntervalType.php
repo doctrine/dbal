@@ -33,20 +33,17 @@ class DateIntervalType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        $spec = null;
-        if ($value !== null) {
-            /** @var \DateInterval $value */
-            $spec = 'P'
-                . str_pad($value->y, 4, '0', STR_PAD_LEFT) . '-'
-                . $value->format('%M') . '-'
-                . $value->format('%D') . 'T'
-                . $value->format('%H') . ':'
-                . $value->format('%I') . ':'
-                . $value->format('%S')
-            ;
+        if (null === $value) {
+            return null;
         }
 
-        return $spec;
+        if ($value instanceof \DateInterval) {
+            return 'P'
+                . str_pad($value->y, 4, '0', STR_PAD_LEFT) . '-'
+                . $value->format('%M-%DT%H:%I:%S');
+        }
+
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateInterval']);
     }
 
     /**
@@ -59,12 +56,17 @@ class DateIntervalType extends Type
         }
 
         try {
-            $interval = new \DateInterval($value);
-        } catch (\Exception $e) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), 'PY-m-dTH:i:s');
-
+            return new \DateInterval($value);
+        } catch (\Exception $exception) {
+            throw ConversionException::conversionFailedFormat($value, $this->getName(), 'PY-m-dTH:i:s', $exception);
         }
-
-        return $interval;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    {
+        return true;
     }
 }

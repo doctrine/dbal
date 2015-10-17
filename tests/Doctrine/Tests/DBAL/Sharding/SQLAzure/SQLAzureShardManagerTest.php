@@ -72,7 +72,7 @@ class SQLAzureShardManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1234, $sm->getCurrentDistributionValue());
     }
 
-    public function testSelectShardNoDistriubtionValue()
+    public function testSelectShardNoDistributionValue()
     {
         $conn = $this->createConnection(array('sharding' => array('federationName' => 'abc', 'distributionKey' => 'foo', 'distributionType' => 'integer')));
         $conn->expects($this->at(1))->method('isTransactionActive')->will($this->returnValue(false));

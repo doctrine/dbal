@@ -41,6 +41,36 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
+     * @group DBAL-1220
+     */
+    public function testDropsDatabaseWithActiveConnections()
+    {
+        if (! $this->_sm->getDatabasePlatform()->supportsCreateDropDatabase()) {
+            $this->markTestSkipped('Cannot drop Database client side with this Driver.');
+        }
+
+        $this->_sm->dropAndCreateDatabase('test_drop_database');
+
+        $this->assertContains('test_drop_database', $this->_sm->listDatabases());
+
+        $params = $this->_conn->getParams();
+        $params['dbname'] = 'test_drop_database';
+
+        $user = isset($params['user']) ? $params['user'] : null;
+        $password = isset($params['password']) ? $params['password'] : null;
+
+        $connection = $this->_conn->getDriver()->connect($params, $user, $password);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
+
+        $this->_sm->dropDatabase('test_drop_database');
+
+        $this->assertNotContains('test_drop_database', $this->_sm->listDatabases());
+
+        unset($connection);
+    }
+
+    /**
      * @group DBAL-195
      */
     public function testDropAndCreateSequence()
@@ -704,6 +734,31 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInstanceOf('Doctrine\DBAL\Types\ObjectType', $columns['obj']->getType(), "The Doctrine2 should be detected from comment hint.");
         $this->assertEquals('This is a comment', $columns['arr']->getComment(), "The Doctrine2 Typehint should be stripped from comment.");
         $this->assertInstanceOf('Doctrine\DBAL\Types\ArrayType', $columns['arr']->getType(), "The Doctrine2 should be detected from comment hint.");
+    }
+
+    /**
+     * @group DBAL-1228
+     */
+    public function testCommentHintOnDateIntervalTypeColumn()
+    {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsInlineColumnComments() &&
+            ! $this->_conn->getDatabasePlatform()->supportsCommentOnStatement() &&
+            $this->_conn->getDatabasePlatform()->getName() != 'mssql') {
+            $this->markTestSkipped('Database does not support column comments.');
+        }
+
+        $table = new Table('column_dateinterval_comment');
+        $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
+        $table->addColumn('date_interval', 'dateinterval', array('comment' => 'This is a comment'));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns("column_dateinterval_comment");
+        $this->assertEquals(2, count($columns));
+        $this->assertEquals('This is a comment', $columns['id']->getComment());
+        $this->assertEquals('This is a comment', $columns['date_interval']->getComment(), "The Doctrine2 Typehint should be stripped from comment.");
+        $this->assertInstanceOf('Doctrine\DBAL\Types\DateIntervalType', $columns['date_interval']->getType(), "The Doctrine2 should be detected from comment hint.");
     }
 
     /**

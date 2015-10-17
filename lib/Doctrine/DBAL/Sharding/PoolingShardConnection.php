@@ -19,14 +19,12 @@
 
 namespace Doctrine\DBAL\Sharding;
 
+use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
-use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Configuration;
-
-use Doctrine\Common\EventManager;
-
 use Doctrine\DBAL\Sharding\ShardChoser\ShardChoser;
 
 /**
@@ -129,6 +127,64 @@ class PoolingShardConnection extends Connection
     }
 
     /**
+     * Get active shard id.
+     * 
+     * @return integer
+     */
+    public function getActiveShardId()
+    {
+        return $this->activeShardId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParams()
+    {
+        return $this->activeShardId ? $this->connections[$this->activeShardId] : $this->connections[0];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHost()
+    {
+        $params = $this->getParams();
+
+        return isset($params['host']) ? $params['host'] : parent::getHost();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPort()
+    {
+        $params = $this->getParams();
+
+        return isset($params['port']) ? $params['port'] : parent::getPort();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUsername()
+    {
+        $params = $this->getParams();
+
+        return isset($params['user']) ? $params['user'] : parent::getUsername();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPassword()
+    {
+        $params = $this->getParams();
+
+        return isset($params['password']) ? $params['password'] : parent::getPassword();
+    }
+
+    /**
      * Connects to a given shard.
      *
      * @param mixed $shardId
@@ -151,7 +207,7 @@ class PoolingShardConnection extends Connection
             throw new ShardingException("Cannot switch shard when transaction is active.");
         }
 
-        $this->activeShardId = (int) $shardId;
+        $this->activeShardId = (int)$shardId;
 
         if (isset($this->activeConnections[$this->activeShardId])) {
             $this->_conn = $this->activeConnections[$this->activeShardId];
@@ -211,5 +267,6 @@ class PoolingShardConnection extends Connection
     {
         $this->_conn             = null;
         $this->activeConnections = null;
+        $this->activeShardId     = null;
     }
 }

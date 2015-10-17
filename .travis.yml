@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 5.3
   - 5.4
   - 5.5
   - 5.6
@@ -29,6 +28,69 @@ before_script:
 script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 
 matrix:
+  include:
+    - php: 5.4
+      env: DB=mariadb
+      addons:
+        mariadb: 5.5
+    - php: 5.5
+      env: DB=mariadb
+      addons:
+        mariadb: 5.5
+    - php: 5.6
+      env: DB=mariadb
+      addons:
+        mariadb: 5.5
+    - php: 7.0
+      env: DB=mariadb
+      addons:
+        mariadb: 5.5
+    - php: hhvm
+      env: DB=mariadb
+      addons:
+        mariadb: 5.5
+
+    - php: 5.4
+      env: DB=mariadb
+      addons:
+        mariadb: 10.0
+    - php: 5.5
+      env: DB=mariadb
+      addons:
+        mariadb: 10.0
+    - php: 5.6
+      env: DB=mariadb
+      addons:
+        mariadb: 10.0
+    - php: 7.0
+      env: DB=mariadb
+      addons:
+        mariadb: 10.0
+    - php: hhvm
+      env: DB=mariadb
+      addons:
+        mariadb: 10.0
+
+    - php: 5.4
+      env: DB=mariadb
+      addons:
+        mariadb: 10.1
+    - php: 5.5
+      env: DB=mariadb
+      addons:
+        mariadb: 10.1
+    - php: 5.6
+      env: DB=mariadb
+      addons:
+        mariadb: 10.1
+    - php: 7.0
+      env: DB=mariadb
+      addons:
+        mariadb: 10.1
+    - php: hhvm
+      env: DB=mariadb
+      addons:
+        mariadb: 10.1
   allow_failures:
     - php: 7.0
     - php: hhvm

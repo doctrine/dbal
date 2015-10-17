@@ -26,6 +26,32 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals(false, file_exists($path));
     }
 
+    /**
+     * @group DBAL-1220
+     */
+    public function testDropsDatabaseWithActiveConnections()
+    {
+        $this->_sm->dropAndCreateDatabase('test_drop_database');
+
+        $this->assertFileExists('test_drop_database');
+
+        $params = $this->_conn->getParams();
+        $params['dbname'] = 'test_drop_database';
+
+        $user = isset($params['user']) ? $params['user'] : null;
+        $password = isset($params['password']) ? $params['password'] : null;
+
+        $connection = $this->_conn->getDriver()->connect($params, $user, $password);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
+
+        $this->_sm->dropDatabase('test_drop_database');
+
+        $this->assertFileNotExists('test_drop_database');
+
+        unset($connection);
+    }
+
     public function testRenameTable()
     {
         $this->createTestTable('oldname');

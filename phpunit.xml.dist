@@ -46,6 +46,20 @@
     <testsuites>
         <testsuite name="Doctrine DBAL Test Suite">
             <directory>./tests/Doctrine/Tests/DBAL</directory>
+            <exclude>./tests/Doctrine/Tests/DBAL/Performance</exclude>
+        </testsuite>
+        <testsuite name="Doctrine DBAL Performance Test Suite">
+            <directory>./tests/Doctrine/Tests/DBAL/Performance</directory>
         </testsuite>
     </testsuites>
+
+    <listeners>
+        <listener class="Doctrine\Tests\DbalPerformanceTestListener"/>
+    </listeners>
+
+    <groups>
+        <exclude>
+            <group>performance</group>
+        </exclude>
+    </groups>
 </phpunit>

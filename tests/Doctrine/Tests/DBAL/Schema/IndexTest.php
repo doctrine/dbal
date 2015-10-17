@@ -39,7 +39,7 @@ class IndexTest extends \PHPUnit_Framework_TestCase
     /**
      * @group DBAL-50
      */
-    public function testFullfilledByUnique()
+    public function testFulfilledByUnique()
     {
         $idx1 = $this->createIndex(true, false);
         $idx2 = $this->createIndex(true, false);
@@ -52,7 +52,7 @@ class IndexTest extends \PHPUnit_Framework_TestCase
     /**
      * @group DBAL-50
      */
-    public function testFullfilledByPrimary()
+    public function testFulfilledByPrimary()
     {
         $idx1 = $this->createIndex(true, true);
         $idx2 = $this->createIndex(true, true);
@@ -65,7 +65,7 @@ class IndexTest extends \PHPUnit_Framework_TestCase
     /**
      * @group DBAL-50
      */
-    public function testFullfilledByIndex()
+    public function testFulfilledByIndex()
     {
         $idx1 = $this->createIndex();
         $idx2 = $this->createIndex();
@@ -77,7 +77,7 @@ class IndexTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($idx1->isFullfilledBy($uniq));
     }
 
-    public function testFullfilledWithPartial()
+    public function testFulfilledWithPartial()
     {
         $without = new Index('without', array('col1', 'col2'), true, false, array(), array());
         $partial = new Index('partial', array('col1', 'col2'), true, false, array(), array('where' => 'col1 IS NULL'));
