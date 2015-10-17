@@ -389,7 +389,7 @@ abstract class AbstractFbIbPlatform extends AbstractPlatform
                 FROM RDB$RELATIONS 
                 WHERE 
                     (RDB$SYSTEM_FLAG=0 OR RDB$SYSTEM_FLAG IS NULL) and
-                    (RDB$RELATION_TYPE = 0)';
+        			(RDB$VIEW_BLR IS NULL)';
     }
 
     /**
