@@ -1,5 +1,12 @@
 language: php
 
+sudo: false
+
+cache:
+    directories:
+        - vendor
+        - $HOME/.composer/cache
+
 php:
   - 5.4
   - 5.5
@@ -16,11 +23,8 @@ env:
   - DB=sqlite
   - DB=mysqli
 
-before_install:
-  - composer self-update
-
 install:
-  - composer update --prefer-source
+  - travis_retry composer install
 
 before_script:
   - if [ '$DB' = 'pgsql' ]; then sudo service postgresql stop; sudo service postgresql start $POSTGRESQL_VERSION; fi
@@ -28,6 +32,7 @@ before_script:
 script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 
 matrix:
+  fast_finish: true
   include:
     - php: 5.4
       env: DB=mariadb
@@ -106,5 +111,3 @@ matrix:
 
 addons:
   postgresql: '9.4'
-
-sudo: false
