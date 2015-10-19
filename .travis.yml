@@ -8,18 +8,29 @@ php:
   - hhvm
 
 env:
-  - DB=mysql
-  - DB=pgsql POSTGRESQL_VERSION=9.1
-  - DB=pgsql POSTGRESQL_VERSION=9.2
-  - DB=pgsql POSTGRESQL_VERSION=9.3
-  - DB=pgsql POSTGRESQL_VERSION=9.4
-  - DB=sqlite
-  - DB=mysqli
+  global:
+    # $SQLANYWHERE_12_GDRIVE_ID
+    - secure: "TaIWN0OTS1fGCdvpDpRIX/svYb3pjwBqISeN6KMspqn8QB2bkqRWn+A1s9lAZw/1Ou27Qep2sRvo3lYBEssz2ZC84/qlt520bga5P/DRBLzJWjNowFh1c8jti6WiAHCnhoEO+HoUa/4ZFdeNA71RSL+8Fb8slKjC/InrwrYTmQo="
+    # $SQLANYWHERE_16_GDRIVE_ID
+    - secure: "jMGH+6QisWj5XDLq5seTdJjQa8IXqqjjggufVOM0iqK3yqsCm/3D+XgXiREOABvV2iWhbR2j0jvrOGqYTaCX2mp/HSj4w86zFl+IDrsC7IcozoaJg2I4fBYn56jBEsk/wsMpGKBdH7TW1bMWyvJ1+3MCUVsEzTHYdpauVydv7Ek="
+    - LD_LIBRARY_PATH=`pwd`/sqlanywhere/lib64
+    - SQLANY16=`pwd`/sqlanywhere
+  matrix:
+    - DB=mysql
+    - DB=pgsql POSTGRESQL_VERSION=9.1
+    - DB=pgsql POSTGRESQL_VERSION=9.2
+    - DB=pgsql POSTGRESQL_VERSION=9.3
+    - DB=pgsql POSTGRESQL_VERSION=9.4
+    - DB=sqlite
+    - DB=mysqli
+    - DB=sqlanywhere SQLANYWHERE_GDRIVE_ID=$SQLANYWHERE_12_GDRIVE_ID
+    - DB=sqlanywhere SQLANYWHERE_GDRIVE_ID=$SQLANYWHERE_16_GDRIVE_ID
 
 before_install:
   - composer self-update
 
 install:
+  - if [ $DB = 'sqlanywhere' ]; then ./tests/travis/install_sqlanywhere.sh; fi
   - composer update --prefer-source
 
 before_script:
@@ -103,6 +114,14 @@ matrix:
       env: DB=pgsql POSTGRESQL_VERSION=9.3 # driver currently unsupported by HHVM
     - php: hhvm
       env: DB=pgsql POSTGRESQL_VERSION=9.4 # driver currently unsupported by HHVM
+    - php: hhvm
+      env: DB=sqlanywhere SQLANYWHERE_GDRIVE_ID=$SQLANYWHERE_12_GDRIVE_ID # driver currently unsupported by HHVM
+    - php: hhvm
+      env: DB=sqlanywhere SQLANYWHERE_GDRIVE_ID=$SQLANYWHERE_16_GDRIVE_ID # driver currently unsupported by HHVM
+    - php: 7.0
+      env: DB=sqlanywhere SQLANYWHERE_GDRIVE_ID=$SQLANYWHERE_12_GDRIVE_ID # driver currently unsupported by PHP 7.0
+    - php: 7.0
+      env: DB=sqlanywhere SQLANYWHERE_GDRIVE_ID=$SQLANYWHERE_16_GDRIVE_ID # driver currently unsupported by PHP 7.0
 
 addons:
   postgresql: '9.4'
