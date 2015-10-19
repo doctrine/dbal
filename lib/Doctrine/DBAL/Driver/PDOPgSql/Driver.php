@@ -99,6 +99,10 @@ class Driver extends AbstractPostgreSQLDriver
             $dsn .= 'sslmode=' . $params['sslmode'] . ' ';
         }
 
+        if (isset($params['sslrootcert'])) {
+            $dsn .= 'sslrootcert=' . $params['sslrootcert'] . ' ';
+        }
+
         return $dsn;
     }
 
