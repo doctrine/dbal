@@ -127,7 +127,7 @@ class DBALException extends \Exception
      */
     public static function driverException(Driver $driver, \Exception $driverEx)
     {
-        $msg = "An exception occured in driver: " . $driverEx->getMessage();
+        $msg = "An exception occurred in driver: " . $driverEx->getMessage();
 
         if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof DriverException) {
             return $driver->convertException($msg, $driverEx);
