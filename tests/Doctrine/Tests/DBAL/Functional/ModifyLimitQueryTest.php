@@ -6,7 +6,7 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     private static $tableCreated = false;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

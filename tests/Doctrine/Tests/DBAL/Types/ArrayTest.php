@@ -17,7 +17,7 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
         $this->_type = Type::getType('array');
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         error_reporting(-1); // reactive all error levels
     }

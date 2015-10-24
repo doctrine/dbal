@@ -24,7 +24,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         'port' => '1234'
     );
 
-    public function setUp()
+    protected function setUp()
     {
         $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($this->params);
     }

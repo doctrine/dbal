@@ -10,7 +10,7 @@ use Doctrine\Tests\DbalFunctionalTestCase;
  */
 class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

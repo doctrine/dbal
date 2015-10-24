@@ -8,13 +8,13 @@ use Doctrine\DBAL\Types\Type;
 
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         $this->resetSharedConn();
         parent::setUp();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         parent::tearDown();
         $this->resetSharedConn();

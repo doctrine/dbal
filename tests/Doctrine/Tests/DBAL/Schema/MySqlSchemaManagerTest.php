@@ -14,7 +14,7 @@ class MySqlSchemaManagerTest extends \PHPUnit_Framework_TestCase
      */
     private $manager;
 
-    public function setUp()
+    protected function setUp()
     {
         $eventManager = new EventManager();
         $driverMock = $this->getMock('Doctrine\DBAL\Driver');

@@ -16,7 +16,7 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
      */
     private $platform;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->comparator = new \Doctrine\DBAL\Schema\Comparator;
         $this->platform = new \Doctrine\DBAL\Platforms\MySqlPlatform;

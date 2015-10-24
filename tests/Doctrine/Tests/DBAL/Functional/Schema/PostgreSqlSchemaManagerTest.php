@@ -9,7 +9,7 @@ use Doctrine\DBAL\Types\Type;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    public function tearDown()
+    protected function tearDown()
     {
         parent::tearDown();
 

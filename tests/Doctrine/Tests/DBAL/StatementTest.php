@@ -23,7 +23,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
      */
     private $pdoStatement;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->pdoStatement = $this->getMock('\PDOStatement', array('execute', 'bindParam', 'bindValue'));
         $platform = new \Doctrine\Tests\DBAL\Mocks\MockPlatform();
