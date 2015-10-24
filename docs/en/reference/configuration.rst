@@ -254,6 +254,11 @@ pdo\_pgsql
    a SSL TCP/IP connection will be negotiated with the server.
    See the list of available modes:
    `http://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLMODE`
+-  ``sslrootcert`` (string): specifies the name of a file containing
+   SSL certificate authority (CA) certificate(s). If the file exists,
+   the server's certificate will be verified to be signed by one of these
+   authorities.
+   See http://www.postgresql.org/docs/9.0/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
 
 PostgreSQL behaves differently with regard to booleans when you use
 ``PDO::ATTR_EMULATE_PREPARES`` or not. To switch from using ``'true'``
