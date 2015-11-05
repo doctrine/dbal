@@ -1124,6 +1124,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'year'          => 'date',
             'uuid'          => 'guid',
             'bytea'         => 'blob',
+            'geometry'      => 'geometry'
         );
     }
 
