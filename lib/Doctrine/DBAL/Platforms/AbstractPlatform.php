@@ -398,7 +398,7 @@ abstract class AbstractPlatform
             throw DBALException::typeNotFound($doctrineType);
         }
 
-        $dbType = strtolower($dbType);
+        $dbType = trim(strtolower($dbType));
         $this->doctrineTypeMapping[$dbType] = $doctrineType;
     }
 
@@ -417,7 +417,7 @@ abstract class AbstractPlatform
             $this->initializeAllDoctrineTypeMappings();
         }
 
-        $dbType = strtolower($dbType);
+        $dbType = trim(strtolower($dbType));
 
         if (!isset($this->doctrineTypeMapping[$dbType])) {
             throw new \Doctrine\DBAL\DBALException("Unknown database type ".$dbType." requested, " . get_class($this) . " may not support it.");
@@ -439,7 +439,7 @@ abstract class AbstractPlatform
             $this->initializeAllDoctrineTypeMappings();
         }
 
-        $dbType = strtolower($dbType);
+        $dbType = trim(strtolower($dbType));
 
         return isset($this->doctrineTypeMapping[$dbType]);
     }
