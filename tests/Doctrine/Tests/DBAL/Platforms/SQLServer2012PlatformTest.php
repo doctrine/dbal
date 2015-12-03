@@ -243,6 +243,67 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         );
     }
 
+    /**
+     * @group DBAL-1266
+     */
+    public function testModifyLimitQueryWithSubSelectInWhereClause()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            'SELECT * FROM user WHERE (SELECT something FROM others WHERE others.name = user.name)=0', 10, 0
+        );
+        $this->assertEquals(
+            'SELECT * FROM user WHERE (SELECT something FROM others WHERE others.name = user.name)=0 ' .
+            'ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY',
+            $sql
+        );
+    }
+
+    public function testModifyLimitQueryWithSubSelectInWhereClauseLowerCase()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            'select * FROM user WHERE (SELECT something FROM others WHERE others.name = user.name)=0', 10, 0
+        );
+        $this->assertEquals(
+            'select * FROM user WHERE (SELECT something FROM others WHERE others.name = user.name)=0 ' .
+            'ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY',
+            $sql
+        );
+    }
+
+
+    public function testModifyLimitQueryWithSubSelectWithoutFrom()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            'SELECT *, (SELECT 5) as five FROM user WHERE (SELECT something FROM others WHERE others.name = user.name)=0', 10, 0
+        );
+        $this->assertEquals(
+            'SELECT *, (SELECT 5) as five FROM user WHERE (SELECT something FROM others WHERE others.name = user.name)=0 ' .
+            'ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY',
+            $sql
+        );
+    }
+
+
+    public function testModifyLimitQueryWithComplexSubSelectInWhereClause()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            'SELECT * ' .
+            'FROM user ' .
+            'WHERE (SELECT something FROM others WHERE (others.name = user.name) AND (others.mail = others.mail))=0',
+            10,
+            0
+        );
+
+        $this->assertEquals(
+            'SELECT * ' .
+            'FROM user ' .
+            'WHERE (SELECT something FROM others WHERE (others.name = user.name) AND (others.mail = others.mail))=0 ' .
+            'ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY',
+            $sql
+        );
+    }
+
+
     public function testModifyLimitQueryWithFromSubquery()
     {
         $sql = $this->_platform->modifyLimitQuery("SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result", 10);

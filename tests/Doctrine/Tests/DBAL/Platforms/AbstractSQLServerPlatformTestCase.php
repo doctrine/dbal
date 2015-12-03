@@ -381,6 +381,77 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
+
+    /**
+     * @group DBAL-1266
+     */
+    public function testModifyLimitQueryWithSubSelectInWhereClause()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            'SELECT * FROM user WHERE (SELECT something FROM others WHERE others.name = user.name)=0', 10, 0
+        );
+        $this->assertEquals(
+            'SELECT * FROM (' .
+            'SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum ' .
+            'FROM user ' .
+            'WHERE (SELECT something FROM others WHERE others.name = user.name)=0) AS doctrine_tbl ' .
+            'WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum',
+            $sql
+        );
+    }
+
+    public function testModifyLimitQueryWithSubSelectInWhereClauseLowerCase()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            'select * from user WHERE (SELECT something FROM others WHERE others.name = user.name)=0', 10, 0
+        );
+        $this->assertEquals(
+            'SELECT * FROM (' .
+            'select *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum ' .
+            'from user ' .
+            'WHERE (SELECT something FROM others WHERE others.name = user.name)=0) AS doctrine_tbl ' .
+            'WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum',
+            $sql
+        );
+    }
+
+    public function testModifyLimitQueryWithComplexSubSelectInWhereClause()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            'SELECT * ' .
+            'FROM user ' .
+            'WHERE (SELECT something FROM others WHERE (others.name = user.name) AND (others.mail = others.mail))=0',
+            10,
+            0
+        );
+
+        $this->assertEquals(
+            'SELECT * FROM (' .
+            'SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum ' .
+            'FROM user ' .
+            'WHERE (SELECT something FROM others WHERE (others.name = user.name) AND (others.mail = others.mail))=0) AS doctrine_tbl ' .
+            'WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum',
+            $sql
+        );
+    }
+
+    public function testModifyLimitQueryWithSubSelectWithoutFrom()
+    {
+        $sql = $this->_platform->modifyLimitQuery(
+            'SELECT *, (SELECT 5) as five FROM user WHERE (SELECT something FROM others WHERE others.name = user.name)=0', 10, 0
+        );
+        $this->assertEquals(
+            'SELECT * FROM (' .
+            'SELECT *, (SELECT 5) as five, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum ' .
+            'FROM user ' .
+            'WHERE (SELECT something FROM others WHERE others.name = user.name)=0) AS doctrine_tbl ' .
+            'WHERE doctrine_rownum BETWEEN 1 AND 10 ORDER BY doctrine_rownum',
+            $sql
+        );
+    }
+
+
+
     /**
      * @group DDC-1360
      */
