@@ -304,7 +304,7 @@ class DB2iSeriesPlatform extends DB2Platform
             $over  = 'ORDER BY ' . implode(', ', $overColumns);
         }
 
-        $sql = 'SELECT DOCTRINE_TBL.* FROM (SELECT ROW_NUMBER() OVER('.$over.') AS DOCTRINE_ROWNUM, DOCTRINE_TBL1.* '.
+        $sql = 'SELECT DOCTRINE_TBL.* FROM (SELECT DOCTRINE_TBL1.*, ROW_NUMBER() OVER(' . $over . ') AS DOCTRINE_ROWNUM '.
             'FROM (' . $query . ') DOCTRINE_TBL1) DOCTRINE_TBL WHERE DOCTRINE_TBL.DOCTRINE_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
 
         return $sql;
