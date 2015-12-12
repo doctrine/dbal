@@ -390,6 +390,53 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('json_array', $columns['foo']->getType()->getName());
         $this->assertEquals(true, $columns['foo']->getPlatformOption('jsonb'));
     }
+
+    /**
+     * @group DBAL-75
+     */
+    public function testTableWithSchemaContainingSpecialCharacters()
+    {
+        $this->createTableAndTestForColumns('charactertest');
+        $this->createTableAndTestForColumns('character-test');
+        $this->createTableAndTestForColumns('character"test');
+        $this->createTableAndTestForColumns('character\'test');
+        $this->createTableAndTestForColumns('character,test');
+        $this->createTableAndTestForColumns('character.test');
+    }
+
+    public function createTableAndTestForColumns ($schemaName) {
+        $pathBackup = $this->_conn->fetchColumn('SHOW search_path');
+        $tableName = 'dummy';
+        $schemaNameQuoted = '"' . str_replace('"', '""', $schemaName) . '"';
+        $this->_conn->exec('CREATE SCHEMA '. $schemaNameQuoted);
+        $this->_conn->exec('SET SEARCH_PATH=' . $schemaNameQuoted);
+        $table = new \Doctrine\DBAL\Schema\Table($tableName);
+        $column = $table->addColumn('id', 'integer');
+        $this->_sm->createTable($table);
+        $tableTest = $this->_sm->listTableDetails($schemaNameQuoted . '.' . $tableName);
+        $this->assertTrue($tableTest->hasColumn('id'));
+        $this->_sm->dropTable($table);
+        $this->_conn->exec('DROP SCHEMA ' . $schemaNameQuoted);
+        $this->_conn->exec('SET SEARCH_PATH=' . $pathBackup);
+    }
+
+    public function testNamespacesAreNotMixed () {
+        $pathBackup = $this->_conn->fetchColumn('SHOW search_path');
+        $this->_conn->exec('CREATE SCHEMA foo');
+        $this->_conn->exec('CREATE SCHEMA bar');
+        $this->_conn->exec('CREATE TABLE foo.dummy (foo_id int)');
+        $this->_conn->exec('CREATE TABLE bar.dummy (bar_id int)');
+        $this->_conn->exec('SET SEARCH_PATH=foo,bar');
+        $tableTest = $this->_sm->listTableDetails('dummy');
+        $this->assertTrue($tableTest->hasColumn('foo_id'));
+        $this->assertFalse($tableTest->hasColumn('bar_id'));
+        $this->_conn->exec('DROP TABLE foo.dummy');
+        $this->_conn->exec('DROP TABLE bar.dummy');
+        $this->_conn->exec('DROP SCHEMA foo');
+        $this->_conn->exec('DROP SCHEMA bar');
+        $this->_conn->exec('SET SEARCH_PATH=' . $pathBackup);
+    }
+
 }
 
 class MoneyType extends Type

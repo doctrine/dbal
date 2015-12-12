@@ -361,16 +361,8 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n')
     {
-        $whereClause = $namespaceAlias.".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
-        if (strpos($table, ".") !== false) {
-            list($schema, $table) = explode(".", $table);
-            $schema = "'" . $schema . "'";
-        } else {
-            $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') from pg_catalog.pg_settings where name = 'search_path'),','))";
-        }
-
-        $table = new Identifier($table);
-        $whereClause .= "$classAlias.relname = '" . $table->getName() . "' AND $namespaceAlias.nspname = $schema";
+        $tableNameEscaped = str_replace("'", "''", $table);
+        $whereClause = $classAlias.".oid='".$tableNameEscaped."'::regclass::oid";
 
         return $whereClause;
     }
