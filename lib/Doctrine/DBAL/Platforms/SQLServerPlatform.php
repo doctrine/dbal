@@ -1281,7 +1281,7 @@ class SQLServerPlatform extends AbstractPlatform
             $currentPosition--;
         }
 
-        if (preg_match('/SELECT\s+TOP\s/', $subQueryBuffer)) {
+        if (preg_match('/SELECT\s+(DISTINCT\s+)?TOP\s/i', $subQueryBuffer)) {
             return true;
         }
 
