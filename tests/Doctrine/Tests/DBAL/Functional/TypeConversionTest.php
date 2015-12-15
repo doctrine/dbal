@@ -8,7 +8,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     static private $typeCounter = 0;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

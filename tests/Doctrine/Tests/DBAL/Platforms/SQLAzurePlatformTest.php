@@ -11,7 +11,7 @@ class SQLAzurePlatformTest extends DbalTestCase
 {
     private $platform;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->platform = new \Doctrine\DBAL\Platforms\SQLAzurePlatform();
     }

@@ -24,7 +24,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         'port' => '1234'
     );
 
-    public function setUp()
+    protected function setUp()
     {
         $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($this->params);
     }
@@ -131,9 +131,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testDriverExceptionIsWrapped($method)
     {
-        $this->setExpectedException('Doctrine\DBAL\DBALException', "An exception occurred while executing 'MUUHAAAAHAAAA':
-
-SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
+        $this->setExpectedException('Doctrine\DBAL\DBALException', "An exception occurred while executing 'MUUHAAAAHAAAA':\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $con = \Doctrine\DBAL\DriverManager::getConnection(array(
             'driver' => 'pdo_sqlite',

@@ -289,6 +289,15 @@ without date, time and timezone information, you should consider using this type
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
 
+dateinterval
+^^^^^^^^^^^^
+
+Maps and converts date and time difference data without timezone information.
+If you know that the data to be stored is the difference between two date and time values,
+you should consider using this type.
+Values retrieved from the database are always converted to PHP's ``\DateInterval`` object
+or ``null`` if no data is present.
+
 .. note::
 
     See the `Known Vendor Issue <./known-vendor-issues>`_ section
@@ -689,11 +698,15 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               |                          |         +----------------------------------------------------------+
 |                   |               |                          |         | ``LONGTEXT`` [20]_                                       |
 |                   |               +--------------------------+---------+----------------------------------------------------------+
-|                   |               | **PostgreSQL**           | >= 9.2  | ``JSON``                                                 |
+|                   |               | **PostgreSQL**           | < 9.2   | ``TEXT`` [1]_                                            |
 |                   |               |                          +---------+----------------------------------------------------------+
-|                   |               |                          | < 9.2   | ``TEXT`` [1]_                                            |
-|                   |               +--------------------------+---------+                                                          |
-|                   |               | **SQL Anywhere**         | *all*   |                                                          |
+|                   |               |                          | < 9.4   | ``JSON``                                                 |
+|                   |               |                          +---------+----------------------------------------------------------+
+|                   |               |                          | >= 9.4  | ``JSON`` [21]_                                           |
+|                   |               |                          |         +----------------------------------------------------------+
+|                   |               |                          |         | ``JSONB`` [22]_                                          |
+|                   |               +--------------------------+---------+----------------------------------------------------------+
+|                   |               | **SQL Anywhere**         | *all*   | ``TEXT`` [1]_                                            |
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **Drizzle**              |         |                                                          |
 |                   |               +--------------------------+---------+----------------------------------------------------------+
@@ -744,7 +757,7 @@ Please also notice the mapping specific footnotes for additional information.
 .. [10] Used if **unsigned** attribute is set to ``true`` in the column definition (default ``false``).
 .. [11] Used if **autoincrement** attribute is set to ``true`` in the column definition (default ``false``).
 .. [12] Chosen if the column definition has the **autoincrement** attribute set to ``false`` (default).
-.. [13] Chosen if the column definition not contains the **version** option inside the **platformOptions**
+.. [13] Chosen if the column definition does not contain the **version** option inside the **platformOptions**
         attribute array or is set to ``false`` which marks it as a non-locking information column.
 .. [14] Chosen if the column definition contains the **version** option inside the **platformOptions**
         attribute array and is set to ``true`` which marks it as a locking information column.
@@ -759,6 +772,10 @@ Please also notice the mapping specific footnotes for additional information.
 .. [18] Chosen if the column length is less or equal to **2 ^ 16 - 1 = 65535**.
 .. [19] Chosen if the column length is less or equal to **2 ^ 24 - 1 = 16777215**.
 .. [20] Chosen if the column length is less or equal to **2 ^ 32 - 1 = 4294967295** or empty.
+.. [21] Chosen if the column definition does not contain the **jsonb** option inside the **platformOptions**
+        attribute array or is set to ``false``.
+.. [22] Chosen if the column definition contains the **jsonb** option inside the **platformOptions**
+        attribute array and is set to ``true``.
 
 Detection of Database Types
 ---------------------------

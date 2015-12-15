@@ -12,7 +12,7 @@ class ReservedKeywordsValidatorTest extends \Doctrine\Tests\DbalTestCase
      */
     private $validator;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->validator = new ReservedKeywordsValidator(array(
             new \Doctrine\DBAL\Platforms\Keywords\MySQLKeywords()

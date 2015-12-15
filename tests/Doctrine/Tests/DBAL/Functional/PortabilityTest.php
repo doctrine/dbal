@@ -14,7 +14,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     private $portableConnection;
 
-    public function tearDown()
+    protected function tearDown()
     {
         if ($this->portableConnection) {
             $this->portableConnection->close();

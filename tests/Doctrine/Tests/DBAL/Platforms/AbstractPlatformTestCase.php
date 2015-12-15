@@ -23,7 +23,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract public function createPlatform();
 
-    public function setUp()
+    protected function setUp()
     {
         $this->_platform = $this->createPlatform();
     }
@@ -83,7 +83,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         );
     }
 
-    public function testGetInvalidtForeignKeyReferentialActionSQL()
+    public function testGetInvalidForeignKeyReferentialActionSQL()
     {
         $this->setExpectedException('InvalidArgumentException');
         $this->_platform->getForeignKeyReferentialActionSQL('unknown');

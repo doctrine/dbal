@@ -7,7 +7,7 @@ use Doctrine\Tests\TestUtil;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

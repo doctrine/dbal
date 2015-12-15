@@ -53,7 +53,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals($collation, $columns[$columnName]->getPlatformOption('collation'));
     }
 
-    public function testDefaultContraints()
+    public function testDefaultConstraints()
     {
         $table = new Table('sqlsrv_default_constraints');
         $table->addColumn('no_default', 'string');
@@ -179,7 +179,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('comment_float_0', 'integer', array('comment' => 0.0));
         $table->addColumn('comment_string_0', 'integer', array('comment' => '0'));
         $table->addColumn('comment', 'integer', array('comment' => 'Doctrine 0wnz you!'));
-        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitely quoted columns!'));
+        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'));
         $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
         $table->addColumn('commented_type', 'object');
         $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
@@ -197,7 +197,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('0', $columns['comment_float_0']->getComment());
         $this->assertEquals('0', $columns['comment_string_0']->getComment());
         $this->assertEquals('Doctrine 0wnz you!', $columns['comment']->getComment());
-        $this->assertEquals('Doctrine 0wnz comments for explicitely quoted columns!', $columns['comment_quoted']->getComment());
+        $this->assertEquals('Doctrine 0wnz comments for explicitly quoted columns!', $columns['comment_quoted']->getComment());
         $this->assertEquals('Doctrine 0wnz comments for reserved keyword columns!', $columns['[create]']->getComment());
         $this->assertNull($columns['commented_type']->getComment());
         $this->assertEquals('Doctrine array type.', $columns['commented_type_with_comment']->getComment());
@@ -328,5 +328,31 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('666', $columns['[select]']->getComment());
         $this->assertNull($columns['added_commented_type']->getComment());
         $this->assertEquals('666', $columns['added_commented_type_with_comment']->getComment());
+    }
+
+    public function testPkOrdering()
+    {
+        // SQL Server stores index column information in a system table with two
+        // columns that almost always have the same value: index_column_id and key_ordinal.
+        // The only situation when the two values doesn't match up is when a clustered index
+        // is declared that references columns in a different order from which they are
+        // declared in the table. In that case, key_ordinal != index_column_id.
+        // key_ordinal holds the index ordering. index_column_id is just a unique identifier
+        // for index columns within the given index.
+        $table = new Table('sqlsrv_pk_ordering');
+        $table->addColumn('colA', 'integer', array('notnull' => true));
+        $table->addColumn('colB', 'integer', array('notnull' => true));
+        $table->setPrimaryKey(array('colB', 'colA'));
+        $this->_sm->createTable($table);
+
+        $indexes = $this->_sm->listTableIndexes('sqlsrv_pk_ordering');
+
+        $this->assertCount(1, $indexes);
+
+        $firstIndex = current($indexes);
+        $columns = $firstIndex->getColumns();
+        $this->assertCount(2, $columns);
+        $this->assertEquals('colB', $columns[0]);
+        $this->assertEquals('colA', $columns[1]);
     }
 }

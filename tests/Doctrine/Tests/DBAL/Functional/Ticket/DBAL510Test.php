@@ -10,7 +10,7 @@ use Doctrine\DBAL\Schema\Table;
  */
 class DBAL510Test extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

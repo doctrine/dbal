@@ -52,6 +52,7 @@ abstract class Type
     const BLOB = 'blob';
     const FLOAT = 'float';
     const GUID = 'guid';
+    const DATEINTERVAL = 'dateinterval';
 
     /**
      * Map of already instantiated type objects. One instance per type (flyweight).
@@ -85,6 +86,7 @@ abstract class Type
         self::BINARY => 'Doctrine\DBAL\Types\BinaryType',
         self::BLOB => 'Doctrine\DBAL\Types\BlobType',
         self::GUID => 'Doctrine\DBAL\Types\GuidType',
+        self::DATEINTERVAL => 'Doctrine\DBAL\Types\DateIntervalType',
     );
 
     /**

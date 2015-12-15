@@ -8,13 +8,13 @@ use Doctrine\DBAL\Types\Type;
 
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         $this->resetSharedConn();
         parent::setUp();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         parent::tearDown();
         $this->resetSharedConn();
@@ -207,6 +207,14 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             /* @var $conn \Doctrine\DBAL\Connection */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
+    }
+
+    public function testTransactionalReturnValue()
+    {
+        $res = $this->_conn->transactional(function($conn) {
+            return 42;
+        });
+        $this->assertEquals(42, $res);
     }
 
     /**

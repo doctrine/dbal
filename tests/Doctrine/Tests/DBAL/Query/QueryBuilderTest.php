@@ -12,7 +12,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 {
     protected $conn;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->conn = $this->getMock('Doctrine\DBAL\Connection', array(), array(), '', false);
 

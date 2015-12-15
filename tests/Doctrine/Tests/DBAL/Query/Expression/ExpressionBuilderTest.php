@@ -12,7 +12,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 {
     protected $expr;
 
-    public function setUp()
+    protected function setUp()
     {
         $conn = $this->getMock('Doctrine\DBAL\Connection', array(), array(), '', false);
 

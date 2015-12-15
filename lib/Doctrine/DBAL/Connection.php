@@ -354,10 +354,10 @@ class Connection implements DriverConnection
         }
 
         $driverOptions = isset($this->_params['driverOptions']) ?
-                $this->_params['driverOptions'] : array();
+            $this->_params['driverOptions'] : array();
         $user = isset($this->_params['user']) ? $this->_params['user'] : null;
         $password = isset($this->_params['password']) ?
-                $this->_params['password'] : null;
+            $this->_params['password'] : null;
 
         $this->_conn = $this->_driver->connect($this->_params, $user, $password, $driverOptions);
         $this->_isConnected = true;
@@ -1093,7 +1093,7 @@ class Connection implements DriverConnection
      *
      * @param \Closure $func The function to execute transactionally.
      *
-     * @return void
+     * @return mixed The value returned by $func
      *
      * @throws \Exception
      */
@@ -1101,10 +1101,11 @@ class Connection implements DriverConnection
     {
         $this->beginTransaction();
         try {
-            $func($this);
+            $res = $func($this);
             $this->commit();
+            return $res;
         } catch (Exception $e) {
-            $this->rollback();
+            $this->rollBack();
             throw $e;
         }
     }
@@ -1251,9 +1252,6 @@ class Connection implements DriverConnection
     /**
      * Cancels any database changes done during the current transaction.
      *
-     * This method can be listened with onPreTransactionRollback and onTransactionRollback
-     * eventlistener methods.
-     *
      * @throws \Doctrine\DBAL\ConnectionException If the rollback operation failed.
      */
     public function rollBack()
@@ -1271,7 +1269,7 @@ class Connection implements DriverConnection
                 $logger->startQuery('"ROLLBACK"');
             }
             $this->_transactionNestingLevel = 0;
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
             $this->_isRollbackOnly = false;
             if ($logger) {
                 $logger->stopQuery();
@@ -1593,7 +1591,7 @@ class Connection implements DriverConnection
         }
 
         try {
-            $this->query($this->platform->getDummySelectSQL());
+            $this->query($this->getDatabasePlatform()->getDummySelectSQL());
 
             return true;
         } catch (DBALException $e) {

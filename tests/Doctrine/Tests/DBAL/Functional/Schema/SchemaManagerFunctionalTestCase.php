@@ -41,6 +41,36 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
+     * @group DBAL-1220
+     */
+    public function testDropsDatabaseWithActiveConnections()
+    {
+        if (! $this->_sm->getDatabasePlatform()->supportsCreateDropDatabase()) {
+            $this->markTestSkipped('Cannot drop Database client side with this Driver.');
+        }
+
+        $this->_sm->dropAndCreateDatabase('test_drop_database');
+
+        $this->assertContains('test_drop_database', $this->_sm->listDatabases());
+
+        $params = $this->_conn->getParams();
+        $params['dbname'] = 'test_drop_database';
+
+        $user = isset($params['user']) ? $params['user'] : null;
+        $password = isset($params['password']) ? $params['password'] : null;
+
+        $connection = $this->_conn->getDriver()->connect($params, $user, $password);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
+
+        $this->_sm->dropDatabase('test_drop_database');
+
+        $this->assertNotContains('test_drop_database', $this->_sm->listDatabases());
+
+        unset($connection);
+    }
+
+    /**
      * @group DBAL-195
      */
     public function testDropAndCreateSequence()
@@ -707,6 +737,31 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
+     * @group DBAL-1228
+     */
+    public function testCommentHintOnDateIntervalTypeColumn()
+    {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsInlineColumnComments() &&
+            ! $this->_conn->getDatabasePlatform()->supportsCommentOnStatement() &&
+            $this->_conn->getDatabasePlatform()->getName() != 'mssql') {
+            $this->markTestSkipped('Database does not support column comments.');
+        }
+
+        $table = new Table('column_dateinterval_comment');
+        $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
+        $table->addColumn('date_interval', 'dateinterval', array('comment' => 'This is a comment'));
+        $table->setPrimaryKey(array('id'));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns("column_dateinterval_comment");
+        $this->assertEquals(2, count($columns));
+        $this->assertEquals('This is a comment', $columns['id']->getComment());
+        $this->assertEquals('This is a comment', $columns['date_interval']->getComment(), "The Doctrine2 Typehint should be stripped from comment.");
+        $this->assertInstanceOf('Doctrine\DBAL\Types\DateIntervalType', $columns['date_interval']->getType(), "The Doctrine2 should be detected from comment hint.");
+    }
+
+    /**
      * @group DBAL-825
      */
     public function testChangeColumnsTypeWithDefaultValue()
@@ -1046,24 +1101,24 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $this->markTestSkipped('This test is only supported on platforms that have foreign keys.');
         }
 
-        $primaryTable = new Table('test_list_index_implicit_primary');
+        $primaryTable = new Table('test_list_index_impl_primary');
         $primaryTable->addColumn('id', 'integer');
         $primaryTable->setPrimaryKey(array('id'));
 
-        $foreignTable = new Table('test_list_index_implicit_foreign');
+        $foreignTable = new Table('test_list_index_impl_foreign');
         $foreignTable->addColumn('fk1', 'integer');
         $foreignTable->addColumn('fk2', 'integer');
         $foreignTable->addIndex(array('fk1'), 'explicit_fk1_idx');
-        $foreignTable->addForeignKeyConstraint('test_list_index_implicit_primary', array('fk1'), array('id'));
-        $foreignTable->addForeignKeyConstraint('test_list_index_implicit_primary', array('fk2'), array('id'));
+        $foreignTable->addForeignKeyConstraint('test_list_index_impl_primary', array('fk1'), array('id'));
+        $foreignTable->addForeignKeyConstraint('test_list_index_impl_primary', array('fk2'), array('id'));
 
         $this->_sm->dropAndCreateTable($primaryTable);
         $this->_sm->dropAndCreateTable($foreignTable);
 
-        $indexes = $this->_sm->listTableIndexes('test_list_index_implicit_foreign');
+        $indexes = $this->_sm->listTableIndexes('test_list_index_impl_foreign');
 
         $this->assertCount(2, $indexes);
         $this->assertArrayHasKey('explicit_fk1_idx', $indexes);
-        $this->assertArrayHasKey('idx_6d88c7b4fdc58d6c', $indexes);
+        $this->assertArrayHasKey('idx_3d6c147fdc58d6c', $indexes);
     }
 }

@@ -4,12 +4,12 @@ namespace Doctrine\Tests\DBAL\Logging;
 
 class DebugStackTest extends \Doctrine\Tests\DbalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         $this->logger = new \Doctrine\DBAL\Logging\DebugStack();
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         unset($this->logger);
     }
