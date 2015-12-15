@@ -1187,7 +1187,7 @@ class SQLServerPlatform extends AbstractPlatform
         // Even if the TOP n is very large, the use of a CTE will
         // allow the SQL Server query planner to optimize it so it doesn't
         // actually scan the entire range covered by the TOP clause.
-        $selectPattern = '/^(\s*SELECT\s+(?:DISTINCT)?\s*)(.*)$/i';
+        $selectPattern = '/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/i';
         $replacePattern = sprintf('$1%s $2', "TOP $end");
         $query = preg_replace($selectPattern, $replacePattern, $query);
 
