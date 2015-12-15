@@ -1265,7 +1265,7 @@ class SQLServerPlatform extends AbstractPlatform
         $subQueryBuffer = '';
         $parenCount = 0;
 
-        // If $parentCount goes negative, we've exited the subquery we're examining.
+        // If $parenCount goes negative, we've exited the subquery we're examining.
         // If $currentPosition goes negative, we've reached the beginning of the query.
         while ($parenCount >= 0 && $currentPosition >= 0) {
             if ($query[$currentPosition] == '(') {
