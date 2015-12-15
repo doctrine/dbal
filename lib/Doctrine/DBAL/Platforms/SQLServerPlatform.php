@@ -1274,12 +1274,9 @@ class SQLServerPlatform extends AbstractPlatform
             if ($query[$currentPosition] === ')') {
                 $parenCount++;
             }
-            if ($parenCount === 0) {
-                // Only yank query text on the same nesting level as the ORDER BY clause.
-                $subQueryBuffer = $query[$currentPosition] . $subQueryBuffer;
-            } else {
-                $subQueryBuffer = " " . $subQueryBuffer;
-            }
+
+            // Only yank query text on the same nesting level as the ORDER BY clause.
+            $subQueryBuffer = ($parenCount === 0 ? $query[$currentPosition] : " ") . $subQueryBuffer;
 
             $currentPosition--;
         }
