@@ -1270,8 +1270,7 @@ class SQLServerPlatform extends AbstractPlatform
         while ($parenCount >= 0 && $currentPosition >= 0) {
             if ($query[$currentPosition] === '(') {
                 $parenCount--;
-            }
-            if ($query[$currentPosition] === ')') {
+            } elseif ($query[$currentPosition] === ')') {
                 $parenCount++;
             }
 
