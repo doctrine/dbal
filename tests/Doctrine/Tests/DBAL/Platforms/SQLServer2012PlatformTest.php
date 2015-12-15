@@ -350,4 +350,17 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $sql = $this->_platform->modifyLimitQuery($querySql, 20);
         $this->assertEquals($alteredSql, $sql);
     }
+
+    public function testModifyLimitQueryWithTopNSubQueryWithOrderBy()
+    {
+        $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
+        $expectedSql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $this->assertEquals($expectedSql, $sql);
+
+        $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
+        $expectedSql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $this->assertEquals($expectedSql, $sql);
+    }
 }
