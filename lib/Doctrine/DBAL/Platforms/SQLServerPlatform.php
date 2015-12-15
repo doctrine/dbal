@@ -1228,9 +1228,9 @@ class SQLServerPlatform extends AbstractPlatform
             $currentPosition = $orderByPos;
 
             while ($parenCount >= 0 && $currentPosition < $qLen) {
-                if ($query[$currentPosition] == '(') {
+                if ($query[$currentPosition] === '(') {
                     $parenCount++;
-                } elseif ($query[$currentPosition] == ')') {
+                } elseif ($query[$currentPosition] === ')') {
                     $parenCount--;
                 }
 
@@ -1268,10 +1268,10 @@ class SQLServerPlatform extends AbstractPlatform
         // If $parenCount goes negative, we've exited the subquery we're examining.
         // If $currentPosition goes negative, we've reached the beginning of the query.
         while ($parenCount >= 0 && $currentPosition >= 0) {
-            if ($query[$currentPosition] == '(') {
+            if ($query[$currentPosition] === '(') {
                 $parenCount--;
             }
-            if ($query[$currentPosition] == ')') {
+            if ($query[$currentPosition] === ')') {
                 $parenCount++;
             }
             if ($parenCount === 0) {
