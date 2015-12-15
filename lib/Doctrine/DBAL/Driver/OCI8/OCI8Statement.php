@@ -72,6 +72,11 @@ class OCI8Statement implements \IteratorAggregate, Statement
     protected $_paramMap = array();
 
     /**
+     * @var array
+     */
+    protected $_bindings = array();
+
+    /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
      * @param resource                                  $dbh       The connection handle.
@@ -134,7 +139,8 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     public function bindValue($param, $value, $type = null)
     {
-        return $this->bindParam($param, $value, $type, null);
+        $this->_bindings[$param] = $value;
+        return $this->bindParam($param, $this->_bindings[$param], $type, null);
     }
 
     /**
