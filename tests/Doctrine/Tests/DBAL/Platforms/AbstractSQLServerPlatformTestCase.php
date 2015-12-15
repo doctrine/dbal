@@ -10,7 +10,7 @@ use Doctrine\DBAL\Types\Type;
 
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
-    private static $selectFromCtePattern = "WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum ASC";
+    protected static $selectFromCtePattern = "WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum ASC";
 
     public function getGenerateTableSql()
     {
@@ -1319,5 +1319,18 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         return array(
             "EXEC sp_RENAME N'mytable.idx_foo', N'idx_foo_renamed', N'INDEX'",
         );
+    }
+
+    public function testModifyLimitQueryWithTopNSubQueryWithOrderBy()
+    {
+        $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
+        $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
+        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $this->assertEquals(sprintf(static::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+
+        $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
+        $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
+        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $this->assertEquals(sprintf(static::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 }
