@@ -216,6 +216,10 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLite3\Driver) {
+            $this->markTestSkipped('Using an object as a parameter makes SQLite3 crash.');
+        }
+
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
         $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
@@ -275,6 +279,10 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLite3\Driver) {
+            $this->markTestSkipped('Using an object as a parameter makes SQLite3 crash.');
+        }
+
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
         $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
@@ -313,6 +321,10 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver ||
             $this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLSrv\Driver) {
             $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+        }
+
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLite3\Driver) {
+            $this->markTestSkipped('Using an object as a parameter makes SQLite3 crash.');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
@@ -354,6 +366,10 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver ||
             $this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLSrv\Driver) {
             $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+        }
+
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLite3\Driver) {
+            $this->markTestSkipped('Using an object as a parameter makes SQLite3 crash.');
         }
 
         $datetimeString = '2010-01-01 10:10:10';
