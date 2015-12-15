@@ -1216,11 +1216,12 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param $query
      * @return string
-     *
      */
-    private function scrubInnerOrderBy($query) {
+    private function scrubInnerOrderBy($query)
+    {
         $count = substr_count(strtoupper($query), "ORDER BY");
         $offset = 0;
+
         while ($count-- > 0) {
             $qLen = strlen($query);
             $orderByPos = stripos($query, " ORDER BY", $offset);
