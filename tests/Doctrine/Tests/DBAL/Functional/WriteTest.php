@@ -262,7 +262,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->setPrimaryKey(array('id'));
 
         try {
-            $this->_conn->getSchemaManager()->dropTable($table);
+            $this->_conn->getSchemaManager()->dropTable($table->getQuotedName($platform));
         } catch(\Exception $e) { }
 
         foreach ($platform->getCreateTableSQL($table) as $sql) {
