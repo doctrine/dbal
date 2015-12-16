@@ -157,6 +157,10 @@ class TestUtil
             $connectionParams['unix_socket'] = $GLOBALS['tmpdb_unix_socket'];
         }
 
+        if (isset($GLOBALS['tmpdb_path'])) {
+            $connectionParams['path'] = $GLOBALS['tmpdb_path'];
+        }
+
         return $connectionParams;
     }
 
@@ -177,6 +181,10 @@ class TestUtil
 
         if (isset($GLOBALS['db_unix_socket'])) {
             $connectionParams['unix_socket'] = $GLOBALS['db_unix_socket'];
+        }
+
+        if (isset($GLOBALS['db_path'])) {
+            $connectionParams['path'] = $GLOBALS['db_path'];
         }
 
         return $connectionParams;
