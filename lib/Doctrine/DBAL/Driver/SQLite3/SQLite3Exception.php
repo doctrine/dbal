@@ -19,26 +19,15 @@
 
 namespace Doctrine\DBAL\Driver\SQLite3;
 
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Driver\AbstractDriverException;
 
 /**
  * Exception thrown by SQLite3Connection.
+ *
+ * @since 2.6
+ * @author Ben Morel <ben@benjaminmorel.com
+ * @author Bill Schaller <bill@zeroedin.com>>
  */
-class SQLite3Exception extends \RuntimeException implements DriverException
+class SQLite3Exception extends AbstractDriverException
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getErrorCode()
-    {
-        return $this->getCode();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSQLState()
-    {
-        return null;
-    }
 }
