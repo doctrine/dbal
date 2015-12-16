@@ -48,10 +48,11 @@ abstract class AbstractDriverException extends \Exception implements DriverExcep
      * @param string              $message   The driver error message.
      * @param string|null         $sqlState  The SQLSTATE the driver is in at the time the error occurred, if any.
      * @param integer|string|null $errorCode The driver specific error code if any.
+     * @param \Exception|null     $previous  The previous exception used for the exception chaining. Since 2.6.
      */
-    public function __construct($message, $sqlState = null, $errorCode = null)
+    public function __construct($message, $sqlState = null, $errorCode = null, \Exception $previous = null)
     {
-        parent::__construct($message);
+        parent::__construct($message, 0, $previous);
 
         $this->errorCode = $errorCode;
         $this->sqlState  = $sqlState;
