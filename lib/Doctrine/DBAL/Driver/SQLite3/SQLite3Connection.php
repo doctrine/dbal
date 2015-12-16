@@ -48,6 +48,8 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
             } else {
                 $this->sqlite3 = new \SQLite3($filename, $flags, $encryption_key);
             }
+
+            $this->sqlite3->enableExceptions(true);
         } catch (\Exception $e) {
             throw $this->wrapDriverException($e);
         }
