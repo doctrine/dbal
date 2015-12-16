@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit bootstrap="../Doctrine/Tests/TestInit.php">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.8/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         bootstrap="../../vendor/autoload.php"
+>
     <php>
+        <var name="error_reporting" value="-1" />
         <var name="db_type" value="sqlite3"/>
         <var name="tmpdb_type" value="sqlite3"/>
     </php>
@@ -17,4 +23,3 @@
         </exclude>
     </groups>
 </phpunit>
-
