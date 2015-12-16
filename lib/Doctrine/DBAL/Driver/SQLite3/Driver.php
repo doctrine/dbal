@@ -53,7 +53,7 @@ class Driver extends AbstractSQLiteDriver
 
         try {
             $connection = new SQLite3Connection(
-                isset($params['path']) ? $params['path'] : ':memory:',
+                !empty($params['path']) ? $params['path'] : ':memory:',
                 isset($params['flags']) ? $params['flags'] : null,
                 isset($params['encryption_key']) ? $params['encryption_key'] : null
             );
