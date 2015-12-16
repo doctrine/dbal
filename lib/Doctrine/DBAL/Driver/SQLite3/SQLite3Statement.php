@@ -23,6 +23,10 @@ use Doctrine\DBAL\Driver\Statement;
 
 /**
  * SQLite3 implementation of the Statement interface.
+ *
+ * @since 2.6
+ * @author Ben Morel <ben@benjaminmorel.com>
+ * @author Bill Schaller <bill@zeroedin.com>
  */
 class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, Statement
 {
@@ -105,11 +109,15 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
      */
     public function bindValue($param, $value, $type = null)
     {
-        if ($type === null) {
-            return $this->stmt->bindValue($param, $value);
-        }
+        try {
+            if ($type === null) {
+                return $this->stmt->bindValue($param, $value);
+            }
 
-        return $this->stmt->bindValue($param, $value, $this->convertType($type));
+            return $this->stmt->bindValue($param, $value, $this->convertType($type));
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
+        }
     }
 
     /**
@@ -117,11 +125,15 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
      */
     public function bindParam($column, & $variable, $type = null, $length = null)
     {
-        if ($type === null) {
-            return $this->stmt->bindParam($column, $variable);
-        }
+        try {
+            if ($type === null) {
+                return $this->stmt->bindParam($column, $variable);
+            }
 
-        return $this->stmt->bindParam($column, $variable, $this->convertType($type));
+            return $this->stmt->bindParam($column, $variable, $this->convertType($type));
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
+        }
     }
 
     /**
@@ -149,21 +161,25 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
      */
     public function execute($params = null)
     {
-        if ($params) {
-            foreach ($params as $key => $value) {
-                $this->bindValue(is_int($key) ? $key + 1 : $key, $value);
+        try {
+            if ($params) {
+                foreach ($params as $key => $value) {
+                    $this->bindValue(is_int($key) ? $key + 1 : $key, $value);
+                }
             }
+
+            $result = $this->stmt->execute();
+
+            $this->lastErrorCode = $this->sqlite3->lastErrorCode();
+            $this->lastErrorMessage = $this->sqlite3->lastErrorMsg();
+
+            $this->result = $result;
+            $this->rowCount = $this->sqlite3->changes();
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
         }
 
-        $result = @ $this->stmt->execute();
-
-        $this->lastErrorCode    = $this->sqlite3->lastErrorCode();
-        $this->lastErrorMessage = $this->sqlite3->lastErrorMsg();
-
         $this->throwExceptionOnError();
-
-        $this->result   = $result;
-        $this->rowCount = $this->sqlite3->changes();
 
         return true;
     }
@@ -190,7 +206,11 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
     public function columnCount()
     {
         if ($this->result) {
-            return $this->result->numColumns();
+            try {
+                return $this->result->numColumns();
+            } catch (\Exception $e) {
+                throw $this->wrapDriverException($e);
+            }
         }
 
         return 0;
@@ -227,7 +247,11 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
             $ctorArgs = isset($args[2]) ? $args[2] : null;
         }
 
-        $result = $this->result->fetchArray($this->convertFetchMode($fetchMode));
+        try {
+            $result = $this->result->fetchArray($this->convertFetchMode($fetchMode));
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
+        }
 
         if ($result === false) {
             return false;
@@ -274,16 +298,20 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
         $rows = [];
 
         if ($this->result) {
-            $this->result->reset();
+            try {
+                $this->result->reset();
 
-            for (;;) {
-                $row = call_user_func_array(array($this, 'fetch'), func_get_args());
+                for (; ;) {
+                    $row = call_user_func_array(array($this, 'fetch'), func_get_args());
 
-                if ($row === false) {
-                    break;
+                    if ($row === false) {
+                        break;
+                    }
+
+                    $rows[] = $row;
                 }
-
-                $rows[] = $row;
+            } catch (\Exception $e) {
+                throw $this->wrapDriverException($e);
             }
         }
 

@@ -24,6 +24,10 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 
 /**
  * SQLite3 implementation of the Connection interface.
+ *
+ * @since 2.6
+ * @author Ben Morel <ben@benjaminmorel.com>
+ * @author Bill Schaller <bill@zeroedin.com>
  */
 class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInfoAwareConnection
 {
@@ -45,7 +49,7 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
                 $this->sqlite3 = new \SQLite3($filename, $flags, $encryption_key);
             }
         } catch (\Exception $e) {
-            throw new SQLite3Exception($e->getMessage(), $e->getCode(), $e);
+            throw $this->wrapDriverException($e);
         }
     }
 
@@ -64,7 +68,11 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function prepare($prepareString)
     {
-        $statement = @ $this->sqlite3->prepare($prepareString);
+        try {
+            $statement = @ $this->sqlite3->prepare($prepareString);
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
+        }
 
         $this->throwExceptionOnError();
 
@@ -97,7 +105,12 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function exec($statement)
     {
-        @ $this->sqlite3->exec($statement);
+        try {
+            $this->sqlite3->exec($statement);
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
+        }
+
         $this->throwExceptionOnError();
 
         return $this->sqlite3->changes();
@@ -108,7 +121,11 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function lastInsertId($name = null)
     {
-        return $this->sqlite3->lastInsertRowID();
+        try {
+            return $this->sqlite3->lastInsertRowID();
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
+        }
     }
 
     /**
@@ -116,7 +133,12 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function beginTransaction()
     {
-        @ $this->sqlite3->exec('BEGIN');
+        try {
+            $this->sqlite3->exec('BEGIN');
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
+        }
+
         $this->throwExceptionOnError();
 
         return true;
@@ -127,7 +149,12 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function commit()
     {
-        @ $this->sqlite3->exec('COMMIT');
+        try {
+            $this->sqlite3->exec('COMMIT');
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
+        }
+
         $this->throwExceptionOnError();
 
         return true;
@@ -138,7 +165,12 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function rollBack()
     {
-        @ $this->sqlite3->exec('ROLLBACK');
+        try {
+            $this->sqlite3->exec('ROLLBACK');
+        } catch (\Exception $e) {
+            throw $this->wrapDriverException($e);
+        }
+
         $this->throwExceptionOnError();
 
         return true;

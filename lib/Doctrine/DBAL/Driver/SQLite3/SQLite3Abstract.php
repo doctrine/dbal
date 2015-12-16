@@ -21,6 +21,10 @@ namespace Doctrine\DBAL\Driver\SQLite3;
 
 /**
  * Base functionality for SQLite3Connection and SQLite3Statement.
+ *
+ * @since 2.6
+ * @author Ben Morel <ben@benjaminmorel.com>
+ * @author Bill Schaller <bill@zeroedin.com>
  */
 abstract class SQLite3Abstract
 {
@@ -44,6 +48,25 @@ abstract class SQLite3Abstract
 
         $errorMessage = $this->sqlite3->lastErrorMsg();
 
-        throw new SQLite3Exception($errorMessage, $errorCode);
+        throw new SQLite3Exception($errorMessage, null, $errorCode);
+    }
+
+    /**
+     * Wraps an exception thrown by SQLite3 in a SQLite3Exception.
+     *
+     * @param \Exception $driverException
+     * @return SQLite3Exception
+     */
+    protected function wrapDriverException(\Exception $driverException)
+    {
+        $errorMessage = $driverException->getMessage();
+        $errorCode = $driverException->getCode();
+
+        if ($this->sqlite3 instanceof \SQLite3) {
+            $errorMessage = $this->sqlite3->lastErrorMsg();
+            $errorCode = $this->sqlite3->lastErrorCode();
+        }
+
+        return new SQLite3Exception($errorMessage, null, $errorCode, $driverException);
     }
 }

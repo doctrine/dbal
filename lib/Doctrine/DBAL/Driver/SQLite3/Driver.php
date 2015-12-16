@@ -25,7 +25,9 @@ use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 /**
  * The SQLite3 driver.
  *
- * @since 2.0
+ * @since 2.6
+ * @author Ben Morel <ben@benjaminmorel.com>
+ * @author Bill Schaller <bill@zeroedin.com>
  */
 class Driver extends AbstractSQLiteDriver
 {
