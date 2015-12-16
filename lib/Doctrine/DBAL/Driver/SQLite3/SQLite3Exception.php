@@ -25,7 +25,7 @@ use Doctrine\DBAL\Driver\AbstractDriverException;
  * Exception thrown by SQLite3Connection.
  *
  * @since 2.6
- * @author Ben Morel <ben@benjaminmorel.com
+ * @author Ben Morel <benjamin.morel@gmail.com
  * @author Bill Schaller <bill@zeroedin.com>>
  */
 class SQLite3Exception extends AbstractDriverException

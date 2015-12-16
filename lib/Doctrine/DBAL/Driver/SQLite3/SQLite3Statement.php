@@ -25,7 +25,7 @@ use Doctrine\DBAL\Driver\Statement;
  * SQLite3 implementation of the Statement interface.
  *
  * @since 2.6
- * @author Ben Morel <ben@benjaminmorel.com>
+ * @author Ben Morel <benjamin.morel@gmail.com>
  * @author Bill Schaller <bill@zeroedin.com>
  */
 class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, Statement

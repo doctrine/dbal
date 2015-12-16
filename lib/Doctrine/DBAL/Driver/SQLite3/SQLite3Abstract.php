@@ -23,7 +23,7 @@ namespace Doctrine\DBAL\Driver\SQLite3;
  * Base functionality for SQLite3Connection and SQLite3Statement.
  *
  * @since 2.6
- * @author Ben Morel <ben@benjaminmorel.com>
+ * @author Ben Morel <benjamin.morel@gmail.com>
  * @author Bill Schaller <bill@zeroedin.com>
  */
 abstract class SQLite3Abstract
