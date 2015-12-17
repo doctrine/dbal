@@ -70,15 +70,7 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
      */
     public function prepare($prepareString)
     {
-        try {
-            $statement = @ $this->sqlite3->prepare($prepareString);
-        } catch (\Exception $e) {
-            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
-        }
-
-        $this->throwExceptionOnError();
-
-        return new SQLite3Statement($this->sqlite3, $statement);
+        return new SQLite3Statement($this->sqlite3, $prepareString);
     }
 
     /**

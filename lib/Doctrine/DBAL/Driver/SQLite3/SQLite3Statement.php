@@ -31,7 +31,14 @@ use Doctrine\DBAL\Driver\Statement;
 class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, Statement
 {
     /**
-     * The SQLite3 statement object.
+     * The SQL statement.
+     *
+     * @var string
+     */
+    private $sql;
+
+    /**
+     * The SQLite3Stmt object.
      *
      * @var \SQLite3Stmt
      */
@@ -95,13 +102,22 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
     /**
      * Class constructor.
      *
-     * @param \SQLite3     $sqlite3 The SQLite3 connection object.
-     * @param \SQLite3Stmt $stmt    The SQLite3 statement object.
+     * @param \SQLite3 $sqlite3 The SQLite3 connection object.
+     * @param string   $sql     The SQL statement to prepare.
+     * @throws SQLite3Exception
      */
-    public function __construct(\SQLite3 $sqlite3, \SQLite3Stmt $stmt)
+    public function __construct(\SQLite3 $sqlite3, $sql)
     {
         $this->sqlite3 = $sqlite3;
-        $this->stmt    = $stmt;
+        $this->sql     = $sql;
+
+        try {
+            $this->stmt = $this->sqlite3->prepare($sql);
+        } catch (\Exception $e) {
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
+        }
+
+        $this->throwExceptionOnError();
     }
 
     /**
