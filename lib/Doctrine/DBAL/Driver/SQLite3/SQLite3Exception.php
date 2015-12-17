@@ -22,7 +22,7 @@ namespace Doctrine\DBAL\Driver\SQLite3;
 use Doctrine\DBAL\Driver\AbstractDriverException;
 
 /**
- * Exception thrown by SQLite3Connection.
+ * SQLite3 driver exception.
  *
  * @since 2.6
  * @author Ben Morel <benjamin.morel@gmail.com
