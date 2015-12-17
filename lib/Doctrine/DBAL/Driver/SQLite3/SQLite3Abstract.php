@@ -50,23 +50,4 @@ abstract class SQLite3Abstract
 
         throw new SQLite3Exception($errorMessage, null, $errorCode);
     }
-
-    /**
-     * Wraps an exception thrown by SQLite3 in a SQLite3Exception.
-     *
-     * @param \Exception $driverException
-     * @return SQLite3Exception
-     */
-    protected function wrapDriverException(\Exception $driverException)
-    {
-        $errorMessage = $driverException->getMessage();
-        $errorCode = $driverException->getCode();
-
-        if ($this->sqlite3 instanceof \SQLite3) {
-            $errorMessage = $this->sqlite3->lastErrorMsg();
-            $errorCode = $this->sqlite3->lastErrorCode();
-        }
-
-        return new SQLite3Exception($errorMessage, null, $errorCode, $driverException);
-    }
 }

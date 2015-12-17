@@ -51,7 +51,7 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
 
             $this->sqlite3->enableExceptions(true);
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e);
         }
     }
 
@@ -73,7 +73,7 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
         try {
             $statement = @ $this->sqlite3->prepare($prepareString);
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
 
         $this->throwExceptionOnError();
@@ -110,7 +110,7 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
         try {
             $this->sqlite3->exec($statement);
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
 
         $this->throwExceptionOnError();
@@ -126,7 +126,7 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
         try {
             return $this->sqlite3->lastInsertRowID();
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
     }
 
@@ -138,7 +138,7 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
         try {
             $this->sqlite3->exec('BEGIN');
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
 
         $this->throwExceptionOnError();
@@ -154,7 +154,7 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
         try {
             $this->sqlite3->exec('COMMIT');
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
 
         $this->throwExceptionOnError();
@@ -170,7 +170,7 @@ class SQLite3Connection extends SQLite3Abstract implements Connection, ServerInf
         try {
             $this->sqlite3->exec('ROLLBACK');
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
 
         $this->throwExceptionOnError();

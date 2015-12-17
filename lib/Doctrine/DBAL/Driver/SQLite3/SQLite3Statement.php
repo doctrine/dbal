@@ -116,7 +116,7 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
 
             return $this->stmt->bindValue($param, $value, $this->convertType($type));
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
     }
 
@@ -132,7 +132,7 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
 
             return $this->stmt->bindParam($column, $variable, $this->convertType($type));
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
     }
 
@@ -176,7 +176,7 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
             $this->result = $result;
             $this->rowCount = $this->sqlite3->changes();
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
 
         $this->throwExceptionOnError();
@@ -209,7 +209,7 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
             try {
                 return $this->result->numColumns();
             } catch (\Exception $e) {
-                throw $this->wrapDriverException($e);
+                throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
             }
         }
 
@@ -250,7 +250,7 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
         try {
             $result = $this->result->fetchArray($this->convertFetchMode($fetchMode));
         } catch (\Exception $e) {
-            throw $this->wrapDriverException($e);
+            throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
         }
 
         if ($result === false) {
@@ -311,7 +311,7 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
                     $rows[] = $row;
                 }
             } catch (\Exception $e) {
-                throw $this->wrapDriverException($e);
+                throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
             }
         }
 

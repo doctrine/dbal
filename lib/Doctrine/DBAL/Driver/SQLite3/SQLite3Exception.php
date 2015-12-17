@@ -30,4 +30,23 @@ use Doctrine\DBAL\Driver\AbstractDriverException;
  */
 class SQLite3Exception extends AbstractDriverException
 {
+    /**
+     * Wraps an exception thrown by SQLite3 in a SQLite3Exception.
+     *
+     * @param \Exception $nativeException
+     * @param \SQLite3|null $connection
+     * @return SQLite3Exception
+     */
+    public static function fromNativeException(\Exception $nativeException, \SQLite3 $connection = null)
+    {
+        $errorMessage = $nativeException->getMessage();
+        $errorCode = $nativeException->getCode();
+
+        if ($connection instanceof \SQLite3) {
+            $errorMessage = $connection->lastErrorMsg();
+            $errorCode = $connection->lastErrorCode();
+        }
+
+        return new self($errorMessage, null, $errorCode, $nativeException);
+    }
 }
