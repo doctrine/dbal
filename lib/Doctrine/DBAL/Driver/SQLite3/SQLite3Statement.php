@@ -184,12 +184,11 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
                 }
             }
 
-            $result = $this->stmt->execute();
+            $this->result = $this->stmt->execute();
 
             $this->lastErrorCode = $this->sqlite3->lastErrorCode();
             $this->lastErrorMessage = $this->sqlite3->lastErrorMsg();
 
-            $this->result = $result;
             $this->rowCount = $this->sqlite3->changes();
         } catch (\Exception $e) {
             throw SQLite3Exception::fromNativeException($e, $this->sqlite3);
@@ -213,7 +212,11 @@ class SQLite3Statement extends SQLite3Abstract implements \IteratorAggregate, St
      */
     public function closeCursor()
     {
-        return $this->result->finalize();
+        if ($this->result instanceof \SQLite3Stmt) {
+            return $this->result->finalize();
+        }
+        // todo: should this set error message and return false?
+        return true;
     }
 
     /**
