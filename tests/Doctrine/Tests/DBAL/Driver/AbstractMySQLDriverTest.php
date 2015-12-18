@@ -59,6 +59,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             array('5.7', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
             array('5.7.0', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
             array('5.7.1', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
+            array('5.7.8', 'Doctrine\DBAL\Platforms\MySQL578Platform'),
             array('6', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
             array('10.0.15-MariaDB-1~wheezy', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
             array('10.1.2a-MariaDB-a1~lenny-log', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
