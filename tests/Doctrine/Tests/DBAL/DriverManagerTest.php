@@ -151,27 +151,27 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
             ),
             'sqlite relative URL with host' => array(
                 'sqlite://localhost/foo/dbname.sqlite',
-                array('dbname' => 'foo/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+                array('path' => 'foo/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
             ),
             'sqlite absolute URL with host' => array(
                 'sqlite://localhost//tmp/dbname.sqlite',
-                array('dbname' => '/tmp/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+                array('path' => '/tmp/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
             ),
             'sqlite relative URL without host' => array(
                 'sqlite:///foo/dbname.sqlite',
-                array('dbname' => 'foo/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+                array('path' => 'foo/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
             ),
             'sqlite absolute URL without host' => array(
                 'sqlite:////tmp/dbname.sqlite',
-                array('dbname' => '/tmp/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+                array('path' => '/tmp/dbname.sqlite', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
             ),
             'sqlite memory' => array(
                 'sqlite:///:memory:',
-                array('dbname' => ':memory:', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+                array('path' => ':memory:', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
             ),
             'sqlite memory with host' => array(
                 'sqlite://localhost/:memory:',
-                array('dbname' => ':memory:', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+                array('path' => ':memory:', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
             ),
             'params parsed from URL override individual params' => array(
                 array('url' => 'mysql://foo:bar@localhost/baz', 'password' => 'lulz'),
