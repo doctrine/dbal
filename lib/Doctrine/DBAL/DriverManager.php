@@ -259,10 +259,14 @@ final class DriverManager
         }
         
         if (isset($url['path'])) {
+            $nameKey = isset($url['scheme']) && strpos($url['scheme'], 'sqlite') !== false
+                ? 'path' // pdo_sqlite driver uses 'path' instead of 'dbname' key
+                : 'dbname';
+
             if (!isset($url['scheme']) || (strpos($url['scheme'], 'sqlite') !== false && $url['path'] == ':memory:')) {
-                $params['dbname'] = $url['path']; // if the URL was just "sqlite::memory:", which parses to scheme and path only
+                $params[$nameKey] = $url['path']; // if the URL was just "sqlite::memory:", which parses to scheme and path only
             } else {
-                $params['dbname'] = substr($url['path'], 1); // strip the leading slash from the URL
+                $params[$nameKey] = substr($url['path'], 1); // strip the leading slash from the URL
             }
         }
         
