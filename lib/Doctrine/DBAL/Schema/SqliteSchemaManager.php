@@ -269,7 +269,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
         $parts = explode('(', $tableColumn['type']);
-        $tableColumn['type'] = $parts[0];
+        $tableColumn['type'] = trim($parts[0]);
         if (isset($parts[1])) {
             $length = trim($parts[1], ')');
             $tableColumn['length'] = $length;

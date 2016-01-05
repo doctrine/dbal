@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Types\Type;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -154,6 +155,34 @@ EOS
 
         $this->assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
         $this->assertEquals(array('other_id', 'id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+    }
+
+    /**
+     * @group DBAL-1779
+     */
+    public function testListTableColumnsWithWhitespacesInTypeDeclarations()
+    {
+        $sql = <<<SQL
+CREATE TABLE dbal_1779 (
+    foo VARCHAR (64) ,
+    bar TEXT (100)
+)
+SQL;
+
+        $this->_conn->executeQuery($sql);
+
+        $columns = $this->_sm->listTableColumns('dbal_1779');
+
+        $this->assertCount(2, $columns);
+
+        $this->assertArrayHasKey('foo', $columns);
+        $this->assertArrayHasKey('bar', $columns);
+
+        $this->assertSame(Type::getType(Type::STRING), $columns['foo']->getType());
+        $this->assertSame(Type::getType(Type::TEXT), $columns['bar']->getType());
+
+        $this->assertSame(64, $columns['foo']->getLength());
+        $this->assertSame(100, $columns['bar']->getLength());
     }
 
     /**
