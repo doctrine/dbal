@@ -231,8 +231,15 @@ final class DriverManager
         
         // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
         $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $params['url']);
-        
-        $url = parse_url($url);
+
+        // PHP<5.4.8 doesn't parse schemeless urls properly
+        if (strpos($url, '//') === 0 && version_compare(PHP_VERSION, '5.4.8') < 0) {
+            $url = parse_url("fake:$url");
+            unset($url['scheme']);
+        } else {
+            $url = parse_url($url);
+        }
+
         
         if ($url === false) {
             throw new DBALException('Malformed parameter "url".');
@@ -259,10 +266,10 @@ final class DriverManager
         }
         
         if (isset($url['path'])) {
-            if (!isset($url['scheme']) || (strpos($url['scheme'], 'sqlite') !== false && $url['path'] == ':memory:')) {
-                $params['dbname'] = $url['path']; // if the URL was just "sqlite::memory:", which parses to scheme and path only
-            } else {
+            if (isset($params['driverClass']) || (isset($params['driver']) && (strpos($params['driver'], 'sqlite') === false || $url['path'] !== ':memory:'))) {
                 $params['dbname'] = substr($url['path'], 1); // strip the leading slash from the URL
+            } else {
+                $params['dbname'] = $url['path']; // if the URL was just "sqlite::memory:", which parses to scheme and path only
             }
         }
         

@@ -197,6 +197,14 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
                 'drizzle-pdo-mysql://foo:bar@localhost/baz',
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver'),
             ),
+            'custom schema with custom driverClass does not get the leading slash trimmed from path' => array(
+                    array('url' => '//foo:bar@localhost/baz', 'driverClass' => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver'),
+                    array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driverClass' => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver'),
+            ),
+            'Specifying driver separate from URL works' => array(
+                    array('url' => '//foo:bar@localhost/baz', 'driver' => 'pdo_mysql'),
+                    array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
+            ),
         );
     }
 }
