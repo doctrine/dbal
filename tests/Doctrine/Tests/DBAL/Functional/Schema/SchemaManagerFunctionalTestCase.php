@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -51,10 +52,19 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->_sm->dropAndCreateDatabase('test_drop_database');
 
-        $this->assertContains('test_drop_database', $this->_sm->listDatabases());
+        $knownDatabases = $this->_sm->listDatabases();
+        if ($this->_conn->getDatabasePlatform() instanceof OraclePlatform) {
+            $this->assertContains('TEST_DROP_DATABASE', $knownDatabases);
+        } else {
+            $this->assertContains('test_drop_database', $knownDatabases);
+        }
 
         $params = $this->_conn->getParams();
-        $params['dbname'] = 'test_drop_database';
+        if ($this->_conn->getDatabasePlatform() instanceof OraclePlatform) {
+            $params['user'] = 'test_drop_database';
+        } else {
+            $params['dbname'] = 'test_drop_database';
+        }
 
         $user = isset($params['user']) ? $params['user'] : null;
         $password = isset($params['password']) ? $params['password'] : null;
@@ -63,11 +73,11 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
 
+        unset($connection);
+
         $this->_sm->dropDatabase('test_drop_database');
 
         $this->assertNotContains('test_drop_database', $this->_sm->listDatabases());
-
-        unset($connection);
     }
 
     /**
