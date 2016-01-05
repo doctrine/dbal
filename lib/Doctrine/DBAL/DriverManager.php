@@ -259,10 +259,16 @@ final class DriverManager
         }
         
         if (isset($url['path'])) {
-            if (!isset($url['scheme']) || (strpos($url['scheme'], 'sqlite') !== false && $url['path'] == ':memory:')) {
-                $params['dbname'] = $url['path']; // if the URL was just "sqlite::memory:", which parses to scheme and path only
+            if (isset($url['scheme']) && strpos($url['scheme'], 'sqlite') !== false) {
+                // sqlite::memory: OR :sqlite:///:memory:
+                if (':memory:' === $url['path'] || substr($url['path'], 1) === ':memory:') {
+                    $params['memory'] = true;
+                    $params['dbname'] = ':memory:';
+                } else {
+                    $params['dbname'] = $params['path'] = substr($url['path'], 1);
+                }
             } else {
-                $params['dbname'] = substr($url['path'], 1); // strip the leading slash from the URL
+                $params['dbname'] = ltrim($url['path'], '/'); // strip the leading slash from the URL
             }
         }
         
