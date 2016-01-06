@@ -98,6 +98,13 @@ matrix:
         mariadb: 10.1
   allow_failures:
     - php: 7.0
+      env: DB=pgsql POSTGRESQL_VERSION=9.1 # not fully working yet
+    - php: 7.0
+      env: DB=pgsql POSTGRESQL_VERSION=9.2 # not fully working yet
+    - php: 7.0
+      env: DB=pgsql POSTGRESQL_VERSION=9.3 # not fully working yet
+    - php: 7.0
+      env: DB=pgsql POSTGRESQL_VERSION=9.4 # not fully working yet
     - php: hhvm
   exclude:
     - php: hhvm
