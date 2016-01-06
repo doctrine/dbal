@@ -65,6 +65,11 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
 
+        if (isset($tableColumn['comment'])) {
+            $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+            $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
+        }
+
         switch (strtolower($tableColumn['typename'])) {
             case 'varchar':
                 $length = $tableColumn['length'];
@@ -94,6 +99,9 @@ class DB2SchemaManager extends AbstractSchemaManager
             'notnull'       => (bool) ($tableColumn['nulls'] == 'N'),
             'scale'         => null,
             'precision'     => null,
+            'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
+                ? $tableColumn['comment']
+                : null,
             'platformOptions' => array(),
         );
 
