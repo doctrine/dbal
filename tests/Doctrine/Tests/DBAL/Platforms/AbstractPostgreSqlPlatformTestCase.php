@@ -772,6 +772,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * {@inheritdoc}
      */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'TRUNCATE "select"';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getAlterStringToFixedStringSQL()
     {
         return array(

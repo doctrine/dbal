@@ -642,6 +642,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'DELETE FROM "select"';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getAlterStringToFixedStringSQL()
     {
         return array(

@@ -704,6 +704,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'TRUNCATE `select`';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getAlterStringToFixedStringSQL()
     {
         return array(

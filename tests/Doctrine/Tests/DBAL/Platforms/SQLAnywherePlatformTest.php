@@ -963,6 +963,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'TRUNCATE TABLE "select"';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function supportsInlineIndexDeclaration()
     {
         return false;
