@@ -103,7 +103,7 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->insert('modify_limit_table', array('test_int' => 3));
         $this->_conn->insert('modify_limit_table', array('test_int' => 4));
 
-        $sql = "SELECT *, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table";
+        $sql = "SELECT modify_limit_table.*, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table";
 
         $this->assertLimitResult(array(4, 3, 2, 1), $sql, 10, 0, false);
         $this->assertLimitResult(array(4, 3), $sql, 2, 0, false);
