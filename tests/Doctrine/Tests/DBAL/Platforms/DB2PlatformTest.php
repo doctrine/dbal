@@ -115,6 +115,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return array(
             "CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))",
+            "COMMENT ON COLUMN test.id IS 'This is a comment'",
         );
     }
 
@@ -134,6 +135,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'CREATE TABLE test (id INTEGER NOT NULL, "data" CLOB(1M) NOT NULL, PRIMARY KEY(id))',
+            'COMMENT ON COLUMN test."data" IS \'(DC2Type:array)\'',
         );
     }
 
@@ -283,6 +285,15 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('timestamp'));
         $this->assertSame('datetime', $this->_platform->getDoctrineTypeMapping('timestamp'));
+    }
+
+    public function getIsCommentedDoctrineType()
+    {
+        $data = parent::getIsCommentedDoctrineType();
+
+        $data[Type::BOOLEAN] = array(Type::getType(Type::BOOLEAN), true);
+
+        return $data;
     }
 
     public function testGeneratesDDLSnippets()
@@ -646,6 +657,14 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     protected function supportsInlineIndexDeclaration()
     {
         return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsCommentOnStatement()
+    {
+        return true;
     }
 
     /**

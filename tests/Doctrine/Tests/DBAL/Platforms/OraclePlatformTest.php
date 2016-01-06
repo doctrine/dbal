@@ -187,6 +187,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $this->assertTrue($this->_platform->supportsSavepoints());
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsCommentOnStatement()
+    {
+        return true;
+    }
+
     public function getGenerateIndexSql()
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
