@@ -643,6 +643,14 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'TRUNCATE "select" IMMEDIATE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function supportsInlineIndexDeclaration()
     {
         return false;

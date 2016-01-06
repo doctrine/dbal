@@ -622,6 +622,22 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     abstract protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL();
 
     /**
+     * @group DBAL-2270
+     */
+    public function testQuotesReservedKeywordInTruncateTableSQL()
+    {
+        $this->assertSame(
+            $this->getQuotesReservedKeywordInTruncateTableSQL(),
+            $this->_platform->getTruncateTableSQL('select')
+        );
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getQuotesReservedKeywordInTruncateTableSQL();
+
+    /**
      * @group DBAL-1051
      */
     public function testQuotesReservedKeywordInIndexDeclarationSQL()

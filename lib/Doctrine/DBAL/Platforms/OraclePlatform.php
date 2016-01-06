@@ -1082,7 +1082,9 @@ END;';
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        return 'TRUNCATE TABLE '.$tableName;
+        $tableIdentifier = new Identifier($tableName);
+
+        return 'TRUNCATE TABLE ' . $tableIdentifier->getQuotedName($this);
     }
 
     /**
