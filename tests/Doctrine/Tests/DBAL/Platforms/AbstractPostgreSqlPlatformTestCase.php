@@ -130,7 +130,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     public function testGeneratesDDLSnippets()
     {
-        $this->assertEquals('CREATE DATABASE foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
+        $this->assertEquals('CREATE DATABASE foobar TEMPLATE template0', $this->_platform->getCreateDatabaseSQL('foobar'));
         $this->assertEquals('DROP DATABASE foobar', $this->_platform->getDropDatabaseSQL('foobar'));
         $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
     }
