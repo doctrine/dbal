@@ -33,6 +33,6 @@ class DriverTest extends AbstractDriverTest
      */
     protected function getDatabaseNameForConnectionWithoutDatabaseNameParameter()
     {
-        return 'template1';
+        return 'postgres';
     }
 }
