@@ -90,9 +90,9 @@ class Driver extends AbstractPostgreSQLDriver
             $dsn .= 'dbname=' . $params['dbname'] . ' ';
         } else {
             // Used for temporary connections to allow operations like dropping the database currently connected to.
-            // Connecting without an explicit database does not work, therefore "template1" database is used
-            // as it is certainly present in every server setup.
-            $dsn .= 'dbname=template1' . ' ';
+            // Connecting without an explicit database does not work, therefore "postgres" database is used
+            // as it is certainly present in every server setup. 
+            $dsn .= 'dbname=postgres' . ' ';
         }
 
         if (isset($params['sslmode'])) {
