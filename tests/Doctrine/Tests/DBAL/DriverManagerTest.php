@@ -167,11 +167,11 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
             ),
             'sqlite memory' => array(
                 'sqlite:///:memory:',
-                array('path' => ':memory:', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+                array('memory' => true, 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
             ),
             'sqlite memory with host' => array(
                 'sqlite://localhost/:memory:',
-                array('path' => ':memory:', 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
+                array('memory' => true, 'driver' => 'Doctrine\DBAL\Driver\PDOSqlite\Driver'),
             ),
             'params parsed from URL override individual params' => array(
                 array('url' => 'mysql://foo:bar@localhost/baz', 'password' => 'lulz'),
