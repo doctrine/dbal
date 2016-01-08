@@ -142,7 +142,7 @@ final class DriverManager
         }
 
         $params = self::parseDatabaseUrl($params);
-        
+
         // check for existing pdo object
         if (isset($params['pdo']) && ! $params['pdo'] instanceof \PDO) {
             throw DBALException::invalidPdoInstance();
@@ -228,23 +228,23 @@ final class DriverManager
         if (!isset($params['url'])) {
             return $params;
         }
-        
+
         // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
         $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $params['url']);
-        
+
         $url = parse_url($url);
-        
+
         if ($url === false) {
             throw new DBALException('Malformed parameter "url".');
         }
-        
+
         if (isset($url['scheme'])) {
             $params['driver'] = str_replace('-', '_', $url['scheme']); // URL schemes must not contain underscores, but dashes are ok
             if (isset(self::$driverSchemeAliases[$params['driver']])) {
                 $params['driver'] = self::$driverSchemeAliases[$params['driver']]; // use alias like "postgres", else we just let checkParams decide later if the driver exists (for literal "pdo-pgsql" etc)
             }
         }
-        
+
         if (isset($url['host'])) {
             $params['host'] = $url['host'];
         }
@@ -257,21 +257,65 @@ final class DriverManager
         if (isset($url['pass'])) {
             $params['password'] = $url['pass'];
         }
-        
+
         if (isset($url['path'])) {
-            if (!isset($url['scheme']) || (strpos($url['scheme'], 'sqlite') !== false && $url['path'] == ':memory:')) {
-                $params['dbname'] = $url['path']; // if the URL was just "sqlite::memory:", which parses to scheme and path only
-            } else {
-                $params['dbname'] = substr($url['path'], 1); // strip the leading slash from the URL
-            }
+            $params = self::parseDatabaseUrlPath($url, $params);
         }
-        
+
         if (isset($url['query'])) {
             $query = array();
             parse_str($url['query'], $query); // simply ingest query as extra params, e.g. charset or sslmode
             $params = array_merge($params, $query); // parse_str wipes existing array elements
         }
-        
+
+        return $params;
+    }
+
+    /**
+     * Parses the given URL and resolves the given connection parameters.
+     *
+     * @param array $url    The URL parts to evaluate.
+     * @param array $params The connection parameters to resolve.
+     *
+     * @return array The resolved connection parameters.
+     */
+    private static function parseDatabaseUrlPath(array $url, array $params)
+    {
+        if (!isset($url['scheme'])) {
+            $params['dbname'] = $url['path'];
+
+            return $params;
+        }
+
+        $url['path'] = substr($url['path'], 1);
+
+        if (strpos($url['scheme'], 'sqlite') !== false) {
+            return self::parseSqliteDatabaseUrlPath($url, $params);
+        }
+
+        $params['dbname'] = $url['path'];
+
+        return $params;
+    }
+
+    /**
+     * Parses the given SQLite URL and resolves the given connection parameters.
+     *
+     * @param array $url    The SQLite URL parts to evaluate.
+     * @param array $params The connection parameters to resolve.
+     *
+     * @return array The resolved connection parameters.
+     */
+    private static function parseSqliteDatabaseUrlPath(array $url, array $params)
+    {
+        if ($url['path'] === ':memory:') {
+            $params['memory'] = true;
+
+            return $params;
+        }
+
+        $params['path'] = $url['path']; // pdo_sqlite driver uses 'path' instead of 'dbname' key
+
         return $params;
     }
 }
