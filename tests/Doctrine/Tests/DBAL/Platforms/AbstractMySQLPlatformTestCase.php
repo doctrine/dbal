@@ -415,7 +415,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $sql = $this->_platform->getAlterTableSQL($diff);
 
         $this->assertEquals(array(
-	        "ALTER TABLE mytable DROP PRIMARY KEY",
+            "ALTER TABLE mytable DROP PRIMARY KEY",
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
@@ -818,5 +818,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testQuotesDatabaseNameInListTableColumnsSQL()
     {
         $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
+    }
+
+    public function testListTableForeignKeysSQLEvaluatesDatabase()
+    {
+        $sql = $this->_platform->getListTableForeignKeysSQL('foo');
+
+        $this->assertContains('DATABASE()', $sql);
+
+        $sql = $this->_platform->getListTableForeignKeysSQL('foo', 'bar');
+
+        $this->assertContains('bar', $sql);
+        $this->assertNotContains('DATABASE()', $sql);
     }
 }
