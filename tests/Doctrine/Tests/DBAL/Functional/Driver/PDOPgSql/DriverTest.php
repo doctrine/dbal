@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Driver\PDOPgSql;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
 
@@ -18,6 +19,26 @@ class DriverTest extends AbstractDriverTest
         if (! $this->_conn->getDriver() instanceof Driver) {
             $this->markTestSkipped('pdo_pgsql only test.');
         }
+    }
+
+    public function testDefaultDatabaseOption()
+    {
+        $params = $this->_conn->getParams();
+        $dbName = $params['dbname'];
+        $params['default_dbname'] = $dbName;
+        unset($params['dbname']);
+
+        $connection = new Connection(
+            $params,
+            $this->_conn->getDriver(),
+            $this->_conn->getConfiguration(),
+            $this->_conn->getEventManager()
+        );
+
+        $this->assertSame(
+            $dbName,
+            $this->driver->getDatabase($connection)
+        );
     }
 
     /**
