@@ -140,9 +140,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 
     public function databaseUrls()
     {
-        $pdoMock = $this->getMockBuilder('PDO')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $pdoMock = $this->getMock('Doctrine\Tests\Mocks\PDOMock');
 
         return array(
             'simple URL' => array(
