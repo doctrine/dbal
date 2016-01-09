@@ -669,6 +669,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
+    protected function getQuotesDropForeignKeySQL()
+    {
+        return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
+    }
+
     public function testGetNullCommentOnColumnSQL()
     {
         $this->assertEquals(

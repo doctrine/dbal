@@ -545,6 +545,11 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    protected function getQuotesDropForeignKeySQL()
+    {
+        return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
+    }
+
     /**
      * @group DBAL-423
      */
