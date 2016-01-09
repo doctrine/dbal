@@ -116,6 +116,10 @@ class Comparator
                     $localTableName = strtolower($foreignKey->getLocalTableName());
                     if (isset($diff->changedTables[$localTableName])) {
                         foreach ($diff->changedTables[$localTableName]->removedForeignKeys as $key => $removedForeignKey) {
+                            // We check if the key is from the removed table if not we skip.
+                            if ($tableName !== strtolower($removedForeignKey->getForeignTableName())) {
+                                continue;
+                            }
                             unset($diff->changedTables[$localTableName]->removedForeignKeys[$key]);
                         }
                     }
