@@ -75,7 +75,10 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
         if ($unsafe) {
             $platform->expects($this->exactly(1))
                      ->method('getDropForeignKeySql')
-                     ->with($this->isInstanceof('Doctrine\DBAL\Schema\ForeignKeyConstraint'), $this->equalTo('local_table'))
+                     ->with(
+                         $this->isInstanceof('Doctrine\DBAL\Schema\ForeignKeyConstraint'),
+                         $this->isInstanceOf('Doctrine\DBAL\Schema\Table')
+                     )
                      ->will($this->returnValue('drop_orphan_fk'));
         }
         $platform->expects($this->exactly(1))
