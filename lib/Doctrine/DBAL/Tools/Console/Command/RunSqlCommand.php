@@ -48,7 +48,8 @@ class RunSqlCommand extends Command
         ->setDescription('Executes arbitrary SQL directly from the command line.')
         ->setDefinition(array(
             new InputArgument('sql', InputArgument::REQUIRED, 'The SQL statement to execute.'),
-            new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'Dumping depth of result set.', 7)
+            new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'Dumping depth of result set.', 7),
+            new InputOption('force-fetch', null, InputOption::VALUE_NONE, 'Forces fetching the result.'),
         ))
         ->setHelp(<<<EOT
 Executes arbitrary SQL directly from the command line.
@@ -73,7 +74,7 @@ EOT
             throw new \LogicException("Option 'depth' must contains an integer value");
         }
 
-        if (stripos($sql, 'select') === 0) {
+        if (stripos($sql, 'select') === 0 || $input->getOption('force-fetch')) {
             $resultSet = $conn->fetchAll($sql);
         } else {
             $resultSet = $conn->executeUpdate($sql);
