@@ -69,7 +69,7 @@ class OracleSessionInit implements EventSubscriber
             array_change_key_case($this->_defaultSessionVars, \CASE_UPPER);
             $vars = array();
             foreach ($this->_defaultSessionVars as $option => $value) {
-                if($option === 'CURRENT_SCHEMA') {
+                if ($option === 'CURRENT_SCHEMA') {
                     $vars[] = $option . " = " . $value;
                 } else {
                     $vars[] = $option . " = '" . $value . "'";
