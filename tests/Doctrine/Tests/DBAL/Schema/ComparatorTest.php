@@ -978,22 +978,33 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     {
         $oldSchema = new Schema();
 
-        $tableForeign = $oldSchema->createTable('foreign');
-        $tableForeign->addColumn('id', 'integer');
+        $tableA = $oldSchema->createTable('table_a');
+        $tableA->addColumn('id', 'integer');
 
-        $table = $oldSchema->createTable('foo');
-        $table->addColumn('fk', 'integer');
-        $table->addForeignKeyConstraint($tableForeign, array('fk'), array('id'));
+        $tableB = $oldSchema->createTable('table_b');
+        $tableB->addColumn('id', 'integer');
 
+        $tableC = $oldSchema->createTable('table_c');
+        $tableC->addColumn('id', 'integer');
+        $tableC->addColumn('table_a_id', 'integer');
+        $tableC->addColumn('table_b_id', 'integer');
+
+        $tableC->addForeignKeyConstraint($tableA, array('table_a_id'), array('id'));
+        $tableC->addForeignKeyConstraint($tableB, array('table_b_id'), array('id'));
 
         $newSchema = new Schema();
-        $table = $newSchema->createTable('foo');
 
-        $c = new Comparator();
-        $diff = $c->compare($oldSchema, $newSchema);
+        $tableB = $newSchema->createTable('table_b');
+        $tableB->addColumn('id', 'integer');
 
-        $this->assertCount(0, $diff->changedTables['foo']->removedForeignKeys);
-        $this->assertCount(1, $diff->orphanedForeignKeys);
+        $tableC = $newSchema->createTable('table_c');
+        $tableC->addColumn('id', 'integer');
+
+        $comparator = new Comparator();
+        $schemaDiff = $comparator->compare($oldSchema, $newSchema);
+
+        $this->assertCount(1, $schemaDiff->changedTables['table_c']->removedForeignKeys);
+        $this->assertCount(1, $schemaDiff->orphanedForeignKeys);
     }
 
     public function testCompareChangedColumn()
