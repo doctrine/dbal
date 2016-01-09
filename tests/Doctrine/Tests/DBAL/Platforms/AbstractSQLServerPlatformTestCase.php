@@ -1035,6 +1035,16 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         );
     }
 
+    protected function getQuotesDropForeignKeySQL()
+    {
+        return 'ALTER TABLE [table] DROP CONSTRAINT [select]';
+    }
+
+    protected function getQuotesDropConstraintSQL()
+    {
+        return 'ALTER TABLE [table] DROP CONSTRAINT [select]';
+    }
+
     /**
      * @dataProvider getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL
      * @group DBAL-830

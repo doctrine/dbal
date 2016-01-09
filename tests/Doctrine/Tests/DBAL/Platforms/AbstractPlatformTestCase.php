@@ -967,6 +967,52 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    /**
+     * @group DBAL-1237
+     */
+    public function testQuotesDropForeignKeySQL()
+    {
+        if (! $this->_platform->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped(
+                sprintf('%s does not support foreign key constraints.', get_class($this->_platform))
+            );
+        }
+
+        $tableName = 'table';
+        $table = new Table($tableName);
+        $foreignKeyName = 'select';
+        $foreignKey = new ForeignKeyConstraint(array(), 'foo', array(), 'select');
+        $expectedSql = $this->getQuotesDropForeignKeySQL();
+
+        $this->assertSame($expectedSql, $this->_platform->getDropForeignKeySQL($foreignKeyName, $tableName));
+        $this->assertSame($expectedSql, $this->_platform->getDropForeignKeySQL($foreignKey, $table));
+    }
+
+    protected function getQuotesDropForeignKeySQL()
+    {
+        return 'ALTER TABLE "table" DROP FOREIGN KEY "select"';
+    }
+
+    /**
+     * @group DBAL-1237
+     */
+    public function testQuotesDropConstraintSQL()
+    {
+        $tableName = 'table';
+        $table = new Table($tableName);
+        $constraintName = 'select';
+        $constraint = new ForeignKeyConstraint(array(), 'foo', array(), 'select');
+        $expectedSql = $this->getQuotesDropConstraintSQL();
+
+        $this->assertSame($expectedSql, $this->_platform->getDropConstraintSQL($constraintName, $tableName));
+        $this->assertSame($expectedSql, $this->_platform->getDropConstraintSQL($constraint, $table));
+    }
+
+    protected function getQuotesDropConstraintSQL()
+    {
+        return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
+    }
+
     protected function getStringLiteralQuoteCharacter()
     {
         return "'";
