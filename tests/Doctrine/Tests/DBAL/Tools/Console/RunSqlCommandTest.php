@@ -114,7 +114,7 @@ class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
         $this->commandTester->execute(array(
             'command' => $this->command->getName(),
             'sql' => '"WITH bar as (SELECT 1) SELECT * FROM bar',
-            '--fetch-result' => true,
+            '--force-fetch' => true,
         ));
 
         $this->assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
