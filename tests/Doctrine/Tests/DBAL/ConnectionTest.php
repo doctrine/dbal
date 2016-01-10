@@ -527,4 +527,40 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         call_user_func_array(array($conn, $method), $params);
     }
+
+    /**
+     * @group DBAL-1127
+     */
+    public function testPlatformDetectionIsTriggerOnlyOnceOnRetrievingPlatform()
+    {
+        /** @var \Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock|\PHPUnit_Framework_MockObject_MockObject $driverMock */
+        $driverMock = $this->getMock('Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock');
+
+        /** @var \Doctrine\Tests\Mocks\ServerInfoAwareConnectionMock|\PHPUnit_Framework_MockObject_MockObject $driverConnectionMock */
+        $driverConnectionMock = $this->getMock('Doctrine\Tests\Mocks\ServerInfoAwareConnectionMock');
+
+        /** @var \Doctrine\DBAL\Platforms\AbstractPlatform|\PHPUnit_Framework_MockObject_MockObject $platformMock */
+        $platformMock = $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform');
+
+        $connection = new Connection(array(), $driverMock);
+
+        $driverMock->expects($this->once())
+            ->method('connect')
+            ->will($this->returnValue($driverConnectionMock));
+
+        $driverConnectionMock->expects($this->once())
+            ->method('requiresQueryForServerVersion')
+            ->will($this->returnValue(false));
+
+        $driverConnectionMock->expects($this->once())
+            ->method('getServerVersion')
+            ->will($this->returnValue('6.6.6'));
+
+        $driverMock->expects($this->once())
+            ->method('createDatabasePlatformForVersion')
+            ->with('6.6.6')
+            ->will($this->returnValue($platformMock));
+
+        $this->assertSame($platformMock, $connection->getDatabasePlatform());
+    }
 }
