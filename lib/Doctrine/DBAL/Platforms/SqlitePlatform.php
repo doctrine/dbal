@@ -580,7 +580,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getInlineColumnCommentSQL($comment)
     {
-        return '--'.str_replace("\n", "\n--", $comment)."\n";
+        return '--' . str_replace("\n", "\n--", $comment) . "\n";
     }
 
     /**

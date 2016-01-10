@@ -263,10 +263,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
             }
 
             $comment = $this->parseColumnCommentFromSQL($columnName, $createSql);
+
             if (false !== $comment) {
                 $type = $this->extractDoctrineTypeFromComment($comment, null);
+
                 if (null !== $type) {
                     $column->setType(Type::getType($type));
+
                     $comment = $this->removeDoctrineTypeFromComment($comment, $type);
                 }
 
@@ -451,6 +454,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return false;
     }
 
+    /**
+     * @param string $column
+     * @param string $sql
+     *
+     * @return string|false
+     */
     private function parseColumnCommentFromSQL($column, $sql)
     {
         if (preg_match(
