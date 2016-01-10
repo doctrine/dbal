@@ -637,6 +637,26 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    protected function getInlineColumnCommentDelimiter()
+    {
+        return "\n";
+    }
+
+    protected function getInlineColumnRegularCommentSQL()
+    {
+        return "--Regular comment\n";
+    }
+
+    protected function getInlineColumnCommentRequiringEscapingSQL()
+    {
+        return "--Using inline comment delimiter \n-- works\n";
+    }
+
+    protected function getInlineColumnEmptyCommentSQL()
+    {
+        return "--\n";
+    }
+
     /**
      * {@inheritdoc}
      */

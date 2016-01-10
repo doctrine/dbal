@@ -1027,6 +1027,55 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    /**
+     * @group DBAL-1176
+     *
+     * @dataProvider getGeneratesInlineColumnCommentSQL
+     */
+    public function testGeneratesInlineColumnCommentSQL($comment, $expectedSql)
+    {
+        if (! $this->_platform->supportsInlineColumnComments()) {
+            $this->markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->_platform)));
+        }
+
+        $this->assertSame($expectedSql, $this->_platform->getInlineColumnCommentSQL($comment));
+    }
+
+    public function getGeneratesInlineColumnCommentSQL()
+    {
+        return array(
+            'regular comment' => array('Regular comment', $this->getInlineColumnRegularCommentSQL()),
+            'comment requiring escaping' => array(
+                sprintf(
+                    'Using inline comment delimiter %s works',
+                    $this->getInlineColumnCommentDelimiter()
+                ),
+                $this->getInlineColumnCommentRequiringEscapingSQL()
+            ),
+            'empty comment' => array('', $this->getInlineColumnEmptyCommentSQL()),
+        );
+    }
+
+    protected function getInlineColumnCommentDelimiter()
+    {
+        return "'";
+    }
+
+    protected function getInlineColumnRegularCommentSQL()
+    {
+        return "COMMENT 'Regular comment'";
+    }
+
+    protected function getInlineColumnCommentRequiringEscapingSQL()
+    {
+        return "COMMENT 'Using inline comment delimiter '' works'";
+    }
+
+    protected function getInlineColumnEmptyCommentSQL()
+    {
+        return "COMMENT ''";
+    }
+
     protected function getQuotedStringLiteralWithoutQuoteCharacter()
     {
         return "'No quote'";
