@@ -40,6 +40,10 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
      */
     public function convertException($message, DriverException $exception)
     {
+        if (strpos($exception->getMessage(), 'database is locked') !== false) {
+            return new Exception\LockWaitTimeoutException($message, $exception);
+        }
+
         if (strpos($exception->getMessage(), 'must be unique') !== false ||
             strpos($exception->getMessage(), 'is not unique') !== false ||
             strpos($exception->getMessage(), 'are not unique') !== false ||

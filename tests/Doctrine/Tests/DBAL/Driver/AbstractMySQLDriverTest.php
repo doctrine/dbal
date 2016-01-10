@@ -134,6 +134,12 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
                 array('1569', null, null),
                 array('1586', null, null),
             ),
+            self::EXCEPTION_DEADLOCK => array(
+                array('1213', null, null),
+            ),
+            self::EXCEPTION_LOCK_WAIT_TIMEOUT => array(
+                array('1205', null, null),
+            ),
         );
     }
 }

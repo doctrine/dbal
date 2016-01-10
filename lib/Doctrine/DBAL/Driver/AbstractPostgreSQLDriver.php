@@ -46,6 +46,9 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     public function convertException($message, DriverException $exception)
     {
         switch ($exception->getSQLState()) {
+            case '40001':
+            case '40P01':
+                return new Exception\DeadlockException($message, $exception);
             case '0A000':
                 // Foreign key constraint violations during a TRUNCATE operation
                 // are considered "feature not supported" in PostgreSQL.

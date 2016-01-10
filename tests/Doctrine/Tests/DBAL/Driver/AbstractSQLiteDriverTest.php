@@ -73,6 +73,9 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
                 array(null, null, 'is not unique'),
                 array(null, null, 'are not unique'),
             ),
+            self::EXCEPTION_LOCK_WAIT_TIMEOUT => array(
+                array(null, null, 'database is locked'),
+            ),
         );
     }
 }
