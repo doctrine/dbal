@@ -399,13 +399,27 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $this->assertSame($result, $conn->fetchColumn($statement, $params, $column, $types));
     }
 
-    public function testConnectionIsClosed()
+    public function testConnectionIsClosedButNotUnset()
     {
-        $this->_conn->close();
+        // mock Connection, and make connect() purposefully do nothing
+        $connection = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->disableOriginalConstructor()
+            ->setMethods(array('connect'))
+            ->getMock();
 
-        $this->setExpectedException('Doctrine\\DBAL\\Exception\\DriverException');
+        // artificially set the wrapped connection to non-null
+        $reflection = new \ReflectionObject($connection);
+        $connProperty = $reflection->getProperty('_conn');
+        $connProperty->setAccessible(true);
+        $connProperty->setValue($connection, new \stdClass);
 
-        $this->_conn->quoteIdentifier('Bug');
+        // close the connection (should nullify the wrapped connection)
+        $connection->close();
+
+        // the wrapped connection should be null
+        // (and since connect() does nothing, this will not reconnect)
+        // this will also fail if this _conn property was unset instead of set to null
+        $this->assertNull($connection->getWrappedConnection());
     }
 
     public function testFetchAll()
