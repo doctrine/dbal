@@ -1091,6 +1091,24 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         return "''''";
     }
 
+    /**
+     * @group DBAL-1176
+     */
+    public function testThrowsExceptionOnGeneratingInlineColumnCommentSQLIfUnsupported()
+    {
+        if ($this->_platform->supportsInlineColumnComments()) {
+            $this->markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->_platform)));
+        }
+
+        $this->setExpectedException(
+            'Doctrine\DBAL\DBALException',
+            "Operation 'Doctrine\\DBAL\\Platforms\\AbstractPlatform::getInlineColumnCommentSQL' is not supported by platform.",
+            0
+        );
+
+        $this->_platform->getInlineColumnCommentSQL('unsupported');
+    }
+
     public function testQuoteStringLiteral()
     {
         $c = $this->getStringLiteralQuoteCharacter();

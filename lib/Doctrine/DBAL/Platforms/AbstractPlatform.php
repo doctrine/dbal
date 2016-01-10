@@ -1608,9 +1608,15 @@ abstract class AbstractPlatform
      * @param string $comment
      *
      * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
      */
     public function getInlineColumnCommentSQL($comment)
     {
+        if (! $this->supportsInlineColumnComments()) {
+            throw DBALException::notSupported(__METHOD__);
+        }
+
         return "COMMENT " . $this->quoteStringLiteral($comment);
     }
 
