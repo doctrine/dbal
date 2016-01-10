@@ -21,6 +21,23 @@ class DriverTest extends AbstractDriverTest
     }
 
     /**
+     * @group DBAL-1146
+     */
+    public function testConnectsWithApplicationNameParameter()
+    {
+        $parameters = $this->_conn->getParams();
+        $parameters['application_name'] = 'doctrine';
+
+        $user = isset($parameters['user']) ? $parameters['user'] : null;
+        $password = isset($parameters['password']) ? $parameters['password'] : null;
+
+        $connection = $this->driver->connect($parameters, $user, $password);
+        $statement = $connection->query('SELECT application_name FROM pg_stat_activity');
+
+        $this->assertSame('doctrine', $statement->fetchColumn());
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function createDriver()
