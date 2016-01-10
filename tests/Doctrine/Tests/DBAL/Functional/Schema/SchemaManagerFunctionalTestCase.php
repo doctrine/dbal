@@ -701,6 +701,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals('This is a comment', $columns['id']->getComment());
 
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('column_comment_test');
+        $tableDiff->fromTable = $table;
         $tableDiff->changedColumns['id'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'id', new \Doctrine\DBAL\Schema\Column(
                 'id', \Doctrine\DBAL\Types\Type::getType('integer'), array('primary' => true)
@@ -1053,7 +1054,6 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $offlineTable->addColumn('comment2', 'integer', array('comment' => $comment2));
         $offlineTable->addColumn('no_comment1', 'integer');
         $offlineTable->addColumn('no_comment2', 'integer');
-
         $this->_sm->dropAndCreateTable($offlineTable);
 
         $onlineTable = $this->_sm->listTableDetails("alter_column_comment_test");

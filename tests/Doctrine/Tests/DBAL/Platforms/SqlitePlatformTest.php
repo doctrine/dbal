@@ -523,11 +523,20 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return array(
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM mytable',
             'DROP TABLE mytable',
-            'CREATE TABLE mytable (unquoted INTEGER NOT NULL, "where" INTEGER NOT NULL, "foo" INTEGER NOT NULL, reserved_keyword INTEGER NOT NULL, "from" INTEGER NOT NULL, "bar" INTEGER NOT NULL, quoted INTEGER NOT NULL, "and" INTEGER NOT NULL, "baz" INTEGER NOT NULL)',
+            'CREATE TABLE mytable (unquoted INTEGER NOT NULL --Unquoted 1
+, "where" INTEGER NOT NULL --Unquoted 2
+, "foo" INTEGER NOT NULL --Unquoted 3
+, reserved_keyword INTEGER NOT NULL --Reserved keyword 1
+, "from" INTEGER NOT NULL --Reserved keyword 2
+, "bar" INTEGER NOT NULL --Reserved keyword 3
+, quoted INTEGER NOT NULL --Quoted 1
+, "and" INTEGER NOT NULL --Quoted 2
+, "baz" INTEGER NOT NULL --Quoted 3
+)',
             'INSERT INTO mytable (unquoted, "where", "foo", reserved_keyword, "from", "bar", quoted, "and", "baz") SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
         );
-	}
+    }
 
     /**
      * {@inheritdoc}
@@ -537,7 +546,13 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return array(
             'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM mytable',
             'DROP TABLE mytable',
-            'CREATE TABLE mytable (unquoted1 VARCHAR(255) NOT NULL, unquoted2 VARCHAR(255) NOT NULL, unquoted3 VARCHAR(255) NOT NULL, "create" VARCHAR(255) NOT NULL, "table" VARCHAR(255) NOT NULL, "select" VARCHAR(255) NOT NULL)',
+            'CREATE TABLE mytable (unquoted1 VARCHAR(255) NOT NULL --Unquoted 1
+, unquoted2 VARCHAR(255) NOT NULL --Unquoted 2
+, unquoted3 VARCHAR(255) NOT NULL --Unquoted 3
+, "create" VARCHAR(255) NOT NULL --Reserved keyword 1
+, "table" VARCHAR(255) NOT NULL --Reserved keyword 2
+, "select" VARCHAR(255) NOT NULL --Reserved keyword 3
+)',
             'INSERT INTO mytable (unquoted1, unquoted2, unquoted3, "create", "table", "select") SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM __temp__mytable',
             'DROP TABLE __temp__mytable',
         );
@@ -581,7 +596,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         return array(
             'CREATE TEMPORARY TABLE __temp__foo AS SELECT bar FROM foo',
             'DROP TABLE foo',
-            'CREATE TABLE foo (baz INTEGER DEFAULT 666 NOT NULL)',
+            'CREATE TABLE foo (baz INTEGER DEFAULT 666 NOT NULL --rename test
+)',
             'INSERT INTO foo (baz) SELECT bar FROM __temp__foo',
             'DROP TABLE __temp__foo',
         );
@@ -619,6 +635,26 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
             'COMMENT ON COLUMN "select"."from" IS \'comment\'',
         );
+    }
+
+    protected function getInlineColumnCommentDelimiter()
+    {
+        return "\n";
+    }
+
+    protected function getInlineColumnRegularCommentSQL()
+    {
+        return "--Regular comment\n";
+    }
+
+    protected function getInlineColumnCommentRequiringEscapingSQL()
+    {
+        return "--Using inline comment delimiter \n-- works\n";
+    }
+
+    protected function getInlineColumnEmptyCommentSQL()
+    {
+        return "--\n";
     }
 
     /**

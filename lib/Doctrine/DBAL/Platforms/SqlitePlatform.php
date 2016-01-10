@@ -495,6 +495,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function supportsInlineColumnComments()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getName()
     {
         return 'sqlite';
@@ -565,6 +573,14 @@ class SqlitePlatform extends AbstractPlatform
     public function getForUpdateSql()
     {
         return '';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getInlineColumnCommentSQL($comment)
+    {
+        return '--' . str_replace("\n", "\n--", $comment) . "\n";
     }
 
     /**

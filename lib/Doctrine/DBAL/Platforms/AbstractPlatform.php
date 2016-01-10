@@ -1609,6 +1609,24 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL to create inline comment on a column.
+     *
+     * @param string $comment
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getInlineColumnCommentSQL($comment)
+    {
+        if (! $this->supportsInlineColumnComments()) {
+            throw DBALException::notSupported(__METHOD__);
+        }
+
+        return "COMMENT " . $this->quoteStringLiteral($comment);
+    }
+
+    /**
      * Returns the SQL used to create a table.
      *
      * @param string $tableName
@@ -2217,7 +2235,7 @@ abstract class AbstractPlatform
         }
 
         if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
-            $columnDef .= " COMMENT " . $this->quoteStringLiteral($field['comment']);
+            $columnDef .= ' ' . $this->getInlineColumnCommentSQL($field['comment']);
         }
 
         return $name . ' ' . $columnDef;
