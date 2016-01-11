@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\PDOPgSql;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+use Doctrine\Tests\TestUtil;
 
 class DriverTest extends AbstractDriverTest
 {
@@ -21,12 +22,14 @@ class DriverTest extends AbstractDriverTest
         }
     }
 
-    public function testDefaultDatabaseOption()
+    /**
+    @dataProvider getDatabaseParameter
+     */
+    public function testDatabaseParameters($databaseName, $defaultDatabaseName, $expectedDatabaseName)
     {
         $params = $this->_conn->getParams();
-        $dbName = $params['dbname'];
-        $params['default_dbname'] = $dbName;
-        unset($params['dbname']);
+        $params['dbname'] = $databaseName;
+        $params['default_dbname'] = $defaultDatabaseName;
 
         $connection = new Connection(
             $params,
@@ -36,8 +39,23 @@ class DriverTest extends AbstractDriverTest
         );
 
         $this->assertSame(
-            $dbName,
+            $expectedDatabaseName,
             $this->driver->getDatabase($connection)
+        );
+    }
+
+    public function getDatabaseParameter()
+    {
+        $params = TestUtil::getConnection()->getParams();
+        $realDatabaseName = $params['dbname'];
+        $dummyDatabaseName = $realDatabaseName . 'a';
+
+        return array(
+            // dbname, default_dbname, expected
+            array($realDatabaseName, null, $realDatabaseName),
+            array($realDatabaseName, $dummyDatabaseName, $realDatabaseName),
+            array(null, $realDatabaseName, $realDatabaseName),
+            array(null, null, $this->getDatabaseNameForConnectionWithoutDatabaseNameParameter()),
         );
     }
 
