@@ -513,7 +513,8 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        $tableName = str_replace('.', '__', $tableName);
+        $tableIdentifier = new Identifier($tableName);
+        $tableName = str_replace('.', '__', $tableIdentifier->getQuotedName($this));
 
         return 'DELETE FROM ' . $tableName;
     }

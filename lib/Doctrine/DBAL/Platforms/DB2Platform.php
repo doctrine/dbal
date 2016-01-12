@@ -233,7 +233,9 @@ class DB2Platform extends AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        return 'TRUNCATE ' . $tableName . ' IMMEDIATE';
+        $tableIdentifier = new Identifier($tableName);
+
+        return 'TRUNCATE ' . $tableIdentifier->getQuotedName($this) . ' IMMEDIATE';
     }
 
     /**

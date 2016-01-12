@@ -3436,7 +3436,9 @@ abstract class AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        return 'TRUNCATE '.$tableName;
+        $tableIdentifier = new Identifier($tableName);
+
+        return 'TRUNCATE ' . $tableIdentifier->getQuotedName($this);
     }
 
     /**

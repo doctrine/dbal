@@ -1068,7 +1068,14 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        return 'TRUNCATE '.$tableName.' '.(($cascade)?'CASCADE':'');
+        $tableIdentifier = new Identifier($tableName);
+        $sql = 'TRUNCATE ' . $tableIdentifier->getQuotedName($this);
+
+        if ($cascade) {
+            $sql .= ' CASCADE';
+        }
+
+        return $sql;
     }
 
     /**

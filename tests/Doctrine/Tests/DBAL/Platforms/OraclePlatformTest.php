@@ -715,6 +715,14 @@ EOD;
     /**
      * {@inheritdoc}
      */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'TRUNCATE TABLE "select"';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getAlterStringToFixedStringSQL()
     {
         return array(
