@@ -35,9 +35,14 @@ class Identifier extends AbstractAsset
      * Constructor.
      *
      * @param string $identifier Identifier name to wrap.
+     * @param bool   $quote      Whether to force quoting the given identifier.
      */
-    public function __construct($identifier)
+    public function __construct($identifier, $quote = false)
     {
         $this->_setName($identifier);
+
+        if ($quote && ! $this->_quoted) {
+            $this->_setName('"' . $this->getName() . '"');
+        }
     }
 }
