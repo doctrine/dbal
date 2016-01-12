@@ -300,7 +300,7 @@ or ``null`` if no data is present.
 
 .. note::
 
-    See the `Known Vendor Issue <./known-vendor-issues>`_ section
+    See the Known Vendor Issue :doc:`known-vendor-issues` section
     for details about the different handling of microseconds and
     timezones across all the different vendors.
 
@@ -418,6 +418,8 @@ using deserialization or ``null`` if no data is present.
     the object type will cause deserialization errors on PostgreSQL. A workaround is
     to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()`` PHP objects and store
     them into a ``text`` field manually.
+
+.. _mappingMatrix:
 
 Mapping Matrix
 --------------
