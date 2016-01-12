@@ -23,7 +23,7 @@ class DriverTest extends AbstractDriverTest
     }
 
     /**
-    @dataProvider getDatabaseParameter
+     * @dataProvider getDatabaseParameter
      */
     public function testDatabaseParameters($databaseName, $defaultDatabaseName, $expectedDatabaseName)
     {
