@@ -812,7 +812,12 @@ class Connection implements DriverConnection
 
         try {
             if ($params) {
-                list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
+                list($query, $params, $types) = SQLParserUtils::expandListParameters(
+                    $query,
+                    $params,
+                    $types,
+                    $this->getDatabasePlatform()
+                );
 
                 $stmt = $this->_conn->prepare($query);
                 if ($types) {
@@ -971,7 +976,12 @@ class Connection implements DriverConnection
 
         try {
             if ($params) {
-                list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
+                list($query, $params, $types) = SQLParserUtils::expandListParameters(
+                    $query,
+                    $params,
+                    $types,
+                    $this->getDatabasePlatform()
+                );
 
                 $stmt = $this->_conn->prepare($query);
                 if ($types) {

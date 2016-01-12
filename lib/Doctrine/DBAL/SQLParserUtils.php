@@ -19,6 +19,9 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
+
 /**
  * Utility class that parses sql statements with regard to types and parameters.
  *
@@ -43,13 +46,17 @@ class SQLParserUtils
      * Returns an integer => integer pair (indexed from zero) for a positional statement
      * and a string => int[] pair for a named statement.
      *
-     * @param string  $statement
-     * @param boolean $isPositional
+     * @param string                $statement
+     * @param boolean               $isPositional
+     * @param AbstractPlatform|null $platform     The platform to use for retrieving the placeholder positions.
      *
      * @return array
      */
-    static public function getPlaceholderPositions($statement, $isPositional = true)
-    {
+    static public function getPlaceholderPositions(
+        $statement,
+        $isPositional = true,
+        AbstractPlatform $platform = null
+    ) {
         $match = ($isPositional) ? '?' : ':';
         if (strpos($statement, $match) === false) {
             return array();
@@ -58,7 +65,7 @@ class SQLParserUtils
         $token = ($isPositional) ? self::POSITIONAL_TOKEN : self::NAMED_TOKEN;
         $paramMap = array();
 
-        foreach (self::getUnquotedStatementFragments($statement) as $fragment) {
+        foreach (self::getUnquotedStatementFragments($statement, $platform) as $fragment) {
             preg_match_all("/$token/", $fragment[0], $matches, PREG_OFFSET_CAPTURE);
             foreach ($matches[0] as $placeholder) {
                 if ($isPositional) {
@@ -76,15 +83,16 @@ class SQLParserUtils
     /**
      * For a positional query this method can rewrite the sql statement with regard to array parameters.
      *
-     * @param string $query  The SQL query to execute.
-     * @param array  $params The parameters to bind to the query.
-     * @param array  $types  The types the previous parameters are in.
+     * @param string $query                   The SQL query to execute.
+     * @param array  $params                  The parameters to bind to the query.
+     * @param array  $types                   The types the previous parameters are in.
+     * @param AbstractPlatform $platform|null The platform to make parameter list expansion aware of.
      *
      * @return array
      *
      * @throws SQLParserUtilsException
      */
-    static public function expandListParameters($query, $params, $types)
+    static public function expandListParameters($query, $params, $types, AbstractPlatform $platform = null)
     {
         $isPositional   = is_int(key($params));
         $arrayPositions = array();
@@ -113,7 +121,7 @@ class SQLParserUtils
             return array($query, $params, $types);
         }
 
-        $paramPos = self::getPlaceholderPositions($query, $isPositional);
+        $paramPos = self::getPlaceholderPositions($query, $isPositional, $platform);
 
         if ($isPositional) {
             $paramOffset = 0;
@@ -196,16 +204,46 @@ class SQLParserUtils
      * 0 => matched fragment string,
      * 1 => offset of fragment in $statement
      *
-     * @param string $statement
+     * @param string                $statement
+     * @param AbstractPlatform|null $platform The platform to use for unquoting.
+     *
      * @return array
      */
-    static private function getUnquotedStatementFragments($statement)
+    static private function getUnquotedStatementFragments($statement, AbstractPlatform $platform = null)
     {
-        $literal = self::ESCAPED_SINGLE_QUOTED_TEXT . '|' .
-                   self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
-                   self::ESCAPED_BACKTICK_QUOTED_TEXT . '|' .
-                   self::ESCAPED_BRACKET_QUOTED_TEXT;
-        preg_match_all("/([^'\"`\[]+)(?:$literal)?/s", $statement, $fragments, PREG_OFFSET_CAPTURE);
+        $quoteCharacterClass = "'";
+        $literal = self::ESCAPED_SINGLE_QUOTED_TEXT . '|';
+        $identifierQuoteCharacter = null !== $platform ? $platform->getIdentifierQuoteCharacter() : null;
+
+        switch ($identifierQuoteCharacter) {
+            case '"':
+                if ($platform instanceof SQLServerPlatform) {
+                    $quoteCharacterClass .= '\[';
+                    $literal .= self::ESCAPED_BRACKET_QUOTED_TEXT;
+
+                    break;
+                }
+
+                $quoteCharacterClass .= '"';
+                $literal .= self::ESCAPED_DOUBLE_QUOTED_TEXT;
+
+                break;
+
+            case "`":
+                $quoteCharacterClass .= '`';
+                $literal .= self::ESCAPED_BACKTICK_QUOTED_TEXT;
+
+                break;
+
+            default:
+                // Fallback if unknown.
+                $quoteCharacterClass .= '"`\[';
+                $literal .= self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
+                    self::ESCAPED_BACKTICK_QUOTED_TEXT . '|' .
+                    self::ESCAPED_BRACKET_QUOTED_TEXT;
+        }
+
+        preg_match_all("/([^$quoteCharacterClass]+)(?:$literal)?/s", $statement, $fragments, PREG_OFFSET_CAPTURE);
 
         return $fragments[1];
     }
