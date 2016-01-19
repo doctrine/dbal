@@ -385,6 +385,33 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /**
+     * @group DBAL-2302
+     */
+    public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn()
+    {
+        $table = new Table("tbl");
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
+        $table->addColumn('bar', 'integer');
+        $table->setPrimaryKey(array('id', 'foo'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+
+        $diffTable->dropPrimaryKey();
+        $diffTable->setPrimaryKey(array('id'));
+
+        $this->assertSame(
+            array(
+                'ALTER TABLE tbl MODIFY id INT NOT NULL',
+                'ALTER TABLE tbl DROP PRIMARY KEY',
+                'ALTER TABLE tbl ADD PRIMARY KEY (id)',
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
+    }
+
+    /**
      * @group DBAL-586
      */
     public function testAddAutoIncrementPrimaryKey()
