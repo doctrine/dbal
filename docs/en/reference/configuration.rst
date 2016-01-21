@@ -296,6 +296,8 @@ pdo\_oci / oci8
    add the INSTANCE_NAME parameter in the connection. It is generally used
    to connect to an Oracle RAC server to select the name of a particular instance.
 
+Complete connection descriptors are also supported. You only need to provide the following parameter, and none of the above:
+- ``connectstring`` (string): Complete Easy Connect connection descriptor, see https://docs.oracle.com/cd/E11882_01/network.112/e41945/naming.htm.
 
 pdo\_sqlsrv / sqlsrv
 ^^^^^^^^^^^^^^^^^^^^
