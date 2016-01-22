@@ -109,11 +109,10 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
      *
      * @return string
      *
-     * @link https://docs.oracle.com/cd/E11882_01/network.112/e41945/naming.htm
+     * @link https://docs.oracle.com/database/121/NETAG/naming.htm
      */
     protected function getEasyConnectString(array $params)
     {
-
         if ( ! empty($params['connectstring'])) {
             return $params['connectstring'];
         }

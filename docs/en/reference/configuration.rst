@@ -295,9 +295,11 @@ pdo\_oci / oci8
 -  ``instancename`` (string): Optional parameter, complete whether to
    add the INSTANCE_NAME parameter in the connection. It is generally used
    to connect to an Oracle RAC server to select the name of a particular instance.
-
-Complete connection descriptors are also supported. You only need to provide the following parameter, and none of the above:
-- ``connectstring`` (string): Complete Easy Connect connection descriptor, see https://docs.oracle.com/cd/E11882_01/network.112/e41945/naming.htm.
+-  ``connectstring`` (string): Complete Easy Connect connection descriptor,
+   see https://docs.oracle.com/database/121/NETAG/naming.htm. When using this option,
+   you will still need to provide the ``user`` and ``password` parameters, but the other
+   parameters will no longer be used. Note that when using this parameter, the `getHost`
+   and `getPort` methods from `Doctrine\DBAL\Connection` will no longer function as expected.
 
 pdo\_sqlsrv / sqlsrv
 ^^^^^^^^^^^^^^^^^^^^
