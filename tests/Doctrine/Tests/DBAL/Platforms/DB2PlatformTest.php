@@ -347,21 +347,21 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
 
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0)
         );
 
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10)
         );
 
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 15',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 15',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 5)
         );
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 5',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 5',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
         );
     }
