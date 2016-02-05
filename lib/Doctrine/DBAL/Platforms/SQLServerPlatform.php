@@ -1228,8 +1228,12 @@ class SQLServerPlatform extends AbstractPlatform
         $offset = 0;
 
         while ($count-- > 0) {
-            $qLen = strlen($query);
             $orderByPos = stripos($query, " ORDER BY", $offset);
+            if ($orderByPos === false) {
+                break;
+            }
+
+            $qLen = strlen($query);
             $parenCount = 0;
             $currentPosition = $orderByPos;
 
