@@ -70,8 +70,9 @@ OnSchemaCreateTable Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``Doctrine\DBAL\Events::onSchemaCreateTable`` is triggered before every
-create statement that is executed by one of the Platform instances and gets
-an instance of ``Doctrine\DBAL\Event\SchemaCreateTableEventArgs`` as event argument.
+create statement that is executed by one of the Platform instances and injects
+an instance of ``Doctrine\DBAL\Event\SchemaCreateTableEventArgs`` as event argument
+for event listeners.
 
 .. code-block:: php
 
@@ -85,55 +86,121 @@ an instance of ``Doctrine\DBAL\Event\SchemaCreateTableEventArgs`` as event argum
     }
 
     $evm = new EventManager();
-    $evm->addEventListener('onSchemaCreateTable', new MyEventListener());
+    $evm->addEventListener(Events::onSchemaCreateTable, new MyEventListener());
 
     $conn = DriverManager::getConnection($connectionParams, null, $evm);
 
-It allows you to access the ``Doctrine\DBAL\Schema\Table`` instances and its columns, the used Platform and
-provides a way to add your own SQL statements.
+It allows you to access the ``Doctrine\DBAL\Schema\Table`` instance and its columns, the used Platform and
+provides a way to add additional SQL statements.
 
 
 OnSchemaCreateTableColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::postConnect`` is triggered
+``Doctrine\DBAL\Events::onSchemaCreateTableColumn`` is triggered before a column
+create statement that is executed by one of the Platform instances and injects
+an instance of ``Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs`` as event argument
+for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onSchemaCreateTableColumn(SchemaCreateTableColumnEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onSchemaCreateTableColumn, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Schema\Table`` instance and its columns, the used Platform and
+provides a way to add additional SQL statements.
 
 OnSchemaDropTable Event
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::postConnect`` is triggered
+``Doctrine\DBAL\Events::onSchemaDropTable`` is triggered before a drop table
+statement that is executed by one of the Platform instances and injects
+an instance of ``Doctrine\DBAL\Event\SchemaDropTableEventArgs`` as event argument
+for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onSchemaDropTable(SchemaDropTableEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onSchemaDropTable, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Schema\Table`` instance, the used Platform and
+provides a way to set an additional SQL statement.
 
 OnSchemaAlterTable Event
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::postConnect`` is triggered
+``Doctrine\DBAL\Events::onSchemaAlterTable`` is triggered before every
+alter statement that is executed by one of the Platform instances and injects
+an instance of ``Doctrine\DBAL\Event\SchemaAlterTableEventArgs`` as event argument
+for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onSchemaAlterTable(SchemaAlterTableEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onSchemaAlterTable, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Schema\TableDiff`` instance, the used Platform and
+provides a way to add additional SQL statements.
 
 OnSchemaAlterTableAddColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::postConnect`` is triggered
+``Doctrine\DBAL\Events::onSchemaAlterTableAddColumn`` is triggered
 
 OnSchemaAlterTableRemoveColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::postConnect`` is triggered
+``Doctrine\DBAL\Events::onSchemaAlterTableRemoveColumn`` is triggered
 
 OnSchemaAlterTableChangeColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::postConnect`` is triggered
+``Doctrine\DBAL\Events::onSchemaAlterTableChangeColumn`` is triggered
 
 OnSchemaAlterTableRenameColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::postConnect`` is triggered
+``Doctrine\DBAL\Events::onSchemaAlterTableRenameColumn`` is triggered
 
 OnSchemaColumnDefinition Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::postConnect`` is triggered
+``Doctrine\DBAL\Events::onSchemaColumnDefinition`` is triggered
 
 OnSchemaIndexDefinition Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::postConnect`` is triggered
+``Doctrine\DBAL\Events::onSchemaIndexDefinition`` is triggered
