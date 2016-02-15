@@ -97,7 +97,7 @@ provides a way to add additional SQL statements.
 OnSchemaCreateTableColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::onSchemaCreateTableColumn`` is triggered before a column
+``Doctrine\DBAL\Events::onSchemaCreateTableColumn`` is triggered on every new column before a
 create statement that is executed by one of the Platform instances and injects
 an instance of ``Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs`` as event argument
 for event listeners.
@@ -118,8 +118,8 @@ for event listeners.
 
     $conn = DriverManager::getConnection($connectionParams, null, $evm);
 
-It allows you to access the ``Doctrine\DBAL\Schema\Table`` instance and its columns, the used Platform and
-provides a way to add additional SQL statements.
+It allows you to access the ``Doctrine\DBAL\Schema\Table`` instance, the affected ``Doctrine\DBAL\Schema\Column``,
+the used Platform and provides a way to add additional SQL statements.
 
 OnSchemaDropTable Event
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -178,22 +178,111 @@ provides a way to add additional SQL statements.
 OnSchemaAlterTableAddColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::onSchemaAlterTableAddColumn`` is triggered
+``Doctrine\DBAL\Events::onSchemaAlterTableAddColumn`` is triggered on every altered column before every
+alter statement that is executed by one of the Platform instances and injects
+an instance of ``Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs`` as event argument
+for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onSchemaAlterTableAddColumn(SchemaAlterTableAddColumnEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onSchemaAlterTableAddColumn, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Schema\TableDiff`` instance, the affected ``Doctrine\DBAL\Schema\Column``,
+the used Platform and provides a way to add additional SQL statements.
 
 OnSchemaAlterTableRemoveColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::onSchemaAlterTableRemoveColumn`` is triggered
+``Doctrine\DBAL\Events::onSchemaAlterTableRemoveColumn`` is triggered on every column that is going to be removed
+before every alter-drop statement that is executed by one of the Platform instances and injects
+an instance of ``Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs`` as event argument
+for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onSchemaAlterTableRemoveColumn(SchemaAlterTableRemoveColumnEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onSchemaAlterTableRemoveColumn, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Schema\TableDiff`` instance, the affected ``Doctrine\DBAL\Schema\Column``,
+the used Platform and provides a way to add additional SQL statements.
 
 OnSchemaAlterTableChangeColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::onSchemaAlterTableChangeColumn`` is triggered
+``Doctrine\DBAL\Events::onSchemaAlterTableChangeColumn`` is triggered on every column that is going to be changed
+before every alter statement that is executed by one of the Platform instances and injects
+an instance of ``Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs`` as event argument
+for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onSchemaAlterTableChangeColumn(SchemaAlterTableChangeColumnEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onSchemaAlterTableChangeColumn, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Schema\TableDiff`` instance, a ``Doctrine\DBAL\Schema\ColumnDiff`` of
+the affected column, the used Platform and provides a way to add additional SQL statements.
 
 OnSchemaAlterTableRenameColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::onSchemaAlterTableRenameColumn`` is triggered
+``Doctrine\DBAL\Events::onSchemaAlterTableRenameColumn`` is triggered on every column that is going to be renamed
+before every alter statement that is executed by one of the Platform instances and injects
+an instance of ``Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs`` as event argument
+for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onSchemaAlterTableRenameColumn(SchemaAlterTableRenameColumnEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onSchemaAlterTableRenameColumn, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the ``Doctrine\DBAL\Schema\TableDiff`` instance, the old column name and
+the new column in form of a ``Doctrine\DBAL\Schema\Column`` object, the used Platform and provides
+a way to add additional SQL statements.
 
 OnSchemaColumnDefinition Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
