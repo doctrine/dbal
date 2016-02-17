@@ -655,7 +655,7 @@ END;';
         $colCommentsTableName = "user_col_comments";
         $ownerCondition = '';
 
-        if (null !== $database) {
+        if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
