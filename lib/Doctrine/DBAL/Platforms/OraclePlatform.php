@@ -657,7 +657,7 @@ LEFT JOIN user_cons_columns r_cols
         $colCommentsTableName = "user_col_comments";
         $ownerCondition = '';
 
-        if (null !== $database) {
+        if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
             $database = $this->quoteStringLiteral($database->getName());
             $tabColumnsTableName = "all_tab_columns";
