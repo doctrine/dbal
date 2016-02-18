@@ -309,7 +309,7 @@ for event listeners.
     $conn = DriverManager::getConnection($connectionParams, null, $evm);
 
 It allows you to access the table column definitions of the current database, table name, Platform and
-``Doctrine\DBAL\Connection`` instance.
+``Doctrine\DBAL\Connection`` instance. Columns, that are about to be added, are not listed.
 
 OnSchemaIndexDefinition Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -336,4 +336,4 @@ for event listeners.
     $conn = DriverManager::getConnection($connectionParams, null, $evm);
 
 It allows you to access the table index definitions of the current database, table name, Platform and
-``Doctrine\DBAL\Connection`` instance.
+``Doctrine\DBAL\Connection`` instance. Indexes, that are about to be added, are not listed.
