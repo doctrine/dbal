@@ -7,6 +7,29 @@ use Doctrine\DBAL\Platforms\MySQL57Platform;
 class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 {
     /**
+     * @group DBAL-553
+     */
+    public function hasNativeJsonType()
+    {
+        $this->assertTrue($this->_platform->hasNativeJsonType());
+    }
+    /**
+     * @group DBAL-553
+     */
+    public function testReturnsJsonTypeDeclarationSQL()
+    {
+        $column = array(
+            'length'  => 666,
+            'notnull' => true,
+            'type'    => Type::getType('json_array'),
+        );
+        $this->assertSame(
+            'JSON',
+            $this->_platform->getJsonTypeDeclarationSQL($column)
+        );
+    }
+    
+    /**
      * {@inheritdoc}
      */
     public function createPlatform()
