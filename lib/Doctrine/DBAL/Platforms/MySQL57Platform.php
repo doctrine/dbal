@@ -34,6 +34,14 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
+    public function getJsonTypeDeclarationSQL(array $field)
+    {
+        return 'JSON';
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
     protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
     {
         return array();
