@@ -4,6 +4,8 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 
+use Doctrine\DBAL\Types\Type;
+
 class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 {
     /**
