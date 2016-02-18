@@ -54,14 +54,14 @@ methods must be named like the events itself.
 
     <?php
     $evm = new EventManager();
-    $eventName = 'onSchemaCreateTable';
+    $eventName = Events::onSchemaCreateTable;
     $evm->addEventListener($eventName, new MyEventListener());
 
 .. code-block:: php
 
     <?php
     $evm = new EventManager();
-    $eventNames = array('onSchemaCreateTable', 'onSchemaCreateTableColumn');
+    $eventNames = array(Events::onSchemaCreateTable, Events::onSchemaCreateTableColumn);
     $evm->addEventListener($eventNames, new MyEventListener());
 
 The following events are available.
@@ -287,9 +287,53 @@ a way to add additional SQL statements.
 OnSchemaColumnDefinition Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::onSchemaColumnDefinition`` is triggered
+``Doctrine\DBAL\Events::onSchemaColumnDefinition`` is triggered on a schema update and is
+executed for every existing column definition of the database before changes are applied.
+An instance of ``Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs`` is injected as argument
+for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onSchemaColumnDefinition(SchemaColumnDefinitionEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onSchemaColumnDefinition, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the table column definitions of the current database, table name, Platform and
+``Doctrine\DBAL\Connection`` instance.
 
 OnSchemaIndexDefinition Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Doctrine\DBAL\Events::onSchemaIndexDefinition`` is triggered
+``Doctrine\DBAL\Events::onSchemaIndexDefinition`` is triggered on a schema update and is
+executed for every existing index definition of the database before changes are applied.
+An instance of ``Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs`` is injected as argument
+for event listeners.
+
+.. code-block:: php
+
+    <?php
+    class MyEventListener
+    {
+        public function onSchemaIndexDefinition(SchemaIndexDefinitionEventArgs $event)
+        {
+            // Your EventListener code
+        }
+    }
+
+    $evm = new EventManager();
+    $evm->addEventListener(Events::onSchemaIndexDefinition, new MyEventListener());
+
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
+
+It allows you to access the table index definitions of the current database, table name, Platform and
+``Doctrine\DBAL\Connection`` instance.
