@@ -34,6 +34,14 @@ class MySQL57Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
+    public function hasNativeJsonType()
+    {
+        return true;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
     public function getJsonTypeDeclarationSQL(array $field)
     {
         return 'JSON';
