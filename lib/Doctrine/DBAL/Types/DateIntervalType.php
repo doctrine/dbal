@@ -38,7 +38,6 @@ class DateIntervalType extends Type
         }
 
         if ($value instanceof \DateInterval) {
-            /** @var \DateInterval $value */
             return $value->format('P%YY%MM%DDT%HH%IM%SS');
         }
 
