@@ -42,7 +42,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-client.html
      * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException($message, \Exception $exception)
     {
         switch ($exception->getErrorCode()) {
             case '1050':

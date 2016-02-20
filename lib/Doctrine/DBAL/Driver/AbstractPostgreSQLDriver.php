@@ -42,7 +42,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
      *
      * @link http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException($message, \Exception $exception)
     {
         switch ($exception->getSQLState()) {
             case '0A000':

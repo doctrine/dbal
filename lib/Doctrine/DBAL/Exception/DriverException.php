@@ -43,7 +43,7 @@ class DriverException extends DBALException
      * @param string                                $message         The exception message.
      * @param \Doctrine\DBAL\Driver\DriverException $driverException The DBAL driver exception to chain.
      */
-    public function __construct($message, \Doctrine\DBAL\Driver\DriverException $driverException)
+    public function __construct($message, \Exception $driverException)
     {
         $exception = null;
 

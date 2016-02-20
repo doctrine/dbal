@@ -36,7 +36,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException($message, \Exception $exception)
     {
         switch ($exception->getErrorCode()) {
             case '1':

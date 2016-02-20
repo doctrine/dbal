@@ -43,7 +43,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
      *
      * @link http://dcx.sybase.com/index.html#sa160/en/saerrors/sqlerror.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException($message, \Exception $exception)
     {
         switch ($exception->getErrorCode()) {
             case '-100':

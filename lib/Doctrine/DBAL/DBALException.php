@@ -112,7 +112,7 @@ class DBALException extends \Exception
         }
         $msg .= ":\n\n".$driverEx->getMessage();
 
-        if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof DriverException) {
+        if ($driver instanceof ExceptionConverterDriver) {
             return $driver->convertException($msg, $driverEx);
         }
 
@@ -129,7 +129,7 @@ class DBALException extends \Exception
     {
         $msg = "An exception occured in driver: " . $driverEx->getMessage();
 
-        if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof DriverException) {
+        if ($driver instanceof ExceptionConverterDriver) {
             return $driver->convertException($msg, $driverEx);
         }
 
