@@ -83,6 +83,10 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
     {
         $params = $conn->getParams();
 
+        if ( '/' === $params['user'] ) {
+            return null;
+        }
+
         return $params['user'];
     }
 
