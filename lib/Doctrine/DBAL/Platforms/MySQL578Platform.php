@@ -53,4 +53,12 @@ class MySQL578Platform extends MySQL57Platform
     {
         return 'JSON';
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getReservedKeywordsClass()
+    {
+        return 'Doctrine\DBAL\Platforms\Keywords\MySQL578Keywords';
+    }
 }
