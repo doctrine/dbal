@@ -25,7 +25,7 @@ namespace Doctrine\DBAL\Platforms;
  *
  * @author İsmail BASKIN <ismailbaskin1@gmail.com>
  * @link   www.doctrine-project.org
- * @since  2.5
+ * @since  2.6
  */
 class MySQL578Platform extends MySQL57Platform
 {
