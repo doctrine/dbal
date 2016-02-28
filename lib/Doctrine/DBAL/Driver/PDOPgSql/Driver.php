@@ -33,7 +33,7 @@ class Driver implements \Doctrine\DBAL\Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return new \Doctrine\DBAL\Driver\PDOConnection(
+        return new Connection(
             $this->_constructPdoDsn($params),
             $username,
             $password,
