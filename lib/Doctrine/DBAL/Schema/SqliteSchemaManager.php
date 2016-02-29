@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * Sqlite SchemaManager.
@@ -118,6 +119,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         if ( ! empty($tableForeignKeys)) {
             $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
             $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
+
             if (preg_match_all('#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?
                     (?:FOREIGN\s+KEY[^\)]+\)\s*)?
@@ -168,10 +170,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         // fetch primary
         $stmt = $this->_conn->executeQuery("PRAGMA TABLE_INFO ('$tableName')");
         $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
         usort($indexArray, function($a, $b) {
             if ($a['pk'] == $b['pk']) {
                 return $a['cid'] - $b['cid'];
             }
+
             return $a['pk'] - $b['pk'];
         });
         foreach ($indexArray as $indexColumnRow) {
@@ -247,7 +251,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             }
         }
 
-        // inspect column collation
+        // inspect column collation and comments
         $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
         $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
 
@@ -256,6 +260,20 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
             if ($type instanceof StringType || $type instanceof TextType) {
                 $column->setPlatformOption('collation', $this->parseColumnCollationFromSQL($columnName, $createSql) ?: 'BINARY');
+            }
+
+            $comment = $this->parseColumnCommentFromSQL($columnName, $createSql);
+
+            if (false !== $comment) {
+                $type = $this->extractDoctrineTypeFromComment($comment, null);
+
+                if (null !== $type) {
+                    $column->setType(Type::getType($type));
+
+                    $comment = $this->removeDoctrineTypeFromComment($comment, $type);
+                }
+
+                $column->setComment($comment);
             }
         }
 
@@ -268,7 +286,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
         $parts = explode('(', $tableColumn['type']);
-        $tableColumn['type'] = $parts[0];
+        $tableColumn['type'] = trim($parts[0]);
         if (isset($parts[1])) {
             $length = trim($parts[1], ')');
             $tableColumn['length'] = $length;
@@ -286,7 +304,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $fixed = false;
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
         $default = $tableColumn['dflt_value'];
-        if  ($default == 'NULL') {
+        if ($default == 'NULL') {
             $default = null;
         }
         if ($default !== null) {
@@ -417,6 +435,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $tableDiff;
     }
 
+    /**
+     * @param string $column
+     * @param string $sql
+     *
+     * @return string|false
+     */
     private function parseColumnCollationFromSQL($column, $sql)
     {
         if (preg_match(
@@ -425,6 +449,27 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
                 COLLATE\s+["\']?([^\s,"\')]+)}isx', $sql, $match)) {
             return $match[1];
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $column
+     * @param string $sql
+     *
+     * @return string|false
+     */
+    private function parseColumnCommentFromSQL($column, $sql)
+    {
+        if (preg_match(
+            '{[\s(,](?:'.preg_quote($this->_platform->quoteSingleIdentifier($column)).'|'.preg_quote($column).')
+            (?:\(.*?\)|[^,(])*?,?((?:\s*--[^\n]*\n?)+)
+            }isx', $sql, $match
+        )) {
+            $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
+
+            return '' === $comment ? false : $comment;
         }
 
         return false;

@@ -97,7 +97,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         $paramCount = $this->_stmt->param_count;
         if (0 < $paramCount) {
             $this->types = str_repeat('s', $paramCount);
-            $this->_bindedValues = array_fill(1 , $paramCount, null);
+            $this->_bindedValues = array_fill(1, $paramCount, null);
         }
     }
 
@@ -178,7 +178,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 $meta->free();
 
                 $this->_columnNames = $columnNames;
-                $this->_rowBindedValues = array_fill(0, count($columnNames), NULL);
+                $this->_rowBindedValues = array_fill(0, count($columnNames), null);
 
                 $refs = array();
                 foreach ($this->_rowBindedValues as $key => &$value) {
@@ -228,6 +228,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             foreach ($this->_rowBindedValues as $v) {
                 $values[] = $v;
             }
+
             return $values;
         }
 
@@ -260,6 +261,17 @@ class MysqliStatement implements \IteratorAggregate, Statement
             case PDO::FETCH_BOTH:
                 $ret = array_combine($this->_columnNames, $values);
                 $ret += $values;
+
+                return $ret;
+
+            case PDO::FETCH_OBJ:
+                $assoc = array_combine($this->_columnNames, $values);
+                $ret = new \stdClass();
+
+                foreach ($assoc as $column => $value) {
+                    $ret->$column = $value;
+                }
+
                 return $ret;
 
             default:
@@ -298,7 +310,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex];
+        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
     }
 
     /**
@@ -335,6 +347,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         if (false === $this->_columnNames) {
             return $this->_stmt->affected_rows;
         }
+
         return $this->_stmt->num_rows;
     }
 

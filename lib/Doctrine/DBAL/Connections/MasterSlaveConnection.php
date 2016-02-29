@@ -121,7 +121,7 @@ class MasterSlaveConnection extends Connection
             $params['slaves'][$slaveKey]['driver'] = $params['driver'];
         }
 
-        $this->keepSlave = isset($params['keepSlave']) ? (bool)$params['keepSlave'] : false;
+        $this->keepSlave = isset($params['keepSlave']) ? (bool) $params['keepSlave'] : false;
 
         parent::__construct($params, $driver, $config, $eventManager);
     }
@@ -151,7 +151,7 @@ class MasterSlaveConnection extends Connection
         // If we have a connection open, and this is not an explicit connection
         // change request, then abort right here, because we are already done.
         // This prevents writes to the slave in case of "keepSlave" option enabled.
-        if ($this->_conn && !$requestedConnectionChange) {
+        if (isset($this->_conn) && $this->_conn && !$requestedConnectionChange) {
             return false;
         }
 
@@ -162,7 +162,7 @@ class MasterSlaveConnection extends Connection
             $forceMasterAsSlave = true;
         }
 
-        if ($this->connections[$connectionName]) {
+        if (isset($this->connections[$connectionName]) && $this->connections[$connectionName]) {
             $this->_conn = $this->connections[$connectionName];
 
             if ($forceMasterAsSlave && ! $this->keepSlave) {
@@ -248,7 +248,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::beginTransaction();
+        parent::beginTransaction();
     }
 
     /**
@@ -258,7 +258,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::commit();
+        parent::commit();
     }
 
     /**
@@ -290,6 +290,9 @@ class MasterSlaveConnection extends Connection
         unset($this->connections['slave']);
 
         parent::close();
+
+        $this->_conn = null;
+        $this->connections = array('master' => null, 'slave' => null);
     }
 
     /**
@@ -329,7 +332,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::createSavepoint($savepoint);
+        parent::createSavepoint($savepoint);
     }
 
     /**
@@ -339,7 +342,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::releaseSavepoint($savepoint);
+        parent::releaseSavepoint($savepoint);
     }
 
     /**
@@ -349,7 +352,7 @@ class MasterSlaveConnection extends Connection
     {
         $this->connect('master');
 
-        return parent::rollbackSavepoint($savepoint);
+        parent::rollbackSavepoint($savepoint);
     }
 
     /**

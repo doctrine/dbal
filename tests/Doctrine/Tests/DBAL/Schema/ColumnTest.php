@@ -2,10 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-require_once __DIR__ . '/../../TestInit.php';
-
-use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Types\Type;
 
@@ -82,6 +78,7 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group DBAL-64
+     * @group DBAL-830
      */
     public function testQuotedColumnName()
     {
@@ -94,6 +91,35 @@ class ColumnTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $column->getName());
         $this->assertEquals('`bar`', $column->getQuotedName($mysqlPlatform));
         $this->assertEquals('"bar"', $column->getQuotedName($sqlitePlatform));
+
+        $column = new Column("[bar]", $string);
+
+        $sqlServerPlatform = new \Doctrine\DBAL\Platforms\SQLServerPlatform();
+
+        $this->assertEquals('bar', $column->getName());
+        $this->assertEquals('[bar]', $column->getQuotedName($sqlServerPlatform));
+    }
+
+    /**
+     * @dataProvider getIsQuoted
+     * @group DBAL-830
+     */
+    public function testIsQuoted($columnName, $isQuoted)
+    {
+        $type = Type::getType('string');
+        $column = new Column($columnName, $type);
+
+        $this->assertSame($isQuoted, $column->isQuoted());
+    }
+
+    public function getIsQuoted()
+    {
+        return array(
+            array('bar', false),
+            array('`bar`', true),
+            array('"bar"', true),
+            array('[bar]', true),
+        );
     }
 
     /**

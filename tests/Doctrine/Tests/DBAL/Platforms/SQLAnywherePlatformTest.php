@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -77,6 +78,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    protected function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
+            'CREATE INDEX "key" ON test (column1)',
+        );
+    }
+
     protected function getQuotedColumnInPrimaryKeySQL()
     {
         return array(
@@ -108,30 +117,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             "CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (id))",
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
         );
-    }
-
-    public function testGetCreateSchemaSQL()
-    {
-        $schemaName = 'schema';
-        $sql = $this->_platform->getCreateSchemaSQL($schemaName);
-        $this->assertEquals('CREATE SCHEMA AUTHORIZATION ' . $schemaName, $sql);
-    }
-
-    public function testReturnsDefaultSchemaName()
-    {
-        $this->assertSame('DBA', $this->_platform->getDefaultSchemaName());
-    }
-
-    public function testSchemaNeedsCreation()
-    {
-        $schemaNames = array(
-            'DBA' => false,
-            'schema' => true,
-        );
-        foreach ($schemaNames as $name => $expected) {
-            $actual = $this->_platform->schemaNeedsCreation($name);
-            $this->assertEquals($expected, $actual);
-        }
     }
 
     public function testHasCorrectPlatformName()
@@ -316,10 +301,18 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesDDLSnippets()
     {
         $this->assertEquals("CREATE DATABASE 'foobar'", $this->_platform->getCreateDatabaseSQL('foobar'));
+        $this->assertEquals("CREATE DATABASE 'foobar'", $this->_platform->getCreateDatabaseSQL('"foobar"'));
+        $this->assertEquals("CREATE DATABASE 'create'", $this->_platform->getCreateDatabaseSQL('create'));
         $this->assertEquals("DROP DATABASE 'foobar'", $this->_platform->getDropDatabaseSQL('foobar'));
+        $this->assertEquals("DROP DATABASE 'foobar'", $this->_platform->getDropDatabaseSQL('"foobar"'));
+        $this->assertEquals("DROP DATABASE 'create'", $this->_platform->getDropDatabaseSQL('create'));
         $this->assertEquals('CREATE GLOBAL TEMPORARY TABLE', $this->_platform->getCreateTemporaryTableSnippetSQL());
         $this->assertEquals("START DATABASE 'foobar' AUTOSTOP OFF", $this->_platform->getStartDatabaseSQL('foobar'));
+        $this->assertEquals("START DATABASE 'foobar' AUTOSTOP OFF", $this->_platform->getStartDatabaseSQL('"foobar"'));
+        $this->assertEquals("START DATABASE 'create' AUTOSTOP OFF", $this->_platform->getStartDatabaseSQL('create'));
         $this->assertEquals('STOP DATABASE "foobar" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('foobar'));
+        $this->assertEquals('STOP DATABASE "foobar" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('"foobar"'));
+        $this->assertEquals('STOP DATABASE "create" UNCONDITIONALLY', $this->_platform->getStopDatabaseSQL('create'));
         $this->assertEquals('TRUNCATE TABLE foobar', $this->_platform->getTruncateTableSQL('foobar'));
         $this->assertEquals('TRUNCATE TABLE foobar', $this->_platform->getTruncateTableSQL('foobar'), true);
 
@@ -434,12 +427,6 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->_platform->getForeignKeyMatchCLauseSQL(3);
     }
 
-    public function testCannotGenerateNoActionForeignKeyReferentialActionClauseSQL()
-    {
-        $this->setExpectedException('\InvalidArgumentException');
-        $this->_platform->getForeignKeyReferentialActionSQL('no action');
-    }
-
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyLocalColumns()
     {
         $this->setExpectedException('\InvalidArgumentException');
@@ -533,16 +520,26 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('CURRENT DATE', $this->_platform->getCurrentDateSQL());
         $this->assertEquals('CURRENT TIME', $this->_platform->getCurrentTimeSQL());
         $this->assertEquals('CURRENT TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
-        $this->assertEquals("DATEADD(day, 4, '1987/05/02')", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("DATEADD(hour, 12, '1987/05/02')", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("DATEADD(month, 102, '1987/05/02')", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("DATEADD(DAY, 4, '1987/05/02')", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("DATEADD(HOUR, 12, '1987/05/02')", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
+        $this->assertEquals("DATEADD(MINUTE, 2, '1987/05/02')", $this->_platform->getDateAddMinutesExpression("'1987/05/02'", 2));
+        $this->assertEquals("DATEADD(MONTH, 102, '1987/05/02')", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("DATEADD(QUARTER, 5, '1987/05/02')", $this->_platform->getDateAddQuartersExpression("'1987/05/02'", 5));
+        $this->assertEquals("DATEADD(SECOND, 1, '1987/05/02')", $this->_platform->getDateAddSecondsExpression("'1987/05/02'", 1));
+        $this->assertEquals("DATEADD(WEEK, 3, '1987/05/02')", $this->_platform->getDateAddWeeksExpression("'1987/05/02'", 3));
+        $this->assertEquals("DATEADD(YEAR, 10, '1987/05/02')", $this->_platform->getDateAddYearsExpression("'1987/05/02'", 10));
         $this->assertEquals("DATEDIFF(day, '1987/04/01', '1987/05/02')", $this->_platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
-        $this->assertEquals("DATEADD(day, -1 * 4, '1987/05/02')", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("DATEADD(hour, -1 * 12, '1987/05/02')", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("DATEADD(month, -1 * 102, '1987/05/02')", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("DATEADD(DAY, -1 * 4, '1987/05/02')", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("DATEADD(HOUR, -1 * 12, '1987/05/02')", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
+        $this->assertEquals("DATEADD(MINUTE, -1 * 2, '1987/05/02')", $this->_platform->getDateSubMinutesExpression("'1987/05/02'", 2));
+        $this->assertEquals("DATEADD(MONTH, -1 * 102, '1987/05/02')", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("DATEADD(QUARTER, -1 * 5, '1987/05/02')", $this->_platform->getDateSubQuartersExpression("'1987/05/02'", 5));
+        $this->assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->_platform->getDateSubSecondsExpression("'1987/05/02'", 1));
+        $this->assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->_platform->getDateSubWeeksExpression("'1987/05/02'", 3));
+        $this->assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->_platform->getDateSubYearsExpression("'1987/05/02'", 10));
         $this->assertEquals("Y-m-d H:i:s.u", $this->_platform->getDateTimeFormatString());
         $this->assertEquals("H:i:s.u", $this->_platform->getTimeFormatString());
-        $this->assertEquals('FOR UPDATE BY LOCK', $this->_platform->getForUpdateSQL());
+        $this->assertEquals('', $this->_platform->getForUpdateSQL());
         $this->assertEquals('NEWID()', $this->_platform->getGuidExpression());
         $this->assertEquals('LOCATE(string_column, substring_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
         $this->assertEquals('LOCATE(string_column, substring_column, 1)', $this->_platform->getLocateExpression('string_column', 'substring_column', 1));
@@ -591,6 +588,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $this->setExpectedException('\Doctrine\DBAL\DBALException');
 
         $this->_platform->getRegexpExpression();
+    }
+
+    public function testHasCorrectDateTimeTzFormatString()
+    {
+        // Date time type with timezone is not supported before version 12.
+        // For versions before we have to ensure that the date time with timezone format
+        // equals the normal date time format so that it corresponds to the declaration SQL equality (datetimetz -> datetime).
+        $this->assertEquals($this->_platform->getDateTimeFormatString(), $this->_platform->getDateTimeTzFormatString());
     }
 
     public function testHasCorrectDefaultTransactionIsolationLevel()
@@ -706,7 +711,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testSupportsSchemas()
     {
-        $this->assertTrue($this->_platform->supportsSchemas());
+        $this->assertFalse($this->_platform->supportsSchemas());
     }
 
     public function testSupportsIndexes()
@@ -807,6 +812,187 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         return array(
             'ALTER INDEX "create" ON "table" RENAME TO "select"',
             'ALTER INDEX "foo" ON "table" RENAME TO "bar"',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE mytable RENAME unquoted1 TO unquoted',
+            'ALTER TABLE mytable RENAME unquoted2 TO "where"',
+            'ALTER TABLE mytable RENAME unquoted3 TO "foo"',
+            'ALTER TABLE mytable RENAME "create" TO reserved_keyword',
+            'ALTER TABLE mytable RENAME "table" TO "from"',
+            'ALTER TABLE mytable RENAME "select" TO "bar"',
+            'ALTER TABLE mytable RENAME quoted1 TO quoted',
+            'ALTER TABLE mytable RENAME quoted2 TO "and"',
+            'ALTER TABLE mytable RENAME quoted3 TO "baz"',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    {
+        $this->markTestIncomplete('Not implemented yet');
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'ALTER INDEX idx_foo ON myschema.mytable RENAME TO idx_bar',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'ALTER INDEX "create" ON "schema"."table" RENAME TO "select"',
+            'ALTER INDEX "foo" ON "schema"."table" RENAME TO "bar"',
+        );
+    }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE foo RENAME bar TO baz',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
+            'ALTER TABLE "foo" DROP FOREIGN KEY fk2',
+            'ALTER TABLE "foo" RENAME id TO war',
+            'ALTER TABLE "foo" ADD bloo INT NOT NULL, DROP baz, ALTER bar INT DEFAULT NULL',
+            'ALTER TABLE "foo" RENAME "table"',
+            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            'COMMENT ON COLUMN foo.bar IS \'comment\'',
+            'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
+            'COMMENT ON COLUMN "select"."from" IS \'comment\'',
+        );
+    }
+
+    /**
+     * @group DBAL-1004
+     */
+    public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers()
+    {
+        $table1 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'))));
+        $table2 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'), array('comment' => 'baz'))));
+
+        $comparator = new Comparator();
+
+        $tableDiff = $comparator->diffTable($table1, $table2);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        $this->assertSame(
+            array(
+                'COMMENT ON COLUMN "foo"."bar" IS \'baz\'',
+            ),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReturnsForeignKeyReferentialActionSQL()
+    {
+        return array(
+            array('CASCADE', 'CASCADE'),
+            array('SET NULL', 'SET NULL'),
+            array('NO ACTION', 'RESTRICT'),
+            array('RESTRICT', 'RESTRICT'),
+            array('SET DEFAULT', 'SET DEFAULT'),
+            array('CaScAdE', 'CASCADE'),
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT "select" UNIQUE (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return ''; // not supported by this platform
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'TRUNCATE TABLE "select"';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsInlineIndexDeclaration()
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable ALTER name CHAR(2) NOT NULL',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'ALTER INDEX idx_foo ON mytable RENAME TO idx_foo_renamed',
         );
     }
 }

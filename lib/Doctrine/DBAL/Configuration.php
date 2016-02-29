@@ -57,7 +57,7 @@ class Configuration
     /**
      * Gets the SQL logger that is used.
      *
-     * @return \Doctrine\DBAL\Logging\SQLLogger
+     * @return \Doctrine\DBAL\Logging\SQLLogger|null
      */
     public function getSQLLogger()
     {

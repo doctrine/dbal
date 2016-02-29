@@ -45,6 +45,10 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     public function convertException($message, DriverException $exception)
     {
         switch ($exception->getErrorCode()) {
+            case '1213':
+                return new Exception\DeadlockException($message, $exception);
+            case '1205':
+                return new Exception\LockWaitTimeoutException($message, $exception);
             case '1050':
                 return new Exception\TableExistsException($message, $exception);
 
@@ -56,6 +60,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             case '1217':
             case '1451':
             case '1452':
+            case '1701':
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
 
             case '1062':
@@ -124,6 +129,10 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
                 $version,
                 '<major_version>.<minor_version>.<patch_version>'
             );
+        }
+
+        if (false !== stripos($version, 'mariadb')) {
+            return $this->getDatabasePlatform();
         }
 
         $majorVersion = $versionParts['major'];

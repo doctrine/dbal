@@ -2,24 +2,19 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use PDO;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
-
-require_once __DIR__ . '/../../TestInit.php';
+use PDO;
 
 /**
  * @group DBAL-56
  */
 class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    static private $hasTable = false;
-
     private $portableConnection;
 
-    public function tearDown()
+    protected function tearDown()
     {
         if ($this->portableConnection) {
             $this->portableConnection->close();
@@ -112,7 +107,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function assertFetchResultRows($rows)
     {
         $this->assertEquals(2, count($rows));
-        foreach ($rows AS $row) {
+        foreach ($rows as $row) {
             $this->assertFetchResultRow($row);
         }
     }

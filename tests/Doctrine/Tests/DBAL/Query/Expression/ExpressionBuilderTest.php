@@ -2,10 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Query\Expression;
 
-use Doctrine\DBAL\Query\Expression\ExpressionBuilder,
-    Doctrine\DBAL\Query\Expression\CompositeExpression;
-
-require_once __DIR__ . '/../../../TestInit.php';
+use Doctrine\DBAL\Query\Expression\CompositeExpression;
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 
 /**
  * @group DBAL-12
@@ -14,7 +12,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 {
     protected $expr;
 
-    public function setUp()
+    protected function setUp()
     {
         $conn = $this->getMock('Doctrine\DBAL\Connection', array(), array(), '', false);
 
@@ -204,8 +202,18 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', array(1,3,4,7)));
     }
 
+    public function testInWithPlaceholder()
+    {
+        $this->assertEquals('u.groups IN (?)', $this->expr->in('u.groups', '?'));
+    }
+
     public function testNotIn()
     {
         $this->assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', array(1,3,4,7)));
+    }
+
+    public function testNotInWithPlaceholder()
+    {
+        $this->assertEquals('u.groups NOT IN (:values)', $this->expr->notIn('u.groups', ':values'));
     }
 }

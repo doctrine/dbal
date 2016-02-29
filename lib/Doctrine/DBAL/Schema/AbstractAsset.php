@@ -99,7 +99,7 @@ abstract class AbstractAsset
      * The shortest name is stripped of the default namespace. All other
      * namespaced elements are returned as full-qualified names.
      *
-     * @param string
+     * @param string $defaultNamespaceName
      *
      * @return string
      */
@@ -155,7 +155,7 @@ abstract class AbstractAsset
      */
     protected function isIdentifierQuoted($identifier)
     {
-        return (isset($identifier[0]) && ($identifier[0] == '`' || $identifier[0] == '"'));
+        return (isset($identifier[0]) && ($identifier[0] == '`' || $identifier[0] == '"' || $identifier[0] == '['));
     }
 
     /**
@@ -167,7 +167,7 @@ abstract class AbstractAsset
      */
     protected function trimQuotes($identifier)
     {
-        return str_replace(array('`', '"'), '', $identifier);
+        return str_replace(array('`', '"', '[', ']'), '', $identifier);
     }
 
     /**
@@ -180,6 +180,7 @@ abstract class AbstractAsset
         if ($this->_namespace) {
             return $this->_namespace . "." . $this->_name;
         }
+
         return $this->_name;
     }
 

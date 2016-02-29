@@ -231,6 +231,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
     public function getUnqualifiedForeignTableName()
     {
         $parts = explode(".", $this->_foreignTableName->getName());
+
         return strtolower(end($parts));
     }
 
@@ -357,6 +358,29 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
 
             if ( ! in_array($onEvent, array('NO ACTION', 'RESTRICT'))) {
                 return $onEvent;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks whether this foreign key constraint intersects the given index columns.
+     *
+     * Returns `true` if at least one of this foreign key's local columns
+     * matches one of the given index's columns, `false` otherwise.
+     *
+     * @param Index $index The index to be checked against.
+     *
+     * @return boolean
+     */
+    public function intersectsIndexColumns(Index $index)
+    {
+        foreach ($index->getColumns() as $indexColumn) {
+            foreach ($this->_localColumnNames as $localColumn) {
+                if (strtolower($indexColumn) === strtolower($localColumn->getName())) {
+                    return true;
+                }
             }
         }
 

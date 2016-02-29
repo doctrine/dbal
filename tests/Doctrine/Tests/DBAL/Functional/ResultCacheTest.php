@@ -1,11 +1,8 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use PDO;
-
-require_once __DIR__ . '/../../TestInit.php';
 
 /**
  * @group DDC-217
@@ -15,7 +12,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     private $expectedResult = array(array('test_int' => 100, 'test_string' => 'foo'), array('test_int' => 200, 'test_string' => 'bar'), array('test_int' => 300, 'test_string' => 'baz'));
     private $sqlLogger;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -32,7 +29,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         }
         $this->_conn->executeUpdate('DELETE FROM caching');
-        foreach ($this->expectedResult AS $row) {
+        foreach ($this->expectedResult as $row) {
             $this->_conn->insert('caching', $row);
         }
 
@@ -51,7 +48,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchNum()
     {
         $expectedResult = array();
-        foreach ($this->expectedResult AS $v) {
+        foreach ($this->expectedResult as $v) {
             $expectedResult[] = array_values($v);
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_NUM);
@@ -60,16 +57,16 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchBoth()
     {
         $expectedResult = array();
-        foreach ($this->expectedResult AS $v) {
+        foreach ($this->expectedResult as $v) {
             $expectedResult[] = array_merge($v, array_values($v));
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_BOTH);
     }
-	
+
     public function testFetchColumn()
     {
         $expectedResult = array();
-        foreach ($this->expectedResult AS $v) {
+        foreach ($this->expectedResult as $v) {
             $expectedResult[] = array_shift($v);
         }
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_COLUMN);
@@ -78,7 +75,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testMixingFetch()
     {
         $numExpectedResult = array();
-        foreach ($this->expectedResult AS $v) {
+        foreach ($this->expectedResult as $v) {
             $numExpectedResult[] = array_values($v);
         }
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));

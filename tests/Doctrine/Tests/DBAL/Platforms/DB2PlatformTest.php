@@ -4,8 +4,12 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 class DB2PlatformTest extends AbstractPlatformTestCase
 {
@@ -22,7 +26,15 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            "ALTER TABLE mytable ADD COLUMN quota INTEGER DEFAULT NULL DROP COLUMN foo ALTER bar baz VARCHAR(255) DEFAULT 'def' NOT NULL ALTER bloo bloo SMALLINT DEFAULT '0' NOT NULL",
+            "ALTER TABLE mytable ALTER COLUMN baz SET DATA TYPE VARCHAR(255)",
+            "ALTER TABLE mytable ALTER COLUMN baz SET NOT NULL",
+            "ALTER TABLE mytable ALTER COLUMN baz SET DEFAULT 'def'",
+            "ALTER TABLE mytable ALTER COLUMN bloo SET DATA TYPE SMALLINT",
+            "ALTER TABLE mytable ALTER COLUMN bloo SET NOT NULL",
+            "ALTER TABLE mytable ALTER COLUMN bloo SET DEFAULT '0'",
+            "ALTER TABLE mytable " .
+            "ADD COLUMN quota INTEGER DEFAULT NULL " .
+            "DROP COLUMN foo",
             "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
             'RENAME TABLE mytable TO userlist',
         );
@@ -74,6 +86,14 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    protected function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
+            'CREATE INDEX "key" ON test (column1)',
+        );
+    }
+
     protected function getQuotedColumnInPrimaryKeySQL()
     {
         return array(
@@ -101,8 +121,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT ALTER foo foo VARCHAR(255) NOT NULL ALTER bar baz VARCHAR(255) NOT NULL",
-            "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')"
+            "ALTER TABLE mytable " .
+            "ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT",
+            "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
+            "COMMENT ON COLUMN mytable.quota IS 'A comment'",
+            "COMMENT ON COLUMN mytable.foo IS ''",
+            "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }
 
@@ -290,13 +314,23 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('CURRENT DATE', $this->_platform->getCurrentDateSQL());
         $this->assertEquals('CURRENT TIME', $this->_platform->getCurrentTimeSQL());
         $this->assertEquals('CURRENT TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
-        $this->assertEquals("'1987/05/02' + 4 days", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("'1987/05/02' + 12 hours", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("'1987/05/02' + 102 months", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("'1987/05/02' + 4 DAY", $this->_platform->getDateAddDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("'1987/05/02' + 12 HOUR", $this->_platform->getDateAddHourExpression("'1987/05/02'", 12));
+        $this->assertEquals("'1987/05/02' + 2 MINUTE", $this->_platform->getDateAddMinutesExpression("'1987/05/02'", 2));
+        $this->assertEquals("'1987/05/02' + 102 MONTH", $this->_platform->getDateAddMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("'1987/05/02' + 15 MONTH", $this->_platform->getDateAddQuartersExpression("'1987/05/02'", 5));
+        $this->assertEquals("'1987/05/02' + 1 SECOND", $this->_platform->getDateAddSecondsExpression("'1987/05/02'", 1));
+        $this->assertEquals("'1987/05/02' + 21 DAY", $this->_platform->getDateAddWeeksExpression("'1987/05/02'", 3));
+        $this->assertEquals("'1987/05/02' + 10 YEAR", $this->_platform->getDateAddYearsExpression("'1987/05/02'", 10));
         $this->assertEquals("DAYS('1987/05/02') - DAYS('1987/04/01')", $this->_platform->getDateDiffExpression("'1987/05/02'", "'1987/04/01'"));
-        $this->assertEquals("'1987/05/02' - 4 days", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
-        $this->assertEquals("'1987/05/02' - 12 hours", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
-        $this->assertEquals("'1987/05/02' - 102 months", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("'1987/05/02' - 4 DAY", $this->_platform->getDateSubDaysExpression("'1987/05/02'", 4));
+        $this->assertEquals("'1987/05/02' - 12 HOUR", $this->_platform->getDateSubHourExpression("'1987/05/02'", 12));
+        $this->assertEquals("'1987/05/02' - 2 MINUTE", $this->_platform->getDateSubMinutesExpression("'1987/05/02'", 2));
+        $this->assertEquals("'1987/05/02' - 102 MONTH", $this->_platform->getDateSubMonthExpression("'1987/05/02'", 102));
+        $this->assertEquals("'1987/05/02' - 15 MONTH", $this->_platform->getDateSubQuartersExpression("'1987/05/02'", 5));
+        $this->assertEquals("'1987/05/02' - 1 SECOND", $this->_platform->getDateSubSecondsExpression("'1987/05/02'", 1));
+        $this->assertEquals("'1987/05/02' - 21 DAY", $this->_platform->getDateSubWeeksExpression("'1987/05/02'", 3));
+        $this->assertEquals("'1987/05/02' - 10 YEAR", $this->_platform->getDateSubYearsExpression("'1987/05/02'", 10));
         $this->assertEquals(' WITH RR USE AND KEEP UPDATE LOCKS', $this->_platform->getForUpdateSQL());
         $this->assertEquals('LOCATE(substring_column, string_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
         $this->assertEquals('LOCATE(substring_column, string_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));
@@ -313,21 +347,21 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
 
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0)
         );
 
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10)
         );
 
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 15',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 15',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 5)
         );
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT ROW_NUMBER() OVER() AS DC_ROWNUM, db21.* FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 5',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 5',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
         );
     }
@@ -403,6 +437,243 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return array(
             'RENAME INDEX "create" TO "select"',
             'RENAME INDEX "foo" TO "bar"',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE mytable ' .
+            'RENAME COLUMN unquoted1 TO unquoted ' .
+            'RENAME COLUMN unquoted2 TO "where" ' .
+            'RENAME COLUMN unquoted3 TO "foo" ' .
+            'RENAME COLUMN "create" TO reserved_keyword ' .
+            'RENAME COLUMN "table" TO "from" ' .
+            'RENAME COLUMN "select" TO "bar" ' .
+            'RENAME COLUMN quoted1 TO quoted ' .
+            'RENAME COLUMN quoted2 TO "and" ' .
+            'RENAME COLUMN quoted3 TO "baz"'
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    {
+        $this->markTestIncomplete('Not implemented yet');
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'RENAME INDEX myschema.idx_foo TO idx_bar',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'RENAME INDEX "schema"."create" TO "select"',
+            'RENAME INDEX "schema"."foo" TO "bar"',
+        );
+    }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'ALTER TABLE foo RENAME COLUMN bar TO baz',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
+            'ALTER TABLE "foo" DROP FOREIGN KEY fk2',
+            'ALTER TABLE "foo" ' .
+            'ADD COLUMN bloo INTEGER NOT NULL WITH DEFAULT ' .
+            'DROP COLUMN baz ' .
+            'ALTER COLUMN bar DROP NOT NULL ' .
+            'RENAME COLUMN id TO war',
+            'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE "foo"\')',
+            'RENAME TABLE "foo" TO "table"',
+            'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            'COMMENT ON COLUMN foo.bar IS \'comment\'',
+            'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
+            'COMMENT ON COLUMN "select"."from" IS \'comment\'',
+        );
+    }
+
+    /**
+     * @group DBAL-944
+     *
+     * @dataProvider getGeneratesAlterColumnSQL
+     */
+    public function testGeneratesAlterColumnSQL($changedProperty, Column $column, $expectedSQLClause = null)
+    {
+        $tableDiff = new TableDiff('foo');
+        $tableDiff->fromTable = new Table('foo');
+        $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $column, array($changedProperty));
+
+        $expectedSQL = array();
+
+        if (null !== $expectedSQLClause) {
+            $expectedSQL[] = 'ALTER TABLE foo ALTER COLUMN bar ' . $expectedSQLClause;
+        }
+
+        $expectedSQL[] = "CALL SYSPROC.ADMIN_CMD ('REORG TABLE foo')";
+
+        $this->assertSame($expectedSQL, $this->_platform->getAlterTableSQL($tableDiff));
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratesAlterColumnSQL()
+    {
+        return array(
+            array(
+                'columnDefinition',
+                new Column('bar', Type::getType('decimal'), array('columnDefinition' => 'MONEY NOT NULL')),
+                'MONEY NOT NULL'
+            ),
+            array(
+                'type',
+                new Column('bar', Type::getType('integer')),
+                'SET DATA TYPE INTEGER'
+            ),
+            array(
+                'length',
+                new Column('bar', Type::getType('string'), array('length' => 100)),
+                'SET DATA TYPE VARCHAR(100)'
+            ),
+            array(
+                'precision',
+                new Column('bar', Type::getType('decimal'), array('precision' => 10, 'scale' => 2)),
+                'SET DATA TYPE NUMERIC(10, 2)'
+            ),
+            array(
+                'scale',
+                new Column('bar', Type::getType('decimal'), array('precision' => 5, 'scale' => 4)),
+                'SET DATA TYPE NUMERIC(5, 4)'
+            ),
+            array(
+                'fixed',
+                new Column('bar', Type::getType('string'), array('length' => 20, 'fixed' => true)),
+                'SET DATA TYPE CHAR(20)'
+            ),
+            array(
+                'notnull',
+                new Column('bar', Type::getType('string'), array('notnull' => true)),
+                'SET NOT NULL'
+            ),
+            array(
+                'notnull',
+                new Column('bar', Type::getType('string'), array('notnull' => false)),
+                'DROP NOT NULL'
+            ),
+            array(
+                'default',
+                new Column('bar', Type::getType('string'), array('default' => 'foo')),
+                "SET DEFAULT 'foo'"
+            ),
+            array(
+                'default',
+                new Column('bar', Type::getType('integer'), array('autoincrement' => true, 'default' => 666)),
+                null
+            ),
+            array(
+                'default',
+                new Column('bar', Type::getType('string')),
+                "DROP DEFAULT"
+            ),
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT "select" UNIQUE (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return ''; // not supported by this platform
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'TRUNCATE "select" IMMEDIATE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsInlineIndexDeclaration()
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable ALTER COLUMN name SET DATA TYPE CHAR(2)',
+            'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE mytable\')',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'RENAME INDEX idx_foo TO idx_foo_renamed',
         );
     }
 }

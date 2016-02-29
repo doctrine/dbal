@@ -60,6 +60,9 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             array('5.7.0', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
             array('5.7.1', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
             array('6', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
+            array('10.0.15-MariaDB-1~wheezy', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
+            array('10.1.2a-MariaDB-a1~lenny-log', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
+            array('5.5.40-MariaDB-1~wheezy', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
         );
     }
 
@@ -130,6 +133,12 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
                 array('1557', null, null),
                 array('1569', null, null),
                 array('1586', null, null),
+            ),
+            self::EXCEPTION_DEADLOCK => array(
+                array('1213', null, null),
+            ),
+            self::EXCEPTION_LOCK_WAIT_TIMEOUT => array(
+                array('1205', null, null),
             ),
         );
     }

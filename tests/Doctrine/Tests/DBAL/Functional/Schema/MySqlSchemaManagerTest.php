@@ -2,12 +2,11 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
-
-require_once __DIR__ . '/../../../TestInit.php';
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -198,5 +197,126 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('latin1_swedish_ci', $columns['text']->getPlatformOption('collation'));
         $this->assertEquals('latin1_swedish_ci', $columns['foo']->getPlatformOption('collation'));
         $this->assertEquals('utf8_general_ci', $columns['bar']->getPlatformOption('collation'));
+    }
+
+    /**
+     * @group DBAL-843
+     */
+    public function testListLobTypeColumns()
+    {
+        $tableName = 'lob_type_columns';
+        $table = new Table($tableName);
+
+        $table->addColumn('col_tinytext', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT));
+        $table->addColumn('col_text', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TEXT));
+        $table->addColumn('col_mediumtext', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT));
+        $table->addColumn('col_longtext', 'text');
+
+        $table->addColumn('col_tinyblob', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB));
+        $table->addColumn('col_blob', 'blob', array('length' => MySqlPlatform::LENGTH_LIMIT_BLOB));
+        $table->addColumn('col_mediumblob', 'blob', array('length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB));
+        $table->addColumn('col_longblob', 'blob');
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $platform = $this->_sm->getDatabasePlatform();
+        $offlineColumns = $table->getColumns();
+        $onlineColumns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertSame(
+            $platform->getClobTypeDeclarationSQL($offlineColumns['col_tinytext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_tinytext']->toArray())
+        );
+        $this->assertSame(
+            $platform->getClobTypeDeclarationSQL($offlineColumns['col_text']->toArray()),
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_text']->toArray())
+        );
+        $this->assertSame(
+            $platform->getClobTypeDeclarationSQL($offlineColumns['col_mediumtext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_mediumtext']->toArray())
+        );
+        $this->assertSame(
+            $platform->getClobTypeDeclarationSQL($offlineColumns['col_longtext']->toArray()),
+            $platform->getClobTypeDeclarationSQL($onlineColumns['col_longtext']->toArray())
+        );
+
+        $this->assertSame(
+            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_tinyblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_tinyblob']->toArray())
+        );
+        $this->assertSame(
+            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_blob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_blob']->toArray())
+        );
+        $this->assertSame(
+            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_mediumblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_mediumblob']->toArray())
+        );
+        $this->assertSame(
+            $platform->getBlobTypeDeclarationSQL($offlineColumns['col_longblob']->toArray()),
+            $platform->getBlobTypeDeclarationSQL($onlineColumns['col_longblob']->toArray())
+        );
+    }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testDiffListGuidTableColumn()
+    {
+        $offlineTable = new Table('list_guid_table_column');
+        $offlineTable->addColumn('col_guid', 'guid');
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails('list_guid_table_column');
+
+        $comparator = new Comparator();
+
+        $this->assertFalse(
+            $comparator->diffTable($offlineTable, $onlineTable),
+            "No differences should be detected with the offline vs online schema."
+        );
+    }
+
+    /**
+     * @group DBAL-1082
+     */
+    public function testListDecimalTypeColumns()
+    {
+        $tableName = 'test_list_decimal_columns';
+        $table = new Table($tableName);
+
+        $table->addColumn('col', 'decimal');
+        $table->addColumn('col_unsigned', 'decimal', array('unsigned' => true));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertArrayHasKey('col', $columns);
+        $this->assertArrayHasKey('col_unsigned', $columns);
+        $this->assertFalse($columns['col']->getUnsigned());
+        $this->assertTrue($columns['col_unsigned']->getUnsigned());
+    }
+
+    /**
+     * @group DBAL-1082
+     */
+    public function testListFloatTypeColumns()
+    {
+        $tableName = 'test_list_float_columns';
+        $table = new Table($tableName);
+
+        $table->addColumn('col', 'float');
+        $table->addColumn('col_unsigned', 'float', array('unsigned' => true));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        $this->assertArrayHasKey('col', $columns);
+        $this->assertArrayHasKey('col_unsigned', $columns);
+        $this->assertFalse($columns['col']->getUnsigned());
+        $this->assertTrue($columns['col_unsigned']->getUnsigned());
     }
 }

@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Types\Type;
+
 /**
  * Oracle Schema Manager.
  *
@@ -36,7 +38,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $view = \array_change_key_case($view, CASE_LOWER);
 
-        return new View($view['view_name'], $view['text']);
+        return new View($this->getQuotedIdentifierName($view['view_name']), $view['text']);
     }
 
     /**
@@ -58,7 +60,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $table = \array_change_key_case($table, CASE_LOWER);
 
-        return $table['table_name'];
+        return $this->getQuotedIdentifierName($table['table_name']);
     }
 
     /**
@@ -84,7 +86,7 @@ class OracleSchemaManager extends AbstractSchemaManager
                 $buffer['non_unique'] = ($tableIndex['is_unique'] == 0) ? true : false;
             }
             $buffer['key_name'] = $keyName;
-            $buffer['column_name'] = $tableIndex['column_name'];
+            $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
             $indexBuffer[] = $buffer;
         }
 
@@ -203,11 +205,13 @@ class OracleSchemaManager extends AbstractSchemaManager
             'length'     => $length,
             'precision'  => $precision,
             'scale'      => $scale,
-            'comment'       => (isset($tableColumn['comments'])) ? $tableColumn['comments'] : null,
+            'comment'    => isset($tableColumn['comments']) && '' !== $tableColumn['comments']
+                ? $tableColumn['comments']
+                : null,
             'platformDetails' => array(),
         );
 
-        return new Column($tableColumn['column_name'], \Doctrine\DBAL\Types\Type::getType($type), $options);
+        return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);
     }
 
     /**
@@ -224,22 +228,26 @@ class OracleSchemaManager extends AbstractSchemaManager
                 }
 
                 $list[$value['constraint_name']] = array(
-                    'name' => $value['constraint_name'],
+                    'name' => $this->getQuotedIdentifierName($value['constraint_name']),
                     'local' => array(),
                     'foreign' => array(),
                     'foreignTable' => $value['references_table'],
                     'onDelete' => $value['delete_rule'],
                 );
             }
-            $list[$value['constraint_name']]['local'][$value['position']] = $value['local_column'];
-            $list[$value['constraint_name']]['foreign'][$value['position']] = $value['foreign_column'];
+
+            $localColumn = $this->getQuotedIdentifierName($value['local_column']);
+            $foreignColumn = $this->getQuotedIdentifierName($value['foreign_column']);
+
+            $list[$value['constraint_name']]['local'][$value['position']] = $localColumn;
+            $list[$value['constraint_name']]['foreign'][$value['position']] = $foreignColumn;
         }
 
         $result = array();
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']), $constraint['foreignTable'],
-                array_values($constraint['foreign']),  $constraint['name'],
+                array_values($constraint['local']), $this->getQuotedIdentifierName($constraint['foreignTable']),
+                array_values($constraint['foreign']), $this->getQuotedIdentifierName($constraint['name']),
                 array('onDelete' => $constraint['onDelete'])
             );
         }
@@ -254,7 +262,11 @@ class OracleSchemaManager extends AbstractSchemaManager
     {
         $sequence = \array_change_key_case($sequence, CASE_LOWER);
 
-        return new Sequence($sequence['sequence_name'], $sequence['increment_by'], $sequence['min_value']);
+        return new Sequence(
+            $this->getQuotedIdentifierName($sequence['sequence_name']),
+            $sequence['increment_by'],
+            $sequence['min_value']
+        );
     }
 
     /**
@@ -322,5 +334,24 @@ class OracleSchemaManager extends AbstractSchemaManager
         $this->tryMethod('dropAutoincrement', $name);
 
         parent::dropTable($name);
+    }
+
+    /**
+     * Returns the quoted representation of the given identifier name.
+     *
+     * Quotes non-uppercase identifiers explicitly to preserve case
+     * and thus make references to the particular identifier work.
+     *
+     * @param string $identifier The identifier to quote.
+     *
+     * @return string The quoted identifier.
+     */
+    private function getQuotedIdentifierName($identifier)
+    {
+        if (preg_match('/[a-z]/', $identifier)) {
+            return $this->_platform->quoteIdentifier($identifier);
+        }
+
+        return $identifier;
     }
 }

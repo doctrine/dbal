@@ -5,6 +5,9 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -20,7 +23,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract public function createPlatform();
 
-    public function setUp()
+    protected function setUp()
     {
         $this->_platform = $this->createPlatform();
     }
@@ -55,7 +58,32 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals(str_repeat($c, 4), $this->_platform->quoteSingleIdentifier($c));
     }
 
-    public function testGetInvalidtForeignKeyReferentialActionSQL()
+    /**
+     * @group DBAL-1029
+     *
+     * @dataProvider getReturnsForeignKeyReferentialActionSQL
+     */
+    public function testReturnsForeignKeyReferentialActionSQL($action, $expectedSQL)
+    {
+        $this->assertSame($expectedSQL, $this->_platform->getForeignKeyReferentialActionSQL($action));
+    }
+
+    /**
+     * @return array
+     */
+    public function getReturnsForeignKeyReferentialActionSQL()
+    {
+        return array(
+            array('CASCADE', 'CASCADE'),
+            array('SET NULL', 'SET NULL'),
+            array('NO ACTION', 'NO ACTION'),
+            array('RESTRICT', 'RESTRICT'),
+            array('SET DEFAULT', 'SET DEFAULT'),
+            array('CaScAdE', 'CASCADE'),
+        );
+    }
+
+    public function testGetInvalidForeignKeyReferentialActionSQL()
     {
         $this->setExpectedException('InvalidArgumentException');
         $this->_platform->getForeignKeyReferentialActionSQL('unknown');
@@ -134,6 +162,32 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     }
 
     abstract public function getGenerateUniqueIndexSql();
+
+    public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
+    {
+        $where = 'test IS NULL AND test2 IS NOT NULL';
+        $indexDef = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), false, false, array(), array('where' => $where));
+        $uniqueIndex = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), true, false, array(), array('where' => $where));
+
+        $expected = ' WHERE ' . $where;
+
+        $actuals = array();
+
+        if ($this->supportsInlineIndexDeclaration()) {
+            $actuals []= $this->_platform->getIndexDeclarationSQL('name', $indexDef);
+        }
+
+        $actuals []= $this->_platform->getUniqueConstraintDeclarationSQL('name', $uniqueIndex);
+        $actuals []= $this->_platform->getCreateIndexSQL($indexDef, 'table');
+
+        foreach ($actuals as $actual) {
+            if ($this->_platform->supportsPartialIndexes()) {
+                $this->assertStringEndsWith($expected, $actual, 'WHERE clause should be present');
+            } else {
+                $this->assertStringEndsNotWith($expected, $actual, 'WHERE clause should NOT be present');
+            }
+        }
+    }
 
     public function testGeneratesForeignKeyCreationSql()
     {
@@ -418,6 +472,47 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->markTestSkipped('Platform does not support Column comments.');
     }
 
+    public function testGetDefaultValueDeclarationSQL()
+    {
+        // non-timestamp value will get single quotes
+        $field = array(
+            'type' => 'string',
+            'default' => 'non_timestamp'
+        );
+
+        $this->assertEquals(" DEFAULT 'non_timestamp'", $this->_platform->getDefaultValueDeclarationSQL($field));
+    }
+
+    public function testGetDefaultValueDeclarationSQLDateTime()
+    {
+        // timestamps on datetime types should not be quoted
+        foreach (array('datetime', 'datetimetz') as $type) {
+
+            $field = array(
+                'type' => Type::getType($type),
+                'default' => $this->_platform->getCurrentTimestampSQL()
+            );
+
+            $this->assertEquals(' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(), $this->_platform->getDefaultValueDeclarationSQL($field));
+
+        }
+    }
+
+    public function testGetDefaultValueDeclarationSQLForIntegerTypes()
+    {
+        foreach(array('bigint', 'integer', 'smallint') as $type) {
+            $field = array(
+                'type'    => Type::getType($type),
+                'default' => 1
+            );
+
+            $this->assertEquals(
+                ' DEFAULT 1',
+                $this->_platform->getDefaultValueDeclarationSQL($field)
+            );
+        }
+    }
+
     /**
      * @group DBAL-45
      */
@@ -444,6 +539,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     abstract protected function getQuotedColumnInPrimaryKeySQL();
     abstract protected function getQuotedColumnInIndexSQL();
+    abstract protected function getQuotedNameInIndexSQL();
     abstract protected function getQuotedColumnInForeignKeySQL();
 
     /**
@@ -457,6 +553,16 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         $sql = $this->_platform->getCreateTableSQL($table);
         $this->assertEquals($this->getQuotedColumnInIndexSQL(), $sql);
+    }
+
+    public function testQuotedNameInIndexSQL()
+    {
+        $table = new Table('test');
+        $table->addColumn('column1', 'string');
+        $table->addIndex(array('column1'), '`key`');
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals($this->getQuotedNameInIndexSQL(), $sql);
     }
 
     /**
@@ -498,19 +604,75 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @expectedException \Doctrine\DBAL\DBALException
+     * @group DBAL-1051
      */
-    public function testGetCreateSchemaSQL()
+    public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
     {
-        $this->_platform->getCreateSchemaSQL('schema');
+        $index = new Index('select', array('foo'), true);
+
+        $this->assertSame(
+            $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(),
+            $this->_platform->getUniqueConstraintDeclarationSQL('select', $index)
+        );
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL();
+
+    /**
+     * @group DBAL-2270
+     */
+    public function testQuotesReservedKeywordInTruncateTableSQL()
+    {
+        $this->assertSame(
+            $this->getQuotesReservedKeywordInTruncateTableSQL(),
+            $this->_platform->getTruncateTableSQL('select')
+        );
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getQuotesReservedKeywordInTruncateTableSQL();
+
+    /**
+     * @group DBAL-1051
+     */
+    public function testQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        $index = new Index('select', array('foo'));
+
+        if (! $this->supportsInlineIndexDeclaration()) {
+            $this->setExpectedException('Doctrine\DBAL\DBALException');
+        }
+
+        $this->assertSame(
+            $this->getQuotesReservedKeywordInIndexDeclarationSQL(),
+            $this->_platform->getIndexDeclarationSQL('select', $index)
+        );
+    }
+
+    /**
+     * @return string
+     */
+    abstract protected function getQuotesReservedKeywordInIndexDeclarationSQL();
+
+    /**
+     * @return boolean
+     */
+    protected function supportsInlineIndexDeclaration()
+    {
+        return true;
     }
 
     /**
      * @expectedException \Doctrine\DBAL\DBALException
      */
-    public function testSchemaNeedsCreation()
+    public function testGetCreateSchemaSQL()
     {
-        $this->_platform->schemaNeedsCreation('schema');
+        $this->_platform->getCreateSchemaSQL('schema');
     }
 
     /**
@@ -663,6 +825,561 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             'CREATE INDEX "select" ON "table" (id)',
             'DROP INDEX "foo"',
             'CREATE INDEX "bar" ON "table" (id)',
+        );
+    }
+
+    /**
+     * @group DBAL-835
+     */
+    public function testQuotesAlterTableRenameColumn()
+    {
+        $fromTable = new Table('mytable');
+
+        $fromTable->addColumn('unquoted1', 'integer', array('comment' => 'Unquoted 1'));
+        $fromTable->addColumn('unquoted2', 'integer', array('comment' => 'Unquoted 2'));
+        $fromTable->addColumn('unquoted3', 'integer', array('comment' => 'Unquoted 3'));
+
+        $fromTable->addColumn('create', 'integer', array('comment' => 'Reserved keyword 1'));
+        $fromTable->addColumn('table', 'integer', array('comment' => 'Reserved keyword 2'));
+        $fromTable->addColumn('select', 'integer', array('comment' => 'Reserved keyword 3'));
+
+        $fromTable->addColumn('`quoted1`', 'integer', array('comment' => 'Quoted 1'));
+        $fromTable->addColumn('`quoted2`', 'integer', array('comment' => 'Quoted 2'));
+        $fromTable->addColumn('`quoted3`', 'integer', array('comment' => 'Quoted 3'));
+
+        $toTable = new Table('mytable');
+
+        $toTable->addColumn('unquoted', 'integer', array('comment' => 'Unquoted 1')); // unquoted -> unquoted
+        $toTable->addColumn('where', 'integer', array('comment' => 'Unquoted 2')); // unquoted -> reserved keyword
+        $toTable->addColumn('`foo`', 'integer', array('comment' => 'Unquoted 3')); // unquoted -> quoted
+
+        $toTable->addColumn('reserved_keyword', 'integer', array('comment' => 'Reserved keyword 1')); // reserved keyword -> unquoted
+        $toTable->addColumn('from', 'integer', array('comment' => 'Reserved keyword 2')); // reserved keyword -> reserved keyword
+        $toTable->addColumn('`bar`', 'integer', array('comment' => 'Reserved keyword 3')); // reserved keyword -> quoted
+
+        $toTable->addColumn('quoted', 'integer', array('comment' => 'Quoted 1')); // quoted -> unquoted
+        $toTable->addColumn('and', 'integer', array('comment' => 'Quoted 2')); // quoted -> reserved keyword
+        $toTable->addColumn('`baz`', 'integer', array('comment' => 'Quoted 3')); // quoted -> quoted
+
+        $comparator = new Comparator();
+
+        $this->assertEquals(
+            $this->getQuotedAlterTableRenameColumnSQL(),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+        );
+    }
+
+    /**
+     * Returns SQL statements for {@link testQuotesAlterTableRenameColumn}.
+     *
+     * @return array
+     *
+     * @group DBAL-835
+     */
+    abstract protected function getQuotedAlterTableRenameColumnSQL();
+
+    /**
+     * @group DBAL-835
+     */
+    public function testQuotesAlterTableChangeColumnLength()
+    {
+        $fromTable = new Table('mytable');
+
+        $fromTable->addColumn('unquoted1', 'string', array('comment' => 'Unquoted 1', 'length' => 10));
+        $fromTable->addColumn('unquoted2', 'string', array('comment' => 'Unquoted 2', 'length' => 10));
+        $fromTable->addColumn('unquoted3', 'string', array('comment' => 'Unquoted 3', 'length' => 10));
+
+        $fromTable->addColumn('create', 'string', array('comment' => 'Reserved keyword 1', 'length' => 10));
+        $fromTable->addColumn('table', 'string', array('comment' => 'Reserved keyword 2', 'length' => 10));
+        $fromTable->addColumn('select', 'string', array('comment' => 'Reserved keyword 3', 'length' => 10));
+
+        $toTable = new Table('mytable');
+
+        $toTable->addColumn('unquoted1', 'string', array('comment' => 'Unquoted 1', 'length' => 255));
+        $toTable->addColumn('unquoted2', 'string', array('comment' => 'Unquoted 2', 'length' => 255));
+        $toTable->addColumn('unquoted3', 'string', array('comment' => 'Unquoted 3', 'length' => 255));
+
+        $toTable->addColumn('create', 'string', array('comment' => 'Reserved keyword 1', 'length' => 255));
+        $toTable->addColumn('table', 'string', array('comment' => 'Reserved keyword 2', 'length' => 255));
+        $toTable->addColumn('select', 'string', array('comment' => 'Reserved keyword 3', 'length' => 255));
+
+        $comparator = new Comparator();
+
+        $this->assertEquals(
+            $this->getQuotedAlterTableChangeColumnLengthSQL(),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($fromTable, $toTable))
+        );
+    }
+
+    /**
+     * Returns SQL statements for {@link testQuotesAlterTableChangeColumnLength}.
+     *
+     * @return array
+     *
+     * @group DBAL-835
+     */
+    abstract protected function getQuotedAlterTableChangeColumnLengthSQL();
+
+    /**
+     * @group DBAL-807
+     */
+    public function testAlterTableRenameIndexInSchema()
+    {
+        $tableDiff = new TableDiff('myschema.mytable');
+        $tableDiff->fromTable = new Table('myschema.mytable');
+        $tableDiff->fromTable->addColumn('id', 'integer');
+        $tableDiff->fromTable->setPrimaryKey(array('id'));
+        $tableDiff->renamedIndexes = array(
+            'idx_foo' => new Index('idx_bar', array('id'))
+        );
+
+        $this->assertSame(
+            $this->getAlterTableRenameIndexInSchemaSQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'DROP INDEX idx_foo',
+            'CREATE INDEX idx_bar ON myschema.mytable (id)',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    public function testQuotesAlterTableRenameIndexInSchema()
+    {
+        $tableDiff = new TableDiff('`schema`.table');
+        $tableDiff->fromTable = new Table('`schema`.table');
+        $tableDiff->fromTable->addColumn('id', 'integer');
+        $tableDiff->fromTable->setPrimaryKey(array('id'));
+        $tableDiff->renamedIndexes = array(
+            'create' => new Index('select', array('id')),
+            '`foo`'  => new Index('`bar`', array('id')),
+        );
+
+        $this->assertSame(
+            $this->getQuotedAlterTableRenameIndexInSchemaSQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'DROP INDEX "schema"."create"',
+            'CREATE INDEX "select" ON "schema"."table" (id)',
+            'DROP INDEX "schema"."foo"',
+            'CREATE INDEX "bar" ON "schema"."table" (id)',
+        );
+    }
+
+    /**
+     * @group DBAL-1237
+     */
+    public function testQuotesDropForeignKeySQL()
+    {
+        if (! $this->_platform->supportsForeignKeyConstraints()) {
+            $this->markTestSkipped(
+                sprintf('%s does not support foreign key constraints.', get_class($this->_platform))
+            );
+        }
+
+        $tableName = 'table';
+        $table = new Table($tableName);
+        $foreignKeyName = 'select';
+        $foreignKey = new ForeignKeyConstraint(array(), 'foo', array(), 'select');
+        $expectedSql = $this->getQuotesDropForeignKeySQL();
+
+        $this->assertSame($expectedSql, $this->_platform->getDropForeignKeySQL($foreignKeyName, $tableName));
+        $this->assertSame($expectedSql, $this->_platform->getDropForeignKeySQL($foreignKey, $table));
+    }
+
+    protected function getQuotesDropForeignKeySQL()
+    {
+        return 'ALTER TABLE "table" DROP FOREIGN KEY "select"';
+    }
+
+    /**
+     * @group DBAL-1237
+     */
+    public function testQuotesDropConstraintSQL()
+    {
+        $tableName = 'table';
+        $table = new Table($tableName);
+        $constraintName = 'select';
+        $constraint = new ForeignKeyConstraint(array(), 'foo', array(), 'select');
+        $expectedSql = $this->getQuotesDropConstraintSQL();
+
+        $this->assertSame($expectedSql, $this->_platform->getDropConstraintSQL($constraintName, $tableName));
+        $this->assertSame($expectedSql, $this->_platform->getDropConstraintSQL($constraint, $table));
+    }
+
+    protected function getQuotesDropConstraintSQL()
+    {
+        return 'ALTER TABLE "table" DROP CONSTRAINT "select"';
+    }
+
+    protected function getStringLiteralQuoteCharacter()
+    {
+        return "'";
+    }
+
+    public function testGetStringLiteralQuoteCharacter()
+    {
+        $this->assertSame($this->getStringLiteralQuoteCharacter(), $this->_platform->getStringLiteralQuoteCharacter());
+    }
+
+    protected function getQuotedCommentOnColumnSQLWithoutQuoteCharacter()
+    {
+        return "COMMENT ON COLUMN mytable.id IS 'This is a comment'";
+    }
+
+    public function testGetCommentOnColumnSQLWithoutQuoteCharacter()
+    {
+        $this->assertEquals(
+            $this->getQuotedCommentOnColumnSQLWithoutQuoteCharacter(),
+            $this->_platform->getCommentOnColumnSQL('mytable', 'id', 'This is a comment')
+        );
+    }
+
+    protected function getQuotedCommentOnColumnSQLWithQuoteCharacter()
+    {
+        return "COMMENT ON COLUMN mytable.id IS 'It''s a quote !'";
+    }
+
+    public function testGetCommentOnColumnSQLWithQuoteCharacter()
+    {
+        $c = $this->getStringLiteralQuoteCharacter();
+
+        $this->assertEquals(
+            $this->getQuotedCommentOnColumnSQLWithQuoteCharacter(),
+            $this->_platform->getCommentOnColumnSQL('mytable', 'id', "It" . $c . "s a quote !")
+        );
+    }
+
+    /**
+     * @return array
+     *
+     * @see testGetCommentOnColumnSQL
+     */
+    abstract protected function getCommentOnColumnSQL();
+
+    /**
+     * @group DBAL-1004
+     */
+    public function testGetCommentOnColumnSQL()
+    {
+        $this->assertSame(
+            $this->getCommentOnColumnSQL(),
+            array(
+                $this->_platform->getCommentOnColumnSQL('foo', 'bar', 'comment'), // regular identifiers
+                $this->_platform->getCommentOnColumnSQL('`Foo`', '`BAR`', 'comment'), // explicitly quoted identifiers
+                $this->_platform->getCommentOnColumnSQL('select', 'from', 'comment'), // reserved keyword identifiers
+            )
+        );
+    }
+
+    /**
+     * @group DBAL-1176
+     *
+     * @dataProvider getGeneratesInlineColumnCommentSQL
+     */
+    public function testGeneratesInlineColumnCommentSQL($comment, $expectedSql)
+    {
+        if (! $this->_platform->supportsInlineColumnComments()) {
+            $this->markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->_platform)));
+        }
+
+        $this->assertSame($expectedSql, $this->_platform->getInlineColumnCommentSQL($comment));
+    }
+
+    public function getGeneratesInlineColumnCommentSQL()
+    {
+        return array(
+            'regular comment' => array('Regular comment', $this->getInlineColumnRegularCommentSQL()),
+            'comment requiring escaping' => array(
+                sprintf(
+                    'Using inline comment delimiter %s works',
+                    $this->getInlineColumnCommentDelimiter()
+                ),
+                $this->getInlineColumnCommentRequiringEscapingSQL()
+            ),
+            'empty comment' => array('', $this->getInlineColumnEmptyCommentSQL()),
+        );
+    }
+
+    protected function getInlineColumnCommentDelimiter()
+    {
+        return "'";
+    }
+
+    protected function getInlineColumnRegularCommentSQL()
+    {
+        return "COMMENT 'Regular comment'";
+    }
+
+    protected function getInlineColumnCommentRequiringEscapingSQL()
+    {
+        return "COMMENT 'Using inline comment delimiter '' works'";
+    }
+
+    protected function getInlineColumnEmptyCommentSQL()
+    {
+        return "COMMENT ''";
+    }
+
+    protected function getQuotedStringLiteralWithoutQuoteCharacter()
+    {
+        return "'No quote'";
+    }
+
+    protected function getQuotedStringLiteralWithQuoteCharacter()
+    {
+        return "'It''s a quote'";
+    }
+
+    protected function getQuotedStringLiteralQuoteCharacter()
+    {
+        return "''''";
+    }
+
+    /**
+     * @group DBAL-1176
+     */
+    public function testThrowsExceptionOnGeneratingInlineColumnCommentSQLIfUnsupported()
+    {
+        if ($this->_platform->supportsInlineColumnComments()) {
+            $this->markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->_platform)));
+        }
+
+        $this->setExpectedException(
+            'Doctrine\DBAL\DBALException',
+            "Operation 'Doctrine\\DBAL\\Platforms\\AbstractPlatform::getInlineColumnCommentSQL' is not supported by platform.",
+            0
+        );
+
+        $this->_platform->getInlineColumnCommentSQL('unsupported');
+    }
+
+    public function testQuoteStringLiteral()
+    {
+        $c = $this->getStringLiteralQuoteCharacter();
+
+        $this->assertEquals(
+            $this->getQuotedStringLiteralWithoutQuoteCharacter(),
+            $this->_platform->quoteStringLiteral('No quote')
+        );
+        $this->assertEquals(
+            $this->getQuotedStringLiteralWithQuoteCharacter(),
+            $this->_platform->quoteStringLiteral('It' . $c . 's a quote')
+        );
+        $this->assertEquals(
+            $this->getQuotedStringLiteralQuoteCharacter(),
+            $this->_platform->quoteStringLiteral($c)
+        );
+    }
+
+    /**
+     * @group DBAL-423
+     *
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->_platform->getGuidTypeDeclarationSQL(array());
+    }
+
+    /**
+     * @group DBAL-1010
+     */
+    public function testGeneratesAlterTableRenameColumnSQL()
+    {
+        $table = new Table('foo');
+        $table->addColumn(
+            'bar',
+            'integer',
+            array('notnull' => true, 'default' => 666, 'comment' => 'rename test')
+        );
+
+        $tableDiff = new TableDiff('foo');
+        $tableDiff->fromTable = $table;
+        $tableDiff->renamedColumns['bar'] = new Column(
+            'baz',
+            Type::getType('integer'),
+            array('notnull' => true, 'default' => 666, 'comment' => 'rename test')
+        );
+
+        $this->assertSame($this->getAlterTableRenameColumnSQL(), $this->_platform->getAlterTableSQL($tableDiff));
+    }
+
+    /**
+     * @return array
+     */
+    abstract public function getAlterTableRenameColumnSQL();
+
+    /**
+     * @group DBAL-1016
+     */
+    public function testQuotesTableIdentifiersInAlterTableSQL()
+    {
+        $table = new Table('"foo"');
+        $table->addColumn('id', 'integer');
+        $table->addColumn('fk', 'integer');
+        $table->addColumn('fk2', 'integer');
+        $table->addColumn('fk3', 'integer');
+        $table->addColumn('bar', 'integer');
+        $table->addColumn('baz', 'integer');
+        $table->addForeignKeyConstraint('fk_table', array('fk'), array('id'), array(), 'fk1');
+        $table->addForeignKeyConstraint('fk_table', array('fk2'), array('id'), array(), 'fk2');
+
+        $tableDiff = new TableDiff('"foo"');
+        $tableDiff->fromTable = $table;
+        $tableDiff->newName = 'table';
+        $tableDiff->addedColumns['bloo'] = new Column('bloo', Type::getType('integer'));
+        $tableDiff->changedColumns['bar'] = new ColumnDiff(
+            'bar',
+            new Column('bar', Type::getType('integer'), array('notnull' => false)),
+            array('notnull'),
+            $table->getColumn('bar')
+        );
+        $tableDiff->renamedColumns['id'] = new Column('war', Type::getType('integer'));
+        $tableDiff->removedColumns['baz'] = new Column('baz', Type::getType('integer'));
+        $tableDiff->addedForeignKeys[] = new ForeignKeyConstraint(array('fk3'), 'fk_table', array('id'), 'fk_add');
+        $tableDiff->changedForeignKeys[] = new ForeignKeyConstraint(array('fk2'), 'fk_table2', array('id'), 'fk2');
+        $tableDiff->removedForeignKeys[] = new ForeignKeyConstraint(array('fk'), 'fk_table', array('id'), 'fk1');
+
+        $this->assertSame(
+            $this->getQuotesTableIdentifiersInAlterTableSQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    abstract protected function getQuotesTableIdentifiersInAlterTableSQL();
+
+    /**
+     * @group DBAL-1090
+     */
+    public function testAlterStringToFixedString()
+    {
+
+        $table = new Table('mytable');
+        $table->addColumn('name', 'string', array('length' => 2));
+
+        $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = $table;
+
+        $tableDiff->changedColumns['name'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'name', new \Doctrine\DBAL\Schema\Column(
+                'name', \Doctrine\DBAL\Types\Type::getType('string'), array('fixed' => true, 'length' => 2)
+            ),
+            array('fixed')
+        );
+
+        $sql = $this->_platform->getAlterTableSQL($tableDiff);
+
+        $expectedSql = $this->getAlterStringToFixedStringSQL();
+
+        $this->assertEquals($expectedSql, $sql);
+    }
+
+    /**
+     * @return array
+     */
+    abstract protected function getAlterStringToFixedStringSQL();
+
+    /**
+     * @group DBAL-1062
+     */
+    public function testGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        $foreignTable = new Table('foreign_table');
+        $foreignTable->addColumn('id', 'integer');
+        $foreignTable->setPrimaryKey(array('id'));
+
+        $primaryTable = new Table('mytable');
+        $primaryTable->addColumn('foo', 'integer');
+        $primaryTable->addColumn('bar', 'integer');
+        $primaryTable->addColumn('baz', 'integer');
+        $primaryTable->addIndex(array('foo'), 'idx_foo');
+        $primaryTable->addIndex(array('bar'), 'idx_bar');
+        $primaryTable->addForeignKeyConstraint($foreignTable, array('foo'), array('id'), array(), 'fk_foo');
+        $primaryTable->addForeignKeyConstraint($foreignTable, array('bar'), array('id'), array(), 'fk_bar');
+
+        $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = $primaryTable;
+        $tableDiff->renamedIndexes['idx_foo'] = new Index('idx_foo_renamed', array('foo'));
+
+        $this->assertSame(
+            $this->getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    abstract protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL();
+
+    /**
+     * @group DBAL-1082
+     *
+     * @dataProvider getGeneratesDecimalTypeDeclarationSQL
+     */
+    public function testGeneratesDecimalTypeDeclarationSQL(array $column, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getDecimalTypeDeclarationSQL($column));
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratesDecimalTypeDeclarationSQL()
+    {
+        return array(
+            array(array(), 'NUMERIC(10, 0)'),
+            array(array('unsigned' => true), 'NUMERIC(10, 0)'),
+            array(array('unsigned' => false), 'NUMERIC(10, 0)'),
+            array(array('precision' => 5), 'NUMERIC(5, 0)'),
+            array(array('scale' => 5), 'NUMERIC(10, 5)'),
+            array(array('precision' => 8, 'scale' => 2), 'NUMERIC(8, 2)'),
+        );
+    }
+
+    /**
+     * @group DBAL-1082
+     *
+     * @dataProvider getGeneratesFloatDeclarationSQL
+     */
+    public function testGeneratesFloatDeclarationSQL(array $column, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getFloatDeclarationSQL($column));
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratesFloatDeclarationSQL()
+    {
+        return array(
+            array(array(), 'DOUBLE PRECISION'),
+            array(array('unsigned' => true), 'DOUBLE PRECISION'),
+            array(array('unsigned' => false), 'DOUBLE PRECISION'),
+            array(array('precision' => 5), 'DOUBLE PRECISION'),
+            array(array('scale' => 5), 'DOUBLE PRECISION'),
+            array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
         );
     }
 }

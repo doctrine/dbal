@@ -143,8 +143,12 @@ class SQLAnywherePlatform extends AbstractPlatform
 
             $comment = $this->getColumnComment($column);
 
-            if ($comment) {
-                $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getQuotedName($this), $comment);
+            if (null !== $comment && '' !== $comment) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $diff->getName($this)->getQuotedName($this),
+                    $column->getQuotedName($this),
+                    $comment
+                );
             }
         }
 
@@ -173,7 +177,7 @@ class SQLAnywherePlatform extends AbstractPlatform
                 $column = $columnDiff->column;
 
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
-                    $diff->name,
+                    $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
                     $this->getColumnComment($column)
                 );
@@ -185,21 +189,27 @@ class SQLAnywherePlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' .
+            $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' .
                 $this->getAlterTableRenameColumnClause($oldColumnName, $column);
         }
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ( ! empty($alterClauses)) {
-                $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' . implode(", ", $alterClauses);
+                $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' . implode(", ", $alterClauses);
             }
 
+            $sql = array_merge($sql, $commentsSQL);
+
             if ($diff->newName !== false) {
-                $sql[] = $this->getAlterTableClause($diff->getName()) . ' ' .
+                $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' .
                     $this->getAlterTableRenameTableClause($diff->getNewName());
             }
 
-            $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
+            $sql = array_merge(
+                $this->getPreAlterTableIndexForeignKeySQL($diff),
+                $sql,
+                $this->getPostAlterTableIndexForeignKeySQL($diff)
+            );
         }
 
         return array_merge($sql, $tableSql, $columnSql);
@@ -251,7 +261,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     protected function getAlterTableRenameColumnClause($oldColumnName, Column $column)
     {
-        return 'RENAME ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
+        $oldColumnName = new Identifier($oldColumnName);
+
+        return 'RENAME ' . $oldColumnName->getQuotedName($this) .' TO ' . $column->getQuotedName($this);
     }
 
     /**
@@ -355,9 +367,12 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        $comment = $comment === null ? 'NULL' : "'$comment'";
+        $tableName = new Identifier($tableName);
+        $columnName = new Identifier($columnName);
+        $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
-        return "COMMENT ON COLUMN $tableName.$columnName IS $comment";
+        return "COMMENT ON COLUMN " . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
+            " IS $comment";
     }
 
     /**
@@ -390,7 +405,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getCreateDatabaseSQL($database)
     {
-        return "CREATE DATABASE '$database'";
+        $database = new Identifier($database);
+
+        return "CREATE DATABASE '" . $database->getName() . "'";
     }
 
     /**
@@ -413,14 +430,6 @@ class SQLAnywherePlatform extends AbstractPlatform
         }
 
         return 'ALTER TABLE ' . $table . ' ADD ' . $this->getPrimaryKeyDeclarationSQL($index);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCreateSchemaSQL($schemaName)
-    {
-        return 'CREATE SCHEMA AUTHORIZATION ' . $schemaName;
     }
 
     /**
@@ -466,25 +475,15 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDateAddDaysExpression($date, $days)
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
-        return 'DATEADD(day, ' . $days . ', ' . $date . ')';
-    }
+        $factorClause = '';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateAddHourExpression($date, $hours)
-    {
-        return 'DATEADD(hour, ' . $hours . ', ' . $date . ')';
-    }
+        if ('-' === $operator) {
+            $factorClause = '-1 * ';
+        }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return 'DATEADD(month, ' . $months . ', ' . $date . ')';
+        return 'DATEADD(' . $unit . ', ' . $factorClause . $interval . ', ' . $date . ')';
     }
 
     /**
@@ -493,30 +492,6 @@ class SQLAnywherePlatform extends AbstractPlatform
     public function getDateDiffExpression($date1, $date2)
     {
         return 'DATEDIFF(day, ' . $date2 . ', ' . $date1 . ')';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return 'DATEADD(day, -1 * ' . $days . ', ' . $date . ')';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateSubHourExpression($date, $hours)
-    {
-        return 'DATEADD(hour, -1 * ' . $hours . ', ' . $date . ')';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return 'DATEADD(month, -1 * ' . $months . ', ' . $date . ')';
     }
 
     /**
@@ -538,17 +513,17 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
+    public function getDateTimeTzFormatString()
     {
-        return 'DATE';
+        return $this->getDateTimeFormatString();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDefaultSchemaName()
+    public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'DBA';
+        return 'DATE';
     }
 
     /**
@@ -564,7 +539,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($database)
     {
-        return "DROP DATABASE '$database'";
+        $database = new Identifier($database);
+
+        return "DROP DATABASE '" . $database->getName() . "'";
     }
 
     /**
@@ -679,17 +656,12 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getForeignKeyReferentialActionSQL($action)
     {
-        $action = strtoupper($action);
-
-        switch ($action) {
-            case 'CASCADE':
-            case 'SET NULL':
-            case 'SET DEFAULT':
-            case 'RESTRICT':
-                return $action;
-            default:
-                throw new \InvalidArgumentException('Invalid foreign key action: ' . $action);
+        // NO ACTION is not supported, therefore falling back to RESTRICT.
+        if (strtoupper($action) === 'NO ACTION') {
+            return 'RESTRICT';
         }
+
+        return parent::getForeignKeyReferentialActionSQL($action);
     }
 
     /**
@@ -697,7 +669,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getForUpdateSQL()
     {
-        return 'FOR UPDATE BY LOCK';
+        return '';
     }
 
     /**
@@ -923,6 +895,7 @@ class SQLAnywherePlatform extends AbstractPlatform
                 ON       idx.table_id = tbl.table_id
                 WHERE    tbl.table_name = '$table'
                 AND      tbl.creator = USER_ID($user)
+                AND      idx.index_category != 2 -- exclude indexes implicitly created by foreign key constraints
                 ORDER BY idx.index_id ASC, idxcol.sequence ASC";
     }
 
@@ -1056,7 +1029,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getStartDatabaseSQL($database)
     {
-        return "START DATABASE '$database' AUTOSTOP OFF";
+        $database = new Identifier($database);
+
+        return "START DATABASE '" . $database->getName() . "' AUTOSTOP OFF";
     }
 
     /**
@@ -1073,7 +1048,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getStopDatabaseSQL($database)
     {
-        return 'STOP DATABASE "' . $database . '" UNCONDITIONALLY';
+        $database = new Identifier($database);
+
+        return 'STOP DATABASE "' . $database->getName() . '" UNCONDITIONALLY';
     }
 
     /**
@@ -1147,7 +1124,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
-        return 'TRUNCATE TABLE ' . $tableName;
+        $tableIdentifier = new Identifier($tableName);
+
+        return 'TRUNCATE TABLE ' . $tableIdentifier->getQuotedName($this);
     }
 
     /**
@@ -1206,14 +1185,6 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function schemaNeedsCreation($schemaName)
-    {
-        return $schemaName !== 'DBA';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function supportsCommentOnStatement()
     {
         return true;
@@ -1223,14 +1194,6 @@ class SQLAnywherePlatform extends AbstractPlatform
      * {@inheritdoc}
      */
     public function supportsIdentityColumns()
-    {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function supportsSchemas()
     {
         return true;
     }
@@ -1406,7 +1369,8 @@ class SQLAnywherePlatform extends AbstractPlatform
         $flags = '';
 
         if ( ! empty($name)) {
-            $sql .= 'CONSTRAINT ' . $name . ' ';
+            $name = new Identifier($name);
+            $sql .= 'CONSTRAINT ' . $name->getQuotedName($this) . ' ';
         }
 
         if ($constraint->hasFlag('clustered')) {

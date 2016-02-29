@@ -25,6 +25,25 @@ class AbstractOracleDriverTest extends AbstractDriverTest
         $this->assertSame($params['user'], $this->driver->getDatabase($connection));
     }
 
+    public function testReturnsDatabaseNameWithConnectDescriptor()
+    {
+        $params = array(
+            'user'             => 'foo',
+            'password'         => 'bar',
+            'connectionstring' => '(DESCRIPTION=' .
+                '(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))' .
+                '(CONNECT_DATA=(SERVICE_NAME=baz)))'
+        );
+
+        $connection = $this->getConnectionMock();
+
+        $connection->expects($this->once())
+            ->method('getParams')
+            ->will($this->returnValue($params));
+
+        $this->assertSame($params['user'], $this->driver->getDatabase($connection));
+    }
+
     protected function createDriver()
     {
         return $this->getMockForAbstractClass('Doctrine\DBAL\Driver\AbstractOracleDriver');

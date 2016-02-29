@@ -2,14 +2,12 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Platforms\SqlitePlatform;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\DBALException;
-
-require_once __DIR__ . '/../../TestInit.php';
+use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 class SqlitePlatformTest extends AbstractPlatformTestCase
 {
@@ -33,7 +31,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesSqlSnippets()
     {
-        $this->assertEquals('RLIKE', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
+        $this->assertEquals('REGEXP', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
         $this->assertEquals('SUBSTR(column, 5, LENGTH(column))', $this->_platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
         $this->assertEquals('SUBSTR(column, 0, 5)', $this->_platform->getSubstringExpression('column', 0, 5), 'Substring expression with length is not correct');
     }
@@ -73,6 +71,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @group DBAL-752
+     * @group DBAL-924
      */
     public function testGeneratesTypeDeclarationForTinyIntegers()
     {
@@ -81,11 +80,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getTinyIntTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'TINYINT',
+            'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         $this->assertEquals(
-            'TINYINT',
+            'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -101,6 +100,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @group DBAL-752
+     * @group DBAL-924
      */
     public function testGeneratesTypeDeclarationForSmallIntegers()
     {
@@ -109,11 +109,15 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getSmallIntTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'SMALLINT',
+            'INTEGER',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         $this->assertEquals(
-            'SMALLINT',
+            'INTEGER',
+            $this->_platform->getTinyIntTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
+        );
+        $this->assertEquals(
+            'INTEGER',
             $this->_platform->getSmallIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -129,6 +133,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @group DBAL-752
+     * @group DBAL-924
      */
     public function testGeneratesTypeDeclarationForMediumIntegers()
     {
@@ -137,11 +142,15 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getMediumIntTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'MEDIUMINT',
+            'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         $this->assertEquals(
-            'MEDIUMINT',
+            'INTEGER',
+            $this->_platform->getMediumIntTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
+        );
+        $this->assertEquals(
+            'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -167,6 +176,10 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
         $this->assertEquals(
             'INTEGER',
+            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
+        );
+        $this->assertEquals(
+            'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -182,6 +195,7 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     /**
      * @group DBAL-752
+     * @group DBAL-924
      */
     public function testGeneratesTypeDeclarationForBigIntegers()
     {
@@ -190,11 +204,15 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getBigIntTypeDeclarationSQL(array())
         );
         $this->assertEquals(
-            'BIGINT',
+            'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(array('autoincrement' => true))
         );
         $this->assertEquals(
-            'BIGINT',
+            'INTEGER',
+            $this->_platform->getBigIntTypeDeclarationSQL(array('autoincrement' => true, 'unsigned' => true))
+        );
+        $this->assertEquals(
+            'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true))
         );
@@ -268,6 +286,12 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
         $this->assertEquals('SELECT * FROM user LIMIT 10', $sql);
+    }
+
+    public function testModifyLimitQueryWithOffsetAndEmptyLimit()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', null, 10);
+        $this->assertEquals('SELECT * FROM user LIMIT -1 OFFSET 10', $sql);
     }
 
     public function getGenerateAlterTableSql()
@@ -420,6 +444,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    protected function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
+            'CREATE INDEX "key" ON test (column1)',
+        );
+    }
+
     protected function getQuotedColumnInForeignKeySQL()
     {
         return array(
@@ -478,8 +510,206 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE TABLE "table" (id INTEGER NOT NULL, PRIMARY KEY(id))',
             'INSERT INTO "table" (id) SELECT id FROM __temp__table',
             'DROP TABLE __temp__table',
-            'CREATE INDEX "select" ON table (id)',
-            'CREATE INDEX "bar" ON table (id)',
+            'CREATE INDEX "select" ON "table" (id)',
+            'CREATE INDEX "bar" ON "table" (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (unquoted INTEGER NOT NULL --Unquoted 1
+, "where" INTEGER NOT NULL --Unquoted 2
+, "foo" INTEGER NOT NULL --Unquoted 3
+, reserved_keyword INTEGER NOT NULL --Reserved keyword 1
+, "from" INTEGER NOT NULL --Reserved keyword 2
+, "bar" INTEGER NOT NULL --Reserved keyword 3
+, quoted INTEGER NOT NULL --Quoted 1
+, "and" INTEGER NOT NULL --Quoted 2
+, "baz" INTEGER NOT NULL --Quoted 3
+)',
+            'INSERT INTO mytable (unquoted, "where", "foo", reserved_keyword, "from", "bar", quoted, "and", "baz") SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select", "quoted1", "quoted2", "quoted3" FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (unquoted1 VARCHAR(255) NOT NULL --Unquoted 1
+, unquoted2 VARCHAR(255) NOT NULL --Unquoted 2
+, unquoted3 VARCHAR(255) NOT NULL --Unquoted 3
+, "create" VARCHAR(255) NOT NULL --Reserved keyword 1
+, "table" VARCHAR(255) NOT NULL --Reserved keyword 2
+, "select" VARCHAR(255) NOT NULL --Reserved keyword 3
+)',
+            'INSERT INTO mytable (unquoted1, unquoted2, unquoted3, "create", "table", "select") SELECT unquoted1, unquoted2, unquoted3, "create", "table", "select" FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    public function testAlterTableRenameIndexInSchema()
+    {
+        $this->markTestIncomplete(
+            'Test currently produces broken SQL due to SQLLitePlatform::getAlterTable being broken ' .
+            'when used with schemas.'
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    public function testQuotesAlterTableRenameIndexInSchema()
+    {
+        $this->markTestIncomplete(
+            'Test currently produces broken SQL due to SQLLitePlatform::getAlterTable being broken ' .
+            'when used with schemas.'
+        );
+    }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__foo AS SELECT bar FROM foo',
+            'DROP TABLE foo',
+            'CREATE TABLE foo (baz INTEGER DEFAULT 666 NOT NULL --rename test
+)',
+            'INSERT INTO foo (baz) SELECT bar FROM __temp__foo',
+            'DROP TABLE __temp__foo',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'DROP INDEX IDX_8C736521A81E660E',
+            'DROP INDEX IDX_8C736521FDC58D6C',
+            'CREATE TEMPORARY TABLE __temp__foo AS SELECT fk, fk2, id, fk3, bar FROM "foo"',
+            'DROP TABLE "foo"',
+            'CREATE TABLE "foo" (fk2 INTEGER NOT NULL, fk3 INTEGER NOT NULL, fk INTEGER NOT NULL, war INTEGER NOT NULL, ' .
+            'bar INTEGER DEFAULT NULL, bloo INTEGER NOT NULL, ' .
+            'CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE INITIALLY IMMEDIATE, ' .
+            'CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE)',
+            'INSERT INTO "foo" (fk, fk2, war, fk3, bar) SELECT fk, fk2, id, fk3, bar FROM __temp__foo',
+            'DROP TABLE __temp__foo',
+            'ALTER TABLE "foo" RENAME TO "table"',
+            'CREATE INDEX IDX_8C736521A81E660E ON "table" (fk)',
+            'CREATE INDEX IDX_8C736521FDC58D6C ON "table" (fk2)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            'COMMENT ON COLUMN foo.bar IS \'comment\'',
+            'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
+            'COMMENT ON COLUMN "select"."from" IS \'comment\'',
+        );
+    }
+
+    protected function getInlineColumnCommentDelimiter()
+    {
+        return "\n";
+    }
+
+    protected function getInlineColumnRegularCommentSQL()
+    {
+        return "--Regular comment\n";
+    }
+
+    protected function getInlineColumnCommentRequiringEscapingSQL()
+    {
+        return "--Using inline comment delimiter \n-- works\n";
+    }
+
+    protected function getInlineColumnEmptyCommentSQL()
+    {
+        return "--\n";
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT "select" UNIQUE (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return 'INDEX "select" (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'DELETE FROM "select"';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT name FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (name CHAR(2) NOT NULL)',
+            'INSERT INTO mytable (name) SELECT name FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'DROP INDEX idx_foo',
+            'DROP INDEX idx_bar',
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT foo, bar, baz FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (foo INTEGER NOT NULL, bar INTEGER NOT NULL, baz INTEGER NOT NULL, CONSTRAINT fk_foo FOREIGN KEY (foo) REFERENCES foreign_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT fk_bar FOREIGN KEY (bar) REFERENCES foreign_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE)',
+            'INSERT INTO mytable (foo, bar, baz) SELECT foo, bar, baz FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
+            'CREATE INDEX idx_bar ON mytable (bar)',
+            'CREATE INDEX idx_foo_renamed ON mytable (foo)',
         );
     }
 }

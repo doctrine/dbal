@@ -2,11 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 
 class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,10 +17,10 @@ class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
                      ->will($this->returnValue(array("foo")));
         $platformMock->expects($this->exactly(1))
                      ->method('getCreateSequenceSql')
-                     ->will($this->returnValue(array("bar")));
+                     ->will($this->returnValue("bar"));
         $platformMock->expects($this->exactly(1))
                      ->method('getCreateForeignKeySql')
-                     ->will($this->returnValue(array("baz")));
+                     ->will($this->returnValue("baz"));
 
         $schema = $this->createFixtureSchema();
 

@@ -2,13 +2,12 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use \Doctrine\DBAL\Schema\Table;
-use \Doctrine\DBAL\Schema\Column;
-use \Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 
 class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
         try {
@@ -18,7 +17,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         if ($this->_conn) {
             try {
@@ -51,7 +50,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn("id", "integer");
         $table->setPrimaryKey(array('id'));
 
-        foreach ($platform->getCreateTableSQL($table) AS $sql) {
+        foreach ($platform->getCreateTableSQL($table) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 
@@ -88,7 +87,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn("id", "integer");
         $table->setPrimaryKey(array('id'));
 
-        foreach ($platform->getCreateTableSQL($table) AS $sql) {
+        foreach ($platform->getCreateTableSQL($table) as $sql) {
             $this->_conn->executeQuery($sql);
         }
 

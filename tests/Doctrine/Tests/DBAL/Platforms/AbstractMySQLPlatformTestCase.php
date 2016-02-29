@@ -5,11 +5,9 @@ namespace Doctrine\Tests\DBAL\Platforms;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Schema\Index;
 
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
@@ -244,6 +242,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
+    protected function getQuotedNameInIndexSQL()
+    {
+        return array(
+            'CREATE TABLE test (column1 VARCHAR(255) NOT NULL, INDEX `key` (column1)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
+        );
+    }
+
     protected function getQuotedColumnInForeignKeySQL()
     {
         return array(
@@ -329,13 +334,39 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /**
+     * @group DBAL-1132
+     */
+    public function testAlterPrimaryKeyWithAutoincrementColumn()
+    {
+        $table = new Table("alter_primary_key");
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
+        $table->setPrimaryKey(array('id'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+
+        $diffTable->dropPrimaryKey();
+        $diffTable->setPrimaryKey(array('foo'));
+
+        $this->assertEquals(
+            array(
+                'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
+                'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
+                'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)'
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
+    }
+
+    /**
      * @group DBAL-464
      */
     public function testDropPrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("drop_primary_key");
-        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
-        $table->addColumn('foo', 'integer', array('primary' => true));
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'integer');
         $table->setPrimaryKey(array('id', 'foo'));
 
@@ -516,6 +547,40 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
     }
 
+    /**
+     * @group DBAL-807
+     */
+    protected function getAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'DROP INDEX idx_foo ON myschema.mytable',
+            'CREATE INDEX idx_bar ON myschema.mytable (id)',
+        );
+    }
+
+    /**
+     * @group DBAL-807
+     */
+    protected function getQuotedAlterTableRenameIndexInSchemaSQL()
+    {
+        return array(
+            'DROP INDEX `create` ON `schema`.`table`',
+            'CREATE INDEX `select` ON `schema`.`table` (id)',
+            'DROP INDEX `foo` ON `schema`.`table`',
+            'CREATE INDEX `bar` ON `schema`.`table` (id)',
+        );
+    }
+
+    protected function getQuotesDropForeignKeySQL()
+    {
+        return 'ALTER TABLE `table` DROP FOREIGN KEY `select`';
+    }
+
+    protected function getQuotesDropConstraintSQL()
+    {
+        return 'ALTER TABLE `table` DROP CONSTRAINT `select`';
+    }
+
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
     {
         $table = new Table("text_blob_default_value");
@@ -538,5 +603,162 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $comparator = new Comparator();
 
         $this->assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable)));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableRenameColumnSQL()
+    {
+        return array(
+            "ALTER TABLE mytable " .
+            "CHANGE unquoted1 unquoted INT NOT NULL COMMENT 'Unquoted 1', " .
+            "CHANGE unquoted2 `where` INT NOT NULL COMMENT 'Unquoted 2', " .
+            "CHANGE unquoted3 `foo` INT NOT NULL COMMENT 'Unquoted 3', " .
+            "CHANGE `create` reserved_keyword INT NOT NULL COMMENT 'Reserved keyword 1', " .
+            "CHANGE `table` `from` INT NOT NULL COMMENT 'Reserved keyword 2', " .
+            "CHANGE `select` `bar` INT NOT NULL COMMENT 'Reserved keyword 3', " .
+            "CHANGE quoted1 quoted INT NOT NULL COMMENT 'Quoted 1', " .
+            "CHANGE quoted2 `and` INT NOT NULL COMMENT 'Quoted 2', " .
+            "CHANGE quoted3 `baz` INT NOT NULL COMMENT 'Quoted 3'"
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotedAlterTableChangeColumnLengthSQL()
+    {
+        return array(
+            "ALTER TABLE mytable " .
+            "CHANGE unquoted1 unquoted1 VARCHAR(255) NOT NULL COMMENT 'Unquoted 1', " .
+            "CHANGE unquoted2 unquoted2 VARCHAR(255) NOT NULL COMMENT 'Unquoted 2', " .
+            "CHANGE unquoted3 unquoted3 VARCHAR(255) NOT NULL COMMENT 'Unquoted 3', " .
+            "CHANGE `create` `create` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 1', " .
+            "CHANGE `table` `table` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 2', " .
+            "CHANGE `select` `select` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 3'"
+        );
+    }
+
+    /**
+     * @group DBAL-423
+     */
+    public function testReturnsGuidTypeDeclarationSQL()
+    {
+        $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterTableRenameColumnSQL()
+    {
+        return array(
+            "ALTER TABLE foo CHANGE bar baz INT DEFAULT 666 NOT NULL COMMENT 'rename test'",
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesTableIdentifiersInAlterTableSQL()
+    {
+        return array(
+            'ALTER TABLE `foo` DROP FOREIGN KEY fk1',
+            'ALTER TABLE `foo` DROP FOREIGN KEY fk2',
+            'ALTER TABLE `foo` RENAME TO `table`, ADD bloo INT NOT NULL, DROP baz, CHANGE bar bar INT DEFAULT NULL, ' .
+            'CHANGE id war INT NOT NULL',
+            'ALTER TABLE `table` ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
+            'ALTER TABLE `table` ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCommentOnColumnSQL()
+    {
+        return array(
+            "COMMENT ON COLUMN foo.bar IS 'comment'",
+            "COMMENT ON COLUMN `Foo`.`BAR` IS 'comment'",
+            "COMMENT ON COLUMN `select`.`from` IS 'comment'",
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
+    {
+        return 'CONSTRAINT `select` UNIQUE (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInIndexDeclarationSQL()
+    {
+        return 'INDEX `select` (foo)';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getQuotesReservedKeywordInTruncateTableSQL()
+    {
+        return 'TRUNCATE `select`';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAlterStringToFixedStringSQL()
+    {
+        return array(
+            'ALTER TABLE mytable CHANGE name name CHAR(2) NOT NULL',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
+    {
+        return array(
+            'ALTER TABLE mytable DROP FOREIGN KEY fk_foo',
+            'DROP INDEX idx_foo ON mytable',
+            'CREATE INDEX idx_foo_renamed ON mytable (foo)',
+            'ALTER TABLE mytable ADD CONSTRAINT fk_foo FOREIGN KEY (foo) REFERENCES foreign_table (id)',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGeneratesDecimalTypeDeclarationSQL()
+    {
+        return array(
+            array(array(), 'NUMERIC(10, 0)'),
+            array(array('unsigned' => true), 'NUMERIC(10, 0) UNSIGNED'),
+            array(array('unsigned' => false), 'NUMERIC(10, 0)'),
+            array(array('precision' => 5), 'NUMERIC(5, 0)'),
+            array(array('scale' => 5), 'NUMERIC(10, 5)'),
+            array(array('precision' => 8, 'scale' => 2), 'NUMERIC(8, 2)'),
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGeneratesFloatDeclarationSQL()
+    {
+        return array(
+            array(array(), 'DOUBLE PRECISION'),
+            array(array('unsigned' => true), 'DOUBLE PRECISION UNSIGNED'),
+            array(array('unsigned' => false), 'DOUBLE PRECISION'),
+            array(array('precision' => 5), 'DOUBLE PRECISION'),
+            array(array('scale' => 5), 'DOUBLE PRECISION'),
+            array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
+        );
     }
 }

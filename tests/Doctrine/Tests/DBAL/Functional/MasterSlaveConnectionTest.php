@@ -2,15 +2,15 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\Tests\DbalFunctionalTestCase;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\Tests\DbalFunctionalTestCase;
 
 /**
  * @group DBAL-20
  */
 class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -125,5 +125,18 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
         $conn->connect('slave');
         $this->assertFalse($conn->isConnectedToMaster());
+    }
+
+    public function testMasterSlaveConnectionCloseAndReconnect()
+    {
+        $conn = $this->createMasterSlaveConnection();
+        $conn->connect('master');
+        $this->assertTrue($conn->isConnectedToMaster());
+
+        $conn->close();
+        $this->assertFalse($conn->isConnectedToMaster());
+
+        $conn->connect('master');
+        $this->assertTrue($conn->isConnectedToMaster());
     }
 }

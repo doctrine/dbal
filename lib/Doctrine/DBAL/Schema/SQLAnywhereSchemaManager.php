@@ -109,7 +109,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
         $fixed                  = false;
         $default                = null;
 
-        if ($tableColumn['default']) {
+        if (null !== $tableColumn['default']) {
             // Strip quotes from default value.
             $default = preg_replace(array("/^'(.*)'$/", "/''/"), array("$1", "'"), $tableColumn['default']);
 
@@ -144,7 +144,9 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
                 'notnull'       => (bool) $tableColumn['notnull'],
                 'default'       => $default,
                 'autoincrement' => (bool) $tableColumn['autoincrement'],
-                'comment'       => $tableColumn['comment']
+                'comment'       => isset($tableColumn['comment']) && '' !== $tableColumn['comment']
+                    ? $tableColumn['comment']
+                    : null,
         ));
     }
 

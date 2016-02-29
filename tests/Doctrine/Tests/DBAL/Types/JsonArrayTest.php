@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class JsonArrayTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
@@ -46,6 +44,11 @@ class JsonArrayTest extends \Doctrine\Tests\DbalTestCase
     public function testJsonNullConvertsToPHPValue()
     {
         $this->assertSame(array(), $this->type->convertToPHPValue(null, $this->platform));
+    }
+
+    public function testJsonEmptyStringConvertsToPHPValue()
+    {
+        $this->assertSame(array(), $this->type->convertToPHPValue('', $this->platform));
     }
 
     public function testJsonStringConvertsToPHPValue()

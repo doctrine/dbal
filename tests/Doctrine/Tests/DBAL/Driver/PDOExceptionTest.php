@@ -25,7 +25,7 @@ class PDOExceptionTest extends DbalTestCase
      *
      * @var \PDOException|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $wrappedExceptionMock;
+    private $wrappedException;
 
     protected function setUp()
     {
@@ -35,13 +35,11 @@ class PDOExceptionTest extends DbalTestCase
 
         parent::setUp();
 
-        $this->wrappedExceptionMock = $this->getMockBuilder('\PDOException')
-            ->setConstructorArgs(array(self::MESSAGE, self::SQLSTATE))
-            ->getMock();
+        $this->wrappedException = new \PDOException(self::MESSAGE, self::SQLSTATE);
 
-        $this->wrappedExceptionMock->errorInfo = array(self::SQLSTATE, self::ERROR_CODE);
+        $this->wrappedException->errorInfo = array(self::SQLSTATE, self::ERROR_CODE);
 
-        $this->exception = new PDOException($this->wrappedExceptionMock);
+        $this->exception = new PDOException($this->wrappedException);
     }
 
     public function testReturnsCode()
@@ -66,6 +64,6 @@ class PDOExceptionTest extends DbalTestCase
 
     public function testOriginalExceptionIsInChain()
     {
-        $this->assertSame($this->wrappedExceptionMock, $this->exception->getPrevious());
+        $this->assertSame($this->wrappedException, $this->exception->getPrevious());
     }
 }

@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * Table Diff.
  *
@@ -48,7 +50,7 @@ class TableDiff
     /**
      * All changed fields.
      *
-     * @var \Doctrine\DBAL\Schema\Column[]
+     * @var \Doctrine\DBAL\Schema\ColumnDiff[]
      */
     public $changedColumns = array();
 
@@ -123,14 +125,14 @@ class TableDiff
     /**
      * Constructs an TableDiff object.
      *
-     * @param string                           $tableName
-     * @param \Doctrine\DBAL\Schema\Column[]   $addedColumns
-     * @param \Doctrine\DBAL\Schema\Column[]   $changedColumns
-     * @param \Doctrine\DBAL\Schema\Column[]   $removedColumns
-     * @param \Doctrine\DBAL\Schema\Index[]    $addedIndexes
-     * @param \Doctrine\DBAL\Schema\Index[]    $changedIndexes
-     * @param \Doctrine\DBAL\Schema\Index[]    $removedIndexes
-     * @param \Doctrine\DBAL\Schema\Table|null $fromTable
+     * @param string                             $tableName
+     * @param \Doctrine\DBAL\Schema\Column[]     $addedColumns
+     * @param \Doctrine\DBAL\Schema\ColumnDiff[] $changedColumns
+     * @param \Doctrine\DBAL\Schema\Column[]     $removedColumns
+     * @param \Doctrine\DBAL\Schema\Index[]      $addedIndexes
+     * @param \Doctrine\DBAL\Schema\Index[]      $changedIndexes
+     * @param \Doctrine\DBAL\Schema\Index[]      $removedIndexes
+     * @param \Doctrine\DBAL\Schema\Table|null   $fromTable
      */
     public function __construct($tableName, $addedColumns = array(),
         $changedColumns = array(), $removedColumns = array(), $addedIndexes = array(),
@@ -147,18 +149,22 @@ class TableDiff
     }
 
     /**
+     * @param AbstractPlatform $platform The platform to use for retrieving this table diff's name.
+     *
      * @return \Doctrine\DBAL\Schema\Identifier
      */
-    public function getName()
+    public function getName(AbstractPlatform $platform)
     {
-        return new Identifier($this->name);
+        return new Identifier(
+            $this->fromTable instanceof Table ? $this->fromTable->getQuotedName($platform) : $this->name
+        );
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Identifier
+     * @return \Doctrine\DBAL\Schema\Identifier|boolean
      */
     public function getNewName()
     {
-        return new Identifier($this->newName);
+        return $this->newName ? new Identifier($this->newName) : $this->newName;
     }
 }

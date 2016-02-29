@@ -31,6 +31,7 @@ class SchemaException extends \Doctrine\DBAL\DBALException
     const SEQUENCE_ALREADY_EXISTS = 80;
     const INDEX_INVALID_NAME = 90;
     const FOREIGNKEY_DOESNT_EXIST = 100;
+    const NAMESPACE_ALREADY_EXISTS = 110;
 
     /**
      * @param string $tableName
@@ -83,6 +84,19 @@ class SchemaException extends \Doctrine\DBAL\DBALException
     static public function columnDoesNotExist($columnName, $table)
     {
         return new self("There is no column with name '$columnName' on table '$table'.", self::COLUMN_DOESNT_EXIST);
+    }
+
+    /**
+     * @param string $namespaceName
+     *
+     * @return \Doctrine\DBAL\Schema\SchemaException
+     */
+    static public function namespaceAlreadyExists($namespaceName)
+    {
+        return new self(
+            sprintf("The namespace with name '%s' already exists.", $namespaceName),
+            self::NAMESPACE_ALREADY_EXISTS
+        );
     }
 
     /**
@@ -162,6 +176,6 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      */
     static public function alterTableChangeNotSupported($changeName)
     {
-        return new self ("Alter table change not supported, given '$changeName'");
+        return new self("Alter table change not supported, given '$changeName'");
     }
 }

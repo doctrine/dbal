@@ -39,6 +39,8 @@ class DBAL421Test extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->assertNotContains($guid, $guids, "Duplicate GUID detected");
             $guids[] = $guid;
         }
+
+        $statement->closeCursor();
     }
 
     private function getSelectGuidSql()

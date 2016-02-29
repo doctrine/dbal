@@ -33,8 +33,11 @@ namespace Doctrine\DBAL\Driver;
 interface Statement extends ResultStatement
 {
     /**
-     * Binds a value to a corresponding named or positional
+     * Binds a value to a corresponding named (not supported by mysqli driver, see comment below) or positional
      * placeholder in the SQL statement that was used to prepare the statement.
+     *
+     * As mentioned above, the named parameters are not natively supported by the mysqli driver, use executeQuery(),
+     * fetchAll(), fetchArray(), fetchColumn(), fetchAssoc() methods to have the named parameter emulated by doctrine.
      *
      * @param mixed   $param Parameter identifier. For a prepared statement using named placeholders,
      *                       this will be a parameter name of the form :name. For a prepared statement
@@ -46,11 +49,15 @@ interface Statement extends ResultStatement
      */
     function bindValue($param, $value, $type = null);
 
+
     /**
-     * Binds a PHP variable to a corresponding named or question mark placeholder in the
-     * SQL statement that was use to prepare the statement. Unlike PDOStatement->bindValue(),
+     * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
+     * mark placeholder in the SQL statement that was use to prepare the statement. Unlike PDOStatement->bindValue(),
      * the variable is bound as a reference and will only be evaluated at the time
      * that PDOStatement->execute() is called.
+     *
+     * As mentioned above, the named parameters are not natively supported by the mysqli driver, use executeQuery(),
+     * fetchAll(), fetchArray(), fetchColumn(), fetchAssoc() methods to have the named parameter emulated by doctrine.
      *
      * Most parameters are input parameters, that is, parameters that are
      * used in a read-only fashion to build up the query. Some drivers support the invocation

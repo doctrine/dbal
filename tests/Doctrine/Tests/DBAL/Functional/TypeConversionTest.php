@@ -4,13 +4,11 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Types\Type;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     static private $typeCounter = 0;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -36,7 +34,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->setPrimaryKey(array('id'));
 
         try {
-            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) AS $sql) {
+            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
                 $this->_conn->executeQuery($sql);
             }
         } catch(\Exception $e) {
@@ -59,7 +57,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             array('datetime',   new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
             array('datetimetz', new \DateTime('2010-04-05 10:10:10'), 'DateTime'),
             array('date',       new \DateTime('2010-04-05'), 'DateTime'),
-            array('time',       new \DateTime('10:10:10'), 'DateTime'),
+            array('time',       new \DateTime('1970-01-01 10:10:10'), 'DateTime'),
             array('text',       str_repeat('foo ', 1000), 'string'),
             array('array',      array('foo' => 'bar'), 'array'),
             array('json_array', array('foo' => 'bar'), 'array'),

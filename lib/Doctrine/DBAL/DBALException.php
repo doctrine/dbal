@@ -19,7 +19,8 @@
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Driver\DriverException;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 
 class DBALException extends \Exception
@@ -112,11 +113,7 @@ class DBALException extends \Exception
         }
         $msg .= ":\n\n".$driverEx->getMessage();
 
-        if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof DriverException) {
-            return $driver->convertException($msg, $driverEx);
-        }
-
-        return new self($msg, 0, $driverEx);
+        return static::wrapException($driver, $driverEx, $msg);
     }
 
     /**
@@ -127,9 +124,21 @@ class DBALException extends \Exception
      */
     public static function driverException(Driver $driver, \Exception $driverEx)
     {
-        $msg = "An exception occured in driver: " . $driverEx->getMessage();
+        return static::wrapException($driver, $driverEx, "An exception occurred in driver: " . $driverEx->getMessage());
+    }
 
-        if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof DriverException) {
+    /**
+     * @param \Doctrine\DBAL\Driver     $driver
+     * @param \Exception $driverEx
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
+    private static function wrapException(Driver $driver, \Exception $driverEx, $msg)
+    {
+        if ($driverEx instanceof Exception\DriverException) {
+            return $driverEx;
+        }
+        if ($driver instanceof ExceptionConverterDriver && $driverEx instanceof Driver\DriverException) {
             return $driver->convertException($msg, $driverEx);
         }
 

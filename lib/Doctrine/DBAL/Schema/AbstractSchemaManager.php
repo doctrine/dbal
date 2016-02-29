@@ -22,7 +22,6 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs;
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
-use Doctrine\DBAL\Types;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
@@ -116,6 +115,20 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Returns a list of all namespaces in the current database.
+     *
+     * @return array
+     */
+    public function listNamespaceNames()
+    {
+        $sql = $this->_platform->getListNamespacesSQL();
+
+        $namespaces = $this->_conn->fetchAll($sql);
+
+        return $this->getPortableNamespacesList($namespaces);
+    }
+
+    /**
      * Lists the available sequences for this connection.
      *
      * @param string|null $database
@@ -139,7 +152,7 @@ abstract class AbstractSchemaManager
      *
      * In contrast to other libraries and to the old version of Doctrine,
      * this column definition does try to contain the 'primary' field for
-     * the reason that it is not portable accross different RDBMS. Use
+     * the reason that it is not portable across different RDBMS. Use
      * {@see listTableIndexes($tableName)} to retrieve the primary key
      * of a table. We're a RDBMS specifies more details these are held
      * in the platformDetails array.
@@ -189,7 +202,7 @@ abstract class AbstractSchemaManager
      */
     public function tablesExist($tableNames)
     {
-        $tableNames = array_map('strtolower', (array)$tableNames);
+        $tableNames = array_map('strtolower', (array) $tableNames);
 
         return count($tableNames) == count(\array_intersect($tableNames, array_map('strtolower', $this->listTableNames())));
     }
@@ -224,9 +237,10 @@ abstract class AbstractSchemaManager
             return $assetNames;
         }
 
-        return array_values (
+        return array_values(
             array_filter($assetNames, function ($assetName) use ($filterExpr) {
                 $assetName = ($assetName instanceof AbstractAsset) ? $assetName->getName() : $assetName;
+
                 return preg_match($filterExpr, $assetName);
             })
         );
@@ -326,13 +340,13 @@ abstract class AbstractSchemaManager
     /**
      * Drops the given table.
      *
-     * @param string $table The name of the table to drop.
+     * @param string $tableName The name of the table to drop.
      *
      * @return void
      */
-    public function dropTable($table)
+    public function dropTable($tableName)
     {
-        $this->_execSql($this->_platform->getDropTableSQL($table));
+        $this->_execSql($this->_platform->getDropTableSQL($tableName));
     }
 
     /**
@@ -652,6 +666,24 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Converts a list of namespace names from the native DBMS data definition to a portable Doctrine definition.
+     *
+     * @param array $namespaces The list of namespace names in the native DBMS data definition.
+     *
+     * @return array
+     */
+    protected function getPortableNamespacesList(array $namespaces)
+    {
+        $namespacesList = array();
+
+        foreach ($namespaces as $namespace) {
+            $namespacesList[] = $this->getPortableNamespaceDefinition($namespace);
+        }
+
+        return $namespacesList;
+    }
+
+    /**
      * @param array $database
      *
      * @return mixed
@@ -659,6 +691,18 @@ abstract class AbstractSchemaManager
     protected function _getPortableDatabaseDefinition($database)
     {
         return $database;
+    }
+
+    /**
+     * Converts a namespace definition from the native DBMS data definition to a portable Doctrine definition.
+     *
+     * @param array $namespace The native DBMS namespace definition.
+     *
+     * @return mixed
+     */
+    protected function getPortableNamespaceDefinition(array $namespace)
+    {
+        return $namespace;
     }
 
     /**
@@ -819,6 +863,7 @@ abstract class AbstractSchemaManager
                     'unique' => $tableIndex['non_unique'] ? false : true,
                     'primary' => $tableIndex['primary'],
                     'flags' => isset($tableIndex['flags']) ? $tableIndex['flags'] : array(),
+                    'options' => isset($tableIndex['where']) ? array('where' => $tableIndex['where']) : array(),
                 );
             } else {
                 $result[$keyName]['columns'][] = $tableIndex['column_name'];
@@ -841,7 +886,7 @@ abstract class AbstractSchemaManager
             }
 
             if ( ! $defaultPrevented) {
-                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags']);
+                $index = new Index($data['name'], $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['options']);
             }
 
             if ($index) {
@@ -908,6 +953,7 @@ abstract class AbstractSchemaManager
 
     /**
      * @param array $views
+     *
      * @return array
      */
     protected function _getPortableViewsList($views)
@@ -979,13 +1025,21 @@ abstract class AbstractSchemaManager
      */
     public function createSchema()
     {
+        $namespaces = array();
+
+        if ($this->_platform->supportsSchemas()) {
+            $namespaces = $this->listNamespaceNames();
+        }
+
         $sequences = array();
+
         if ($this->_platform->supportsSequences()) {
             $sequences = $this->listSequences();
         }
+
         $tables = $this->listTables();
 
-        return new Schema($tables, $sequences, $this->createSchemaConfig());
+        return new Schema($tables, $sequences, $this->createSchemaConfig(), $namespaces);
     }
 
     /**

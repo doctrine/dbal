@@ -2,11 +2,9 @@
 
 namespace Doctrine\Tests\DBAL;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
 {
-    public function setUp()
+    protected function setUp()
     {
         if (!extension_loaded('oci8')) {
             $this->markTestSkipped('oci8 is not installed.');

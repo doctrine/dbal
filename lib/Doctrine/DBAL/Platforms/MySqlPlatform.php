@@ -19,7 +19,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
@@ -49,6 +49,12 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * Adds MySQL-specific LIMIT clause to the query
      * 18446744073709551615 is 2^64-1 maximum of unsigned BIGINT the biggest limit possible
+     *
+     * @param string  $query
+     * @param integer $limit
+     * @param integer $offset
+     *
+     * @return string
      */
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
@@ -106,7 +112,18 @@ class MySqlPlatform extends AbstractPlatform
     public function getConcatExpression()
     {
         $args = func_get_args();
+
         return 'CONCAT(' . join(', ', (array) $args) . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    {
+        $function = '+' === $operator ? 'DATE_ADD' : 'DATE_SUB';
+
+        return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit . ')';
     }
 
     /**
@@ -115,54 +132,6 @@ class MySqlPlatform extends AbstractPlatform
     public function getDateDiffExpression($date1, $date2)
     {
         return 'DATEDIFF(' . $date1 . ', ' . $date2 . ')';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddHourExpression($date, $hours)
-    {
-        return 'DATE_ADD(' . $date . ', INTERVAL ' . $hours . ' HOUR)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubHourExpression($date, $hours)
-    {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $hours . ' HOUR)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddDaysExpression($date, $days)
-    {
-        return 'DATE_ADD(' . $date . ', INTERVAL ' . $days . ' DAY)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubDaysExpression($date, $days)
-    {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $days . ' DAY)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateAddMonthExpression($date, $months)
-    {
-        return 'DATE_ADD(' . $date . ', INTERVAL ' . $months . ' MONTH)';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDateSubMonthExpression($date, $months)
-    {
-        return 'DATE_SUB(' . $date . ', INTERVAL ' . $months . ' MONTH)';
     }
 
     /**
@@ -220,10 +189,9 @@ class MySqlPlatform extends AbstractPlatform
                "  c.constraint_name = k.constraint_name AND ".
                "  c.table_name = '$table' */ WHERE k.table_name = '$table'";
 
-        if ($database) {
-            $sql .= " AND k.table_schema = '$database' /*!50116 AND c.constraint_schema = '$database' */";
-        }
+        $databaseNameSql = null === $database ? "'$database'" : 'DATABASE()';
 
+        $sql .= " AND k.table_schema = $databaseNameSql /*!50116 AND c.constraint_schema = $databaseNameSql */";
         $sql .= " AND k.`REFERENCED_COLUMN_NAME` is not NULL";
 
         return $sql;
@@ -336,7 +304,7 @@ class MySqlPlatform extends AbstractPlatform
      *
      * @deprecated Deprecated since version 2.5, Use {@link self::getColumnCollationDeclarationSQL()} instead.
      *
-     * @param string $collation   name of the collation
+     * @param string $collation name of the collation
      *
      * @return string  DBMS specific SQL code portion needed to set the COLLATION
      *                 of a field declaration.
@@ -383,6 +351,9 @@ class MySqlPlatform extends AbstractPlatform
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getListTablesSQL()
     {
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
@@ -532,7 +503,7 @@ class MySqlPlatform extends AbstractPlatform
         if (isset($options['comment'])) {
             $comment = trim($options['comment'], " '");
 
-            $tableOptions[] = sprintf("COMMENT = '%s' ", str_replace("'", "''", $comment));
+            $tableOptions[] = sprintf("COMMENT = %s ", $this->quoteStringLiteral($comment));
         }
 
         // Row format
@@ -613,9 +584,10 @@ class MySqlPlatform extends AbstractPlatform
                 continue;
             }
 
+            $oldColumnName = new Identifier($oldColumnName);
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[] =  'CHANGE ' . $oldColumnName . ' '
+            $queryParts[] =  'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
@@ -630,7 +602,7 @@ class MySqlPlatform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . implode(", ", $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(", ", $queryParts);
             }
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
@@ -648,7 +620,7 @@ class MySqlPlatform extends AbstractPlatform
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         $sql = array();
-        $table = $diff->getName()->getQuotedName($this);
+        $table = $diff->getName($this)->getQuotedName($this);
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
             // Dropping primary keys requires to unset autoincrement attribute on the particular column first.
@@ -661,6 +633,9 @@ class MySqlPlatform extends AbstractPlatform
 
                         $sql[] = 'ALTER TABLE ' . $table . ' MODIFY ' .
                             $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+
+                        // original autoincrement information might be needed later on by other parts of the table alteration
+                        $column->setAutoincrement(true);
                     }
                 }
             }
@@ -703,7 +678,135 @@ class MySqlPlatform extends AbstractPlatform
             $diff->removedForeignKeys = array();
         }
 
-        $sql = array_merge($sql, parent::getPreAlterTableIndexForeignKeySQL($diff));
+        $sql = array_merge(
+            $sql,
+            $this->getPreAlterTableAlterIndexForeignKeySQL($diff),
+            parent::getPreAlterTableIndexForeignKeySQL($diff),
+            $this->getPreAlterTableRenameIndexForeignKeySQL($diff)
+        );
+
+        return $sql;
+    }
+
+    /**
+     * @param TableDiff $diff The table diff to gather the SQL for.
+     *
+     * @return array
+     */
+    private function getPreAlterTableAlterIndexForeignKeySQL(TableDiff $diff)
+    {
+        $sql = array();
+        $table = $diff->getName($this)->getQuotedName($this);
+
+        foreach ($diff->changedIndexes as $changedIndex) {
+            // Changed primary key
+            if ($changedIndex->isPrimary() && $diff->fromTable instanceof Table) {
+                foreach ($diff->fromTable->getPrimaryKeyColumns() as $columnName) {
+                    $column = $diff->fromTable->getColumn($columnName);
+
+                    // Check if an autoincrement column was dropped from the primary key.
+                    if ($column->getAutoincrement() && ! in_array($columnName, $changedIndex->getColumns())) {
+                        // The autoincrement attribute needs to be removed from the dropped column
+                        // before we can drop and recreate the primary key.
+                        $column->setAutoincrement(false);
+
+                        $sql[] = 'ALTER TABLE ' . $table . ' MODIFY ' .
+                            $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+
+                        // Restore the autoincrement attribute as it might be needed later on
+                        // by other parts of the table alteration.
+                        $column->setAutoincrement(true);
+                    }
+                }
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
+     * @param TableDiff $diff The table diff to gather the SQL for.
+     *
+     * @return array
+     */
+    protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    {
+        $sql = array();
+        $tableName = $diff->getName($this)->getQuotedName($this);
+
+        foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
+            if (! in_array($foreignKey, $diff->changedForeignKeys, true)) {
+                $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Returns the remaining foreign key constraints that require one of the renamed indexes.
+     *
+     * "Remaining" here refers to the diff between the foreign keys currently defined in the associated
+     * table and the foreign keys to be removed.
+     *
+     * @param TableDiff $diff The table diff to evaluate.
+     *
+     * @return array
+     */
+    private function getRemainingForeignKeyConstraintsRequiringRenamedIndexes(TableDiff $diff)
+    {
+        if (empty($diff->renamedIndexes) || ! $diff->fromTable instanceof Table) {
+            return array();
+        }
+
+        $foreignKeys = array();
+        /** @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[] $remainingForeignKeys */
+        $remainingForeignKeys = array_diff_key(
+            $diff->fromTable->getForeignKeys(),
+            $diff->removedForeignKeys
+        );
+
+        foreach ($remainingForeignKeys as $foreignKey) {
+            foreach ($diff->renamedIndexes as $index) {
+                if ($foreignKey->intersectsIndexColumns($index)) {
+                    $foreignKeys[] = $foreignKey;
+
+                    break;
+                }
+            }
+        }
+
+        return $foreignKeys;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
+    {
+        return array_merge(
+            parent::getPostAlterTableIndexForeignKeySQL($diff),
+            $this->getPostAlterTableRenameIndexForeignKeySQL($diff)
+        );
+    }
+
+    /**
+     * @param TableDiff $diff The table diff to gather the SQL for.
+     *
+     * @return array
+     */
+    protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
+    {
+        $sql = array();
+        $tableName = (false !== $diff->newName)
+            ? $diff->getNewName()->getQuotedName($this)
+            : $diff->getName($this)->getQuotedName($this);
+
+        foreach ($this->getRemainingForeignKeyConstraintsRequiringRenamedIndexes($diff) as $foreignKey) {
+            if (! in_array($foreignKey, $diff->changedForeignKeys, true)) {
+                $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
+            }
+        }
 
         return $sql;
     }
@@ -750,6 +853,34 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getFloatDeclarationSQL(array $field)
+    {
+        return 'DOUBLE PRECISION' . $this->getUnsignedDeclaration($field);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDecimalTypeDeclarationSQL(array $columnDef)
+    {
+        return parent::getDecimalTypeDeclarationSQL($columnDef) . $this->getUnsignedDeclaration($columnDef);
+    }
+
+    /**
+     * Get unsigned declaration for a column.
+     *
+     * @param array $columnDef
+     *
+     * @return string
+     */
+    private function getUnsignedDeclaration(array $columnDef)
+    {
+        return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
@@ -758,9 +889,8 @@ class MySqlPlatform extends AbstractPlatform
         if ( ! empty($columnDef['autoincrement'])) {
             $autoinc = ' AUTO_INCREMENT';
         }
-        $unsigned = (isset($columnDef['unsigned']) && $columnDef['unsigned']) ? ' UNSIGNED' : '';
 
-        return $unsigned . $autoinc;
+        return $this->getUnsignedDeclaration($columnDef) . $autoinc;
     }
 
     /**
@@ -773,6 +903,7 @@ class MySqlPlatform extends AbstractPlatform
             $query .= ' MATCH ' . $foreignKey->getOption('match');
         }
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
+
         return $query;
     }
 
@@ -912,7 +1043,7 @@ class MySqlPlatform extends AbstractPlatform
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
         } elseif (!is_string($table)) {
-            throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
+            throw new \InvalidArgumentException('getDropTemporaryTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
         return 'DROP TEMPORARY TABLE ' . $table;

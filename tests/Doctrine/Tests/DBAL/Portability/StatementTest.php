@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Portability;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
 
-require_once __DIR__ . '/../../TestInit.php';
-
 class StatementTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
@@ -27,7 +25,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp()
     {
         $this->wrappedStmt = $this->createWrappedStatement();
         $this->conn        = $this->createConnection();

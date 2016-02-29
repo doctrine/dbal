@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -88,7 +87,7 @@ and SQL Anywhere keywords are checked:
 If you want to check against specific dialects you can
 pass them to the command:
 
-    <info>%command.full_name% mysql pgsql</info>
+    <info>%command.full_name% -l mysql -l pgsql</info>
 
 The following keyword lists are currently shipped with Doctrine:
 
@@ -119,7 +118,7 @@ EOT
         /* @var $conn \Doctrine\DBAL\Connection */
         $conn = $this->getHelper('db')->getConnection();
 
-        $keywordLists = (array)$input->getOption('list');
+        $keywordLists = (array) $input->getOption('list');
         if ( ! $keywordLists) {
             $keywordLists = array(
                 'mysql',

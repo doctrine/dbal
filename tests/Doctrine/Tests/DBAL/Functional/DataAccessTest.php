@@ -2,18 +2,16 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Connection;
 use PDO;
-
-require_once __DIR__ . '/../../TestInit.php';
 
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     static private $generated = false;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -501,12 +499,22 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $p = $this->_conn->getDatabasePlatform();
         $sql = 'SELECT ';
         $sql .= $p->getDateDiffExpression('test_datetime', $p->getCurrentTimestampSQL()) .' AS diff, ';
+        $sql .= $p->getDateAddSecondsExpression('test_datetime', 1) .' AS add_seconds, ';
+        $sql .= $p->getDateSubSecondsExpression('test_datetime', 1) .' AS sub_seconds, ';
+        $sql .= $p->getDateAddMinutesExpression('test_datetime', 5) .' AS add_minutes, ';
+        $sql .= $p->getDateSubMinutesExpression('test_datetime', 5) .' AS sub_minutes, ';
         $sql .= $p->getDateAddHourExpression('test_datetime', 3) .' AS add_hour, ';
         $sql .= $p->getDateSubHourExpression('test_datetime', 3) .' AS sub_hour, ';
         $sql .= $p->getDateAddDaysExpression('test_datetime', 10) .' AS add_days, ';
         $sql .= $p->getDateSubDaysExpression('test_datetime', 10) .' AS sub_days, ';
+        $sql .= $p->getDateAddWeeksExpression('test_datetime', 1) .' AS add_weeks, ';
+        $sql .= $p->getDateSubWeeksExpression('test_datetime', 1) .' AS sub_weeks, ';
         $sql .= $p->getDateAddMonthExpression('test_datetime', 2) .' AS add_month, ';
-        $sql .= $p->getDateSubMonthExpression('test_datetime', 2) .' AS sub_month ';
+        $sql .= $p->getDateSubMonthExpression('test_datetime', 2) .' AS sub_month, ';
+        $sql .= $p->getDateAddQuartersExpression('test_datetime', 3) .' AS add_quarters, ';
+        $sql .= $p->getDateSubQuartersExpression('test_datetime', 3) .' AS sub_quarters, ';
+        $sql .= $p->getDateAddYearsExpression('test_datetime', 6) .' AS add_years, ';
+        $sql .= $p->getDateSubYearsExpression('test_datetime', 6) .' AS sub_years ';
         $sql .= 'FROM fetch_table';
 
         $row = $this->_conn->fetchAssoc($sql);
@@ -514,12 +522,22 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $diff = floor( (strtotime('2010-01-01')-time()) / 3600 / 24);
         $this->assertEquals($diff, (int)$row['diff'], "Date difference should be approx. ".$diff." days.", 1);
+        $this->assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])), "Adding second should end up on 2010-01-01 10:10:11");
+        $this->assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])), "Subtracting second should end up on 2010-01-01 10:10:09");
+        $this->assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])), "Adding minutes should end up on 2010-01-01 10:15:10");
+        $this->assertEquals('2010-01-01 10:05:10', date('Y-m-d H:i:s', strtotime($row['sub_minutes'])), "Subtracting minutes should end up on 2010-01-01 10:05:10");
         $this->assertEquals('2010-01-01 13:10', date('Y-m-d H:i', strtotime($row['add_hour'])), "Adding date should end up on 2010-01-01 13:10");
         $this->assertEquals('2010-01-01 07:10', date('Y-m-d H:i', strtotime($row['sub_hour'])), "Subtracting date should end up on 2010-01-01 07:10");
         $this->assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])), "Adding date should end up on 2010-01-11");
         $this->assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])), "Subtracting date should end up on 2009-12-22");
+        $this->assertEquals('2010-01-08', date('Y-m-d', strtotime($row['add_weeks'])), "Adding week should end up on 2010-01-08");
+        $this->assertEquals('2009-12-25', date('Y-m-d', strtotime($row['sub_weeks'])), "Subtracting week should end up on 2009-12-25");
         $this->assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");
-        $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Adding month should end up on 2009-11-01");
+        $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Subtracting month should end up on 2009-11-01");
+        $this->assertEquals('2010-10-01', date('Y-m-d', strtotime($row['add_quarters'])), "Adding quarters should end up on 2010-04-01");
+        $this->assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), "Subtracting quarters should end up on 2009-10-01");
+        $this->assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])), "Adding years should end up on 2016-01-01");
+        $this->assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), "Subtracting years should end up on 2004-01-01");
     }
 
     public function testLocateExpression()
@@ -619,6 +637,37 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $row = array_keys($stmt->fetch());
         $this->assertEquals(0, count( array_filter($row, function($v) { return ! is_numeric($v); })), "should be no non-numerical elements in the result.");
+    }
+
+    /**
+     * @group DBAL-1091
+     */
+    public function testFetchAllStyleObject()
+    {
+        $this->setupFixture();
+
+        $sql = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
+        $stmt = $this->_conn->prepare($sql);
+
+        $stmt->execute();
+
+        $results = $stmt->fetchAll(\PDO::FETCH_OBJ);
+
+        $this->assertCount(1, $results);
+        $this->assertInstanceOf('stdClass', $results[0]);
+
+        $this->assertEquals(
+            1,
+            property_exists($results[0], 'test_int') ? $results[0]->test_int : $results[0]->TEST_INT
+        );
+        $this->assertEquals(
+            'foo',
+            property_exists($results[0], 'test_string') ? $results[0]->test_string : $results[0]->TEST_STRING
+        );
+        $this->assertStringStartsWith(
+            '2010-01-01 10:10:10',
+            property_exists($results[0], 'test_datetime') ? $results[0]->test_datetime : $results[0]->TEST_DATETIME
+        );
     }
 
     /**
@@ -745,6 +794,47 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $rows = $stmt->fetchAll();
 
         $this->assertEquals(array(), $rows);
+    }
+
+    /**
+     * @group DBAL-1028
+     */
+    public function testFetchColumnNullValue()
+    {
+        $this->_conn->executeUpdate(
+            'INSERT INTO fetch_table (test_int, test_string) VALUES (?, ?)',
+            array(1, 'foo')
+        );
+
+        $this->assertNull(
+            $this->_conn->fetchColumn('SELECT test_datetime FROM fetch_table WHERE test_int = ?', array(1))
+        );
+    }
+
+    /**
+     * @group DBAL-1028
+     */
+    public function testFetchColumnNonExistingIndex()
+    {
+        if ($this->_conn->getDriver()->getName() === 'pdo_sqlsrv') {
+            $this->markTestSkipped(
+                'Test does not work for pdo_sqlsrv driver as it throws a fatal error for a non-existing column index.'
+            );
+        }
+
+        $this->assertNull(
+            $this->_conn->fetchColumn('SELECT test_int FROM fetch_table WHERE test_int = ?', array(1), 1)
+        );
+    }
+
+    /**
+     * @group DBAL-1028
+     */
+    public function testFetchColumnNoResult()
+    {
+        $this->assertFalse(
+            $this->_conn->fetchColumn('SELECT test_int FROM fetch_table WHERE test_int = ?', array(-1))
+        );
     }
 
     private function setupFixture()

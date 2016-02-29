@@ -38,6 +38,20 @@ class SchemaDiff
     public $fromSchema;
 
     /**
+     * All added namespaces.
+     *
+     * @var string[]
+     */
+    public $newNamespaces = array();
+
+    /**
+     * All removed namespaces.
+     *
+     * @var string[]
+     */
+    public $removedNamespaces = array();
+
+    /**
      * All added tables.
      *
      * @var \Doctrine\DBAL\Schema\Table[]
@@ -132,9 +146,15 @@ class SchemaDiff
     {
         $sql = array();
 
+        if ($platform->supportsSchemas()) {
+            foreach ($this->newNamespaces as $newNamespace) {
+                $sql[] = $platform->getCreateSchemaSQL($newNamespace);
+            }
+        }
+
         if ($platform->supportsForeignKeyConstraints() && $saveMode == false) {
             foreach ($this->orphanedForeignKeys as $orphanedForeignKey) {
-                $sql[] = $platform->getDropForeignKeySQL($orphanedForeignKey, $orphanedForeignKey->getLocalTableName());
+                $sql[] = $platform->getDropForeignKeySQL($orphanedForeignKey, $orphanedForeignKey->getLocalTable());
             }
         }
 

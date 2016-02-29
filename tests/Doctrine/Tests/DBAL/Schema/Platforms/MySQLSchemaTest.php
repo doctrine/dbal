@@ -2,12 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Schema\Platforms;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Types\Type;
 
 class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,7 +16,7 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
      */
     private $platform;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->comparator = new \Doctrine\DBAL\Schema\Comparator;
         $this->platform = new \Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -58,7 +53,7 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
         $tableOld->addUnnamedForeignKeyConstraint('test_foreign', array('foo_id'), array('foo_id'));
 
         $sqls = array();
-        foreach ($tableOld->getForeignKeys() AS $fk) {
+        foreach ($tableOld->getForeignKeys() as $fk) {
             $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld);
         }
 

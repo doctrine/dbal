@@ -74,7 +74,7 @@ example is also a threat to DQL queries.
     // DQL is not safe against arbitrary user-input as well:
     $dql = "SELECT u FROM User u WHERE u.username = '" . $_GET['username'] . "'";
 
-In this scenario an attacker could still pass a username set to "' OR 1 = 1" and create a valid DQL query.
+In this scenario an attacker could still pass a username set to ``' OR 1 = 1`` and create a valid DQL query.
 Although DQL will make use of quoting functions when literals are used in a DQL statement, allowing
 the attacker to modify the DQL statement with valid literals cannot be detected by the DQL parser, it
 is your responsibility.
@@ -155,20 +155,3 @@ the ``Connection#quote`` method:
 
 This method is only available for SQL, not for DQL. For DQL it is always encouraged to use prepared
 statements not only for security, but also for caching reasons.
-
-Non-ASCII compatible Charsets in MySQL
---------------------------------------
-
-Up until PHP 5.3.6 PDO has a security problem when using non ascii compatible charsets. Even if specifying
-the charset using "SET NAMES", emulated prepared statements and ``PDO#quote`` could not reliably escape
-values, opening up to potential SQL injections. If you are running PHP 5.3.6 you can solve this issue
-by passing the driver option "charset" to Doctrine PDO MySQL driver. Using SET NAMES does not suffice!
-
-.. code-block::
-
-    <?php    
-    $conn = DriverManager::getConnection(array(
-        'driver' => 'pdo_mysql',
-        'charset' => 'UTF8',
-    ));
-

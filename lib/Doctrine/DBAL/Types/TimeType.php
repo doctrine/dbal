@@ -49,8 +49,15 @@ class TimeType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        return ($value !== null)
-            ? $value->format($platform->getTimeFormatString()) : null;
+        if (null === $value) {
+            return $value;
+        }
+
+        if ($value instanceof \DateTime) {
+            return $value->format($platform->getTimeFormatString());
+        }
+
+        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
@@ -62,7 +69,7 @@ class TimeType extends Type
             return $value;
         }
 
-        $val = \DateTime::createFromFormat($platform->getTimeFormatString(), $value);
+        $val = \DateTime::createFromFormat('!' . $platform->getTimeFormatString(), $value);
         if ( ! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getTimeFormatString());
         }

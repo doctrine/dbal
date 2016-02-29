@@ -2,17 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
-require_once __DIR__ . '/../../TestInit.php';
-
-use Doctrine\DBAL\Schema\Schema,
-    Doctrine\DBAL\Schema\Table,
-    Doctrine\DBAL\Schema\Column,
-    Doctrine\DBAL\Schema\Index,
-    Doctrine\DBAL\Schema\Sequence,
-    Doctrine\DBAL\Schema\SchemaDiff,
-    Doctrine\DBAL\Schema\TableDiff,
-    Doctrine\DBAL\Schema\Comparator,
-    Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\SchemaDiff;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 
 class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,7 +16,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
         $sql = $diff->toSql($platform);
 
-        $expected = array('drop_orphan_fk', 'alter_seq', 'drop_seq', 'create_seq', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table');
+        $expected = array('create_schema', 'drop_orphan_fk', 'alter_seq', 'drop_seq', 'create_seq', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table');
 
         $this->assertEquals($expected, $sql);
     }
@@ -35,7 +28,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
         $sql = $diff->toSaveSql($platform);
 
-        $expected = array('alter_seq', 'create_seq', 'create_table', 'create_foreign_key', 'alter_table');
+        $expected = array('create_schema', 'alter_seq', 'create_seq', 'create_table', 'create_foreign_key', 'alter_table');
 
         $this->assertEquals($expected, $sql);
     }
@@ -43,6 +36,10 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
     public function createPlatform($unsafe = false)
     {
         $platform = $this->getMock('Doctrine\Tests\DBAL\Mocks\MockPlatform');
+        $platform->expects($this->exactly(1))
+            ->method('getCreateSchemaSQL')
+            ->with('foo_ns')
+            ->will($this->returnValue('create_schema'));
         if ($unsafe) {
             $platform->expects($this->exactly(1))
                  ->method('getDropSequenceSql')
@@ -78,9 +75,15 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
         if ($unsafe) {
             $platform->expects($this->exactly(1))
                      ->method('getDropForeignKeySql')
-                     ->with($this->isInstanceof('Doctrine\DBAL\Schema\ForeignKeyConstraint'), $this->equalTo('local_table'))
+                     ->with(
+                         $this->isInstanceof('Doctrine\DBAL\Schema\ForeignKeyConstraint'),
+                         $this->isInstanceOf('Doctrine\DBAL\Schema\Table')
+                     )
                      ->will($this->returnValue('drop_orphan_fk'));
         }
+        $platform->expects($this->exactly(1))
+                ->method('supportsSchemas')
+                ->will($this->returnValue(true));
         $platform->expects($this->exactly(1))
                 ->method('supportsSequences')
                 ->will($this->returnValue(true));
@@ -93,6 +96,8 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
     public function createSchemaDiff()
     {
         $diff = new SchemaDiff();
+        $diff->newNamespaces['foo_ns'] = 'foo_ns';
+        $diff->removedNamespaces['bar_ns'] = 'bar_ns';
         $diff->changedSequences['foo_seq'] = new Sequence('foo_seq');
         $diff->newSequences['bar_seq'] = new Sequence('bar_seq');
         $diff->removedSequences['baz_seq'] = new Sequence('baz_seq');

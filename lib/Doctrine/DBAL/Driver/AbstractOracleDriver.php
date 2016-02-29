@@ -67,6 +67,8 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
             case '1400':
                 return new Exception\NotNullConstraintViolationException($message, $exception);
 
+            case '2266':
+            case '2291':
             case '2292':
                 return new Exception\ForeignKeyConstraintViolationException($message, $exception);
         }
@@ -107,10 +109,14 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
      *
      * @return string
      *
-     * @link http://download.oracle.com/docs/cd/E11882_01/network.112/e10836/naming.htm
+     * @link https://docs.oracle.com/database/121/NETAG/naming.htm
      */
     protected function getEasyConnectString(array $params)
     {
+        if ( ! empty($params['connectstring'])) {
+            return $params['connectstring'];
+        }
+
         if ( ! empty($params['host'])) {
             if ( ! isset($params['port'])) {
                 $params['port'] = 1521;
@@ -129,7 +135,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
             if (isset($params['service']) && $params['service'] == true) {
                 $service = 'SERVICE_NAME=' . $serviceName;
             }
-            
+
             if (isset($params['instancename']) && ! empty($params['instancename'])) {
                 $instance = '(INSTANCE_NAME = ' . $params['instancename'] . ')';
             }

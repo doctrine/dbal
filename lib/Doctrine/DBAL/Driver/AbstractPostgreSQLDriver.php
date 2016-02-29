@@ -24,6 +24,7 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -45,6 +46,17 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     public function convertException($message, DriverException $exception)
     {
         switch ($exception->getSQLState()) {
+            case '40001':
+            case '40P01':
+                return new Exception\DeadlockException($message, $exception);
+            case '0A000':
+                // Foreign key constraint violations during a TRUNCATE operation
+                // are considered "feature not supported" in PostgreSQL.
+                if (strpos($exception->getMessage(), 'truncate') !== false) {
+                    return new Exception\ForeignKeyConstraintViolationException($message, $exception);
+                }
+
+                break;
             case '23502':
                 return new Exception\NotNullConstraintViolationException($message, $exception);
 
@@ -76,6 +88,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
                 if (strpos($exception->getMessage(), 'SQLSTATE[08006]') !== false) {
                     return new Exception\ConnectionException($message, $exception);
                 }
+
                 break;
         }
 
@@ -100,6 +113,8 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
 
         switch(true) {
+            case version_compare($version, '9.4', '>='):
+                return new PostgreSQL94Platform();
             case version_compare($version, '9.2', '>='):
                 return new PostgreSQL92Platform();
             case version_compare($version, '9.1', '>='):

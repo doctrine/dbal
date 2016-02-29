@@ -50,12 +50,12 @@ class DropSchemaSqlCollector extends AbstractVisitor
     private $tables;
 
     /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var AbstractPlatform
      */
     private $platform;
 
     /**
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     * @param AbstractPlatform $platform
      */
     public function __construct(AbstractPlatform $platform)
     {
@@ -80,8 +80,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
             throw SchemaException::namedForeignKeyRequired($localTable, $fkConstraint);
         }
 
-        $this->constraints->attach($fkConstraint);
-        $this->constraints[$fkConstraint] = $localTable;
+        $this->constraints->attach($fkConstraint, $localTable);
     }
 
     /**

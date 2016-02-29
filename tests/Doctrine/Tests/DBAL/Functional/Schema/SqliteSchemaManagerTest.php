@@ -3,8 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
-
-require_once __DIR__ . '/../../../TestInit.php';
+use Doctrine\DBAL\Types\Type;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -26,6 +25,32 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals(true, file_exists($path));
         $this->_sm->dropDatabase($path);
         $this->assertEquals(false, file_exists($path));
+    }
+
+    /**
+     * @group DBAL-1220
+     */
+    public function testDropsDatabaseWithActiveConnections()
+    {
+        $this->_sm->dropAndCreateDatabase('test_drop_database');
+
+        $this->assertFileExists('test_drop_database');
+
+        $params = $this->_conn->getParams();
+        $params['dbname'] = 'test_drop_database';
+
+        $user = isset($params['user']) ? $params['user'] : null;
+        $password = isset($params['password']) ? $params['password'] : null;
+
+        $connection = $this->_conn->getDriver()->connect($params, $user, $password);
+
+        $this->assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
+
+        $this->_sm->dropDatabase('test_drop_database');
+
+        $this->assertFileNotExists('test_drop_database');
+
+        unset($connection);
     }
 
     public function testRenameTable()
@@ -130,5 +155,73 @@ EOS
 
         $this->assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
         $this->assertEquals(array('other_id', 'id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+    }
+
+    /**
+     * @group DBAL-1779
+     */
+    public function testListTableColumnsWithWhitespacesInTypeDeclarations()
+    {
+        $sql = <<<SQL
+CREATE TABLE dbal_1779 (
+    foo VARCHAR (64) ,
+    bar TEXT (100)
+)
+SQL;
+
+        $this->_conn->executeQuery($sql);
+
+        $columns = $this->_sm->listTableColumns('dbal_1779');
+
+        $this->assertCount(2, $columns);
+
+        $this->assertArrayHasKey('foo', $columns);
+        $this->assertArrayHasKey('bar', $columns);
+
+        $this->assertSame(Type::getType(Type::STRING), $columns['foo']->getType());
+        $this->assertSame(Type::getType(Type::TEXT), $columns['bar']->getType());
+
+        $this->assertSame(64, $columns['foo']->getLength());
+        $this->assertSame(100, $columns['bar']->getLength());
+    }
+
+    /**
+     * @dataProvider getDiffListIntegerAutoincrementTableColumnsData
+     * @group DBAL-924
+     */
+    public function testDiffListIntegerAutoincrementTableColumns($integerType, $unsigned, $expectedComparatorDiff)
+    {
+        $tableName = 'test_int_autoincrement_table';
+
+        $offlineTable = new \Doctrine\DBAL\Schema\Table($tableName);
+        $offlineTable->addColumn('id', $integerType, array('autoincrement' => true, 'unsigned' => $unsigned));
+        $offlineTable->setPrimaryKey(array('id'));
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails($tableName);
+        $comparator = new Schema\Comparator();
+        $diff = $comparator->diffTable($offlineTable, $onlineTable);
+
+        if ($expectedComparatorDiff) {
+            $this->assertEmpty($this->_sm->getDatabasePlatform()->getAlterTableSQL($diff));
+        } else {
+            $this->assertFalse($diff);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getDiffListIntegerAutoincrementTableColumnsData()
+    {
+        return array(
+            array('smallint', false, true),
+            array('smallint', true, true),
+            array('integer', false, false),
+            array('integer', true, true),
+            array('bigint', false, true),
+            array('bigint', true, true),
+        );
     }
 }

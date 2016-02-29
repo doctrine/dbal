@@ -11,7 +11,7 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     private $generator;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

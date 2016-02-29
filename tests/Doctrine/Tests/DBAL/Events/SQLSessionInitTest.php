@@ -2,12 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Events;
 
-use Doctrine\Tests\DbalTestCase;
-use Doctrine\DBAL\Event\Listeners\SQLSessionInit;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
+use Doctrine\DBAL\Event\Listeners\SQLSessionInit;
 use Doctrine\DBAL\Events;
-
-require_once __DIR__ . '/../../TestInit.php';
+use Doctrine\Tests\DbalTestCase;
 
 /**
  * @group DBAL-169

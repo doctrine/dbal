@@ -2,17 +2,11 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Connection;
-use PDO;
-
-require_once __DIR__ . '/../../TestInit.php';
-
 class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     private static $tableCreated = false;
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
@@ -109,7 +103,7 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->insert('modify_limit_table', array('test_int' => 3));
         $this->_conn->insert('modify_limit_table', array('test_int' => 4));
 
-        $sql = "SELECT *, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table";
+        $sql = "SELECT modify_limit_table.*, (SELECT COUNT(*) FROM modify_limit_table) AS cnt FROM modify_limit_table";
 
         $this->assertLimitResult(array(4, 3, 2, 1), $sql, 10, 0, false);
         $this->assertLimitResult(array(4, 3), $sql, 2, 0, false);
@@ -120,7 +114,7 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $p = $this->_conn->getDatabasePlatform();
         $data = array();
-        foreach ($this->_conn->fetchAll($p->modifyLimitQuery($sql, $limit, $offset)) AS $row) {
+        foreach ($this->_conn->fetchAll($p->modifyLimitQuery($sql, $limit, $offset)) as $row) {
             $row = array_change_key_case($row, CASE_LOWER);
             $data[] = $row['test_int'];
         }

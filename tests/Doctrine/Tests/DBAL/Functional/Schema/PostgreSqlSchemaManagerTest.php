@@ -2,15 +2,14 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-
-require_once __DIR__ . '/../../../TestInit.php';
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    public function tearDown()
+    protected function tearDown()
     {
         parent::tearDown();
 
@@ -300,6 +299,96 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_binary')->getType());
         $this->assertFalse($table->getColumn('column_binary')->getFixed());
+    }
+
+    public function testListQuotedTable()
+    {
+        $offlineTable = new Schema\Table('user');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('username', 'string', array('unique' => true));
+        $offlineTable->addColumn('fk', 'integer');
+        $offlineTable->setPrimaryKey(array('id'));
+        $offlineTable->addForeignKeyConstraint($offlineTable, array('fk'), array('id'));
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails('"user"');
+
+        $comparator = new Schema\Comparator();
+
+        $this->assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+    }
+
+    public function testListTablesExcludesViews()
+    {
+        $this->createTestTable('list_tables_excludes_views');
+
+        $name = "list_tables_excludes_views_test_view";
+        $sql = "SELECT * from list_tables_excludes_views";
+
+        $view = new Schema\View($name, $sql);
+
+        $this->_sm->dropAndCreateView($view);
+
+        $tables = $this->_sm->listTables();
+
+        $foundTable = false;
+        foreach ($tables as $table) {
+            $this->assertInstanceOf('Doctrine\DBAL\Schema\Table', $table, 'No Table instance was found in tables array.');
+            if (strtolower($table->getName()) == 'list_tables_excludes_views_test_view') {
+                $foundTable = true;
+            }
+        }
+
+        $this->assertFalse($foundTable, 'View "list_tables_excludes_views_test_view" must not be found in table list');
+    }
+
+    /**
+     * @group DBAL-1033
+     */
+    public function testPartialIndexes()
+    {
+        $offlineTable = new Schema\Table('person');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('name', 'string');
+        $offlineTable->addColumn('email', 'string');
+        $offlineTable->addUniqueIndex(array('id', 'name'), 'simple_partial_index', array('where' => '(id IS NULL)'));
+        $offlineTable->addIndex(array('id', 'name'), 'complex_partial_index', array(), array('where' => '(((id IS NOT NULL) AND (name IS NULL)) AND (email IS NULL))'));
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails('person');
+
+        $comparator = new Schema\Comparator();
+
+        $this->assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        $this->assertTrue($onlineTable->hasIndex('simple_partial_index'));
+        $this->assertTrue($onlineTable->hasIndex('complex_partial_index'));
+        $this->assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
+        $this->assertTrue($onlineTable->getIndex('complex_partial_index')->hasOption('where'));
+        $this->assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
+        $this->assertSame(
+            '(((id IS NOT NULL) AND (name IS NULL)) AND (email IS NULL))',
+            $onlineTable->getIndex('complex_partial_index')->getOption('where')
+        );
+    }
+
+    public function testJsonbColumn()
+    {
+        if (!$this->_sm->getDatabasePlatform() instanceof PostgreSQL94Platform) {
+            $this->markTestSkipped("Requires PostgresSQL 9.4+");
+            return;
+        }
+
+        $table = new Schema\Table('test_jsonb');
+        $table->addColumn('foo', 'json_array')->setPlatformOption('jsonb', true);
+        $this->_sm->dropAndCreateTable($table);
+
+        /** @var Schema\Column[] $columns */
+        $columns = $this->_sm->listTableColumns('test_jsonb');
+
+        $this->assertEquals('json_array', $columns['foo']->getType()->getName());
+        $this->assertEquals(true, $columns['foo']->getPlatformOption('jsonb'));
     }
 }
 

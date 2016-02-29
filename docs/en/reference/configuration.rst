@@ -21,12 +21,102 @@ You can get a DBAL Connection through the
     );
     $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
 
+Or, using the simpler URL form:
+
+.. code-block:: php
+
+    <?php
+    $config = new \Doctrine\DBAL\Configuration();
+    //..
+    $connectionParams = array(
+        'url' => 'mysql://user:secret@localhost/mydb',
+    );
+    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+
 The ``DriverManager`` returns an instance of
 ``Doctrine\DBAL\Connection`` which is a wrapper around the
 underlying driver connection (which is often a PDO instance).
 
 The following sections describe the available connection parameters
 in detail.
+
+Connecting using a URL
+~~~~~~~~~~~~~~~~~~~~~~
+
+The easiest way to specify commonly used connection parameters is
+using a database URL. The scheme is used to specify a driver, the
+user and password in the URL encode user and password for the
+connection, followed by the host and port parts (the "authority").
+The path after the authority part represents the name of the
+database, sans the leading slash. Any query parameters are used as
+additional connection parameters.
+
+The scheme names representing the drivers are either the regular
+driver names (see below) with any underscores in their name replaced
+with a hyphen (to make them legal in URL scheme names), or one of the
+following simplified driver names that serve as aliases:
+
+-  ``db2``: alias for ``ibm_db2``
+-  ``mssql``: alias for ``pdo_sqlsrv``
+-  ``mysql``/``mysql2``: alias for ``pdo_mysql``
+-  ``pgsql``/``postgres``/``postgresql``: alias for ``pdo_pgsql``
+-  ``sqlite``/``sqlite3``: alias for ``pdo_sqlite``
+
+For example, to connect to a "foo" MySQL DB using the ``pdo_mysql``
+driver on localhost port 4486 with the charset set to UTF-8, you
+would use the following URL::
+
+    mysql://localhost:4486/foo?charset=UTF-8
+
+This is identical to the following connection string using the
+full driver name::
+
+    pdo-mysql://localhost:4486/foo?charset=UTF-8
+
+If you wanted to use the ``drizzle_pdo__mysql`` driver instead::
+
+    drizzle-pdo-mysql://localhost:4486/foo?charset=UTF-8
+
+In the two last example above, mind the dashes instead of the
+underscores in the URL schemes.
+
+For connecting to an SQLite database, the authority portion of the
+URL is obviously irrelevant and thus can be omitted. The path part
+of the URL is, like for all other drivers, stripped of its leading
+slash, resulting in a relative file name for the database::
+
+    sqlite:///somedb.sqlite
+
+This would access ``somedb.sqlite`` in the current working directory
+and is identical to the following::
+
+    sqlite://ignored:ignored@ignored:1234/somedb.sqlite
+
+To specify an absolute file path, e.g. ``/usr/local/var/db.sqlite``,
+simply use that as the database name, which results in two leading
+slashes for the path part of the URL, and four slashes in total after
+the URL scheme name and its following colon::
+
+    sqlite:////usr/local/var/db.sqlite
+
+Which is, again, identical to supplying ignored user/pass/authority::
+
+    sqlite://notused:inthis@case//usr/local/var/db.sqlite
+
+To connect to an in-memory SQLite instance, use ``:memory:`` as the
+database name::
+
+    sqlite:///:memory:
+
+.. note::
+
+    Any information extracted from the URL overwrites existing values
+    for the parameter in question, but the rest of the information
+    is merged together. You could, for example, have a URL without
+    the ``charset`` setting in the query string, and then add a
+    ``charset`` connection parameter next to ``url``, to provide a
+    default value in case the URL doesn't contain a charset value.
+
 
 Driver
 ~~~~~~
@@ -160,10 +250,19 @@ pdo\_pgsql
 -  ``dbname`` (string): Name of the database/schema to connect to.
 -  ``charset`` (string): The charset used when connecting to the
    database.
+-  ``default_dbname`` (string): Override the default database (postgres)
+   to connect to.
 -  ``sslmode`` (string): Determines whether or with what priority
    a SSL TCP/IP connection will be negotiated with the server.
    See the list of available modes:
    `http://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLMODE`
+-  ``sslrootcert`` (string): specifies the name of a file containing
+   SSL certificate authority (CA) certificate(s). If the file exists,
+   the server's certificate will be verified to be signed by one of these
+   authorities.
+   See http://www.postgresql.org/docs/9.0/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
+-  ``application_name`` (string): Name of the application that is
+   connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
 
 PostgreSQL behaves differently with regard to booleans when you use
 ``PDO::ATTR_EMULATE_PREPARES`` or not. To switch from using ``'true'``
@@ -195,8 +294,12 @@ pdo\_oci / oci8
    database.
 -  ``instancename`` (string): Optional parameter, complete whether to
    add the INSTANCE_NAME parameter in the connection. It is generally used
-   to connect to an Oracle RAC server to select the name of a particular instance.   
-
+   to connect to an Oracle RAC server to select the name of a particular instance.
+-  ``connectstring`` (string): Complete Easy Connect connection descriptor,
+   see https://docs.oracle.com/database/121/NETAG/naming.htm. When using this option,
+   you will still need to provide the ``user`` and ``password`` parameters, but the other
+   parameters will no longer be used. Note that when using this parameter, the ``getHost``
+   and ``getPort`` methods from ``Doctrine\DBAL\Connection`` will no longer function as expected.
 
 pdo\_sqlsrv / sqlsrv
 ^^^^^^^^^^^^^^^^^^^^

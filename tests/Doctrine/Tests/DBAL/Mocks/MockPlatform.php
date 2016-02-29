@@ -2,9 +2,10 @@
 
 namespace Doctrine\Tests\DBAL\Mocks;
 
-use Doctrine\DBAL\Platforms;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
-class MockPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
+class MockPlatform extends AbstractPlatform
 {
     /**
      * Gets the SQL Snippet used to declare a BLOB column type.

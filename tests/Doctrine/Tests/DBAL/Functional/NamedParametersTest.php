@@ -3,10 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Connection;
-use\PDO;
-
-require_once __DIR__ . '/../../TestInit.php';
-
+use PDO;
 
 /**
  * @group DDC-1372
@@ -104,7 +101,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
         );
     }
 
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 

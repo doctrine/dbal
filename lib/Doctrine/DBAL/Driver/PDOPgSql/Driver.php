@@ -23,6 +23,7 @@ use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\DBALException;
 use PDOException;
+use PDO;
 
 /**
  * Driver that connects through pdo_pgsql.
@@ -37,12 +38,30 @@ class Driver extends AbstractPostgreSQLDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
         try {
-            return new PDOConnection(
+            $pdo = new PDOConnection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,
                 $driverOptions
             );
+
+            if (defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')
+                && (! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
+                    || true === $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES]
+                )
+            ) {
+                $pdo->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
+            }
+
+            /* defining client_encoding via SET NAMES to avoid inconsistent DSN support
+             * - the 'client_encoding' connection param only works with postgres >= 9.1
+             * - passing client_encoding via the 'options' param breaks pgbouncer support
+             */
+            if (isset($params['charset'])) {
+              $pdo->query('SET NAMES \''.$params['charset'].'\'');
+            }
+
+            return $pdo;
         } catch (PDOException $e) {
             throw DBALException::driverException($this, $e);
         }
@@ -69,14 +88,25 @@ class Driver extends AbstractPostgreSQLDriver
 
         if (isset($params['dbname'])) {
             $dsn .= 'dbname=' . $params['dbname'] . ' ';
-        }
-
-        if (isset($params['charset'])) {
-            $dsn .= "options='--client_encoding=" . $params['charset'] . "'";
+        } elseif (isset($params['default_dbname'])) {
+            $dsn .= 'dbname=' . $params['default_dbname'] . ' ';
+        } else {
+            // Used for temporary connections to allow operations like dropping the database currently connected to.
+            // Connecting without an explicit database does not work, therefore "postgres" database is used
+            // as it is mostly present in every server setup.
+            $dsn .= 'dbname=postgres' . ' ';
         }
 
         if (isset($params['sslmode'])) {
             $dsn .= 'sslmode=' . $params['sslmode'] . ' ';
+        }
+
+        if (isset($params['sslrootcert'])) {
+            $dsn .= 'sslrootcert=' . $params['sslrootcert'] . ' ';
+        }
+
+        if (isset($params['application_name'])) {
+            $dsn .= 'application_name=' . $params['application_name'] . ' ';
         }
 
         return $dsn;

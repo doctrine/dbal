@@ -243,11 +243,19 @@ class OCI8Statement implements \IteratorAggregate, Statement
     public function fetch($fetchMode = null)
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
-        if ( ! isset(self::$fetchModeMap[$fetchMode])) {
+
+        if (PDO::FETCH_OBJ == $fetchMode) {
+            return oci_fetch_object($this->_sth);
+        }
+
+        if (! isset(self::$fetchModeMap[$fetchMode])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
         }
 
-        return oci_fetch_array($this->_sth, self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
+        return oci_fetch_array(
+            $this->_sth,
+            self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | OCI_RETURN_LOBS
+        );
     }
 
     /**
@@ -256,11 +264,21 @@ class OCI8Statement implements \IteratorAggregate, Statement
     public function fetchAll($fetchMode = null)
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+
+        $result = array();
+
+        if (PDO::FETCH_OBJ == $fetchMode) {
+            while ($row = $this->fetch($fetchMode)) {
+                $result[] = $row;
+            }
+
+            return $result;
+        }
+
         if ( ! isset(self::$fetchModeMap[$fetchMode])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
         }
 
-        $result = array();
         if (self::$fetchModeMap[$fetchMode] === OCI_BOTH) {
             while ($row = $this->fetch($fetchMode)) {
                 $result[] = $row;
@@ -272,7 +290,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
             }
 
             oci_fetch_all($this->_sth, $result, 0, -1,
-                    self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
+                self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
 
             if ($fetchMode == PDO::FETCH_COLUMN) {
                 $result = $result[0];
@@ -289,7 +307,11 @@ class OCI8Statement implements \IteratorAggregate, Statement
     {
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
 
-        return isset($row[$columnIndex]) ? $row[$columnIndex] : false;
+        if (false === $row) {
+            return false;
+        }
+
+        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
     }
 
     /**
