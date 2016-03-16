@@ -22,6 +22,7 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Types\Type;
 
 class DBALException extends \Exception
 {
@@ -234,13 +235,24 @@ class DBALException extends \Exception
      */
     public static function unknownColumnType($name)
     {
-        return new self('Unknown column type "'.$name.'" requested. Any Doctrine type that you use has ' .
-            'to be registered with \Doctrine\DBAL\Types\Type::addType(). You can get a list of all the ' .
-            'known types with \Doctrine\DBAL\Types\Type::getTypesMap(). If this error occurs during database ' .
-            'introspection then you might have forgot to register all database types for a Doctrine Type. Use ' .
-            'AbstractPlatform#registerDoctrineTypeMapping() or have your custom types implement ' .
-            'Type#getMappedDatabaseTypes(). If the type name is empty you might ' .
-            'have a problem with the cache or forgot some mapping information.'
+        $bestGuess = '';
+        $bestScore = 5;
+
+        foreach (array_keys(Type::getTypesMap()) as $typeName) {
+            $score = levenshtein($typeName, $name, 5, 2, 1);
+            if ($score < $bestScore) {
+                $bestScore = $score;
+                $bestGuess = 'Did you mean "'.$typeName.'"? ';
+            }
+        }
+        
+        return new self('Unknown column type "'.$name.'" requested. '. $bestGuess . PHP_EOL .
+            'Any Doctrine type that you use has to be registered with \Doctrine\DBAL\Types\Type::addType(). ' .
+            'You can get a list of all the known types with \Doctrine\DBAL\Types\Type::getTypesMap(). ' .
+            'If this error occurs during database introspection then you might have forgot to register all ' .
+            'database types for a Doctrine Type. Use AbstractPlatform#registerDoctrineTypeMapping() ' .
+            'or have your custom types implement Type#getMappedDatabaseTypes(). If the type name is empty ' .
+            'you might  have a problem with the cache or forgot some mapping information.'
         );
     }
 
