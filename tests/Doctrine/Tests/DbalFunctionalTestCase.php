@@ -59,7 +59,7 @@ class DbalFunctionalTestCase extends DbalTestCase
                         return var_export($p, true);
                     }
                 }, $query['params'] ?: array());
-                $queries .= ($i+1).". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
+                $queries .= $i.". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
                 $i--;
             }
 
