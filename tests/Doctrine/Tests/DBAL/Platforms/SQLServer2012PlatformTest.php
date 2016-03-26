@@ -363,4 +363,12 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
         $this->assertEquals($expectedSql, $sql);
     }
+
+    public function testModifyLimitQueryWithNoWhiteSpaceBeforeOrderBy()
+    {
+        $querySql = 'SELECT DISTINCT TOP 25 test1, MIN(sclr_31) AS dctrn_minrownum FROM (SELECT t0_.test1 AS col0, t0_.test2, ROW_NUMBER() OVER(ORDER BY t0_.test2 DESC) AS sclr_31 FROM _table t0_) dctrn_result GROUP BY col0 ORDER BY dctrn_minrownum ASC';
+        $expectedSql = 'SELECT DISTINCT TOP 25 test1, MIN(sclr_31) AS dctrn_minrownum FROM (SELECT t0_.test1 AS col0, t0_.test2, ROW_NUMBER() OVER(ORDER BY t0_.test2 DESC) AS sclr_31 FROM _table t0_) dctrn_result GROUP BY col0 ORDER BY dctrn_minrownum ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $this->assertEquals($expectedSql, $sql);
+    }
 }
