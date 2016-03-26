@@ -1222,7 +1222,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function scrubInnerOrderBy($query)
     {
-        $count = substr_count(strtoupper($query), "ORDER BY");
+        $count = substr_count(strtoupper($query), " ORDER BY");
         $offset = 0;
 
         while ($count-- > 0) {
