@@ -22,6 +22,13 @@ class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals(2, count($expr));
     }
 
+    public function testToString()
+    {
+        $expr = new CompositeExpression(CompositeExpression::TYPE_AND, array('u.username = "foo"', 'u.name = "bar"'));
+
+        static::assertEquals('(u.username = "foo") AND (u.name = "bar")', (string) $expr);
+    }
+
     /**
      * @dataProvider provideDataForConvertToString
      */
