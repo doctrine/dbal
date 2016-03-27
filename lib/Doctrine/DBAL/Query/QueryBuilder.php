@@ -903,7 +903,7 @@ class QueryBuilder
         }
 
         return $this->add('having', $having);
-    }
+     }
 
     /**
      * Specifies an ordering for the query results.
