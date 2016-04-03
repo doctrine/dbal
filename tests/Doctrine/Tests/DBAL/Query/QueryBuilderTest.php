@@ -882,4 +882,79 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->getSQL();
     }
+
+    public function testNormalizedParamNames()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->setParameter('foo', 'foo');
+        $this->assertSame('foo', $qb->getParameter('foo'));
+        $this->assertSame('foo', $qb->getParameter(':foo'));
+
+        $qb->setParameter(':bar', 2, \PDO::PARAM_INT);
+        $this->assertSame(2, $qb->getParameter('bar'));
+        $this->assertSame(2, $qb->getParameter(':bar'));
+
+        $expected = [
+            'foo' => 'foo',
+            'bar' => 2,
+        ];
+        $this->assertSame($expected, $qb->getParameters());
+
+        $this->assertSame(['bar' => \PDO::PARAM_INT], $qb->getParameterTypes());
+
+        $params = [
+            ':foo' => 42,
+            'bar' => 'bar',
+        ];
+        $types = [
+            ':foo' => \PDO::PARAM_INT,
+        ];
+        $qb->setParameters($params, $types);
+
+        $expected = [
+            'foo' => 42,
+            'bar' => 'bar',
+        ];
+        $this->assertSame($expected, $qb->getParameters());
+
+        $expected = [
+            'foo' => \PDO::PARAM_INT,
+        ];
+        $this->assertSame($expected, $qb->getParameterTypes());
+    }
+
+    public function testAcceptsPositionsAsStrings()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->setParameter('1', 'foo');
+
+        $this->assertSame('foo', $qb->getParameter('1'));
+        $this->assertSame('foo', $qb->getParameter(1));
+    }
+
+    public function testDoesNotNormalizeNamesToPositions()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->setExpectedException(
+            'Doctrine\DBAL\Query\QueryException',
+            "The given name '1' is invalid."
+        );
+
+        $qb->setParameter(':1', 'one');
+    }
+
+    public function testRejectsInvalidParameterNames()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $this->setExpectedException(
+            'Doctrine\DBAL\Query\QueryException',
+            "The given name 'a b' is invalid."
+        );
+
+        $qb->setParameter('a b', 'a b');
+    }
 }

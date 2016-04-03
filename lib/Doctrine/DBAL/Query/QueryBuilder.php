@@ -267,9 +267,13 @@ class QueryBuilder
      * @param string|null    $type  One of the PDO::PARAM_* constants.
      *
      * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     *
+     * @throws QueryException
      */
     public function setParameter($key, $value, $type = null)
     {
+        $key = $this->normalizeKey($key);
+
         if ($type !== null) {
             $this->paramTypes[$key] = $type;
         }
@@ -297,11 +301,20 @@ class QueryBuilder
      * @param array $types  The query parameters types to set.
      *
      * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     *
+     * @throws QueryException
      */
     public function setParameters(array $params, array $types = array())
     {
-        $this->paramTypes = $types;
-        $this->params = $params;
+        $this->params = array_combine(
+            array_map([$this, 'normalizeKey'], array_keys($params)),
+            array_values($params)
+        );
+
+        $this->paramTypes = array_combine(
+            array_map([$this, 'normalizeKey'], array_keys($types)),
+            array_values($types)
+        );
 
         return $this;
     }
@@ -322,9 +335,13 @@ class QueryBuilder
      * @param mixed $key The key (index or name) of the bound parameter.
      *
      * @return mixed The value of the bound parameter.
+     *
+     * @throws QueryException
      */
     public function getParameter($key)
     {
+        $key = $this->normalizeKey($key);
+
         return isset($this->params[$key]) ? $this->params[$key] : null;
     }
 
@@ -347,6 +364,8 @@ class QueryBuilder
      */
     public function getParameterType($key)
     {
+        $key = $this->normalizeKey($key);
+
         return isset($this->paramTypes[$key]) ? $this->paramTypes[$key] : null;
     }
 
@@ -1326,6 +1345,36 @@ class QueryBuilder
         }
 
         return $sql;
+    }
+
+    /**
+     * @param string|int $key
+     *
+     * @return string|int
+     *
+     * @throws QueryException
+     */
+    private function normalizeKey($key)
+    {
+        if (is_int($key)) {
+            return $key;
+        }
+
+        // int as string
+        if (($key === (string) (int) $key) && $key >= 0) {
+            return (int)$key;
+        }
+
+        // must be considered a param name
+        if (substr($key, 0, 1) === ':') {
+            $key = substr($key, 1);
+        }
+
+        if (!preg_match('~^[a-zA-Z_][a-zA-Z0-9_]*\\z~', $key)) {
+            throw QueryException::invalidParamName($key);
+        }
+
+        return $key;
     }
 
     /**

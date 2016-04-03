@@ -51,4 +51,14 @@ class QueryException extends DBALException
             "in FROM and JOIN clause table. The currently registered " .
             "aliases are: " . implode(", ", $registeredAliases) . ".");
     }
+
+    /**
+     * @param string $name
+     *
+     * @return self
+     */
+    static public function invalidParamName($name)
+    {
+        return new self("The given name '" . $name . "' is invalid.");
+    }
 }

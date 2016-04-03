@@ -1,3 +1,15 @@
+## MINOR BC BREAK: Doctrine\DBAL\Query\QueryBuilder
+
+When using ``Doctrine\DBAL\Query\QueryBuilder``, the names of parameters are no longer stored
+with leading colons (``:``), hence the methods ``getParameters()`` and ``getParameterTypes()``
+always return array keys without colons. For back compatibility, parameter names can still be
+given, and accessed individually, with or without a leading colon.
+
+Parameter names are now limited to ``[a-zA-Z0-9_]`` and may not being with a digit. Invalid names
+now throw ``Doctrine\DBAL\Query\QueryException``.
+
+Positional parameters (with integer keys) are not affected.
+
 # Upgrade to 2.5.1
 
 ## MINOR BC BREAK: Doctrine\DBAL\Schema\Table

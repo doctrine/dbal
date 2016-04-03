@@ -355,3 +355,30 @@ in your query as a return value:
         ->where('email = ' .  $queryBuilder->createPositionalParameter($userInputEmail))
     ;
     // SELECT id, name FROM users WHERE email = ?
+
+Parameter Names
+---------------
+
+Parameter names may contain the characters ``[a-zA-Z0-9_]``, but may not
+begin with a digit.
+
+The associated placeholders must begin with ``:``, however the parameter
+names do not contain the colon and methods like ``setParameter()`` and
+``setParameters()`` automatically remove it.
+
+.. code-block:: php
+
+    <?php
+
+    $queryBuilder
+        ->select('id', 'name')
+        ->from('users')
+        ->where('email = :email')
+        ->setParameter('email', $userInputEmail)
+    ;
+
+    $queryBuilder->getParameter('email'); // 'user@example.com'
+
+    $queryBuilder->getParameter(':email'); // 'user@example.com'
+
+    $queryBuilder->getParameters(); // array('email' => 'user@example.com')
