@@ -98,7 +98,7 @@ class SQLParserUtils
         foreach ($types as $name => $type) {
             ++$bindIndex;
 
-            if ($type !== Connection::PARAM_INT_ARRAY && $type !== Connection::PARAM_STR_ARRAY) {
+            if ($type !== Connection::PARAM_INT_ARRAY && $type !== Connection::PARAM_STR_ARRAY && !(isset($params[$name]) && is_array($params[$name])) ) {
                 continue;
             }
 
@@ -139,7 +139,7 @@ class SQLParserUtils
                 $types = array_merge(
                     array_slice($types, 0, $needle),
                     $count ?
-                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) : // array needles are at PDO::PARAM_* + 100
+                        array_fill(0, $count, is_int($types[$needle]) ? $types[$needle] - Connection::ARRAY_PARAM_OFFSET : $types[$needle]) : // array needles are at PDO::PARAM_* + 100
                         array(),
                     array_slice($types, $needle + 1)
                 );
@@ -177,7 +177,7 @@ class SQLParserUtils
 
             foreach ($value as $val) {
                 $paramsOrd[] = $val;
-                $typesOrd[]  = static::extractParam($paramName, $types, false) - Connection::ARRAY_PARAM_OFFSET;
+                $typesOrd[]  = is_int(static::extractParam($paramName, $types, false)) ? static::extractParam($paramName, $types, false) - Connection::ARRAY_PARAM_OFFSET : static::extractParam($paramName, $types, false);
             }
 
             $pos         += $queryOffset;
