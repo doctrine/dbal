@@ -21,12 +21,18 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('test_int', 'integer');
             $table->addColumn('test_string', 'string');
             $table->addColumn('test_datetime', 'datetime', array('notnull' => false));
+            $table->addColumn('test_date', 'date', array('notnull' => false));
+            $table->addColumn('test_time', 'time', array('notnull' => false));
             $table->setPrimaryKey(array('test_int'));
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
 
-            $this->_conn->insert('fetch_table', array('test_int' => 1, 'test_string' => 'foo', 'test_datetime' => '2010-01-01 10:10:10'));
+            $this->_conn->insert(
+                'fetch_table',
+                array('test_int' => 1, 'test_string' => 'foo', 'test_datetime' => new \DateTime('2010-01-01 10:10:10'), 'test_date' => \DateTime::createFromFormat('!Y-m-d', '2010-01-01'), 'test_time' => \DateTime::createFromFormat('!H:i:s', '10:10:10')),
+                array('test_int' => PDO::PARAM_INT, 'test_string' => PDO::PARAM_STR, 'test_datetime' => Type::DATETIME, 'test_date' => Type::DATE, 'test_time' => Type::TIME)
+            );
             self::$generated = true;
         }
     }
@@ -185,24 +191,102 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('foo', $row['test_string']);
     }
 
+    protected function getDateTimeValuesByDateTime(\DateTime $datetime)
+    {
+        $datetimeString = $this->_conn->getDatabasePlatform()->convertDateTimeToDatabaseValue($datetime);
+
+        $date = \DateTime::createFromFormat('!Y-m-d', $datetime->format('Y-m-d'));
+        $dateString = $this->_conn->getDatabasePlatform()->convertDateToDatabaseValue($date);
+
+        $time = \DateTime::createFromFormat('!H:i:s', $datetime->format('H:i:s'));
+        $timeString = $this->_conn->getDatabasePlatform()->convertTimeToDatabaseValue($time);
+
+        return array(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        );
+    }
+
+    /**
+     * @dataProvider getDateData
+     */
+    public function testDateConversion($i, $datetime)
+    {
+        list(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        ) = $this->getDateTimeValuesByDateTime(new \DateTime($datetime));
+
+        $sql = 'INSERT INTO fetch_table (test_int, test_string, test_datetime, test_date, test_time) VALUES (?, ?, ?, ?, ?)';
+        $affectedRows = $this->_conn->executeUpdate($sql,
+            array(1 => 90 + $i,         2 => 'foo',             3 => $datetime,       4 => $date,      5 => $time),
+            array(1 => PDO::PARAM_INT,  2 => PDO::PARAM_STR,    3 => Type::DATETIME,  4 => Type::DATE, 5 => Type::TIME)
+        );
+
+        $sql = "SELECT test_int, test_datetime, test_date, test_time FROM fetch_table WHERE test_int = ? AND test_datetime = ? AND test_date = ? AND test_time = ?";
+        $data = $this->_conn->fetchAll($sql, array(90 + $i, $datetime, $date, $time), array(PDO::PARAM_INT, Type::DATETIME, Type::DATE, Type::TIME));
+
+        $this->assertEquals(1, count($data));
+
+        $row = $data[0];
+        $this->assertEquals(4, count($row));
+
+        $row = array_change_key_case($row, \CASE_LOWER);
+        $this->assertEquals(90 + $i, $row['test_int']);
+        $this->assertStringStartsWith($datetimeString, $row['test_datetime']);
+        $this->assertStringStartsWith($dateString, $row['test_date']);
+        $this->assertStringStartsWith($timeString, $row['test_time']);
+    }
+
+    public function getDateData()
+    {
+        return array(
+            array(0, '2010-01-01 09:09:09'),
+            array(1, '2010-01-01 00:00:00'),
+            array(2, '2010-01-01 23:32:15'),
+            array(3, '2010-12-01 22:00:00'),
+            array(4, '2010-12-31 22:00:00'),
+            array(5, '1900-01-01 22:00:00'),
+            array(6, '1900-06-21 22:00:00'),
+            array(7, '2016-02-29 22:00:00') // leapyear
+        );
+    }
+
     /**
      * @group DBAL-209
      */
     public function testFetchAllWithTypes()
     {
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $data = $this->_conn->fetchAll($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
+        list(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        ) = $this->getDateTimeValuesByDateTime(new \DateTime('2010-01-01 10:10:10'));
+
+        $sql = "SELECT test_int, test_datetime, test_date, test_time FROM fetch_table WHERE test_int = ? AND test_datetime = ? AND test_date = ? AND test_time = ?";
+        $data = $this->_conn->fetchAll($sql, array(1, $datetime, $date, $time), array(PDO::PARAM_INT, Type::DATETIME, Type::DATE, Type::TIME));
 
         $this->assertEquals(1, count($data));
 
         $row = $data[0];
-        $this->assertEquals(2, count($row));
+        $this->assertEquals(4, count($row));
 
         $row = array_change_key_case($row, \CASE_LOWER);
         $this->assertEquals(1, $row['test_int']);
         $this->assertStringStartsWith($datetimeString, $row['test_datetime']);
+        $this->assertStringStartsWith($dateString, $row['test_date']);
+        $this->assertStringStartsWith($timeString, $row['test_time']);
     }
 
     /**
@@ -216,10 +300,18 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $data = $this->_conn->fetchAll($sql, array(1, $datetime));
+        list(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        ) = $this->getDateTimeValuesByDateTime(new \DateTime('2010-01-01 10:10:10'));
+
+
+        $sql = "SELECT test_int, test_datetime, test_date, test_time FROM fetch_table WHERE test_int = ? AND test_datetime = ? AND test_date = ? AND test_time = ?";
+        $data = $this->_conn->fetchAll($sql, array(1, $datetime, $dateString, $timeString));
     }
 
     public function testFetchBoth()
@@ -252,10 +344,18 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testFetchAssocWithTypes()
     {
-        $datetimeString = '2010-01-01 10:10:10';
+        list(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        ) = $this->getDateTimeValuesByDateTime(new \DateTime('2010-01-01 10:10:10'));
+
         $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchAssoc($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
+        $sql = "SELECT test_int, test_datetime, test_date, test_time FROM fetch_table WHERE test_int = ? AND test_datetime = ? AND test_date = ? AND test_time = ?";
+        $row = $this->_conn->fetchAssoc($sql, array(1, $datetime, $date, $time), array(PDO::PARAM_INT, Type::DATETIME, Type::DATE, Type::TIME));
 
         $this->assertTrue($row !== false);
 
@@ -263,6 +363,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(1, $row['test_int']);
         $this->assertStringStartsWith($datetimeString, $row['test_datetime']);
+        $this->assertStringStartsWith($dateString, $row['test_date']);
+        $this->assertStringStartsWith($timeString, $row['test_time']);
     }
 
     /**
@@ -275,10 +377,17 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchAssoc($sql, array(1, $datetime));
+        list(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        ) = $this->getDateTimeValuesByDateTime(new \DateTime('2010-01-01 10:10:10'));
+
+        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ? AND test_date = ? AND test_time = ?";
+        $row = $this->_conn->fetchAssoc($sql, array(1, $datetime, $dateString, $timeString));
     }
 
     public function testFetchArray()
@@ -292,10 +401,17 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testFetchArrayWithTypes()
     {
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchArray($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
+        list(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        ) = $this->getDateTimeValuesByDateTime(new \DateTime('2010-01-01 10:10:10'));
+
+        $sql = "SELECT test_int, test_datetime, test_date, test_time FROM fetch_table WHERE test_int = ? AND test_datetime = ? AND test_date = ? AND test_time = ?";
+        $row = $this->_conn->fetchArray($sql, array(1, $datetime, $date, $time), array(PDO::PARAM_INT, Type::DATETIME, Type::DATE, Type::TIME));
 
         $this->assertTrue($row !== false);
 
@@ -303,6 +419,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(1, $row[0]);
         $this->assertStringStartsWith($datetimeString, $row[1]);
+        $this->assertStringStartsWith($dateString, $row[2]);
+        $this->assertStringStartsWith($timeString, $row[3]);
     }
 
     /**
@@ -315,10 +433,17 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchArray($sql, array(1, $datetime));
+        list(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        ) = $this->getDateTimeValuesByDateTime(new \DateTime('2010-01-01 10:10:10'));
+
+        $sql = "SELECT test_int, test_datetime, test_date, test_time FROM fetch_table WHERE test_int = ? AND test_datetime = ? AND test_date = ? AND test_time = ?";
+        $row = $this->_conn->fetchArray($sql, array(1, $datetime, $dateString, $timeString));
     }
 
     public function testFetchColumn()
@@ -334,32 +459,91 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('foo', $testString);
     }
 
-    public function testFetchColumnWithTypes()
+    public function testFetchDateTimeColumnWithTypes()
     {
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
+        $datetime = new \DateTime('2010-01-01 10:10:10');
+        $datetimeString = $this->_conn->getDatabasePlatform()->convertDateTimeToDatabaseValue($datetime);
+
         $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $column = $this->_conn->fetchColumn($sql, array(1, $datetime), 1, array(PDO::PARAM_STR, Type::DATETIME));
+        $column = $this->_conn->fetchColumn($sql, array(1, $datetime), 1, array(PDO::PARAM_INT, Type::DATETIME));
 
         $this->assertTrue($column !== false);
 
         $this->assertStringStartsWith($datetimeString, $column);
     }
 
+    public function testFetchDateColumnWithTypes()
+    {
+        $date = \DateTime::createFromFormat('!Y-m-d', '2010-01-01');
+        $dateString = $this->_conn->getDatabasePlatform()->convertDateToDatabaseValue($date);
+
+        $sql = "SELECT test_int, test_date FROM fetch_table WHERE test_int = ? AND test_date = ?";
+        $column = $this->_conn->fetchColumn($sql, array(1, $date), 1, array(PDO::PARAM_INT, Type::DATE));
+
+        $this->assertTrue($column !== false);
+
+        $this->assertStringStartsWith($dateString, $column);
+    }
+
+    public function testFetchTimeColumnWithTypes()
+    {
+        $time = \DateTime::createFromFormat('!H:i:s', '10:10:10');
+        $timeString = $this->_conn->getDatabasePlatform()->convertTimeToDatabaseValue($time);
+
+        $sql = "SELECT test_int, test_time FROM fetch_table WHERE test_int = ? AND test_time = ?";
+        $column = $this->_conn->fetchColumn($sql, array(1, $time), 1, array(PDO::PARAM_INT, Type::TIME));
+
+        $this->assertTrue($column !== false);
+
+        $this->assertStringStartsWith($timeString, $column);
+    }
+
     /**
      * @expectedException \Doctrine\DBAL\DBALException
      */
-    public function testFetchColumnWithMissingTypes()
+    public function testFetchDateTimeColumnWithMissingTypes()
     {
         if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver ||
             $this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLSrv\Driver) {
             $this->markTestSkipped('mysqli and sqlsrv actually supports this');
         }
 
-        $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
+        $datetime = new \DateTime('2010-01-01 10:10:10');
+
         $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
         $column = $this->_conn->fetchColumn($sql, array(1, $datetime), 1);
+    }
+
+    /**
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testFetchDateColumnWithMissingTypes()
+    {
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver ||
+            $this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLSrv\Driver) {
+            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+        }
+
+        $date = \DateTime::createFromFormat('!Y-m-d', '2010-01-01');
+
+        $sql = "SELECT test_int, test_date FROM fetch_table WHERE test_int = ? AND test_date = ?";
+        $column = $this->_conn->fetchColumn($sql, array(1, $date), 1);
+    }
+
+    /**
+     * @expectedException \Doctrine\DBAL\DBALException
+     */
+    public function testFetchTimeColumnWithMissingTypes()
+    {
+        if ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver ||
+            $this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\SQLSrv\Driver) {
+            $this->markTestSkipped('mysqli and sqlsrv actually supports this');
+        }
+
+        $time = \DateTime::createFromFormat('!H:i:s', '10:10:10');
+
+        $sql = "SELECT test_int, test_time FROM fetch_table WHERE test_int = ? AND test_time = ?";
+        $column = $this->_conn->fetchColumn($sql, array(1, $time), 1);
     }
 
     /**
@@ -381,12 +565,19 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testExecuteUpdateBindDateTimeType()
     {
-        $datetime = new \DateTime('2010-02-02 20:20:20');
+        list(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        ) = $this->getDateTimeValuesByDateTime(new \DateTime('2010-02-02 20:20:20'));
 
-        $sql = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
+        $sql = 'INSERT INTO fetch_table (test_int, test_string, test_datetime, test_date, test_time) VALUES (?, ?, ?, ?, ?)';
         $affectedRows = $this->_conn->executeUpdate($sql,
-            array(1 => 50,              2 => 'foo',             3 => $datetime),
-            array(1 => PDO::PARAM_INT,  2 => PDO::PARAM_STR,    3 => Type::DATETIME)
+            array(1 => 50,              2 => 'foo',             3 => $datetime,       4 => $date,      5 => $time),
+            array(1 => PDO::PARAM_INT,  2 => PDO::PARAM_STR,    3 => Type::DATETIME,  4 => Type::DATE, 5 => Type::TIME)
         );
 
         $this->assertEquals(1, $affectedRows);
@@ -415,8 +606,21 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testNativeArrayListSupport()
     {
+        list(
+            $datetime,
+            $datetimeString,
+            $date,
+            $dateString,
+            $time,
+            $timeString
+        ) = $this->getDateTimeValuesByDateTime(new \DateTime('2010-02-02 20:20:20'));
+
         for ($i = 100; $i < 110; $i++) {
-            $this->_conn->insert('fetch_table', array('test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10'));
+            $this->_conn->insert(
+                'fetch_table',
+                array('test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => $datetime, 'test_date' => $date, 'test_time' => $time),
+                array('test_int' => PDO::PARAM_INT, 'test_string' => PDO::PARAM_STR, 'test_datetime' => Type::DATETIME, 'test_date' => Type::DATE, 'test_time' => Type::TIME)
+            );
         }
 
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int IN (?)',
@@ -595,7 +799,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->insert('fetch_table', array(
                 'test_int'      => $i,
                 'test_string'   => json_encode($bitmap[$i]),
-                'test_datetime' => '2010-01-01 10:10:10'
+                'test_datetime' => new \DateTime('2010-01-01 10:10:10'),
+                'test_date'     => \DateTime::createFromFormat('!Y-m-d', '2010-01-01'),
+                'test_time'     => \DateTime::createFromFormat('!H:i:s', '10:10:10')
+            ), array(
+                'test_int'      => PDO::PARAM_INT,
+                'test_string'   => PDO::PARAM_STR,
+                'test_datetime' => Type::DATETIME,
+                'test_date'     => Type::DATE,
+                'test_time'     => Type::TIME
             ));
         }
 
@@ -664,8 +876,12 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             'foo',
             property_exists($results[0], 'test_string') ? $results[0]->test_string : $results[0]->TEST_STRING
         );
+
+        $datetime = new \DateTime('2010-01-01 10:10:10');
+        $datetimeString = $this->_conn->getDatabasePlatform()->convertDateTimeToDatabaseValue($datetime);
+
         $this->assertStringStartsWith(
-            '2010-01-01 10:10:10',
+            $datetimeString,
             property_exists($results[0], 'test_datetime') ? $results[0]->test_datetime : $results[0]->TEST_DATETIME
         );
     }
@@ -678,7 +894,16 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->skipOci8AndMysqli();
         $this->setupFixture();
 
-        $sql    = "SELECT test_int, test_string, test_datetime FROM fetch_table";
+        $datetime = new \DateTime('2010-01-01 10:10:10');
+        $datetimeString = $this->_conn->getDatabasePlatform()->convertDateTimeToDatabaseValue($datetime);
+
+        $date = \DateTime::createFromFormat('!Y-m-d', $datetime->format('Y-m-d'));
+        $dateString = $this->_conn->getDatabasePlatform()->convertDateToDatabaseValue($date);
+
+        $time = \DateTime::createFromFormat('!H:i:s', $datetime->format('H:i:s'));
+        $timeString = $this->_conn->getDatabasePlatform()->convertTimeToDatabaseValue($time);
+
+        $sql    = "SELECT test_int, test_string, test_datetime, test_date, test_time FROM fetch_table";
         $stmt   = $this->_conn->prepare($sql);
         $stmt->execute();
 
@@ -692,7 +917,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(1, $results[0]->test_int);
         $this->assertEquals('foo', $results[0]->test_string);
-        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
+        $this->assertStringStartsWith($datetimeString, $results[0]->test_datetime);
+        $this->assertStringStartsWith($dateString, $results[0]->test_date);
+        $this->assertStringStartsWith($timeString, $results[0]->test_time);
     }
 
     /**
@@ -720,6 +947,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->skipOci8AndMysqli();
         $this->setupFixture();
 
+        $datetime = new \DateTime('2010-01-01 10:10:10');
+        $datetimeString = $this->_conn->getDatabasePlatform()->convertDateTimeToDatabaseValue($datetime);
+
+        $date = \DateTime::createFromFormat('!Y-m-d', $datetime->format('Y-m-d'));
+        $dateString = $this->_conn->getDatabasePlatform()->convertDateToDatabaseValue($date);
+
+        $time = \DateTime::createFromFormat('!H:i:s', $datetime->format('H:i:s'));
+        $timeString = $this->_conn->getDatabasePlatform()->convertTimeToDatabaseValue($time);
+
         $sql = "SELECT * FROM fetch_table";
         $stmt = $this->_conn->query($sql);
         $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass');
@@ -731,7 +967,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(1, $results[0]->test_int);
         $this->assertEquals('foo', $results[0]->test_string);
-        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
+        $this->assertStringStartsWith($datetimeString, $results[0]->test_datetime);
+        $this->assertStringStartsWith($dateString, $results[0]->test_date);
+        $this->assertStringStartsWith($timeString, $results[0]->getTime());
     }
 
     /**
@@ -741,6 +979,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->skipOci8AndMysqli();
         $this->setupFixture();
+
+        $datetime = new \DateTime('2010-01-01 10:10:10');
+        $datetimeString = $this->_conn->getDatabasePlatform()->convertDateTimeToDatabaseValue($datetime);
+
+        $date = \DateTime::createFromFormat('!Y-m-d', $datetime->format('Y-m-d'));
+        $dateString = $this->_conn->getDatabasePlatform()->convertDateToDatabaseValue($date);
+
+        $time = \DateTime::createFromFormat('!H:i:s', $datetime->format('H:i:s'));
+        $timeString = $this->_conn->getDatabasePlatform()->convertTimeToDatabaseValue($time);
 
         $sql = "SELECT * FROM fetch_table";
         $stmt = $this->_conn->query($sql);
@@ -756,7 +1003,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(1, $results[0]->test_int);
         $this->assertEquals('foo', $results[0]->test_string);
-        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
+        $this->assertStringStartsWith($datetimeString, $results[0]->test_datetime);
+        $this->assertStringStartsWith($dateString, $results[0]->test_date);
+        $this->assertStringStartsWith($timeString, $results[0]->getTime());
     }
 
     /**
@@ -839,11 +1088,23 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     private function setupFixture()
     {
+        $datetime = new \DateTime('2010-01-01 10:10:10');
+        $date = \DateTime::createFromFormat('!Y-m-d', $datetime->format('Y-m-d'));
+        $time = \DateTime::createFromFormat('!H:i:s', $datetime->format('H:i:s'));
+
         $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
         $this->_conn->insert('fetch_table', array(
             'test_int'      => 1,
             'test_string'   => 'foo',
-            'test_datetime' => '2010-01-01 10:10:10'
+            'test_datetime' => $datetime,
+            'test_date'     => $date,
+            'test_time'     => $time
+        ), array(
+            'test_int'      => PDO::PARAM_INT,
+            'test_string'   => PDO::PARAM_STR,
+            'test_datetime' => Type::DATETIME,
+            'test_date'     => Type::DATE,
+            'test_time'     => Type::TIME
         ));
     }
 
@@ -860,5 +1121,5 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
 class MyFetchClass
 {
-    public $test_int, $test_string, $test_datetime;
+    public $test_int, $test_string, $test_datetime, $test_date, $test_time;
 }

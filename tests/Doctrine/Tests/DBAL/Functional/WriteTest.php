@@ -198,7 +198,11 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
 
-        $this->assertEquals($testString->format($this->_conn->getDatabasePlatform()->getDateTimeFormatString()), $data);
+        $typeInstance = Type::getType('datetime');
+        $value = $typeInstance->convertToPHPValue($data, $this->_conn->getDatabasePlatform());
+        $testValue = $typeInstance->convertToPHPValue($testString, $this->_conn->getDatabasePlatform());
+
+        $this->assertEquals($value, $testValue);
     }
 
     /**
@@ -225,7 +229,11 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
 
-        $this->assertEquals($testString->format($this->_conn->getDatabasePlatform()->getDateTimeFormatString()), $data);
+        $typeInstance = Type::getType('datetime');
+        $value = $typeInstance->convertToPHPValue($data, $this->_conn->getDatabasePlatform());
+        $testValue = $typeInstance->convertToPHPValue($testString, $this->_conn->getDatabasePlatform());
+
+        $this->assertEquals($value, $testValue);
     }
 
     /**
