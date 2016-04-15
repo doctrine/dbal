@@ -1359,6 +1359,181 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
+     * @return array
+     */
+    public function getDateTimeData()
+    {
+        return array(
+            array('2016-04-12T01:32:00+0200'),
+            array('2016-04-12T01:32:00+0000'),
+            array('2011-04-12T01:32:00+0000'),
+            array('2011-04-12T1:32:00+0000'),
+            array('2011-04-12T16:00:00+0000'),
+            array('2017-04-12T00:00:00+0000')
+        );
+    }
+
+    /**
+     * @dataProvider getDateTimeData
+     */
+    public function testDateConvertsToPHPValue($dateTime)
+    {
+        $date = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTime);
+
+        $expectedDateString = $date->format(
+            $this->_platform->getDateFormatString()
+        );
+
+        $date = $this->_platform->convertFromDate(
+            $expectedDateString
+        );
+
+        $this->assertEquals(
+            $expectedDateString,
+            $date->format($this->_platform->getDateFormatString())
+        );
+    }
+
+    /**
+     * @dataProvider getDateTimeData
+     */
+    public function testDateConvertsToDatabaseValue($dateTime)
+    {
+        $date = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTime);
+
+        $dateString = $date->format(
+            $this->_platform->getDateFormatString()
+        );
+
+        $databaseDate = $this->_platform->convertDateToDatabaseValue($date);
+
+        $this->assertEquals(
+            $dateString,
+            $databaseDate
+        );
+    }
+
+    /**
+     * @dataProvider getDateTimeData
+     */
+    public function testDateTimeConvertsToPHPValue($dateTime)
+    {
+        $date = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTime);
+
+        $expectedDateTimeString = $date->format(
+            $this->_platform->getDateTimeFormatString()
+        );
+
+        $date = $this->_platform->convertFromDateTime(
+            $expectedDateTimeString
+        );
+
+        $this->assertEquals(
+            $expectedDateTimeString,
+            $date->format($this->_platform->getDateTimeFormatString())
+        );
+    }
+
+    /**
+     * @dataProvider getDateTimeData
+     */
+    public function testDateTimeConvertsToDatabaseValue($dateTime)
+    {
+        $date = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTime);
+
+        $dateString = $date->format(
+            $this->_platform->getDateTimeFormatString()
+        );
+
+        $databaseDate = $this->_platform->convertDateTimeToDatabaseValue($date);
+
+        $this->assertEquals(
+            $dateString,
+            $databaseDate
+        );
+    }
+
+    /**
+     * @dataProvider getDateTimeData
+     */
+    public function testDateTimeTzConvertsToPHPValue($dateTime)
+    {
+        $date = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTime);
+
+        $expectedDateTimeString = $date->format(
+            $this->_platform->getDateTimeTzFormatString()
+        );
+
+        $date = $this->_platform->convertFromDateTimeTz(
+            $expectedDateTimeString
+        );
+
+        $this->assertEquals(
+            $expectedDateTimeString,
+            $date->format($this->_platform->getDateTimeTzFormatString())
+        );
+    }
+
+    /**
+     * @dataProvider getDateTimeData
+     */
+    public function testDateTimeTzConvertsToDatabaseValue($dateTime)
+    {
+        $date = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTime);
+
+        $dateString = $date->format(
+            $this->_platform->getDateTimeTzFormatString()
+        );
+
+        $databaseDate = $this->_platform->convertDateTimeTzToDatabaseValue($date);
+
+        $this->assertEquals(
+            $dateString,
+            $databaseDate
+        );
+    }
+
+    /**
+     * @dataProvider getDateTimeData
+     */
+    public function testTimeConvertsToPHPValue($dateTime)
+    {
+        $date = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTime);
+
+        $expectedTimeString = $date->format(
+            $this->_platform->getTimeFormatString()
+        );
+
+        $date = $this->_platform->convertFromTime(
+            $expectedTimeString
+        );
+
+        $this->assertEquals(
+            $expectedTimeString,
+            $date->format($this->_platform->getTimeFormatString())
+        );
+    }
+
+    /**
+     * @dataProvider getDateTimeData
+     */
+    public function testTimeConvertsToDatabaseValue($dateTime)
+    {
+        $date = \DateTime::createFromFormat(\DateTime::ISO8601, $dateTime);
+
+        $dateString = $date->format(
+            $this->_platform->getTimeFormatString()
+        );
+
+        $databaseDate = $this->_platform->convertTimeToDatabaseValue($date);
+
+        $this->assertEquals(
+            $dateString,
+            $databaseDate
+        );
+    }
+
+    /**
      * @group DBAL-1082
      *
      * @dataProvider getGeneratesFloatDeclarationSQL
