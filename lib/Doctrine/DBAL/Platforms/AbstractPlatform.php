@@ -2655,6 +2655,124 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Some platforms have datetime strings that needs to be correctly converted
+     *
+     * The default conversion tries to convert value into string with the defined time format
+     *
+     * @param \DateTime $value
+     *
+     * @return string
+     */
+    public function convertDateTimeToDatabaseValue(\DateTime $value)
+    {
+        return $value->format($this->getDateTimeFormatString());
+    }
+
+    /**
+     * Some platforms have datetime strings that needs to be correctly converted
+     *
+     * The default conversion tries to convert value into \DateTime with the defined time format
+     *
+     * @param mixed $value
+     *
+     * @return \DateTime
+     */
+    public function convertFromDateTime($value)
+    {
+        $val = \DateTime::createFromFormat($this->getDateTimeFormatString(), $value);
+
+        if ( ! $val) {
+            $val = date_create($value);
+        }
+
+        return $val;
+    }
+
+    /**
+     * Some platforms have datetimetz strings that needs to be correctly converted
+     *
+     * The default conversion tries to convert value into string with the defined time format
+     *
+     * @param \DateTime $value
+     *
+     * @return string
+     */
+    public function convertDateTimeTzToDatabaseValue(\DateTime $value)
+    {
+        return $value->format($this->getDateTimeTzFormatString());
+    }
+
+    /**
+     * Some platforms have datetimetz strings that needs to be correctly converted
+     *
+     * The default conversion tries to convert value into \DateTime with the defined time format
+     *
+     * @param mixed $value
+     *
+     * @return \DateTime
+     */
+    public function convertFromDateTimeTz($value)
+    {
+        return \DateTime::createFromFormat($this->getDateTimeTzFormatString(), $value);
+    }
+
+    /**
+     * Some platforms have date strings that needs to be correctly converted
+     *
+     * The default conversion tries to convert value into string with the defined time format
+     *
+     * @param \DateTime $value
+     *
+     * @return string
+     */
+    public function convertDateToDatabaseValue(\DateTime $value)
+    {
+        return $value->format($this->getDateFormatString());
+    }
+
+    /**
+     * Some platforms have date strings that needs to be correctly converted
+     *
+     * The default conversion tries to convert value into \DateTime with the defined time format
+     *
+     * @param mixed $value
+     *
+     * @return \DateTime
+     */
+    public function convertFromDate($value)
+    {
+        return \DateTime::createFromFormat('!'.$this->getDateFormatString(), $value);
+    }
+
+    /**
+     * Some platforms have time strings that needs to be correctly converted
+     *
+     * The default conversion tries to convert value into string with the defined time format
+     *
+     * @param \DateTime $value
+     *
+     * @return string
+     */
+    public function convertTimeToDatabaseValue(\DateTime $value)
+    {
+        return $value->format($this->getTimeFormatString());
+    }
+
+    /**
+     * Some platforms have time strings that needs to be correctly converted
+     *
+     * The default conversion tries to convert value into \DateTime with the defined time format
+     *
+     * @param mixed $value
+     *
+     * @return \DateTime
+     */
+    public function convertFromTime($value)
+    {
+        return \DateTime::createFromFormat('!' . $this->getTimeFormatString(), $value);
+    }
+
+    /**
      * Returns the SQL specific for the platform to get the current date.
      *
      * @return string

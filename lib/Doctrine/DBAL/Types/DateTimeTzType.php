@@ -72,7 +72,7 @@ class DateTimeTzType extends Type
         }
 
         if ($value instanceof \DateTime) {
-            return $value->format($platform->getDateTimeTzFormatString());
+            return $platform->convertDateTimeTzToDatabaseValue($value);
         }
 
         throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
@@ -87,7 +87,8 @@ class DateTimeTzType extends Type
             return $value;
         }
 
-        $val = \DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
+        $val = $platform->convertFromDateTimeTz($value);
+
         if ( ! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeTzFormatString());
         }
