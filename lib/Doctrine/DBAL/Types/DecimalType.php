@@ -49,6 +49,10 @@ class DecimalType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
+        if (is_float($value)) {
+            return (string) $value;
+        }
+
         return $value;
     }
 }
