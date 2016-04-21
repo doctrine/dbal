@@ -117,7 +117,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
         // Find the position of the last instance of ORDER BY and ensure it is not within a parenthetical statement
         // but can be in a newline
         $matches = array();
-        $matchesCount = preg_match_all("/[\\s]+order by /i", $query, $matches, PREG_OFFSET_CAPTURE);
+        $matchesCount = preg_match_all("/[\\s]+order\\s+by\\s/im", $query, $matches, PREG_OFFSET_CAPTURE);
         $orderByPos = false;
         if ($matchesCount > 0) {
             $orderByPos = $matches[0][($matchesCount - 1)][1];
@@ -126,7 +126,7 @@ class SQLServer2012Platform extends SQLServer2008Platform
         if ($orderByPos === false
             || substr_count($query, "(", $orderByPos) - substr_count($query, ")", $orderByPos)
         ) {
-            if (stripos($query, 'SELECT DISTINCT') === 0) {
+            if (preg_match('/^SELECT\s+DISTINCT/im', $query)) {
                 // SQL Server won't let us order by a non-selected column in a DISTINCT query,
                 // so we have to do this madness. This says, order by the first column in the
                 // result. SQL Server's docs say that a nonordered query's result order is non-
