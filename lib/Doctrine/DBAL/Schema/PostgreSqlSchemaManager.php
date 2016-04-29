@@ -220,6 +220,16 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             // required for getting the order of the columns right.
             foreach ($colNumbers as $colNum) {
                 foreach ($indexColumns as $colRow) {
+                    if ($colNum === '0') {
+                        $buffer[] = array(
+                            'key_name' => $row['relname'],
+                            'column_name' => $row['relname'],
+                            'non_unique' => !$row['indisunique'],
+                            'primary' => $row['indisprimary'],
+                            'where' => $row['where'],
+                        );
+                    }
+
                     if ($colNum == $colRow['attnum']) {
                         $buffer[] = array(
                             'key_name' => $row['relname'],
