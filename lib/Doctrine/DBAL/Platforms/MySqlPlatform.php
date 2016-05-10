@@ -289,7 +289,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
-        return 'TINYINT(1)';
+        return 'TINYINT(1)' . $this->_getCommonIntegerTypeDeclarationSQL($field);;
     }
 
     /**
