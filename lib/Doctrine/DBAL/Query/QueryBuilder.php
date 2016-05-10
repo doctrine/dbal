@@ -266,7 +266,7 @@ class QueryBuilder
      * @param mixed          $value The parameter value.
      * @param string|null    $type  One of the PDO::PARAM_* constants.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function setParameter($key, $value, $type = null)
     {
@@ -296,7 +296,7 @@ class QueryBuilder
      * @param array $params The query parameters to set.
      * @param array $types  The query parameters types to set.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function setParameters(array $params, array $types = array())
     {
@@ -355,7 +355,7 @@ class QueryBuilder
      *
      * @param integer $firstResult The first result to return.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function setFirstResult($firstResult)
     {
@@ -381,7 +381,7 @@ class QueryBuilder
      *
      * @param integer $maxResults The maximum number of results to retrieve.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function setMaxResults($maxResults)
     {
@@ -412,7 +412,7 @@ class QueryBuilder
      * @param string  $sqlPart
      * @param boolean $append
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function add($sqlPartName, $sqlPart, $append = false)
     {
@@ -460,7 +460,7 @@ class QueryBuilder
      *
      * @param mixed $select The selection expressions.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function select($select = null)
     {
@@ -488,7 +488,7 @@ class QueryBuilder
      *
      * @param mixed $select The selection expression.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function addSelect($select = null)
     {
@@ -517,7 +517,7 @@ class QueryBuilder
      * @param string $delete The table whose rows are subject to the deletion.
      * @param string $alias  The table alias used in the constructed query.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function delete($delete = null, $alias = null)
     {
@@ -547,7 +547,7 @@ class QueryBuilder
      * @param string $update The table whose rows are subject to the update.
      * @param string $alias  The table alias used in the constructed query.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function update($update = null, $alias = null)
     {
@@ -580,7 +580,7 @@ class QueryBuilder
      *
      * @param string $insert The table into which the rows should be inserted.
      *
-     * @return QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function insert($insert = null)
     {
@@ -608,7 +608,7 @@ class QueryBuilder
      * @param string      $from  The table.
      * @param string|null $alias The alias of the table.
      *
-     * @return QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function from($from, $alias = null)
     {
@@ -633,7 +633,7 @@ class QueryBuilder
      * @param string $alias     The alias of the join table.
      * @param string $condition The condition for the join.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function join($fromAlias, $join, $alias, $condition = null)
     {
@@ -655,7 +655,7 @@ class QueryBuilder
      * @param string $alias     The alias of the join table.
      * @param string $condition The condition for the join.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function innerJoin($fromAlias, $join, $alias, $condition = null)
     {
@@ -684,7 +684,7 @@ class QueryBuilder
      * @param string $alias     The alias of the join table.
      * @param string $condition The condition for the join.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function leftJoin($fromAlias, $join, $alias, $condition = null)
     {
@@ -713,7 +713,7 @@ class QueryBuilder
      * @param string $alias     The alias of the join table.
      * @param string $condition The condition for the join.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function rightJoin($fromAlias, $join, $alias, $condition = null)
     {
@@ -740,7 +740,7 @@ class QueryBuilder
      * @param string $key   The column to set.
      * @param string $value The value, expression, placeholder, etc.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function set($key, $value)
     {
@@ -771,7 +771,7 @@ class QueryBuilder
      *
      * @param mixed $predicates The restriction predicates.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function where($predicates)
     {
@@ -796,7 +796,7 @@ class QueryBuilder
      *
      * @param mixed $where The query restrictions.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      *
      * @see where()
      */
@@ -829,7 +829,7 @@ class QueryBuilder
      *
      * @param mixed $where The WHERE statement.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      *
      * @see where()
      */
@@ -861,7 +861,7 @@ class QueryBuilder
      *
      * @param mixed $groupBy The grouping expression.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function groupBy($groupBy)
     {
@@ -888,7 +888,7 @@ class QueryBuilder
      *
      * @param mixed $groupBy The grouping expression.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function addGroupBy($groupBy)
     {
@@ -918,7 +918,7 @@ class QueryBuilder
      * @param string $column The column into which the value should be inserted.
      * @param string $value  The value that should be inserted into the column.
      *
-     * @return QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function setValue($column, $value)
     {
@@ -944,7 +944,7 @@ class QueryBuilder
      *
      * @param array $values The values to specify for the insert query indexed by column names.
      *
-     * @return QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function values(array $values)
     {
@@ -957,7 +957,7 @@ class QueryBuilder
      *
      * @param mixed $having The restriction over the groups.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function having($having)
     {
@@ -974,7 +974,7 @@ class QueryBuilder
      *
      * @param mixed $having The restriction to append.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function andHaving($having)
     {
@@ -997,7 +997,7 @@ class QueryBuilder
      *
      * @param mixed $having The restriction to add.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function orHaving($having)
     {
@@ -1021,7 +1021,7 @@ class QueryBuilder
      * @param string $sort  The ordering expression.
      * @param string $order The ordering direction.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function orderBy($sort, $order = null)
     {
@@ -1034,7 +1034,7 @@ class QueryBuilder
      * @param string $sort  The ordering expression.
      * @param string $order The ordering direction.
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function addOrderBy($sort, $order = null)
     {
@@ -1068,7 +1068,7 @@ class QueryBuilder
      *
      * @param array|null $queryPartNames
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function resetQueryParts($queryPartNames = null)
     {
@@ -1088,7 +1088,7 @@ class QueryBuilder
      *
      * @param string $queryPartName
      *
-     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     public function resetQueryPart($queryPartName)
     {
