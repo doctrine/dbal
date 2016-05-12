@@ -196,6 +196,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new \RuntimeException("Ooops!");
             });
+            $this->fail('Expected exception');
         } catch (\RuntimeException $expected) {
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
