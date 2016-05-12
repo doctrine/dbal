@@ -32,6 +32,7 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Driver\PingableConnection;
+use Throwable;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
@@ -1101,6 +1102,9 @@ class Connection implements DriverConnection
             $this->commit();
             return $res;
         } catch (Exception $e) {
+            $this->rollBack();
+            throw $e;
+        } catch (Throwable $e) {
             $this->rollBack();
             throw $e;
         }
