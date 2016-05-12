@@ -77,4 +77,12 @@ class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
             ),
         );
     }
+
+    public function testAddPreventsAddingEmptyCompositeExpressionObjects()
+    {
+        $emptyExpr = new CompositeExpression(CompositeExpression::TYPE_AND, []);
+        $expr = new CompositeExpression(CompositeExpression::TYPE_AND, [$emptyExpr]);
+
+        $this->assertEquals(0, count($expr));
+    }
 }
