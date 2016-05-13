@@ -373,6 +373,34 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
     }
 
+    public function testExpressionBasedIndex()
+    {
+        $offlineTable = new Schema\Table('person');
+        $offlineTable->addColumn('id', 'integer');
+        $offlineTable->addColumn('name', 'string');
+        $offlineTable->addIndex(array('name' => 'lower((name)::text)'), 'text_expression_based_index');
+        $offlineTable->addIndex(array('id' => '((ln((id)::double precision) + (1)::double precision))'), 'numeric_expression_based_index');
+
+        $this->_sm->dropAndCreateTable($offlineTable);
+
+        $onlineTable = $this->_sm->listTableDetails('person');
+
+        $comparator = new Schema\Comparator();
+
+        $this->assertFalse($comparator->diffTable($offlineTable, $onlineTable));
+        $this->assertTrue($onlineTable->hasIndex('text_expression_based_index'));
+        $this->assertTrue($onlineTable->hasIndex('numeric_expression_based_index'));
+        $this->assertContains(
+            'lower((name)::text)',
+            $onlineTable->getIndex('text_expression_based_index')->getColumns()
+        );
+        $this->assertContains(
+            '((ln((id)::double precision) + (1)::double precision))',
+            $onlineTable->getIndex('numeric_expression_based_index')->getColumns()
+        );
+
+    }
+
     public function testJsonbColumn()
     {
         if (!$this->_sm->getDatabasePlatform() instanceof PostgreSQL94Platform) {

@@ -209,27 +209,28 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $buffer = array();
         foreach ($tableIndexes as $row) {
-            $colNumbers = explode(' ', $row['indkey']);
-            $colNumbersSql = 'IN (' . join(' ,', $colNumbers) . ' )';
-            $columnNameSql = "SELECT attnum, attname FROM pg_attribute
-                WHERE attrelid={$row['indrelid']} AND attnum $colNumbersSql ORDER BY attnum ASC;";
+            $colCount = count(explode(' ', $row['indkey']));
+            $sqlColNames = array();
+            for ($colIndex = 1; $colIndex <= $colCount; $colIndex++) {
+                $sqlColNames[] = sprintf('pg_get_indexdef(idx.indexrelid, %d, FALSE) AS col_%d', $colIndex, $colIndex);
+            }
+            $columnNameSql = sprintf(
+                "SELECT %s FROM pg_class i INNER JOIN pg_index idx ON idx.indexrelid = i.oid WHERE i.relname = '%s';",
+                implode(', ', $sqlColNames),
+                $row['relname']
+            );
 
             $stmt = $this->_conn->executeQuery($columnNameSql);
-            $indexColumns = $stmt->fetchAll();
+            $indexColumns = $stmt->fetch();
 
-            // required for getting the order of the columns right.
-            foreach ($colNumbers as $colNum) {
-                foreach ($indexColumns as $colRow) {
-                    if ($colNum == $colRow['attnum']) {
-                        $buffer[] = array(
-                            'key_name' => $row['relname'],
-                            'column_name' => trim($colRow['attname']),
-                            'non_unique' => !$row['indisunique'],
-                            'primary' => $row['indisprimary'],
-                            'where' => $row['where'],
-                        );
-                    }
-                }
+            foreach ($indexColumns as $indexColumn) {
+                $buffer[] = array(
+                    'key_name' => $row['relname'],
+                    'column_name' => trim($indexColumn),
+                    'non_unique' => !$row['indisunique'],
+                    'primary' => $row['indisprimary'],
+                    'where' => $row['where'],
+                );
             }
         }
 
