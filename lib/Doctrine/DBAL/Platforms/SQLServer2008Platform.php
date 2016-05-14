@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Index;
+
 /**
  * Platform to ensure compatibility of Doctrine with Microsoft SQL Server 2008 version.
  *
@@ -115,5 +117,27 @@ class SQLServer2008Platform extends SQLServer2005Platform
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreateIndexSQL(Index $index, $table)
+    {
+        $constraint = parent::getCreateIndexSQL($index, $table);
+
+        if ($index->isUnique() && !$index->isPrimary()) {
+            $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
+        }
+
+        return $constraint;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsPartialIndexes()
+    {
+        return true;
     }
 }

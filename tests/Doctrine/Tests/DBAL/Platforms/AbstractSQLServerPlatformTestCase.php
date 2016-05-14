@@ -157,7 +157,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function getGenerateUniqueIndexSql()
     {
-        return 'CREATE UNIQUE INDEX index_name ON test (test, test2) WHERE test IS NOT NULL AND test2 IS NOT NULL';
+        return 'CREATE UNIQUE INDEX index_name ON test (test, test2)';
     }
 
     public function getGenerateForeignKeySql()

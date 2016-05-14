@@ -350,20 +350,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getCreateIndexSQL(Index $index, $table)
-    {
-        $constraint = parent::getCreateIndexSQL($index, $table);
-
-        if ($index->isUnique() && !$index->isPrimary()) {
-            $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
-        }
-
-        return $constraint;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     protected function getCreateIndexSQLFlags(Index $index)
     {
         $type = '';
@@ -388,7 +374,7 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @return string
      */
-    private function _appendUniqueConstraintDefinition($sql, Index $index)
+    protected function _appendUniqueConstraintDefinition($sql, Index $index)
     {
         $fields = array();
 
