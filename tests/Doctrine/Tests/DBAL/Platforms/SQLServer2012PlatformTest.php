@@ -363,4 +363,9 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
         $this->assertEquals($expectedSql, $sql);
     }
+
+    public function getGenerateUniqueIndexSql()
+    {
+        return 'CREATE UNIQUE INDEX index_name ON test (test, test2) WHERE test IS NOT NULL AND test2 IS NOT NULL';
+    }
 }
