@@ -356,6 +356,15 @@ SQLDATA
                 array(1, 2),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
+            // Test parameters that require a different binding type provided by Type::getBindingType()
+            array(
+                "SELECT * FROM Foo WHERE foo IN (?)",
+                array(array('oof', 'rab')),
+                array('customReverseType'),
+                'SELECT * FROM Foo WHERE foo IN (?, ?)',
+                array('oof', 'rab'),
+                array('customReverseType', 'customReverseType')
+            )
         );
     }
 
