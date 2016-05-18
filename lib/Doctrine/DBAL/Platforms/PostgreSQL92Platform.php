@@ -71,6 +71,12 @@ class PostgreSQL92Platform extends PostgreSQL91Platform
     {
         parent::initializeDoctrineTypeMappings();
         $this->doctrineTypeMapping['json'] = 'json_array';
+        $this->doctrineTypeMapping['int4range'] = 'integer';
+        $this->doctrineTypeMapping['int8range'] = 'integer';
+        $this->doctrineTypeMapping['numrange'] = 'decimal';
+        $this->doctrineTypeMapping['tsrange'] = 'datetime';
+        $this->doctrineTypeMapping['tstzrange'] = 'datetimetz';
+        $this->doctrineTypeMapping['daterange'] = 'date';
     }
 
     /**
