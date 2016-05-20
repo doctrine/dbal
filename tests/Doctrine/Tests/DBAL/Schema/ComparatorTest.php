@@ -1272,4 +1272,20 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $actual->changedTables['table2']->addedForeignKeys, "FK to table3 should be added.");
         $this->assertEquals("table3", $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
     }
+
+    public function testCompareColumnCollation()
+    {
+        $column1 = new Column('foo', Type::getType('string'));
+        $column2 = new Column('foo', Type::getType('string'));
+
+        $column2->setPlatformOption('collation', 'C');
+
+        $comparator = new Comparator();
+
+        $expectedDiff = array('collation');
+
+        $actualDiff = $comparator->diffColumn($column1, $column2);
+
+        $this->assertSame($expectedDiff, $actualDiff);
+    }
 }
