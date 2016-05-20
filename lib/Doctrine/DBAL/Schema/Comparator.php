@@ -488,8 +488,10 @@ class Comparator
         $platformOptions1 = $column1->getPlatformOptions();
         $platformOptions2 = $column2->getPlatformOptions();
 
-        foreach (array_keys(array_intersect_key($platformOptions1, $platformOptions2)) as $key) {
-            if ($properties1[$key] !== $properties2[$key]) {
+        foreach (array_merge(array_keys($platformOptions1), array_keys($platformOptions2)) as $key) {
+            if ( ! array_key_exists($key, $properties1) || ! array_key_exists($key, $properties2)) {
+                $changedProperties[] = $key;
+            } elseif ($properties1[$key] !== $properties2[$key]) {
                 $changedProperties[] = $key;
             }
         }
