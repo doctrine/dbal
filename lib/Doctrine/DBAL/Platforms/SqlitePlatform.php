@@ -180,6 +180,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getListDatabasesSQL()
+    {
+        return 'PRAGMA databases';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getSetTransactionIsolationSQL($level)
     {
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
