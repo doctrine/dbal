@@ -196,7 +196,26 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new \RuntimeException("Ooops!");
             });
+            $this->fail('Expected exception');
         } catch (\RuntimeException $expected) {
+            $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
+        }
+    }
+
+    public function testTransactionalWithThrowable()
+    {
+        if (version_compare(PHP_VERSION, '7.0', '<')) {
+            $this->markTestSkipped('Only for PHP 7.0 and above.');
+        }
+
+        try {
+            $this->_conn->transactional(function($conn) {
+                /* @var $conn \Doctrine\DBAL\Connection */
+                $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
+                throw new \Error("Ooops!");
+            });
+            $this->fail('Expected exception');
+        } catch (\Error $expected) {
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
