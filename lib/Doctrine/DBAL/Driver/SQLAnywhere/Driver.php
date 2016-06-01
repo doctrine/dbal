@@ -45,6 +45,7 @@ class Driver extends AbstractSQLAnywhereDriver
                     isset($params['port']) ? $params['port'] : null,
                     isset($params['server']) ? $params['server'] : null,
                     isset($params['dbname']) ? $params['dbname'] : null,
+                    isset($params['charset']) ? $params['charset'] : null,
                     $username,
                     $password,
                     $driverOptions
@@ -73,27 +74,40 @@ class Driver extends AbstractSQLAnywhereDriver
      *                               SQL Anywhere allows multiple database server instances on the same host,
      *                               therefore specifying the server instance name to use is mandatory.
      * @param string  $dbname        Name of the database on the server instance to connect to.
+     * @param string  $charset       Charset
      * @param string  $username      User name to use for connection authentication.
      * @param string  $password      Password to use for connection authentication.
      * @param array   $driverOptions Additional parameters to use for the connection.
      *
      * @return string
      */
-    private function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = array())
+    private function buildDsn($host, $port, $server, $dbname, $charset, $username = null, $password = null, array $driverOptions = array())
     {
-        $host = $host ?: 'localhost';
-        $port = $port ?: 2638;
+        // $host = $host ?: 'localhost';
+        // $port = $port ?: 2638;
 
-        if (! empty($server)) {
-            $server = ';ServerName=' . $server;
+        if (!empty($host)) {
+            $host = 'HOST=' . $host . (isset($port) ? (':' . $port) : '');
+        }
+        if (!empty($server)) {
+            $server = 'ServerName=' . $server;
+        }
+
+        if (!empty($dbname)) {
+            $dbname = 'DBN=' . $dbname;
+        }
+
+        if (!empty($charset)) {
+            $charset = 'CS=' . $charset;
         }
 
         return
-            'HOST=' . $host . ':' . $port .
-            $server .
-            ';DBN=' . $dbname .
+            $host .
+            ';'. $server .
+            ';'. $dbname .
             ';UID=' . $username .
             ';PWD=' . $password .
+            ';' . $charset .
             ';' . implode(
                 ';',
                 array_map(function ($key, $value) {
