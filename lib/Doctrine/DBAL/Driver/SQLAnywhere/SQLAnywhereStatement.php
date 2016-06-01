@@ -74,7 +74,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function __construct($conn, $sql)
     {
-        if ( ! is_resource($conn) || get_resource_type($conn) !== 'SQLAnywhere connection') {
+        if ( ! is_resource($conn) || !preg_match('/^SQLAnywhere.*connection.*/',get_resource_type($conn))) {
             throw new SQLAnywhereException('Invalid SQL Anywhere connection resource: ' . $conn);
         }
 
