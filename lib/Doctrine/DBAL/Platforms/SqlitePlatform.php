@@ -182,7 +182,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getListDatabasesSQL()
     {
-        return 'PRAGMA databases';
+        return 'PRAGMA database_list';
     }
 
     /**
