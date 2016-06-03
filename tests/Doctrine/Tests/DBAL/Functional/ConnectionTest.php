@@ -45,7 +45,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 throw new \Exception;
                 $this->_conn->commit(); // never reached
             } catch (\Exception $e) {
-                $this->_conn->rollback();
+                $this->_conn->rollBack();
                 $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
                 //no rethrow
             }
@@ -55,7 +55,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->fail('Transaction commit after failed nested transaction should fail.');
         } catch (ConnectionException $e) {
             $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
@@ -81,7 +81,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 throw new \Exception;
                 $this->_conn->commit(); // never reached
             } catch (\Exception $e) {
-                $this->_conn->rollback();
+                $this->_conn->rollBack();
                 $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
                 //no rethrow
             }
@@ -95,7 +95,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->commit(); // should not throw exception
         } catch (ConnectionException $e) {
             $this->fail('Transaction commit after failed nested transaction should not fail when using savepoints.');
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
         }
     }
 
@@ -169,7 +169,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->commit(); // never reached
         } catch (\Exception $e) {
             $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
@@ -181,7 +181,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
             $this->_conn->commit();
         } catch (\Exception $e) {
-            $this->_conn->rollback();
+            $this->_conn->rollBack();
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
 
