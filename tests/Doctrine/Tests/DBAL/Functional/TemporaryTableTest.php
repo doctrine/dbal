@@ -59,7 +59,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
         $this->_conn->insert("nontemporary", array("id" => 2));
 
-        $this->_conn->rollback();
+        $this->_conn->rollBack();
 
         $rows = $this->_conn->fetchAll('SELECT * FROM nontemporary');
         $this->assertEquals(array(), $rows, "In an event of an error this result has one row, because of an implicit commit.");
@@ -97,7 +97,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->exec($createTempTableSQL);
         $this->_conn->insert("nontemporary", array("id" => 2));
 
-        $this->_conn->rollback();
+        $this->_conn->rollBack();
 
         try {
             $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));

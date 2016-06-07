@@ -87,7 +87,7 @@ and SQL Anywhere keywords are checked:
 If you want to check against specific dialects you can
 pass them to the command:
 
-    <info>%command.full_name% mysql pgsql</info>
+    <info>%command.full_name% -l mysql -l pgsql</info>
 
 The following keyword lists are currently shipped with Doctrine:
 
