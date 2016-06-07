@@ -1224,11 +1224,11 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function scrubInnerOrderBy($query)
     {
-        $count = substr_count(strtoupper($query), "ORDER BY");
+        $count = substr_count(strtoupper($query), 'ORDER BY');
         $offset = 0;
 
         while ($count-- > 0) {
-            $orderByPos = stripos($query, " ORDER BY", $offset);
+            $orderByPos = stripos($query, ' ORDER BY', $offset);
             if ($orderByPos === false) {
                 break;
             }
@@ -1285,7 +1285,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             // Only yank query text on the same nesting level as the ORDER BY clause.
-            $subQueryBuffer = ($parenCount === 0 ? $query[$currentPosition] : " ") . $subQueryBuffer;
+            $subQueryBuffer = ($parenCount === 0 ? $query[$currentPosition] : ' ') . $subQueryBuffer;
 
             $currentPosition--;
         }
