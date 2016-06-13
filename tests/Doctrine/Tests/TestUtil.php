@@ -61,28 +61,16 @@ class TestUtil
             $GLOBALS['db_type'],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
-            $GLOBALS['db_name']
-        )
-        && (
-            isset(
-                $GLOBALS['db_host'],
-                $GLOBALS['db_port']
-            ) || isset(
-                $GLOBALS['db_server']
-            )
+            $GLOBALS['db_host'],
+            $GLOBALS['db_name'],
+            $GLOBALS['db_port']
         )
         && isset(
             $GLOBALS['tmpdb_type'],
             $GLOBALS['tmpdb_username'],
-            $GLOBALS['tmpdb_password']
-        )
-        && (
-            isset(
-                $GLOBALS['tmpdb_host'],
-                $GLOBALS['tmpdb_port']
-            ) || isset(
-                $GLOBALS['tmpdb_server']
-            )
+            $GLOBALS['tmpdb_password'],
+            $GLOBALS['tmpdb_host'],
+            $GLOBALS['tmpdb_port']
         );
     }
 
@@ -152,16 +140,10 @@ class TestUtil
             'driver' => $GLOBALS['tmpdb_type'],
             'user' => $GLOBALS['tmpdb_username'],
             'password' => $GLOBALS['tmpdb_password'],
-            'dbname' => null
+            'host' => $GLOBALS['tmpdb_host'],
+            'dbname' => null,
+            'port' => $GLOBALS['tmpdb_port']
         );
-
-        if (isset($GLOBALS['tmpdb_host'])) {
-            $connectionParams['host'] = $GLOBALS['tmpdb_host'];
-        }
-
-        if (isset($GLOBALS['tmpdb_port'])) {
-            $connectionParams['port'] = $GLOBALS['tmpdb_port'];
-        }
 
         if (isset($GLOBALS['tmpdb_name'])) {
             $connectionParams['dbname'] = $GLOBALS['tmpdb_name'];
@@ -188,16 +170,10 @@ class TestUtil
             'driver' => $GLOBALS['db_type'],
             'user' => $GLOBALS['db_username'],
             'password' => $GLOBALS['db_password'],
-            'dbname' => $GLOBALS['db_name']
+            'host' => $GLOBALS['db_host'],
+            'dbname' => $GLOBALS['db_name'],
+            'port' => $GLOBALS['db_port']
         );
-
-        if (isset($GLOBALS['db_host'])) {
-            $connectionParams['host'] = $GLOBALS['db_host'];
-        }
-
-        if (isset($GLOBALS['db_port'])) {
-            $connectionParams['port'] = $GLOBALS['db_port'];
-        }
 
         if (isset($GLOBALS['db_server'])) {
             $connectionParams['server'] = $GLOBALS['db_server'];
