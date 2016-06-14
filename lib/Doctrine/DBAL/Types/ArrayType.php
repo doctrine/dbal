@@ -48,7 +48,7 @@ class ArrayType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform, array $fieldDeclaration = null)
     {
         if ($value === null) {
             return null;

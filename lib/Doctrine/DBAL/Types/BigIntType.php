@@ -56,7 +56,7 @@ class BigIntType extends Type
     /**
      * {@inheritdoc}
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform, array $fieldDeclaration = null)
     {
         return (null === $value) ? null : (string) $value;
     }

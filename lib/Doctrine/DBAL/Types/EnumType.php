@@ -19,21 +19,22 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\Common\Enum\Factory as EnumFactory;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
- * Type that maps an SQL DATE to a PHP Date object.
+ * Type that maps an SQL Enum to a PHP Enum object.
  *
- * @since 2.0
+ * @since 2.6
  */
-class DateType extends Type
+class EnumType extends Type
 {
     /**
      * {@inheritdoc}
      */
     public function getName()
     {
-        return Type::DATE;
+        return Type::ENUM;
     }
 
     /**
@@ -41,7 +42,11 @@ class DateType extends Type
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getDateTypeDeclarationSQL($fieldDeclaration);
+        if (!is_array($fieldDeclaration['values'])) {
+            $fieldDeclaration['values'] = EnumFactory::getValues($fieldDeclaration['values']);
+        }
+
+        return $platform->getEnumTypeDeclarationSQL($fieldDeclaration);
     }
 
     /**
@@ -53,11 +58,11 @@ class DateType extends Type
             return $value;
         }
 
-        if ($value instanceof \DateTime) {
-            return $value->format($platform->getDateFormatString());
+        try {
+            return EnumFactory::getValue($value);
+        } catch (\InvalidArgumentException $e) {
+            throw ConversionException::conversionFailed($value, $this->getName());
         }
-
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
@@ -65,15 +70,28 @@ class DateType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform, array $fieldDeclaration = null)
     {
-        if ($value === null || $value instanceof \DateTime) {
+        if ($value === null || !is_scalar($value)) {
             return $value;
         }
 
-        $val = \DateTime::createFromFormat('!'.$platform->getDateFormatString(), $value);
-        if ( ! $val) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateFormatString());
+        if ($fieldDeclaration === null) {
+            throw ConversionException::conversionFailed($value, $this->getName());
         }
 
-        return $val;
+        if (is_array($fieldDeclaration['values'])) {
+            if (!in_array($value, $fieldDeclaration['values'])) {
+                throw ConversionException::conversionFailed($value, $this->getName());
+            }
+
+            return $value;
+        }
+
+        try {
+            return EnumFactory::createByValue($fieldDeclaration['values'], $value);
+        } catch (\InvalidArgumentException $e) {
+            throw ConversionException::conversionFailed($value, $this->getName());
+        } catch (\UnexpectedValueException $e) {
+            throw ConversionException::conversionFailed($value, $this->getName());
+        }
     }
 }

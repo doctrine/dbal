@@ -53,6 +53,7 @@ abstract class Type
     const FLOAT = 'float';
     const GUID = 'guid';
     const DATEINTERVAL = 'dateinterval';
+    const ENUM = 'enum';
 
     /**
      * Map of already instantiated type objects. One instance per type (flyweight).
@@ -87,6 +88,7 @@ abstract class Type
         self::BLOB => 'Doctrine\DBAL\Types\BlobType',
         self::GUID => 'Doctrine\DBAL\Types\GuidType',
         self::DATEINTERVAL => 'Doctrine\DBAL\Types\DateIntervalType',
+        self::ENUM => 'Doctrine\DBAL\Types\EnumType',
     );
 
     /**
@@ -114,12 +116,13 @@ abstract class Type
      * Converts a value from its database representation to its PHP representation
      * of this type.
      *
-     * @param mixed                                     $value    The value to convert.
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The currently used database platform.
+     * @param mixed                                     $value            The value to convert.
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform         The currently used database platform.
+     * @param array|null                                $fieldDeclaration The field declaration.
      *
      * @return mixed The PHP representation of the value.
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform, array $fieldDeclaration = null)
     {
         return $value;
     }
@@ -306,10 +309,11 @@ abstract class Type
      *
      * @param string                                    $sqlExpr
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     * @param array|null                                $fieldDeclaration The field declaration.
      *
      * @return string
      */
-    public function convertToPHPValueSQL($sqlExpr, $platform)
+    public function convertToPHPValueSQL($sqlExpr, $platform, array $fieldDeclaration = null)
     {
         return $sqlExpr;
     }
