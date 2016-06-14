@@ -328,6 +328,33 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to declare a ENUM field.
+     *
+     * By default this maps directly to a CHAR(longest_item) and only maps to more
+     * special datatypes when the underlying databases support this datatype.
+     *
+     * @param array $field
+     *
+     * @return string
+     */
+    public function getEnumTypeDeclarationSQL(array $field)
+    {
+        $longest = 0;
+
+        foreach ($field['values'] as $enumeration) {
+            $length = strlen($enumeration);
+            if ($length > $longest) {
+                $longest = $length;
+            }
+        }
+
+        $field['length'] = $longest;
+        $field['fixed']  = true;
+
+        return $this->getVarcharTypeDeclarationSQL($field);
+    }
+
+    /**
      * @param integer $length
      * @param boolean $fixed
      *

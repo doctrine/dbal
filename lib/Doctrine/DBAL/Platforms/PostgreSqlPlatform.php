@@ -1007,6 +1007,20 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getEnumTypeDeclarationSQL(array $field)
+    {
+        $enumerations = '';
+
+        foreach ($field['values'] as $enumeration) {
+            $enumerations .= $this->quoteStringLiteral($enumeration) . ', ';
+        }
+
+        return sprintf('ENUM(%s)', rtrim($enumerations, ', '));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
