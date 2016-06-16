@@ -78,7 +78,6 @@ class OracleSchemaManager extends AbstractSchemaManager
             $keyName = strtolower($tableIndex['name']);
 
             if (strtolower($tableIndex['is_primary']) == "p") {
-                $keyName = 'primary';
                 $buffer['primary'] = true;
                 $buffer['non_unique'] = false;
             } else {
