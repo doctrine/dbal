@@ -12,7 +12,7 @@
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
     ],
     "require": {
-        "php": ">=5.4",
+        "php": "^5.6 || ^7.0",
         "doctrine/common": "~2.4"
     },
     "require-dev": {
