@@ -141,6 +141,16 @@ abstract class Type
     }
 
     /**
+     * Gets the default mapping values of this type.
+     *
+     * @return array
+     */
+    public function getDefaultMappingValues()
+    {
+        return array();
+    }
+
+    /**
      * Gets the SQL declaration snippet for a field of this type.
      *
      * @param array                                     $fieldDeclaration The field declaration.
