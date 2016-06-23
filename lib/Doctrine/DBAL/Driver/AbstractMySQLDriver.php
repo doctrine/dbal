@@ -112,6 +112,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             case '1171':
             case '1252':
             case '1263':
+            case '1364':
             case '1566':
                 return new Exception\NotNullConstraintViolationException($message, $exception);
         }
