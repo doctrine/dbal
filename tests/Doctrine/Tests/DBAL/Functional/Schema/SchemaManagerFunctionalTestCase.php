@@ -283,7 +283,10 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->_sm->dropAndCreateTable($table);
 
-        $listenerMock = $this->getMock('ListTableColumnsDispatchEventListener', array('onSchemaColumnDefinition'));
+        $listenerMock = $this
+            ->getMockBuilder('ListTableColumnsDispatchEventListener')
+            ->setMethods(['onSchemaColumnDefinition'])
+            ->getMock();
         $listenerMock
             ->expects($this->exactly(7))
             ->method('onSchemaColumnDefinition');
@@ -308,7 +311,10 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->_sm->dropAndCreateTable($table);
 
-        $listenerMock = $this->getMock('ListTableIndexesDispatchEventListener', array('onSchemaIndexDefinition'));
+        $listenerMock = $this
+            ->getMockBuilder('ListTableIndexesDispatchEventListener')
+            ->setMethods(['onSchemaIndexDefinition'])
+            ->getMock();
         $listenerMock
             ->expects($this->exactly(3))
             ->method('onSchemaIndexDefinition');
