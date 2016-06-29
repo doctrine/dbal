@@ -32,6 +32,7 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Driver\PingableConnection;
+use Throwable;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like
@@ -773,7 +774,7 @@ class Connection implements DriverConnection
     {
         try {
             $stmt = new Statement($statement, $this);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
         }
 
@@ -824,7 +825,7 @@ class Connection implements DriverConnection
             } else {
                 $stmt = $this->_conn->query($query);
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
@@ -933,7 +934,7 @@ class Connection implements DriverConnection
                     $statement = call_user_func_array(array($this->_conn, 'query'), $args);
                     break;
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
         }
 
@@ -984,7 +985,7 @@ class Connection implements DriverConnection
             } else {
                 $result = $this->_conn->exec($query);
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
@@ -1015,7 +1016,7 @@ class Connection implements DriverConnection
 
         try {
             $result = $this->_conn->exec($statement);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
         }
 
@@ -1101,6 +1102,9 @@ class Connection implements DriverConnection
             $this->commit();
             return $res;
         } catch (Exception $e) {
+            $this->rollBack();
+            throw $e;
+        } catch (Throwable $e) {
             $this->rollBack();
             throw $e;
         }
