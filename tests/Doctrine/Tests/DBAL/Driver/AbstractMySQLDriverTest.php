@@ -105,6 +105,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
                 array('1171', null, null),
                 array('1252', null, null),
                 array('1263', null, null),
+                array('1364', null, null),
                 array('1566', null, null),
             ),
             self::EXCEPTION_SYNTAX_ERROR => array(
