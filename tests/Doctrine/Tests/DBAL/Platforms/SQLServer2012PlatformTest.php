@@ -363,4 +363,12 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
         $this->assertEquals($expectedSql, $sql);
     }
+
+    public function testModifyLimitQueryWithNewlineBeforeOrderBy()
+    {
+        $querySql = "SELECT * FROM test\nORDER BY col DESC";
+        $expectedSql = "SELECT * FROM test\nORDER BY col DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
+        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $this->assertEquals($expectedSql, $sql);
+    }
 }
