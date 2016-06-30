@@ -45,6 +45,10 @@ class SimpleArrayType extends Type
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         if (!$value) {
+            if ($platform->getName() == 'oracle') {
+                return '';
+            }
+
             return null;
         }
 
