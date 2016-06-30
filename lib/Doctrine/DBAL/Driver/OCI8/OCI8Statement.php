@@ -72,10 +72,13 @@ class OCI8Statement implements \IteratorAggregate, Statement
     protected $_paramMap = array();
 
     /**
-     * @var array Stores binding parameters to keep references to the to-be-bounded data
-     * @see bindValue
+     * Holds references to bound parameter values.
+     *
+     * This is a new requirement for PHP7's oci8 extension.
+     *
+     * @var array
      */
-    private $bindings = array();
+    private $boundValues = array();
 
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
@@ -140,15 +143,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     public function bindValue($param, $value, $type = null)
     {
-        if ($type == \PDO::PARAM_LOB && !is_a($value, 'Oci-Lob')) {
-            $descriptor = oci_new_descriptor($this->_dbh, OCI_D_LOB);
-            $descriptor->writeTemporary($value, OCI_TEMP_BLOB);
-            $this->bindings[$param] = $descriptor;
-        } else {
-            $this->bindings[$param] = $value;
-        }
-
-        return $this->bindParam($param, $this->bindings[$param], $type, null);
+        return $this->bindParam($param, $value, $type, null);
     }
 
     /**
@@ -159,14 +154,19 @@ class OCI8Statement implements \IteratorAggregate, Statement
         $column = isset($this->_paramMap[$column]) ? $this->_paramMap[$column] : $column;
 
         if ($type == \PDO::PARAM_LOB) {
-            if (!is_a($variable, 'Oci-Lob')) {
-                throw new OCI8Exception('Can not bind this value to the BLOB column, please use a oci8 descriptor');
-            }
+            $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
+            $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
-            return oci_bind_by_name($this->_sth, $column, $variable, -1, OCI_B_BLOB);
-        } else if ($length !== null) {
+            $this->boundValues[$column] =& $lob;
+
+            return oci_bind_by_name($this->_sth, $column, $lob, -1, OCI_B_BLOB);
+        } elseif ($length !== null) {
+            $this->boundValues[$column] =& $variable;
+
             return oci_bind_by_name($this->_sth, $column, $variable, $length);
         }
+
+        $this->boundValues[$column] =& $variable;
 
         return oci_bind_by_name($this->_sth, $column, $variable);
     }
@@ -337,4 +337,3 @@ class OCI8Statement implements \IteratorAggregate, Statement
         return oci_num_rows($this->_sth);
     }
 }
-
