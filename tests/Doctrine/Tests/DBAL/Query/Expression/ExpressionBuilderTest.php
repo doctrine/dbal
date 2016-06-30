@@ -14,7 +14,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     protected function setUp()
     {
-        $conn = $this->getMock('Doctrine\DBAL\Connection', array(), array(), '', false);
+        $conn = $this->createMock('Doctrine\DBAL\Connection');
 
         $this->expr = new ExpressionBuilder($conn);
 

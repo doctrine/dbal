@@ -34,7 +34,10 @@ class MultiTenantShardChoserTest extends \PHPUnit_Framework_TestCase
 
     private function createConnectionMock()
     {
-        return $this->getMock('Doctrine\DBAL\Sharding\PoolingShardConnection', array('connect', 'getParams', 'fetchAll'), array(), '', false);
+        return $this->getMockBuilder('Doctrine\DBAL\Sharding\PoolingShardConnection')
+            ->setMethods(array('connect', 'getParams', 'fetchAll'))
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }
 

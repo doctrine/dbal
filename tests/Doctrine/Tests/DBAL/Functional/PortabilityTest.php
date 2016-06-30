@@ -128,7 +128,9 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
             'portability' => $portability
         );
 
-        $driverMock = $this->getMock('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver', array('connect'));
+        $driverMock = $this->getMockBuilder('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver')
+            ->setMethods(array('connect'))
+            ->getMock();
 
         $driverMock->expects($this->once())
                    ->method('connect')

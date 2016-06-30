@@ -9,15 +9,15 @@ class DBALExceptionTest extends \Doctrine\Tests\DbalTestCase
 {
     public function testDriverExceptionDuringQueryAcceptsBinaryData()
     {
-        $driver = $this->getMock('\Doctrine\DBAL\Driver');
+        $driver = $this->createMock('\Doctrine\DBAL\Driver');
         $e = DBALException::driverExceptionDuringQuery($driver, new \Exception, '', array('ABC', chr(128)));
         $this->assertContains('with params ["ABC", "\x80"]', $e->getMessage());
     }
 
     public function testAvoidOverWrappingOnDriverException()
     {
-        $driver = $this->getMock('\Doctrine\DBAL\Driver');
-        $ex = new DriverException('', $this->getMock('\Doctrine\DBAL\Driver\DriverException'));
+        $driver = $this->createMock('\Doctrine\DBAL\Driver');
+        $ex = new DriverException('', $this->createMock('\Doctrine\DBAL\Driver\DriverException'));
         $e = DBALException::driverExceptionDuringQuery($driver, $ex, '');
         $this->assertSame($ex, $e);
     }

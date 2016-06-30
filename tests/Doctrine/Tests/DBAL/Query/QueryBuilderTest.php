@@ -14,7 +14,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     protected function setUp()
     {
-        $this->conn = $this->getMock('Doctrine\DBAL\Connection', array(), array(), '', false);
+        $this->conn = $this->createMock('Doctrine\DBAL\Connection');
 
         $expressionBuilder = new ExpressionBuilder($this->conn);
 

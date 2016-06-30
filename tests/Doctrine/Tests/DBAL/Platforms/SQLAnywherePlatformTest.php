@@ -456,7 +456,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $this->setExpectedException('\InvalidArgumentException');
 
-        $this->_platform->getCreateConstraintSQL($this->getMock('\Doctrine\DBAL\Schema\Constraint'), 'footable');
+        $this->_platform->getCreateConstraintSQL($this->createMock('\Doctrine\DBAL\Schema\Constraint'), 'footable');
     }
 
     public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL()
