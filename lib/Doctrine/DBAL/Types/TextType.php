@@ -47,6 +47,18 @@ class TextType extends Type
     /**
      * {@inheritdoc}
      */
+    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    {
+        if ($value === null && $platform->getName() == 'oracle') {
+            return '';
+        }
+
+        return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return Type::TEXT;
