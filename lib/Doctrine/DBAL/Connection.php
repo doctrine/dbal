@@ -502,7 +502,7 @@ class Connection implements DriverConnection
      * @param array  $params    The query parameters.
      * @param array  $types     The query parameter types.
      *
-     * @return array
+     * @return array|bool False is returned if no rows are found.
      */
     public function fetchAssoc($statement, array $params = array(), array $types = array())
     {
@@ -517,7 +517,7 @@ class Connection implements DriverConnection
      * @param array  $params    The prepared statement params.
      * @param array  $types     The query parameter types.
      *
-     * @return array
+     * @return array|bool False is returned if no rows are found.
      */
     public function fetchArray($statement, array $params = array(), array $types = array())
     {
@@ -533,7 +533,7 @@ class Connection implements DriverConnection
      * @param integer $column    The 0-indexed column number to retrieve.
      * @param array  $types      The query parameter types.
      *
-     * @return mixed
+     * @return mixed|bool False is returned if no rows are found.
      */
     public function fetchColumn($statement, array $params = array(), $column = 0, array $types = array())
     {
