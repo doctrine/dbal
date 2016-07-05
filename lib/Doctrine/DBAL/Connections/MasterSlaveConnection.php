@@ -368,8 +368,8 @@ class MasterSlaveConnection extends Connection
         if ($logger) {
             $logger->startQuery($args[0]);
         }
-
-        $statement = call_user_func_array(array($this->_conn, 'query'), $args);
+        
+        $statement = $this->_conn->query(...$args);
 
         if ($logger) {
             $logger->stopQuery();

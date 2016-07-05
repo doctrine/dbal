@@ -36,6 +36,7 @@ abstract class Type
     const TARRAY = 'array';
     const SIMPLE_ARRAY = 'simple_array';
     const JSON_ARRAY = 'json_array';
+    const JSON = 'json';
     const BIGINT = 'bigint';
     const BOOLEAN = 'boolean';
     const DATETIME = 'datetime';
@@ -70,6 +71,7 @@ abstract class Type
         self::TARRAY => 'Doctrine\DBAL\Types\ArrayType',
         self::SIMPLE_ARRAY => 'Doctrine\DBAL\Types\SimpleArrayType',
         self::JSON_ARRAY => 'Doctrine\DBAL\Types\JsonArrayType',
+        self::JSON => 'Doctrine\DBAL\Types\JsonType',
         self::OBJECT => 'Doctrine\DBAL\Types\ObjectType',
         self::BOOLEAN => 'Doctrine\DBAL\Types\BooleanType',
         self::INTEGER => 'Doctrine\DBAL\Types\IntegerType',
