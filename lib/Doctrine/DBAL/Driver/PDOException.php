@@ -48,7 +48,7 @@ class PDOException extends \PDOException implements DriverException
      * @param \PDOException $exception The PDO exception to wrap.
      */
     public function __construct(\PDOException $exception)
-    {
+    {var_dump($exception);
         parent::__construct($exception->getMessage(), 0, $exception);
 
         $this->code      = $exception->getCode();
