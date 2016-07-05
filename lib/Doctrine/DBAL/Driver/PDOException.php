@@ -70,7 +70,12 @@ class PDOException extends \PDOException implements DriverException
             $this->errorCode = $exception->errorInfo[1];
         }
         if (preg_match('/^SQLSTATE\[23000\]/', $exception->getMessage())) {
-            var_dump($exception);
+            var_dump(array(
+                'errorInfo' => $exception->errorInfo,
+                'code' => $exception->code,
+                'string' => $exception->string,
+                'message' => $exception->getMessage()
+            ));
         }
         /*
         var_dump(array(
