@@ -49,18 +49,22 @@ class PDOException extends \PDOException implements DriverException
      */
     public function __construct(\PDOException $exception)
     {
-        var_dump(array(
-            'errorInfo' => isset($exception->errorInfo) ? $exception->errorInfo : '',
-            'message' => $exception->message,
-            'string' => $exception->string,
-            'code' => $exception->code
-        ));
         parent::__construct($exception->getMessage(), 0, $exception);
 
         $this->code      = $exception->getCode();
         $this->errorInfo = $exception->errorInfo;
-        $this->errorCode = isset($exception->errorInfo[1]) ? $exception->errorInfo[1] : $exception->getCode();
+
         $this->sqlState  = isset($exception->errorInfo[0]) ? $exception->errorInfo[0] : $exception->getCode();
+
+        if (!isset($exception->errorInfo[1])) {
+            if (preg_match('/^SQLSTATE\['.preg_quote($this->sqlState, '/').'\][\s]+\[([0-9]+)\]/', $exception->getMessage(), $matches)) {
+                $this->errorCode = (integer) $matches[1];
+            } else {
+                $this->errorCode = $exception->getCode();
+            }
+        } else {
+            $this->errorCode = $exception->errorInfo[1];
+        }
     }
 
     /**
