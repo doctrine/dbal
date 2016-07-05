@@ -969,7 +969,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('foo', $results[0]->test_string);
         $this->assertStringStartsWith($datetimeString, $results[0]->test_datetime);
         $this->assertStringStartsWith($dateString, $results[0]->test_date);
-        $this->assertStringStartsWith($timeString, $results[0]->getTime());
+        $this->assertStringStartsWith($timeString, $results[0]->test_time);
     }
 
     /**
@@ -1005,7 +1005,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('foo', $results[0]->test_string);
         $this->assertStringStartsWith($datetimeString, $results[0]->test_datetime);
         $this->assertStringStartsWith($dateString, $results[0]->test_date);
-        $this->assertStringStartsWith($timeString, $results[0]->getTime());
+        $this->assertStringStartsWith($timeString, $results[0]->test_time);
     }
 
     /**
