@@ -44,6 +44,10 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      */
     public function convertException($message, DriverException $exception)
     {
+        var_dump(array(
+            'message' => $exception->getMessage(),
+            'errorCode' => $exception->getErrorCode()
+        ));
         switch ($exception->getErrorCode()) {
             case '1213':
                 return new Exception\DeadlockException($message, $exception);
