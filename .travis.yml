@@ -8,8 +8,6 @@ cache:
         - $HOME/.composer/cache
 
 php:
-  - 5.4
-  - 5.5
   - 5.6
   - 7.0
   - hhvm
@@ -34,14 +32,6 @@ script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 matrix:
   fast_finish: true
   include:
-    - php: 5.4
-      env: DB=mariadb
-      addons:
-        mariadb: 5.5
-    - php: 5.5
-      env: DB=mariadb
-      addons:
-        mariadb: 5.5
     - php: 5.6
       env: DB=mariadb
       addons:
@@ -55,14 +45,6 @@ matrix:
       addons:
         mariadb: 5.5
 
-    - php: 5.4
-      env: DB=mariadb
-      addons:
-        mariadb: 10.0
-    - php: 5.5
-      env: DB=mariadb
-      addons:
-        mariadb: 10.0
     - php: 5.6
       env: DB=mariadb
       addons:
@@ -76,14 +58,6 @@ matrix:
       addons:
         mariadb: 10.0
 
-    - php: 5.4
-      env: DB=mariadb
-      addons:
-        mariadb: 10.1
-    - php: 5.5
-      env: DB=mariadb
-      addons:
-        mariadb: 10.1
     - php: 5.6
       env: DB=mariadb
       addons:

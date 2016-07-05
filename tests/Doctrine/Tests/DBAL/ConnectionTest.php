@@ -48,7 +48,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testRollbackWithNoActiveTransaction_ThrowsException()
     {
         $this->setExpectedException('Doctrine\DBAL\ConnectionException');
-        $this->_conn->rollback();
+        $this->_conn->rollBack();
     }
 
     public function testSetRollbackOnlyNoActiveTransaction_ThrowsException()
