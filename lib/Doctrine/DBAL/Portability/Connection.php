@@ -141,7 +141,7 @@ class Connection extends \Doctrine\DBAL\Connection
     {
         $this->connect();
 
-        $stmt = call_user_func_array(array($this->_conn, 'query'), func_get_args());
+        $stmt = $this->_conn->query(...func_get_args());
         $stmt = new Statement($stmt, $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
