@@ -250,6 +250,8 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
+        $table = $this->quoteStringLiteral($table);
+
         // We do the funky subquery and join syscat.columns.default this crazy way because
         // as of db2 v10, the column is CLOB(64k) and the distinct operator won't allow a CLOB,
         // it wants shorter stuff like a varchar.
@@ -282,7 +284,7 @@ class DB2Platform extends AbstractPlatform
                    ON (c.tabschema = k.tabschema
                        AND c.tabname = k.tabname
                        AND c.colname = k.colname)
-               WHERE UPPER(c.tabname) = UPPER('" . $table . "')
+               WHERE UPPER(c.tabname) = UPPER(" . $table . ")
                ORDER BY c.colno
              ) subq
           JOIN syscat.columns cols
@@ -314,6 +316,8 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
+        $table = $this->quoteStringLiteral($table);
+
         return "SELECT   idx.INDNAME AS key_name,
                          idxcol.COLNAME AS column_name,
                          CASE
@@ -327,7 +331,7 @@ class DB2Platform extends AbstractPlatform
                 FROM     SYSCAT.INDEXES AS idx
                 JOIN     SYSCAT.INDEXCOLUSE AS idxcol
                 ON       idx.INDSCHEMA = idxcol.INDSCHEMA AND idx.INDNAME = idxcol.INDNAME
-                WHERE    idx.TABNAME = UPPER('" . $table . "')
+                WHERE    idx.TABNAME = UPPER(" . $table . ")
                 ORDER BY idxcol.COLSEQ ASC";
     }
 
@@ -336,6 +340,8 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table)
     {
+        $table = $this->quoteStringLiteral($table);
+
         return "SELECT   fkcol.COLNAME AS local_column,
                          fk.REFTABNAME AS foreign_table,
                          pkcol.COLNAME AS foreign_column,
@@ -359,7 +365,7 @@ class DB2Platform extends AbstractPlatform
                 ON       fk.REFKEYNAME = pkcol.CONSTNAME
                 AND      fk.REFTABSCHEMA = pkcol.TABSCHEMA
                 AND      fk.REFTABNAME = pkcol.TABNAME
-                WHERE    fk.TABNAME = UPPER('" . $table . "')
+                WHERE    fk.TABNAME = UPPER(" . $table . ")
                 ORDER BY fkcol.COLSEQ ASC";
     }
 
