@@ -105,7 +105,7 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
     public function testResetsQueries()
     {
-        foreach (array('supportsSchemas', 'supportsForeignKeys') as $method) {
+        foreach (array('supportsSchemas', 'supportsForeignKeyConstraints') as $method) {
             $this->platformMock->expects($this->any())
                 ->method($method)
                 ->will($this->returnValue(true));

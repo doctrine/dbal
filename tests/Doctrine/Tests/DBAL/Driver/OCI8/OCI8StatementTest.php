@@ -27,9 +27,10 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testExecute(array $params)
     {
-        $statement = $this->getMock('\Doctrine\DBAL\Driver\OCI8\OCI8Statement',
-            array('bindValue', 'errorInfo'),
-            array(), '', false);
+        $statement = $this->getMockBuilder('\Doctrine\DBAL\Driver\OCI8\OCI8Statement')
+            ->setMethods(array('bindValue', 'errorInfo'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $statement->expects($this->at(0))
             ->method('bindValue')
@@ -52,7 +53,10 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
 
         // can't pass to constructor since we don't have a real database handle,
         // but execute must check the connection for the executeMode
-        $conn = $this->getMock('\Doctrine\DBAL\Driver\OCI8\OCI8Connection', array('getExecuteMode'), array(), '', false);
+        $conn = $this->getMockBuilder('\Doctrine\DBAL\Driver\OCI8\OCI8Connection')
+            ->setMethods(array('getExecuteMode'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $conn->expects($this->once())
             ->method('getExecuteMode');
 

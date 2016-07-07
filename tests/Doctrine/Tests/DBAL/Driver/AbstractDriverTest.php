@@ -59,7 +59,7 @@ abstract class AbstractDriverTest extends DbalTestCase
             );
         }
 
-        $driverException = $this->getMock('Doctrine\DBAL\Driver\DriverException');
+        $driverException = $this->createMock('Doctrine\DBAL\Driver\DriverException');
 
         $driverException->expects($this->any())
             ->method('getErrorCode')
@@ -209,7 +209,7 @@ abstract class AbstractDriverTest extends DbalTestCase
 
         foreach ($this->getExceptionConversionData() as $convertedExceptionClassName => $errors) {
             foreach ($errors as $error) {
-                $driverException = $this->getMock('Doctrine\DBAL\Driver\DriverException');
+                $driverException = $this->createMock('Doctrine\DBAL\Driver\DriverException');
 
                 $driverException->expects($this->any())
                     ->method('getErrorCode')
