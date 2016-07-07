@@ -72,6 +72,15 @@ class OCI8Statement implements \IteratorAggregate, Statement
     protected $_paramMap = array();
 
     /**
+     * Holds references to bound parameter values.
+     *
+     * This is a new requirement for PHP7's oci8 extension that prevents bound values from being garbage collected.
+     *
+     * @var array
+     */
+    private $boundValues = array();
+
+    /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
      * @param resource                                  $dbh       The connection handle.
@@ -148,10 +157,16 @@ class OCI8Statement implements \IteratorAggregate, Statement
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
             $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
+            $this->boundValues[$column] =& $lob;
+
             return oci_bind_by_name($this->_sth, $column, $lob, -1, OCI_B_BLOB);
         } elseif ($length !== null) {
+            $this->boundValues[$column] =& $variable;
+
             return oci_bind_by_name($this->_sth, $column, $variable, $length);
         }
+
+        $this->boundValues[$column] =& $variable;
 
         return oci_bind_by_name($this->_sth, $column, $variable);
     }
