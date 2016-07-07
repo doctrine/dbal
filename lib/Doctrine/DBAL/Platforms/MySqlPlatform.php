@@ -153,11 +153,14 @@ class MySqlPlatform extends AbstractPlatform
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         if ($currentDatabase) {
+            $currentDatabase = $this->quoteStringLiteral($currentDatabase);
+            $table = $this->quoteStringLiteral($table);
+
             return "SELECT TABLE_NAME AS `Table`, NON_UNIQUE AS Non_Unique, INDEX_NAME AS Key_name, ".
                    "SEQ_IN_INDEX AS Seq_in_index, COLUMN_NAME AS Column_Name, COLLATION AS Collation, ".
                    "CARDINALITY AS Cardinality, SUB_PART AS Sub_Part, PACKED AS Packed, " .
                    "NULLABLE AS `Null`, INDEX_TYPE AS Index_Type, COMMENT AS Comment " .
-                   "FROM information_schema.STATISTICS WHERE TABLE_NAME = '" . $table . "' AND TABLE_SCHEMA = '" . $currentDatabase . "'";
+                   "FROM information_schema.STATISTICS WHERE TABLE_NAME = " . $table . " AND TABLE_SCHEMA = " . $currentDatabase;
         }
 
         return 'SHOW INDEX FROM ' . $table;
@@ -168,7 +171,9 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getListViewsSQL($database)
     {
-        return "SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = '".$database."'";
+        $database = $this->quoteStringLiteral($database);
+
+        return "SELECT * FROM information_schema.VIEWS WHERE TABLE_SCHEMA = " . $database;
     }
 
     /**
@@ -176,14 +181,23 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
+        $table = $this->quoteStringLiteral($table);
+
+        if (null !== $database) {
+            $database = $this->quoteStringLiteral($database);
+        }
+
         $sql = "SELECT DISTINCT k.`CONSTRAINT_NAME`, k.`COLUMN_NAME`, k.`REFERENCED_TABLE_NAME`, ".
                "k.`REFERENCED_COLUMN_NAME` /*!50116 , c.update_rule, c.delete_rule */ ".
                "FROM information_schema.key_column_usage k /*!50116 ".
                "INNER JOIN information_schema.referential_constraints c ON ".
                "  c.constraint_name = k.constraint_name AND ".
-               "  c.table_name = '$table' */ WHERE k.table_name = '$table'";
+               "  c.table_name = $table */ WHERE k.table_name = $table";
 
-        $databaseNameSql = null === $database ? "'$database'" : 'DATABASE()';
+        // @TODO: This needs fixing. The condition has to be inverted.
+        // When fixed, AbstractMySQLPlatformTestCase::testQuotesDatabaseNameInListTableForeignKeysSQL test
+        // has to be completed.
+        $databaseNameSql = null === $database ? $database : 'DATABASE()';
 
         $sql .= " AND k.table_schema = $databaseNameSql /*!50116 AND c.constraint_schema = $databaseNameSql */";
         $sql .= " AND k.`REFERENCED_COLUMN_NAME` is not NULL";
@@ -355,8 +369,10 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
+        $table = $this->quoteStringLiteral($table);
+
         if ($database) {
-            $database = "'" . $database . "'";
+            $database = $this->quoteStringLiteral($database);
         } else {
             $database = 'DATABASE()';
         }
@@ -364,7 +380,7 @@ class MySqlPlatform extends AbstractPlatform
         return "SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ".
                "COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, " .
                "CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation ".
-               "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = " . $database . " AND TABLE_NAME = '" . $table . "'";
+               "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = " . $database . " AND TABLE_NAME = " . $table;
     }
 
     /**
@@ -1043,5 +1059,15 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         return 'LONGBLOB';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function quoteStringLiteral($str)
+    {
+        $str = str_replace('\\', '\\\\', $str); // MySQL requires backslashes to be escaped aswell.
+
+        return parent::quoteStringLiteral($str);
     }
 }

@@ -731,4 +731,92 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             'ALTER TABLE mytable ADD CONSTRAINT fk_foo FOREIGN KEY (foo) REFERENCES foreign_table (id)',
         );
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGeneratesDecimalTypeDeclarationSQL()
+    {
+        return array(
+            array(array(), 'NUMERIC(10, 0)'),
+            array(array('unsigned' => true), 'NUMERIC(10, 0) UNSIGNED'),
+            array(array('unsigned' => false), 'NUMERIC(10, 0)'),
+            array(array('precision' => 5), 'NUMERIC(5, 0)'),
+            array(array('scale' => 5), 'NUMERIC(10, 5)'),
+            array(array('precision' => 8, 'scale' => 2), 'NUMERIC(8, 2)'),
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGeneratesFloatDeclarationSQL()
+    {
+        return array(
+            array(array(), 'DOUBLE PRECISION'),
+            array(array('unsigned' => true), 'DOUBLE PRECISION UNSIGNED'),
+            array(array('unsigned' => false), 'DOUBLE PRECISION'),
+            array(array('precision' => 5), 'DOUBLE PRECISION'),
+            array(array('scale' => 5), 'DOUBLE PRECISION'),
+            array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\", 'foo_db'), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL('foo_table', "Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListViewsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListViewsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListTableForeignKeysSQL()
+    {
+        $this->markTestIncomplete('Test does not work due to a bug in MySqlplatform::getListTableForeignKeysSQL');
+
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL('foo_table', "Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
+    }
 }

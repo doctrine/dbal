@@ -818,4 +818,88 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             $this->_platform->getCloseActiveDatabaseConnectionsSQL('foo')
         );
     }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesSchemaNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\\\'",
+            $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
+            '',
+            true
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableConstraintsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesSchemaNameInListTableIndexesSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\\\'",
+            $this->_platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
+            '',
+            true
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesSchemaNameInListTableColumnsSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\\\'",
+            $this->_platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
+            '',
+            true
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\\\'",
+            $this->_platform->getCloseActiveDatabaseConnectionsSQL("Foo'Bar\\"),
+            '',
+            true
+        );
+    }
 }
