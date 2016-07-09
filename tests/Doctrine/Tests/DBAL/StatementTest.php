@@ -103,6 +103,28 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
         $statement->execute($values);
     }
 
+    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam()
+    {
+        $name = 'foo';
+        $var = 'bar';
+        $values = array($name => $var);
+        $types = array($name => \PDO::PARAM_STR);
+        $sql = '';
+
+        $logger = $this->createMock('\Doctrine\DBAL\Logging\SQLLogger');
+        $logger->expects($this->once())
+                ->method('startQuery')
+                ->with($this->equalTo($sql), $this->equalTo($values), $this->equalTo($types));
+
+        $this->configuration->expects($this->once())
+                ->method('getSQLLogger')
+                ->will($this->returnValue($logger));
+
+        $statement = new Statement($sql, $this->conn);
+        $statement->bindParam($name, $var);
+        $statement->execute();
+    }
+
     /**
      * @expectedException \Doctrine\DBAL\DBALException
      */
