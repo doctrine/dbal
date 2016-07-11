@@ -115,7 +115,13 @@ class SQLServer2012Platform extends SQLServer2008Platform
 
         // Queries using OFFSET... FETCH MUST have an ORDER BY clause
         // Find the position of the last instance of ORDER BY and ensure it is not within a parenthetical statement
-        $orderByPos = strripos($query, " ORDER BY ");
+        // but can be in a newline
+        $matches = array();
+        $matchesCount = preg_match_all("/[\\s]+order by /i", $query, $matches, PREG_OFFSET_CAPTURE);
+        $orderByPos = false;
+        if ($matchesCount > 0) {
+            $orderByPos = $matches[0][($matchesCount - 1)][1];
+        }
         
         if ($orderByPos === false
             || substr_count($query, "(", $orderByPos) - substr_count($query, ")", $orderByPos)
