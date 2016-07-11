@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Logging\SQLLogger;
 
 class StatementTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -111,10 +112,10 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
         $types = array($name => \PDO::PARAM_STR);
         $sql = '';
 
-        $logger = $this->createMock('\Doctrine\DBAL\Logging\SQLLogger');
-        $logger->expects($this->once())
+        $logger = $this->createMock(SQLLogger::class);
+        $logger->expects(self::once())
                 ->method('startQuery')
-                ->with($this->equalTo($sql), $this->equalTo($values), $this->equalTo($types));
+                ->with(self::equalTo($sql), self::equalTo($values), self::equalTo($types));
 
         $this->configuration->expects($this->once())
                 ->method('getSQLLogger')
