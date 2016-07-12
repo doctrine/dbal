@@ -84,7 +84,7 @@ class Driver extends AbstractSQLAnywhereDriver
         $hostPart = "";
         $serverPart = "";
         $dbnamePart = "";
-        $linksPart = "";
+        $linksPart = ';LINKS=tcpip()';
 
         //if host is empty, "LINKS=tcpip()" has to be set and SQLAnywhere did broadcasts to find the right DB
         //port-parameter is only used if host has no colon and has no comma (db-mirror configuration)
@@ -93,8 +93,8 @@ class Driver extends AbstractSQLAnywhereDriver
             if (false === strpos($host,':') && false === strpos($host,',')) {
                 $hostPart .= isset($port)?':'.$port:':2638';
             }
-        } else {
-            $linksPart = ';LINKS=tcpip()';
+            //if host is specified, its not needed
+            $linksPart = "";
         }
 
         if (! empty($server)) {
