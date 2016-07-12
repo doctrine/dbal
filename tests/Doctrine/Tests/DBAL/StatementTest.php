@@ -104,8 +104,8 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     {
         $name = 'foo';
         $var = 'bar';
-        $values = array($name => $var);
-        $types = array($name => \PDO::PARAM_STR);
+        $values = [$name => $var];
+        $types = [$name => \PDO::PARAM_STR];
         $sql = '';
 
         $logger = $this->createMock(SQLLogger::class);
@@ -113,9 +113,9 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
                 ->method('startQuery')
                 ->with(self::equalTo($sql), self::equalTo($values), self::equalTo($types));
 
-        $this->configuration->expects($this->once())
+        $this->configuration->expects(self::once())
                 ->method('getSQLLogger')
-                ->will($this->returnValue($logger));
+                ->willReturn($logger);
 
         $statement = new Statement($sql, $this->conn);
         $statement->bindParam($name, $var);
