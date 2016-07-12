@@ -81,19 +81,37 @@ class Driver extends AbstractSQLAnywhereDriver
      */
     private function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = array())
     {
-        $host = $host ?: 'localhost';
-        $port = $port ?: 2638;
+        $hostPart = "";
+        $serverPart = "";
+        $dbnamePart = "";
+        $linksPart = "";
 
-        if (! empty($server)) {
-            $server = ';ServerName=' . $server;
+        //if host is empty, "LINKS=tcpip()" has to be set and SQLAnywhere did broadcasts to find the right DB
+        //port-parameter is only used if host has no colon and has no comma (db-mirror configuration)
+        if (! empty($host)) {
+            $hostPart = 'HOST='.$host;
+            if (false === strpos($host,':') && false === strpos($host,',')) {
+                $hostPart .= isset($port)?':'.$port:':2638';
+            }
+        } else {
+            $linksPart = ';LINKS=tcpip()';
         }
 
-        return
-            'HOST=' . $host . ':' . $port .
-            $server .
-            ';DBN=' . $dbname .
+        if (! empty($server)) {
+            $serverPart = ';ServerName=' . $server;
+        }
+
+        if (! empty($dbname)) {
+            $dbnamePart = ';DBN=' . $dbname;
+        }
+
+        return 
+            $hostPart .
+            $serverPart .
+            $dbnamePart .
             ';UID=' . $username .
             ';PWD=' . $password .
+            $linksPart .
             ';' . implode(
                 ';',
                 array_map(function ($key, $value) {
