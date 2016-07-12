@@ -140,6 +140,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     {
         $this->params[$name] = $var;
         $this->types[$name] = $type;
+
         return $this->stmt->bindParam($name, $var, $type, $length);
     }
 
