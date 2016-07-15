@@ -375,9 +375,10 @@ class OraclePlatform extends AbstractPlatform
     public function getListSequencesSQL($database)
     {
         $database = $this->normalizeIdentifier($database);
+        $database = $this->quoteStringLiteral($database->getName());
 
         return "SELECT sequence_name, min_value, increment_by FROM sys.all_sequences ".
-               "WHERE SEQUENCE_OWNER = '" . $database->getName() . "'";
+               "WHERE SEQUENCE_OWNER = " . $database;
     }
 
     /**
@@ -418,16 +419,35 @@ class OraclePlatform extends AbstractPlatform
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         $table = $this->normalizeIdentifier($table);
+        $table = $this->quoteStringLiteral($table->getName());
 
-        return "SELECT uind.index_name AS name, " .
-             "       uind.index_type AS type, " .
-             "       decode( uind.uniqueness, 'NONUNIQUE', 0, 'UNIQUE', 1 ) AS is_unique, " .
-             "       uind_col.column_name AS column_name, " .
-             "       uind_col.column_position AS column_pos, " .
-             "       (SELECT ucon.constraint_type FROM user_constraints ucon WHERE ucon.constraint_name = uind.index_name) AS is_primary ".
-             "FROM user_indexes uind, user_ind_columns uind_col " .
-             "WHERE uind.index_name = uind_col.index_name AND uind_col.table_name = '" . $table->getName() . "' " .
-             "ORDER BY uind_col.column_position ASC";
+        return "SELECT uind_col.index_name AS name,
+                       (
+                           SELECT uind.index_type
+                           FROM   user_indexes uind
+                           WHERE  uind.index_name = uind_col.index_name
+                       ) AS type,
+                       decode(
+                           (
+                               SELECT uind.uniqueness
+                               FROM   user_indexes uind
+                               WHERE  uind.index_name = uind_col.index_name
+                           ),
+                           'NONUNIQUE',
+                           0,
+                           'UNIQUE',
+                           1
+                       ) AS is_unique,
+                       uind_col.column_name AS column_name,
+                       uind_col.column_position AS column_pos,
+                       (
+                           SELECT ucon.constraint_type
+                           FROM   user_constraints ucon
+                           WHERE  ucon.constraint_name = uind_col.index_name
+                       ) AS is_primary
+             FROM      user_ind_columns uind_col
+             WHERE     uind_col.table_name = " . $table . "
+             ORDER BY  uind_col.column_position ASC";
     }
 
     /**
@@ -590,7 +610,8 @@ END;';
      */
     public function getListTableForeignKeysSQL($table)
     {
-        $table = $table = $this->normalizeIdentifier($table);
+        $table = $this->normalizeIdentifier($table);
+        $table = $this->quoteStringLiteral($table->getName());
 
         return "SELECT alc.constraint_name,
           alc.DELETE_RULE,
@@ -609,8 +630,8 @@ LEFT JOIN user_cons_columns r_cols
       AND cols.position = r_cols.position
     WHERE alc.constraint_name = cols.constraint_name
       AND alc.constraint_type = 'R'
-      AND alc.table_name = '" . $table->getName() . "'
- ORDER BY alc.constraint_name ASC, cols.position ASC";
+      AND alc.table_name = " . $table . "
+    ORDER BY cols.constraint_name ASC, cols.position ASC";
     }
 
     /**
@@ -619,8 +640,9 @@ LEFT JOIN user_cons_columns r_cols
     public function getListTableConstraintsSQL($table)
     {
         $table = $this->normalizeIdentifier($table);
+        $table = $this->quoteStringLiteral($table->getName());
 
-        return "SELECT * FROM user_constraints WHERE table_name = '" . $table->getName() . "'";
+        return "SELECT * FROM user_constraints WHERE table_name = " . $table;
     }
 
     /**
@@ -629,6 +651,7 @@ LEFT JOIN user_cons_columns r_cols
     public function getListTableColumnsSQL($table, $database = null)
     {
         $table = $this->normalizeIdentifier($table);
+        $table = $this->quoteStringLiteral($table->getName());
 
         $tabColumnsTableName = "user_tab_columns";
         $colCommentsTableName = "user_col_comments";
@@ -636,14 +659,22 @@ LEFT JOIN user_cons_columns r_cols
 
         if (null !== $database) {
             $database = $this->normalizeIdentifier($database);
+            $database = $this->quoteStringLiteral($database->getName());
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
-            $ownerCondition = "AND c.owner = '" . $database->getName() . "'";
+            $ownerCondition = "AND c.owner = " . $database;
         }
 
-        return "SELECT c.*, d.comments FROM $tabColumnsTableName c ".
-               "INNER JOIN " . $colCommentsTableName . " d ON d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME ".
-               "WHERE c.table_name = '" . $table->getName() . "' ".$ownerCondition." ORDER BY c.column_name";
+        return "SELECT   c.*,
+                         (
+                             SELECT d.comments
+                             FROM   $colCommentsTableName d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                         ) AS comments
+                FROM     $tabColumnsTableName c
+                WHERE    c.table_name = " . $table . " $ownerCondition
+                ORDER BY c.column_name";
     }
 
     /**
@@ -1124,5 +1155,15 @@ LEFT JOIN user_cons_columns r_cols
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'BLOB';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function quoteStringLiteral($str)
+    {
+        $str = str_replace('\\', '\\\\', $str); // Oracle requires backslashes to be escaped aswell.
+
+        return parent::quoteStringLiteral($str);
     }
 }

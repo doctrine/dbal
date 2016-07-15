@@ -928,12 +928,14 @@ class SQLServerPlatform extends AbstractPlatform
     {
         if (strpos($table, ".") !== false) {
             list($schema, $table) = explode(".", $table);
-            $schema = "'" . $schema . "'";
+            $schema = $this->quoteStringLiteral($schema);
+            $table = $this->quoteStringLiteral($table);
         } else {
             $schema = "SCHEMA_NAME()";
+            $table = $this->quoteStringLiteral($table);
         }
 
-        return "({$tableColumn} = '{$table}' AND {$schemaColumn} = {$schema})";
+        return "({$tableColumn} = {$table} AND {$schemaColumn} = {$schema})";
     }
 
     /**
