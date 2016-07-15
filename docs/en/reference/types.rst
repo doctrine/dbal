@@ -248,6 +248,17 @@ without time and timezone information, you should consider using this type.
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
 
+date_immutable
+^^^^^^^^^^^^^^
+
+The immutable variant of the ``date`` type.
+Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
+object or ``null`` if no data is present.
+
+.. note::
+
+    Available since version ``2.6``.
+
 datetime
 ^^^^^^^^
 
@@ -271,6 +282,17 @@ or ``null`` if no data is present.
     and not parsed correctly by ``date_create()``, however since
     databases are rather strict on dates there should be no problem.
 
+datetime_immutable
+^^^^^^^^^^^^^^^^^^
+
+The immutable variant of the ``datetime`` type.
+Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
+object or ``null`` if no data is present.
+
+.. note::
+
+    Available since version ``2.6``.
+
 datetimetz
 ^^^^^^^^^^
 
@@ -280,6 +302,17 @@ information, you should consider using this type.
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
 
+datetimetz_immutable
+^^^^^^^^^^^^^^^^^^^^
+
+The immutable variant of the ``datetimetz`` type.
+Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
+object or ``null`` if no data is present.
+
+.. note::
+
+    Available since version ``2.6``.
+
 time
 ^^^^
 
@@ -288,6 +321,17 @@ If you know that the data to be stored only needs to be a time
 without date, time and timezone information, you should consider using this type.
 Values retrieved from the database are always converted to PHP's ``\DateTime`` object
 or ``null`` if no data is present.
+
+time_immutable
+^^^^^^^^^^^^^^
+
+The immutable variant of the ``time`` type.
+Values retrieved from the database are always converted to PHP's ``\DateTimeImmutable``
+object or ``null`` if no data is present.
+
+.. note::
+
+    Available since version ``2.6``.
 
 dateinterval
 ^^^^^^^^^^^^
@@ -374,7 +418,7 @@ json
 Maps and converts array data based on PHP's JSON encoding functions.
 If you know that the data to be stored always is in a valid UTF-8
 encoded JSON format string, you should consider using this type.
-Values retrieved from the database are always converted to PHP's ``array`` or 
+Values retrieved from the database are always converted to PHP's ``array`` or
 ``null`` types using PHP's ``json_decode()`` function.
 
 .. note::
