@@ -799,8 +799,6 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testQuotesDatabaseNameInListTableForeignKeysSQL()
     {
-        $this->markTestIncomplete('Test does not work due to a bug in MySqlplatform::getListTableForeignKeysSQL');
-
         $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL('foo_table', "Foo'Bar\\"), '', true);
     }
 
