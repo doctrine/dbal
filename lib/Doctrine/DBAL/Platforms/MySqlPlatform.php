@@ -194,10 +194,7 @@ class MySqlPlatform extends AbstractPlatform
                "  c.constraint_name = k.constraint_name AND ".
                "  c.table_name = $table */ WHERE k.table_name = $table";
 
-        // @TODO: This needs fixing. The condition has to be inverted.
-        // When fixed, AbstractMySQLPlatformTestCase::testQuotesDatabaseNameInListTableForeignKeysSQL test
-        // has to be completed.
-        $databaseNameSql = null === $database ? $database : 'DATABASE()';
+        $databaseNameSql = null === $database ? 'DATABASE()' : $database;
 
         $sql .= " AND k.table_schema = $databaseNameSql /*!50116 AND c.constraint_schema = $databaseNameSql */";
         $sql .= " AND k.`REFERENCED_COLUMN_NAME` is not NULL";
