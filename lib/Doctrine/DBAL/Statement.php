@@ -138,6 +138,9 @@ class Statement implements \IteratorAggregate, DriverStatement
      */
     public function bindParam($name, &$var, $type = PDO::PARAM_STR, $length = null)
     {
+        $this->params[$name] = $var;
+        $this->types[$name] = $type;
+
         return $this->stmt->bindParam($name, $var, $type, $length);
     }
 

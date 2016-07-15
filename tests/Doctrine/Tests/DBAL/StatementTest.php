@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Logging\SQLLogger;
 
 class StatementTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -101,6 +102,28 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
         $statement = new Statement($sql, $this->conn);
         $statement->execute($values);
+    }
+
+    public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam()
+    {
+        $name = 'foo';
+        $var = 'bar';
+        $values = [$name => $var];
+        $types = [$name => \PDO::PARAM_STR];
+        $sql = '';
+
+        $logger = $this->createMock(SQLLogger::class);
+        $logger->expects(self::once())
+                ->method('startQuery')
+                ->with(self::equalTo($sql), self::equalTo($values), self::equalTo($types));
+
+        $this->configuration->expects(self::once())
+                ->method('getSQLLogger')
+                ->willReturn($logger);
+
+        $statement = new Statement($sql, $this->conn);
+        $statement->bindParam($name, $var);
+        $statement->execute();
     }
 
     /**
