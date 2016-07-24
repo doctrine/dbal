@@ -65,4 +65,28 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
             'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed',
         );
     }
+
+    /**
+     * @group DBAL-553
+     */
+    public function hasNativeJsonType()
+    {
+        $this->assertTrue($this->_platform->hasNativeJsonType());
+    }
+
+    /**
+     * @group DBAL-553
+     */
+    public function testReturnsJsonTypeDeclarationSQL()
+    {
+        $this->assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
+    }
+    /**
+     * @group DBAL-553
+     */
+    public function testInitializesJsonTypeMapping()
+    {
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
+        $this->assertEquals('json_array', $this->_platform->getDoctrineTypeMapping('json'));
+    }
 }
