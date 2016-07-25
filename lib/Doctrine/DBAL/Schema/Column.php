@@ -215,7 +215,7 @@ class Column extends AbstractAsset
      *
      * @return \Doctrine\DBAL\Schema\Column
      */
-    public function setNotnull($notnull)
+    public function setNotNull($notnull)
     {
         $this->_notnull = (bool)$notnull;
 
