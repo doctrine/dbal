@@ -386,7 +386,7 @@ class MySqlPlatform extends AbstractPlatform
         return "SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ".
                "COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, " .
                "CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation ".
-               "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = " . $database . " AND TABLE_NAME = " . $table;
+               "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = " . $database . " AND TABLE_NAME = " . $table . " AND DATA_TYPE != 'geometry'";
     }
 
     /**
