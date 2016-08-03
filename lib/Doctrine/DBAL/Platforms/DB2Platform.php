@@ -772,18 +772,26 @@ class DB2Platform extends AbstractPlatform
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        if ($limit === null && $offset === null) {
+        $where = array();
+
+        if ($offset > 0) {
+            $where[] = sprintf('db22.DC_ROWNUM >= %d', $offset + 1);
+        }
+
+        if ($limit !== null) {
+            $where[] = sprintf('db22.DC_ROWNUM <= %d', $offset + $limit);
+        }
+
+        if (empty($where)) {
             return $query;
         }
 
-        $limit = (int) $limit;
-        $offset = (int) (($offset)?:0);
-
         // Todo OVER() needs ORDER BY data!
-        $sql = 'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM '.
-               'FROM (' . $query . ') db21) db22 WHERE db22.DC_ROWNUM BETWEEN ' . ($offset+1) .' AND ' . ($offset+$limit);
-
-        return $sql;
+        return sprintf(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
+            $query,
+            implode(' AND ', $where)
+        );
     }
 
     /**
