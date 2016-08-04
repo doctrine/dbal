@@ -1233,26 +1233,28 @@ class SQLServerPlatform extends AbstractPlatform
             $parenCount = 0;
             $currentPosition = $orderByPos;
 
-            while ($parenCount >= 0 && $currentPosition < $qLen) {
-                if ($query[$currentPosition] === '(') {
-                    $parenCount++;
-                } elseif ($query[$currentPosition] === ')') {
-                    $parenCount--;
+            if (!is_bool($currentPosition)) {
+                while ($parenCount >= 0 && $currentPosition < $qLen) {
+                    if ($query[$currentPosition] === '(') {
+                        $parenCount++;
+                    } elseif ($query[$currentPosition] === ')') {
+                        $parenCount--;
+                    }
+    
+                    $currentPosition++;
                 }
-
-                $currentPosition++;
-            }
-
-            if ($this->isOrderByInTopNSubquery($query, $orderByPos)) {
-                // If the order by clause is in a TOP N subquery, do not remove
-                // it and continue iteration from the current position.
-                $offset = $currentPosition;
-                continue;
-            }
-
-            if ($currentPosition < $qLen - 1) {
-                $query = substr($query, 0, $orderByPos) . substr($query, $currentPosition - 1);
-                $offset = $orderByPos;
+    
+                if ($this->isOrderByInTopNSubquery($query, $orderByPos)) {
+                    // If the order by clause is in a TOP N subquery, do not remove
+                    // it and continue iteration from the current position.
+                    $offset = $currentPosition;
+                    continue;
+                }
+    
+                if ($currentPosition < $qLen - 1) {
+                    $query = substr($query, 0, $orderByPos) . substr($query, $currentPosition - 1);
+                    $offset = $orderByPos;
+                }
             }
         }
         return $query;
