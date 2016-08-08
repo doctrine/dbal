@@ -568,7 +568,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                 }
             }
 
-            if ($columnDiff->hasChanged('comment')) {
+            if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('comment')) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL(
                     $diff->getName($this)->getQuotedName($this),
                     $column->getQuotedName($this),
