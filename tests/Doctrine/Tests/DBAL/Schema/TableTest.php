@@ -409,7 +409,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
         $table->addForeignKeyConstraint($foreignTable, array('bar', 'baz'), array('foo', 'baz'));
 
-        $this->assertCount(3, $table->getIndexes());
+        $this->assertCount(2, $table->getIndexes());
         $this->assertTrue($table->hasIndex('composite_idx'));
         $this->assertTrue($table->hasIndex('full_idx'));
         $this->assertTrue($table->hasIndex('idx_8c73652176ff8caa78240498'));
