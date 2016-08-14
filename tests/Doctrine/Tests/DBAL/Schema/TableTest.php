@@ -401,7 +401,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->addColumn('baz', 'string');
         $table->addColumn('bloo', 'string');
         $table->addIndex(array('baz', 'bar'), 'composite_idx');
-        $table->addIndex(array('bar', 'baz', 'bloo'), 'full_idx');
+        $table->addIndex(array('bloo', 'bar', 'baz'), 'full_idx');
 
         $foreignTable = new Table('bar');
         $foreignTable->addColumn('foo', 'integer');
@@ -409,12 +409,12 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
         $table->addForeignKeyConstraint($foreignTable, array('bar', 'baz'), array('foo', 'baz'));
 
-        $this->assertCount(2, $table->getIndexes());
+        $this->assertCount(3, $table->getIndexes());
         $this->assertTrue($table->hasIndex('composite_idx'));
         $this->assertTrue($table->hasIndex('full_idx'));
         $this->assertTrue($table->hasIndex('idx_8c73652176ff8caa78240498'));
         $this->assertSame(array('baz', 'bar'), $table->getIndex('composite_idx')->getColumns());
-        $this->assertSame(array('bar', 'baz', 'bloo'), $table->getIndex('full_idx')->getColumns());
+        $this->assertSame(array('bloo', 'bar', 'baz'), $table->getIndex('full_idx')->getColumns());
         $this->assertSame(array('bar', 'baz'), $table->getIndex('idx_8c73652176ff8caa78240498')->getColumns());
     }
 
