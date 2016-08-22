@@ -102,7 +102,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
     public function testConnectDispatchEvent()
     {
-        $listenerMock = $this->getMockBuilder('ConnectDispatchEventListener')
+        $listenerMock = $this->getMockBuilder('stdClass')
             ->setMethods(array('postConnect'))
             ->getMock();
         $listenerMock->expects($this->once())->method('postConnect');

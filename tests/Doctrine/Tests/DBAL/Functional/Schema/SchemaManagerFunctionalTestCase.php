@@ -284,7 +284,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm->dropAndCreateTable($table);
 
         $listenerMock = $this
-            ->getMockBuilder('ListTableColumnsDispatchEventListener')
+            ->getMockBuilder('stdClass')
             ->setMethods(['onSchemaColumnDefinition'])
             ->getMock();
         $listenerMock
@@ -312,7 +312,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm->dropAndCreateTable($table);
 
         $listenerMock = $this
-            ->getMockBuilder('ListTableIndexesDispatchEventListener')
+            ->getMockBuilder('stdClass')
             ->setMethods(['onSchemaIndexDefinition'])
             ->getMock();
         $listenerMock
