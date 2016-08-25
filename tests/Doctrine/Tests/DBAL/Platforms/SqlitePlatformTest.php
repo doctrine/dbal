@@ -744,4 +744,19 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
+
+    public function testSupportsIntAndStringInDateArithmeticExpressions()
+    {
+        // Test Integer
+        $sql = $this->_platform->getDateAddMinutesExpression("CURRENT_TIMESTAMP()", 4);
+        $this->assertEquals('DATETIME(CURRENT_TIMESTAMP(),"+4 MINUTE")', $sql);
+
+        // Test string
+        $sql = $this->_platform->getDateAddMinutesExpression("CURRENT_TIMESTAMP()", "foo.bar");
+        $this->assertEquals('DATETIME(CURRENT_TIMESTAMP(),"+" || foo.bar || " MINUTE")', $sql);
+
+        // Test unexpected type
+        $this->expectException(DBALException::class);
+        $this->_platform->getDateAddMinutesExpression("CURRENT_TIMESTAMP()", array("unsupported" => "type"));
+    }
 }
