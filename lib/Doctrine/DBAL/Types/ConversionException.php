@@ -100,7 +100,7 @@ class ConversionException extends \Doctrine\DBAL\DBALException
         ));
     }
 
-    static public function conversionFailedSerialization($value, $format, $error, \Exception $previous = null)
+    static public function conversionFailedSerialization($value, $format, $error)
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 
