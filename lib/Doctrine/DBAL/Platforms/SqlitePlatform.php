@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Table;
@@ -129,11 +130,29 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
+        // If $interval is a string (i.e. reference to other entity value), then it
+        // has to be concatenated using || operator
+
+        // Calculate the format string based in whether || concatenation has to be done
+        // or not
+        switch (gettype($interval))
+        {
+            case 'integer':
+                $formatString = '%s(%s,"%s%s %s")';
+                break;
+            case 'string':
+                $formatString = '%s(%s,"%s" || %s || " %s")';
+                break;
+            default:
+                throw new DBALException("Interval is of an unsupported type");
+        }
+
+
         switch ($unit) {
             case self::DATE_INTERVAL_UNIT_SECOND:
             case self::DATE_INTERVAL_UNIT_MINUTE:
             case self::DATE_INTERVAL_UNIT_HOUR:
-                return "DATETIME(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
+                return sprintf($formatString, "DATETIME", $date, $operator, $interval, $unit);
 
             default:
                 switch ($unit) {
@@ -148,7 +167,7 @@ class SqlitePlatform extends AbstractPlatform
                         break;
                 }
 
-                return "DATE(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
+                return sprintf($formatString, "DATE", $date, $operator, $interval, $unit);
         }
     }
 
