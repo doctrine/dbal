@@ -1034,8 +1034,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given seconds to a date.
      *
-     * @param string  $date
-     * @param integer $seconds
+     * @param string         $date
+     * @param integer|string $seconds
      *
      * @return string
      *
@@ -1049,8 +1049,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given seconds from a date.
      *
-     * @param string  $date
-     * @param integer $seconds
+     * @param string         $date
+     * @param integer|string $seconds
      *
      * @return string
      *
@@ -1064,8 +1064,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given minutes to a date.
      *
-     * @param string  $date
-     * @param integer $minutes
+     * @param string         $date
+     * @param integer|string $minutes
      *
      * @return string
      *
@@ -1079,8 +1079,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given minutes from a date.
      *
-     * @param string  $date
-     * @param integer $minutes
+     * @param string         $date
+     * @param integer|string $minutes
      *
      * @return string
      *
@@ -1094,8 +1094,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given hours to a date.
      *
-     * @param string  $date
-     * @param integer $hours
+     * @param string         $date
+     * @param integer|string $hours
      *
      * @return string
      *
@@ -1109,8 +1109,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given hours to a date.
      *
-     * @param string  $date
-     * @param integer $hours
+     * @param string         $date
+     * @param integer|string $hours
      *
      * @return string
      *
@@ -1124,8 +1124,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given days to a date.
      *
-     * @param string  $date
-     * @param integer $days
+     * @param string         date
+     * @param integer|string $days
      *
      * @return string
      *
@@ -1139,8 +1139,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given days to a date.
      *
-     * @param string  $date
-     * @param integer $days
+     * @param string         $date
+     * @param integer|string $days
      *
      * @return string
      *
@@ -1154,8 +1154,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given weeks to a date.
      *
-     * @param string  $date
-     * @param integer $weeks
+     * @param string         $date
+     * @param integer|string $weeks
      *
      * @return string
      *
@@ -1169,8 +1169,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given weeks from a date.
      *
-     * @param string  $date
-     * @param integer $weeks
+     * @param string         $date
+     * @param integer|string $weeks
      *
      * @return string
      *
@@ -1184,8 +1184,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given months to a date.
      *
-     * @param string  $date
-     * @param integer $months
+     * @param string         $date
+     * @param integer|string $months
      *
      * @return string
      *
@@ -1199,8 +1199,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given months to a date.
      *
-     * @param string  $date
-     * @param integer $months
+     * @param string         $date
+     * @param integer|string $months
      *
      * @return string
      *
@@ -1214,8 +1214,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given quarters to a date.
      *
-     * @param string  $date
-     * @param integer $quarters
+     * @param string         $date
+     * @param integer|string $quarters
      *
      * @return string
      *
@@ -1229,8 +1229,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given quarters from a date.
      *
-     * @param string  $date
-     * @param integer $quarters
+     * @param string         $date
+     * @param integer|string $quarters
      *
      * @return string
      *
@@ -1244,8 +1244,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given years to a date.
      *
-     * @param string  $date
-     * @param integer $years
+     * @param string         $date
+     * @param integer|string $years
      *
      * @return string
      *
@@ -1259,8 +1259,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given years from a date.
      *
-     * @param string  $date
-     * @param integer $years
+     * @param string         $date
+     * @param integer|string $years
      *
      * @return string
      *
@@ -1274,11 +1274,11 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL for a date arithmetic expression.
      *
-     * @param string  $date     The column or literal representing a date to perform the arithmetic operation on.
-     * @param string  $operator The arithmetic operator (+ or -).
-     * @param integer $interval The interval that shall be calculated into the date.
-     * @param string  $unit     The unit of the interval that shall be calculated into the date.
-     *                          One of the DATE_INTERVAL_UNIT_* constants.
+     * @param string         $date     The column or literal representing a date to perform the arithmetic operation on.
+     * @param string         $operator The arithmetic operator (+ or -).
+     * @param integer|string $interval The interval that shall be calculated into the date.
+     * @param string         $unit     The unit of the interval that shall be calculated into the date.
+     *                                 One of the DATE_INTERVAL_UNIT_* constants.
      *
      * @return string
      *
