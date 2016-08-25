@@ -191,6 +191,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
             } else {
                 $this->_columnNames = false;
             }
+        } elseif ($this->_columnNames !== false) {
+            // store the result of a subsequent SELECT, SHOW, etc. statement execution
+            $this->_stmt->store_result();
         }
 
         return true;
