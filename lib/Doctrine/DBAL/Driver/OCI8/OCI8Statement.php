@@ -121,26 +121,67 @@ class OCI8Statement implements \IteratorAggregate, Statement
      * @param string $statement The SQL statement to convert.
      *
      * @return string
+     * @throws \Doctrine\DBAL\Driver\OCI8\OCI8Exception
      */
     static public function convertPositionalToNamedPlaceholders($statement)
     {
-        $count = 1;
-        $inLiteral = false; // a valid query never starts with quotes
-        $stmtLen = strlen($statement);
         $paramMap = array();
-        for ($i = 0; $i < $stmtLen; $i++) {
-            if ($statement[$i] == '?' && !$inLiteral) {
-                // real positional parameter detected
-                $paramMap[$count] = ":param$count";
-                $len = strlen($paramMap[$count]);
-                $statement = substr_replace($statement, ":param$count", $i, 1);
-                $i += $len-1; // jump ahead
-                $stmtLen = strlen($statement); // adjust statement length
-                ++$count;
-            } elseif ($statement[$i] == "'" || $statement[$i] == '"') {
-                $inLiteral = ! $inLiteral; // switch state!
+        $count = 1;
+        $start = $offset = 0;
+        $fragments = array();
+        $quote = false;
+        $capture = function ($regex, $callback) use ($statement, $start, &$offset) {
+            if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+                $offset = $matches[0][1];
+                $callback($matches[0][0]);
+                return true;
             }
+            return false;
+        };
+
+        do {
+            if (!$quote) {
+                $result = $capture('/[?\'"]/', function ($token) use (
+                    $statement,
+                    &$fragments,
+                    &$start,
+                    &$offset,
+                    &$quote,
+                    &$count,
+                    &$paramMap
+                ) {
+                    if ($token == '?') {
+                        $param = ':param' . $count;
+                        $fragments[] = substr($statement, $start, $offset - $start);
+                        $fragments[] = $param;
+                        $paramMap[$count] = $param;
+                        $start = ++$offset;
+                        ++$count;
+                    } else {
+                        $quote = $token;
+                        ++$offset;
+                    }
+                });
+            } else {
+                $result = $capture('/(?<!\\\\)' . $quote . '/', function () use (&$offset, &$quote) {
+                    $quote = false;
+                    ++$offset;
+                });
+            }
+        } while ($result);
+
+        if ($quote) {
+            throw new OCI8Exception(sprintf(
+                'The statement contains non-terminated string literal starting at offset %d',
+                $offset - 1
+            ));
         }
+
+        if ($start < strlen($statement)) {
+            $fragments[] = substr($statement, $start);
+        }
+
+        $statement = implode('', $fragments);
 
         return array($statement, $paramMap);
     }

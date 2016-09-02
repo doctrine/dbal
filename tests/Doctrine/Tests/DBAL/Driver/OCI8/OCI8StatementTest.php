@@ -2,7 +2,11 @@
 
 namespace Doctrine\Tests\DBAL;
 
-class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
+use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
+use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
+use Doctrine\Tests\DbalTestCase;
+
+class OCI8StatementTest extends DbalTestCase
 {
     protected function setUp()
     {
@@ -81,4 +85,52 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    /**
+     * @dataProvider convertSuccessProvider
+     */
+    public function testConvertSuccess($statement, $expectedStatement, $expectedParamCount)
+    {
+        list($converted, $paramMap) = OCI8Statement::convertPositionalToNamedPlaceholders($statement);
+        $this->assertEquals($expectedStatement, $converted);
+        $this->assertCount($expectedParamCount, $paramMap);
+    }
+
+    public static function convertSuccessProvider()
+    {
+        return array(
+            'simple' => array(
+                'INSERT INTO table (column) VALUES(?)',
+                'INSERT INTO table (column) VALUES(:param1)',
+                1,
+            ),
+            'literal-with-placeholder' => array(
+                "INSERT INTO table (col1, col2, col3) VALUES('?', ?, \"?\", ?)",
+                "INSERT INTO table (col1, col2, col3) VALUES('?', :param1, \"?\", :param2)",
+                2,
+            ),
+            'literal-with-quotes' => array(
+                "INSERT INTO table (col1, col2, col3, col4) VALUES('?\"?\\'?', ?, \"?'?\\\"?\", ?)",
+                "INSERT INTO table (col1, col2, col3, col4) VALUES('?\"?\'?', :param1, \"?'?\\\"?\", :param2)",
+                2,
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider convertFailureProvider
+     */
+    public function testConvertFailure($statement)
+    {
+        $this->expectException(OCI8Exception::class);
+        OCI8Statement::convertPositionalToNamedPlaceholders($statement);
+    }
+
+    public static function convertFailureProvider()
+    {
+        return array(
+            'non-terminated-literal' => array(
+                'SELECT "literal',
+            ),
+        );
+    }
 }
