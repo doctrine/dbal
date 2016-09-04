@@ -35,7 +35,7 @@ class SQLParserUtils
     const ESCAPED_SINGLE_QUOTED_TEXT = "'(?:[^'\\\\]|\\\\'?|'')*'";
     const ESCAPED_DOUBLE_QUOTED_TEXT = '"(?:[^"\\\\]|\\\\"?)*"';
     const ESCAPED_BACKTICK_QUOTED_TEXT = '`(?:[^`\\\\]|\\\\`?)*`';
-    const ESCAPED_BRACKET_QUOTED_TEXT = '\[(?:[^\]])*\]';
+    const ESCAPED_BRACKET_QUOTED_TEXT = '(?<!\bARRAY)\[(?:[^\]])*\]';
 
     /**
      * Gets an array of the placeholders in an sql statements as keys and their positions in the query string.
