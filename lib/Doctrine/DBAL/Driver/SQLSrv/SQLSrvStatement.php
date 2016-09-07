@@ -150,9 +150,10 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        if ($this->stmt) {
-            sqlsrv_free_stmt($this->stmt);
-        }
+        // emulate it by fetching and discarding rows
+        while (sqlsrv_fetch($this->stmt));
+
+        return true;
     }
 
     /**
