@@ -11,13 +11,13 @@ class StatementTest extends DbalFunctionalTestCase
     protected function setUp()
     {
         if (!extension_loaded('sqlsrv')) {
-            $this->markTestSkipped('sqlsrv is not installed.');
+            self::markTestSkipped('sqlsrv is not installed.');
         }
 
         parent::setUp();
 
         if (!$this->_conn->getDriver() instanceof Driver) {
-            $this->markTestSkipped('sqlsrv only test');
+            self::markTestSkipped('sqlsrv only test');
         }
     }
 
