@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\SQLSrv\Driver;
+use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
 class StatementTest extends DbalFunctionalTestCase
@@ -27,7 +28,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         // it's impossible to prepare the statement without bound variables for SQL Server,
         // so the preparation happens before the first execution when variables are already in place
-        $this->setExpectedException('Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvException');
+        $this->expectException('Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvException');
         $stmt->execute();
     }
 }
