@@ -300,7 +300,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     public function fetchColumn($columnIndex = 0)
     {
         $row = $this->fetch(PDO::FETCH_NUM);
-        if (null === $row) {
+        if (false === $row) {
             return false;
         }
 
