@@ -28,7 +28,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         // it's impossible to prepare the statement without bound variables for SQL Server,
         // so the preparation happens before the first execution when variables are already in place
-        $this->expectException('Doctrine\\DBAL\\Driver\\SQLSrv\\SQLSrvException');
+        $this->expectException(SQLSrvException::class);
         $stmt->execute();
     }
 }
