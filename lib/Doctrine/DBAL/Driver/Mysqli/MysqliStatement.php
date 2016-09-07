@@ -242,7 +242,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     {
         $values = $this->_fetch();
         if (null === $values) {
-            return null;
+            return false;
         }
 
         if (false === $values) {
