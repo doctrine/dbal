@@ -1511,20 +1511,29 @@ abstract class AbstractPlatform
         }
 
         $tableName = $table->getQuotedName($this);
-        $options = $table->getOptions();
+        $options   = $table->getOptions();
+
         $options['uniqueConstraints'] = array();
         $options['indexes'] = array();
         $options['primary'] = array();
 
         if (($createFlags&self::CREATE_INDEXES) > 0) {
             foreach ($table->getIndexes() as $index) {
-                /* @var $index Index */
+                /* @var Index $index */
                 if ($index->isPrimary()) {
                     $options['primary']       = $index->getQuotedColumns($this);
                     $options['primary_index'] = $index;
-                } else {
-                    $options['indexes'][$index->getQuotedName($this)] = $index;
+
+                    continue;
                 }
+
+                if ($index->isUnique()) {
+                    $options['uniqueConstraints'][$index->getQuotedName($this)] = $index;
+
+                    continue;
+                }
+
+                $options['indexes'][$index->getQuotedName($this)] = $index;
             }
         }
 
@@ -1578,6 +1587,7 @@ abstract class AbstractPlatform
         }
 
         $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
+
         if ($this->supportsCommentOnStatement()) {
             foreach ($table->getColumns() as $column) {
                 $comment = $this->getColumnComment($column);
