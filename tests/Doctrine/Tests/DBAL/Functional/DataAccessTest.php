@@ -239,6 +239,13 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals('foo', $row[1]);
     }
 
+    public function testFetchNoResult()
+    {
+        $sql = "SELECT test_int FROM fetch_table WHERE test_int = ?";
+        $row = $this->_conn->executeQuery($sql, array(-1))->fetch();
+        $this->assertFalse($row);
+    }
+
     public function testFetchAssoc()
     {
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
