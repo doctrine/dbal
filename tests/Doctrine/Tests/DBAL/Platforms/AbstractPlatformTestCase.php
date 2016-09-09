@@ -107,6 +107,34 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->_platform->registerDoctrineTypeMapping('foo', 'bar');
     }
 
+    /**
+     * @group DBAL-939
+     *
+     * @dataProvider getIsCommentedDoctrineType
+     */
+    public function testIsCommentedDoctrineType(Type $type, $commented)
+    {
+        $this->assertSame($commented, $this->_platform->isCommentedDoctrineType($type));
+    }
+
+    public function getIsCommentedDoctrineType()
+    {
+        $this->setUp();
+
+        $data = array();
+
+        foreach (Type::getTypesMap() as $typeName => $className) {
+            $type = Type::getType($typeName);
+
+            $data[$typeName] = array(
+                $type,
+                $type->requiresSQLCommentHint($this->_platform),
+            );
+        }
+
+        return $data;
+    }
+
     public function testCreateWithNoColumns()
     {
         $table = new Table('test');
@@ -665,6 +693,19 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     protected function supportsInlineIndexDeclaration()
     {
         return true;
+    }
+
+    public function testSupportsCommentOnStatement()
+    {
+        $this->assertSame($this->supportsCommentOnStatement(), $this->_platform->supportsCommentOnStatement());
+    }
+
+    /**
+     * @return bool
+     */
+    protected function supportsCommentOnStatement()
+    {
+        return false;
     }
 
     /**

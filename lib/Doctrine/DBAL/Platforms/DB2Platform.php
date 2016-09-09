@@ -26,6 +26,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 class DB2Platform extends AbstractPlatform
 {
@@ -76,6 +77,20 @@ class DB2Platform extends AbstractPlatform
             'real'          => 'float',
             'timestamp'     => 'datetime',
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isCommentedDoctrineType(Type $doctrineType)
+    {
+        if ($doctrineType->getName() === Type::BOOLEAN) {
+            // We require a commented boolean type in order to distinguish between boolean and smallint
+            // as both (have to) map to the same native type.
+            return true;
+        }
+
+        return parent::isCommentedDoctrineType($doctrineType);
     }
 
     /**
@@ -272,6 +287,7 @@ class DB2Platform extends AbstractPlatform
                  c.scale,
                  c.identity,
                  tc.type AS tabconsttype,
+                 c.remarks AS comment,
                  k.colseq,
                  CASE
                  WHEN c.generated = 'D' THEN 1
@@ -416,6 +432,14 @@ class DB2Platform extends AbstractPlatform
     public function supportsReleaseSavepoints()
     {
         return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsCommentOnStatement()
+    {
+        return true;
     }
 
     /**
