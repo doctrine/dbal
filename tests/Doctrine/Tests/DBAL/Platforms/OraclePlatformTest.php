@@ -712,6 +712,9 @@ EOD;
      */
     public function testReturnsGetListTableColumnsSQL($database, $expectedSql)
     {
+        // note: this assertion is a bit strict, as it compares a full SQL string.
+        // Should this break in future, then please try to reduce the matching to substring matching while reworking
+        // the tests
         $this->assertEquals($expectedSql, $this->_platform->getListTableColumnsSQL('"test"', $database));
     }
 
