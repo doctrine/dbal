@@ -25,21 +25,31 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 /**
  * Adds default namespace to schema
  *
- * Some databases supports namespaces and has default one. For example Postgres has default "public".
+ * Some databases supports namespaces and has default one.
+ * For example Postgres has default "public".
  *
- * When schema created from classes, which has table names without namespaces, but this namespace is assumed,
- * we should add it explicitly, if it not exists yet.
+ * When schema created from classes, which has table names without namespaces,
+ * but this namespace is assumed, we should add it explicitly, if it not exists
+ * yet.
  *
  * It will help in diffs between real DB and config shemas.
  *
+ * The visitor is skipping platforms that don't support schemas.
+ *
  * @author Alexander Ustimenko <a@ustimen.co>
- * @since  2.5
+ * @since  2.6
  */
 class AddDefaultNamespace extends AbstractVisitor
 {
 
+    /**
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
+     */
     private $platform;
 
+    /**
+     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
+     */
     public function __construct(AbstractPlatform $platform)
     {
         $this->platform = $platform;
