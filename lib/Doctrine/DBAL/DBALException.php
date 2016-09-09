@@ -76,10 +76,22 @@ class DBALException extends \Exception
     }
 
     /**
+     * @param string|null $url The URL that was provided in the connection parameters (if any).
+     *
      * @return \Doctrine\DBAL\DBALException
      */
-    public static function driverRequired()
+    public static function driverRequired($url = null)
     {
+        if ($url) {
+            return new self(
+                sprintf(
+                    "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
+                    "is given to DriverManager::getConnection(). Given URL: %s",
+                    $url
+                )
+            );
+        }
+
         return new self("The options 'driver' or 'driverClass' are mandatory if no PDO ".
             "instance is given to DriverManager::getConnection().");
     }
