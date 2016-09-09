@@ -21,7 +21,7 @@ class AddDefaultNamespaceTest extends \PHPUnit_Framework_TestCase
     {
         $config = new SchemaConfig();
         $config->setName('test');
-        $schema = new Schema(array(), array(), $config);
+        $schema = new Schema([], [], $config);
         $schema->createTable('foo');
 
         $this->assertEmpty($schema->getNamespaces());
@@ -39,7 +39,7 @@ class AddDefaultNamespaceTest extends \PHPUnit_Framework_TestCase
     {
         $config = new SchemaConfig();
         $config->setName('test');
-        $schema = new Schema(array(), array(), $config);
+        $schema = new Schema([], [], $config);
         $schema->createTable('foo');
         $schema->createTable('bar.baz');
 
@@ -59,7 +59,7 @@ class AddDefaultNamespaceTest extends \PHPUnit_Framework_TestCase
     {
         $config = new SchemaConfig();
         $config->setName('test');
-        $schema = new Schema(array(), array(), $config);
+        $schema = new Schema([], [], $config);
         $schema->createTable('foo');
         $schema->createTable($platform->getDefaultSchemaName().'.baz');
 
@@ -72,11 +72,37 @@ class AddDefaultNamespaceTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $schema->getNamespaces());
     }
 
+    /**
+     * @dataProvider notNamespacedPlatforms
+     */
+    public function testIncompatiblePlatformsUnaffected(AbstractPlatform $platform)
+    {
+        $config = new SchemaConfig();
+        $config->setName('test');
+        $schema = new Schema([], [], $config);
+        $schema->createTable('foo');
+
+        $this->assertEmpty($schema->getNamespaces());
+
+        $schema->visit(new AddDefaultNamespace($platform));
+
+        $this->assertEmpty($schema->getNamespaces());
+    }
+
     public function namespacedPlatforms()
     {
         return [
             [new PostgreSqlPlatform()],
             [new SQLServerPlatform()],
+        ];
+    }
+
+    public function notNamespacedPlatforms()
+    {
+        return [
+            [new MySqlPlatform()],
+            [new OraclePlatform()],
+            [new SqlitePlatform()],
         ];
     }
 }
