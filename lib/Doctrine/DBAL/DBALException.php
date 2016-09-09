@@ -77,7 +77,7 @@ class DBALException extends \Exception
     }
 
     /**
-     * @param bool|null $url The URL that was provided in the connection parameters (if any).
+     * @param string|null $url The URL that was provided in the connection parameters (if any).
      *
      * @return \Doctrine\DBAL\DBALException
      */
