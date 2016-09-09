@@ -242,7 +242,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchNoResult()
     {
         self::assertFalse(
-            $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])->fetch()
+            $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int = ?', array(-1))->fetch()
         );
     }
 
