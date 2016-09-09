@@ -707,6 +707,63 @@ EOD;
     }
 
     /**
+     * @dataProvider getReturnsGetListTableColumnsSQL
+     * @group DBAL-831
+     */
+    public function testReturnsGetListTableColumnsSQL($database, $expectedSql)
+    {
+        // note: this assertion is a bit strict, as it compares a full SQL string.
+        // Should this break in future, then please try to reduce the matching to substring matching while reworking
+        // the tests
+        $this->assertEquals($expectedSql, $this->_platform->getListTableColumnsSQL('"test"', $database));
+    }
+
+    public function getReturnsGetListTableColumnsSQL()
+    {
+        return array(
+            array(
+                null,
+                "SELECT   c.*,
+                         (
+                             SELECT d.comments
+                             FROM   user_col_comments d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                         ) AS comments
+                FROM     user_tab_columns c
+                WHERE    c.table_name = 'test' 
+                ORDER BY c.column_name"
+            ),
+            array(
+                '/',
+                "SELECT   c.*,
+                         (
+                             SELECT d.comments
+                             FROM   user_col_comments d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                         ) AS comments
+                FROM     user_tab_columns c
+                WHERE    c.table_name = 'test' 
+                ORDER BY c.column_name"
+            ),
+            array(
+                'scott',
+                "SELECT   c.*,
+                         (
+                             SELECT d.comments
+                             FROM   all_col_comments d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                         ) AS comments
+                FROM     all_tab_columns c
+                WHERE    c.table_name = 'test' AND c.owner = 'SCOTT'
+                ORDER BY c.column_name"
+            ),
+        );
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
