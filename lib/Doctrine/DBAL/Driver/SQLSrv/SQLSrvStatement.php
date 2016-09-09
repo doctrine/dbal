@@ -197,8 +197,17 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             }
         }
 
-        $this->stmt = sqlsrv_query($this->conn, $this->sql, $this->params);
         if ( ! $this->stmt) {
+            $stmt = sqlsrv_prepare($this->conn, $this->sql, $this->params);
+
+            if (!$stmt) {
+                throw SQLSrvException::fromSqlSrvErrors();
+            }
+
+            $this->stmt = $stmt;
+        }
+
+        if (!sqlsrv_execute($this->stmt)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
