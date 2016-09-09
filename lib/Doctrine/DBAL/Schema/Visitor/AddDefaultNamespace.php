@@ -60,6 +60,9 @@ class AddDefaultNamespace extends AbstractVisitor
      */
     public function acceptSchema(Schema $schema)
     {
+        if (!$this->platform->supportsSchemas()) {
+            return;
+        }
         $namespaceName = $this->platform->getDefaultSchemaName();
         if (!$schema->hasNamespace($namespaceName)) {
             $schema->createNamespace($namespaceName);
