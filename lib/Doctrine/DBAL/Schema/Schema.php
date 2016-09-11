@@ -125,10 +125,35 @@ class Schema extends AbstractAsset
      */
     protected function _addTable(Table $table)
     {
+        $this->_addTableEvenIfExists($table);
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Table $table
+     *
+     * @return void
+     *
+     * @throws \Doctrine\DBAL\Schema\SchemaException
+     */
+    protected function _updateTable(Table $table)
+    {
+        $this->_addTableEvenIfExists($table, true);
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Table $table
+     * @param boolean $allowExistentTable
+     *
+     * @return void
+     *
+     * @throws \Doctrine\DBAL\Schema\SchemaException
+     */
+    private function _addTableEvenIfExists(Table $table, $allowExistentTable = false)
+    {
         $namespaceName = $table->getNamespaceName();
         $tableName = $table->getFullQualifiedName($this->getName());
 
-        if (isset($this->_tables[$tableName])) {
+        if (isset($this->_tables[$tableName]) && !$allowExistentTable) {
             throw SchemaException::tableAlreadyExists($tableName);
         }
 
@@ -340,6 +365,25 @@ class Schema extends AbstractAsset
     {
         $table = new Table($tableName);
         $this->_addTable($table);
+
+        foreach ($this->_schemaConfig->getDefaultTableOptions() as $name => $value) {
+            $table->addOption($name, $value);
+        }
+
+        return $table;
+    }
+
+    /**
+     * Creates or updates table.
+     *
+     * @param string $tableName
+     *
+     * @return \Doctrine\DBAL\Schema\Table
+     */
+    public function createOrUpdateTable($tableName)
+    {
+        $table = new Table($tableName);
+        $this->_updateTable($table);
 
         foreach ($this->_schemaConfig->getDefaultTableOptions() as $name => $value) {
             $table->addOption($name, $value);
