@@ -151,10 +151,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
             ));
         }
 
-        if ($fragmentOffset < strlen($statement)) {
-            $fragments[] = substr($statement, $fragmentOffset);
-        }
-
+        $fragments[] = substr($statement, $fragmentOffset);
         $statement = implode('', $fragments);
 
         return array($statement, $paramMap);

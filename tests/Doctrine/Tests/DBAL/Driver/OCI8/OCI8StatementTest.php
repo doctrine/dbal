@@ -113,24 +113,18 @@ class OCI8StatementTest extends DbalTestCase
                 "INSERT INTO table (col1, col2, col3, col4) VALUES('?\"?\'?', :param1, \"?'?\\\"?\", :param2)",
                 2,
             ),
-        );
-    }
-
-    /**
-     * @dataProvider convertFailureProvider
-     */
-    public function testConvertFailure($statement)
-    {
-        $this->expectException(OCI8Exception::class);
-        OCI8Statement::convertPositionalToNamedPlaceholders($statement);
-    }
-
-    public static function convertFailureProvider()
-    {
-        return array(
-            'non-terminated-literal' => array(
-                'SELECT "literal',
+            'placeholder-at-the-end' => array(
+                "SELECT id FROM table WHERE col = ?",
+                "SELECT id FROM table WHERE col = :param1",
+                1,
             ),
         );
+    }
+
+    public function testConvertNonTerminatedLiteral()
+    {
+        $this->expectException(OCI8Exception::class);
+        $this->expectExceptionMessageRegExp('/offset 7/');
+        OCI8Statement::convertPositionalToNamedPlaceholders('SELECT "literal');
     }
 }
