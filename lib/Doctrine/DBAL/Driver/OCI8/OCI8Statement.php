@@ -125,65 +125,123 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     static public function convertPositionalToNamedPlaceholders($statement)
     {
-        $paramMap = array();
-        $count = 1;
-        $start = $offset = 0;
-        $fragments = array();
-        $quote = false;
-        $capture = function ($regex, $callback) use ($statement, $start, &$offset) {
-            if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
-                $offset = $matches[0][1];
-                $callback($matches[0][0]);
-                return true;
-            }
-            return false;
-        };
+        $fragmentOffset = $tokenOffset = 0;
+        $fragments = $paramMap = array();
+        $currentLiteralDelimiter = null;
 
         do {
-            if (!$quote) {
-                $result = $capture('/[?\'"]/', function ($token) use (
+            if (!$currentLiteralDelimiter) {
+                $result = self::findPlaceholderOrOpeningQuote(
                     $statement,
-                    &$fragments,
-                    &$start,
-                    &$offset,
-                    &$quote,
-                    &$count,
-                    &$paramMap
-                ) {
-                    if ($token == '?') {
-                        $param = ':param' . $count;
-                        $fragments[] = substr($statement, $start, $offset - $start);
-                        $fragments[] = $param;
-                        $paramMap[$count] = $param;
-                        $start = ++$offset;
-                        ++$count;
-                    } else {
-                        $quote = $token;
-                        ++$offset;
-                    }
-                });
+                    $tokenOffset,
+                    $fragmentOffset,
+                    $fragments,
+                    $currentLiteralDelimiter,
+                    $paramMap
+                );
             } else {
-                $result = $capture('/(?<!\\\\)' . $quote . '/', function () use (&$offset, &$quote) {
-                    $quote = false;
-                    ++$offset;
-                });
+                $result = self::findClosingQuote($statement, $tokenOffset, $currentLiteralDelimiter);
             }
         } while ($result);
 
-        if ($quote) {
+        if ($currentLiteralDelimiter) {
             throw new OCI8Exception(sprintf(
                 'The statement contains non-terminated string literal starting at offset %d',
-                $offset - 1
+                $tokenOffset - 1
             ));
         }
 
-        if ($start < strlen($statement)) {
-            $fragments[] = substr($statement, $start);
+        if ($fragmentOffset < strlen($statement)) {
+            $fragments[] = substr($statement, $fragmentOffset);
         }
 
         $statement = implode('', $fragments);
 
         return array($statement, $paramMap);
+    }
+
+    /**
+     * Finds next placeholder or opening quote.
+     *
+     * @param string $statement The SQL statement to parse
+     * @param string $tokenOffset The offset to start searching from
+     * @param int $fragmentOffset The offset to build the next fragment from
+     * @param array $fragments Resulting query fragments
+     * @param string|null $currentLiteralDelimiter Current literal delimiter
+     * @param array $paramMap Parameter map
+     * @return bool Whether the token was found
+     */
+    private static function findPlaceholderOrOpeningQuote(
+        $statement,
+        &$tokenOffset,
+        &$fragmentOffset,
+        &$fragments,
+        &$currentLiteralDelimiter,
+        &$paramMap
+    ) {
+        $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
+
+        if (!$token) {
+            return false;
+        }
+
+        if ($token == '?') {
+            $position = count($paramMap) + 1;
+            $param = ':param' . $position;
+            $fragments[] = substr($statement, $fragmentOffset, $tokenOffset - $fragmentOffset);
+            $fragments[] = $param;
+            $paramMap[$position] = $param;
+            $fragmentOffset = ++$tokenOffset;
+        } else {
+            $currentLiteralDelimiter = $token;
+            ++$tokenOffset;
+        }
+
+        return true;
+    }
+
+    /**
+     * Finds closing quote
+     *
+     * @param string $statement The SQL statement to parse
+     * @param string $tokenOffset The offset to start searching from
+     * @param string|null $currentLiteralDelimiter Current literal delimiter
+     * @return bool Whether the token was found
+     */
+    private static function findClosingQuote(
+        $statement,
+        &$tokenOffset,
+        &$currentLiteralDelimiter
+    ) {
+        $token = self::findToken($statement, $tokenOffset, '/(?<!\\\\)' . $currentLiteralDelimiter . '/');
+
+        if (!$token) {
+            return false;
+        }
+
+        $currentLiteralDelimiter = false;
+        ++$tokenOffset;
+
+        return true;
+    }
+
+    /**
+     * Finds the token described by regex starting from the given offset. Updates the offset with the position
+     * where the token was found.
+     *
+     * @param string $statement The SQL statement to parse
+     * @param string $offset The offset to start searching from
+     * @param string $regex The regex containing token pattern
+     * @return string|null Token or NULL if not found
+     */
+    private static function findToken($statement, &$offset, $regex)
+    {
+        if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+            $offset = $matches[0][1];
+            return $matches[0][0];
+        }
+
+        return null;
     }
 
     /**
