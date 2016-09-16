@@ -44,6 +44,7 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertLimitResult(array(1, 2, 3, 4), $sql, 10, 0);
         $this->assertLimitResult(array(1, 2), $sql, 2, 0);
         $this->assertLimitResult(array(3, 4), $sql, 2, 2);
+        $this->assertLimitResult(array(2, 3, 4), $sql, null, 1);
     }
 
     public function testModifyLimitQueryJoinQuery()
