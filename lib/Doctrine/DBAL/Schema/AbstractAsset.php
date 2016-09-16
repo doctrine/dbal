@@ -59,15 +59,22 @@ abstract class AbstractAsset
      */
     protected function _setName($name)
     {
-        if ($this->isIdentifierQuoted($name)) {
-            $this->_quoted = true;
-            $name = $this->trimQuotes($name);
-        }
         if (strpos($name, ".") !== false) {
             $parts = explode(".", $name);
             $this->_namespace = $parts[0];
             $name = $parts[1];
         }
+
+        if ($this->_namespace && $this->isIdentifierQuoted($this->_namespace)) {
+            $this->_quoted = true;
+            $this->_namespace = $this->trimQuotes($this->_namespace);
+        }
+
+        if ($this->isIdentifierQuoted($name)) {
+            $this->_quoted = true;
+            $name = $this->trimQuotes($name);
+        }
+
         $this->_name = $name;
     }
 

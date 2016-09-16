@@ -744,4 +744,43 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
+
+    public function testCreateTableSqlWithQuotedNamespaceAndQuotedTableName()
+    {
+        $tableName = '`test-db`.`test-table`';
+        $table = new Table($tableName);
+        $table->addColumn('foo', 'integer');
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals(
+            ['CREATE TABLE "test-db__test-table" (foo INTEGER NOT NULL)'],
+            $sql
+        );
+    }
+
+    public function testCreateTableSqlWithQuotedNamespaceAndUnquotedTableName()
+    {
+        $tableName = '`test-db`.test-table';
+        $table = new Table($tableName);
+        $table->addColumn('foo', 'integer');
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals(
+            ['CREATE TABLE "test-db__test-table" (foo INTEGER NOT NULL)'],
+            $sql
+        );
+    }
+
+    public function testCreateTableSqlWithUnquotedNamespaceAndQuotedTableName()
+    {
+        $tableName = 'test-db.`test-table`';
+        $table = new Table($tableName);
+        $table->addColumn('foo', 'integer');
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+        $this->assertEquals(
+            ['CREATE TABLE "test-db__test-table" (foo INTEGER NOT NULL)'],
+            $sql
+        );
+    }
 }
