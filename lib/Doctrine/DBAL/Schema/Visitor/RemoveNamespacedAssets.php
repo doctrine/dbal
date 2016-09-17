@@ -6,6 +6,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\View;
 
 /**
  * Removes assets from a schema that are not in the default namespace.
@@ -53,6 +54,18 @@ class RemoveNamespacedAssets extends AbstractVisitor
         }
 
         $this->schema->dropSequence($sequence->getName());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function acceptView(View $view)
+    {
+        if ($view->isInDefaultNamespace($this->schema->getName())) {
+            return;
+        }
+
+        $this->schema->dropView($view->getName());
     }
 
     /**

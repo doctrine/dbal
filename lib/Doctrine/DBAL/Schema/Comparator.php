@@ -144,6 +144,24 @@ class Comparator
             $diff->removedSequences[] = $sequence;
         }
 
+        foreach ($toSchema->getViews() as $view) {
+            $viewName = $view->getShortestName($toSchema->getName());
+            if (! $fromSchema->hasView($viewName)) {
+                $diff->newViews[$viewName] = $view;
+            } elseif (! $fromSchema->getView($viewName)->isSameAs($view)) {
+                $diff->changedViews[$viewName] = $view;
+            }
+        }
+
+        foreach ($fromSchema->getViews() as $view) {
+            $viewName = $view->getShortestName($fromSchema->getName());
+            if ($toSchema->hasView($viewName)) {
+                continue;
+            }
+
+            $diff->removedViews[$viewName] = $view;
+        }
+
         return $diff;
     }
 

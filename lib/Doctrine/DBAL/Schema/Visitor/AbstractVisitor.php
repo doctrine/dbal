@@ -8,11 +8,12 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\View;
 
 /**
  * Abstract Visitor with empty methods for easy extension.
  */
-class AbstractVisitor implements Visitor, NamespaceVisitor
+class AbstractVisitor implements Visitor, NamespaceVisitor, ViewVisitor
 {
     public function acceptSchema(Schema $schema)
     {
@@ -42,6 +43,10 @@ class AbstractVisitor implements Visitor, NamespaceVisitor
     }
 
     public function acceptSequence(Sequence $sequence)
+    {
+    }
+
+    public function acceptView(View $view)
     {
     }
 }

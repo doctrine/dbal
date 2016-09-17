@@ -60,6 +60,15 @@ class SchemaDiff
     /** @var ForeignKeyConstraint[] */
     public $orphanedForeignKeys = [];
 
+    /** @var View[] */
+    public $newViews = [];
+
+    /** @var View[] */
+    public $changedViews = [];
+
+    /** @var View[] */
+    public $removedViews = [];
+
     /**
      * Constructs an SchemaDiff object.
      *
@@ -133,6 +142,22 @@ class SchemaDiff
 
             foreach ($this->newSequences as $sequence) {
                 $sql[] = $platform->getCreateSequenceSQL($sequence);
+            }
+        }
+
+        if ($platform->supportsViews() === true) {
+            if ($saveMode === false) {
+                foreach ($this->removedViews as $view) {
+                    $sql[] = $platform->getDropViewSQL($view->getName());
+                }
+            }
+            foreach ($this->changedViews as $view) {
+                $sql[] = $platform->getDropViewSQL($view->getName());
+                $sql[] = $platform->getCreateViewSQL($view->getName(), $view->getSql());
+            }
+
+            foreach ($this->newViews as $view) {
+                $sql[] = $platform->getCreateViewSQL($view->getName(), $view->getSql());
             }
         }
 

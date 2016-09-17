@@ -16,6 +16,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
 use function array_keys;
+use function count;
 
 class ComparatorTest extends TestCase
 {
@@ -486,6 +487,63 @@ class ComparatorTest extends TestCase
 
         self::assertCount(1, $diffSchema->newSequences);
         self::assertSame($seq, $diffSchema->newSequences[0]);
+    }
+
+    public function testRemovedViews()
+    {
+        $schema1 = new Schema();
+        $view    = $schema1->createView('foo', 'bar');
+
+        $schema2 = new Schema();
+
+        $c          = new Comparator();
+        $diffSchema = $c->compare($schema1, $schema2);
+
+        $this->assertEquals(1, count($diffSchema->removedViews));
+        $this->assertSame($view, $diffSchema->removedViews[$view->getName()]);
+    }
+
+    public function testChangedViews()
+    {
+        $fromSchema = new Schema();
+        $fromSchema->createView('foo', 'bar');
+
+        $toSchema = new Schema();
+        $view2    = $toSchema->createView('foo', 'baz');
+
+        $c          = new Comparator();
+        $diffSchema = $c->compare($fromSchema, $toSchema);
+
+        $this->assertEquals(1, count($diffSchema->changedViews));
+        $this->assertSame($view2, $diffSchema->changedViews[$view2->getName()]);
+    }
+
+    public function testNotChangedViews()
+    {
+        $fromSchema = new Schema();
+        $fromSchema->createView('foo', 'bar');
+
+        $toSchema = new Schema();
+        $toSchema->createView('foo', 'bar');
+
+        $c          = new Comparator();
+        $diffSchema = $c->compare($fromSchema, $toSchema);
+
+        $this->assertEquals(0, count($diffSchema->changedViews));
+    }
+
+    public function testAddedViews()
+    {
+        $schema1 = new Schema();
+
+        $schema2 = new Schema();
+        $view    = $schema2->createView('foo', 'bar');
+
+        $c          = new Comparator();
+        $diffSchema = $c->compare($schema1, $schema2);
+
+        $this->assertEquals(1, count($diffSchema->newViews));
+        $this->assertSame($view, $diffSchema->newViews[$view->getName()]);
     }
 
     public function testTableAddForeignKey()

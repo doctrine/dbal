@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\View;
 use function array_merge;
 
 class CreateSchemaSqlCollector extends AbstractVisitor
@@ -21,6 +22,9 @@ class CreateSchemaSqlCollector extends AbstractVisitor
 
     /** @var string[] */
     private $createFkConstraintQueries = [];
+
+    /** @var string[] */
+    private $createViewQueries = [];
 
     /** @var AbstractPlatform */
     private $platform = null;
@@ -71,6 +75,14 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function acceptView(View $view)
+    {
+        $this->createViewQueries[] = $this->platform->getCreateViewSQL($view->getName(), $view->getSql());
+    }
+
+    /**
      * @return void
      */
     public function resetQueries()
@@ -79,6 +91,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
         $this->createTableQueries        = [];
         $this->createSequenceQueries     = [];
         $this->createFkConstraintQueries = [];
+        $this->createViewQueries         = [];
     }
 
     /**
@@ -92,7 +105,8 @@ class CreateSchemaSqlCollector extends AbstractVisitor
             $this->createNamespaceQueries,
             $this->createTableQueries,
             $this->createSequenceQueries,
-            $this->createFkConstraintQueries
+            $this->createFkConstraintQueries,
+            $this->createViewQueries
         );
     }
 }
