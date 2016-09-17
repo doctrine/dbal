@@ -30,6 +30,7 @@ use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Types\Type;
 
 /**
@@ -467,6 +468,45 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, count($diffSchema->newSequences));
         $this->assertSame($seq, $diffSchema->newSequences[0]);
+    }
+
+    public function testCompareViews()
+    {
+        $view1 = new View('foo', 'bar');
+        $view2 = new View('foo', 'baz');
+
+        $c = new Comparator();
+
+        $this->assertTrue($c->diffView($view1, $view2));
+        $this->assertFalse($c->diffView($view1, $view1));
+    }
+
+    public function testRemovedViews()
+    {
+        $schema1 = new Schema();
+        $view = $schema1->createView('foo', 'bar');
+
+        $schema2 = new Schema();
+
+        $c = new Comparator();
+        $diffSchema = $c->compare($schema1, $schema2);
+
+        $this->assertEquals(1, count($diffSchema->removedViews));
+        $this->assertSame($view, $diffSchema->removedViews[$view->getName()]);
+    }
+
+    public function testAddedViews()
+    {
+        $schema1 = new Schema();
+
+        $schema2 = new Schema();
+        $view = $schema2->createView('foo', 'bar');
+
+        $c = new Comparator();
+        $diffSchema = $c->compare($schema1, $schema2);
+
+        $this->assertEquals(1, count($diffSchema->newViews));
+        $this->assertSame($view, $diffSchema->newViews[$view->getName()]);
     }
 
     public function testTableAddForeignKey()

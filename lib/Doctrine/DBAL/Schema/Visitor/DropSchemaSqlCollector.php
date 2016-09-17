@@ -23,6 +23,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Schema\SchemaException;
 
 /**
@@ -48,6 +49,11 @@ class DropSchemaSqlCollector extends AbstractVisitor
      * @var \SplObjectStorage
      */
     private $tables;
+
+    /**
+     * @var \SplObjectStorage
+     */
+    private $views;
 
     /**
      * @var AbstractPlatform
@@ -92,6 +98,14 @@ class DropSchemaSqlCollector extends AbstractVisitor
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function acceptView(View $view)
+    {
+        $this->views->attach($view);
+    }
+
+    /**
      * @return void
      */
     public function clearQueries()
@@ -99,6 +113,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
         $this->constraints = new \SplObjectStorage();
         $this->sequences = new \SplObjectStorage();
         $this->tables = new \SplObjectStorage();
+        $this->views = new \SplObjectStorage();
     }
 
     /**
@@ -119,6 +134,10 @@ class DropSchemaSqlCollector extends AbstractVisitor
 
         foreach ($this->tables as $table) {
             $sql[] = $this->platform->getDropTableSQL($table);
+        }
+
+        foreach ($this->views as $view) {
+            $sql[] = $this->platform->getDropViewSQL($view->getName());
         }
 
         return $sql;

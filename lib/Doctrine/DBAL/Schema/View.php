@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Schema\Visitor\Visitor;
+
 /**
  * Representation of a Database View.
  *
@@ -49,5 +51,15 @@ class View extends AbstractAsset
     public function getSql()
     {
         return $this->_sql;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Visitor\Visitor $visitor
+     *
+     * @return void
+     */
+    public function visit(Visitor $visitor)
+    {
+        $visitor->acceptView($this);
     }
 }

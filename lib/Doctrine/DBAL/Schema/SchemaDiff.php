@@ -93,6 +93,16 @@ class SchemaDiff
     public $orphanedForeignKeys = array();
 
     /**
+     * @var \Doctrine\DBAL\Schema\View[]
+     */
+    public $newViews = array();
+
+    /**
+     * @var \Doctrine\DBAL\Schema\View[]
+     */
+    public $removedViews = array();
+
+    /**
      * Constructs an SchemaDiff object.
      *
      * @param \Doctrine\DBAL\Schema\Table[]     $newTables
@@ -171,6 +181,18 @@ class SchemaDiff
 
             foreach ($this->newSequences as $sequence) {
                 $sql[] = $platform->getCreateSequenceSQL($sequence);
+            }
+        }
+
+        if ($platform->supportsViews() == true) {
+            if ($saveMode === false) {
+                foreach ($this->removedViews as $view) {
+                    $sql[] = $platform->getDropViewSQL($view->getName(), $view->getSql());
+                }
+            }
+
+            foreach ($this->newViews as $view) {
+                $sql[] = $platform->getCreateViewSQL($view->getName(), $view->getSql());
             }
         }
 

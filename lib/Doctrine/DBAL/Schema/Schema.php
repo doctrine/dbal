@@ -73,6 +73,11 @@ class Schema extends AbstractAsset
     protected $_sequences = array();
 
     /**
+     * @var \Doctrine\DBAL\Schema\View[]
+     */
+    protected $_views = array();
+
+    /**
      * @var \Doctrine\DBAL\Schema\SchemaConfig
      */
     protected $_schemaConfig = false;
@@ -82,12 +87,14 @@ class Schema extends AbstractAsset
      * @param \Doctrine\DBAL\Schema\Sequence[]   $sequences
      * @param \Doctrine\DBAL\Schema\SchemaConfig $schemaConfig
      * @param array                              $namespaces
+     * @param \Doctrine\DBAL\Schema\View[]       $views
      */
     public function __construct(
         array $tables = array(),
         array $sequences = array(),
         SchemaConfig $schemaConfig = null,
-        array $namespaces = array()
+        array $namespaces = array(),
+        array $views = array()
     ) {
         if ($schemaConfig == null) {
             $schemaConfig = new SchemaConfig();
@@ -105,6 +112,10 @@ class Schema extends AbstractAsset
 
         foreach ($sequences as $sequence) {
             $this->_addSequence($sequence);
+        }
+
+        foreach ($views as $view) {
+            $this->_addView($view);
         }
     }
 
@@ -161,6 +172,29 @@ class Schema extends AbstractAsset
         }
 
         $this->_sequences[$seqName] = $sequence;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\View $view
+     *
+     * @return void
+     *
+     * @throws \Doctrine\DBAL\Schema\SchemaException
+     */
+    protected function _addView(View $view)
+    {
+        $namespaceName = $view->getNamespaceName();
+        $viewName = $view->getFullQualifiedName($this->getName());
+
+        if (isset($this->_views[$viewName])) {
+            throw SchemaException::viewAlreadyExists($viewName);
+        }
+
+        if ( ! $view->isInDefaultNamespace($this->getName()) && ! $this->hasNamespace($namespaceName)) {
+            $this->createNamespace($namespaceName);
+        }
+
+        $this->_views[$viewName] = $view;
     }
 
     /**
@@ -414,6 +448,78 @@ class Schema extends AbstractAsset
     }
 
     /**
+     * @param string $viewName
+     *
+     * @return boolean
+     */
+    public function hasView($viewName)
+    {
+        $viewName = $this->getFullQualifiedAssetName($viewName);
+
+        return isset($this->_views[$viewName]);
+    }
+
+    /**
+     * @param string $viewName
+     *
+     * @return \Doctrine\DBAL\Schema\View
+     *
+     * @throws \Doctrine\DBAL\Schema\SchemaException
+     */
+    public function getView($viewName)
+    {
+        $viewName = $this->getFullQualifiedAssetName($viewName);
+        if (!isset($this->_views[$viewName])) {
+            throw SchemaException::viewDoesNotExist($viewName);
+        }
+
+        return $this->_views[$viewName];
+    }
+
+    /**
+     * Gets all views of this schema.
+     *
+     * @return \Doctrine\DBAL\Schema\View[]
+     */
+    public function getViews()
+    {
+        return $this->_views;
+    }
+
+    /**
+     * Creates a new view.
+     *
+     * @param string $viewName
+     * @param string $sql
+     *
+     * @return \Doctrine\DBAL\Schema\View
+     */
+    public function createView($viewName, $sql)
+    {
+        $view = new View($viewName, $sql);
+        $this->_addView($view);
+
+        return $view;
+    }
+
+    /**
+     * Drops a view from the schema.
+     *
+     * @param string $viewName
+     *
+     * @return \Doctrine\DBAL\Schema\Schema
+     */
+    public function dropView($viewName)
+    {
+        $viewName = $this->getFullQualifiedAssetName($viewName);
+        if($this->hasView($viewName)){
+          unset($this->_views[$viewName]);
+        }
+
+        return $this;
+    }
+
+    /**
      * Returns an array of necessary SQL queries to create the schema on the given platform.
      *
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
@@ -493,6 +599,10 @@ class Schema extends AbstractAsset
         foreach ($this->_sequences as $sequence) {
             $sequence->visit($visitor);
         }
+
+        foreach ($this->_views as $view) {
+            $view->visit($visitor);
+        }
     }
 
     /**
@@ -507,6 +617,9 @@ class Schema extends AbstractAsset
         }
         foreach ($this->_sequences as $k => $sequence) {
             $this->_sequences[$k] = clone $sequence;
+        }
+        foreach ($this->_views as $k => $view) {
+            $this->_views[$k] = clone $view;
         }
     }
 }

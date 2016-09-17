@@ -152,6 +152,20 @@ class Comparator
             }
         }
 
+        foreach ($toSchema->getViews() as $view) {
+            $viewName = $view->getShortestName($toSchema->getName());
+            if ( ! $fromSchema->hasView($viewName)) {
+                $diff->newViews[$viewName] = $view;
+            }
+        }
+
+        foreach ($fromSchema->getViews() as $view) {
+            $viewName = $view->getShortestName($fromSchema->getName());
+            if ( ! $toSchema->hasView($viewName)) {
+                $diff->removedViews[$viewName] = $view;
+            }
+        }
+
         return $diff;
     }
 
@@ -185,6 +199,21 @@ class Comparator
         }
 
         if ($sequence1->getInitialValue() != $sequence2->getInitialValue()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\View $view1
+     * @param \Doctrine\DBAL\Schema\View $view2
+     *
+     * @return boolean
+     */
+    public function diffView(View $view1, View $view2)
+    {
+        if ($view1->getSql() != $view2->getSql()) {
             return true;
         }
 

@@ -26,6 +26,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\View;
 
 /**
  * Converts a single tenant schema into a multi-tenant schema for SQL Azure
@@ -164,6 +165,13 @@ class MultiTenantVisitor implements Visitor
      * {@inheritdoc}
      */
     public function acceptSequence(Sequence $sequence)
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function acceptView(View $view)
     {
     }
 }

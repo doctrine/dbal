@@ -25,6 +25,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\View;
 
 /**
  * Abstract Visitor with empty methods for easy extension.
@@ -80,6 +81,13 @@ class AbstractVisitor implements Visitor, NamespaceVisitor
      * @param \Doctrine\DBAL\Schema\Sequence $sequence
      */
     public function acceptSequence(Sequence $sequence)
+    {
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\View $view
+     */
+    public function acceptView(View $view)
     {
     }
 }

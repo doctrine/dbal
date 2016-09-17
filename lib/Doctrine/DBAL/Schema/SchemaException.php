@@ -32,6 +32,8 @@ class SchemaException extends \Doctrine\DBAL\DBALException
     const INDEX_INVALID_NAME = 90;
     const FOREIGNKEY_DOESNT_EXIST = 100;
     const NAMESPACE_ALREADY_EXISTS = 110;
+    const VIEW_DOENST_EXIST = 120;
+    const VIEW_ALREADY_EXISTS = 130;
 
     /**
      * @param string $tableName
@@ -177,5 +179,25 @@ class SchemaException extends \Doctrine\DBAL\DBALException
     static public function alterTableChangeNotSupported($changeName)
     {
         return new self("Alter table change not supported, given '$changeName'");
+    }
+
+    /**
+     * @param string $viewName
+     *
+     * @return \Doctrine\DBAL\Schema\SchemaException
+     */
+    static public function viewAlreadyExists($viewName)
+    {
+        return new self("The view '".$viewName."' already exists.", self::VIEW_ALREADY_EXISTS);
+    }
+
+    /**
+     * @param string $viewName
+     *
+     * @return \Doctrine\DBAL\Schema\SchemaException
+     */
+    static public function viewDoesNotExist($viewName)
+    {
+        return new self("There exists no view with the name '".$viewName."'.", self::VIEW_DOENST_EXIST);
     }
 }

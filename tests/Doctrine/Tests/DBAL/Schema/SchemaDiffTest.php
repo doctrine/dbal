@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\View;
 use Doctrine\DBAL\Schema\TableDiff;
 
 class SchemaDiffTest extends \PHPUnit_Framework_TestCase
@@ -16,7 +17,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
         $sql = $diff->toSql($platform);
 
-        $expected = array('create_schema', 'drop_orphan_fk', 'alter_seq', 'drop_seq', 'create_seq', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table');
+        $expected = array('create_schema', 'drop_orphan_fk', 'alter_seq', 'drop_seq', 'create_seq', 'drop_view', 'create_view', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table');
 
         $this->assertEquals($expected, $sql);
     }
@@ -28,7 +29,7 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
 
         $sql = $diff->toSaveSql($platform);
 
-        $expected = array('create_schema', 'alter_seq', 'create_seq', 'create_table', 'create_foreign_key', 'alter_table');
+        $expected = array('create_schema', 'alter_seq', 'create_seq', 'create_view', 'create_table', 'create_foreign_key', 'alter_table');
 
         $this->assertEquals($expected, $sql);
     }
@@ -54,6 +55,16 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
                  ->method('getCreateSequenceSql')
                  ->with($this->isInstanceOf('Doctrine\DBAL\Schema\Sequence'))
                  ->will($this->returnValue('create_seq'));
+        if ($unsafe) {
+            $platform->expects($this->exactly(1))
+                 ->method('getDropViewSQL')
+                 ->with($this->equalTo('bar_view'), '')
+                 ->will($this->returnValue('drop_view'));
+        }
+        $platform->expects($this->exactly(1))
+                 ->method('getCreateViewSQL')
+                 ->with($this->equalTo('foo_view'), '')
+                 ->will($this->returnValue('create_view'));
         if ($unsafe) {
             $platform->expects($this->exactly(1))
                      ->method('getDropTableSql')
@@ -87,6 +98,9 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
         $platform->expects($this->exactly(1))
                 ->method('supportsSequences')
                 ->will($this->returnValue(true));
+        $platform->expects($this->exactly(1))
+                ->method('supportsViews')
+                ->will($this->returnValue(true));
         $platform->expects($this->exactly(2))
                 ->method('supportsForeignKeyConstraints')
                 ->will($this->returnValue(true));
@@ -101,6 +115,8 @@ class SchemaDiffTest extends \PHPUnit_Framework_TestCase
         $diff->changedSequences['foo_seq'] = new Sequence('foo_seq');
         $diff->newSequences['bar_seq'] = new Sequence('bar_seq');
         $diff->removedSequences['baz_seq'] = new Sequence('baz_seq');
+        $diff->newViews['foo_view'] = new View('foo_view', '');
+        $diff->removedViews['bar_sview'] = new View('bar_view', '');
         $diff->newTables['foo_table'] = new Table('foo_table');
         $diff->removedTables['bar_table'] = new Table('bar_table');
         $diff->changedTables['baz_table'] = new TableDiff('baz_table');

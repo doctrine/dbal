@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\View;
 
 class SchemaTest extends \PHPUnit_Framework_TestCase
 {
@@ -183,6 +184,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     {
         $schema = new Schema();
         $sequence = $schema->createSequence('baz');
+        $view = $schema->createView("foz", "SELECT * FROM `foo`");
 
         $tableA = $schema->createTable('foo');
         $tableA->addColumn('id', 'integer');
@@ -195,6 +197,8 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $schemaNew = clone $schema;
 
         $this->assertNotSame($sequence, $schemaNew->getSequence('baz'));
+
+        $this->assertNotSame($view, $schemaNew->getView('foz'));
 
         $this->assertNotSame($tableA, $schemaNew->getTable('foo'));
         $this->assertNotSame($tableA->getColumn('id'), $schemaNew->getTable('foo')->getColumn('id'));
@@ -360,6 +364,8 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $schema->createSequence('moo');
         $schema->createSequence('war');
 
+        $schema->createView('foz', 'SELECT * FROM baz');
+
         $visitor->expects($this->once())
             ->method('acceptSchema')
             ->with($schema);
@@ -386,6 +392,10 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
 
+        $visitor->expects($this->at(5))
+            ->method('acceptView')
+            ->with($schema->getView('foz'));
+
         $this->assertNull($schema->visit($visitor));
     }
 
@@ -405,6 +415,8 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
         $schema->createSequence('moo');
         $schema->createSequence('war');
+
+        $schema->createView('foz', 'SELECT * FROM baz');
 
         $visitor->expects($this->once())
             ->method('acceptSchema')
@@ -446,7 +458,96 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
+        
+        $visitor->expects($this->at(8))
+            ->method('acceptView')
+            ->with($schema->getView('foz'));
 
         $this->assertNull($schema->visit($visitor));
+    }
+
+    public function testConstructWithView()
+    {
+        $viewName = "public.foo";
+        $view = new View($viewName, "SELECT * FROM `bar`");
+
+        $schema = new Schema(array(), array(), null, array(), array($view));
+
+        $this->assertTrue($schema->hasView($viewName));
+
+        $views = $schema->getViews();
+        $this->assertTrue( isset($views[$viewName]) );
+        $this->assertSame($view, $views[$viewName]);
+        $this->assertSame($view, $schema->getView($viewName));
+    }
+
+    public function testViewMatchingCaseInsensitive()
+    {
+        $view = new View("Foo", "SELECT * FROM `bar`");
+
+        $schema = new Schema(array(), array(), null, array(), array($view));
+        $this->assertTrue($schema->hasView("foo"));
+        $this->assertTrue($schema->hasView("FOO"));
+
+        $this->assertSame($view, $schema->getView('FOO'));
+        $this->assertSame($view, $schema->getView('foo'));
+        $this->assertSame($view, $schema->getView('Foo'));
+    }
+
+    public function testGetUnknownViewThrowsException()
+    {
+        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+
+        $schema = new Schema();
+        $schema->getView("unknown");
+    }
+
+    public function testCreateViewTwiceThrowsException()
+    {
+        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+
+        $viewName = "foo";
+        $view = new View($viewName, "SELECT * FROM `bar`");
+        $views = array($view, $view);
+
+        $schema = new Schema(array(), array(), null, array(), $views);
+    }
+
+    public function testHasView()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasView("foo"));
+
+        $schema->createView("foo", "SELECT * FROM `bar`");
+
+        $this->assertTrue($schema->hasView("foo"));
+    }
+
+    public function testCreatesView()
+    {
+        $schema = new Schema();
+
+        $this->assertFalse($schema->hasView("foo"));
+
+        $view = $schema->createView("foo", "SELECT * FROM `bar`");
+
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\View', $view);
+        $this->assertEquals("foo", $view->getName());
+        $this->assertEquals("SELECT * FROM `bar`", $view->getSql());
+        $this->assertTrue($schema->hasView("foo"));
+    }
+
+    public function testDropView()
+    {
+        $schema = new Schema;
+
+        $schema->dropView("foo");
+        $this->assertFalse($schema->hasView("foo"));
+
+        $schema->createView("foo", "SELECT * FROM `bar`");
+
+        $schema->dropView("foo");
+        $this->assertFalse($schema->hasView("foo"));
     }
 }
