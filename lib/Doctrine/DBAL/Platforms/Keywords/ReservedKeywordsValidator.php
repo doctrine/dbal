@@ -141,11 +141,4 @@ class ReservedKeywordsValidator implements Visitor
             $this->isReservedWord($table->getName())
         );
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function acceptView(View $view)
-    {
-    }
 }

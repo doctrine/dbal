@@ -364,8 +364,6 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $schema->createSequence('moo');
         $schema->createSequence('war');
 
-        $schema->createView('foz', 'SELECT * FROM baz');
-
         $visitor->expects($this->once())
             ->method('acceptSchema')
             ->with($schema);
@@ -391,10 +389,6 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
         $visitor->expects($this->exactly(2))
             ->method('acceptSequence');
-
-        $visitor->expects($this->at(5))
-            ->method('acceptView')
-            ->with($schema->getView('foz'));
 
         $this->assertNull($schema->visit($visitor));
     }

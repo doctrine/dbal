@@ -30,7 +30,7 @@ use Doctrine\DBAL\Schema\View;
 /**
  * Abstract Visitor with empty methods for easy extension.
  */
-class AbstractVisitor implements Visitor, NamespaceVisitor
+class AbstractVisitor implements Visitor, NamespaceVisitor, ViewVisitor
 {
     /**
      * @param \Doctrine\DBAL\Schema\Schema $schema

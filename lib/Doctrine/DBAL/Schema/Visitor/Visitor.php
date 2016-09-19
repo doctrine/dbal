@@ -25,7 +25,6 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\View;
 
 /**
  * Schema Visitor used for Validation or Generation purposes.
@@ -80,11 +79,4 @@ interface Visitor
      * @return void
      */
     public function acceptSequence(Sequence $sequence);
-
-    /**
-     * @param \Doctrine\DBAL\Schema\View $view
-     *
-     * @return void
-     */
-    public function acceptView(View $view);
 }

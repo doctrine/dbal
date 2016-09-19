@@ -167,11 +167,4 @@ class MultiTenantVisitor implements Visitor
     public function acceptSequence(Sequence $sequence)
     {
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function acceptView(View $view)
-    {
-    }
 }
