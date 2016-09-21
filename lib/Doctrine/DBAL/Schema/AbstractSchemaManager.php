@@ -125,7 +125,7 @@ abstract class AbstractSchemaManager
 
         $namespaces = $this->_conn->fetchAll($sql);
 
-        return $this->getPortableNamespacesList($namespaces);
+        return $this->filterAssetNames($this->getPortableNamespacesList($namespaces));
     }
 
     /**
