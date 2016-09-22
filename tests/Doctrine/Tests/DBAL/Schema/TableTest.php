@@ -192,7 +192,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
     {
         $constraint = new ForeignKeyConstraint(array(), "foo", array());
 
-        $tableA = new Table("foo", array(), array(), array($constraint));
+        $tableA = new Table("foo", array(), array(), array(), array($constraint));
         $constraints = $tableA->getForeignKeys();
 
         $this->assertEquals(1, count($constraints));
@@ -201,7 +201,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testOptions()
     {
-        $table = new Table("foo", array(), array(), array(), false, array("foo" => "bar"));
+        $table = new Table("foo", array(), array(), array(), array(), false, array("foo" => "bar"));
 
         $this->assertTrue($table->hasOption("foo"));
         $this->assertEquals("bar", $table->getOption("foo"));
