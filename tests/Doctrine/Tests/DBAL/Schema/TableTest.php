@@ -200,7 +200,7 @@ class TableTest extends DbalTestCase
     {
         $constraint = new ForeignKeyConstraint([], 'foo', []);
 
-        $tableA      = new Table('foo', [], [], [$constraint]);
+        $tableA      = new Table('foo', [], [], [], [$constraint]);
         $constraints = $tableA->getForeignKeys();
 
         self::assertCount(1, $constraints);
@@ -209,7 +209,7 @@ class TableTest extends DbalTestCase
 
     public function testOptions()
     {
-        $table = new Table('foo', [], [], [], false, ['foo' => 'bar']);
+        $table = new Table('foo', [], [], [], [], false, ['foo' => 'bar']);
 
         self::assertTrue($table->hasOption('foo'));
         self::assertEquals('bar', $table->getOption('foo'));
