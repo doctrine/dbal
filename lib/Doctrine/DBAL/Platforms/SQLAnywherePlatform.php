@@ -1158,27 +1158,6 @@ SQL
     /**
      * {@inheritdoc}
      */
-    public function getUniqueConstraintDeclarationSQL($name, Index $index)
-    {
-        if ($index->isPrimary()) {
-            throw new InvalidArgumentException(
-                'Cannot create primary key constraint declarations with getUniqueConstraintDeclarationSQL().'
-            );
-        }
-
-        if (! $index->isUnique()) {
-            throw new InvalidArgumentException(
-                'Can only create unique constraint declarations, no common index declarations with ' .
-                'getUniqueConstraintDeclarationSQL().'
-            );
-        }
-
-        return $this->getTableConstraintDeclarationSQL($index, $name);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getVarcharDefaultLength()
     {
         return 1;
