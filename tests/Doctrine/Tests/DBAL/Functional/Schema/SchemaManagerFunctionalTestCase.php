@@ -859,7 +859,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     protected function getTestTable($name, $options=array())
     {
-        $table = new Table($name, array(), array(), array(), false, $options);
+        $table = new Table($name, array(), array(), array(), array(), false, $options);
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
         $table->addColumn('id', 'integer', array('notnull' => true));
         $table->setPrimaryKey(array('id'));
@@ -870,7 +870,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     protected function getTestCompositeTable($name)
     {
-        $table = new Table($name, array(), array(), array(), false, array());
+        $table = new Table($name, array(), array(), array(), array(), false, array());
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
         $table->addColumn('id', 'integer', array('notnull' => true));
         $table->addColumn('other_id', 'integer', array('notnull' => true));
@@ -882,12 +882,15 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     protected function assertHasTable($tables, $tableName)
     {
         $foundTable = false;
+
         foreach ($tables as $table) {
             $this->assertInstanceOf('Doctrine\DBAL\Schema\Table', $table, 'No Table instance was found in tables array.');
+
             if (strtolower($table->getName()) == 'list_tables_test_new_name') {
                 $foundTable = true;
             }
         }
+
         $this->assertTrue($foundTable, "Could not find new table");
     }
 

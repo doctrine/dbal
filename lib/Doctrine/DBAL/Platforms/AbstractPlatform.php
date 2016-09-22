@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Identifier;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\Sequence;
@@ -1522,15 +1523,30 @@ abstract class AbstractPlatform
         $options['indexes'] = array();
         $options['primary'] = array();
 
-        if (($createFlags&self::CREATE_INDEXES) > 0) {
+        if (($createFlags & self::CREATE_INDEXES) > 0) {
             foreach ($table->getIndexes() as $index) {
                 /* @var $index Index */
-                if ($index->isPrimary()) {
-                    $options['primary']       = $index->getQuotedColumns($this);
-                    $options['primary_index'] = $index;
-                } else {
+                if (! $index->isPrimary()) {
                     $options['indexes'][$index->getQuotedName($this)] = $index;
+
+                    continue;
                 }
+
+                $options['primary']       = $index->getQuotedColumns($this);
+                $options['primary_index'] = $index;
+            }
+
+            foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
+                /** @var UniqueConstraint $uniqueConstraint */
+                $options['uniqueConstraints'][$uniqueConstraint->getQuotedName($this)] = $uniqueConstraint;
+            }
+        }
+
+        if (($createFlags & self::CREATE_FOREIGNKEYS) > 0) {
+            $options['foreignKeys'] = array();
+
+            foreach ($table->getForeignKeys() as $fkConstraint) {
+                $options['foreignKeys'][] = $fkConstraint;
             }
         }
 
@@ -1539,7 +1555,6 @@ abstract class AbstractPlatform
 
         foreach ($table->getColumns() as $column) {
             /* @var \Doctrine\DBAL\Schema\Column $column */
-
             if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)) {
                 $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
                 $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
@@ -1565,13 +1580,6 @@ abstract class AbstractPlatform
             }
 
             $columns[$columnData['name']] = $columnData;
-        }
-
-        if (($createFlags&self::CREATE_FOREIGNKEYS) > 0) {
-            $options['foreignKeys'] = array();
-            foreach ($table->getForeignKeys() as $fkConstraint) {
-                $options['foreignKeys'][] = $fkConstraint;
-            }
         }
 
         if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
