@@ -1250,6 +1250,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
                     'id_table1' => new Column('id_table1', Type::getType('integer'))
                 ),
                 array(),
+                array(),
                 array(
                     new ForeignKeyConstraint(array('id_table1'), 'table1', array('id'), 'fk_table2_table1')
                 ))
@@ -1260,6 +1261,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
                     'id' => new Column('id', Type::getType('integer')),
                     'id_table3' => new Column('id_table3', Type::getType('integer'))
                 ),
+                array(),
                 array(),
                 array(
                     new ForeignKeyConstraint(array('id_table3'), 'table3', array('id'), 'fk_table2_table3')
