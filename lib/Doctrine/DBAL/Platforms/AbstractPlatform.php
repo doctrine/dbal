@@ -2355,25 +2355,31 @@ abstract class AbstractPlatform
      * Obtains DBMS specific SQL code portion needed to set a unique
      * constraint declaration to be used in statements like CREATE TABLE.
      *
-     * @param string $name  The name of the unique constraint.
-     * @param Index  $index The index definition.
+     * @param string           $name       The name of the unique constraint.
+     * @param UniqueConstraint $constraint The unique constraint definition.
      *
      * @return string DBMS specific SQL code portion needed to set a constraint.
      *
      * @throws InvalidArgumentException
      */
-    public function getUniqueConstraintDeclarationSQL($name, Index $index)
+    public function getUniqueConstraintDeclarationSQL($name, UniqueConstraint $constraint)
     {
-        $columns = $index->getColumns();
+        $columns = $constraint->getColumns();
         $name    = new Identifier($name);
 
         if (count($columns) === 0) {
             throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        return 'CONSTRAINT ' . $name->getQuotedName($this) . ' UNIQUE ('
+        $flags = '';
+
+        if ($constraint->hasFlag('clustered')) {
+            $flags = 'CLUSTERED ';
+        }
+
+        return 'CONSTRAINT ' . $name->getQuotedName($this) . ' UNIQUE ' . $flags . ' ('
             . $this->getIndexFieldDeclarationListSQL($index)
-            . ')' . $this->getPartialIndexSQL($index);
+            . ')';
     }
 
     /**
