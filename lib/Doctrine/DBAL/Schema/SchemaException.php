@@ -34,7 +34,8 @@ class SchemaException extends \Doctrine\DBAL\DBALException
     const SEQUENCE_ALREADY_EXISTS = 80;
     const INDEX_INVALID_NAME = 90;
     const FOREIGNKEY_DOESNT_EXIST = 100;
-    const NAMESPACE_ALREADY_EXISTS = 110;
+    const CONSTRAINT_DOESNT_EXIST = 110;
+    const NAMESPACE_ALREADY_EXISTS = 120;
 
     /**
      * @param string $tableName
@@ -143,6 +144,17 @@ class SchemaException extends \Doctrine\DBAL\DBALException
     public static function sequenceDoesNotExist($sequenceName)
     {
         return new self("There exists no sequence with the name '".$sequenceName."'.", self::SEQUENCE_DOENST_EXIST);
+    }
+
+    /**
+     * @param string $constraintName
+     * @param string $table
+     *
+     * @return \Doctrine\DBAL\Schema\SchemaException
+     */
+    static public function uniqueConstraintDoesNotExist($constraintName, $table)
+    {
+        return new self("There exists no unique constraint with the name '$constraintName' on table '$table'.", self::CONSTRAINT_DOESNT_EXIST);
     }
 
     /**
