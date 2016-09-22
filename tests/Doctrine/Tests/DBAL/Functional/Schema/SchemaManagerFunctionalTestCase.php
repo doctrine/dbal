@@ -982,7 +982,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
      */
     protected function getTestTable(string $name, array $options = []) : Table
     {
-        $table = new Table($name, [], [], [], false, $options);
+        $table = new Table($name, [], [], [], [], false, $options);
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
         $table->addColumn('id', 'integer', ['notnull' => true]);
         $table->setPrimaryKey(['id']);
@@ -994,7 +994,7 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
 
     protected function getTestCompositeTable(string $name) : Table
     {
-        $table = new Table($name, [], [], [], false, []);
+        $table = new Table($name, [], [], [], [], false, []);
         $table->setSchemaConfig($this->schemaManager->createSchemaConfig());
         $table->addColumn('id', 'integer', ['notnull' => true]);
         $table->addColumn('other_id', 'integer', ['notnull' => true]);
@@ -1010,14 +1010,17 @@ abstract class SchemaManagerFunctionalTestCase extends DbalFunctionalTestCase
     protected function assertHasTable(array $tables) : void
     {
         $foundTable = false;
+
         foreach ($tables as $table) {
             self::assertInstanceOf(Table::class, $table, 'No Table instance was found in tables array.');
+
             if (strtolower($table->getName()) !== 'list_tables_test_new_name') {
                 continue;
             }
 
             $foundTable = true;
         }
+
         self::assertTrue($foundTable, 'Could not find new table');
     }
 
