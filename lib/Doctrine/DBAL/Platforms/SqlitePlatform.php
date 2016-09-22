@@ -315,9 +315,9 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($name, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
-        $name = str_replace('.', '__', $name);
+        $tableName = str_replace('.', '__', $tableName);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
@@ -337,7 +337,7 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
-        $query[] = 'CREATE TABLE ' . $name . ' (' . $queryFields . ')';
+        $query[] = 'CREATE TABLE ' . $tableName . ' (' . $queryFields . ')';
 
         if (isset($options['alter']) && true === $options['alter']) {
             return $query;
@@ -345,13 +345,13 @@ class SqlitePlatform extends AbstractPlatform
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $indexDef) {
-                $query[] = $this->getCreateIndexSQL($indexDef, $name);
+                $query[] = $this->getCreateIndexSQL($indexDef, $tableName);
             }
         }
 
         if (isset($options['unique']) && ! empty($options['unique'])) {
             foreach ($options['unique'] as $indexDef) {
-                $query[] = $this->getCreateIndexSQL($indexDef, $name);
+                $query[] = $this->getCreateIndexSQL($indexDef, $tableName);
             }
         }
 
@@ -363,8 +363,10 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
+        return $fixed
+            ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
+            : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT')
+        ;
     }
 
     /**
