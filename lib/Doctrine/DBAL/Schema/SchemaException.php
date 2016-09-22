@@ -18,7 +18,8 @@ class SchemaException extends DBALException
     public const SEQUENCE_ALREADY_EXISTS  = 80;
     public const INDEX_INVALID_NAME       = 90;
     public const FOREIGNKEY_DOESNT_EXIST  = 100;
-    public const NAMESPACE_ALREADY_EXISTS = 110;
+    public const CONSTRAINT_DOESNT_EXIST  = 110;
+    public const NAMESPACE_ALREADY_EXISTS = 120;
 
     /**
      * @param string $tableName
@@ -140,6 +141,21 @@ class SchemaException extends DBALException
     public static function sequenceDoesNotExist($sequenceName)
     {
         return new self("There exists no sequence with the name '" . $sequenceName . "'.", self::SEQUENCE_DOENST_EXIST);
+    }
+
+    /**
+     * @param string $constraintName
+     * @param string $table
+     *
+     * @return self
+     */
+    public static function uniqueConstraintDoesNotExist($constraintName, $table)
+    {
+        return new self(sprintf(
+            'There exists no unique constraint with the name "%s" on table "%s".',
+            $constraintName,
+            $table
+        ), self::CONSTRAINT_DOESNT_EXIST);
     }
 
     /**
