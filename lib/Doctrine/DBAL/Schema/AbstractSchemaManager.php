@@ -268,12 +268,14 @@ abstract class AbstractSchemaManager
     {
         $columns     = $this->listTableColumns($tableName);
         $foreignKeys = [];
+
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->listTableForeignKeys($tableName);
         }
+
         $indexes = $this->listTableIndexes($tableName);
 
-        return new Table($tableName, $columns, $indexes, $foreignKeys);
+        return new Table($tableName, $columns, $indexes, [], $foreignKeys);
     }
 
     /**
@@ -592,6 +594,7 @@ abstract class AbstractSchemaManager
     public function alterTable(TableDiff $tableDiff)
     {
         $queries = $this->_platform->getAlterTableSQL($tableDiff);
+
         if (! is_array($queries) || ! count($queries)) {
             return;
         }
