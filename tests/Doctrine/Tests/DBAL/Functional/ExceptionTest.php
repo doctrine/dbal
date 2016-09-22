@@ -307,6 +307,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer');
 
         $this->expectException($exceptionClass);
+
         foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
             $conn->exec($sql);
         }
