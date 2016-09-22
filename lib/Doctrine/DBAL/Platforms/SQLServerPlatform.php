@@ -370,18 +370,6 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getUniqueConstraintDeclarationSQL($name, Index $index)
-    {
-        $constraint = parent::getUniqueConstraintDeclarationSQL($name, $index);
-
-        $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
-
-        return $constraint;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getCreateIndexSQL(Index $index, $table)
     {
         $constraint = parent::getCreateIndexSQL($index, $table);
