@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\TestUtil;
 
 require_once __DIR__ . '/../../../TestInit.php';
@@ -217,5 +219,18 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
             array('"Id"'),
             $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignColumns($platform)
         );
+    }
+
+    public function testListTableColumnsSameTableNamesInDifferentSchemas()
+    {
+        $table = $this->createListTableColumns();
+        $this->_sm->dropAndCreateTable($table);
+
+        $otherTable = new Table($table->getName());
+        $otherTable->addColumn('id', Type::STRING);
+        TestUtil::getTempConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
+
+        $columns = $this->_sm->listTableColumns($table->getName(), $this->_conn->getUsername());
+        $this->assertCount(7, $columns);
     }
 }

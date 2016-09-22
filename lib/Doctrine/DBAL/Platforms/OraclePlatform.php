@@ -655,25 +655,27 @@ LEFT JOIN user_cons_columns r_cols
 
         $tabColumnsTableName = "user_tab_columns";
         $colCommentsTableName = "user_col_comments";
-        $ownerCondition = '';
+        $tabColumnsOwnerCondition = '';
+        $colCommentsOwnerCondition = '';
 
         if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
             $database = $this->quoteStringLiteral($database->getName());
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
-            $ownerCondition = "AND c.owner = " . $database;
+            $tabColumnsOwnerCondition = "AND c.owner = " . $database;
+            $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
         }
 
         return "SELECT   c.*,
                          (
                              SELECT d.comments
                              FROM   $colCommentsTableName d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
                 FROM     $tabColumnsTableName c
-                WHERE    c.table_name = " . $table . " $ownerCondition
+                WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
                 ORDER BY c.column_name";
     }
 
