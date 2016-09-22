@@ -23,6 +23,14 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     protected $columns = [];
 
     /**
+     * Platform specific flags
+     * array($flagName => true)
+     *
+     * @var array
+     */
+    protected $flags = array();
+
+    /**
      * Platform specific options
      *
      * @var mixed[]
@@ -32,9 +40,10 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     /**
      * @param string   $indexName
      * @param string[] $columns
+     * @param array    $flags
      * @param mixed[]  $options
      */
-    public function __construct($indexName, array $columns, array $options = [])
+    public function __construct($indexName, array $columns, array $flags = array(), array $options = [])
     {
         $this->_setName($indexName);
 
@@ -42,6 +51,10 @@ class UniqueConstraint extends AbstractAsset implements Constraint
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
+        }
+
+        foreach ($flags as $flag) {
+            $this->addFlag($flag);
         }
     }
 
@@ -89,6 +102,56 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     public function getUnquotedColumns()
     {
         return array_map([$this, 'trimQuotes'], $this->getColumns());
+    }
+
+    /**
+     * Returns platform specific flags for unique constraint.
+     *
+     * @return string[]
+     */
+    public function getFlags()
+    {
+        return array_keys($this->flags);
+    }
+
+    /**
+     * Adds flag for a unique constraint that translates to platform specific handling.
+     *
+     * @example $uniqueConstraint->addFlag('CLUSTERED')
+     *
+     * @param string $flag
+     *
+     * @return self
+     */
+    public function addFlag($flag)
+    {
+        $this->flags[strtolower($flag)] = true;
+
+        return $this;
+    }
+
+    /**
+     * Does this unique constraint have a specific flag?
+     *
+     * @param string $flag
+     *
+     * @return boolean
+     */
+    public function hasFlag($flag)
+    {
+        return isset($this->flags[strtolower($flag)]);
+    }
+
+    /**
+     * Removes a flag.
+     *
+     * @param string $flag
+     *
+     * @return void
+     */
+    public function removeFlag($flag)
+    {
+        unset($this->flags[strtolower($flag)]);
     }
 
     /**
