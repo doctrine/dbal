@@ -424,8 +424,8 @@ class MySqlPlatform extends AbstractPlatform
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
-            foreach ($options['uniqueConstraints'] as $index => $definition) {
-                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($index, $definition);
+            foreach ($options['uniqueConstraints'] as $name => $definition) {
+                $queryFields .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
             }
         }
 
