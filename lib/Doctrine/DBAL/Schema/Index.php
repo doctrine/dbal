@@ -56,6 +56,7 @@ class Index extends AbstractAsset implements Constraint
         $isUnique = $isUnique || $isPrimary;
 
         $this->_setName($indexName);
+
         $this->_isUnique  = $isUnique;
         $this->_isPrimary = $isPrimary;
         $this->options    = $options;
@@ -63,6 +64,7 @@ class Index extends AbstractAsset implements Constraint
         foreach ($columns as $column) {
             $this->_addColumn($column);
         }
+
         foreach ($flags as $flag) {
             $this->addFlag($flag);
         }
