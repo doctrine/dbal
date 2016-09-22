@@ -156,11 +156,12 @@ class Table extends AbstractAsset
     /**
      * @param array       $columnNames
      * @param string|null $indexName
+     * @param array       $flags
      * @param array       $options
      *
      * @return self
      */
-    public function addUniqueConstraint(array $columnNames, $indexName = null, array $options = [])
+    public function addUniqueConstraint(array $columnNames, $indexName = null, array $flags = array(), array $options = [])
     {
         if ($indexName == null) {
             $indexName = $this->_generateIdentifierName(
@@ -168,7 +169,7 @@ class Table extends AbstractAsset
             );
         }
 
-        return $this->_addUniqueConstraint($this->_createUniqueConstraint($columnNames, $indexName, $options));
+        return $this->_addUniqueConstraint($this->_createUniqueConstraint($columnNames, $indexName, $flags, $options));
     }
 
     /**
@@ -901,11 +902,11 @@ class Table extends AbstractAsset
     }
 
     /**
-     * @param UniqueConstraint $uniqueConstraint
+     * @param UniqueConstraint $constraint
      *
      * @return self
      */
-    protected function _addUniqueConstraint(UniqueConstraint $uniqueConstraint)
+    protected function _addUniqueConstraint(UniqueConstraint $constraint)
     {
         $name = strlen($uniqueConstraint->getName())
             ? $uniqueConstraint->getName()
@@ -916,7 +917,7 @@ class Table extends AbstractAsset
 
         $name = $this->normalizeIdentifier($name);
 
-        $this->_uniqueConstraints[$name] = $uniqueConstraint;
+        $this->_uniqueConstraints[$name] = $constraint;
 
         // If there is already an index that fulfills this requirements drop the request. In the case of __construct
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
@@ -997,13 +998,14 @@ class Table extends AbstractAsset
     /**
      * @param array  $columnNames
      * @param string $indexName
+     * @param array  $flags
      * @param array  $options
      *
      * @return UniqueConstraint
      *
      * @throws SchemaException
      */
-    private function _createUniqueConstraint(array $columnNames, $indexName, array $options = [])
+    private function _createUniqueConstraint(array $columnNames, $indexName, array $flags = array(), array $options = [])
     {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName))) {
             throw SchemaException::indexNameInvalid($indexName);
@@ -1019,7 +1021,7 @@ class Table extends AbstractAsset
             }
         }
 
-        return new UniqueConstraint($indexName, $columnNames, $options);
+        return new UniqueConstraint($indexName, $columnNames, $flags, $options);
     }
 
     /**
