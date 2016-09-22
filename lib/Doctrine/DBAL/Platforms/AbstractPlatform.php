@@ -23,6 +23,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
@@ -1546,15 +1547,30 @@ abstract class AbstractPlatform
         $options['indexes']           = [];
         $options['primary']           = [];
 
-        if (($createFlags&self::CREATE_INDEXES) > 0) {
+        if (($createFlags & self::CREATE_INDEXES) > 0) {
             foreach ($table->getIndexes() as $index) {
                 /** @var $index Index */
-                if ($index->isPrimary()) {
-                    $options['primary']       = $index->getQuotedColumns($this);
-                    $options['primary_index'] = $index;
-                } else {
+                if (! $index->isPrimary()) {
                     $options['indexes'][$index->getQuotedName($this)] = $index;
+
+                    continue;
                 }
+
+                $options['primary']       = $index->getQuotedColumns($this);
+                $options['primary_index'] = $index;
+            }
+
+            foreach ($table->getUniqueConstraints() as $uniqueConstraint) {
+                /** @var UniqueConstraint $uniqueConstraint */
+                $options['uniqueConstraints'][$uniqueConstraint->getQuotedName($this)] = $uniqueConstraint;
+            }
+        }
+
+        if (($createFlags & self::CREATE_FOREIGNKEYS) > 0) {
+            $options['foreignKeys'] = [];
+
+            foreach ($table->getForeignKeys() as $fkConstraint) {
+                $options['foreignKeys'][] = $fkConstraint;
             }
         }
 
@@ -1587,13 +1603,6 @@ abstract class AbstractPlatform
             }
 
             $columns[$columnData['name']] = $columnData;
-        }
-
-        if (($createFlags&self::CREATE_FOREIGNKEYS) > 0) {
-            $options['foreignKeys'] = [];
-            foreach ($table->getForeignKeys() as $fkConstraint) {
-                $options['foreignKeys'][] = $fkConstraint;
-            }
         }
 
         if ($this->_eventManager !== null && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
