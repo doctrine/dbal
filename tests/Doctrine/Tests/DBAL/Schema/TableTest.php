@@ -205,7 +205,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testOptions()
     {
-        $table = new Table("foo", array(), array(), array(), array(), false, array("foo" => "bar"));
+        $table = new Table("foo", array(), array(), array(), array(), array("foo" => "bar"));
 
         self::assertTrue($table->hasOption("foo"));
         self::assertEquals("bar", $table->getOption("foo"));
