@@ -15,6 +15,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
@@ -359,12 +360,12 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'CONSTRAINT unique_constraint UNIQUE CLUSTERED (a, b)',
             $this->platform->getUniqueConstraintDeclarationSQL(
                 'unique_constraint',
-                new Index(null, ['a', 'b'], true, false, ['clustered'])
+                new UniqueConstraint(null, ['a', 'b'], ['clustered'])
             )
         );
         self::assertEquals(
-            'UNIQUE (a, b)',
-            $this->platform->getUniqueConstraintDeclarationSQL(null, new Index(null, ['a', 'b'], true, false))
+            'CONSTRAINT UNIQUE (a, b)',
+            $this->platform->getUniqueConstraintDeclarationSQL(null, new UniqueConstraint(null, ['a', 'b']))
         );
     }
 
@@ -372,7 +373,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $this->platform->getUniqueConstraintDeclarationSQL('constr', new Index('constr', [], true));
+        $this->platform->getUniqueConstraintDeclarationSQL('constr', new UniqueConstraint('constr', []));
     }
 
     public function testGeneratesForeignKeyConstraintsWithAdvancedPlatformOptionsSQL()
