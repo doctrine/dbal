@@ -315,7 +315,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
-        $tableName        = str_replace('.', '__', $tableName);
+        $tableName   = str_replace('.', '__', $tableName);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
@@ -383,8 +383,7 @@ class SqlitePlatform extends AbstractPlatform
     {
         return $fixed
             ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-            : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT')
-        ;
+            : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
     }
 
     /**
