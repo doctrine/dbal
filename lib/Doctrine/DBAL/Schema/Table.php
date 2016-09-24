@@ -121,12 +121,12 @@ class Table extends AbstractAsset
     /**
      * @param mixed[]     $columnNames
      * @param string|null $indexName
-     * @param array       $flags
+     * @param string[]    $flags
      * @param mixed[]     $options
      *
      * @return self
      */
-    public function addUniqueConstraint(array $columnNames, $indexName = null, array $flags = array(), array $options = [])
+    public function addUniqueConstraint(array $columnNames, $indexName = null, array $flags = [], array $options = [])
     {
         if ($indexName === null) {
             $indexName = $this->_generateIdentifierName(
@@ -966,13 +966,13 @@ class Table extends AbstractAsset
      * @param mixed[] $columns
      * @param string  $indexName
      * @param mixed[] $flags
-     * @param array  $options
+     * @param mixed[] $options
      *
      * @return UniqueConstraint
      *
      * @throws SchemaException
      */
-    private function _createUniqueConstraint(array $columns, $indexName, array $flags = array(), array $options = [])
+    private function _createUniqueConstraint(array $columns, $indexName, array $flags = [], array $options = [])
     {
         if (preg_match('(([^a-zA-Z0-9_]+))', $this->normalizeIdentifier($indexName))) {
             throw SchemaException::indexNameInvalid($indexName);
