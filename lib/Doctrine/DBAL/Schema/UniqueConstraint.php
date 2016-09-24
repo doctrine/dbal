@@ -75,27 +75,11 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     }
 
     /**
-     * @param string $column
-     *
-     * @return void
-     *
-     * @throws \InvalidArgumentException
-     */
-    protected function _addColumn($column)
-    {
-        if (is_string($column)) {
-            $this->_columns[$column] = new Identifier($column);
-        } else {
-            throw new \InvalidArgumentException("Expecting a string as Index Column");
-        }
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getColumns()
     {
-        return array_keys($this->_columns);
+        return array_keys($this->columns);
     }
 
     /**
@@ -105,7 +89,7 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     {
         $columns = array();
 
-        foreach ($this->_columns as $column) {
+        foreach ($this->columns as $column) {
             $columns[] = $column->getQuotedName($platform);
         }
 
@@ -196,5 +180,21 @@ class UniqueConstraint extends AbstractAsset implements Constraint
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * @param string $column
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function _addColumn($column)
+    {
+        if (is_string($column)) {
+            $this->columns[$column] = new Identifier($column);
+        } else {
+            throw new \InvalidArgumentException("Expecting a string as Index Column");
+        }
     }
 }
