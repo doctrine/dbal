@@ -287,7 +287,7 @@ abstract class AbstractSchemaManager
 
         $indexes = $this->listTableIndexes($tableName);
 
-        return new Table($tableName, $columns, $indexes, array(), $foreignKeys, false, array());
+        return new Table($tableName, $columns, $indexes, array(), $foreignKeys, array());
     }
 
     /**
