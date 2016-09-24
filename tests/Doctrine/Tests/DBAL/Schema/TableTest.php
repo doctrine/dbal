@@ -209,7 +209,7 @@ class TableTest extends DbalTestCase
 
     public function testOptions()
     {
-        $table = new Table('foo', [], [], [], [], false, ['foo' => 'bar']);
+        $table = new Table('foo', [], [], [], [], ['foo' => 'bar']);
 
         self::assertTrue($table->hasOption('foo'));
         self::assertEquals('bar', $table->getOption('foo'));
