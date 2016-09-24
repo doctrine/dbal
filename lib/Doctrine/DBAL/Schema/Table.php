@@ -53,7 +53,6 @@ class Table extends AbstractAsset
      * @param Index[]                $indexes
      * @param UniqueConstraint[]     $uniqueConstraints
      * @param ForeignKeyConstraint[] $fkConstraints
-     * @param int                    $idGeneratorType
      * @param mixed[]                $options
      *
      * @throws DBALException
@@ -64,7 +63,6 @@ class Table extends AbstractAsset
         array $indexes = [],
         array $uniqueConstraints = [],
         array $fkConstraints = [],
-        $idGeneratorType = 0,
         array $options = []
     ) {
         if (strlen($tableName) === 0) {
