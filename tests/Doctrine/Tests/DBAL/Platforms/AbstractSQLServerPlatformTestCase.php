@@ -1369,7 +1369,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
     {
-        return 'CONSTRAINT [select] UNIQUE (foo) WHERE foo IS NOT NULL';
+        return 'CONSTRAINT [select] UNIQUE (foo)';
     }
 
     /**
