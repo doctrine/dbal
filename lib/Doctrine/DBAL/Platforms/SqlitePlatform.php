@@ -898,7 +898,7 @@ class SqlitePlatform extends AbstractPlatform
         if (! $this->onSchemaAlterTable($diff, $tableSql)) {
             $dataTable = new Table('__temp__' . $table->getName());
 
-            $newTable = new Table($table->getQuotedName($this), $columns, $this->getPrimaryIndexInAlteredTable($diff), [], $this->getForeignKeysInAlteredTable($diff), 0, $table->getOptions());
+            $newTable = new Table($table->getQuotedName($this), $columns, $this->getPrimaryIndexInAlteredTable($diff), [], $this->getForeignKeysInAlteredTable($diff), $table->getOptions());
             $newTable->addOption('alter', true);
 
             $sql = $this->getPreAlterTableIndexForeignKeySQL($diff);
