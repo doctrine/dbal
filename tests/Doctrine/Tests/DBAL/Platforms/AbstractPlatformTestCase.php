@@ -12,6 +12,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\Types\CommentedType;
 
@@ -187,7 +188,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGeneratesIndexCreationSql()
     {
-        $indexDef = new \Doctrine\DBAL\Schema\Index('my_idx', array('user_name', 'last_login'));
+        $indexDef = new Index('my_idx', array('user_name', 'last_login'));
 
         $this->assertEquals(
             $this->getGenerateIndexSql(),
@@ -199,7 +200,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGeneratesUniqueIndexCreationSql()
     {
-        $indexDef = new \Doctrine\DBAL\Schema\Index('index_name', array('test', 'test2'), true);
+        $indexDef = new Index('index_name', array('test', 'test2'), true);
 
         $sql = $this->_platform->getCreateIndexSQL($indexDef, 'test');
         $this->assertEquals($this->getGenerateUniqueIndexSql(), $sql);
@@ -210,8 +211,8 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
     {
         $where = 'test IS NULL AND test2 IS NOT NULL';
-        $indexDef = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), false, false, array(), array('where' => $where));
-        $uniqueIndex = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), true, false, array(), array('where' => $where));
+        $indexDef = new Index('name', array('test', 'test2'), false, false, array(), array('where' => $where));
+        $uniqueConstraint = new UniqueConstraint('name', array('test', 'test2'), array(), array());
 
         $expected = ' WHERE ' . $where;
 
@@ -221,21 +222,21 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             $actuals []= $this->_platform->getIndexDeclarationSQL('name', $indexDef);
         }
 
-        $actuals []= $this->_platform->getUniqueConstraintDeclarationSQL('name', $uniqueIndex);
-        $actuals []= $this->_platform->getCreateIndexSQL($indexDef, 'table');
+        $uniqueConstraintSQL = $this->_platform->getUniqueConstraintDeclarationSQL('name', $uniqueConstraint);
+        $indexSQL = $this->_platform->getCreateIndexSQL($indexDef, 'table');
 
-        foreach ($actuals as $actual) {
-            if ($this->_platform->supportsPartialIndexes()) {
-                $this->assertStringEndsWith($expected, $actual, 'WHERE clause should be present');
-            } else {
-                $this->assertStringEndsNotWith($expected, $actual, 'WHERE clause should NOT be present');
-            }
+        $this->assertStringEndsNotWith($expected, $uniqueConstraintSQL, 'WHERE clause should NOT be present');
+
+        if ($this->_platform->supportsPartialIndexes()) {
+            $this->assertStringEndsWith($expected, $indexSQL, 'WHERE clause should be present');
+        } else {
+            $this->assertStringEndsNotWith($expected, $indexSQL, 'WHERE clause should NOT be present');
         }
     }
 
     public function testGeneratesForeignKeyCreationSql()
     {
-        $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name_id'), 'other_table', array('id'), '');
+        $fk = new ForeignKeyConstraint(array('fk_name_id'), 'other_table', array('id'), '');
 
         $sql = $this->_platform->getCreateForeignKeySQL($fk, 'test');
         $this->assertEquals($sql, $this->getGenerateForeignKeySql());
@@ -245,22 +246,22 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGeneratesConstraintCreationSql()
     {
-        $idx = new \Doctrine\DBAL\Schema\Index('constraint_name', array('test'), true, false);
+        $idx = new Index('constraint_name', array('test'), true, false);
         $sql = $this->_platform->getCreateConstraintSQL($idx, 'test');
         $this->assertEquals($this->getGenerateConstraintUniqueIndexSql(), $sql);
 
-        $pk = new \Doctrine\DBAL\Schema\Index('constraint_name', array('test'), true, true);
+        $pk = new Index('constraint_name', array('test'), true, true);
         $sql = $this->_platform->getCreateConstraintSQL($pk, 'test');
         $this->assertEquals($this->getGenerateConstraintPrimaryIndexSql(), $sql);
 
-        $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name'), 'foreign', array('id'), 'constraint_fk');
+        $fk = new ForeignKeyConstraint(array('fk_name'), 'foreign', array('id'), 'constraint_fk');
         $sql = $this->_platform->getCreateConstraintSQL($fk, 'test');
         $this->assertEquals($this->getGenerateConstraintForeignKeySql($fk), $sql);
     }
 
     public function testGeneratesForeignKeySqlOnlyWhenSupportingForeignKeys()
     {
-        $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name'), 'foreign', array('id'), 'constraint_fk');
+        $fk = new ForeignKeyConstraint(array('fk_name'), 'foreign', array('id'), 'constraint_fk');
 
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $this->assertInternalType(
@@ -658,11 +659,11 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
     {
-        $index = new Index('select', array('foo'), true);
+        $constraint = new UniqueConstraint('select', array('foo'), array(), array());
 
         $this->assertSame(
             $this->getQuotesReservedKeywordInUniqueConstraintDeclarationSQL(),
-            $this->_platform->getUniqueConstraintDeclarationSQL('select', $index)
+            $this->_platform->getUniqueConstraintDeclarationSQL('select', $constraint)
         );
     }
 
