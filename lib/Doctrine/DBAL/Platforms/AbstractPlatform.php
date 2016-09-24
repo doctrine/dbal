@@ -2353,15 +2353,17 @@ abstract class AbstractPlatform
             throw new InvalidArgumentException("Incomplete definition. 'columns' required.");
         }
 
-        $flags = '';
+        $flags = ['UNIQUE'];
 
         if ($constraint->hasFlag('clustered')) {
-            $flags = 'CLUSTERED ';
+            $flags[] = 'CLUSTERED';
         }
 
-        return 'CONSTRAINT ' . $name->getQuotedName($this) . ' UNIQUE ' . $flags . ' ('
-            . $this->getIndexFieldDeclarationListSQL($index)
-            . ')';
+        $constraintName  = $name->getQuotedName($this);
+        $constraintName  = ! empty($constraintName) ? $constraintName . ' ' : '';
+        $columnListNames = $this->getIndexFieldDeclarationListSQL($columns);
+
+        return sprintf('CONSTRAINT %s%s (%s)', $constraintName, implode(' ', $flags), $columnListNames);
     }
 
     /**
