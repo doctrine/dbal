@@ -227,6 +227,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $this->assertTrue($this->_platform->supportsSequences());
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsCommentOnStatement()
+    {
+        return true;
+    }
+
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
