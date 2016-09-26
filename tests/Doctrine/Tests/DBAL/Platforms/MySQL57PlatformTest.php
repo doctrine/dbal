@@ -87,6 +87,6 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
     public function testInitializesJsonTypeMapping()
     {
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
-        $this->assertEquals('json_array', $this->_platform->getDoctrineTypeMapping('json'));
+        $this->assertSame('json_array', $this->_platform->getDoctrineTypeMapping('json'));
     }
 }
