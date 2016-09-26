@@ -41,7 +41,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class AddDefaultNamespace extends AbstractVisitor
 {
-
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
