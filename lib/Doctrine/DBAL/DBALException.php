@@ -25,6 +25,9 @@ use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 
 class DBALException extends \Exception
 {
+    /** Length after which a parameter argument is truncated in the formatted error message */
+    const MAX_PARAM_LENGTH = 240;
+
     /**
      * @param string $method
      *
@@ -168,8 +171,8 @@ class DBALException extends \Exception
     private static function formatParameters(array $params)
     {
         return '[' . implode(', ', array_map(function ($param) {
-            if (is_string ($param)) {
-                $param = mb_strimwidth($param, 0, 240, "...");
+            if (is_string ($param) && strlen($param) > static::MAX_PARAM_LENGTH) {
+                $param = substr($param, 0, static::MAX_PARAM_LENGTH) . '...';
             }
             $json = @json_encode($param);
 
