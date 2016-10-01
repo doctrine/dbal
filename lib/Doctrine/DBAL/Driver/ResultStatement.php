@@ -58,7 +58,7 @@ interface ResultStatement extends \Traversable
     /**
      * Returns the next row of a result set.
      *
-     * * @param int|null $fetchMode  Controls how the next row will be returned to the caller.
+     * @param int|null $fetchMode    Controls how the next row will be returned to the caller.
      *                               The value must be one of the \PDO::FETCH_* constants,
      *                               defaulting to \PDO::FETCH_BOTH.
      * @param int $cursorOrientation For a ResultStatement object representing a scrollable cursor,
