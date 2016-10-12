@@ -200,9 +200,11 @@ class DB2Statement implements \IteratorAggregate, Statement
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
         switch ($fetchMode) {
             case \PDO::FETCH_BOTH:
-                return db2_fetch_both($this->_stmt);
+                $result = @db2_fetch_both($this->_stmt);
+                break;
             case \PDO::FETCH_ASSOC:
-                return db2_fetch_assoc($this->_stmt);
+                $result = @db2_fetch_assoc($this->_stmt);
+                break;
             case \PDO::FETCH_CLASS:
                 $className = $this->defaultFetchClass;
                 $ctorArgs  = $this->defaultFetchClassCtorArgs;
@@ -213,20 +215,28 @@ class DB2Statement implements \IteratorAggregate, Statement
                     $ctorArgs  = isset($args[2]) ? $args[2] : array();
                 }
 
-                $result = db2_fetch_object($this->_stmt);
+                $result = @db2_fetch_object($this->_stmt);
 
                 if ($result instanceof \stdClass) {
                     $result = $this->castObject($result, $className, $ctorArgs);
                 }
-
-                return $result;
+                break;
             case \PDO::FETCH_NUM:
-                return db2_fetch_array($this->_stmt);
+                $result = @db2_fetch_array($this->_stmt);
+                break;
             case \PDO::FETCH_OBJ:
-                return db2_fetch_object($this->_stmt);
+                $result = @db2_fetch_object($this->_stmt);
+                break;
             default:
                 throw new DB2Exception("Given Fetch-Style " . $fetchMode . " is not supported.");
         }
+
+        $error = db2_stmt_errormsg();
+        if ($result === false && $error) {
+            throw new DB2Exception($error);
+        }
+
+        return $result;
     }
 
     /**
