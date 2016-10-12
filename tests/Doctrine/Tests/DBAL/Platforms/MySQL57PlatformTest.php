@@ -81,6 +81,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
     {
         $this->assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
     }
+
     /**
      * @group DBAL-553
      */
