@@ -200,10 +200,10 @@ class DB2Statement implements \IteratorAggregate, Statement
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
         switch ($fetchMode) {
             case \PDO::FETCH_BOTH:
-                $result = @db2_fetch_both($this->_stmt);
+                $result = db2_fetch_both($this->_stmt);
                 break;
             case \PDO::FETCH_ASSOC:
-                $result = @db2_fetch_assoc($this->_stmt);
+                $result = db2_fetch_assoc($this->_stmt);
                 break;
             case \PDO::FETCH_CLASS:
                 $className = $this->defaultFetchClass;
@@ -215,17 +215,17 @@ class DB2Statement implements \IteratorAggregate, Statement
                     $ctorArgs  = isset($args[2]) ? $args[2] : array();
                 }
 
-                $result = @db2_fetch_object($this->_stmt);
+                $result = db2_fetch_object($this->_stmt);
 
                 if ($result instanceof \stdClass) {
                     $result = $this->castObject($result, $className, $ctorArgs);
                 }
                 break;
             case \PDO::FETCH_NUM:
-                $result = @db2_fetch_array($this->_stmt);
+                $result = db2_fetch_array($this->_stmt);
                 break;
             case \PDO::FETCH_OBJ:
-                $result = @db2_fetch_object($this->_stmt);
+                $result = db2_fetch_object($this->_stmt);
                 break;
             default:
                 throw new DB2Exception("Given Fetch-Style " . $fetchMode . " is not supported.");
