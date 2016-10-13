@@ -231,9 +231,9 @@ class DB2Statement implements \IteratorAggregate, Statement
                 throw new DB2Exception("Given Fetch-Style " . $fetchMode . " is not supported.");
         }
 
-        $error = db2_stmt_errormsg();
-        if (false === $result && $error) {
-            throw new DB2Exception("Error during fetch: " . $error);
+        list($errorMessage, $errorCode) = $this->errorInfo();
+        if (false === $result && !empty($errorMessage)) {
+            throw new DB2Exception("Error during fetch: " . $errorMessage);
         }
 
         return $result;
