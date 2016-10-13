@@ -233,7 +233,7 @@ class DB2Statement implements \IteratorAggregate, Statement
 
         $error = db2_stmt_errormsg();
         if (false === $result && $error) {
-            throw new DB2Exception($error);
+            throw new DB2Exception("Error during fetch: " . $error);
         }
 
         return $result;
