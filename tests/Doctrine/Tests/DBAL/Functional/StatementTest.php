@@ -53,4 +53,37 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertFalse($value);
     }
+
+    public function testReuseStatementWithLongerResults()
+    {
+        $sm = $this->_conn->getSchemaManager();
+        $table = new Table('stmt_test_longer_results');
+        $table->addColumn('param', 'string');
+        $table->addColumn('val', 'text');
+        $sm->createTable($table);
+
+        $row1 = array(
+            'param' => 'param1',
+            'val' => 'X',
+        );
+        $this->_conn->insert('stmt_test_longer_results', $row1);
+
+        $stmt = $this->_conn->prepare('SELECT param, val FROM stmt_test_longer_results ORDER BY param');
+        $stmt->execute();
+        $this->assertArraySubset(array(
+            array('param1', 'X'),
+        ), $stmt->fetchAll(\PDO::FETCH_NUM));
+
+        $row2 = array(
+            'param' => 'param2',
+            'val' => 'A bit longer value',
+        );
+        $this->_conn->insert('stmt_test_longer_results', $row2);
+
+        $stmt->execute();
+        $this->assertArraySubset(array(
+            array('param1', 'X'),
+            array('param2', 'A bit longer value'),
+        ), $stmt->fetchAll(\PDO::FETCH_NUM));
+    }
 }
