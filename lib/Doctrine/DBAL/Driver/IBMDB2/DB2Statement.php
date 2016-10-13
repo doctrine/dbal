@@ -232,7 +232,7 @@ class DB2Statement implements \IteratorAggregate, Statement
         }
 
         $error = db2_stmt_errormsg();
-        if ($result === false && $error) {
+        if (false === $result && $error) {
             throw new DB2Exception($error);
         }
 
