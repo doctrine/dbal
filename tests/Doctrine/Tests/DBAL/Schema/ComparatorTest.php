@@ -1276,4 +1276,40 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $actual->changedTables['table2']->addedForeignKeys, "FK to table3 should be added.");
         $this->assertEquals("table3", $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
     }
+
+	/**
+	 * @see https://github.com/doctrine/dbal/pull/2537
+	 *
+	 * @dataProvider getCompareDateTimeTypes
+	 */
+    public function testDifferentDateTimeTypes($type1, $type2, $equals)
+    {
+	    $column1 = new Column('foo', Type::getType($type1));
+	    $column2 = new Column('foo', Type::getType($type2));
+
+	    $comparator = new Comparator();
+
+	    $expectedDiff = $equals ? array() : array('type');
+
+	    $actualDiff = $comparator->diffColumn($column1, $column2);
+	    $this->assertSame($expectedDiff, $actualDiff);
+
+	    $actualDiff = $comparator->diffColumn($column2, $column1);
+	    $this->assertSame($expectedDiff, $actualDiff);
+    }
+
+	public function getCompareDateTimeTypes()
+	{
+		return array(
+			array('datetime', 'datetime', true),
+			array('datetime', 'datetimetz', true),
+			array('datetimetz', 'datetimetz', true),
+
+			array('date', 'datetime', false),
+			array('date', 'datetimetz', false),
+
+			array('time', 'datetime', false),
+			array('time', 'datetimetz', false),
+		);
+	}
 }
