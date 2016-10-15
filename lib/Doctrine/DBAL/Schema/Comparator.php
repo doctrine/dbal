@@ -431,7 +431,14 @@ class Comparator
 
         foreach (array('type', 'notnull', 'unsigned', 'autoincrement') as $property) {
             if ($properties1[$property] != $properties2[$property]) {
-                $changedProperties[] = $property;
+            	if(!(
+	                ($properties1[$property] instanceof Types\DateTimeType || $properties1[$property] instanceof Types\DateTimeTzType)
+		            &&
+	                ($properties2[$property] instanceof Types\DateTimeType || $properties2[$property] instanceof Types\DateTimeTzType)
+	            ))
+	            {
+		            $changedProperties[] = $property;
+	            }
             }
         }
 
