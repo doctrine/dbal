@@ -1406,8 +1406,8 @@ class SQLServerPlatform extends AbstractPlatform
             'varbinary' => 'binary',
             'image' => 'blob',
             'uniqueidentifier' => 'guid',
-            'sql_variant'=>'string',
-            'sysname'=>'string',
+            'sql_variant' => 'string',
+            'sysname' => 'string',
         );
     }
 
