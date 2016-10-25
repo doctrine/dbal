@@ -2222,7 +2222,7 @@ abstract class AbstractPlatform
             $collation = (isset($field['collation']) && $field['collation']) ?
                     ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
-            $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+            $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : ' NULL';
 
             $unique = (isset($field['unique']) && $field['unique']) ?
                     ' ' . $this->getUniqueFieldDeclarationSQL() : '';
