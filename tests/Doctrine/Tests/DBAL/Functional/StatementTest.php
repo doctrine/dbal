@@ -132,4 +132,45 @@ EOF
         );
         $this->assertSame($contents, stream_get_contents($stream));
     }
+
+    public function testIncompletelyFetchedStatementDoesNotBlockConnection()
+    {
+        $table = new Table('stmt_test_non_fetched');
+        $table->addColumn('id', 'integer');
+        $this->_conn->getSchemaManager()->createTable($table);
+        $this->_conn->insert('stmt_test_non_fetched', array('id' => 1));
+        $this->_conn->insert('stmt_test_non_fetched', array('id' => 2));
+
+        $stmt1 = $this->_conn->prepare('SELECT id FROM stmt_test_non_fetched');
+        $stmt1->execute();
+        $stmt1->fetch();
+        $stmt1->execute();
+        // fetching only one record out of two
+        $stmt1->fetch();
+
+        $stmt2 = $this->_conn->prepare('SELECT id FROM stmt_test_non_fetched WHERE id = ?');
+        $stmt2->execute(array(1));
+        $this->assertEquals(1, $stmt2->fetchColumn());
+    }
+
+    public function testReuseStatementAfterClosingCursor()
+    {
+        $table = new Table('stmt_test_close_cursor');
+        $table->addColumn('id', 'integer');
+        $this->_conn->getSchemaManager()->createTable($table);
+        $this->_conn->insert('stmt_test_close_cursor', array('id' => 1));
+        $this->_conn->insert('stmt_test_close_cursor', array('id' => 2));
+
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test_close_cursor WHERE id = ?');
+
+        $stmt->execute(array(1));
+        $id = $stmt->fetchColumn();
+        $this->assertEquals(1, $id);
+
+        $stmt->closeCursor();
+
+        $stmt->execute(array(2));
+        $id = $stmt->fetchColumn();
+        $this->assertEquals(2, $id);
+    }
 }
