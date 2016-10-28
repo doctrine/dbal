@@ -104,11 +104,8 @@ class DB2Statement implements \IteratorAggregate, Statement
         }
 
         $this->_bindParam = array();
-        db2_free_result($this->_stmt);
-        $ret = db2_free_stmt($this->_stmt);
-        $this->_stmt = false;
 
-        return $ret;
+        return db2_free_result($this->_stmt);
     }
 
     /**

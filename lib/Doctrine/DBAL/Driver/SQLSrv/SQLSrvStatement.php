@@ -150,9 +150,13 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        if ($this->stmt) {
-            sqlsrv_free_stmt($this->stmt);
-        }
+        // emulate it by fetching and discarding rows, similarly to what PDO does in this case
+        // @link http://php.net/manual/en/pdostatement.closecursor.php
+        // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
+        // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
+        while (sqlsrv_fetch($this->stmt));
+
+        return true;
     }
 
     /**
