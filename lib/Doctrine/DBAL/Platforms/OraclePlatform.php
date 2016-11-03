@@ -659,6 +659,7 @@ END;';
         $tabColumnsTableName = "user_tab_columns";
         $colCommentsTableName = "user_col_comments";
         $ownerCondition = '';
+	    $innerOwnerCondition = '';
 
         if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
@@ -666,6 +667,7 @@ END;';
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
             $ownerCondition = "AND c.owner = " . $database;
+	        $innerOwnerCondition = "AND d.OWNER = c.OWNER";
         }
 
         return "SELECT   c.*,
@@ -674,6 +676,7 @@ END;';
                              FROM   $colCommentsTableName d
                              WHERE  d.TABLE_NAME = c.TABLE_NAME
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
+                             $innerOwnerCondition
                          ) AS comments
                 FROM     $tabColumnsTableName c
                 WHERE    c.table_name = " . $table . " $ownerCondition
