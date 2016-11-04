@@ -667,7 +667,7 @@ END;';
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
             $ownerCondition = "AND c.owner = " . $database;
-	        $innerOwnerCondition = "AND d.OWNER = c.OWNER";
+	        $innerOwnerCondition = " AND d.OWNER = c.OWNER";
         }
 
         return "SELECT   c.*,
@@ -675,7 +675,7 @@ END;';
                              SELECT d.comments
                              FROM   $colCommentsTableName d
                              WHERE  d.TABLE_NAME = c.TABLE_NAME
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME " . $innerOwnerCondition . "
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME" . $innerOwnerCondition . "
                          ) AS comments
                 FROM     $tabColumnsTableName c
                 WHERE    c.table_name = " . $table . " $ownerCondition
