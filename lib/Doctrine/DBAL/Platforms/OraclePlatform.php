@@ -675,8 +675,7 @@ END;';
                              SELECT d.comments
                              FROM   $colCommentsTableName d
                              WHERE  d.TABLE_NAME = c.TABLE_NAME
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
-                             $innerOwnerCondition
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME " . $innerOwnerCondition . "
                          ) AS comments
                 FROM     $tabColumnsTableName c
                 WHERE    c.table_name = " . $table . " $ownerCondition
