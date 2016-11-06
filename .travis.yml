@@ -50,7 +50,7 @@ matrix:
       env: DB=mariadb MARIADB_VERSION=10.0
 
     - php: 5.6
-      env: DB=mariadb
+      env: DB=mariadb MARIADB_VERSION=10.1
       addons:
         mariadb: 10.1
     - php: 7.0
