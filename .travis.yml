@@ -237,12 +237,7 @@ matrix:
       env: DB=pgsql POSTGRESQL_VERSION=9.5
 
 addons:
-  - postgresql: '9.2'
-  - postgresql: '9.3'
-  - postgresql: '9.4'
-  - postgresql: '9.5'
-  - postgresql: '9.6'
-  
+  postgresql: '9.4'
 
 install:
   - travis_retry composer install
