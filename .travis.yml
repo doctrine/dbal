@@ -14,13 +14,14 @@ php:
   - nightly
 
 env:
+  - DB=sqlite
   - DB=mysql
-  - DB=pgsql POSTGRESQL_VERSION=9.1
+  - DB=mysqli
   - DB=pgsql POSTGRESQL_VERSION=9.2
   - DB=pgsql POSTGRESQL_VERSION=9.3
   - DB=pgsql POSTGRESQL_VERSION=9.4
-  - DB=sqlite
-  - DB=mysqli
+  - DB=pgsql POSTGRESQL_VERSION=9.5
+  - DB=pgsql POSTGRESQL_VERSION=9.6
 
 matrix:
   fast_finish: true
@@ -110,6 +111,43 @@ matrix:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.5
 
+    - php: 5.6
+      sudo: true
+      dist: trusty
+      group: edge # until the next update
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+    - php: 7.0
+      sudo: true
+      dist: trusty
+      group: edge # until the next update
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+    - php: 7.1
+      sudo: true
+      dist: trusty
+      group: edge # until the next update
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+    - php: nightly
+      sudo: true
+      dist: trusty
+      group: edge # until the next update
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+
     - php: hhvm
       sudo: true
       dist: trusty
@@ -136,15 +174,6 @@ matrix:
       services:
         - mysql
       env: DB=mysqli
-    - php: hhvm
-      sudo: true
-      dist: trusty
-      group: edge # until the next update
-      addons:
-        postgresql: "9.1"
-      services:
-        - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.1
     - php: hhvm
       sudo: true
       dist: trusty
@@ -185,6 +214,15 @@ matrix:
       sudo: true
       dist: trusty
       group: edge # until the next update
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+    - php: hhvm
+      sudo: true
+      dist: trusty
+      group: edge # until the next update
       env: DB=sqlite
   allow_failures:
     - php: hhvm
@@ -199,7 +237,7 @@ matrix:
       env: DB=pgsql POSTGRESQL_VERSION=9.5
 
 addons:
-  postgresql: '9.4'
+  #postgresql: '9.4'
 
 install:
   - travis_retry composer install
