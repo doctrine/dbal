@@ -1126,4 +1126,12 @@ class MySqlPlatform extends AbstractPlatform
 
         return parent::quoteStringLiteral($str);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $collation;
+    }
 }
