@@ -237,7 +237,7 @@ matrix:
       env: DB=pgsql POSTGRESQL_VERSION=9.5
 
 addons:
-  - if [ '$DB' = 'pgsql' ]; then postgresql: $POSTGRESQL_VERSION; fi
+  postgresql: $POSTGRESQL_VERSION
 
 install:
   - travis_retry composer install
