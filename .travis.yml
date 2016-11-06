@@ -17,11 +17,11 @@ env:
   - DB=sqlite
   - DB=mysql
   - DB=mysqli
-  - DB=pgsql POSTGRESQL_VERSION=9.2
-  - DB=pgsql POSTGRESQL_VERSION=9.3
-  - DB=pgsql POSTGRESQL_VERSION=9.4
-  - DB=pgsql POSTGRESQL_VERSION=9.5
-  - DB=pgsql POSTGRESQL_VERSION=9.6
+  - DB=pgsql POSTGRESQL_VERSION='9.2'
+  - DB=pgsql POSTGRESQL_VERSION='9.3'
+  - DB=pgsql POSTGRESQL_VERSION='9.4'
+  - DB=pgsql POSTGRESQL_VERSION='9.5'
+  - DB=pgsql POSTGRESQL_VERSION='9.6'
 
 matrix:
   fast_finish: true
@@ -82,7 +82,7 @@ matrix:
         postgresql: "9.5"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      env: DB=pgsql POSTGRESQL_VERSION='9.5'
     - php: 7.0
       sudo: true
       dist: trusty
@@ -91,7 +91,7 @@ matrix:
         postgresql: "9.5"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      env: DB=pgsql POSTGRESQL_VERSION='9.5'
     - php: 7.1
       sudo: true
       dist: trusty
@@ -100,7 +100,7 @@ matrix:
         postgresql: "9.5"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      env: DB=pgsql POSTGRESQL_VERSION='9.5'
     - php: nightly
       sudo: true
       dist: trusty
@@ -109,7 +109,7 @@ matrix:
         postgresql: "9.5"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      env: DB=pgsql POSTGRESQL_VERSION='9.5'
 
     - php: 5.6
       sudo: true
@@ -119,7 +119,7 @@ matrix:
         postgresql: "9.6"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
+      env: DB=pgsql POSTGRESQL_VERSION='9.6'
     - php: 7.0
       sudo: true
       dist: trusty
@@ -128,7 +128,7 @@ matrix:
         postgresql: "9.6"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
+      env: DB=pgsql POSTGRESQL_VERSION='9.6'
     - php: 7.1
       sudo: true
       dist: trusty
@@ -137,7 +137,7 @@ matrix:
         postgresql: "9.6"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
+      env: DB=pgsql POSTGRESQL_VERSION='9.6'
     - php: nightly
       sudo: true
       dist: trusty
@@ -146,7 +146,7 @@ matrix:
         postgresql: "9.6"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
+      env: DB=pgsql POSTGRESQL_VERSION='9.6'
 
     - php: hhvm
       sudo: true
@@ -182,7 +182,7 @@ matrix:
         postgresql: "9.2"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.2
+      env: DB=pgsql POSTGRESQL_VERSION='9.2'
     - php: hhvm
       sudo: true
       dist: trusty
@@ -191,7 +191,7 @@ matrix:
         postgresql: "9.3"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.3
+      env: DB=pgsql POSTGRESQL_VERSION='9.3'
     - php: hhvm
       sudo: true
       dist: trusty
@@ -200,7 +200,7 @@ matrix:
         postgresql: "9.4"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.4
+      env: DB=pgsql POSTGRESQL_VERSION='9.4'
     - php: hhvm
       sudo: true
       dist: trusty
@@ -209,7 +209,7 @@ matrix:
         postgresql: "9.5"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      env: DB=pgsql POSTGRESQL_VERSION='9.5'
     - php: hhvm
       sudo: true
       dist: trusty
@@ -218,7 +218,7 @@ matrix:
         postgresql: "9.6"
       services:
         - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
+      env: DB=pgsql POSTGRESQL_VERSION='9.6'
     - php: hhvm
       sudo: true
       dist: trusty
@@ -230,11 +230,11 @@ matrix:
     - php: 7.1
       env: DB=mariadb MARIADB_VERSION=10.1
     - php: 5.6
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      env: DB=pgsql POSTGRESQL_VERSION='9.5'
     - php: 7.0
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      env: DB=pgsql POSTGRESQL_VERSION='9.5'
     - php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
+      env: DB=pgsql POSTGRESQL_VERSION='9.5'
 
 addons:
   postgresql: $POSTGRESQL_VERSION
