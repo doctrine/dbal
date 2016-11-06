@@ -17,11 +17,11 @@ env:
   - DB=sqlite
   - DB=mysql
   - DB=mysqli
-  - DB=pgsql POSTGRESQL_VERSION=9.2
-  - DB=pgsql POSTGRESQL_VERSION=9.3
-  - DB=pgsql POSTGRESQL_VERSION=9.4
-  - DB=pgsql POSTGRESQL_VERSION=9.5
-  - DB=pgsql POSTGRESQL_VERSION=9.6
+  - DB=pgsql POSTGRESQL_VERSION=9.2 PGRV="9.2"
+  - DB=pgsql POSTGRESQL_VERSION=9.3 PGRV="9.3"
+  - DB=pgsql POSTGRESQL_VERSION=9.4 PGRV="9.4"
+  - DB=pgsql POSTGRESQL_VERSION=9.5 PGRV="9.5"
+  - DB=pgsql POSTGRESQL_VERSION=9.6 PGRV="9.6"
 
 matrix:
   fast_finish: true
@@ -237,7 +237,7 @@ matrix:
       env: DB=pgsql POSTGRESQL_VERSION=9.5
 
 addons:
-  postgresql: '9.4'
+  postgresql: $PGRV
 
 install:
   - travis_retry composer install
