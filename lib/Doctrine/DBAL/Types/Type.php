@@ -311,7 +311,7 @@ abstract class Type
      *
      * @return string
      */
-    public function convertToPHPValueSQL($sqlExpr, $platform)
+    public function convertToPHPValueSQL($sqlExpr, AbstractPlatform $platform)
     {
         return $sqlExpr;
     }
