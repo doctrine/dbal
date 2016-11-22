@@ -64,7 +64,7 @@ class AddDefaultNamespaceTest extends \PHPUnit_Framework_TestCase
         $config->setName('test');
         $schema = new Schema([], [], $config);
         $schema->createTable('foo');
-        $schema->createTable($platform->getDefaultSchemaName().'.baz');
+        $schema->createTable($platform->getDefaultSchemaName() . '.baz');
 
         $this->assertNotEmpty($schema->getNamespaces());
         $this->assertCount(1, $schema->getNamespaces());
