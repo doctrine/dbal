@@ -145,41 +145,70 @@ matrix:
       env: DB=pgsql POSTGRESQL_VERSION=9.4
 
     - php: 5.6
-      sudo: true
+      sudo: false
       dist: trusty
-      group: edge # until the next update
       addons:
         postgresql: "9.5"
       services:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.5
     - php: 7.0
-      sudo: true
+      sudo: false
       dist: trusty
-      group: edge # until the next update
       addons:
         postgresql: "9.5"
       services:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.5
     - php: 7.1
-      sudo: true
+      sudo: false
       dist: trusty
-      group: edge # until the next update
       addons:
         postgresql: "9.5"
       services:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.5
     - php: nightly
-      sudo: true
+      sudo: false
       dist: trusty
-      group: edge # until the next update
       addons:
         postgresql: "9.5"
       services:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.5
+
+    - php: 5.6
+      sudo: false
+      dist: trusty
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+    - php: 7.0
+      sudo: false
+      dist: trusty
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+    - php: 7.1
+      sudo: false
+      dist: trusty
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+    - php: nightly
+      sudo: false
+      dist: trusty
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
 
     - php: hhvm
       sudo: true
@@ -235,14 +264,21 @@ matrix:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.4
     - php: hhvm
-      sudo: true
+      sudo: false
       dist: trusty
-      group: edge # until the next update
       addons:
         postgresql: "9.5"
       services:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.5
+    - php: hhvm
+      sudo: false
+      dist: trusty
+      addons:
+        postgresql: "9.6"
+      services:
+        - postgresql
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
     - php: hhvm
       sudo: true
       dist: trusty
@@ -257,6 +293,12 @@ matrix:
       env: DB=pgsql POSTGRESQL_VERSION=9.5
     - php: 7.1
       env: DB=pgsql POSTGRESQL_VERSION=9.5
+    - php: 5.6
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+    - php: 7.0
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
+    - php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=9.6
 
 install:
   - travis_retry composer install
