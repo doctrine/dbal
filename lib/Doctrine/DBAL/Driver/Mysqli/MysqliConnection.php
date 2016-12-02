@@ -63,6 +63,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
         $this->_conn = mysqli_init();
 
+        $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
 
         set_error_handler(function () {});
@@ -262,5 +263,36 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function ping()
     {
         return $this->_conn->ping();
+    }
+
+    /**
+     * Establish a secure connection
+     *
+     * @param array $params
+     * @throws MysqliException
+     */
+    private function setSecureConnection(array $params)
+    {
+        if (! isset($params['ssl_key']) &&
+            ! isset($params['ssl_cert']) &&
+            ! isset($params['ssl_ca']) &&
+            ! isset($params['ssl_capath']) &&
+            ! isset($params['ssl_cipher'])
+        ) {
+            return;
+        }
+
+        if (! isset($params['ssl_key']) || ! isset($params['ssl_cert'])) {
+            $msg = '"ssl_key" and "ssl_cert" parameters are mandatory when using secure connection parameters.';
+            throw new MysqliException($msg);
+        }
+
+        $this->_conn->ssl_set(
+            $params['ssl_key'],
+            $params['ssl_cert'],
+            $params['ssl_ca']     ?? null,
+            $params['ssl_capath'] ?? null,
+            $params['ssl_cipher'] ?? null
+        );
     }
 }

@@ -235,6 +235,11 @@ mysqli
    the database.
 -  ``charset`` (string): The charset used when connecting to the
    database.
+-  ``ssl_key`` (string): The path name to the key file to use for SSL encryption.
+-  ``ssl_cert`` (string): The path name to the certificate file to use for SSL encryption.
+-  ``ssl_ca`` (string): The path name to the certificate authority file to use for SSL encryption.
+-  ``ssl_capath`` (string): The pathname to a directory that contains trusted SSL CA certificates in PEM format.
+-  ``ssl_cipher`` (string): A list of allowable ciphers to use for SSL encryption.
 -  ``driverOptions`` Any supported flags for mysqli found on `http://www.php.net/manual/en/mysqli.real-connect.php`
 
 pdo\_pgsql
