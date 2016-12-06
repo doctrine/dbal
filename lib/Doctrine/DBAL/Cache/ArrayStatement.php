@@ -100,23 +100,26 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
      */
     public function fetch($fetchMode = null)
     {
-        if (isset($this->data[$this->num])) {
-            $row = $this->data[$this->num++];
-            $fetchMode = $fetchMode ?: $this->defaultFetchMode;
-            if ($fetchMode === PDO::FETCH_ASSOC) {
-                return $row;
-            } elseif ($fetchMode === PDO::FETCH_NUM) {
-                return array_values($row);
-            } elseif ($fetchMode === PDO::FETCH_BOTH) {
-                return array_merge($row, array_values($row));
-            } elseif ($fetchMode === PDO::FETCH_COLUMN) {
-                return reset($row);
-            } else {
-                throw new \InvalidArgumentException("Invalid fetch-style given for fetching result.");
-            }
+        if (!isset($this->data[$this->num])) {
+            return false;
         }
 
-        return false;
+        $row = $this->data[$this->num++];
+        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        switch ($fetchMode) {
+            case PDO::FETCH_ASSOC:
+                return $row;
+            case PDO::FETCH_NUM:
+                return array_values($row);
+            case PDO::FETCH_BOTH:
+                return array_merge($row, array_values($row));
+            case PDO::FETCH_COLUMN:
+                return reset($row);
+            case PDO::FETCH_OBJ:
+                return (object) $row;
+            default:
+                throw new \InvalidArgumentException('Invalid fetch-style given for caching result.');
+        }
     }
 
     /**
