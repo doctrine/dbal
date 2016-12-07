@@ -629,16 +629,33 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     {
         $tableA = new Table("foo");
         $tableA->addColumn('id', 'integer');
-        $tableA->addNamedForeignKeyConstraint('foo_constraint', 'bar', array('id'), array('id'));
+        $tableA->addForeignKeyConstraint('bar', array('id'), array('id'));
 
         $tableB = new Table("foo");
         $tableB->addColumn('ID', 'integer');
-        $tableB->addNamedForeignKeyConstraint('bar_constraint', 'bar', array('id'), array('id'));
+        $tableB->addForeignKeyConstraint('bar', array('id'), array('id'));
 
         $c = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
         $this->assertFalse($tableDiff);
+    }
+
+    public function testCompareForeignKeyBasedOnNameNotProperties()
+    {
+        $tableA = new Table("foo");
+        $tableA->addColumn('id', 'integer');
+        $tableA->addForeignKeyConstraint('bar', array('id'), array('id'), array(), 'foo_constraint');
+
+        $tableB = new Table("foo");
+        $tableB->addColumn('id', 'integer');
+        $tableB->addForeignKeyConstraint('bar', array('ID'), array('id'), array(), 'bar_constraint');
+
+        $c = new Comparator();
+        $tableDiff = $c->diffTable($tableA, $tableB);
+
+        $this->assertCount(1, $tableDiff->addedForeignKeys);
+        $this->assertCount(1, $tableDiff->removedForeignKeys);
     }
 
     public function testCompareForeignKey_RestrictNoAction_AreTheSame()

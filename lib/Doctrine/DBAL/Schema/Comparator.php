@@ -408,6 +408,10 @@ class Comparator
             return true;
         }
 
+        if ($key1->getName() !== $key2->getName()){
+            return true;
+        }
+
         return false;
     }
 
