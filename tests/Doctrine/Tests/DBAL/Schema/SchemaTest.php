@@ -2,9 +2,11 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 
 class SchemaTest extends \PHPUnit_Framework_TestCase
 {
@@ -448,5 +450,49 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
             ->method('acceptSequence');
 
         $this->assertNull($schema->visit($visitor));
+    }
+
+    /**
+     * https://github.com/doctrine/dbal/issues/2538
+     */
+    public function testFixGithub2538Collation()
+    {
+        $tableName = "public.foo";
+        $table = new Table($tableName);
+        $table->addColumn('test', Type::STRING, ['collation' => 'utf8_unicode_ci']);
+
+        $schema = new Schema(array($table));
+
+        $platform = new MySqlPlatform();
+
+        $this->assertSame(
+            ['CREATE TABLE public.foo (test VARCHAR(255) NOT NULL COLLATE utf8_unicode_ci) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'],
+            $schema->toSql($platform),
+            $platform->getColumnDeclarationSQL('test')
+        );
+    }
+
+    /**
+     * https://github.com/doctrine/dbal/issues/2538
+     */
+    public function testFixGithub2538_autoincrement()
+    {
+        $this->markTestSkipped();
+
+        $tableName = "public.foo";
+        $table = new Table($tableName);
+        $table->addColumn('test', Type::STRING, ['autoincrement' => true]);
+
+        $fromSchema = new Schema(array($table));
+
+        $table = new Table($tableName);
+        $table->addColumn('test', Type::STRING, ['autoincrement' => false]);
+
+        $toSchema = new Schema(array($table));
+
+
+        $this->assertSame('CREATE TABLE public.foo ', $fromSchema->getMigrateToSql());
+        $this->assertSame($table, $fromSchema->getTable($tableName));
+        $this->assertTrue($fromSchema->hasTable($tableName));
     }
 }

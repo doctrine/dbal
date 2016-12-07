@@ -1429,4 +1429,18 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
         );
     }
+
+    public function testFixGithub2538Collation()
+    {
+        $field = [
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode-ci',
+            'type' => Type::getType(Type::STRING),
+            'length' => 32,
+        ];
+        $this->assertEquals(
+            'foo VARCHAR(32)  DEFAULT NULL COLLATE utf8_unicode-ci',
+            $this->_platform->getColumnDeclarationSQL('foo', $field)
+        );
+    }
 }
