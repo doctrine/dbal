@@ -209,6 +209,32 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * @param string $table
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getTableOptionsSQL($table, $database = null)
+    {
+        $table = $this->quoteStringLiteral($table);
+
+        if (null !== $database) {
+            $database = $this->quoteStringLiteral($database);
+        }
+
+        $sql = "SELECT t.ENGINE AS `engine`, t.table_collation AS `collate`, ccsa.character_set_name AS `charset`
+                FROM information_schema.`TABLES` t
+                JOIN information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` ccsa ON ccsa.collation_name = t.table_collation
+                WHERE t.table_name = $table";
+
+        $databaseNameSql = null === $database ? 'DATABASE()' : $database;
+        $sql .= " AND t.table_schema = $databaseNameSql";
+
+        return $sql;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getCreateViewSQL($name, $sql)

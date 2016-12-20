@@ -194,6 +194,20 @@ abstract class AbstractSchemaManager
     }
 
     /**
+     * Fetch table options.
+     *
+     * @param string $tableName
+     *
+     * @return array
+     */
+    public function getTableOptions($tableName)
+    {
+        $sql = $this->_platform->getTableOptionsSQL($tableName);
+
+        return $this->_conn->fetchAssoc($sql);
+    }
+
+    /**
      * Returns true if all the given tables exist.
      *
      * @param array $tableNames
@@ -284,8 +298,9 @@ abstract class AbstractSchemaManager
             $foreignKeys = $this->listTableForeignKeys($tableName);
         }
         $indexes = $this->listTableIndexes($tableName);
+        $options = $this->getTableOptions($tableName);
 
-        return new Table($tableName, $columns, $indexes, $foreignKeys, false, array());
+        return new Table($tableName, $columns, $indexes, $foreignKeys, false, $options);
     }
 
     /**

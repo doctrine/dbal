@@ -2837,6 +2837,20 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL Query that fetches a table's options like collation, charset or engine.
+     *
+     * @param string $table
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getTableOptionsSQL($table, $database = null)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * @param string $name
      * @param string $sql
      *
