@@ -656,6 +656,7 @@ LEFT JOIN user_cons_columns r_cols
         $tabColumnsTableName = "user_tab_columns";
         $colCommentsTableName = "user_col_comments";
         $ownerCondition = '';
+        $ownerCommentsCondition = '';
 
         if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
@@ -663,6 +664,7 @@ LEFT JOIN user_cons_columns r_cols
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
             $ownerCondition = "AND c.owner = " . $database;
+            $ownerCommentsCondition = "AND d.owner = " . $database;
         }
 
         return "SELECT   c.*,
@@ -670,7 +672,7 @@ LEFT JOIN user_cons_columns r_cols
                              SELECT d.comments
                              FROM   $colCommentsTableName d
                              WHERE  d.TABLE_NAME = c.TABLE_NAME
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME $ownerCommentsCondition
                          ) AS comments
                 FROM     $tabColumnsTableName c
                 WHERE    c.table_name = " . $table . " $ownerCondition
