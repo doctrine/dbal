@@ -95,6 +95,14 @@ class SQLServer2008Platform extends SQLServer2005Platform
 
     /**
      * {@inheritDoc}
+     */
+    public function getCurrentDateSQL()
+    {
+        return 'CONVERT(date, GETDATE())';
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * Adding Datetime2 Type
      */
