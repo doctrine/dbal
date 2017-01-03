@@ -579,14 +579,12 @@ class Connection implements DriverConnection
             throw InvalidArgumentException::fromEmptyCriteria();
         }
 
-        $criteria = array();
-
-        foreach (array_keys($identifier) as $columnName) {
-            $criteria[] = $columnName . ' = ?';
-        }
-
         return $this->executeUpdate(
-            'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $criteria),
+            'DELETE FROM ' . $tableExpression
+                . ($identifier
+                    ? ' WHERE ' . implode(' = ? AND ', array_keys($identifier)) . ' = ?'
+                   : ''
+                );
             array_values($identifier),
             is_string(key($types)) ? $this->extractTypeValues($identifier, $types) : $types
         );
@@ -659,8 +657,10 @@ class Connection implements DriverConnection
         $params = array_merge(array_values($data), array_values($identifier));
 
         $sql  = 'UPDATE ' . $tableExpression . ' SET ' . implode(', ', $set)
-                . ' WHERE ' . implode(' = ? AND ', array_keys($identifier))
-                . ' = ?';
+                . ($identifier
+                    ? ' WHERE ' . implode(' = ? AND ', array_keys($identifier)) . ' = ?'
+                   : ''
+                );
 
         return $this->executeUpdate($sql, $params, $types);
     }
