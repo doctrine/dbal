@@ -47,7 +47,7 @@ class DriverTest extends AbstractDriverTest
     public function getDatabaseParameter()
     {
         $params = TestUtil::getConnection()->getParams();
-        $realDatabaseName = $params['dbname'];
+        $realDatabaseName = isset($params['dbname']) ? $params['dbname'] : '';
         $dummyDatabaseName = $realDatabaseName . 'a';
 
         return array(
