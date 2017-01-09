@@ -442,7 +442,7 @@ class Connection implements DriverConnection
         $criteria = array();
 
         foreach (array_keys($identifier) as $columnName) {
-            $criteria[] = $columnName . ' = ?';
+            $criteria[] = $this->quoteIdentifier($columnName) . ' = ?';
         }
 
         $query = 'DELETE FROM ' . $tableName . ' WHERE ' . implode(' AND ', $criteria);
@@ -499,7 +499,7 @@ class Connection implements DriverConnection
         $this->connect();
         $set = array();
         foreach ($data as $columnName => $value) {
-            $set[] = $columnName . ' = ?';
+            $set[] = $this->quoteIdentifier($columnName) . ' = ?';
         }
 
         $params = array_merge(array_values($data), array_values($identifier));
@@ -528,7 +528,7 @@ class Connection implements DriverConnection
         $placeholders = array();
 
         foreach ($data as $columnName => $value) {
-            $cols[] = $columnName;
+            $cols[] = $this->quoteIdentifier($columnName);
             $placeholders[] = '?';
         }
 
