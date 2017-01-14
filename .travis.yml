@@ -8,7 +8,6 @@ cache:
         - $HOME/.composer/cache
 
 php:
-  - 5.6
   - 7.0
   - 7.1
   - nightly
@@ -21,10 +20,6 @@ env:
 matrix:
   fast_finish: true
   include:
-    - php: 5.6
-      env: DB=mariadb MARIADB_VERSION=10.0
-      addons:
-        mariadb: 10.0
     - php: 7.0
       env: DB=mariadb MARIADB_VERSION=10.0
       addons:
@@ -45,10 +40,6 @@ matrix:
         mariadb: 10.0
       env: DB=mariadb MARIADB_VERSION=10.0
 
-    - php: 5.6
-      env: DB=mariadb MARIADB_VERSION=10.1
-      addons:
-        mariadb: 10.1
     - php: 7.0
       env: DB=mariadb MARIADB_VERSION=10.1
       addons:
@@ -69,12 +60,6 @@ matrix:
         mariadb: 10.1
       env: DB=mariadb MARIADB_VERSION=10.1
 
-    - php: 5.6
-      addons:
-        postgresql: "9.2"
-      services:
-        - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.2
     - php: 7.0
       addons:
         postgresql: "9.2"
@@ -94,12 +79,6 @@ matrix:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.2
 
-    - php: 5.6
-      addons:
-        postgresql: "9.3"
-      services:
-        - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.3
     - php: 7.0
       addons:
         postgresql: "9.3"
@@ -119,12 +98,6 @@ matrix:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.3
 
-    - php: 5.6
-      addons:
-        postgresql: "9.4"
-      services:
-        - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.4
     - php: 7.0
       addons:
         postgresql: "9.4"
@@ -144,14 +117,6 @@ matrix:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.4
 
-    - php: 5.6
-      sudo: false
-      dist: trusty
-      addons:
-        postgresql: "9.5"
-      services:
-        - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
     - php: 7.0
       sudo: false
       dist: trusty
@@ -177,14 +142,6 @@ matrix:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.5
 
-    - php: 5.6
-      sudo: false
-      dist: trusty
-      addons:
-        postgresql: "9.6"
-      services:
-        - postgresql
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
     - php: 7.0
       sudo: false
       dist: trusty
@@ -287,13 +244,12 @@ matrix:
   allow_failures:
     - php: hhvm
     - php: nightly
-    - php: 5.6
       env: DB=pgsql POSTGRESQL_VERSION=9.5
     - php: 7.0
       env: DB=pgsql POSTGRESQL_VERSION=9.5
     - php: 7.1
       env: DB=pgsql POSTGRESQL_VERSION=9.5
-    - php: 5.6
+    - php: nightly
       env: DB=pgsql POSTGRESQL_VERSION=9.6
     - php: 7.0
       env: DB=pgsql POSTGRESQL_VERSION=9.6

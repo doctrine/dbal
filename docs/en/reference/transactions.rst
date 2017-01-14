@@ -15,7 +15,7 @@ Transaction demarcation with the Doctrine DBAL looks as follows:
     try{
         // do stuff
         $conn->commit();
-    } catch(Exception $e) {
+    } catch (\Exception $e) {
         $conn->rollBack();
         throw $e;
     }
@@ -90,7 +90,7 @@ example:
             ...
 
             $conn->commit(); // 2 => 1
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $conn->rollBack(); // 2 => 1, transaction marked for rollback only
             throw $e;
         }
@@ -98,7 +98,7 @@ example:
         ...
 
         $conn->commit(); // 1 => 0, "real" transaction committed
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         $conn->rollBack(); // 1 => 0, "real" transaction rollback
         throw $e;
     }
