@@ -384,11 +384,11 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($table, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
     {
         $indexes = isset($options['indexes']) ? $options['indexes'] : array();
         $options['indexes'] = array();
-        $sql = parent::_getCreateTableSQL($table, $columns, $options);
+        $sql = parent::_getCreateTableSQL($tableName, $columns, $options);
 
         foreach ($columns as $name => $column) {
             if (isset($column['sequence'])) {
@@ -397,13 +397,13 @@ class OraclePlatform extends AbstractPlatform
 
             if (isset($column['autoincrement']) && $column['autoincrement'] ||
                (isset($column['autoinc']) && $column['autoinc'])) {
-                $sql = array_merge($sql, $this->getCreateAutoincrementSql($name, $table));
+                $sql = array_merge($sql, $this->getCreateAutoincrementSql($name, $tableName));
             }
         }
 
         if (isset($indexes) && ! empty($indexes)) {
             foreach ($indexes as $index) {
-                $sql[] = $this->getCreateIndexSQL($index, $table);
+                $sql[] = $this->getCreateIndexSQL($index, $tableName);
             }
         }
 
@@ -659,6 +659,7 @@ END;';
         $tabColumnsTableName = "user_tab_columns";
         $colCommentsTableName = "user_col_comments";
         $ownerCondition = '';
+	    $innerOwnerCondition = '';
 
         if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
@@ -666,6 +667,7 @@ END;';
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
             $ownerCondition = "AND c.owner = " . $database;
+	        $innerOwnerCondition = " AND d.OWNER = c.OWNER";
         }
 
         return "SELECT   c.*,
@@ -673,7 +675,7 @@ END;';
                              SELECT d.comments
                              FROM   $colCommentsTableName d
                              WHERE  d.TABLE_NAME = c.TABLE_NAME
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME" . $innerOwnerCondition . "
                          ) AS comments
                 FROM     $tabColumnsTableName c
                 WHERE    c.table_name = " . $table . " $ownerCondition
