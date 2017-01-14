@@ -725,7 +725,7 @@ EOD;
                          (
                              SELECT d.comments
                              FROM   user_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME 
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
                 FROM     user_tab_columns c
@@ -738,7 +738,7 @@ EOD;
                          (
                              SELECT d.comments
                              FROM   user_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME 
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
                 FROM     user_tab_columns c
@@ -751,7 +751,7 @@ EOD;
                          (
                              SELECT d.comments
                              FROM   all_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME AND d.OWNER = c.OWNER
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
                 FROM     all_tab_columns c
