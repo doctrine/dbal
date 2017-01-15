@@ -259,6 +259,8 @@ final class DriverManager
             throw new DBALException('Malformed parameter "url".');
         }
 
+        $url = array_map('rawurldecode', $url);
+
         // If we have a connection URL, we have to unset the default PDO instance connection parameter (if any)
         // as we cannot merge connection details from the URL into the PDO instance (URL takes precedence).
         unset($params['pdo']);
