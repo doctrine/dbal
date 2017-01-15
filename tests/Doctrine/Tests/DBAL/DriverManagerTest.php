@@ -203,6 +203,10 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
                 'mysql://foo%3A:bar%2F@localhost/baz+baz%40',
                 array('user' => 'foo:', 'password' => 'bar/', 'host' => 'localhost', 'dbname' => 'baz+baz@', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
             ),
+            'simple URL with percent sign in password' => array(
+                'mysql://foo:bar%25bar@localhost/baz',
+                array('user' => 'foo', 'password' => 'bar%bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
+            ),
 
             // DBAL-1234
             'URL without scheme and without any driver information' => array(

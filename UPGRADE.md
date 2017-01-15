@@ -1,3 +1,13 @@
+# Upgrade to 2.6
+
+## MINOR BC BREAK: URL-style DSN with percentage sign in password
+
+URL-style DSNs (e.g. ``mysql://foo@bar:localhost/db``) are now assumed to be percent-encoded
+in order to allow certain special characters in usernames, paswords and database names. If
+you are using a URL-style DSN and have a username, password or database name containing a
+percentage sign, you need to update your DSN. If your password is, say, ``foo%foo``, it
+should be encoded as ``foo%25foo``.
+
 # Upgrade to 2.5.1
 
 ## MINOR BC BREAK: Doctrine\DBAL\Schema\Table
