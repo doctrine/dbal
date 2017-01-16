@@ -263,6 +263,18 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('SELECT a.* FROM (SELECT * FROM user) a WHERE ROWNUM <= 10', $sql);
     }
 
+    public function testModifyLimitQueryWithNonEmptyOffset()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 10);
+        $this->assertEquals('SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 20) WHERE doctrine_rownum >= 11', $sql);
+    }
+
+    public function testModifyLimitQueryWithEmptyLimit()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', null, 10);
+        $this->assertEquals('SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a) WHERE doctrine_rownum >= 11', $sql);
+    }
+
     public function testModifyLimitQueryWithAscOrderBy()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
