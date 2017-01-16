@@ -145,6 +145,16 @@ SQL;
         $this->assertLimitResult(array(2), $sql, 1, 1);
     }
 
+    public function testModifyLimitQueryZeroOffsetNoLimit()
+    {
+        $this->_conn->insert('modify_limit_table', array('test_int' => 1));
+        $this->_conn->insert('modify_limit_table', array('test_int' => 2));
+
+        $sql = "SELECT test_int FROM modify_limit_table ORDER BY test_int ASC";
+
+        $this->assertLimitResult(array(1, 2), $sql, null, 0);
+    }
+
     public function assertLimitResult($expectedResults, $sql, $limit, $offset, $deterministic = true)
     {
         $p = $this->_conn->getDatabasePlatform();
