@@ -44,15 +44,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute();
         $stmt->closeCursor();
 
-        try {
-            $value = $stmt->fetchColumn();
-        } catch (\Exception $e) {
-            // some adapters trigger PHP error or throw adapter-specific exception in case of fetching
-            // from a closed cursor, which still proves that it has been closed
-            return;
-        }
-
-        $this->assertFalse($value);
+        $this->assertFalse($stmt->fetchColumn());
     }
 
     public function testReuseStatementWithLongerResults()
