@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Tests\Types\CommentedType;
 
 abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 {
@@ -105,6 +106,21 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $this->setExpectedException('Doctrine\DBAL\DBALException');
         $this->_platform->registerDoctrineTypeMapping('foo', 'bar');
+    }
+
+    /**
+     * @group DBAL-2594
+     */
+    public function testRegistersCommentedDoctrineMappingTypeImplicitly()
+    {
+        if (!Type::hasType('my_commented')) {
+            Type::addType('my_commented', CommentedType::class);
+        }
+
+        $type = Type::getType('my_commented');
+        $this->_platform->registerDoctrineTypeMapping('foo', 'my_commented');
+
+        $this->assertTrue($this->_platform->isCommentedDoctrineType($type));
     }
 
     /**
