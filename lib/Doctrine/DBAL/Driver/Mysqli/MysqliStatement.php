@@ -81,6 +81,13 @@ class MysqliStatement implements \IteratorAggregate, Statement
     protected $_defaultFetchMode = PDO::FETCH_BOTH;
 
     /**
+     * Indicates whether the statement is in the state when fetching results is possible
+     *
+     * @var bool
+     */
+    private $result = false;
+
+    /**
      * @param \mysqli $conn
      * @param string  $prepareString
      *
@@ -209,6 +216,8 @@ class MysqliStatement implements \IteratorAggregate, Statement
             }
         }
 
+        $this->result = true;
+
         return true;
     }
 
@@ -256,6 +265,12 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null)
     {
+        // do not try fetching from the statement if it's not expected to contain result
+        // in order to prevent exceptional situation
+        if (!$this->result) {
+            return false;
+        }
+
         $values = $this->_fetch();
         if (null === $values) {
             return false;
@@ -341,6 +356,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     public function closeCursor()
     {
         $this->_stmt->free_result();
+        $this->result = false;
 
         return true;
     }

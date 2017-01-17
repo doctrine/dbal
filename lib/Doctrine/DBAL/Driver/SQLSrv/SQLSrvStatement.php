@@ -99,6 +99,13 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     private $lastInsertId;
 
     /**
+     * Indicates whether the statement is in the state when fetching results is possible
+     *
+     * @var bool
+     */
+    private $result = false;
+
+    /**
      * Append to any INSERT query to retrieve the last insert id.
      *
      * @var string
@@ -150,11 +157,18 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function closeCursor()
     {
+        // not having the result means there's nothing to close
+        if (!$this->result) {
+            return true;
+        }
+
         // emulate it by fetching and discarding rows, similarly to what PDO does in this case
         // @link http://php.net/manual/en/pdostatement.closecursor.php
         // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
         // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
         while (sqlsrv_fetch($this->stmt));
+
+        $this->result = false;
 
         return true;
     }
@@ -211,6 +225,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             sqlsrv_fetch($this->stmt);
             $this->lastInsertId->setId(sqlsrv_get_field($this->stmt, 0));
         }
+
+        $this->result = true;
     }
 
     /**
@@ -240,6 +256,12 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null)
     {
+        // do not try fetching from the statement if it's not expected to contain result
+        // in order to prevent exceptional situation
+        if (!$this->result) {
+            return false;
+        }
+
         $args      = func_get_args();
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
