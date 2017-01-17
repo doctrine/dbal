@@ -400,6 +400,12 @@ abstract class AbstractPlatform
 
         $dbType = strtolower($dbType);
         $this->doctrineTypeMapping[$dbType] = $doctrineType;
+
+        $doctrineType = Type::getType($doctrineType);
+
+        if ($doctrineType->requiresSQLCommentHint($this)) {
+            $this->markDoctrineTypeCommented($doctrineType);
+        }
     }
 
     /**
