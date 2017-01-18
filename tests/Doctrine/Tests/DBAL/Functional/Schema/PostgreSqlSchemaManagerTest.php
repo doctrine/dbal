@@ -353,7 +353,6 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlineTable->addColumn('name', 'string');
         $offlineTable->addColumn('email', 'string');
         $offlineTable->addUniqueIndex(array('id', 'name'), 'simple_partial_index', array('where' => '(id IS NULL)'));
-        $offlineTable->addIndex(array('id', 'name'), 'complex_partial_index', array(), array('where' => '(((id IS NOT NULL) AND (name IS NULL)) AND (email IS NULL))'));
 
         $this->_sm->dropAndCreateTable($offlineTable);
 
@@ -363,14 +362,8 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertFalse($comparator->diffTable($offlineTable, $onlineTable));
         $this->assertTrue($onlineTable->hasIndex('simple_partial_index'));
-        $this->assertTrue($onlineTable->hasIndex('complex_partial_index'));
         $this->assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
-        $this->assertTrue($onlineTable->getIndex('complex_partial_index')->hasOption('where'));
         $this->assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
-        $this->assertSame(
-            '(((id IS NOT NULL) AND (name IS NULL)) AND (email IS NULL))',
-            $onlineTable->getIndex('complex_partial_index')->getOption('where')
-        );
     }
 
     public function testJsonbColumn()
