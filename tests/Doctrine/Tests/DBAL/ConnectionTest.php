@@ -300,6 +300,111 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $conn->insert('footable', array());
     }
 
+    /**
+     * @group DBAL-2511
+     */
+    public function testUpdateWithDifferentColumnsInDataAndIdentifiers()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeUpdate'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeUpdate')
+            ->with(
+                'UPDATE TestTable SET text = ?, is_edited = ? WHERE id = ? AND name = ?',
+                [
+                    'some text',
+                    true,
+                    1,
+                    'foo',
+                ],
+                [
+                    'string',
+                    'boolean',
+                    'integer',
+                    'string',
+                ]
+            );
+
+        $conn->update(
+            'TestTable',
+            [
+                'text' => 'some text',
+                'is_edited' => true,
+            ],
+            [
+                'id' => 1,
+                'name' => 'foo',
+            ],
+            [
+                'text' => 'string',
+                'is_edited' => 'boolean',
+                'id' => 'integer',
+                'name' => 'string',
+            ]
+        );
+    }
+
+    /**
+     * @group DBAL-2511
+     */
+    public function testUpdateWithSameColumnInDataAndIdentifiers()
+    {
+        $driverMock = $this->getMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeUpdate'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeUpdate')
+            ->with(
+                'UPDATE TestTable SET text = ?, is_edited = ? WHERE id = ? AND is_edited = ?',
+                [
+                    'some text',
+                    true,
+                    1,
+                    false,
+                ],
+                [
+                    'string',
+                    'boolean',
+                    'integer',
+                    'boolean',
+                ]
+            );
+
+        $conn->update(
+            'TestTable',
+            [
+                'text' => 'some text',
+                'is_edited' => true,
+            ],
+            [
+                'id' => 1,
+                'is_edited' => false,
+            ],
+            [
+                'text' => 'string',
+                'is_edited' => 'boolean',
+                'id' => 'integer',
+            ]
+        );
+    }
+
     public function testFetchAssoc()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
