@@ -55,6 +55,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testDefaultConstraints()
     {
+        $platform = $this->_sm->getDatabasePlatform();
         $table = new Table('sqlsrv_default_constraints');
         $table->addColumn('no_default', 'string');
         $table->addColumn('df_integer', 'integer', array('default' => 666));
@@ -63,6 +64,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('df_string_3', 'string', array('default' => 'another default value'));
         $table->addColumn('df_string_4', 'string', array('default' => 'column to rename'));
         $table->addColumn('df_boolean', 'boolean', array('default' => true));
+        $table->addColumn('df_current_date', 'date', array('default' => $platform->getCurrentDateSQL()));
+        $table->addColumn('df_current_time', 'time', array('default' => $platform->getCurrentTimeSQL()));
 
         $this->_sm->createTable($table);
         $columns = $this->_sm->listTableColumns('sqlsrv_default_constraints');
@@ -73,6 +76,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('Doctrine rocks!!!', $columns['df_string_2']->getDefault());
         $this->assertEquals('another default value', $columns['df_string_3']->getDefault());
         $this->assertEquals(1, $columns['df_boolean']->getDefault());
+        $this->assertSame($platform->getCurrentDateSQL(), $columns['df_current_date']->getDefault());
+        $this->assertSame($platform->getCurrentTimeSQL(), $columns['df_current_time']->getDefault());
 
         $diff = new TableDiff(
             'sqlsrv_default_constraints',
