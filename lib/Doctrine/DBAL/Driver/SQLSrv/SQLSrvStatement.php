@@ -36,35 +36,35 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @var resource
      */
-    private $conn;
+    protected $conn;
 
     /**
      * The SQL statement to execute.
      *
      * @var string
      */
-    private $sql;
+    protected $sql;
 
     /**
      * The SQLSRV statement resource.
      *
      * @var resource
      */
-    private $stmt;
+    protected $stmt;
 
     /**
      * Parameters to bind.
      *
      * @var array
      */
-    private $params = array();
+    protected $params = array();
 
     /**
      * Translations.
      *
      * @var array
      */
-    private static $fetchMap = array(
+    protected static $fetchMap = array(
         PDO::FETCH_BOTH => SQLSRV_FETCH_BOTH,
         PDO::FETCH_ASSOC => SQLSRV_FETCH_ASSOC,
         PDO::FETCH_NUM => SQLSRV_FETCH_NUMERIC,
@@ -75,28 +75,28 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @var string
      */
-    private $defaultFetchClass = '\stdClass';
+    protected $defaultFetchClass = '\stdClass';
 
     /**
      * The constructor arguments for the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
      *
      * @var string
      */
-    private $defaultFetchClassCtorArgs = array();
+    protected $defaultFetchClassCtorArgs = array();
 
     /**
      * The fetch style.
      *
      * @param integer
      */
-    private $defaultFetchMode = PDO::FETCH_BOTH;
+    protected $defaultFetchMode = PDO::FETCH_BOTH;
 
     /**
      * The last insert ID.
      *
      * @var \Doctrine\DBAL\Driver\SQLSrv\LastInsertId|null
      */
-    private $lastInsertId;
+    protected $lastInsertId;
 
     /**
      * Append to any INSERT query to retrieve the last insert id.
