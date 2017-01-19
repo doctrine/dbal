@@ -320,36 +320,36 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
             ->method('executeUpdate')
             ->with(
                 'UPDATE TestTable SET text = ?, is_edited = ? WHERE id = ? AND name = ?',
-                [
+                array(
                     'some text',
                     true,
                     1,
                     'foo',
-                ],
-                [
+                ),
+                array(
                     'string',
                     'boolean',
                     'integer',
                     'string',
-                ]
+                )
             );
 
         $conn->update(
             'TestTable',
-            [
+            array(
                 'text' => 'some text',
                 'is_edited' => true,
-            ],
-            [
+            ),
+            array(
                 'id' => 1,
                 'name' => 'foo',
-            ],
-            [
+            ),
+            array(
                 'text' => 'string',
                 'is_edited' => 'boolean',
                 'id' => 'integer',
                 'name' => 'string',
-            ]
+            )
         );
     }
 
@@ -373,35 +373,35 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
             ->method('executeUpdate')
             ->with(
                 'UPDATE TestTable SET text = ?, is_edited = ? WHERE id = ? AND is_edited = ?',
-                [
+                array(
                     'some text',
                     true,
                     1,
                     false,
-                ],
-                [
+                ),
+                array(
                     'string',
                     'boolean',
                     'integer',
                     'boolean',
-                ]
+                )
             );
 
         $conn->update(
             'TestTable',
-            [
+            array(
                 'text' => 'some text',
                 'is_edited' => true,
-            ],
-            [
+            ),
+            array(
                 'id' => 1,
                 'is_edited' => false,
-            ],
-            [
+            ),
+            array(
                 'text' => 'string',
                 'is_edited' => 'boolean',
                 'id' => 'integer',
-            ]
+            )
         );
     }
 
