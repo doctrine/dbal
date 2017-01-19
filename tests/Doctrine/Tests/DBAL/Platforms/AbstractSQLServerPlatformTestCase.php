@@ -55,6 +55,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testGeneratesSqlSnippets()
     {
+        $this->assertEquals('CONVERT(date, GETDATE())', $this->_platform->getCurrentDateSQL());
+        $this->assertEquals('CONVERT(time, GETDATE())', $this->_platform->getCurrentTimeSQL());
+        $this->assertEquals('CURRENT_TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
         $this->assertEquals('"', $this->_platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
         $this->assertEquals('(column1 + column2 + column3)', $this->_platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
     }

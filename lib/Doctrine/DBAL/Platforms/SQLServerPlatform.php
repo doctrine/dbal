@@ -43,6 +43,35 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function getCurrentDateSQL()
+    {
+        return $this->getConvertExpression('date', 'GETDATE()');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCurrentTimeSQL()
+    {
+        return $this->getConvertExpression('time', 'GETDATE()');
+    }
+
+    /**
+     * Returns an expression that converts an expression of one data type to another.
+     *
+     * @param string $dataType   The target native data type. Alias data types cannot be used.
+     * @param string $expression The SQL expression to convert.
+     *
+     * @return string
+     */
+    private function getConvertExpression($dataType, $expression)
+    {
+        return sprintf('CONVERT(%s, %s)', $dataType, $expression);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
         $factorClause = '';
