@@ -253,10 +253,10 @@ class Table extends AbstractAsset
         unset($this->_indexes[$oldIndexName]);
 
         if ($oldIndex->isUnique()) {
-            return $this->addUniqueIndex($oldIndex->getColumns(), $newIndexName);
+            return $this->addUniqueIndex($oldIndex->getColumns(), $newIndexName, $oldIndex->getOptions());
         }
 
-        return $this->addIndex($oldIndex->getColumns(), $newIndexName, $oldIndex->getFlags());
+        return $this->addIndex($oldIndex->getColumns(), $newIndexName, $oldIndex->getFlags(), $oldIndex->getOptions());
     }
 
     /**
