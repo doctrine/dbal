@@ -240,6 +240,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table('tbl_date');
         $table->addColumn('col_date', 'date');
         $table->addColumn('col_datetime', 'datetime');
+        $table->addColumn('col_datetimetz', 'datetimetz');
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -247,5 +248,6 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertSame('date', $columns['col_date']->getType()->getName());
         $this->assertSame('datetime', $columns['col_datetime']->getType()->getName());
+        $this->assertSame('datetimetz', $columns['col_datetimetz']->getType()->getName());
     }
 }
