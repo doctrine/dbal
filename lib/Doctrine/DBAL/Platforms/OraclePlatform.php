@@ -1126,7 +1126,7 @@ END;';
             'nvarchar2'         => 'string',
             'char'              => 'string',
             'nchar'             => 'string',
-            'date'              => 'datetime',
+            'date'              => 'date',
             'timestamp'         => 'datetime',
             'timestamptz'       => 'datetimetz',
             'float'             => 'float',
