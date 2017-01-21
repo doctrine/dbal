@@ -233,4 +233,21 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $columns = $this->_sm->listTableColumns($table->getName(), $this->_conn->getUsername());
         $this->assertCount(7, $columns);
     }
+
+    /**
+     * @group DBAL-2555
+     */
+    public function testListTableDateTypeColumns()
+    {
+        $table = new Table('tbl_date');
+        $table->addColumn('col_date', 'date');
+        $table->addColumn('col_datetime', 'datetime');
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns('tbl_date');
+
+        $this->assertSame('date', $columns['col_date']->getType()->getName());
+        $this->assertSame('datetime', $columns['col_datetime']->getType()->getName());
+    }
 }
