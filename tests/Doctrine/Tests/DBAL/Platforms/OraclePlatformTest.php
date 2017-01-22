@@ -412,6 +412,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }
 
+    /**
+     * @group DBAK-2555
+     */
     public function testInitializesDoctrineTypeMappings()
     {
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('long raw'));
@@ -419,6 +422,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('raw'));
         $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('raw'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('date'));
+        $this->assertSame('date', $this->_platform->getDoctrineTypeMapping('date'));
     }
 
     protected function getBinaryMaxLength()
