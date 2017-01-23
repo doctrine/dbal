@@ -102,7 +102,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         $dbType = strtolower($tableColumn['data_type']);
         if (strpos($dbType, "timestamp(") === 0) {
-            if (strpos($dbType, "WITH TIME ZONE")) {
+            if (strpos($dbType, "with time zone")) {
                 $dbType = "timestamptz";
             } else {
                 $dbType = "timestamp";
