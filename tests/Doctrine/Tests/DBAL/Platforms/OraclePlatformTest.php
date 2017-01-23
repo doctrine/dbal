@@ -415,7 +415,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     }
 
     /**
-     * @group DBAK-2555
+     * @group DBAL-2555
      */
     public function testInitializesDoctrineTypeMappings()
     {
