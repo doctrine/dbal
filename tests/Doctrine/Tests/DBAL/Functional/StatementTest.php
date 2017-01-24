@@ -2,21 +2,27 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
 class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $table = new Table('stmt_test');
+        $table->addColumn('id', 'integer');
+        $this->_conn->getSchemaManager()->dropAndCreateTable($table);
+    }
+
     public function testStatementIsReusableAfterClosingCursor()
     {
-        $sm = $this->_conn->getSchemaManager();
-        $table = new Table('stmt_test_reusable');
-        $table->addColumn('id', 'integer');
-        $sm->createTable($table);
-        $this->_conn->insert('stmt_test_reusable', array('id' => 1));
-        $this->_conn->insert('stmt_test_reusable', array('id' => 2));
+        $this->_conn->insert('stmt_test', array('id' => 1));
+        $this->_conn->insert('stmt_test', array('id' => 2));
 
-        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test_reusable ORDER BY id');
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test ORDER BY id');
 
         $stmt->execute();
 
@@ -32,25 +38,10 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(2, $id);
     }
 
-    public function testClosedCursorDoesNotContainResults()
-    {
-        $sm = $this->_conn->getSchemaManager();
-        $table = new Table('stmt_test_no_results');
-        $table->addColumn('id', 'integer');
-        $sm->createTable($table);
-        $this->_conn->insert('stmt_test_no_results', array('id' => 1));
-
-        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test_no_results');
-        $stmt->execute();
-        $stmt->closeCursor();
-
-        $this->assertFalse($stmt->fetchColumn());
-    }
-
     public function testReuseStatementWithLongerResults()
     {
         $sm = $this->_conn->getSchemaManager();
-        $table = new Table('stmt_test_longer_results');
+        $table = new Table('stmt_longer_results');
         $table->addColumn('param', 'string');
         $table->addColumn('val', 'text');
         $sm->createTable($table);
@@ -59,9 +50,9 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
             'param' => 'param1',
             'val' => 'X',
         );
-        $this->_conn->insert('stmt_test_longer_results', $row1);
+        $this->_conn->insert('stmt_longer_results', $row1);
 
-        $stmt = $this->_conn->prepare('SELECT param, val FROM stmt_test_longer_results ORDER BY param');
+        $stmt = $this->_conn->prepare('SELECT param, val FROM stmt_longer_results ORDER BY param');
         $stmt->execute();
         $this->assertArraySubset(array(
             array('param1', 'X'),
@@ -71,7 +62,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
             'param' => 'param2',
             'val' => 'A bit longer value',
         );
-        $this->_conn->insert('stmt_test_longer_results', $row2);
+        $this->_conn->insert('stmt_longer_results', $row2);
 
         $stmt->execute();
         $this->assertArraySubset(array(
@@ -87,7 +78,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->iniSet('memory_limit', '4G');
 
         $sm = $this->_conn->getSchemaManager();
-        $table = new Table('stmt_test_long_blob');
+        $table = new Table('stmt_long_blob');
         $table->addColumn('contents', 'blob', array(
             'length' => 0xFFFFFFFF,
         ));
@@ -110,11 +101,11 @@ d+N0hqezcjblboJ3Bj8ARJilHX4FAAA=
 EOF
     );
 
-        $this->_conn->insert('stmt_test_long_blob', array(
+        $this->_conn->insert('stmt_long_blob', array(
             'contents' => $contents,
         ), array(\PDO::PARAM_LOB));
 
-        $stmt = $this->_conn->prepare('SELECT contents FROM stmt_test_long_blob');
+        $stmt = $this->_conn->prepare('SELECT contents FROM stmt_long_blob');
         $stmt->execute();
 
         $stream = Type::getType('blob')
@@ -127,33 +118,27 @@ EOF
 
     public function testIncompletelyFetchedStatementDoesNotBlockConnection()
     {
-        $table = new Table('stmt_test_non_fetched');
-        $table->addColumn('id', 'integer');
-        $this->_conn->getSchemaManager()->createTable($table);
-        $this->_conn->insert('stmt_test_non_fetched', array('id' => 1));
-        $this->_conn->insert('stmt_test_non_fetched', array('id' => 2));
+        $this->_conn->insert('stmt_test', array('id' => 1));
+        $this->_conn->insert('stmt_test', array('id' => 2));
 
-        $stmt1 = $this->_conn->prepare('SELECT id FROM stmt_test_non_fetched');
+        $stmt1 = $this->_conn->prepare('SELECT id FROM stmt_test');
         $stmt1->execute();
         $stmt1->fetch();
         $stmt1->execute();
         // fetching only one record out of two
         $stmt1->fetch();
 
-        $stmt2 = $this->_conn->prepare('SELECT id FROM stmt_test_non_fetched WHERE id = ?');
+        $stmt2 = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
         $stmt2->execute(array(1));
         $this->assertEquals(1, $stmt2->fetchColumn());
     }
 
     public function testReuseStatementAfterClosingCursor()
     {
-        $table = new Table('stmt_test_close_cursor');
-        $table->addColumn('id', 'integer');
-        $this->_conn->getSchemaManager()->createTable($table);
-        $this->_conn->insert('stmt_test_close_cursor', array('id' => 1));
-        $this->_conn->insert('stmt_test_close_cursor', array('id' => 2));
+        $this->_conn->insert('stmt_test', array('id' => 1));
+        $this->_conn->insert('stmt_test', array('id' => 2));
 
-        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test_close_cursor WHERE id = ?');
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
 
         $stmt->execute(array(1));
         $id = $stmt->fetchColumn();
@@ -164,5 +149,71 @@ EOF
         $stmt->execute(array(2));
         $id = $stmt->fetchColumn();
         $this->assertEquals(2, $id);
+    }
+
+    /**
+     * @dataProvider emptyFetchProvider
+     */
+    public function testFetchFromNonExecutedStatement(callable $fetch, $expected)
+    {
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
+
+        $this->assertSame($expected, $fetch($stmt));
+    }
+
+    public function testCloseCursorOnNonExecutedStatement()
+    {
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
+
+        $this->assertTrue($stmt->closeCursor());
+    }
+
+    /**
+     * @dataProvider emptyFetchProvider
+     */
+    public function testFetchFromNonExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    {
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
+        $stmt->closeCursor();
+
+        $this->assertSame($expected, $fetch($stmt));
+    }
+
+    /**
+     * @dataProvider emptyFetchProvider
+     */
+    public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    {
+        $this->_conn->insert('stmt_test', array('id' => 1));
+
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
+        $stmt->execute();
+        $stmt->closeCursor();
+
+        $this->assertSame($expected, $fetch($stmt));
+    }
+
+    public static function emptyFetchProvider()
+    {
+        return array(
+            'fetch' => array(
+                function (Statement $stmt) {
+                    return $stmt->fetch();
+                },
+                false,
+            ),
+            'fetch-column' => array(
+                function (Statement $stmt) {
+                    return $stmt->fetchColumn();
+                },
+                false,
+            ),
+            'fetch-all' => array(
+                function (Statement $stmt) {
+                    return $stmt->fetchAll();
+                },
+                array(),
+            ),
+        );
     }
 }
