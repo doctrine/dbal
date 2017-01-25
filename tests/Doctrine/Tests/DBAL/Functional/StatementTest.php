@@ -151,6 +151,23 @@ EOF
         $this->assertEquals(2, $id);
     }
 
+    public function testReuseStatementWithParameterBoundByReference()
+    {
+        $this->_conn->insert('stmt_test', array('id' => 1));
+        $this->_conn->insert('stmt_test', array('id' => 2));
+
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
+        $stmt->bindParam(1, $id);
+
+        $id = 1;
+        $stmt->execute();
+        $this->assertEquals(1, $stmt->fetchColumn());
+
+        $id = 2;
+        $stmt->execute();
+        $this->assertEquals(2, $stmt->fetchColumn());
+    }
+
     /**
      * @dataProvider emptyFetchProvider
      */
