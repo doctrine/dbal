@@ -53,11 +53,18 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     private $stmt;
 
     /**
-     * Parameters to bind.
+     * References to the variables bound as statement parameters.
      *
      * @var array
      */
-    private $params = array();
+    private $variables = array();
+
+    /**
+     * Bound parameter types.
+     *
+     * @var array
+     */
+    private $types = array();
 
     /**
      * Translations.
@@ -145,11 +152,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             throw new SQLSrvException("sqlsrv does not support named parameters to queries, use question mark (?) placeholders instead.");
         }
 
-        if ($type === \PDO::PARAM_LOB) {
-            $this->params[$column-1] = array($variable, SQLSRV_PARAM_IN, SQLSRV_PHPTYPE_STREAM(SQLSRV_ENC_BINARY), SQLSRV_SQLTYPE_VARBINARY('max'));
-        } else {
-            $this->params[$column-1] = $variable;
-        }
+        $this->variables[$column] =& $variable;
+        $this->types[$column] = $type;
     }
 
     /**
@@ -211,12 +215,16 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             $hasZeroIndex = array_key_exists(0, $params);
             foreach ($params as $key => $val) {
                 $key = ($hasZeroIndex && is_numeric($key)) ? $key + 1 : $key;
-                $this->bindValue($key, $val);
+                $this->variables[$key] = $val;
+                $this->types[$key] = null;
             }
         }
 
-        $this->stmt = sqlsrv_query($this->conn, $this->sql, $this->params);
         if ( ! $this->stmt) {
+            $this->stmt = $this->prepare();
+        }
+
+        if (!sqlsrv_execute($this->stmt)) {
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
@@ -227,6 +235,38 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         $this->result = true;
+    }
+
+    /**
+     * Prepares SQL Server statement resource
+     *
+     * @return resource
+     * @throws SQLSrvException
+     */
+    private function prepare()
+    {
+        $params = array();
+
+        foreach ($this->variables as $column => &$variable) {
+            if ($this->types[$column] === \PDO::PARAM_LOB) {
+                $params[$column - 1] = array(
+                    &$variable,
+                    SQLSRV_PARAM_IN,
+                    SQLSRV_PHPTYPE_STREAM(SQLSRV_ENC_BINARY),
+                    SQLSRV_SQLTYPE_VARBINARY('max'),
+                );
+            } else {
+                $params[$column - 1] =& $variable;
+            }
+        }
+
+        $stmt = sqlsrv_prepare($this->conn, $this->sql, $params);
+
+        if (!$stmt) {
+            throw SQLSrvException::fromSqlSrvErrors();
+        }
+
+        return $stmt;
     }
 
     /**
