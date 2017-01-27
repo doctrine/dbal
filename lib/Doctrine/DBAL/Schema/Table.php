@@ -847,4 +847,95 @@ class Table extends AbstractAsset
     {
         return $this->trimQuotes(strtolower($identifier));
     }
+
+    /**
+     * @param bool $readable
+     *
+     * @return array
+     */
+    public function exportColumnsToArray($readable = false)
+    {
+        $exportedColumns = array();
+
+        foreach ($this->getColumns() as $name => $column) {
+            $columnArray = $column->toArray();
+
+            if ($readable) {
+                $columnArray['type'] = $columnArray['type']->getName();
+            }
+
+            $exportedColumns[$name] = $columnArray;
+        }
+
+        return $exportedColumns;
+    }
+
+    /**
+     * @param bool $readable
+     *
+     * @return array
+     */
+    public function exportIndexesToArray($readable = false)
+    {
+        $exportedIndexes = array();
+
+        foreach ($this->getIndexes() as $name => $index) {
+            $indexArray = $index->toArray();
+
+            if ($readable) {
+                // maybe this will be useful in the future?
+            }
+
+            $exportedIndexes[$name] = $indexArray;
+        }
+
+        return $exportedIndexes;
+    }
+
+    /**
+     * @param bool $readable
+     *
+     * @return array
+     */
+    public function exportForeignKeysToArray($readable = false)
+    {
+        $exportedForeignKeys = array();
+
+        foreach ($this->getForeignKeys() as $name => $key) {
+            $keyArray = $key->toArray();
+
+            if ($readable) {
+                $keyArray['localTable'] = $keyArray['localTable']->getName();
+            }
+
+            $exportedForeignKeys[$name] = $keyArray;
+        }
+
+        return $exportedForeignKeys;
+    }
+
+    /**
+     * @param bool $readable
+     *
+     * @return array
+     */
+    public function toArray($readable = false)
+    {
+        return array(
+            'name'           => $this->_name,
+            'columns'        => $this->exportColumnsToArray($readable),
+            'indexes'        => $this->exportIndexesToArray($readable),
+            'primaryKeyName' => $this->_primaryKeyName,
+            'foreignKeys'    => $this->exportForeignKeysToArray($readable),
+            'options'        => $this->getOptions(),
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function toJson()
+    {
+        return json_encode($this->toArray(true));
+    }
 }
