@@ -173,13 +173,9 @@ class MasterSlaveConnection extends Connection
         }
 
         if ($connectionName === 'master') {
-            // Set slave connection to master to avoid invalid reads
-            if ($this->connections['slave'] && ! $this->keepSlave) {
-                unset($this->connections['slave']);
-            }
-
             $this->connections['master'] = $this->_conn = $this->connectTo($connectionName);
 
+            // Set slave connection to master to avoid invalid reads
             if ( ! $this->keepSlave) {
                 $this->connections['slave'] = $this->connections['master'];
             }
