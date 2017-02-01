@@ -19,36 +19,31 @@
 
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
-use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOStatement;
+use PDO;
 
 /**
- * Sqlsrv Connection implementation.
- *
- * @since 2.0
+ * PDO SQL Server Statement
  */
-class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
+class Statement extends PDOStatement
 {
     /**
      * {@inheritdoc}
      */
-    public function __construct($dsn, $user = null, $password = null, array $options = null)
+    public function bindParam($column, &$variable, $type = PDO::PARAM_STR, $length = null, $driverOptions = null)
     {
-        parent::__construct($dsn, $user, $password, $options);
-        $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, array(Statement::class, array()));
+        if ($type === PDO::PARAM_LOB && $driverOptions === null) {
+            $driverOptions = PDO::SQLSRV_ENCODING_BINARY;
+        }
+
+        return parent::bindParam($column, $variable, $type, $length, $driverOptions);
     }
 
     /**
-     * @override
+     * {@inheritdoc}
      */
-    public function quote($value, $type=\PDO::PARAM_STR)
+    public function bindValue($param, $value, $type = PDO::PARAM_STR)
     {
-        $val = parent::quote($value, $type);
-
-        // Fix for a driver version terminating all values with null byte
-        if (strpos($val, "\0") !== false) {
-            $val = substr($val, 0, -1);
-        }
-
-        return $val;
+        return $this->bindParam($param, $value, $type);
     }
 }
