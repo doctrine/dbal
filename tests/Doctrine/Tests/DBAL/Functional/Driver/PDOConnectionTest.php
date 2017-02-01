@@ -29,6 +29,13 @@ class PDOConnectionTest extends DbalFunctionalTestCase
         }
     }
 
+    protected function tearDown()
+    {
+        $this->resetSharedConn();
+
+        parent::tearDown();
+    }
+
     public function testDoesNotRequireQueryForServerVersion()
     {
         $this->assertFalse($this->driverConnection->requiresQueryForServerVersion());
