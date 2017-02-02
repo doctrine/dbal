@@ -161,16 +161,16 @@ class DB2Statement implements \IteratorAggregate, Statement
             return false;
         }
 
-        /*$retval = true;
-        if ($params !== null) {
-            $retval = @db2_execute($this->_stmt, $params);
-        } else {
-            $retval = @db2_execute($this->_stmt);
-        }*/
         if ($params === null) {
             ksort($this->_bindParam);
-            $params = array_values($this->_bindParam);
+
+            $params = array();
+
+            foreach ($this->_bindParam as $column => $value) {
+                $params[] = $value;
+            }
         }
+
         $retval = @db2_execute($this->_stmt, $params);
 
         if ($retval === false) {
