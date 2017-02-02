@@ -59,6 +59,11 @@ class MysqliStatement implements \IteratorAggregate, Statement
     protected $_rowBindedValues;
 
     /**
+     * @var bool
+     */
+    protected $_rowValuesAreBound = false;
+
+    /**
      * @var array
      */
     protected $_bindedValues;
@@ -178,7 +183,14 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 $meta->free();
 
                 $this->_columnNames = $columnNames;
-                $this->_rowBindedValues = array_fill(0, count($columnNames), null);
+            } else {
+                $this->_columnNames = false;
+            }
+        }
+
+        if ($this->_columnNames !== false) {
+            if (!$this->_rowValuesAreBound) {
+                $this->_rowBindedValues = array_fill(0, count($this->_columnNames), null);
 
                 $refs = array();
                 foreach ($this->_rowBindedValues as $key => &$value) {
@@ -188,8 +200,8 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 if (!call_user_func_array(array($this->_stmt, 'bind_result'), $refs)) {
                     throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
                 }
-            } else {
-                $this->_columnNames = false;
+
+                $this->_rowValuesAreBound = true;
             }
         }
 
@@ -335,6 +347,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     public function closeCursor()
     {
         $this->_stmt->free_result();
+        $this->_rowValuesAreBound = false;
 
         return true;
     }

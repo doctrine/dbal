@@ -176,7 +176,10 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        return oci_free_statement($this->_sth);
+        // emulate it by fetching and discarding rows
+        while (oci_fetch($this->_sth));
+
+        return true;
     }
 
     /**
