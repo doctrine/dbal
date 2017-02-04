@@ -81,6 +81,13 @@ class OCI8Statement implements \IteratorAggregate, Statement
     private $boundValues = array();
 
     /**
+     * Indicates whether the statement is in the state when fetching results is possible
+     *
+     * @var bool
+     */
+    private $result = false;
+
+    /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
      * @param resource                                  $dbh       The connection handle.
@@ -176,7 +183,20 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        return oci_free_statement($this->_sth);
+        // not having the result means there's nothing to close
+        if (!$this->result) {
+            return true;
+        }
+
+        // emulate it by fetching and discarding rows, similarly to what PDO does in this case
+        // @link http://php.net/manual/en/pdostatement.closecursor.php
+        // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
+        // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
+        while (oci_fetch($this->_sth));
+
+        $this->result = false;
+
+        return true;
     }
 
     /**
@@ -229,6 +249,8 @@ class OCI8Statement implements \IteratorAggregate, Statement
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
 
+        $this->result = true;
+
         return $ret;
     }
 
@@ -257,6 +279,12 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null)
     {
+        // do not try fetching from the statement if it's not expected to contain result
+        // in order to prevent exceptional situation
+        if (!$this->result) {
+            return false;
+        }
+
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
         if ( ! isset(self::$fetchModeMap[$fetchMode])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
@@ -286,6 +314,12 @@ class OCI8Statement implements \IteratorAggregate, Statement
                 $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
             }
 
+            // do not try fetching from the statement if it's not expected to contain result
+            // in order to prevent exceptional situation
+            if (!$this->result) {
+                return array();
+            }
+
             oci_fetch_all($this->_sth, $result, 0, -1,
                 self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
 
@@ -302,6 +336,12 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
+        // do not try fetching from the statement if it's not expected to contain result
+        // in order to prevent exceptional situation
+        if (!$this->result) {
+            return false;
+        }
+
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
 
         if (false === $row) {

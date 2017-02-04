@@ -49,6 +49,13 @@ class DB2Statement implements \IteratorAggregate, Statement
     private $_defaultFetchMode = \PDO::FETCH_BOTH;
 
     /**
+     * Indicates whether the statement is in the state when fetching results is possible
+     *
+     * @var bool
+     */
+    private $result = false;
+
+    /**
      * DB2_BINARY, DB2_CHAR, DB2_DOUBLE, or DB2_LONG
      *
      * @var array
@@ -104,11 +111,14 @@ class DB2Statement implements \IteratorAggregate, Statement
         }
 
         $this->_bindParam = array();
-        db2_free_result($this->_stmt);
-        $ret = db2_free_stmt($this->_stmt);
-        $this->_stmt = false;
 
-        return $ret;
+        if (!db2_free_result($this->_stmt)) {
+            return false;
+        }
+
+        $this->result = false;
+
+        return true;
     }
 
     /**
@@ -151,21 +161,23 @@ class DB2Statement implements \IteratorAggregate, Statement
             return false;
         }
 
-        /*$retval = true;
-        if ($params !== null) {
-            $retval = @db2_execute($this->_stmt, $params);
-        } else {
-            $retval = @db2_execute($this->_stmt);
-        }*/
         if ($params === null) {
             ksort($this->_bindParam);
-            $params = array_values($this->_bindParam);
+
+            $params = array();
+
+            foreach ($this->_bindParam as $column => $value) {
+                $params[] = $value;
+            }
         }
+
         $retval = @db2_execute($this->_stmt, $params);
 
         if ($retval === false) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
+
+        $this->result = true;
 
         return $retval;
     }
@@ -197,6 +209,12 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null)
     {
+        // do not try fetching from the statement if it's not expected to contain result
+        // in order to prevent exceptional situation
+        if (!$this->result) {
+            return false;
+        }
+
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
         switch ($fetchMode) {
             case \PDO::FETCH_BOTH:
