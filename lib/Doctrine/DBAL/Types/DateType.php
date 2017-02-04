@@ -54,7 +54,7 @@ class DateType extends Type
         }
 
         if ($value instanceof \DateTime) {
-            return $value->format($platform->getDateFormatString());
+            return $platform->convertDateToDatabaseValue($value);
         }
 
         throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
@@ -69,7 +69,8 @@ class DateType extends Type
             return $value;
         }
 
-        $val = \DateTime::createFromFormat('!'.$platform->getDateFormatString(), $value);
+        $val = $platform->convertFromDate($value);
+
         if ( ! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateFormatString());
         }
