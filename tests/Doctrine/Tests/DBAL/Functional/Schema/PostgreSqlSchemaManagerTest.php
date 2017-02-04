@@ -383,6 +383,31 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals('json_array', $columns['foo']->getType()->getName());
         $this->assertEquals(true, $columns['foo']->getPlatformOption('jsonb'));
     }
+
+    /**
+     * @group DBAL-2427
+     */
+    public function testListNegativeColumnDefaultValue()
+    {
+        $table = new Schema\Table('test_default_negative');
+        $table->addColumn('col_smallint', 'smallint', array('default' => -1));
+        $table->addColumn('col_integer', 'integer', array('default' => -1));
+        $table->addColumn('col_bigint', 'bigint', array('default' => -1));
+        $table->addColumn('col_float', 'float', array('default' => -1.1));
+        $table->addColumn('col_decimal', 'decimal', array('default' => -1.1));
+        $table->addColumn('col_string', 'string', array('default' => '(-1)'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns('test_default_negative');
+
+        $this->assertEquals(-1, $columns['col_smallint']->getDefault());
+        $this->assertEquals(-1, $columns['col_integer']->getDefault());
+        $this->assertEquals(-1, $columns['col_bigint']->getDefault());
+        $this->assertEquals(-1.1, $columns['col_float']->getDefault());
+        $this->assertEquals(-1.1, $columns['col_decimal']->getDefault());
+        $this->assertEquals('(-1)', $columns['col_string']->getDefault());
+    }
 }
 
 class MoneyType extends Type
