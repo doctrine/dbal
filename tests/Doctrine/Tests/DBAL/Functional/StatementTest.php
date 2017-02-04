@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Closure;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
@@ -176,7 +177,7 @@ EOF
     /**
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromNonExecutedStatement(callable $fetch, $expected)
+    public function testFetchFromNonExecutedStatement(Closure $fetch, $expected)
     {
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
 
@@ -193,7 +194,7 @@ EOF
     /**
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromNonExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    public function testFetchFromNonExecutedStatementWithClosedCursor(Closure $fetch, $expected)
     {
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
         $stmt->closeCursor();
@@ -204,7 +205,7 @@ EOF
     /**
      * @dataProvider emptyFetchProvider
      */
-    public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    public function testFetchFromExecutedStatementWithClosedCursor(Closure $fetch, $expected)
     {
         $this->_conn->insert('stmt_test', array('id' => 1));
 
