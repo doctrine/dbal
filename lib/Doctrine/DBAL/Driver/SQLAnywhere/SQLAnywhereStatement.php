@@ -131,7 +131,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        if ( ! sasql_stmt_free_result($this->stmt)) {
+        if (!sasql_stmt_reset($this->stmt)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
         }
 
