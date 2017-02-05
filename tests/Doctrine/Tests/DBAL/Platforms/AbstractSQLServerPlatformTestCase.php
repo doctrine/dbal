@@ -143,6 +143,11 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->assertTrue($this->_platform->supportsIdentityColumns());
     }
 
+    public function testSupportsCreateDropDatabase()
+    {
+        $this->assertTrue($this->_platform->supportsCreateDropDatabase());
+    }
+
     public function testSupportsSchemas()
     {
         $this->assertTrue($this->_platform->supportsSchemas());
