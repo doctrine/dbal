@@ -40,6 +40,21 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
     /**
      * @override
      */
+    public function lastInsertId($name = null)
+    {
+        if (null === $name) {
+            return parent::lastInsertId($name);
+        }
+
+        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
+        $stmt->execute(array($name));
+
+        return $stmt->fetchColumn();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function quote($value, $type=\PDO::PARAM_STR)
     {
         $val = parent::quote($value, $type);
