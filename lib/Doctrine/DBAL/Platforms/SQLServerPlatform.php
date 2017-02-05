@@ -173,7 +173,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function supportsCreateDropDatabase()
     {
-        return false;
+        return true;
     }
 
     /**
