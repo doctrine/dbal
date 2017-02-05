@@ -1,0 +1,38 @@
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.8/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         bootstrap="../../vendor/autoload.php"
+>
+  <php>
+    <ini name="error_reporting" value="-1" />
+
+    <var name="db_type" value="oci8"/>
+    <var name="db_host" value="oracle-xe-11" />
+    <var name="db_username" value="C##doctrine" />
+    <var name="db_password" value="ORACLE" />
+    <var name="db_name" value="XE" />
+    <var name="db_port" value="1521"/>
+    <var name="db_event_subscribers" value="Doctrine\DBAL\Event\Listeners\OracleSessionInit"/>
+
+    <var name="tmpdb_type" value="oci8"/>
+    <var name="tmpdb_host" value="oracle-xe-11" />
+    <var name="tmpdb_username" value="ORACLE" />
+    <var name="tmpdb_password" value="ORACLE" />
+    <var name="tmpdb_name" value="XE" />
+    <var name="tmpdb_port" value="1521"/>
+  </php>
+
+  <testsuites>
+    <testsuite name="Doctrine DBAL Test Suite">
+      <directory>../Doctrine/Tests/DBAL</directory>
+    </testsuite>
+  </testsuites>
+
+  <groups>
+    <exclude>
+      <group>performance</group>
+      <group>locking_functional</group>
+    </exclude>
+  </groups>
+</phpunit>
