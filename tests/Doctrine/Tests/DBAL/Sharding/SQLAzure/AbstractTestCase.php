@@ -32,6 +32,13 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
             'driverOptions' => array('MultipleActiveResultSets' => false)
         );
         $this->conn = DriverManager::getConnection($params);
+
+        $serverEdition = $this->conn->fetchColumn("SELECT CONVERT(NVARCHAR(128), SERVERPROPERTY('Edition'))");
+
+        if (0 !== strpos($serverEdition, 'SQL Azure')) {
+            $this->markTestSkipped('SQL Azure only test.');
+        }
+
         // assume database is created and schema is:
         // Global products table
         // Customers, Orders, OrderItems federation tables.
