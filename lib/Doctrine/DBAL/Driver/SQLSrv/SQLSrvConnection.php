@@ -118,10 +118,13 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function exec($statement)
     {
-        $stmt = $this->prepare($statement);
-        $stmt->execute();
+        $stmt = sqlsrv_query($this->conn, $statement);
 
-        return $stmt->rowCount();
+        if (false === $stmt) {
+            throw SQLSrvException::fromSqlSrvErrors();
+        }
+
+        return sqlsrv_rows_affected($stmt);
     }
 
     /**

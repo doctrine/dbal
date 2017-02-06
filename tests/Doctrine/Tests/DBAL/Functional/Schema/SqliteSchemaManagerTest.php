@@ -73,7 +73,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListForeignKeysFromExistingDatabase()
     {
-        $this->_conn->executeQuery(<<<EOS
+        $this->_conn->exec(<<<EOS
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
@@ -144,7 +144,7 @@ EOS
         if(version_compare($version['versionString'], '3.7.16', '<')) {
             $this->markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
         }
-        $this->_conn->executeQuery(<<<EOS
+        $this->_conn->exec(<<<EOS
 CREATE TABLE non_default_pk_order (
     id INTEGER,
     other_id INTEGER,
@@ -173,7 +173,7 @@ CREATE TABLE dbal_1779 (
 )
 SQL;
 
-        $this->_conn->executeQuery($sql);
+        $this->_conn->exec($sql);
 
         $columns = $this->_sm->listTableColumns('dbal_1779');
 

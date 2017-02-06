@@ -590,7 +590,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testBitComparisonExpressionSupport()
     {
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->exec('DELETE FROM fetch_table');
         $platform = $this->_conn->getDatabasePlatform();
         $bitmap   = array();
 
@@ -771,7 +771,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testEmptyFetchColumnReturnsFalse()
     {
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->exec('DELETE FROM fetch_table');
         $this->assertFalse($this->_conn->fetchColumn('SELECT test_int FROM fetch_table'));
         $this->assertFalse($this->_conn->query('SELECT test_int FROM fetch_table')->fetchColumn());
     }
@@ -846,7 +846,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     private function setupFixture()
     {
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->exec('DELETE FROM fetch_table');
         $this->_conn->insert('fetch_table', array(
             'test_int'      => 1,
             'test_string'   => 'foo',
