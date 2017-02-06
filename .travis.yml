@@ -221,7 +221,7 @@ matrix:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.4
     - php: hhvm
-      sudo: false
+      sudo: true
       dist: trusty
       addons:
         postgresql: "9.5"
@@ -229,7 +229,7 @@ matrix:
         - postgresql
       env: DB=pgsql POSTGRESQL_VERSION=9.5
     - php: hhvm
-      sudo: false
+      sudo: true
       dist: trusty
       addons:
         postgresql: "9.6"
@@ -255,6 +255,10 @@ matrix:
       env: DB=pgsql POSTGRESQL_VERSION=9.6
     - php: 7.1
       env: DB=pgsql POSTGRESQL_VERSION=9.6
+
+before_install:
+  # Force hhvm PHP 7 mode
+  - if [[ $TRAVIS_PHP_VERSION = hhv* ]]; then echo hhvm.php7.all=1 >> /etc/hhvm/php.ini; fi
 
 install:
   - travis_retry composer install
