@@ -140,7 +140,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
             $stmt = $this->query('SELECT @@IDENTITY');
         }
 
-        return $stmt->fetchColumn();
+        return $stmt->fetchColumn() ?: '0';;
     }
 
     /**
