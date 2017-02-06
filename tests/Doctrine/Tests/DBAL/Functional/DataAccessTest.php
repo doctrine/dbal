@@ -529,8 +529,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $row = $this->_conn->fetchAssoc($sql);
         $row = array_change_key_case($row, CASE_LOWER);
 
-        $diff = floor( (strtotime('2010-01-01')-time()) / 3600 / 24);
-        $this->assertEquals($diff, (int)$row['diff'], "Date difference should be approx. ".$diff." days.", 1);
+        $diff = (strtotime('2010-01-01') - strtotime(date('Y-m-d'))) / 3600 / 24;
+        $this->assertEquals($diff, $row['diff'], "Date difference should be approx. ".$diff." days.", 1);
         $this->assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])), "Adding second should end up on 2010-01-01 10:10:11");
         $this->assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])), "Subtracting second should end up on 2010-01-01 10:10:09");
         $this->assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])), "Adding minutes should end up on 2010-01-01 10:15:10");
