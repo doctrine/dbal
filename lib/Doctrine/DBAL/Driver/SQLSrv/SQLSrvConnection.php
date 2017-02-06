@@ -139,7 +139,10 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
             return $stmt->fetchColumn();
         }
 
-        return $this->lastInsertId->getId();
+        $stmt = $this->prepare('SELECT @@IDENTITY');
+        $stmt->execute();
+
+        return $stmt->fetchColumn() ?: '0';
     }
 
     /**
