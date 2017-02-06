@@ -166,7 +166,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function lastInsertId($name = null)
     {
         if ($name === null) {
-            return false;
+            return '0';
         }
 
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';

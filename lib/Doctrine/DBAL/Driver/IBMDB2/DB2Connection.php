@@ -146,7 +146,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function lastInsertId($name = null)
     {
-        return db2_last_insert_id($this->_conn);
+        return db2_last_insert_id($this->_conn) ?: '0';
     }
 
     /**

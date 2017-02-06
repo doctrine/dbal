@@ -158,7 +158,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     public function lastInsertId($name = null)
     {
         if (null === $name) {
-            return sasql_insert_id($this->connection);
+            return (string) sasql_insert_id($this->connection);
         }
 
         return $this->query('SELECT ' . $name . '.CURRVAL')->fetchColumn();

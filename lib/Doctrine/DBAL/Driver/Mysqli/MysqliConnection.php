@@ -54,6 +54,11 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     private $_conn;
 
     /**
+     * @var string
+     */
+    private $lastInsertId = '0';
+
+    /**
      * @param array  $params
      * @param string $username
      * @param string $password
@@ -181,7 +186,13 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     public function lastInsertId($name = null)
     {
-        return $this->_conn->insert_id;
+        // The last insert ID is reset to "0" after a non-insert query,
+        // therefore we keep the previously set insert ID locally.
+        if ($this->_conn->insert_id) {
+            $this->lastInsertId = (string) $this->_conn->insert_id;
+        }
+
+        return $this->lastInsertId;
     }
 
     /**

@@ -32,6 +32,9 @@ use function func_get_args;
  */
 class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
 {
+    /** @var string */
+    private $lastInsertId = '0';
+
     /**
      * @param string      $dsn
      * @param string|null $user
@@ -123,7 +126,19 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function lastInsertId($name = null)
     {
-        return parent::lastInsertId($name);
+        if (null !== $name) {
+            return parent::lastInsertId($name);
+        }
+
+        $lastInsertId = parent::lastInsertId($name);
+
+        // The last insert ID is reset to "0" in certain situations by some implementations,
+        // therefore we keep the previously set insert ID locally.
+        if ($lastInsertId) {
+            $this->lastInsertId = $lastInsertId;
+        }
+
+        return $this->lastInsertId;
     }
 
     /**
