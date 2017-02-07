@@ -42,7 +42,7 @@ class DbalFunctionalTestCase extends DbalTestCase
 
     protected function tearDown()
     {
-        while ($this->_conn->isTransactionActive()) {
+        while ($this->_conn && $this->_conn->isTransactionActive()) {
             $this->_conn->rollBack();
         }
     }
