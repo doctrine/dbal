@@ -41,6 +41,8 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
                 $this->_conn->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT, false);
             }
         }
+
+        parent::tearDown();
     }
 
     public function testBooleanConversionSqlLiteral()

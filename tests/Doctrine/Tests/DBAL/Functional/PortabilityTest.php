@@ -21,6 +21,8 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         if ($this->portableConnection) {
             $this->portableConnection->close();
         }
+
+        parent::tearDown();
     }
 
     /**

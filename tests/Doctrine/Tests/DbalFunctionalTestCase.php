@@ -40,7 +40,14 @@ class DbalFunctionalTestCase extends DbalTestCase
         $this->_conn->getConfiguration()->setSQLLogger($this->_sqlLoggerStack);
     }
 
-    protected function onNotSuccessfulTest(\Exception $e)
+    protected function tearDown()
+    {
+        while ($this->_conn->isTransactionActive()) {
+            $this->_conn->rollBack();
+        }
+    }
+
+    protected function onNotSuccessfulTest($e)
     {
         if ($e instanceof \PHPUnit_Framework_AssertionFailedError) {
             throw $e;

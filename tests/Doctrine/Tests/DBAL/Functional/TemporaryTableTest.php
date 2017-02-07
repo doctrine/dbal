@@ -25,6 +25,8 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
             } catch(\Exception $e) { }
         }
+
+        parent::tearDown();
     }
 
     /**
