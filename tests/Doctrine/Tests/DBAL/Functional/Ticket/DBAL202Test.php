@@ -16,7 +16,7 @@ class DBAL202Test extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         if ($this->_conn->getSchemaManager()->tablesExist('DBAL202')) {
-            $this->_conn->executeQuery('DELETE FROM DBAL202');
+            $this->_conn->exec('DELETE FROM DBAL202');
         } else {
             $table = new \Doctrine\DBAL\Schema\Table('DBAL202');
             $table->addColumn('id', 'integer');

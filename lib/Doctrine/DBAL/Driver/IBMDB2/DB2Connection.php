@@ -113,10 +113,13 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function exec($statement)
     {
-        $stmt = $this->prepare($statement);
-        $stmt->execute();
+        $stmt = @db2_exec($this->_conn, $statement);
 
-        return $stmt->rowCount();
+        if (false === $stmt) {
+            throw new DB2Exception(db2_stmt_errormsg());
+        }
+
+        return db2_num_rows($stmt);
     }
 
     /**
