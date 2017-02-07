@@ -453,14 +453,14 @@ See the configuration for a sample sharding connection:
     use Doctrine\DBAL\DriverManager;
 
     $conn = DriverManager::getConnection(array(
-        'wrapperClass' => 'Doctrine\Shards\DBAL\PoolingShardConnection',
+        'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
         'driver'       => 'pdo_sqlite',
         'global'       => array('memory' => true),
         'shards'       => array(
             array('id' => 1, 'memory' => true),
             array('id' => 2, 'memory' => true),
         ),
-        'shardChoser' => 'Doctrine\Shards\DBAL\ShardChoser\MultiTenantShardChoser',
+        'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
     ));
 
 You have to configure the following options:
