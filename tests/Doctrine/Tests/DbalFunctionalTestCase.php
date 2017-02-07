@@ -47,7 +47,7 @@ class DbalFunctionalTestCase extends DbalTestCase
         }
     }
 
-    protected function onNotSuccessfulTest($e)
+    protected function onNotSuccessfulTest(\Exception $e)
     {
         if ($e instanceof \PHPUnit_Framework_AssertionFailedError) {
             throw $e;
