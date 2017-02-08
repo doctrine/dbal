@@ -47,7 +47,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     {
         try {
             parent::__construct($dsn, $user, $password, $options);
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, ['Doctrine\DBAL\Driver\PDOStatement', []]);
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, ['Doctrine\DBAL\Driver\PDOStatement', [$this]]);
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
@@ -60,10 +60,14 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function exec($statement)
     {
         try {
-            return parent::exec($statement);
+            $result = parent::exec($statement);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
+
+        $this->lastInsertId(); // Keep track of the last insert ID.
+
+        return $result;
     }
 
     /**
@@ -96,18 +100,35 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
 
         try {
             if ($argsCount == 4) {
-                return parent::query($args[0], $args[1], $args[2], $args[3]);
+                $stmt = parent::query($args[0], $args[1], $args[2], $args[3]);
+
+                $this->lastInsertId(); // Keep track of the last insert ID.
+
+                return $stmt;
             }
 
             if ($argsCount == 3) {
-                return parent::query($args[0], $args[1], $args[2]);
+                $stmt = parent::query($args[0], $args[1], $args[2]);
+
+                $this->lastInsertId(); // Keep track of the last insert ID.
+
+                return $stmt;
             }
 
             if ($argsCount == 2) {
-                return parent::query($args[0], $args[1]);
+                $stmt = parent::query($args[0], $args[1]);
+
+                $this->lastInsertId(); // Keep track of the last insert ID.
+
+                return $stmt;
             }
 
-            return parent::query($args[0]);
+            $stmt = parent::query($args[0]);
+
+
+            $this->lastInsertId(); // Keep track of the last insert ID.
+
+            return $stmt;
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -130,11 +151,24 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
             return parent::lastInsertId($name);
         }
 
+        // We need to avoid unnecessary exception generation for drivers not supporting this feature,
+        // by temporarily disabling exception mode.
+        $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
+
         $lastInsertId = parent::lastInsertId($name);
+
+        // Reactivate exception mode.
+        $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+        if ($lastInsertId === null) {
+            // In case this driver implementation does not support this feature
+            // or an error occurred while retrieving the last insert ID, simply return the last tracked insert ID.
+            return $this->lastInsertId;
+        }
 
         // The last insert ID is reset to "0" in certain situations by some implementations,
         // therefore we keep the previously set insert ID locally.
-        if ($lastInsertId) {
+        if ('0' !== $lastInsertId) {
             $this->lastInsertId = $lastInsertId;
         }
 

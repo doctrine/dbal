@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
+use Doctrine\DBAL\Driver\LastInsertId;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
@@ -97,12 +98,16 @@ class MysqliStatement implements \IteratorAggregate, Statement
     private $result = false;
 
     /**
-     * @param \mysqli $conn
-     * @param string  $prepareString
+     * @var LastInsertId|null
+     */
+    private $lastInsertId;
+
+    /**
+     * @param string $prepareString
      *
      * @throws \Doctrine\DBAL\Driver\Mysqli\MysqliException
      */
-    public function __construct(\mysqli $conn, $prepareString)
+    public function __construct(\mysqli $conn, $prepareString, ?LastInsertId $lastInsertId = null)
     {
         $this->_conn = $conn;
         $this->_stmt = $conn->prepare($prepareString);
@@ -115,6 +120,8 @@ class MysqliStatement implements \IteratorAggregate, Statement
             $this->types = str_repeat('s', $paramCount);
             $this->_bindedValues = array_fill(1, $paramCount, null);
         }
+
+        $this->lastInsertId = $lastInsertId;
     }
 
     /**
@@ -179,6 +186,11 @@ class MysqliStatement implements \IteratorAggregate, Statement
 
         if ( ! $this->_stmt->execute()) {
             throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
+        }
+
+        // Keep track of the las insert ID (if any).
+        if (null !== $this->lastInsertId) {
+            $this->lastInsertId->set((string) $this->_conn->insert_id);
         }
 
         if (null === $this->_columnNames) {

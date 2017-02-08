@@ -20,7 +20,6 @@
 namespace Doctrine\DBAL\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
-use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\DBALException;
 use PDOException;
 use PDO;
@@ -39,7 +38,7 @@ class Driver extends AbstractPostgreSQLDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         try {
-            $pdo = new PDOConnection(
+            $pdo = new Connection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,
