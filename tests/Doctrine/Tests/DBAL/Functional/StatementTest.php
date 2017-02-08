@@ -174,6 +174,40 @@ EOF
         $this->assertEquals(2, $stmt->fetchColumn());
     }
 
+    public function testReuseStatementWithReboundValue()
+    {
+        $this->_conn->insert('stmt_test', array('id' => 1));
+        $this->_conn->insert('stmt_test', array('id' => 2));
+
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
+
+        $stmt->bindValue(1, 1);
+        $stmt->execute();
+        $this->assertEquals(1, $stmt->fetchColumn());
+
+        $stmt->bindValue(1, 2);
+        $stmt->execute();
+        $this->assertEquals(2, $stmt->fetchColumn());
+    }
+
+    public function testReuseStatementWithReboundParam()
+    {
+        $this->_conn->insert('stmt_test', array('id' => 1));
+        $this->_conn->insert('stmt_test', array('id' => 2));
+
+        $stmt = $this->_conn->prepare('SELECT id FROM stmt_test WHERE id = ?');
+
+        $x = 1;
+        $stmt->bindParam(1, $x);
+        $stmt->execute();
+        $this->assertEquals(1, $stmt->fetchColumn());
+
+        $y = 2;
+        $stmt->bindParam(1, $y);
+        $stmt->execute();
+        $this->assertEquals(2, $stmt->fetchColumn());
+    }
+
     /**
      * @dataProvider emptyFetchProvider
      */
