@@ -150,12 +150,6 @@ class WriteTest extends DbalFunctionalTestCase
 
     public function testLastInsertIdNoInsert()
     {
-        if ($this->_conn->getDriver()->getName() === 'pdo_pgsql') {
-            $this->markTestSkipped(
-                'Test does not work with pdo_pgsql driver. It returns "4294967295" if no last insert ID available.'
-            );
-        }
-
         $connection = TestUtil::getConnection();
 
         self::assertSame('0', $connection->lastInsertId());
@@ -169,9 +163,13 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection = TestUtil::getConnection();
 
-        self::assertSame('1', $this->_conn->lastInsertId());
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+
+        self::assertSame('1', $connection->lastInsertId());
+
+        $connection->close();
     }
 
     public function testLastInsertIdAfterUpdate()
@@ -179,6 +177,17 @@ class WriteTest extends DbalFunctionalTestCase
         if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
+
+        $connection = TestUtil::getConnection();
+
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection->update('write_table', array('test_int' => 2), array('id' => 1));
+
+        $this->assertSame('1', $connection->lastInsertId());
+
+        $connection->close();
+
+        return;
 
         $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
         $this->_conn->update('write_table', array('test_int' => 2), array('id' => 1));
@@ -192,10 +201,14 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
-        $this->_conn->exec('DELETE FROM write_table');
+        $connection = TestUtil::getConnection();
 
-        self::assertSame('1', $this->_conn->lastInsertId());
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection->exec('DELETE FROM write_table');
+
+        self::assertSame('1', $connection->lastInsertId());
+
+        $connection->close();
     }
 
     public function testLastInsertIdAfterTruncate()
@@ -204,10 +217,14 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
-        $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('write_table'));
+        $connection = TestUtil::getConnection();
 
-        self::assertSame('1', $this->_conn->lastInsertId());
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection->exec($connection->getDatabasePlatform()->getTruncateTableSQL('write_table'));
+
+        self::assertSame('1', $connection->lastInsertId());
+
+        $connection->close();
     }
 
     public function testLastInsertIdAfterDropTable()
@@ -216,12 +233,16 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
+        $connection = TestUtil::getConnection();
+
         $this->createTable('write_table_tmp');
 
-        $this->_conn->insert('write_table_tmp', array('test_int' => 1, 'test_string' => 'foo'));
-        $this->_conn->getSchemaManager()->dropTable('write_table_tmp');
+        $connection->insert('write_table_tmp', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection->getSchemaManager()->dropTable('write_table_tmp');
 
-        self::assertSame('1', $this->_conn->lastInsertId());
+        self::assertSame('1', $connection->lastInsertId());
+
+        $connection->close();
     }
 
     public function testLastInsertIdAfterSelect()
@@ -230,10 +251,14 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
-        $this->_conn->executeQuery('SELECT 1 FROM write_table');
+        $connection = TestUtil::getConnection();
 
-        self::assertSame('1', $this->_conn->lastInsertId());
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection->executeQuery('SELECT 1 FROM write_table');
+
+        self::assertSame('1', $connection->lastInsertId());
+
+        $connection->close();
     }
 
     public function testLastInsertIdInTransaction()
@@ -242,10 +267,14 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        $this->_conn->beginTransaction();
-        $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
-        self::assertSame('1', $this->_conn->lastInsertId());
-        $this->_conn->rollBack();
+        $connection = TestUtil::getConnection();
+
+        $connection->beginTransaction();
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        self::assertSame('1', $connection->lastInsertId());
+        $connection->rollBack();
+
+        $connection->close();
     }
 
     public function testLastInsertIdAfterTransactionCommit()
@@ -254,11 +283,15 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        $this->_conn->beginTransaction();
-        $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
-        $this->_conn->commit();
+        $connection = TestUtil::getConnection();
 
-        self::assertSame('1', $this->_conn->lastInsertId());
+        $connection->beginTransaction();
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection->commit();
+
+        self::assertSame('1', $connection->lastInsertId());
+
+        $connection->close();
     }
 
     public function testLastInsertIdAfterTransactionRollback()
@@ -267,11 +300,15 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        $this->_conn->beginTransaction();
-        $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
-        $this->_conn->rollBack();
+        $connection = TestUtil::getConnection();
 
-        self::assertSame('1', $this->_conn->lastInsertId());
+        $connection->beginTransaction();
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection->rollBack();
+
+        self::assertSame('1', $connection->lastInsertId());
+
+        $connection->close();
     }
 
     public function testLastInsertIdInsertAfterTransactionRollback()
@@ -280,18 +317,22 @@ class WriteTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        $this->_conn->beginTransaction();
-        $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
-        $this->_conn->rollBack();
-        $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection = TestUtil::getConnection();
 
-        $expected = $this->_conn->getDatabasePlatform()->getName() === 'sqlite'
+        $connection->beginTransaction();
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+        $connection->rollBack();
+        $connection->insert('write_table', array('test_int' => 1, 'test_string' => 'foo'));
+
+        $expected = $connection->getDatabasePlatform()->getName() === 'sqlite'
             // SQLite has a different transaction concept, that reuses rolled back IDs
             // See: http://sqlite.1065341.n5.nabble.com/Autoincrement-with-rollback-td79154.html
             ? '1'
             : '2';
 
-        self::assertSame($expected, $this->_conn->lastInsertId());
+        self::assertSame($expected, $connection->lastInsertId());
+
+        $connection->close();
     }
 
     public function testLastInsertIdConnectionScope()
