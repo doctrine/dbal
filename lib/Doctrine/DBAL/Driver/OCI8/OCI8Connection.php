@@ -152,14 +152,16 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         }
 
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
-        $stmt   = $this->query($sql);
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        if ($result === false || !isset($result['CURRVAL'])) {
-            throw new OCI8Exception("lastInsertId failed: Query was executed but no result was returned.");
+        try {
+            $stmt = $this->query($sql);
+        } catch (OCI8Exception $exception) {
+            // In case no sequence value is available yet, we get the error:
+            // ORA-08002: sequence $name.CURRVAL is not yet defined in this session
+            return '0';
         }
 
-        return (int) $result['CURRVAL'];
+        return (string) $stmt->fetchColumn();
     }
 
     /**
