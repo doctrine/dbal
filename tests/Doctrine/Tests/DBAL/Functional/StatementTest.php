@@ -14,6 +14,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $table = new Table('stmt_test');
         $table->addColumn('id', 'integer');
+        $table->addColumn('name', 'text', array('notnull' => false));
         $this->_conn->getSchemaManager()->dropAndCreateTable($table);
     }
 
@@ -220,6 +221,19 @@ EOF
     public function testCloseCursorOnNonExecutedStatement()
     {
         $stmt = $this->_conn->prepare('SELECT id FROM stmt_test');
+
+        $this->assertTrue($stmt->closeCursor());
+    }
+
+    /**
+     * @group DBAL-2637
+     */
+    public function testCloseCursorAfterCursorEnd()
+    {
+        $stmt = $this->_conn->prepare('SELECT name FROM stmt_test');
+
+        $stmt->execute();
+        $stmt->fetch();
 
         $this->assertTrue($stmt->closeCursor());
     }
