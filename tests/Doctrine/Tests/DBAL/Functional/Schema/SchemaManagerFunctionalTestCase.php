@@ -73,8 +73,6 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
 
-        unset($connection);
-
         $this->_sm->dropDatabase('test_drop_database');
 
         $this->assertNotContains('test_drop_database', $this->_sm->listDatabases());
