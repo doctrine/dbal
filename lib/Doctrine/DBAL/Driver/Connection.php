@@ -69,6 +69,14 @@ interface Connection
     /**
      * Returns the ID of the last inserted row or sequence value.
      *
+     * If no sequence name is given, "0" is returned if there currently is no last insert ID available
+     * in the current session or in case of an error or if the driver does not support this operation.
+     *
+     * Please note that there might be some edge-case scenarios where "0" could possibly be a valid ID returned from
+     * a sequence that is used to emulate an identity column. This method will return the previous insert ID in this
+     * case as "0" is considered "no last insert ID" if no sequence name is given explicitly.
+     * Always pass the sequence name when doing manual sequencing to get the correct last insert ID!
+     *
      * @param string|null $name
      *
      * @return string

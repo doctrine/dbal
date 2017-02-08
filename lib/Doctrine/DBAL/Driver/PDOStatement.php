@@ -55,10 +55,21 @@ class PDOStatement extends \PDOStatement implements Statement
     ];
 
     /**
-     * Protected constructor.
+     * @var PDOConnection|null
      */
-    protected function __construct()
+    private $connection;
+
+    /**
+     * Protected constructor.
+     *
+     * @param PDOConnection|null $connection
+     *
+     * @todo make $connection parameter mandatory as soon as the following bug with pdo_sqlsrv is fixed:
+     *       https://github.com/Microsoft/msphpsql/issues/280
+     */
+    protected function __construct(PDOConnection $connection = null)
     {
+        $this->connection = $connection;
     }
 
     /**
@@ -135,7 +146,13 @@ class PDOStatement extends \PDOStatement implements Statement
     public function execute($params = null)
     {
         try {
-            return parent::execute($params);
+            $result = parent::execute($params);
+
+            if (null !== $this->connection) {
+                $this->connection->lastInsertId(); // Keep track of the last insert ID.
+            }
+
+            return $result;
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
