@@ -144,4 +144,39 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals($portability, $connection->getPortability());
     }
+
+    /**
+     * @dataProvider fetchAllColumnProvider
+     */
+    public function testFetchAllColumn($field, array $expected)
+    {
+        $conn = $this->getPortableConnection();
+        $stmt = $conn->query('SELECT ' . $field . ' FROM portability_table');
+
+        $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertEquals($expected, $column);
+    }
+
+    public static function fetchAllColumnProvider()
+    {
+        return array(
+            'int' => array(
+                'Test_Int',
+                array(1, 2),
+            ),
+            'string' => array(
+                'Test_String',
+                array('foo', 'foo'),
+            ),
+        );
+    }
+
+    public function testFetchAllNullColumn()
+    {
+        $conn = $this->getPortableConnection();
+        $stmt = $conn->query('SELECT Test_Null FROM portability_table');
+
+        $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertSame(array(null, null), $column);
+    }
 }

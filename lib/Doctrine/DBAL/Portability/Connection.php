@@ -71,11 +71,11 @@ class Connection extends \Doctrine\DBAL\Connection
                 } elseif ($this->getDatabasePlatform()->getName() === "sqlite") {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLITE;
                 } elseif ($this->getDatabasePlatform()->getName() === "drizzle") {
-                    $params['portability'] = self::PORTABILITY_DRIZZLE;
+                    $params['portability'] = $params['portability'] & self::PORTABILITY_DRIZZLE;
                 } elseif ($this->getDatabasePlatform()->getName() === 'sqlanywhere') {
-                    $params['portability'] = self::PORTABILITY_SQLANYWHERE;
+                    $params['portability'] = $params['portability'] & self::PORTABILITY_SQLANYWHERE;
                 } elseif ($this->getDatabasePlatform()->getName() === 'db2') {
-                    $params['portability'] = self::PORTABILITY_DB2;
+                    $params['portability'] = $params['portability'] & self::PORTABILITY_DB2;
                 } elseif ($this->getDatabasePlatform()->getName() === 'mssql') {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLSRV;
                 } else {
