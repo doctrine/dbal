@@ -41,21 +41,6 @@ class Connection extends PDOConnection
     /**
      * {@inheritDoc}
      */
-    public function lastInsertId($name = null)
-    {
-        if (null === $name) {
-            return parent::lastInsertId($name);
-        }
-
-        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
-        $stmt->execute([$name]);
-
-        return $stmt->fetchColumn();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function quote($value, $type = ParameterType::STRING)
     {
         $val = parent::quote($value, $type);
@@ -66,5 +51,20 @@ class Connection extends PDOConnection
         }
 
         return $val;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function fetchLastInsertId($name = null)
+    {
+        if (null === $name) {
+            return parent::fetchLastInsertId(null);
+        }
+
+        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
+        $stmt->execute([$name]);
+
+        return $stmt->fetchColumn();
     }
 }
