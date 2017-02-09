@@ -18,19 +18,14 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        try {
-            /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-            $table = new \Doctrine\DBAL\Schema\Table("caching");
-            $table->addColumn('test_int', 'integer');
-            $table->addColumn('test_string', 'string', array('notnull' => false));
-            $table->setPrimaryKey(array('test_int'));
+        $table = new \Doctrine\DBAL\Schema\Table("caching");
+        $table->addColumn('test_int', 'integer');
+        $table->addColumn('test_string', 'string', array('notnull' => false));
+        $table->setPrimaryKey(array('test_int'));
 
-            $sm = $this->_conn->getSchemaManager();
-            $sm->createTable($table);
-        } catch(\Exception $e) {
+        $sm = $this->_conn->getSchemaManager();
+        $sm->createTable($table);
 
-        }
-        $this->_conn->executeUpdate('DELETE FROM caching');
         foreach ($this->expectedResult as $row) {
             $this->_conn->insert('caching', $row);
         }
@@ -40,6 +35,13 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $cache = new \Doctrine\Common\Cache\ArrayCache;
         $config->setResultCacheImpl($cache);
+    }
+
+    protected function tearDown()
+    {
+        $this->_conn->getSchemaManager()->dropTable('caching');
+
+        parent::tearDown();
     }
 
     public function testCacheFetchAssoc()
