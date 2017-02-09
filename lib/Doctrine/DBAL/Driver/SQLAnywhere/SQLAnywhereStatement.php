@@ -74,14 +74,14 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function __construct($conn, $sql)
     {
-        if ( ! is_resource($conn) || get_resource_type($conn) !== 'SQLAnywhere connection') {
+        if ( ! is_resource($conn)) {
             throw new SQLAnywhereException('Invalid SQL Anywhere connection resource: ' . $conn);
         }
 
         $this->conn = $conn;
         $this->stmt = sasql_prepare($conn, $sql);
 
-        if ( ! is_resource($this->stmt) || get_resource_type($this->stmt) !== 'SQLAnywhere statement') {
+        if ( ! is_resource($this->stmt)) {
             throw SQLAnywhereException::fromSQLAnywhereError($conn);
         }
     }
@@ -195,7 +195,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null)
     {
-        if ( ! is_resource($this->result) || get_resource_type($this->result) !== 'SQLAnywhere result') {
+        if ( ! is_resource($this->result)) {
             return false;
         }
 

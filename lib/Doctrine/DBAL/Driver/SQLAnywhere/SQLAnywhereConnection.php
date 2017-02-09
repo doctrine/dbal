@@ -50,7 +50,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     {
         $this->connection = $persistent ? @sasql_pconnect($dsn) : @sasql_connect($dsn);
 
-        if ( ! is_resource($this->connection) || get_resource_type($this->connection) !== 'SQLAnywhere connection') {
+        if ( ! is_resource($this->connection)) {
             throw SQLAnywhereException::fromSQLAnywhereError();
         }
 
