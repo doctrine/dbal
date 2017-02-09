@@ -45,6 +45,7 @@ use function sqlsrv_next_result;
 use function sqlsrv_num_fields;
 use function SQLSRV_PHPTYPE_STREAM;
 use function sqlsrv_prepare;
+use function sqlsrv_query;
 use function sqlsrv_rows_affected;
 use function SQLSRV_SQLTYPE_VARBINARY;
 use function stripos;
@@ -154,11 +155,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     {
         $this->conn = $conn;
         $this->sql = $sql;
-
-        if (stripos($sql, 'INSERT INTO ') === 0) {
-            $this->sql .= self::LAST_INSERT_ID_SQL;
-            $this->lastInsertId = $lastInsertId;
-        }
+        $this->lastInsertId = $lastInsertId;
     }
 
     /**
@@ -263,11 +260,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
-        if ($this->lastInsertId) {
-            sqlsrv_next_result($this->stmt);
-            sqlsrv_fetch($this->stmt);
-            $this->lastInsertId->setId(sqlsrv_get_field($this->stmt, 0));
-        }
+        $this->trackLastInsertId();
 
         $this->result = true;
     }
@@ -412,5 +405,24 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     public function rowCount()
     {
         return sqlsrv_rows_affected($this->stmt);
+    }
+
+    private function trackLastInsertId()
+    {
+        if (! $this->lastInsertId) {
+            return;
+        }
+
+        $statement = sqlsrv_query($this->conn, 'SELECT @@IDENTITY');
+
+        if ($statement === false) {
+            return;
+        }
+
+        sqlsrv_fetch($statement);
+
+        $lastInsertId = sqlsrv_get_field($statement, 0) ?: '0';
+
+        $this->lastInsertId->setId($lastInsertId);
     }
 }

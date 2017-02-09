@@ -69,4 +69,14 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
         return $this->lastInsertId;
     }
     */
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsTrackingLastInsertId()
+    {
+        // LASTVAL() is used to fetch the last insert id which errors if no ID was generated in the active session,
+        // thus causing transactions to fail.
+        return false;
+    }
 }

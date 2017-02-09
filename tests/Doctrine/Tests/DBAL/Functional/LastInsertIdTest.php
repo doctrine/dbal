@@ -334,6 +334,33 @@ class LastInsertIdTest extends DbalFunctionalTestCase
         $this->assertSame($expected, $this->testConnection->lastInsertId());
     }
 
+    public function testLastInsertIdReusePreparedStatementPrepare()
+    {
+        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
+            $this->markTestSkipped('Test only works on platforms with identity columns.');
+        }
+
+        $statement = $this->testConnection->prepare('INSERT INTO last_insert_id_table (foo) VALUES (1)');
+
+        $statement->execute();
+        $statement->execute();
+
+        $this->assertSame('2', $this->testConnection->lastInsertId());
+    }
+
+    public function testLastInsertIdReusePreparedStatementQuery()
+    {
+        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
+            $this->markTestSkipped('Test only works on platforms with identity columns.');
+        }
+
+        $statement = $this->testConnection->query('INSERT INTO last_insert_id_table (foo) VALUES (1)');
+
+        $statement->execute();
+
+        $this->assertSame('2', $this->testConnection->lastInsertId());
+    }
+
     public function testLastInsertIdConnectionScope()
     {
         $platform = $this->_conn->getDatabasePlatform();
