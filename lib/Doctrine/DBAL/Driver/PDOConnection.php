@@ -52,6 +52,8 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
+
+        $this->lastInsertId = new LastInsertId();
     }
 
     /**
@@ -152,13 +154,14 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
         }
 
         if ($this->supportsTrackingLastInsertId()) {
-            return $this->lastInsertId;
+            return $this->lastInsertId->get();
         }
 
         try {
             return parent::lastInsertId();
         } catch (\PDOException $exception) {
-            return '0';
+            // Return "unknown" last insert ID.
+            return $this->lastInsertId->get();
         }
     }
 
@@ -191,11 +194,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
             return;
         }
 
-        // The last insert ID is reset to "0" in certain situations by some implementations,
-        // therefore we keep the previously set insert ID locally.
-        if ('0' !== $lastInsertId) {
-            $this->lastInsertId = $lastInsertId;
-        }
+        $this->lastInsertId->set($lastInsertId);
     }
 
     /**
