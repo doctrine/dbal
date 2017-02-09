@@ -169,10 +169,9 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
             return '0';
         }
 
-        $sql = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
-
         try {
-            $stmt = $this->query($sql);
+            $stmt = $this->prepare('SELECT ' . $name . '.CURRVAL FROM DUAL');
+            $stmt->execute();
         } catch (OCI8Exception $exception) {
             // In case no sequence value is available yet, we get the error:
             // ORA-08002: sequence $name.CURRVAL is not yet defined in this session
