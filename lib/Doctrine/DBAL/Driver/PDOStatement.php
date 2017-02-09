@@ -114,7 +114,7 @@ class PDOStatement extends \PDOStatement implements Statement
         try {
             $result = parent::execute($params);
 
-            if (null !== $this->connection) {
+            if (! $this->connection) {
                 $this->connection->trackLastInsertId();
             }
 
