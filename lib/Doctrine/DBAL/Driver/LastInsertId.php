@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Driver;
 /**
  * Last insert ID container.
  */
-class LastInsertId
+final class LastInsertId
 {
     /** @var string */
     private $value = '0';
