@@ -37,8 +37,7 @@ class PDOStatement extends \PDOStatement implements Statement
      *
      * @param PDOConnection|null $connection
      *
-     * @todo make $connection parameter mandatory as soon as the following bug with pdo_sqlsrv is fixed:
-     *       https://github.com/Microsoft/msphpsql/issues/280
+     * @todo do we need to keep BC here? Or can we make $connection mandatory?
      */
     protected function __construct(PDOConnection $connection = null)
     {
