@@ -24,7 +24,7 @@ namespace Doctrine\DBAL\Driver;
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  */
-class LastInsertId
+final class LastInsertId
 {
     /**
      * @var string
