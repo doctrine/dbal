@@ -27,7 +27,7 @@ use Doctrine\DBAL\ParameterType;
  *
  * @since 2.0
  */
-class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
+class Connection extends PDOConnection
 {
     /**
      * {@inheritdoc}
@@ -35,7 +35,7 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
     public function __construct($dsn, $user = null, $password = null, array $options = null)
     {
         parent::__construct($dsn, $user, $password, $options);
-        $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [Statement::class, []]);
+        $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [Statement::class, [$this]]);
     }
 
     /**
