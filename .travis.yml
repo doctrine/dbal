@@ -16,41 +16,17 @@ env:
   - DB=sqlite
   - DB=mysql
   - DB=mysqli
+  - DB=mariadb MARIADB_VERSION=10.0
+  - DB=mariadb MARIADB_VERSION=10.1
+  - DB=pgsql POSTGRESQL_VERSION=9.2
+  - DB=pgsql POSTGRESQL_VERSION=9.3
+  - DB=pgsql POSTGRESQL_VERSION=9.4
+  - DB=pgsql POSTGRESQL_VERSION=9.5
+  - DB=pgsql POSTGRESQL_VERSION=9.6
 
 matrix:
   fast_finish: true
   include:
-    - env: DB=mariadb MARIADB_VERSION=10.0
-      addons:
-        mariadb: 10.0
-    - env: DB=mariadb MARIADB_VERSION=10.1
-      addons:
-        mariadb: 10.1
-    - env: DB=pgsql POSTGRESQL_VERSION=9.2
-      addons:
-        postgresql: "9.2"
-      services:
-        - postgresql
-    - env: DB=pgsql POSTGRESQL_VERSION=9.3
-      addons:
-        postgresql: "9.3"
-      services:
-        - postgresql
-    - env: DB=pgsql POSTGRESQL_VERSION=9.4
-      addons:
-        postgresql: "9.4"
-      services:
-        - postgresql
-    - env: DB=pgsql POSTGRESQL_VERSION=9.5
-      addons:
-        postgresql: "9.5"
-      services:
-        - postgresql
-    - env: DB=pgsql POSTGRESQL_VERSION=9.6
-      addons:
-        postgresql: "9.6"
-      services:
-        - postgresql
     - php: hhvm
       sudo: true
       dist: trusty
@@ -159,6 +135,9 @@ matrix:
 before_install:
   # Force hhvm PHP 7 mode
   - if [[ $TRAVIS_PHP_VERSION = hhv* ]]; then echo hhvm.php7.all=1 >> /etc/hhvm/php.ini; fi
+  - if [ '$DB' = 'pgsql' ]; then sudo apt-get install postgresql-$POSTGRESQL_VERSION; fi
+  - if [ '$DB' = 'mariadb' ]; then sudo add-apt-repository 'deb http://ftp.kaist.ac.kr/mariadb/repo/$MARIADB_VERSION/ubuntu precise main'; fi
+  - if [ '$DB' = 'mariadb' ]; then sudo apt-get install mariadb-server; fi
 
 install:
   - travis_retry composer install
