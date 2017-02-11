@@ -1489,6 +1489,10 @@ class SQLServerPlatform extends AbstractPlatform
             return " DEFAULT " . $this->getCurrentTimestampSQL();
         }
 
+        if (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getNowExpression()) {
+            return " DEFAULT " . $this->getNowExpression();
+        }
+
         if ((string) $field['type'] == 'Boolean') {
             return " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
         }
