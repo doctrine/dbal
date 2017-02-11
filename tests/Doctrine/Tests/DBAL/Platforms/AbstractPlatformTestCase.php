@@ -495,6 +495,13 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
             $this->assertEquals(' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(), $this->_platform->getDefaultValueDeclarationSQL($field));
 
+
+            $field = array(
+                'type' => Type::getType($type),
+                'default' => $this->_platform->getNowExpression()
+            );
+
+            $this->assertEquals(' DEFAULT ' . $this->_platform->getNowExpression(), $this->_platform->getDefaultValueDeclarationSQL($field));
         }
     }
 
