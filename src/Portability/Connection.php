@@ -30,11 +30,8 @@ class Connection extends \Doctrine\DBAL\Connection
     public const PORTABILITY_SQLANYWHERE  = 13;
     public const PORTABILITY_SQLSRV       = 13;
 
-    /** @var int */
-    private $portability = self::PORTABILITY_NONE;
-
-    /** @var int */
-    private $case;
+    /** @var Converter */
+    private $converter;
 
     /**
      * {@inheritdoc}
@@ -43,54 +40,46 @@ class Connection extends \Doctrine\DBAL\Connection
     {
         $ret = parent::connect();
         if ($ret) {
-            $params = $this->getParams();
+            $params      = $this->getParams();
+            $portability = self::PORTABILITY_NONE;
+
             if (isset($params['portability'])) {
                 if ($this->getDatabasePlatform()->getName() === 'oracle') {
-                    $params['portability'] &= self::PORTABILITY_ORACLE;
+                    $portability = $params['portability'] & self::PORTABILITY_ORACLE;
                 } elseif ($this->getDatabasePlatform()->getName() === 'postgresql') {
-                    $params['portability'] &= self::PORTABILITY_POSTGRESQL;
+                    $portability = $params['portability'] & self::PORTABILITY_POSTGRESQL;
                 } elseif ($this->getDatabasePlatform()->getName() === 'sqlite') {
-                    $params['portability'] &= self::PORTABILITY_SQLITE;
+                    $portability = $params['portability'] & self::PORTABILITY_SQLITE;
                 } elseif ($this->getDatabasePlatform()->getName() === 'sqlanywhere') {
-                    $params['portability'] &= self::PORTABILITY_SQLANYWHERE;
+                    $portability = $params['portability'] & self::PORTABILITY_SQLANYWHERE;
                 } elseif ($this->getDatabasePlatform()->getName() === 'db2') {
-                    $params['portability'] &= self::PORTABILITY_DB2;
+                    $portability = $params['portability'] & self::PORTABILITY_DB2;
                 } elseif ($this->getDatabasePlatform()->getName() === 'mssql') {
-                    $params['portability'] &= self::PORTABILITY_SQLSRV;
+                    $portability = $params['portability'] & self::PORTABILITY_SQLSRV;
                 } else {
-                    $params['portability'] &= self::PORTABILITY_OTHERVENDORS;
+                    $portability = $params['portability'] & self::PORTABILITY_OTHERVENDORS;
                 }
-
-                $this->portability = $params['portability'];
             }
 
-            if (isset($params['fetch_case']) && ($this->portability & self::PORTABILITY_FIX_CASE) !== 0) {
+            $case = null;
+
+            if (isset($params['fetch_case']) && ($portability & self::PORTABILITY_FIX_CASE) !== 0) {
                 if ($this->_conn instanceof PDOConnection) {
                     // make use of c-level support for case handling
                     $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_CASE, $params['fetch_case']);
                 } else {
-                    $this->case = $params['fetch_case'] === ColumnCase::LOWER ? CASE_LOWER : CASE_UPPER;
+                    $case = $params['fetch_case'] === ColumnCase::LOWER ? CASE_LOWER : CASE_UPPER;
                 }
             }
+
+            $this->converter = new Converter(
+                ($portability & self::PORTABILITY_EMPTY_TO_NULL) !== 0,
+                ($portability & self::PORTABILITY_RTRIM) !== 0,
+                $case
+            );
         }
 
         return $ret;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPortability()
-    {
-        return $this->portability;
-    }
-
-    /**
-     * @return int
-     */
-    public function getFetchCase()
-    {
-        return $this->case;
     }
 
     /**
@@ -98,20 +87,16 @@ class Connection extends \Doctrine\DBAL\Connection
      */
     public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null) : ResultStatement
     {
-        return new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
+        return new Statement(parent::executeQuery($query, $params, $types, $qcp), $this->converter);
     }
 
     public function prepare(string $sql) : DriverStatement
     {
-        return new Statement(parent::prepare($sql), $this);
+        return new Statement(parent::prepare($sql), $this->converter);
     }
 
     public function query(string $sql) : ResultStatement
     {
-        return new Statement(
-            $this->getWrappedConnection()
-                ->query($sql),
-            $this
-        );
+        return new Statement(parent::query($sql), $this->converter);
     }
 }

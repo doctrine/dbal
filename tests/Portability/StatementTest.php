@@ -5,15 +5,13 @@ namespace Doctrine\DBAL\Tests\Portability;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Connection;
+use Doctrine\DBAL\Portability\Converter;
 use Doctrine\DBAL\Portability\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class StatementTest extends TestCase
 {
-    /** @var Connection|MockObject */
-    protected $conn;
-
     /** @var Statement */
     protected $stmt;
 
@@ -23,8 +21,8 @@ class StatementTest extends TestCase
     protected function setUp() : void
     {
         $this->wrappedStmt = $this->createMock(DriverStatement::class);
-        $this->conn        = $this->createConnection();
-        $this->stmt        = $this->createStatement($this->wrappedStmt, $this->conn);
+        $converter         = new Converter(false, false, null);
+        $this->stmt        = new Statement($this->wrappedStmt, $converter);
     }
 
     /**
@@ -113,10 +111,5 @@ class StatementTest extends TestCase
         return $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
-    }
-
-    protected function createStatement(DriverStatement $wrappedStatement, Connection $connection) : Statement
-    {
-        return new Statement($wrappedStatement, $connection);
     }
 }
