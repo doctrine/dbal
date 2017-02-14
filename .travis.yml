@@ -121,15 +121,7 @@ matrix:
     - php: hhvm
     - php: nightly
       env: DB=pgsql POSTGRESQL_VERSION=9.5
-    - php: 7.0
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
-    - php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
     - php: nightly
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
-    - php: 7.0
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
-    - php: 7.1
       env: DB=pgsql POSTGRESQL_VERSION=9.6
 
 before_install:
