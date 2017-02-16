@@ -175,8 +175,20 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
             return $rows;
         }
 
+        if ($fetchMode === PDO::FETCH_COLUMN) {
+            foreach ($rows as $num => $row) {
+                $rows[$num] = array($row);
+            }
+        }
+
         foreach ($rows as $num => $row) {
             $rows[$num] = $this->fixRow($row, $iterateRow, $fixCase);
+        }
+
+        if ($fetchMode === PDO::FETCH_COLUMN) {
+            foreach ($rows as $num => $row) {
+                $rows[$num] = $row[0];
+            }
         }
 
         return $rows;
