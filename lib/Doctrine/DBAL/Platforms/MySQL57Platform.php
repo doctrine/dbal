@@ -64,4 +64,31 @@ class MySQL57Platform extends MySqlPlatform
     {
         return 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords';
     }
+
+    /**
+     * Get reserved keywords for default
+     *
+     * @return array
+     */
+    public static function getReservedDefaultKeywords()
+    {
+        return [
+            'NULL',
+            'CURRENT_DATE',
+            'CURRENT_TIME',
+            'CURRENT_TIMESTAMP',
+        ];
+    }
+
+    /**
+     * @see Doctrine\DBAL\Platforms\MySqlPlatform::getDefaultValueDeclarationSQL()
+     */
+    public function getDefaultValueDeclarationSQL($field)
+    {
+        if (in_array($field['default'], self::getReservedDefaultKeywords())) {
+            return " DEFAULT ".$field['default'];
+        }
+
+        return parent::getDefaultValueDeclarationSQL($field);
+    }
 }
