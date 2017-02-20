@@ -262,9 +262,9 @@ class QueryBuilder
      *         ->setParameter(':user_id', 1);
      * </code>
      *
-     * @param string|integer $key   The parameter position or name.
-     * @param mixed          $value The parameter value.
-     * @param string|null    $type  One of the PDO::PARAM_* constants.
+     * @param string|integer         $key   The parameter position or name.
+     * @param mixed                  $value The parameter value.
+     * @param string|integer|null    $type  One of the PDO::PARAM_* constants.
      *
      * @return $this This QueryBuilder instance.
      */
