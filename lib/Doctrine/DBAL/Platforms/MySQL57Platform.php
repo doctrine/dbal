@@ -71,7 +71,7 @@ class MySQL57Platform extends MySqlPlatform
      *
      * @return array
      */
-    public static function getReservedDefaultKeywords()
+    public static function getReservedDatetimeKeywords()
     {
         return array(
             'NULL',
@@ -87,7 +87,7 @@ class MySQL57Platform extends MySqlPlatform
     public function getDefaultValueDeclarationSQL($field)
     {
         if ($field['type'] instanceof DateTimeType &&
-            in_array($field['default'], self::getReservedDefaultKeywords())
+            in_array($field['default'], self::getReservedDatetimeKeywords())
         ) {
             $default = ' DEFAULT ' . $field['default'];
         } else {
@@ -112,7 +112,7 @@ class MySQL57Platform extends MySqlPlatform
     {
         if ($field['type'] instanceof DateTimeType &&
             isset($field['onUpdate']) &&
-            in_array($field['onUpdate'], self::getReservedDefaultKeywords())
+            in_array($field['onUpdate'], self::getReservedDatetimeKeywords())
         ) {
             return ' ON UPDATE ' . $field['onUpdate'];
         }

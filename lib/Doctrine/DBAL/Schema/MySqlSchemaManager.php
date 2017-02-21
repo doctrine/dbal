@@ -20,7 +20,9 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\DateTimeType;
 
 /**
  * Schema manager for the MySql RDBMS.
@@ -201,6 +203,20 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         if (isset($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
+        }
+
+        if (isset($tableColumn['extra'])
+            && $column->getType() instanceof DateTimeType
+            && (
+                false !== strpos($tableColumn['extra'], 'on update')
+                || false !== strpos($tableColumn['extra'], 'ON UPDATE')
+            )
+        ) {
+            $keyword = trim(str_replace(array('on update', 'ON UPDATE'), '', $tableColumn['extra']));
+
+            if (in_array($keyword, MySQL57Platform::getReservedDatetimeKeywords())) {
+                $column->setCustomSchemaOption('onUpdate', $keyword);
+            }
         }
 
         return $column;
