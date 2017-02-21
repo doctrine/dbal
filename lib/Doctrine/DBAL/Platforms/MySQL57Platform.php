@@ -111,6 +111,7 @@ class MySQL57Platform extends MySqlPlatform
     public function getOnUpdateValueDeclarationSQL($field)
     {
         if ($field['type'] instanceof DateTimeType &&
+            isset($field['onUpdate']) &&
             in_array($field['onUpdate'], self::getReservedDefaultKeywords())
         ) {
             return ' ON UPDATE ' . $field['onUpdate'];
