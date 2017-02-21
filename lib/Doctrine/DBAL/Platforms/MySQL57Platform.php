@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\DateTimeType;
 
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 5.7 database platform.
@@ -66,29 +67,55 @@ class MySQL57Platform extends MySqlPlatform
     }
 
     /**
-     * Get reserved keywords for default
+     * Get reserved keywords about date and time for default and update
      *
      * @return array
      */
     public static function getReservedDefaultKeywords()
     {
-        return [
+        return array(
             'NULL',
             'CURRENT_DATE',
             'CURRENT_TIME',
             'CURRENT_TIMESTAMP',
-        ];
+        );
     }
 
     /**
-     * @see Doctrine\DBAL\Platforms\MySqlPlatform::getDefaultValueDeclarationSQL()
+     * {@inheritdoc}
      */
     public function getDefaultValueDeclarationSQL($field)
     {
-        if (in_array($field['default'], self::getReservedDefaultKeywords())) {
-            return " DEFAULT ".$field['default'];
+        if ($field['type'] instanceof DateTimeType &&
+            in_array($field['default'], self::getReservedDefaultKeywords())
+        ) {
+            $default = ' DEFAULT ' . $field['default'];
+        } else {
+            $default = parent::getDefaultValueDeclarationSQL($field);
         }
 
-        return parent::getDefaultValueDeclarationSQL($field);
+        $default .= $this->getOnUpdateValueDeclarationSQL($field);
+
+        return $default;
+    }
+
+    /**
+     * Obtains specific MySQL code portion needed to set action for update rows.
+     *
+     * @param array $field The field definition array.
+     *
+     * @return string specific MySQL code portion needed to set action for update rows.
+     *
+     * @see https://dev.mysql.com/doc/refman/5.7/en/timestamp-initialization.html
+     */
+    public function getOnUpdateValueDeclarationSQL($field)
+    {
+        if ($field['type'] instanceof DateTimeType &&
+            in_array($field['onUpdate'], self::getReservedDefaultKeywords())
+        ) {
+            return ' ON UPDATE ' . $field['onUpdate'];
+        }
+
+        return '';
     }
 }
