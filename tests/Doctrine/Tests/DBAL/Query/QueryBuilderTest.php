@@ -561,12 +561,13 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
                 ->join("l", "location_tree_pos", "p", "l.id = p.tree_id")
                 ->rightJoin("l", "hotel", "h", "h.location_id = l.id")
                 ->leftJoin("l", "offer_location", "ol", "l.id=ol.location_id")
-                ->leftJoin("ol", "mds_offer", "mdso", "ol.offer_id = mdso.offer_id")
+                ->leftJoin("olx", "mds_offer", "mdso", "ol.offer_id = mdso.offer_id")
                 ->leftJoin("h", "mds_hotel", "mdsh", "h.id = mdsh.hotel_id")
                 ->where("p.parent_id IN (:ids)")
                 ->andWhere("(mdso.xcode IS NOT NULL OR mdsh.xcode IS NOT NULL)");
 
-        $this->setExpectedException('Doctrine\DBAL\Query\QueryException', "The given alias 'ol' is not part of any FROM clause table. The currently registered FROM-clause aliases are: l");
+        $this->setExpectedException('Doctrine\DBAL\Query\QueryException', "The given alias 'olx' is not part of any FROM or JOIN clause table. The currently registered aliases are: l, p, h, ol, mdso, mdsh.");
         $this->assertEquals('', $qb->getSQL());
     }
+    
 }
