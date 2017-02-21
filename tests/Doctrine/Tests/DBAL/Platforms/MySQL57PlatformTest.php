@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Types\Type;
 
 class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 {
@@ -64,5 +65,22 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
         return array(
             'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed',
         );
+    }
+
+    public function testGetOnUpdateDeclarationSQLDateTime()
+    {
+        foreach (array('datetime') as $type) {
+
+            $field = array(
+                'type' => Type::getType($type),
+                'default' => 'NULL',
+                'onUpdate' => $this->_platform->getCurrentTimestampSQL(),
+            );
+
+            $this->assertEquals(
+                ' ON UPDATE ' . $this->_platform->getCurrentTimestampSQL(),
+                $this->_platform->getOnUpdateValueDeclarationSQL($field)
+            );
+        }
     }
 }
