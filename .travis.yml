@@ -243,9 +243,6 @@ matrix:
   allow_failures:
     - php: hhvm
     - php: nightly
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
-    - php: nightly
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
 
 before_install:
   # Force hhvm PHP 7 mode
