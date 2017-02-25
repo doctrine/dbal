@@ -305,6 +305,7 @@ pdo\_oci / oci8
    you will still need to provide the ``user`` and ``password`` parameters, but the other
    parameters will no longer be used. Note that when using this parameter, the ``getHost``
    and ``getPort`` methods from ``Doctrine\DBAL\Connection`` will no longer function as expected.
+-  ``persistent`` (boolean): Whether to establish a persistent connection.
 
 pdo\_sqlsrv / sqlsrv
 ^^^^^^^^^^^^^^^^^^^^
