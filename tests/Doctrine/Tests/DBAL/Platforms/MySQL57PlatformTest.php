@@ -82,4 +82,22 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
             'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed',
         );
     }
+
+    /**
+     * @group DBAL-2576
+     */
+    public function testNotDuplicateDropForeignKeySql()
+    {
+        $diff = $this->createNotDuplicateDropForeignKeySql();
+
+        // Run through alter table method
+        $sql = $this->_platform->getAlterTableSQL($diff);
+
+        // Assert that there are no duplicates in the results
+        $this->assertSame([
+            'ALTER TABLE documents DROP FOREIGN KEY documents_ibfk_1',
+            'ALTER TABLE documents ADD CONSTRAINT FK_a788692ffa0c224 FOREIGN KEY (office_id) REFERENCES offices (id) ON DELETE CASCADE',
+            'ALTER TABLE documents RENAME INDEX office_id TO IDX_A788692FFA0C224',
+        ], $sql);
+    }
 }

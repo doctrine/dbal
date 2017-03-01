@@ -3,12 +3,14 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use Doctrine\DBAL\Types\Type;
 use function array_shift;
 
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
@@ -945,5 +947,76 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             $this->_platform->getCreateTableSQL($table),
             'Column "no_collation" will use the default collation from the table/database and "column_collation" overwrites the collation on this column'
         );
+    }
+
+    /**
+     * @group DBAL-2576
+     */
+    protected function createNotDuplicateDropForeignKeySql()
+    {
+        $diff = new TableDiff('documents');
+
+        // Create offices table
+        $offices = new Table('offices');
+        $offices->addColumn('id', 'integer');
+
+        // Create documents table
+        $documents = new Table('documents');
+        $documents->addColumn('id', 'integer');
+        $documents->addColumn('office_id', 'integer');
+        $documents->addForeignKeyConstraint('offices', [ 'office_id' ], [ 'id' ], [ 'onDelete' => 'CASCADE' ], 'FK_a788692ffa0c224');
+        $documents->setPrimaryKey([ 'id' ]);
+
+        // Added foreign key
+        $diff->addedForeignKeys['FK_a788692ffa0c224'] = $documents->getForeignKey('FK_a788692ffa0c224');
+
+        // Set removed foreign keys
+        $documents = new Table('documents');
+        $documents->addColumn('id', 'integer');
+        $documents->addColumn('office_id', 'integer');
+        $documents->setPrimaryKey([ 'id' ], 'PRIMARY');
+        $documents->addIndex([ 'office_id' ], 'office_id');
+        $documents->addForeignKeyConstraint('offices', [ 'office_id' ], [ 'id' ], [ 'onDelete' => 'RESTRICT', 'onUpdate' => 'RESTRICT' ], 'documents_ibfk_1');
+
+        $diff->removedForeignKeys['documents_ibfk_1'] = $documents->getForeignKey('documents_ibfk_1');
+
+        $diff->renamedIndexes = [
+            'office_id' => new Index('IDX_A788692FFA0C224', [ 'office_id' ]),
+        ];
+
+        // Set fromTable
+        $documents = new Table('documents', [
+            new Column('id', Type::getType('integer')),
+            new Column('office_id', Type::getType('integer')),
+        ], [
+            'primary'        => new Index('PRIMARY', [ 'id' ], true, true),
+            'office_id'      => new Index('office_id', [ 'office_id' ]),
+        ], [
+            'jos_documents_ibfk_1' => new ForeignKeyConstraint([ 'office_id' ], 'offices', [ 'id' ], 'documents_ibfk_1', [ 'onDelete' => 'RESTRICT', 'onUpdate' => 'RESTRICT' ]),
+        ]);
+
+        $diff->fromTable = $documents;
+
+        // Return diff
+        return $diff;
+    }
+
+    /**
+     * @group DBAL-2576
+     */
+    public function testNotDuplicateDropForeignKeySql()
+    {
+        $diff = $this->createNotDuplicateDropForeignKeySql();
+
+        // Run through alter table method
+        $sql = $this->_platform->getAlterTableSQL($diff);
+
+        // Assert that there are no duplicates in the results
+        $this->assertSame([
+            'ALTER TABLE documents DROP FOREIGN KEY documents_ibfk_1',
+            'ALTER TABLE documents ADD CONSTRAINT FK_a788692ffa0c224 FOREIGN KEY (office_id) REFERENCES offices (id) ON DELETE CASCADE',
+            'DROP INDEX office_id ON documents',
+            'CREATE INDEX IDX_A788692FFA0C224 ON documents (office_id)',
+        ], $sql);
     }
 }

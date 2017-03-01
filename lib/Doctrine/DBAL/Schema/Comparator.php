@@ -295,8 +295,8 @@ class Comparator
             }
         }
 
-        foreach ($fromFkeys as $constraint1) {
-            $tableDifferences->removedForeignKeys[] = $constraint1;
+        foreach ($fromFkeys as $key => $constraint1) {
+            $tableDifferences->removedForeignKeys[$key] = $constraint1;
             $changes++;
         }
 
