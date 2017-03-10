@@ -676,7 +676,7 @@ LEFT JOIN user_cons_columns r_cols
                          ) AS comments
                 FROM     $tabColumnsTableName c
                 WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
-                ORDER BY c.column_name";
+                ORDER BY c.column_id";
     }
 
     /**
