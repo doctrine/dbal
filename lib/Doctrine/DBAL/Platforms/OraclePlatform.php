@@ -679,7 +679,7 @@ END;';
                          ) AS comments
                 FROM     $tabColumnsTableName c
                 WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
-                ORDER BY c.column_name";
+                ORDER BY c.column_id";
     }
 
     /**
