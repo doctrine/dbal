@@ -750,7 +750,7 @@ EOD;
                          ) AS comments
                 FROM     user_tab_columns c
                 WHERE    c.table_name = 'test' 
-                ORDER BY c.column_name"
+                ORDER BY c.column_id"
             ),
             array(
                 '/',
@@ -763,7 +763,7 @@ EOD;
                          ) AS comments
                 FROM     user_tab_columns c
                 WHERE    c.table_name = 'test' 
-                ORDER BY c.column_name"
+                ORDER BY c.column_id"
             ),
             array(
                 'scott',
@@ -776,7 +776,7 @@ EOD;
                          ) AS comments
                 FROM     all_tab_columns c
                 WHERE    c.table_name = 'test' AND c.owner = 'SCOTT'
-                ORDER BY c.column_name"
+                ORDER BY c.column_id"
             ),
         );
     }
