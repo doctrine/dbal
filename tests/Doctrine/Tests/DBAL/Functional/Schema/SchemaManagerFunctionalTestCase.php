@@ -249,7 +249,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInternalType('array',  $columns['baz2']->getPlatformOptions());
 
         $this->assertEquals('baz3', strtolower($columns['baz3']->getname()));
-        $this->assertContains($columns['baz2']->gettype()->getName(), array('time', 'date', 'datetime'));
+        $this->assertContains($columns['baz3']->gettype()->getName(), array('time', 'date', 'datetime'));
         $this->assertEquals(true,   $columns['baz3']->getnotnull());
         $this->assertEquals(null,   $columns['baz3']->getdefault());
         $this->assertInternalType('array',  $columns['baz3']->getPlatformOptions());
