@@ -883,4 +883,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $this->assertContains('bar', $sql);
         $this->assertNotContains('DATABASE()', $sql);
     }
+
+    public function testColumnCollationDeclarationSQL()
+    {
+        $this->assertEquals('COLLATE utf8_unicode_ci', $this->_platform->getColumnCollationDeclarationSQL('utf8_unicode_ci'));
+    }
 }
