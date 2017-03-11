@@ -199,10 +199,10 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm->dropAndCreateTable($table);
 
         $columns = $this->_sm->listTableColumns('list_table_columns');
-        $columns_keys = array_keys($columns);
+        $columnsKeys = array_keys($columns);
 
         $this->assertArrayHasKey('id', $columns);
-        $this->assertEquals(0, array_search('id', $columns_keys));
+        $this->assertEquals(0, array_search('id', $columnsKeys));
         $this->assertEquals('id',   strtolower($columns['id']->getname()));
         $this->assertInstanceOf('Doctrine\DBAL\Types\IntegerType', $columns['id']->gettype());
         $this->assertEquals(false,  $columns['id']->getunsigned());
@@ -211,7 +211,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInternalType('array',  $columns['id']->getPlatformOptions());
 
         $this->assertArrayHasKey('test', $columns);
-        $this->assertEquals(1, array_search('test', $columns_keys));
+        $this->assertEquals(1, array_search('test', $columnsKeys));
         $this->assertEquals('test', strtolower($columns['test']->getname()));
         $this->assertInstanceOf('Doctrine\DBAL\Types\StringType', $columns['test']->gettype());
         $this->assertEquals(255,    $columns['test']->getlength());
@@ -221,7 +221,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInternalType('array',  $columns['test']->getPlatformOptions());
 
         $this->assertEquals('foo',  strtolower($columns['foo']->getname()));
-        $this->assertEquals(2, array_search('foo', $columns_keys));
+        $this->assertEquals(2, array_search('foo', $columnsKeys));
         $this->assertInstanceOf('Doctrine\DBAL\Types\TextType', $columns['foo']->gettype());
         $this->assertEquals(false,  $columns['foo']->getunsigned());
         $this->assertEquals(false,  $columns['foo']->getfixed());
@@ -230,7 +230,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInternalType('array',  $columns['foo']->getPlatformOptions());
 
         $this->assertEquals('bar',  strtolower($columns['bar']->getname()));
-        $this->assertEquals(3, array_search('bar', $columns_keys));
+        $this->assertEquals(3, array_search('bar', $columnsKeys));
         $this->assertInstanceOf('Doctrine\DBAL\Types\DecimalType', $columns['bar']->gettype());
         $this->assertEquals(null,   $columns['bar']->getlength());
         $this->assertEquals(10,     $columns['bar']->getprecision());
@@ -242,21 +242,21 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertInternalType('array',  $columns['bar']->getPlatformOptions());
 
         $this->assertEquals('baz1', strtolower($columns['baz1']->getname()));
-        $this->assertEquals(4, array_search('baz1', $columns_keys));
+        $this->assertEquals(4, array_search('baz1', $columnsKeys));
         $this->assertInstanceOf('Doctrine\DBAL\Types\DateTimeType', $columns['baz1']->gettype());
         $this->assertEquals(true,   $columns['baz1']->getnotnull());
         $this->assertEquals(null,   $columns['baz1']->getdefault());
         $this->assertInternalType('array',  $columns['baz1']->getPlatformOptions());
 
         $this->assertEquals('baz2', strtolower($columns['baz2']->getname()));
-        $this->assertEquals(5, array_search('baz2', $columns_keys));
+        $this->assertEquals(5, array_search('baz2', $columnsKeys));
         $this->assertContains($columns['baz2']->gettype()->getName(), array('time', 'date', 'datetime'));
         $this->assertEquals(true,   $columns['baz2']->getnotnull());
         $this->assertEquals(null,   $columns['baz2']->getdefault());
         $this->assertInternalType('array',  $columns['baz2']->getPlatformOptions());
 
         $this->assertEquals('baz3', strtolower($columns['baz3']->getname()));
-        $this->assertEquals(6, array_search('baz3', $columns_keys));
+        $this->assertEquals(6, array_search('baz3', $columnsKeys));
         $this->assertContains($columns['baz3']->gettype()->getName(), array('time', 'date', 'datetime'));
         $this->assertEquals(true,   $columns['baz3']->getnotnull());
         $this->assertEquals(null,   $columns['baz3']->getdefault());
