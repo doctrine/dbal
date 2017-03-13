@@ -394,7 +394,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getCreateDatabaseSQL($name)
     {
-        return 'CREATE DATABASE ' . $name;
+        return 'CREATE DATABASE ' . $this->quoteSingleIdentifier($name);
     }
 
     /**
@@ -402,7 +402,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($name)
     {
-        return 'DROP DATABASE ' . $name;
+        return 'DROP DATABASE ' . $this->quoteSingleIdentifier($name);
     }
 
     /**
