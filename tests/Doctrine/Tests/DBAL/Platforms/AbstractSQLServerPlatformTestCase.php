@@ -498,6 +498,15 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->assertEquals('[test]', $this->_platform->quoteSingleIdentifier('test'));
         $this->assertEquals('[test.test]', $this->_platform->quoteSingleIdentifier('test.test'));
     }
+    
+    /**
+     * @group DDC-3600
+     */
+    public function testCreateNonClusteredIndexWithColIncludes()
+    {
+        $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, false, array('nonclustered'), array('include' => array('col_1', 'col_2')));
+        $this->assertEquals('CREATE NONCLUSTERED INDEX idx ON tbl (id) INCLUDE (col_1, col_2)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
+    }
 
     /**
      * @group DBAL-220

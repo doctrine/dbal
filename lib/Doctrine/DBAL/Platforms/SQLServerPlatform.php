@@ -1325,6 +1325,15 @@ class SQLServerPlatform extends AbstractPlatform
 
         return false;
     }
+    
+    /**
+     * {@inheritDoc}
+     * @see \Doctrine\DBAL\Platforms\AbstractPlatform::supportsCoveringIndexesWithColIncludes()
+     */
+    public function supportsCoveringIndexesWithColIncludes()
+    {
+        return true;
+    }
 
     /**
      * {@inheritDoc}

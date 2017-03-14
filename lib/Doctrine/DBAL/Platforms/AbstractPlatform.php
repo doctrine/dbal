@@ -1785,7 +1785,9 @@ abstract class AbstractPlatform
         }
 
         $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
-        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')' . $this->getPartialIndexSQL($index);
+        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')';
+        $query .= $this->getPartialIndexSQL($index);
+        $query .= $this->getCoveringIndexWithColIncludesSQL($index);
 
         return $query;
     }
@@ -1801,6 +1803,23 @@ abstract class AbstractPlatform
     {
         if ($this->supportsPartialIndexes() && $index->hasOption('where')) {
             return  ' WHERE ' . $index->getOption('where');
+        }
+
+        return '';
+    }
+
+    /**
+     * Adds SQL for including columns in a covering index.
+     *
+     * @param \Doctrine\DBAL\Schema\Index $index
+     *
+     * @return string
+     */
+    protected function getCoveringIndexWithColIncludesSQL(Index $index)
+    {
+        // included columns can only be used with unclustered indexes
+        if ($this->supportsCoveringIndexesWithColIncludes() && $index->hasOption('include') && is_array($index->getOption('include')) && !$index->hasFlag('clustered')) {
+            return  ' INCLUDE (' . implode(', ', $index->getOption('include')) . ')';
         }
 
         return '';
@@ -3073,6 +3092,16 @@ abstract class AbstractPlatform
      * @return boolean
      */
     public function supportsPartialIndexes()
+    {
+        return false;
+    }
+
+    /**
+     * Whether the platform supports covering indexes with includes.
+     *
+     * @return boolean
+     */
+    public function supportsCoveringIndexesWithColIncludes()
     {
         return false;
     }
