@@ -177,4 +177,19 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn->connect('master');
         self::assertTrue($conn->isConnectedToMaster());
     }
+
+    public function testKeepSlaveNoMasterOnExecuteQueryAfterWriteOperation()
+    {
+        $conn = $this->createMasterSlaveConnection(true);
+        $conn->insert('master_slave_table', array('test_int' => 30));
+
+        $this->assertTrue($conn->isConnectedToMaster());
+
+        $sql = "SELECT count(*) as num FROM master_slave_table";
+        $data = $conn->fetchAll($sql);
+        $data[0] = array_change_key_case($data[0], CASE_LOWER);
+
+        $this->assertEquals(2, $data[0]['num']);
+        $this->assertFalse($conn->isConnectedToMaster());
+    }
 }

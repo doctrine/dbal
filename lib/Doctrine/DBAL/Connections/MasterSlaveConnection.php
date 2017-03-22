@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Connections;
 
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Configuration;
@@ -231,6 +232,16 @@ class MasterSlaveConnection extends Connection
         }
 
         return $config;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
+    {
+        $this->connect('slave');
+
+        return parent::executeQuery($query, $params, $types, $qcp);
     }
 
     /**
