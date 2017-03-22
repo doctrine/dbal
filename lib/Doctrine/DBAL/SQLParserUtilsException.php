@@ -50,4 +50,14 @@ class SQLParserUtilsException extends DBALException
     {
         return new self(sprintf('Value for :%1$s not found in types array. Types array key should be "%1$s"', $typeName));
     }
+
+    /**
+     * @param string $typeName
+     *
+     * @return \Doctrine\DBAL\SQLParserUtilsException
+     */
+    public static function notCollectionType($typeName)
+    {
+        return new self(sprintf('You\'re trying to remove collection marker on a type that is not wrapped into a collection: %1$s', $typeName));
+    }
 }
