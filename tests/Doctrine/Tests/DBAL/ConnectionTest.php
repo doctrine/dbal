@@ -408,6 +408,98 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    /**
+     * @group DBAL-2688
+     */
+    public function testUpdateWithIsNull()
+    {
+        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeUpdate'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeUpdate')
+            ->with(
+                'UPDATE TestTable SET text = ?, is_edited = ? WHERE id IS NULL AND name = ?',
+                [
+                    'some text',
+                    null,
+                    'foo',
+                ],
+                [
+                    'string',
+                    'boolean',
+                    'string',
+                ]
+            );
+
+        $conn->update(
+            'TestTable',
+            [
+                'text' => 'some text',
+                'is_edited' => null,
+            ],
+            [
+                'id' => null,
+                'name' => 'foo',
+            ],
+            [
+                'text' => 'string',
+                'is_edited' => 'boolean',
+                'id' => 'integer',
+                'name' => 'string',
+            ]
+        );
+    }
+
+    /**
+     * @group DBAL-2688
+     */
+    public function testDeleteWithIsNull()
+    {
+        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('executeUpdate'))
+            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
+            ->getMock();
+
+        $conn->expects($this->once())
+            ->method('executeUpdate')
+            ->with(
+                'DELETE FROM TestTable WHERE id IS NULL AND name = ?',
+                [
+                    'foo',
+                ],
+                [
+                    'string',
+                ]
+            );
+
+        $conn->delete(
+            'TestTable',
+            [
+                'id' => null,
+                'name' => 'foo',
+            ],
+            [
+                'id' => 'integer',
+                'name' => 'string',
+            ]
+        );
+    }
+
     public function testFetchAssoc()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';

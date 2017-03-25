@@ -603,6 +603,36 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Gathers criteria for an update or delete call.
+     *
+     * @param array $identifiers Input array of columns to values
+     *
+     * @return string[][] a triplet with:
+     *                    - the first key being the column names
+     *                    - the second key being the values
+     *                    - the third key being the criteria strings
+     */
+    private function gatherCriteria(array $identifiers)
+    {
+        $columns = [];
+        $values = [];
+        $criteria = [];
+
+        foreach ($identifiers as $columnName => $value) {
+            if (null === $value) {
+                $criteria[] = $this->getDatabasePlatform()->getIsNullExpression($columnName);
+                continue;
+            }
+
+            $columns[] = $columnName;
+            $values[] = $value;
+            $criteria[] = $columnName . ' = ?';
+        }
+
+        return [$columns, $values, $criteria];
+    }
+
+    /**
      * Executes an SQL DELETE statement on a table.
      *
      * Table expression and columns are not escaped and are not safe for user-input.
@@ -621,15 +651,7 @@ class Connection implements DriverConnection
             throw InvalidArgumentException::fromEmptyCriteria();
         }
 
-        $columnList = array();
-        $criteria = array();
-        $paramValues = array();
-
-        foreach ($identifier as $columnName => $value) {
-            $columnList[] = $columnName;
-            $criteria[] = $columnName . ' = ?';
-            $paramValues[] = $value;
-        }
+        list($columnList, $paramValues, $criteria) = $this->gatherCriteria($identifier);
 
         return $this->executeUpdate(
             'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $criteria),
@@ -694,7 +716,6 @@ class Connection implements DriverConnection
     {
         $columnList = array();
         $set = array();
-        $criteria = array();
         $paramValues = array();
 
         foreach ($data as $columnName => $value) {
@@ -703,11 +724,9 @@ class Connection implements DriverConnection
             $paramValues[] = $value;
         }
 
-        foreach ($identifier as $columnName => $value) {
-            $columnList[] = $columnName;
-            $criteria[] = $columnName . ' = ?';
-            $paramValues[] = $value;
-        }
+        list($whereColumns, $whereValues, $criteria) = $this->gatherCriteria($identifier);
+        $columnList = array_merge($columnList, $whereColumns);
+        $paramValues = array_merge($paramValues, $whereValues);
 
         if (is_string(key($types))) {
             $types = $this->extractTypeValues($columnList, $types);
