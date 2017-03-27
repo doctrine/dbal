@@ -444,6 +444,30 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     }
 
     /**
+     * @group DBAL-2685
+     */
+    public function testNativeArrayListSupportWithFullTypeName()
+    {
+        for ($i = 100; $i < 110; $i++) {
+            $this->_conn->insert('fetch_table', array('test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10'));
+        }
+
+        $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int IN (?)',
+            array(array(100, 101, 102, 103, 104)), array('[integer]'));
+
+        $data = $stmt->fetchAll(PDO::FETCH_NUM);
+        $this->assertEquals(5, count($data));
+        $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
+
+        $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_string IN (?)',
+            array(array('foo100', 'foo101', 'foo102', 'foo103', 'foo104')), array('[string]'));
+
+        $data = $stmt->fetchAll(PDO::FETCH_NUM);
+        $this->assertEquals(5, count($data));
+        $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
+    }
+
+    /**
      * @dataProvider getTrimExpressionData
      */
     public function testTrimExpression($value, $position, $char, $expectedResult)
