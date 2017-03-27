@@ -91,6 +91,9 @@ class SQLParserUtils
 
     static private function isCollectionType($type)
     {
+        if ($type === Connection::PARAM_INT_ARRAY || $type === Connection::PARAM_STR_ARRAY)
+            return true;
+
         return static::startsWith($type, '[') && static::endsWith($type, ']');
     }
 
@@ -98,6 +101,9 @@ class SQLParserUtils
     {
         if (!static::isCollectionType($type))
             throw SQLParserUtilsException::notCollectionType($type);
+        
+        if (is_numeric($type))
+            return $type - Connection::ARRAY_PARAM_OFFSET;
 
         // [my_custom_type] -> my_custom_type
         return substr($type, 1, strlen($type) - 2);
