@@ -34,6 +34,22 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($this->params);
     }
 
+    public function getExecuteUpdateMockConnection()
+    {
+        $driverMock = $this->createMock(\Doctrine\DBAL\Driver::class);
+
+        $driverMock->expects($this->any())
+            ->method('connect')
+            ->will($this->returnValue(new DriverConnectionMock()));
+
+        $conn = $this->getMockBuilder(Connection::class)
+            ->setMethods(['executeUpdate'])
+            ->setConstructorArgs([['platform' => new Mocks\MockPlatform()], $driverMock])
+            ->getMock();
+
+        return $conn;
+    }
+
     public function testIsConnected()
     {
         $this->assertFalse($this->_conn->isConnected());
@@ -285,16 +301,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
     public function testEmptyInsert()
     {
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
-
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
-
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
-            ->setMethods(array('executeUpdate'))
-            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
-            ->getMock();
+        $conn = $this->getExecuteUpdateMockConnection();
 
         $conn->expects($this->once())
             ->method('executeUpdate')
@@ -308,16 +315,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testUpdateWithDifferentColumnsInDataAndIdentifiers()
     {
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
-
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
-
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
-            ->setMethods(array('executeUpdate'))
-            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
-            ->getMock();
+        $conn = $this->getExecuteUpdateMockConnection();
 
         $conn->expects($this->once())
             ->method('executeUpdate')
@@ -361,16 +359,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testUpdateWithSameColumnInDataAndIdentifiers()
     {
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
-
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
-
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
-            ->setMethods(array('executeUpdate'))
-            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
-            ->getMock();
+        $conn = $this->getExecuteUpdateMockConnection();
 
         $conn->expects($this->once())
             ->method('executeUpdate')
@@ -413,16 +402,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testUpdateWithIsNull()
     {
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
-
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
-
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
-            ->setMethods(array('executeUpdate'))
-            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
-            ->getMock();
+        $conn = $this->getExecuteUpdateMockConnection();
 
         $conn->expects($this->once())
             ->method('executeUpdate')
@@ -464,16 +444,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testDeleteWithIsNull()
     {
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
-
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
-
-        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
-            ->setMethods(array('executeUpdate'))
-            ->setConstructorArgs(array(array('platform' => new Mocks\MockPlatform()), $driverMock))
-            ->getMock();
+        $conn = $this->getExecuteUpdateMockConnection();
 
         $conn->expects($this->once())
             ->method('executeUpdate')
