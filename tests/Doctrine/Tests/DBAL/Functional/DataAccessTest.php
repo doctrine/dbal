@@ -456,7 +456,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
 
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_datetime IN (?)',
-            array(array(new DateTime('2010-01-01 10:10:00'), new DateTime('2010-01-01 10:10:01'), new DateTime('2010-01-01 10:10:02'), new DateTime('2010-01-01 10:10:03'), new DateTime('2010-01-01 10:10:04'))), array('[datetime]'));
+            array(array(new \DateTime('2010-01-01 10:10:00'), new \DateTime('2010-01-01 10:10:01'), new \DateTime('2010-01-01 10:10:02'), new \DateTime('2010-01-01 10:10:03'), new \DateTime('2010-01-01 10:10:04'))), array('[datetime]'));
 
         $data = $stmt->fetchAll(PDO::FETCH_NUM);
         $this->assertEquals(5, count($data));
