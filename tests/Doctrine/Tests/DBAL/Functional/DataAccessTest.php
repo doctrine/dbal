@@ -426,7 +426,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testNativeArrayListSupport()
     {
         for ($i = 100; $i < 110; $i++) {
-            $this->_conn->insert('fetch_table', array('test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:' . str_pad($i, 2, "0", STR_PAD_LEFT)));
+            $this->_conn->insert('fetch_table', array('test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:' . str_pad($i - 100, 2, "0", STR_PAD_LEFT)));
         }
 
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int IN (?)',
