@@ -699,6 +699,10 @@ class MySqlPlatform extends AbstractPlatform
 
         // Dropping primary keys requires to unset autoincrement attribute on the particular column first.
         foreach ($index->getColumns() as $columnName) {
+            if (! $diff->fromTable->hasColumn($columnName)) {
+                continue;
+            }
+          
             $column = $diff->fromTable->getColumn($columnName);
 
             if ($column->getAutoincrement() === true) {
