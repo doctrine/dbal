@@ -473,6 +473,30 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
+    
+    public function testAlterPrimaryKeyWithNewColumn()
+    {
+        $table = new Table("yolo");
+        $table->addColumn('pkc1', 'integer');
+        $table->addColumn('col_a', 'integer');
+        $table->setPrimaryKey(array('pkc1'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+        
+        $diffTable->addColumn('pkc2', 'integer');
+        $diffTable->dropPrimaryKey();
+        $diffTable->setPrimaryKey(array('pkc1', 'pkc2'));
+
+        $this->assertSame(
+            array(
+                'ALTER TABLE yolo DROP PRIMARY KEY',
+                'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
+                'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );      
+    }
 
     public function testInitializesDoctrineTypeMappings()
     {
