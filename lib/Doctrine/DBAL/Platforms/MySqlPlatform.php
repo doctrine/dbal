@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Index;
@@ -708,6 +709,10 @@ class MySqlPlatform extends AbstractPlatform
 
         // Dropping primary keys requires to unset autoincrement attribute on the particular column first.
         foreach ($index->getColumns() as $columnName) {
+            if(isset($diff->addedColumns[$columnName]) && $diff->addedColumns[$columnName] instanceof Column) {
+                continue;
+            }
+          
             $column = $diff->fromTable->getColumn($columnName);
 
             if ($column->getAutoincrement() === true) {
