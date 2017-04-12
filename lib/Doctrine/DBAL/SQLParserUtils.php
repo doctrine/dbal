@@ -73,6 +73,42 @@ class SQLParserUtils
         return $paramMap;
     }
 
+    static private function startsWith($haystack, $needle)
+    {
+        $length = strlen($needle);
+        return (substr($haystack, 0, $length) === $needle);
+    }
+
+    static private function endsWith($haystack, $needle)
+    {
+        $length = strlen($needle);
+        if ($length == 0) {
+            return true;
+        }
+
+        return (substr($haystack, -$length) === $needle);
+    }
+
+    static private function isCollectionType($type)
+    {
+        if ($type === Connection::PARAM_INT_ARRAY || $type === Connection::PARAM_STR_ARRAY)
+            return true;
+
+        return static::startsWith($type, '[') && static::endsWith($type, ']');
+    }
+
+    static private function removeCollectionMarker($type)
+    {
+        if (!static::isCollectionType($type))
+            throw SQLParserUtilsException::notCollectionType($type);
+        
+        if (is_numeric($type))
+            return $type - Connection::ARRAY_PARAM_OFFSET;
+
+        // [my_custom_type] -> my_custom_type
+        return substr($type, 1, strlen($type) - 2);
+    }
+
     /**
      * For a positional query this method can rewrite the sql statement with regard to array parameters.
      *
@@ -98,7 +134,7 @@ class SQLParserUtils
         foreach ($types as $name => $type) {
             ++$bindIndex;
 
-            if ($type !== Connection::PARAM_INT_ARRAY && $type !== Connection::PARAM_STR_ARRAY) {
+            if (!static::isCollectionType($type)) {
                 continue;
             }
 
@@ -139,7 +175,7 @@ class SQLParserUtils
                 $types = array_merge(
                     array_slice($types, 0, $needle),
                     $count ?
-                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) : // array needles are at PDO::PARAM_* + 100
+                        array_fill(0, $count, static::removeCollectionMarker($types[$needle])) :
                         array(),
                     array_slice($types, $needle + 1)
                 );
@@ -177,7 +213,7 @@ class SQLParserUtils
 
             foreach ($value as $val) {
                 $paramsOrd[] = $val;
-                $typesOrd[]  = static::extractParam($paramName, $types, false) - Connection::ARRAY_PARAM_OFFSET;
+                $typesOrd[]  = static::removeCollectionMarker(static::extractParam($paramName, $types, false));
             }
 
             $pos         += $queryOffset;

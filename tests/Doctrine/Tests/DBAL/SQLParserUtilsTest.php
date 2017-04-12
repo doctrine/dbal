@@ -10,6 +10,7 @@ require_once __DIR__ . '/../TestInit.php';
 /**
  * @group DBAL-78
  * @group DDC-1372
+ * @group DBAL-2685
  */
 class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -90,6 +91,7 @@ SQLDATA
 
     public function dataExpandListParameters()
     {
+        $dt = new \DateTime;
         return array(
             // Positional: Very simple with one needle
             array(
@@ -99,6 +101,24 @@ SQLDATA
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
                 array(1, 2, 3),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+            ),
+            // DBAL-2685 - Positional: Very simple with one needle, with full type information
+            array(
+                "SELECT * FROM Foo WHERE foo IN (?)",
+                array(array(1, 2, 3)),
+                array('[integer]'),
+                'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
+                array(1, 2, 3),
+                array('integer', 'integer', 'integer')
+            ),
+            // DBAL-2685 - Positional: Very simple with one needle, with full type information, and a complex type
+            array(
+                "SELECT * FROM Foo WHERE foo IN (?)",
+                array(array($dt, $dt, $dt)),
+                array('[datetime]'),
+                'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
+                array($dt, $dt, $dt),
+                array('datetime', 'datetime', 'datetime')
             ),
             // Positional: One non-list before d one after list-needle
             array(
