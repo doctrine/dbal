@@ -118,6 +118,13 @@ class OCI8StatementTest extends DbalTestCase
                 "SELECT id FROM table WHERE col = :param1",
                 1,
             ),
+            'multi-line-literal' => array(
+                "SELECT id FROM table WHERE col1 = ? AND col2 = 'Hello,
+World!' AND col3 = ?",
+                "SELECT id FROM table WHERE col1 = :param1 AND col2 = 'Hello,
+World!' AND col3 = :param2",
+                2,
+            ),
         );
     }
 
