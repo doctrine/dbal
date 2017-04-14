@@ -25,6 +25,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Connection;
 
 /**
  * The MySqlPlatform provides the behavior, features and SQL dialect of the
@@ -1125,5 +1126,13 @@ class MySqlPlatform extends AbstractPlatform
         $str = str_replace('\\', '\\\\', $str); // MySQL requires backslashes to be escaped aswell.
 
         return parent::quoteStringLiteral($str);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultTransactionIsolationLevel()
+    {
+        return Connection::TRANSACTION_REPEATABLE_READ;
     }
 }
