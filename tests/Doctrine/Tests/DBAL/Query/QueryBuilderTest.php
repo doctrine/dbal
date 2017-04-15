@@ -563,7 +563,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->innerJoin('nt', 'node', 'n', 'nt.node = n.id')
             ->where('nt.lang = :lang AND n.deleted != 1');
 
-        $this->setExpectedException('Doctrine\DBAL\Query\QueryException', "The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv, nt, n.");
+        $this->setExpectedException('Doctrine\DBAL\Query\QueryException', "The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.");
         $this->assertEquals('', $qb->getSQL());
     }
 
@@ -583,5 +583,23 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->andWhere('n.deleted = 0');
 
         $this->assertEquals("SELECT COUNT(DISTINCT news.id) FROM newspages news INNER JOIN nodeversion nv ON nv.refId = news.id AND nv.refEntityname='Entity\\News' INNER JOIN nodetranslation nt ON nv.nodetranslation = nt.id INNER JOIN node n ON nt.node = n.id WHERE (nt.lang = ?) AND (n.deleted = 0)", $qb->getSQL());
+    }
+
+    /**
+     * @group DBAL-442
+     */
+    public function testSelectWithMultipleFromAndJoins()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('DISTINCT u.id')
+            ->from('users', 'u')
+            ->from('articles', 'a')
+            ->innerJoin('u', 'permissions', 'p', 'p.user_id = u.id')
+            ->innerJoin('a', 'comments', 'c', 'c.article_id = a.id')
+            ->where('u.id = a.user_id')
+            ->andWhere('p.read = 1');
+
+        $this->assertEquals('SELECT DISTINCT u.id FROM users u INNER JOIN permissions p ON p.user_id = u.id, articles a INNER JOIN comments c ON c.article_id = a.id WHERE (u.id = a.user_id) AND (p.read = 1)', $qb->getSQL());
     }
 }
