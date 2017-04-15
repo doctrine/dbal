@@ -462,7 +462,10 @@ class MySqlPlatform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . implode(", ", $queryParts);
+                $tableName = $diff->hasTable()
+                    ? $diff->getTable()->getQuotedName($this)
+                    : $diff->name;
+                $sql[] = 'ALTER TABLE ' . $tableName . ' ' . implode(", ", $queryParts);
             }
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
@@ -480,7 +483,7 @@ class MySqlPlatform extends AbstractPlatform
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         $sql = array();
-        $table = $diff->name;
+        $table = $diff->hasTable() ? $diff->getTable()->getQuotedName($this) : $diff->name;
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
 
