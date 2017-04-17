@@ -189,6 +189,60 @@ class SQLParserUtils
     }
 
     /**
+     * This method handles limitation in maximum allowed elements in IN clause (i.e. Oracle allows 1000 such elements)
+     * It splits IN clause parts when $maxInElementsCount is exceeded, following idea:
+     * SELECT ... WHERE foo IN (1,.., 1002) ==> SELECT ... WHERE (foo IN (1, ... 1000) OR foo IN (1001, 1002))
+     *
+     * @param string $query              Query requiring splitting of IN clause
+     * @param int    $maxInElementsCount Max allowed elements in IN clause
+     *
+     * @return string
+     */
+    static public function splitInClause($query, $maxInElementsCount)
+    {
+        $pattern = '/\s+\S+\s+IN \(/i';
+        preg_match_all($pattern, $query, $matches);
+        $resultQuery = $query;
+
+        foreach ($matches[0] as $match) {
+            $matchStartPos = strpos($query, $match);
+            $inClauseSubst = substr($query, $matchStartPos);
+            $placeholdersCount = substr_count($inClauseSubst, '?', 0, strpos($inClauseSubst, ')'));
+
+            if ($placeholdersCount > $maxInElementsCount) {
+                $partsNumber = ceil($placeholdersCount / $maxInElementsCount);
+                $remainingItemsCount = $placeholdersCount % $maxInElementsCount;
+
+                $columnSpecification = trim(substr($match, 0, strpos(strtoupper($match), ' IN')));
+
+                $singleFullBlock = $columnSpecification
+                    . ' IN ('
+                    . implode(', ', array_fill(0, $maxInElementsCount, "?"))
+                    . ')';
+                $expandStr  = ' (';
+
+                if ($remainingItemsCount > 0) {
+                    $expandStr .= str_repeat($singleFullBlock . ' OR ', $partsNumber - 1);
+
+                    $remainingPart = $columnSpecification
+                        . ' IN ('
+                        . implode(', ', array_fill(0, $remainingItemsCount, "?"))
+                        . ')';
+                    $expandStr .= $remainingPart;
+                } else {
+                    $expandStr .= str_repeat($singleFullBlock . ' OR ' , $partsNumber);
+                    $expandStr = rtrim($expandStr, ' OR ');
+                }
+
+                $remainingQueryPart = substr($resultQuery, strpos($resultQuery, $match) + strpos(substr($resultQuery, strpos($resultQuery, $match)), ')'));
+                $resultQuery = substr($resultQuery, 0, strpos($resultQuery, $match)) . $expandStr . $remainingQueryPart;
+            }
+        }
+
+        return $resultQuery;
+    }
+
+    /**
      * Slice the SQL statement around pairs of quotes and
      * return string fragments of SQL outside of quoted literals.
      * Each fragment is captured as a 2-element array:

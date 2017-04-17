@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\AbstractOracleDriver;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use PDO;
@@ -837,6 +838,11 @@ class Connection implements DriverConnection
             if ($params) {
                 list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
 
+                //Oracle does not allow more than 1000 elements in IN clause, we need to split it
+                if ($this->getDriver() instanceof AbstractOracleDriver) {
+                    $query = SQLParserUtils::splitInClause($query, 1000);
+                }
+
                 $stmt = $this->_conn->prepare($query);
                 if ($types) {
                     $this->_bindTypedValues($stmt, $params, $types);
@@ -985,6 +991,11 @@ class Connection implements DriverConnection
         try {
             if ($params) {
                 list($query, $params, $types) = SQLParserUtils::expandListParameters($query, $params, $types);
+
+                //Oracle does not allow more than 1000 elements in IN clause, we need to split it
+                if ($this->getDriver() instanceof AbstractOracleDriver) {
+                    $query = SQLParserUtils::splitInClause($query, 1000);
+                }
 
                 $stmt = $this->_conn->prepare($query);
                 if ($types) {
