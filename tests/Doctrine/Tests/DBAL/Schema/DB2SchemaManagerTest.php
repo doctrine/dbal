@@ -15,7 +15,7 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
 final class DB2SchemaManagerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Connection
+     * @var Connection|\PHPUnit_Framework_MockObject_MockObject
      */
     private $conn;
 
@@ -37,6 +37,11 @@ final class DB2SchemaManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager = new DB2SchemaManager($this->conn);
     }
 
+    /**
+     * @group DBAL-2701
+     * @see https://github.com/doctrine/dbal/issues/2701
+     * @return void
+     */
     public function testListTableNamesFiltersAssetNamesCorrectly()
     {
         $this->conn->getConfiguration()->setFilterSchemaAssetsExpression('/^(?!T_)/');
