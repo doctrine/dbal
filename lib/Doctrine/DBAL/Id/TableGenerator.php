@@ -39,9 +39,9 @@ use Doctrine\DBAL\Connection;
  *
  * CREATE sequences (
  *   sequence_name VARCHAR(255) NOT NULL,
- *   sequence_value INT NOT NULL DEFAULT '1',
- *   sequence_increment_by INT NOT NULL DEFAULT '1',
- *   PRIMARY KEY (table_name)
+ *   sequence_value INT NOT NULL DEFAULT 1,
+ *   sequence_increment_by INT NOT NULL DEFAULT 1,
+ *   PRIMARY KEY (sequence_name)
  * );
  *
  * Technically this generator works as follows:
