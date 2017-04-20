@@ -41,7 +41,9 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $tables = $this->_conn->fetchAll($sql);
 
-        return $this->_getPortableTablesList($tables);
+        $tableNames = $this->_getPortableTablesList($tables);
+
+        return $this->filterAssetNames($tableNames);
     }
 
     /**
