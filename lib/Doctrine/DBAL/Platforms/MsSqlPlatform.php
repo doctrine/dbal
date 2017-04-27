@@ -517,6 +517,17 @@ class MsSqlPlatform extends AbstractPlatform
         return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
     }
 
+    /**
+     * Decleration for a UNIQUEIDENTIFIER (GUID) field in SQL Server
+     *
+     * @param array $field
+     * @return string
+     */
+    public function getGuidTypeDeclartionSQL(array $field)
+    {
+        return 'UNIQUEIDENTIFIER';
+    }
+
     /** @override */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
@@ -715,6 +726,7 @@ class MsSqlPlatform extends AbstractPlatform
             'binary' => 'text',
             'varbinary' => 'text',
             'image' => 'text',
+            'uniqueidentifier' => 'guid',
         );
     }
 
