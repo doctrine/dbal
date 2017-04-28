@@ -508,13 +508,12 @@ SQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
         $this->assertSame($result, $conn->fetchColumn($statement, $params, $column, $types));
     }
 
-    public function testConnectionIsClosed()
+    public function testGetPlatformVersionDoesNotFailOnBadConnection()
     {
-        $this->_conn->close();
-
-        $this->setExpectedException('Doctrine\\DBAL\\Exception\\DriverException');
-
-        $this->_conn->quoteIdentifier('Bug');
+        // the connection uses bogus connection requirements, so connecting
+        // *will* fail. We should be able to call this without connection
+        // and causing that exception
+        $this->_conn->getDatabasePlatform();
     }
 
     public function testFetchAll()
