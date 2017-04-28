@@ -199,9 +199,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll();
-
-        return new \ArrayIterator($data);
+        return new DB2Iterator($this->_stmt, $this->_defaultFetchMode);
     }
 
     /**
