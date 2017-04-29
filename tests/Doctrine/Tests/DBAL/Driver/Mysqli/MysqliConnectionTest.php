@@ -28,9 +28,31 @@ class MysqliConnectionTest extends DbalTestCase
             ->getMockForAbstractClass();
     }
 
+    protected function tearDown()
+    {
+        if ($this->getName() == "testRestoresErrorHandlerOnException") {
+            restore_error_handler();
+        }
+    }
+
     public function testDoesNotRequireQueryForServerVersion()
     {
         $this->assertFalse($this->connectionMock->requiresQueryForServerVersion());
+    }
+
+    public function testRestoresErrorHandlerOnException()
+    {
+        $handler = function () { self::fail('Never expected this to be called'); };
+        $default_handler = set_error_handler($handler);
+
+        try {
+            new MysqliConnection(['host' => '255.255.255.255'], 'user', 'pass');
+            self::fail('An exception was supposed to be raised');
+        } catch (MysqliException $e) {
+            self::assertSame('Network is unreachable', $e->getMessage());
+        }
+
+        self::assertSame($handler, set_error_handler($default_handler), 'Restoring error handler failed.');
     }
 
     /**
