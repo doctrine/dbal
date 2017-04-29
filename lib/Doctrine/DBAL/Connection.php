@@ -419,7 +419,7 @@ class Connection implements DriverConnection
         }
 
         // Explicit platform version requested (supersedes auto-detection).
-        if (isset($this->_params['serverVersion'])) {
+        if (array_key_exists('serverVersion', $this->_params)) {
             return $this->_params['serverVersion'];
         }
 

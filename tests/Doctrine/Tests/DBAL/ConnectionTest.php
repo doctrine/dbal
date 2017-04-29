@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Events;
 use Doctrine\Tests\Mocks\DriverConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
+use Doctrine\Tests\Mocks\VersionAwareDriverMock;
 
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -669,5 +670,24 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
             ->will($this->returnValue($platformMock));
 
         $this->assertSame($platformMock, $connection->getDatabasePlatform());
+    }
+
+    public function testNullServerVersionDoesNotTriggerDatabaseConnect()
+    {
+        $driverMock = new VersionAwareDriverMock();
+        $params = $this->params;
+        $params['serverVersion'] = null;
+
+        $connection = $this->getMock(
+            'Doctrine\DBAL\Connection',
+            array('connect'),
+            array($params, $driverMock)
+        );
+
+        $connection->expects($this->never())
+            ->method('connect');
+
+
+        $connection->getDatabasePlatform();
     }
 }
