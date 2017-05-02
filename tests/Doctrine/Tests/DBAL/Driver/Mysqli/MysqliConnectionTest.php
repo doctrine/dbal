@@ -28,13 +28,6 @@ class MysqliConnectionTest extends DbalTestCase
             ->getMockForAbstractClass();
     }
 
-    protected function tearDown()
-    {
-        if ($this->getName() == "testRestoresErrorHandlerOnException") {
-            restore_error_handler();
-        }
-    }
-
     public function testDoesNotRequireQueryForServerVersion()
     {
         $this->assertFalse($this->connectionMock->requiresQueryForServerVersion());
@@ -53,6 +46,8 @@ class MysqliConnectionTest extends DbalTestCase
         }
 
         self::assertSame($handler, set_error_handler($default_handler), 'Restoring error handler failed.');
+        restore_error_handler();
+        restore_error_handler();
     }
 
     /**
