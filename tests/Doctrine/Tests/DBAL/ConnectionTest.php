@@ -2,9 +2,12 @@
 
 namespace Doctrine\Tests\DBAL;
 
+use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Events;
 use Doctrine\Tests\Mocks\DriverConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
@@ -673,7 +676,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
     public function testConnectionParamsArePassedToTheQueryCacheProfileInExecuteCacheQuery()
     {
-        $resultCacheDriverMock = $this->getMock('Doctrine\Common\Cache\Cache');
+        $resultCacheDriverMock = $this->createMock(Cache::class);
 
         $resultCacheDriverMock->expects($this->atLeastOnce())
             ->method('fetch')
@@ -684,7 +687,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $params = array(666);
         $types = array(\PDO::PARAM_INT);
 
-        $queryCacheProfileMock = $this->getMock('Doctrine\DBAL\Cache\QueryCacheProfile');
+        /* @var $queryCacheProfileMock QueryCacheProfile|\PHPUnit_Framework_MockObject_MockObject */
+        $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
 
         $queryCacheProfileMock->expects($this->any())
             ->method('getResultCacheDriver')
@@ -696,10 +700,10 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
             ->with($query, $params, $types, $this->params)
             ->will($this->returnValue(array('cacheKey', 'realKey')));
 
-        $conn = new Connection(
-            $this->params,
-            $this->getMock('Doctrine\DBAL\Driver')
-        );
+        /* @var $driver Driver */
+        $driver = $this->createMock(Driver::class);
+
+        $conn = new Connection($this->params, $driver);
 
         $this->assertInstanceOf('Doctrine\DBAL\Cache\ArrayStatement',
             $conn->executeCacheQuery($query, $params, $types, $queryCacheProfileMock)
