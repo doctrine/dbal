@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\DateTimeType;
 
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 5.7 database platform.
@@ -63,5 +64,59 @@ class MySQL57Platform extends MySqlPlatform
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords';
+    }
+
+    /**
+     * Get reserved keywords about date and time for default and update
+     *
+     * @return array
+     */
+    public static function getReservedDatetimeKeywords()
+    {
+        return array(
+            'NULL',
+            'CURRENT_DATE',
+            'CURRENT_TIME',
+            'CURRENT_TIMESTAMP',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultValueDeclarationSQL($field)
+    {
+        if ($field['type'] instanceof DateTimeType &&
+            in_array($field['default'], self::getReservedDatetimeKeywords())
+        ) {
+            $default = ' DEFAULT ' . $field['default'];
+        } else {
+            $default = parent::getDefaultValueDeclarationSQL($field);
+        }
+
+        $default .= $this->getOnUpdateValueDeclarationSQL($field);
+
+        return $default;
+    }
+
+    /**
+     * Obtains specific MySQL code portion needed to set action for update rows.
+     *
+     * @param array $field The field definition array.
+     *
+     * @return string specific MySQL code portion needed to set action for update rows.
+     *
+     * @see https://dev.mysql.com/doc/refman/5.7/en/timestamp-initialization.html
+     */
+    public function getOnUpdateValueDeclarationSQL($field)
+    {
+        if ($field['type'] instanceof DateTimeType &&
+            isset($field['onUpdate']) &&
+            in_array($field['onUpdate'], self::getReservedDatetimeKeywords())
+        ) {
+            return ' ON UPDATE ' . $field['onUpdate'];
+        }
+
+        return '';
     }
 }
