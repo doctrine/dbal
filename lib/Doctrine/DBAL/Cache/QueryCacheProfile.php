@@ -97,12 +97,12 @@ class QueryCacheProfile
      *
      * @return array
      */
-    public function generateCacheKeys($query, $params, $types, array $connectionParams = array())
+    public function generateCacheKeys($query, $params, $types, array $connectionParams = [])
     {
         $realCacheKey = 'query=' . $query .
             '&params=' . serialize($params) .
             '&types=' . serialize($types) .
-            (!empty($connectionParams) ? serialize($connectionParams) : '');
+            '&connectionParams=' . serialize($connectionParams);
 
         // should the key be automatically generated using the inputs or is the cache key set?
         if ($this->cacheKey === null) {
