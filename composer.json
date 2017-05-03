@@ -13,6 +13,7 @@
     ],
     "require": {
         "php": "^7.0",
+        "ext-pdo": "*",
         "doctrine/common": "^2.7.1"
     },
     "require-dev": {
