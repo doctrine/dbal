@@ -11,6 +11,7 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Events;
 use Doctrine\Tests\Mocks\DriverConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
+use Doctrine\DBAL\Cache\ArrayStatement;
 
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -678,35 +679,37 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     {
         $resultCacheDriverMock = $this->createMock(Cache::class);
 
-        $resultCacheDriverMock->expects($this->atLeastOnce())
+        $resultCacheDriverMock
+            ->expects($this->atLeastOnce())
             ->method('fetch')
             ->with('cacheKey')
-            ->will($this->returnValue(array('realKey' => array())));
+            ->will($this->returnValue(['realKey' => []]));
 
-        $query = 'SELECT * FROM foo WHERE bar = ?';
-        $params = array(666);
-        $types = array(\PDO::PARAM_INT);
+        $query  = 'SELECT * FROM foo WHERE bar = ?';
+        $params = [666];
+        $types  = [\PDO::PARAM_INT];
 
         /* @var $queryCacheProfileMock QueryCacheProfile|\PHPUnit_Framework_MockObject_MockObject */
         $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
 
-        $queryCacheProfileMock->expects($this->any())
+        $queryCacheProfileMock
+            ->expects($this->any())
             ->method('getResultCacheDriver')
             ->will($this->returnValue($resultCacheDriverMock));
 
         // This is our main expectation
-        $queryCacheProfileMock->expects($this->once())
+        $queryCacheProfileMock
+            ->expects($this->once())
             ->method('generateCacheKeys')
             ->with($query, $params, $types, $this->params)
-            ->will($this->returnValue(array('cacheKey', 'realKey')));
+            ->will($this->returnValue(['cacheKey', 'realKey']));
 
         /* @var $driver Driver */
         $driver = $this->createMock(Driver::class);
 
-        $conn = new Connection($this->params, $driver);
-
-        $this->assertInstanceOf('Doctrine\DBAL\Cache\ArrayStatement',
-            $conn->executeCacheQuery($query, $params, $types, $queryCacheProfileMock)
+        $this->assertInstanceOf(
+            ArrayStatement::class,
+            (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock)
         );
     }
 }
