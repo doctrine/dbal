@@ -199,7 +199,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testIn()
     {
-        $this->assertEquals('u.groups IN (1, 3, 4, 7)', $this->expr->in('u.groups', array(1,3,4,7)));
+        $this->assertEquals("u.groups IN ('1', '3', '4', '7')", $this->expr->in('u.groups', array(1, 3, 4, 7)));
     }
 
     public function testInWithPlaceholder()
@@ -209,7 +209,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     public function testNotIn()
     {
-        $this->assertEquals('u.groups NOT IN (1, 3, 4, 7)', $this->expr->notIn('u.groups', array(1,3,4,7)));
+        $this->assertEquals("u.groups NOT IN ('1', '3', '4', '7')", $this->expr->notIn('u.groups', array(1, 3, 4, 7)));
     }
 
     public function testNotInWithPlaceholder()
