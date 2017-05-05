@@ -64,4 +64,29 @@ class MySQL57Platform extends MySqlPlatform
     {
         return 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords';
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function initializeDoctrineTypeMappings()
+    {
+        parent::initializeDoctrineTypeMappings();
+        $this->doctrineTypeMapping['json'] = 'json_array';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasNativeJsonType()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getJsonTypeDeclarationSQL(array $field)
+    {
+        return 'JSON';
+    }
 }
