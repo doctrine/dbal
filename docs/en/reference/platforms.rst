@@ -35,6 +35,7 @@ MySQL
 
 -  ``MySqlPlatform`` for version 5.0 and above.
 -  ``MySQL57Platform`` for version 5.7 and above.
+-  ``MySQL578Platform`` for version 5.7.8 and above.
 
 Oracle
 ^^^^^^

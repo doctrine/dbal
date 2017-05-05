@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\MySQL578Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
@@ -140,6 +141,10 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
         $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
         $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+
+        if (version_compare($version, '5.7.8', '>=')) {
+            return new MySQL578Platform();
+        }
 
         if (version_compare($version, '5.7', '>=')) {
             return new MySQL57Platform();
