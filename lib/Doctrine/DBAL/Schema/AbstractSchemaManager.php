@@ -280,7 +280,7 @@ abstract class AbstractSchemaManager
     {
         try {
             $sql = $this->_platform->getListTableAttributesSQL($tableName);
-            $tableAttributes = $this->_conn->fetch($sql);
+            $tableAttributes = $this->_conn->fetchAssoc($sql);
             $tableOptions = $this->_getPortableTableOptionsList($tableAttributes);
         }
         catch (DBALException $e) {
