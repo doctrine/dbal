@@ -2785,6 +2785,21 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns table attributes like name, comment, etc.
+     *
+     * @param string      $table
+     * @param string|null $database
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getListTableAttributesSQL($table, $database = null)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * @return string
      *
      * @throws \Doctrine\DBAL\DBALException If not supported on this platform.

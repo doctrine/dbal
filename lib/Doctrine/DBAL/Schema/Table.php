@@ -794,6 +794,16 @@ class Table extends AbstractAsset
     }
 
     /**
+     * Gets the table comment if available.
+     *
+     * @return string|null
+     */
+    public function getComment()
+    {
+        return $this->hasOption('comment') ? $this->getOption('comment') : NULL;
+    }
+
+    /**
      * @param Visitor $visitor
      *
      * @return void

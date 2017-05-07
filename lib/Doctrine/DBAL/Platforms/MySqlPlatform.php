@@ -374,6 +374,22 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getListTableAttributesSQL($table, $database = null)
+    {
+        $table = $this->quoteStringLiteral($table);
+
+        if ($database) {
+            $database = $this->quoteStringLiteral($database);
+        } else {
+            $database = 'DATABASE()';
+        }
+
+        return "SELECT * FROM information_schema.tables WHERE TABLE_SCHEMA = " . $database . " AND TABLE_NAME = " . $table;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableColumnsSQL($table, $database = null)
     {
         $table = $this->quoteStringLiteral($table);

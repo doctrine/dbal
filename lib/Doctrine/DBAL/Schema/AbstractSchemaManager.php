@@ -278,6 +278,14 @@ abstract class AbstractSchemaManager
      */
     public function listTableDetails($tableName)
     {
+        try {
+            $sql = $this->_platform->getListTableAttributesSQL($tableName);
+            $tableAttributes = $this->_conn->fetchAll($sql);
+            $tableOptions = $this->_getPortableTableOptionsList($tableAttributes);
+        catch (DBALException $e) {
+            $tableOptions = [];
+        }
+
         $columns = $this->listTableColumns($tableName);
         $foreignKeys = array();
         if ($this->_platform->supportsForeignKeyConstraints()) {
@@ -285,7 +293,7 @@ abstract class AbstractSchemaManager
         }
         $indexes = $this->listTableIndexes($tableName);
 
-        return new Table($tableName, $columns, $indexes, $foreignKeys, false, array());
+        return new Table($tableName, $columns, $indexes, $foreignKeys, false, $tableOptions);
     }
 
     /**
@@ -922,6 +930,18 @@ abstract class AbstractSchemaManager
     protected function _getPortableTableDefinition($table)
     {
         return $table;
+    }
+
+    /**
+     * Returns portable table attributes.
+     *
+     * @param array $tableAttributes
+     *
+     * @return array
+     */
+    protected function _getPortableTableOptionsList(array $tableAttributes = [])
+    {
+        return [];
     }
 
     /**
