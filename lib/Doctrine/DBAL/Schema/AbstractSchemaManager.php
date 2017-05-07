@@ -281,6 +281,7 @@ abstract class AbstractSchemaManager
         try {
             $sql = $this->_platform->getListTableAttributesSQL($tableName);
             $tableAttributes = $this->_conn->fetchAll($sql);
+throw new \Exception(var_export($tableAttributes, TRUE));
             $tableOptions = $this->_getPortableTableOptionsList($tableAttributes);
         }
         catch (DBALException $e) {
