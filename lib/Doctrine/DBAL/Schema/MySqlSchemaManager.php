@@ -55,8 +55,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
     protected function _getPortableTableOptionsList(array $tableAttributes = [])
     {
         $options = parent::_getPortableTableOptionsList($tableAttributes);
-        if (isset($tableAttributes['table_comment'])) {
-            $options['comment'] = $tableAttributes['table_comment'];
+        if (isset($tableAttributes['TABLE_COMMENT'])) {
+            $options['comment'] = $tableAttributes['TABLE_COMMENT'];
         }
 
         return $options;
