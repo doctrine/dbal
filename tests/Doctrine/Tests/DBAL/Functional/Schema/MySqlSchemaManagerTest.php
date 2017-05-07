@@ -319,4 +319,16 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertFalse($columns['col']->getUnsigned());
         $this->assertTrue($columns['col_unsigned']->getUnsigned());
     }
+
+    public function testIntrospectTableComment()
+    {
+        $table = new Table("introspect_table_comment");
+        $table->addColumn('foo_id', 'integer');
+        $table->addColumn('bar_id', 'integer');
+        $table->addOption('comment', 'This is a comment at table level.');
+        $this->_sm->createTable($table);
+
+        $tableFetched = $this->_sm->listTableDetails("introspect_table_comment");
+        $this->assertEquals('This is a comment at table level.', $tableFetched->getComment());
+    }
 }

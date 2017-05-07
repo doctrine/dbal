@@ -282,6 +282,7 @@ abstract class AbstractSchemaManager
             $sql = $this->_platform->getListTableAttributesSQL($tableName);
             $tableAttributes = $this->_conn->fetchAll($sql);
             $tableOptions = $this->_getPortableTableOptionsList($tableAttributes);
+        }
         catch (DBALException $e) {
             $tableOptions = [];
         }
