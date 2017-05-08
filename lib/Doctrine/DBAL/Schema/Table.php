@@ -800,7 +800,7 @@ class Table extends AbstractAsset
      */
     public function getComment()
     {
-        return $this->hasOption('comment') ? $this->getOption('comment') : NULL;
+        return $this->hasOption('comment') ? $this->getOption('comment') : null;
     }
 
     /**
