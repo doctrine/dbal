@@ -175,7 +175,10 @@ class OCI8Statement implements \IteratorAggregate, Statement
 
         $this->boundValues[$column] =& $variable;
 
-        return oci_bind_by_name($this->_sth, $column, $variable);
+        //fix issue ORA-24816: Expanded non LONG bind data supplied after actual LONG or LOB, see https://bugs.php.net/bug.php?id=72524
+        $l = strlen($variable);
+
+        return oci_bind_by_name($this->_sth, $column, $variable, $l === 0 ? 1 : $l);
     }
 
     /**
