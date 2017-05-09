@@ -381,4 +381,12 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     {
         return sqlsrv_rows_affected($this->stmt);
     }
+    
+    /**
+	 * Makes the next result (result set, row count, or output parameter) of the specified statement active.
+	 */
+	public function nextResult()
+	{
+		return sqlsrv_next_result($this->stmt);
+	}
 }
