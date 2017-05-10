@@ -348,6 +348,9 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function dropAutoincrement($table)
     {
+        if ($table instanceof Table) {
+            $table = $table->getQuotedName($this->_platform);
+        }
         $sql = $this->_platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
             $this->_conn->executeUpdate($query);
