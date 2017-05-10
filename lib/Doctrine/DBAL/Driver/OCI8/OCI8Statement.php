@@ -167,6 +167,11 @@ class OCI8Statement implements \IteratorAggregate, Statement
             $this->boundValues[$column] =& $lob;
 
             return oci_bind_by_name($this->_sth, $column, $lob, -1, OCI_B_BLOB);
+        } elseif ($type == \PDO::PARAM_STMT) {
+            $variable = new OCI8CursorStatement($this->_dbh, $this->_conn);
+            $variableStmt = $variable->getCursorStatement();
+            
+            return oci_bind_by_name($this->_sth, $column, $variableStmt, -1, OCI_B_CURSOR);
         } elseif ($length !== null) {
             $this->boundValues[$column] =& $variable;
 
