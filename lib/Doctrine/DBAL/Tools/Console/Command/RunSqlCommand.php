@@ -24,6 +24,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\VarDumper\Dumper\CliDumper;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
 
 /**
  * Task for executing arbitrary SQL that can come from a file or directly from
@@ -80,10 +82,22 @@ EOT
             $resultSet = $conn->executeUpdate($sql);
         }
 
-        ob_start();
-        \Doctrine\Common\Util\Debug::dump($resultSet, (int) $depth);
-        $message = ob_get_clean();
+        if (class_exists('Symfony\Component\VarDumper\Dumper\CliDumper')) {
+            $cloner = new VarCloner();
+            $data = $cloner->cloneVar($resultSet)->withMaxDepth((int) $depth);
 
-        $output->write($message);
+            $dumper = new CliDumper();
+            $dumper->dump($data, function ($line, $depth) use ($output) {
+                if ($depth >= 0) {
+                    $output->writeln(str_repeat('  ', $depth).$line, $output::OUTPUT_RAW);
+                }
+            });
+        } else {
+            ob_start();
+            \Doctrine\Common\Util\Debug::dump($resultSet, (int) $depth);
+            $message = ob_get_clean();
+
+            $output->write($message);
+        }
     }
 }
