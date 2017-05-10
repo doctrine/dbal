@@ -38,12 +38,14 @@ abstract class Type
     const JSON_ARRAY = 'json_array';
     const JSON = 'json';
     const BIGINT = 'bigint';
+    const BOOL = 'bool';
     const BOOLEAN = 'boolean';
     const DATETIME = 'datetime';
     const DATETIMETZ = 'datetimetz';
     const DATE = 'date';
     const TIME = 'time';
     const DECIMAL = 'decimal';
+    const INT = 'int';
     const INTEGER = 'integer';
     const OBJECT = 'object';
     const SMALLINT = 'smallint';
@@ -73,7 +75,9 @@ abstract class Type
         self::JSON_ARRAY => 'Doctrine\DBAL\Types\JsonArrayType',
         self::JSON => 'Doctrine\DBAL\Types\JsonType',
         self::OBJECT => 'Doctrine\DBAL\Types\ObjectType',
+        self::BOOL => 'Doctrine\DBAL\Types\BooleanType',
         self::BOOLEAN => 'Doctrine\DBAL\Types\BooleanType',
+        self::INT => 'Doctrine\DBAL\Types\IntegerType',
         self::INTEGER => 'Doctrine\DBAL\Types\IntegerType',
         self::SMALLINT => 'Doctrine\DBAL\Types\SmallIntType',
         self::BIGINT => 'Doctrine\DBAL\Types\BigIntType',

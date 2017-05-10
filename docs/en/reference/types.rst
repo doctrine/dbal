@@ -55,7 +55,7 @@ Unsigned integer values have a range of **0** to **65535** while signed
 integer values have a range of **−32768** to **32767**.
 If you know the integer data you want to store always fits into one of these ranges
 you should consider using this type.
-Values retrieved from the database are always converted to PHP's ``integer`` type
+Values retrieved from the database are always converted to PHP's ``int`` type
 or ``null`` if no data is present.
 
 .. note::
@@ -63,15 +63,15 @@ or ``null`` if no data is present.
     Not all of the database vendors support unsigned integers, so such an assumption
     might not be propagated to the database.
 
-integer
-+++++++
+integer and int
++++++++++++++++
 
 Maps and converts 4-byte integer values.
 Unsigned integer values have a range of **0** to **4294967295** while signed
 integer values have a range of **−2147483648** to **2147483647**.
 If you know the integer data you want to store always fits into one of these ranges
 you should consider using this type.
-Values retrieved from the database are always converted to PHP's ``integer`` type
+Values retrieved from the database are always converted to PHP's ``int`` type
 or ``null`` if no data is present.
 
 .. note::
@@ -217,13 +217,13 @@ Bit types
 
 Types that map bit data such as boolean values.
 
-boolean
-^^^^^^^
+boolean and bool
+^^^^^^^^^^^^^^^^
 
 Maps and converts boolean data.
-If you know that the data to be stored always is a ``boolean`` (``true`` or ``false``),
+If you know that the data to be stored always is a ``bool`` (``true`` or ``false``),
 you should consider using this type.
-Values retrieved from the database are always converted to PHP's ``boolean`` type
+Values retrieved from the database are always converted to PHP's ``bool`` type
 or ``null`` if no data is present.
 
 .. note::
@@ -361,8 +361,8 @@ using comma delimited ``explode()`` or ``null`` if no data is present.
 
 .. warning::
 
-    You should never rely on a specific PHP type like ``boolean``,
-    ``integer``, ``float`` or ``null`` when retrieving values from
+    You should never rely on a specific PHP type like ``bool``,
+    ``int``, ``float`` or ``null`` when retrieving values from
     the database as the ``explode()`` deserialization technique used
     by this type converts every single array item to ``string``.
     This basically means that every array item other than ``string``
@@ -457,7 +457,7 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | Name                     | Version | Type                                                     |
 +===================+===============+==========================+=========+==========================================================+
-| **smallint**      | ``integer``   | **MySQL**                | *all*   | ``SMALLINT`` ``UNSIGNED`` [10]_ ``AUTO_INCREMENT`` [11]_ |
+| **smallint**      | ``int``       | **MySQL**                | *all*   | ``SMALLINT`` ``UNSIGNED`` [10]_ ``AUTO_INCREMENT`` [11]_ |
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **Drizzle**              | *all*   | ``INT`` ``UNSIGNED`` [10]_ ``AUTO_INCREMENT`` [11]_      |
 |                   |               +--------------------------+---------+----------------------------------------------------------+
@@ -471,8 +471,8 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **SQLite**               | *all*   | ``INTEGER`` [16]_                                        |
 +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-| **integer**       | ``integer``   | **MySQL**                | *all*   | ``INT`` ``UNSIGNED`` [10]_ ``AUTO_INCREMENT`` [11]_      |
-|                   |               +--------------------------+         |                                                          |
+| **integer**       | ``int``       | **MySQL**                | *all*   | ``INT`` ``UNSIGNED`` [10]_ ``AUTO_INCREMENT`` [11]_      |
+| **int**           |               +--------------------------+         |                                                          |
 |                   |               | **Drizzle**              |         |                                                          |
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **PostgreSQL**           | *all*   | ``INT`` [12]_                                            |
@@ -617,8 +617,8 @@ Please also notice the mapping specific footnotes for additional information.
 |                   |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **PostgreSQL**           | *all*   | ``BYTEA``                                                |
 +-------------------+---------------+--------------------------+---------+----------------------------------------------------------+
-| **boolean**       | ``boolean``   | **MySQL**                | *all*   | ``TINYINT(1)``                                           |
-|                   |               +--------------------------+---------+----------------------------------------------------------+
+| **boolean**       | ``bool``      | **MySQL**                | *all*   | ``TINYINT(1)``                                           |
+| **bool**          |               +--------------------------+---------+----------------------------------------------------------+
 |                   |               | **PostgreSQL**           | *all*   | ``BOOLEAN``                                              |
 |                   |               +--------------------------+         |                                                          |
 |                   |               | **SQLite**               |         |                                                          |
