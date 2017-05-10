@@ -187,7 +187,7 @@ class Connection implements DriverConnection
     /**
      * @var integer
      */
-    protected $defaultFetchMode = PDO::FETCH_ASSOC;
+    protected $defaultFetchMode = [PDO::FETCH_ASSOC];
 
     /**
      * Initializes a new instance of the Connection class.
@@ -486,12 +486,14 @@ class Connection implements DriverConnection
      * Sets the fetch mode.
      *
      * @param integer $fetchMode
-     *
+     * @param mixed $arg2
+     * @param mixed $arg3
+     * 
      * @return void
      */
-    public function setFetchMode($fetchMode)
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
-        $this->defaultFetchMode = $fetchMode;
+        $this->defaultFetchMode = [$fetchMode, $arg2, $arg3];
     }
 
     /**
@@ -800,7 +802,7 @@ class Connection implements DriverConnection
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
         }
 
-        $stmt->setFetchMode($this->defaultFetchMode);
+        call_user_func_array([$stmt, 'setFetchMode'], $this->defaultFetchMode);
 
         return $stmt;
     }
@@ -851,7 +853,7 @@ class Connection implements DriverConnection
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $query, $this->resolveParams($params, $types));
         }
 
-        $stmt->setFetchMode($this->defaultFetchMode);
+        call_user_func_array([$stmt, 'setFetchMode'], $this->defaultFetchMode);
 
         if ($logger) {
             $logger->stopQuery();
@@ -895,7 +897,7 @@ class Connection implements DriverConnection
             $stmt = new ResultCacheStatement($this->executeQuery($query, $params, $types), $resultCache, $cacheKey, $realKey, $qcp->getLifetime());
         }
 
-        $stmt->setFetchMode($this->defaultFetchMode);
+        call_user_func_array([$stmt, 'setFetchMode'], $this->defaultFetchMode);
 
         return $stmt;
     }
@@ -950,7 +952,7 @@ class Connection implements DriverConnection
             throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
         }
 
-        $statement->setFetchMode($this->defaultFetchMode);
+        call_user_func_array([$statement, 'setFetchMode'], $this->defaultFetchMode);
 
         if ($logger) {
             $logger->stopQuery();
