@@ -778,7 +778,7 @@ class Connection implements DriverConnection
      *
      * @return array
      */
-    public function fetchAll($sql, array $params = array(), $types = array())
+    public function fetchAll($sql, array $params = array(), array $types = array())
     {
         return $this->executeQuery($sql, $params, $types)->fetchAll();
     }
@@ -820,7 +820,7 @@ class Connection implements DriverConnection
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
+    public function executeQuery($query, array $params = array(), array $types = array(), QueryCacheProfile $qcp = null)
     {
         if ($qcp !== null) {
             return $this->executeCacheQuery($query, $params, $types, $qcp);
