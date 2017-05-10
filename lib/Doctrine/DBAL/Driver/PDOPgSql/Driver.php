@@ -121,6 +121,10 @@ class Driver extends AbstractPostgreSQLDriver
             $dsn .= 'application_name=' . $params['application_name'] . ';';
         }
 
+        if (isset($params['connect_timeout'])) {
+            $dsn .= 'connect_timeout=' . $params['connect_timeout'] . ' ';
+        }
+
         return $dsn;
     }
 
