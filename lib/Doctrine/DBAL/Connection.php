@@ -425,9 +425,51 @@ class Connection implements DriverConnection
 
         // If not connected, we need to connect now to determine the platform version.
         if (null === $this->_conn) {
-            $this->connect();
+            try {
+                $this->connect();
+            } catch (\Exception $originalException) {
+                if (empty($this->_params['dbname'])) {
+                    throw $originalException;
+                }
+
+                // The database to connect to might not yet exist.
+                // Retry detection without database name connection parameter.
+                $databaseName = $this->_params['dbname'];
+                $this->_params['dbname'] = null;
+
+                try {
+                    $this->connect();
+                } catch (\Exception $fallbackException) {
+                    // Either the platform does not support database-less connections
+                    // or something else went wrong.
+                    // Reset connection parameters and rethrow the original exception.
+                    $this->_params['dbname'] = $databaseName;
+
+                    throw $originalException;
+                }
+
+                // Reset connection parameters.
+                $this->_params['dbname'] = $databaseName;
+                $serverVersion = $this->getServerVersion();
+
+                // Close "temporary" connection to allow connecting to the real database again.
+                $this->close();
+
+                return $serverVersion;
+            }
+
         }
 
+        return $this->getServerVersion();
+    }
+
+    /**
+     * Returns the database server version if the underlying driver supports it.
+     *
+     * @return string|null
+     */
+    private function getServerVersion()
+    {
         // Automatic platform version detection.
         if ($this->_conn instanceof ServerInfoAwareConnection &&
             ! $this->_conn->requiresQueryForServerVersion()

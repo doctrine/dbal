@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
@@ -269,6 +270,31 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         );
 
         $this->assertTrue($connection->connect());
+
+        $connection->close();
+    }
+
+    /**
+     * @group DBAL-990
+     */
+    public function testDeterminesDatabasePlatformWhenConnectingToNonExistentDatabase()
+    {
+        if (in_array($this->_conn->getDatabasePlatform()->getName(), ['oracle', 'db2'], true)) {
+            $this->markTestSkipped('Platform does not support connecting without database name.');
+        }
+
+        $params = $this->_conn->getParams();
+        $params['dbname'] = 'foo_bar';
+
+        $connection = DriverManager::getConnection(
+            $params,
+            $this->_conn->getConfiguration(),
+            $this->_conn->getEventManager()
+        );
+
+        $this->assertInstanceOf(AbstractPlatform::class, $connection->getDatabasePlatform());
+        $this->assertFalse($connection->isConnected());
+        $this->assertSame($params, $connection->getParams());
 
         $connection->close();
     }
