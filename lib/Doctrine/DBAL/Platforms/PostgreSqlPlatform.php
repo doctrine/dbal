@@ -291,7 +291,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                   (
                       SELECT c.oid
                       FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
-                      WHERE " .$this->getTableWhereClause($table) ." AND n.oid = c.relnamespace
+                      WHERE " .$this->getTableWhereClause($table) ." AND n.oid = c.relnamespace LIMIT 1
                   )
                   AND r.contype = 'f'";
     }
@@ -1134,6 +1134,11 @@ class PostgreSqlPlatform extends AbstractPlatform
             'year'          => 'date',
             'uuid'          => 'guid',
             'bytea'         => 'blob',
+            'unknown'       => 'text',
+            '_text'         => 'text',
+            'regprocedure'  => 'string',
+            'inet'          => 'string',
+            'name'          => 'string',
         );
     }
 
