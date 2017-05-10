@@ -1,6 +1,7 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Types\Type;
 use PDO;
 
@@ -121,6 +122,51 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->assertEquals(1, $this->_conn->delete('write_table', array('test_int' => 1)));
         $this->assertEquals(0, count($this->_conn->fetchAll('SELECT * FROM write_table')));
+    }
+
+    public function testDeleteSetParameterPositional()
+    {
+        $this->insertRows();
+        $qb = new QueryBuilder($this->_conn);
+        $qb->delete('write_table')->where('test_int = ?')->setParameter(1, 2);
+
+        $this->assertEquals(1, $qb->execute());
+    }
+
+    public function testDeleteSetParameterPositionalAndIndex()
+    {
+        $this->insertRows();
+        $qb = new QueryBuilder($this->_conn);
+        $qb->delete('write_table')->where('test_int = ?1')->setParameter(1, 2);
+
+        $this->assertEquals(1, $qb->execute());
+    }
+
+    public function testDeleteSetParameterPositionalWitType()
+    {
+        $this->insertRows();
+        $qb = new QueryBuilder($this->_conn);
+        $qb->delete('write_table')->where('test_int = ?')->setParameter(1, 2, \PDO::PARAM_INT);
+
+        $this->assertEquals(1, $qb->execute());
+    }
+
+    public function testDeleteSetParameterPositionalAndIndexWitType()
+    {
+        $this->insertRows();
+        $qb = new QueryBuilder($this->_conn);
+        $qb->delete('write_table')->where('test_int = ?1')->setParameter(1, 2, \PDO::PARAM_INT);
+
+        $this->assertEquals(1, $qb->execute());
+    }
+
+    public function testDeleteSetParameterNamed()
+    {
+        $this->insertRows();
+        $qb = new QueryBuilder($this->_conn);
+        $qb->delete('write_table')->where('test_int = :test')->setParameter(':test', 2);
+
+        $this->assertEquals(1, $qb->execute());
     }
 
     public function testUpdate()
