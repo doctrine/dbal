@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
@@ -120,7 +121,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 
@@ -142,7 +143,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
         return new SQLAnywhereSchemaManager($conn);
     }
