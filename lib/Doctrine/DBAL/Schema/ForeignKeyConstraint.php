@@ -386,4 +386,19 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
 
         return false;
     }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return array(
+            'name'             => $this->_name,
+            'localTable'       => $this->_localTable,
+            'localColumns'     => $this->getLocalColumns(),
+            'foreignTableName' => $this->getForeignTableName(),
+            'foreignColumns'   => $this->getForeignColumns(),
+            'options'          => $this->getOptions(),
+        );
+    }
 }

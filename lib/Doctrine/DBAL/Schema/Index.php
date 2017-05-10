@@ -355,4 +355,18 @@ class Index extends AbstractAsset implements Constraint
         return false;
     }
 
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return array(
+            'name'      => $this->_name,
+            'columns'   => $this->getColumns(),
+            'isPrimary' => $this->_isPrimary,
+            'isUnique'  => $this->_isUnique,
+            'flags'     => $this->getFlags(),
+            'options'   => $this->getOptions(),
+        );
+    }
 }
