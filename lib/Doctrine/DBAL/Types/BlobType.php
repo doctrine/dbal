@@ -46,7 +46,7 @@ class BlobType extends Type
         }
 
         if (is_string($value)) {
-            $fp = fopen('php://temp', 'rb+');
+            $fp = tmpfile();
             fwrite($fp, $value);
             fseek($fp, 0);
             $value = $fp;
