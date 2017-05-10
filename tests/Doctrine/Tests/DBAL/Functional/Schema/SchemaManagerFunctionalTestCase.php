@@ -697,7 +697,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     public function testGetColumnComment()
     {
         if ( ! $this->_conn->getDatabasePlatform()->supportsInlineColumnComments() &&
-             ! $this->_conn->getDatabasePlatform()->supportsCommentOnStatement() &&
+            ! $this->_conn->getDatabasePlatform()->supportsCommentOnStatement() &&
             $this->_conn->getDatabasePlatform()->getName() != 'mssql') {
             $this->markTestSkipped('Database does not support column comments.');
         }
@@ -729,6 +729,35 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $columns = $this->_sm->listTableColumns("column_comment_test");
         $this->assertEquals(1, count($columns));
         $this->assertEmpty($columns['id']->getComment());
+    }
+
+    public function testChangeColumnWithKeyword()
+    {
+        $table = new \Doctrine\DBAL\Schema\Table('column_keyword_test');
+        $table->addColumn('select', 'integer', array('default' => '23'));
+
+        $this->_sm->createTable($table);
+
+        $columns = $this->_sm->listTableColumns('column_keyword_test');
+        $this->assertEquals(1, count($columns));
+
+        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('column_keyword_test');
+        $tableDiff->changedColumns['select'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'select', new \Doctrine\DBAL\Schema\Column(
+                'select', \Doctrine\DBAL\Types\Type::getType('integer'), array('default' => '24')
+            ),
+            array('default'),
+            new \Doctrine\DBAL\Schema\Column(
+                'select', \Doctrine\DBAL\Types\Type::getType('integer'), array('default' => '23')
+            )
+        );
+
+        $this->_sm->alterTable($tableDiff);
+
+        $columns = $this->_sm->listTableColumns('column_keyword_test');
+        $this->assertEquals(1, count($columns));
+        $column = reset($columns);
+        $this->assertEquals(24, $column->getDefault());
     }
 
     /**
