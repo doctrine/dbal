@@ -2220,24 +2220,8 @@ abstract class AbstractPlatform
         if (isset($field['columnDefinition'])) {
             $columnDef = $this->getCustomTypeDeclarationSQL($field);
         } else {
-            $default = $this->getDefaultValueDeclarationSQL($field);
-
-            $charset = (isset($field['charset']) && $field['charset']) ?
-                    ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
-
-            $collation = (isset($field['collation']) && $field['collation']) ?
-                    ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
-
-            $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
-
-            $unique = (isset($field['unique']) && $field['unique']) ?
-                    ' ' . $this->getUniqueFieldDeclarationSQL() : '';
-
-            $check = (isset($field['check']) && $field['check']) ?
-                    ' ' . $field['check'] : '';
-
-            $typeDecl = $field['type']->getSQLDeclaration($field, $this);
-            $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
+            $values = $this->getColumnDeclarationValues($field);
+            $columnDef = $values['typeDecl'] . $values['charset'] . $values['default'] . $values['notnull'] . $values['unique'] . $values['check'] . $values['collation'];
         }
 
         if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
@@ -2245,6 +2229,40 @@ abstract class AbstractPlatform
         }
 
         return $name . ' ' . $columnDef;
+    }
+
+    /**
+     * @param array $field
+     * @return array
+     */
+    public function getColumnDeclarationValues($field)
+    {
+        $default = $this->getDefaultValueDeclarationSQL($field);
+
+        $charset = (isset($field['charset']) && $field['charset']) ?
+                ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
+
+        $collation = (isset($field['collation']) && $field['collation']) ?
+                ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
+
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+
+        $unique = (isset($field['unique']) && $field['unique']) ?
+                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+
+        $check = (isset($field['check']) && $field['check']) ?
+                ' ' . $field['check'] : '';
+
+        $typeDecl = $field['type']->getSQLDeclaration($field, $this);
+        return array(
+            'default' => $default,
+            'charset' => $charset,
+            'collation' => $collation,
+            'notnull' => $notnull,
+            'unique' => $unique,
+            'check' => $check,
+            'typeDecl' => $typeDecl,
+        );
     }
 
     /**
