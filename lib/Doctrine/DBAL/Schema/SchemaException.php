@@ -83,7 +83,7 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      */
     static public function columnDoesNotExist($columnName, $table)
     {
-        return new self("There is no column with name '$columnName' on table '$table'.", self::COLUMN_DOESNT_EXIST);
+        return new self("There is no column with name '$columnName' on table '$table', or database error prevents table access.", self::COLUMN_DOESNT_EXIST);
     }
 
     /**
