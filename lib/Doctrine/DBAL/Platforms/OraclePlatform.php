@@ -1037,7 +1037,7 @@ END;';
      */
     public function getDateFormatString()
     {
-        return 'Y-m-d 00:00:00';
+        return 'd-M-Y';
     }
 
     /**
