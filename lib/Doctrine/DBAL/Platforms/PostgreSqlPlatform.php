@@ -418,7 +418,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getCreateDatabaseSQL($name)
     {
-        return 'CREATE DATABASE ' . $name;
+        return 'CREATE DATABASE ' . $name . ' TEMPLATE template0';
     }
 
     /**
