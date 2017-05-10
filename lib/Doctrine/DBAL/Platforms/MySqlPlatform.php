@@ -289,6 +289,18 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getTimestampTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        if (isset($fieldDeclaration['notnull']) && $fieldDeclaration['notnull'] == true) {
+            return 'TIMESTAMP';
+        }
+
+        return 'TIMESTAMP NULL';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
         return 'DATE';

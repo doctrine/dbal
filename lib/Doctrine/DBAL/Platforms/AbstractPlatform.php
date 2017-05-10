@@ -2937,6 +2937,21 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Obtains DBMS specific SQL to be used to create timestamp fields in
+     * statements like CREATE TABLE.
+     *
+     * @param array $fieldDeclaration
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getTimestampTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Obtains DBMS specific SQL to be used to create datetime with timezone offset fields.
      *
      * @param array $fieldDeclaration
