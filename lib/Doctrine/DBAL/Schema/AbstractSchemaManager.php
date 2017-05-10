@@ -1094,7 +1094,9 @@ abstract class AbstractSchemaManager
     public function extractDoctrineTypeFromComment($comment, $currentType)
     {
         if (preg_match("(\(DC2Type:([a-zA-Z0-9_]+)\))", $comment, $match)) {
-            $currentType = $match[1];
+            if (Types\Type::hasType($match[1])) {
+                $currentType = $match[1];
+            }
         }
 
         return $currentType;

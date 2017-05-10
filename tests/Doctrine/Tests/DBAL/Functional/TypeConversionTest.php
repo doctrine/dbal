@@ -89,7 +89,15 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         if ($type !== "datetimetz") {
-            $this->assertEquals($originalValue, $actualDbValue, "Conversion between values should produce the same out as in value, but doesnt!");
+
+            // Only time part must be validated for "time" type
+            if ($type === "time") {
+                /* @var $actualDbValue \DateTime */
+                /* @var $originalValue \DateTime */
+                $this->assertEquals($originalValue->format('H:i:s'), $actualDbValue->format('H:i:s'), "Conversion between values should produce the same out as in value, but doesnt!");
+            } else {
+                $this->assertEquals($originalValue, $actualDbValue, "Conversion between values should produce the same out as in value, but doesnt!");
+            }
 
             if ($originalValue instanceof \DateTime) {
                 $this->assertEquals($originalValue->getTimezone()->getName(), $actualDbValue->getTimezone()->getName(), "Timezones should be the same.");
