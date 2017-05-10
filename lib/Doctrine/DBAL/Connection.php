@@ -784,6 +784,19 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as an indexed array.
+     *
+     * @param string $statement The SQL query to be executed.
+     * @param array  $params    The prepared statement params.
+     *
+     * @return array
+     */
+    public function fetchAllIndexed($sql, array $params = array(), $types = array())
+    {
+        return $this->executeQuery($sql, $params, $types)->fetchAll(PDO::FETCH_NUM);
+    }
+
+    /**
      * Prepares an SQL statement.
      *
      * @param string $statement The SQL statement to prepare.
