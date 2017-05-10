@@ -49,6 +49,6 @@ class QueryException extends DBALException
     {
         return new self("The given alias '" . $alias . "' is not unique " .
             "in FROM and JOIN clause table. The currently registered " .
-            "aliases are: " . implode(", ", $registeredAliases) . ".");
+            "aliases are: " . implode(", ", array_keys($registeredAliases)) . ".");
     }
 }
