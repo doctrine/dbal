@@ -205,6 +205,18 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $c->diffColumn($column1, $column1));
     }
 
+    public function testCompareChangedColumns_ChangeTextLength()
+    {
+        $column1 = new Column('textfield1', Type::getType('text'), array('Length' => 128));
+        $column2 = new Column('textfield1', Type::getType('text'), array('Length' => 65536));
+        $column3 = new Column('textfield1', Type::getType('text'), array('Length' => 65536));
+
+        $c = new Comparator();
+        $this->assertEquals(array('length'), $c->diffColumn($column1, $column2));
+        $this->assertEquals(array(), $c->diffColumn($column1, $column1));
+        $this->assertEquals(array(), $c->diffColumn($column2, $column3));
+    }
+
     public function testCompareChangedColumns_ChangeCustomSchemaOption()
     {
         $column1 = new Column('charfield1', Type::getType('string'));
