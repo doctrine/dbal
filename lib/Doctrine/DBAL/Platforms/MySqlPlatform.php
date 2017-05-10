@@ -300,7 +300,9 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
-        return 'TINYINT(1)';
+        $unsigned = $this->_getUnsignedDeclarationSQL($columnDef);
+        
+        return 'TINYINT(1)' . $unsigned;
     }
 
     /**
@@ -892,9 +894,21 @@ class MySqlPlatform extends AbstractPlatform
         if ( ! empty($columnDef['autoincrement'])) {
             $autoinc = ' AUTO_INCREMENT';
         }
-        $unsigned = (isset($columnDef['unsigned']) && $columnDef['unsigned']) ? ' UNSIGNED' : '';
+        $unsigned = $this->_getUnsignedDeclarationSQL($columnDef);
 
         return $unsigned . $autoinc;
+    }
+    
+    /**
+     * Returns the SQL snippet that declares the UNSIGNED property of an integer column.
+     *
+     * @param array $columnDef
+     *
+     * @return string
+     */
+    protected function _getUnsignedDeclarationSQL(array $columnDef)
+    {
+        return (isset($columnDef['unsigned']) && $columnDef['unsigned']) ? ' UNSIGNED' : '';
     }
 
     /**
