@@ -34,6 +34,26 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals('REGEXP', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
         $this->assertEquals('SUBSTR(column, 5, LENGTH(column))', $this->_platform->getSubstringExpression('column', 5), 'Substring expression without length is not correct');
         $this->assertEquals('SUBSTR(column, 0, 5)', $this->_platform->getSubstringExpression('column', 0, 5), 'Substring expression with length is not correct');
+        // date assertions
+        $this->assertEquals("DATE('1987-05-02','+' || (4) || ' DAY')", $this->_platform->getDateAddDaysExpression("'1987-05-02'", 4));
+        $this->assertEquals("DATETIME('1987-05-02','+' || (12) || ' HOUR')", $this->_platform->getDateAddHourExpression("'1987-05-02'", 12));
+        $this->assertEquals("DATETIME('1987-05-02','+' || (2) || ' MINUTE')", $this->_platform->getDateAddMinutesExpression("'1987-05-02'", 2));
+        $this->assertEquals("DATE('1987-05-02','+' || (102) || ' MONTH')", $this->_platform->getDateAddMonthExpression("'1987-05-02'", 102));
+        $this->assertEquals("DATE('1987-05-02','+' || (15) || ' MONTH')", $this->_platform->getDateAddQuartersExpression("'1987-05-02'", 5));
+        $this->assertEquals("DATETIME('1987-05-02','+' || (1) || ' SECOND')", $this->_platform->getDateAddSecondsExpression("'1987-05-02'", 1));
+        $this->assertEquals("DATE('1987-05-02','+' || (21) || ' DAY')", $this->_platform->getDateAddWeeksExpression("'1987-05-02'", 3));
+        $this->assertEquals("DATE('1987-05-02','+' || (10) || ' YEAR')", $this->_platform->getDateAddYearsExpression("'1987-05-02'", 10));
+        $this->assertEquals("ROUND(JULIANDAY('1987-05-02')-JULIANDAY('1987-04-01'))", $this->_platform->getDateDiffExpression("'1987-05-02'", "'1987-04-01'"));
+        $this->assertEquals("DATE('1987-05-02','-' || (4) || ' DAY')", $this->_platform->getDateSubDaysExpression("'1987-05-02'", 4));
+        $this->assertEquals("DATETIME('1987-05-02','-' || (12) || ' HOUR')", $this->_platform->getDateSubHourExpression("'1987-05-02'", 12));
+        $this->assertEquals("DATETIME('1987-05-02','-' || (2) || ' MINUTE')", $this->_platform->getDateSubMinutesExpression("'1987-05-02'", 2));
+        $this->assertEquals("DATE('1987-05-02','-' || (102) || ' MONTH')", $this->_platform->getDateSubMonthExpression("'1987-05-02'", 102));
+        $this->assertEquals("DATE('1987-05-02','-' || (15) || ' MONTH')", $this->_platform->getDateSubQuartersExpression("'1987-05-02'", 5));
+        $this->assertEquals("DATETIME('1987-05-02','-' || (1) || ' SECOND')", $this->_platform->getDateSubSecondsExpression("'1987-05-02'", 1));
+        $this->assertEquals("DATE('1987-05-02','-' || (21) || ' DAY')", $this->_platform->getDateSubWeeksExpression("'1987-05-02'", 3));
+        $this->assertEquals("DATE('1987-05-02','-' || (10) || ' YEAR')", $this->_platform->getDateSubYearsExpression("'1987-05-02'", 10));
+        // date operation with nested expression (coalesce)
+        $this->assertEquals("DATE('1987-05-02','-' || (COALESCE(column1, 10)) || ' YEAR')", $this->_platform->getDateSubYearsExpression("'1987-05-02'", "COALESCE(column1, 10)"));
     }
 
     public function testGeneratesTransactionCommands()
