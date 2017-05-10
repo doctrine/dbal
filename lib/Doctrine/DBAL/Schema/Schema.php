@@ -205,7 +205,7 @@ class Schema extends AbstractAsset
      *
      * @return string
      */
-    private function getFullQualifiedAssetName($name)
+    protected function getFullQualifiedAssetName($name)
     {
         $name = $this->getUnquotedAssetName($name);
 
