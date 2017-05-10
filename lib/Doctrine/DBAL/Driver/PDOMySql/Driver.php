@@ -63,13 +63,13 @@ class Driver extends AbstractMySQLDriver
         if (isset($params['host']) && $params['host'] != '') {
             $dsn .= 'host=' . $params['host'] . ';';
         }
-        if (isset($params['port'])) {
+        if (isset($params['port']) && $params['port'] != '') {
             $dsn .= 'port=' . $params['port'] . ';';
         }
         if (isset($params['dbname'])) {
             $dsn .= 'dbname=' . $params['dbname'] . ';';
         }
-        if (isset($params['unix_socket'])) {
+        if (isset($params['unix_socket']) && $params['unix_socket'] != '') {
             $dsn .= 'unix_socket=' . $params['unix_socket'] . ';';
         }
         if (isset($params['charset'])) {
