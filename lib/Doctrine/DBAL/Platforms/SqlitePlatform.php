@@ -317,7 +317,12 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($name, array $columns, array $options = array())
     {
-        $name = str_replace('.', '__', $name);
+        $search = '.';
+        $c = $this->getIdentifierQuoteCharacter();
+        if (0 < strpos($name, '.') && false !== strpos($name, $c)) {
+            $search = $c . '.' . $c;
+        }
+        $name = str_replace($search, '__', $name);
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
