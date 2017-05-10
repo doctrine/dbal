@@ -243,6 +243,7 @@ class MySQL57Keywords extends MySQLKeywords
             'STARTING',
             'STORED',
             'STRAIGHT_JOIN',
+            'STORED',
             'TABLE',
             'TERMINATED',
             'THEN',
