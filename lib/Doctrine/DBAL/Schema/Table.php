@@ -141,7 +141,7 @@ class Table extends AbstractAsset
 
         foreach ($columns as $columnName) {
             $column = $this->getColumn($columnName);
-            $column->setNotnull(true);
+            $column->setNotNull(true);
         }
 
         return $this;
