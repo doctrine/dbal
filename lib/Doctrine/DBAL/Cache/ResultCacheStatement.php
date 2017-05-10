@@ -159,16 +159,19 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
 
             $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
-            if ($fetchMode == PDO::FETCH_ASSOC) {
-                return $row;
-            } elseif ($fetchMode == PDO::FETCH_NUM) {
-                return array_values($row);
-            } elseif ($fetchMode == PDO::FETCH_BOTH) {
-                return array_merge($row, array_values($row));
-            } elseif ($fetchMode == PDO::FETCH_COLUMN) {
-                return reset($row);
-            } else {
-                throw new \InvalidArgumentException("Invalid fetch-style given for caching result.");
+            switch ($fetchMode) {
+                case PDO::FETCH_ASSOC:
+                    return $row;
+                case PDO::FETCH_NUM:
+                    return array_values($row);
+                case PDO::FETCH_BOTH:
+                    return array_merge($row, array_values($row));
+                case PDO::FETCH_COLUMN:
+                    return reset($row);
+                case PDO::FETCH_OBJ:
+                    return (object) $row;
+                default:
+                    throw new \InvalidArgumentException('Invalid fetch-style given for caching result.');
             }
         }
         $this->emptied = true;

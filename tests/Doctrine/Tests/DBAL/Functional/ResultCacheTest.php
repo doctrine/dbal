@@ -47,6 +47,15 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertCacheNonCacheSelectSameFetchModeAreEqual($this->expectedResult, \PDO::FETCH_ASSOC);
     }
 
+    public function testCacheFetchObj()
+    {
+        $expectedResult = array();
+        foreach ($this->expectedResult as $v) {
+            $expectedResult[] = (object) $v;
+        }
+        $this->assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, \PDO::FETCH_OBJ);
+    }
+
     public function testFetchNum()
     {
         $expectedResult = array();
