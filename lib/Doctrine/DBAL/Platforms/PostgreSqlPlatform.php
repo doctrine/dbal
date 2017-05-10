@@ -1116,6 +1116,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'char'          => 'string',
             'bpchar'        => 'string',
             'inet'          => 'string',
+            'tsvector'      => 'string',
             'date'          => 'date',
             'datetime'      => 'datetime',
             'timestamp'     => 'datetime',
