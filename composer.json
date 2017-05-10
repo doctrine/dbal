@@ -36,6 +36,7 @@
             "dev-master": "2.6.x-dev"
         }
     },
+    "bin": ["bin/phpcrodm", "bin/phpcrodm.php"],
     "archive": {
         "exclude": ["!vendor", "tests", "*phpunit.xml", ".travis.yml", "build.xml", "build.properties", "composer.phar"]
     }
