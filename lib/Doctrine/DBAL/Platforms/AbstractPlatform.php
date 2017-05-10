@@ -1296,6 +1296,47 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL to format a date according to given format.
+     *
+     * @param string  $date
+     * @param string  $format
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getDateFormatExpression($date, $format) {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL to convert a date to a UNIX timestamp.
+     *
+     * @param string  $date
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getDateToUnixTimestampExpression($date) {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL to convert a UNIX timestamp to a date of given format.
+     *
+     * @param string  $unixtime
+     * @param string  $format
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getDateFromUnixTimestampExpression($unixtime, $format) {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Returns the SQL bit AND comparison expression.
      *
      * @param string $value1
