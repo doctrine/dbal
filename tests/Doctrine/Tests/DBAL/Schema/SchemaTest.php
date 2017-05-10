@@ -95,6 +95,19 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($schema->hasTable("foo"));
     }
 
+    public function testCreateOrUpdateTable()
+    {
+        $tableName = "foo";
+        $table = new Table($tableName);
+        $schema = new Schema(array($table));
+        $this->assertTrue($schema->hasTable("foo"));
+
+        $table = $schema->createOrUpdateTable("foo");
+        $this->assertInstanceOf('Doctrine\DBAL\Schema\Table', $table);
+        $this->assertEquals("foo", $table->getName());
+        $this->assertTrue($schema->hasTable("foo"));
+    }
+
     public function testAddSequences()
     {
         $sequence = new Sequence("a_seq", 1, 1);
