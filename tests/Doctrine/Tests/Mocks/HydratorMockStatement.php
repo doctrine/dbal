@@ -67,6 +67,16 @@ class HydratorMockStatement implements \Doctrine\DBAL\Driver\Statement
         $this->_resultSet = $resultSet;
     }
 
+    /**
+     * setFetchMode
+     * Set the fetch mode to use while iterating this statement.
+     *
+     * @param integer $fetchMode
+     */
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    {
+    }
+
     public function bindColumn($column, &$param, $type = null)
     {
     }
