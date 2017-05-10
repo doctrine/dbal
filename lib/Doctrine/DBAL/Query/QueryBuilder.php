@@ -142,6 +142,31 @@ class QueryBuilder
     }
 
     /**
+     * Deep clone of all expression objects in the SQL parts as well as of the params.
+     *
+     * @return void
+     */
+    public function __clone()
+    {
+        foreach ($this->sqlParts as $name => &$part) {
+            if (is_array($part)) {
+                foreach ($part as $idx => $element) {
+                    if (is_object($element)) {
+                        $part[$idx] = clone $element;
+                    }
+                }
+            } else if (is_object($part)) {
+                $this->sqlParts[$name] = clone $part;
+            }
+        }
+        foreach ($this->params as $key => $param) {
+            if (is_object($param)) {
+                $this->params[$key] = clone $param;
+            }
+        }
+    }
+
+    /**
      * Gets an ExpressionBuilder used for object-oriented construction of query expressions.
      * This producer method is intended for convenient inline usage. Example:
      *
