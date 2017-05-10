@@ -728,6 +728,35 @@ class QueryBuilder
     }
 
     /**
+     * Creates and adds a full join to the query.
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->select('u.name')
+     *         ->from('users', 'u')
+     *         ->fullJoin('u', 'phonenumbers', 'p', 'p.is_primary = 1');
+     * </code>
+     *
+     * @param string $fromAlias The alias that points to a from clause.
+     * @param string $join      The table name to join.
+     * @param string $alias     The alias of the join table.
+     * @param string $condition The condition for the join.
+     *
+     * @return \Doctrine\DBAL\Query\QueryBuilder This QueryBuilder instance.
+     */
+    public function fullJoin($fromAlias, $join, $alias, $condition = null)
+    {
+        return $this->add('join', array(
+            $fromAlias => array(
+                'joinType'      => 'full',
+                'joinTable'     => $join,
+                'joinAlias'     => $alias,
+                'joinCondition' => $condition
+            )
+        ), true);
+    }
+
+    /**
      * Sets a new value for a column in a bulk update query.
      *
      * <code>
