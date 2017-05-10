@@ -197,13 +197,25 @@ class MySqlSchemaManager extends AbstractSchemaManager
             $options['precision'] = $precision;
         }
 
-        $column = new Column($tableColumn['field'], Type::getType($type), $options);
+        $column = $this->_buildColumn($tableColumn['field'], $type, $options);
 
         if (isset($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
 
         return $column;
+    }
+    
+    /**
+     * Build column object
+     *
+     * @param string $field
+     * @param string $type
+     * @param array $options
+     */
+    protected function _buildColumnObject($field, $type, array $options)
+    {
+        return new Column($field, Type::getType($type), $options);
     }
 
     /**
