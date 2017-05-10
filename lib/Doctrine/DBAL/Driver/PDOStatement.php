@@ -167,4 +167,13 @@ class PDOStatement extends \PDOStatement implements Statement
             throw new PDOException($exception);
         }
     }
+    
+   public function bindValue($parameter, $value, $data_type = \PDO::PARAM_STR)
+   {
+      if ($data_type == \PDO::PARAM_BOOL)
+      {
+         $data_type = \PDO::PARAM_INT;
+      }
+      return parent::bindValue($parameter, $value, $data_type);
+   }    
 }
