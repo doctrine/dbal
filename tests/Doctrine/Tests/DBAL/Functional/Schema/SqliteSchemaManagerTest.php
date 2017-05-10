@@ -19,6 +19,10 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testCreateAndDropDatabase()
     {
+        $params = $this->_conn->getParams();
+        if(isset($params['memory']) && $params['memory']){
+            $this->markTestSkipped("Cannot test add/drop of Sqlite in-memory databases by looking at files");
+        }
         $path = dirname(__FILE__).'/test_create_and_drop_sqlite_database.sqlite';
 
         $this->_sm->createDatabase($path);

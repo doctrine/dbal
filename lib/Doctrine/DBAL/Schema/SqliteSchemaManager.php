@@ -53,9 +53,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
         $params = $this->_conn->getParams();
         $driver = $params['driver'];
         $options = array(
-            'driver' => $driver,
-            'path' => $database
+            'driver' => $driver
         );
+        if(isset($params['memory']) && $params['memory']){
+            $options['memory'] = true;
+        }else{
+            $options['path'] = $database;
+        }
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
         $conn->connect();
         $conn->close();
