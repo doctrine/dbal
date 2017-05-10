@@ -104,16 +104,19 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     public function closeCursor()
     {
         $this->statement->closeCursor();
-        if ($this->emptied && $this->data !== null) {
+        if (!$this->emptied && $this->data !== null) {
             $data = $this->resultCache->fetch($this->cacheKey);
             if ( ! $data) {
                 $data = array();
             }
             $data[$this->realKey] = $this->data;
 
-            $this->resultCache->save($this->cacheKey, $data, $this->lifetime);
+            if(!$this->resultCache->save($this->cacheKey, $data, $this->lifetime)){
+            	return false;
+            }
             unset($this->data);
         }
+        return true;
     }
 
     /**
