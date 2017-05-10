@@ -36,14 +36,19 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      *
      * @param string $value
      * @param string $toType
+     * @param \Exception|null $previous
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    static public function conversionFailed($value, $toType)
+    static public function conversionFailed($value, $toType, \Exception $previous = null)
     {
         $value = (strlen($value) > 32) ? substr($value, 0, 20) . '...' : $value;
 
-        return new self('Could not convert database value "' . $value . '" to Doctrine Type ' . $toType);
+        return new self(
+            'Could not convert database value "' . $value . '" to Doctrine Type ' . $toType,
+            0,
+            $previous
+        );
     }
 
     /**
@@ -75,10 +80,11 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      * @param mixed    $value
      * @param string   $toType
      * @param string[] $possibleTypes
+     * @param \Exception|null $previous
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    static public function conversionFailedInvalidType($value, $toType, array $possibleTypes)
+    static public function conversionFailedInvalidType($value, $toType, array $possibleTypes, \Exception $previous = null)
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 
@@ -89,7 +95,7 @@ class ConversionException extends \Doctrine\DBAL\DBALException
                 $actualType,
                 $toType,
                 implode(', ', $possibleTypes)
-            ));
+            ), 0, $previous);
         }
 
         return new self(sprintf(
@@ -97,7 +103,7 @@ class ConversionException extends \Doctrine\DBAL\DBALException
             $actualType,
             $toType,
             implode(', ', $possibleTypes)
-        ));
+        ), 0, $previous);
     }
 
     static public function conversionFailedSerialization($value, $format, $error)
@@ -109,6 +115,6 @@ class ConversionException extends \Doctrine\DBAL\DBALException
             $actualType,
             $format,
             $error
-        ));
+        ), 0, $previous);
     }
 }

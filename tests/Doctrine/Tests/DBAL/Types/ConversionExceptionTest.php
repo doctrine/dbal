@@ -40,12 +40,59 @@ class ConversionExceptionTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function testConversionFailedFormatPreservesPreviousException()
+    public function exceptionWithPreviousProvider()
     {
         $previous = new \Exception();
+        return [
+            'conversion failed' => [$previous, ConversionException::conversionFailed(
+                'foo',
+                'bar',
+                $previous
+            )],
+            'conversion failed format' => [
+                $previous,
+                ConversionException::conversionFailedFormat(
+                    'foo',
+                    'bar',
+                    'baz',
+                    $previous
+                )
+            ],
+            'conversion failed invalid type' => [
+                $previous,
+                ConversionException::conversionFailedInvalidType(
+                    'foo',
+                    'bar',
+                    ['baz'],
+                    $previous
+                )
+            ],
+            'conversion failed invalid type non scalar' => [
+                $previous,
+                ConversionException::conversionFailedInvalidType(
+                    ['foo'],
+                    'bar',
+                    ['baz'],
+                    $previous
+                )
+            ],
+            'conversion failed serialization' => [
+                $previous,
+                ConversionException::conversionFailedSerialization(
+                    ['foo'],
+                    'bar',
+                    'Chair to keyboard interface error',
+                    $previous
+                )
+            ],
+        ];
+    }
 
-        $exception = ConversionException::conversionFailedFormat('foo', 'bar', 'baz', $previous);
-
+    /**
+     * @dataProvider exceptionWithPreviousProvider
+     */
+    public function testPreviousExceptionIsAlwaysPreserved(\Exception $previous, ConversionException $exception)
+    {
         $this->assertInstanceOf('Doctrine\DBAL\Types\ConversionException', $exception);
         $this->assertSame($previous, $exception->getPrevious());
     }
