@@ -241,18 +241,18 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('list_table_indexes_pk_id_test');
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
-        $table->addColumn('id', 'integer', ['notnull' => true]);
-        $table->addUniqueIndex(['id'], 'id_unique_index');
+        $table->addColumn('id', 'integer', array('notnull' => true));
+        $table->addUniqueIndex(array('id'), 'id_unique_index');
         $this->_sm->dropAndCreateTable($table);
 
         // Adding a primary key on already indexed columns
         // Oracle will reuse the unique index, which cause a constraint name differing from the index name
-        $this->_sm->createConstraint(new Schema\Index('id_pk_id_index', ['id'], true, true), 'list_table_indexes_pk_id_test');
+        $this->_sm->createConstraint(new Schema\Index('id_pk_id_index', array('id'), true, true), 'list_table_indexes_pk_id_test');
 
         $tableIndexes = $this->_sm->listTableIndexes('list_table_indexes_pk_id_test');
 
         $this->assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        $this->assertEquals(['id'], array_map('strtolower', $tableIndexes['primary']->getColumns()));
+        $this->assertEquals(array('id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
         $this->assertTrue($tableIndexes['primary']->isUnique());
         $this->assertTrue($tableIndexes['primary']->isPrimary());
     }
