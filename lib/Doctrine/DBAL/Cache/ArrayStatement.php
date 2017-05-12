@@ -66,6 +66,14 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
+    public function rowCount()
+    {
+        return count($this->data);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function columnCount()
     {
         return $this->columnCount;

@@ -34,6 +34,16 @@ interface ResultStatement extends \Traversable
     public function closeCursor();
 
     /**
+     * Returns the number of rows in the result set
+     *
+     * @return integer              Returns the number of rows in the result set represented
+     *                              by the PDOStatement object. If there is no result set,
+     *                              this method should return 0.
+     */
+    public function rowCount();
+
+
+    /**
      * Returns the number of columns in the result set
      *
      * @return integer The number of columns in the result set represented
