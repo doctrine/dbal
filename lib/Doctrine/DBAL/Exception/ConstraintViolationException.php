@@ -28,4 +28,17 @@ namespace Doctrine\DBAL\Exception;
  */
 class ConstraintViolationException extends ServerException
 {
+	/**
+	 * Get the name of affected column.
+	 *
+	 * @return string|NULL
+	 */
+	public function getAffectedColumnName()
+	{
+		if (preg_match_all('/^DETAIL\:\s+Key\s+\((\w+)\)/im', $this->getMessage(), $matches)) {
+			return $matches[1][0];
+		}
+
+		return NULL;
+	}
 }
