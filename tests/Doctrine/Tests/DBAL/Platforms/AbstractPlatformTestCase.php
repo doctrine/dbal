@@ -1445,4 +1445,14 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
         );
     }
+
+    protected function getMaxIndexColumns()
+    {
+        return 0;
+    }
+
+    public function testMaxIndexColumns()
+    {
+        $this->assertSame($this->getMaxIndexColumns(), $this->_platform->getMaxIndexColumns());
+    }
 }

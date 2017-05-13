@@ -3407,6 +3407,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Maximum number of columns in a index. If unlimited return 0
+     *
+     * @return integer
+     */
+    public function getMaxIndexColumns()
+    {
+        return 0;
+    }
+
+    /**
      * Maximum length of any given database identifier, like tables or column names.
      *
      * @return integer
