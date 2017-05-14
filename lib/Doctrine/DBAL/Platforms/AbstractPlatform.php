@@ -2238,10 +2238,10 @@ abstract class AbstractPlatform
 
             $typeDecl = $field['type']->getSQLDeclaration($field, $this);
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
-        }
 
-        if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
-            $columnDef .= ' ' . $this->getInlineColumnCommentSQL($field['comment']);
+            if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
+                $columnDef .= ' ' . $this->getInlineColumnCommentSQL($field['comment']);
+            }
         }
 
         return $name . ' ' . $columnDef;
