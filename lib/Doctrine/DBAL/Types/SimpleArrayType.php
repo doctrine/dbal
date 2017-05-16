@@ -49,7 +49,7 @@ class SimpleArrayType extends Type
         }
         
         if (!is_array($value)) {
-            $value = array($value);
+            throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'array']);
         }
 
         return implode(',', $value);
