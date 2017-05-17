@@ -163,9 +163,10 @@ class OCI8Statement implements \IteratorAggregate, Statement
      * @param string $statement The SQL statement to parse
      * @param string $tokenOffset The offset to start searching from
      * @param int $fragmentOffset The offset to build the next fragment from
-     * @param array $fragments Resulting query fragments
-     * @param string|null $currentLiteralDelimiter Current literal delimiter
-     * @param array $paramMap Parameter map
+     * @param string[] $fragments Fragments of the original statement not containing placeholders
+     * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
+     *                                             or NULL if not currently in a literal
+     * @param array<int, string> $paramMap Mapping of the original parameter positions to their named replacements
      * @return bool Whether the token was found
      */
     private static function findPlaceholderOrOpeningQuote(
@@ -182,17 +183,20 @@ class OCI8Statement implements \IteratorAggregate, Statement
             return false;
         }
 
-        if ($token == '?') {
+        if ($token === '?') {
             $position = count($paramMap) + 1;
             $param = ':param' . $position;
             $fragments[] = substr($statement, $fragmentOffset, $tokenOffset - $fragmentOffset);
             $fragments[] = $param;
             $paramMap[$position] = $param;
-            $fragmentOffset = ++$tokenOffset;
-        } else {
-            $currentLiteralDelimiter = $token;
-            ++$tokenOffset;
+            $tokenOffset += 1;
+            $fragmentOffset = $tokenOffset;
+
+            return true;
         }
+
+        $currentLiteralDelimiter = $token;
+        ++$tokenOffset;
 
         return true;
     }
@@ -202,7 +206,8 @@ class OCI8Statement implements \IteratorAggregate, Statement
      *
      * @param string $statement The SQL statement to parse
      * @param string $tokenOffset The offset to start searching from
-     * @param string|null $currentLiteralDelimiter Current literal delimiter
+     * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
+     *                                             or NULL if not currently in a literal
      * @return bool Whether the token was found
      */
     private static function findClosingQuote(
@@ -210,7 +215,11 @@ class OCI8Statement implements \IteratorAggregate, Statement
         &$tokenOffset,
         &$currentLiteralDelimiter
     ) {
-        $token = self::findToken($statement, $tokenOffset, '/(?<!\\\\)' . $currentLiteralDelimiter . '/');
+        $token = self::findToken(
+            $statement,
+            $tokenOffset,
+            '/(?<!\\\\)' . preg_quote($currentLiteralDelimiter, '/') . '/'
+        );
 
         if (!$token) {
             return false;
