@@ -295,7 +295,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        return new SQLSrvIterator($this->stmt, $this->defaultFetchMode);
+        while ($row = $this->fetch()) {
+            yield $row;
+        }
     }
 
     /**

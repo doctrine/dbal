@@ -370,7 +370,9 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        return new OCI8Iterator($this->_sth, $this->_defaultFetchMode);
+        while ($row = $this->fetch()) {
+            yield $row;
+        }
     }
 
     /**

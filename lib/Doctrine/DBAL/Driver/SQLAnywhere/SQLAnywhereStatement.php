@@ -278,7 +278,9 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        return new SQLAnywhereIterator($this->stmt, $this->defaultFetchMode);
+        while ($row = $this->fetch()) {
+            yield $row;
+        }
     }
 
     /**

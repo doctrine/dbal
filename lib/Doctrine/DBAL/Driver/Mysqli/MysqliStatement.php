@@ -406,8 +406,8 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll();
-
-        return new \ArrayIterator($data);
+        while ($row = $this->fetch()) {
+            yield $row;
+        }
     }
 }
