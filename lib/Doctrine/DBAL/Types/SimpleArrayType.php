@@ -44,9 +44,8 @@ class SimpleArrayType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (!$value) {
-            return null;
-        }
+        if ($value === null) return null;
+        if (!$value) return '';
 
         return implode(',', $value);
     }
@@ -56,9 +55,8 @@ class SimpleArrayType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null) {
-            return array();
-        }
+        if ($value === null) return null;
+        if (!$value) return array();
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
 
