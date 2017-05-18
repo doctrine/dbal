@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 
 /**
  * Type that maps a PHP object to a clob SQL type.
@@ -54,6 +55,10 @@ class ObjectType extends Type
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
+        // unpack postgres blobs if the driver was not built against a recent libpq
+        if (defined('PHP_WINDOWS_VERSION_BUILD') && $platform instanceof PostgreSqlPlatform && substr($value, 0, 1) === 'x') {
+            $value = pack('H*', substr($value, 1));
+        }
         $val = unserialize($value);
         if ($val === false && $value !== 'b:0;') {
             throw ConversionException::conversionFailed($value, $this->getName());
