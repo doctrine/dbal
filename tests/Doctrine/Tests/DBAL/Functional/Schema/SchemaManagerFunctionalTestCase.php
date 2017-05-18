@@ -1019,7 +1019,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $options = array(
             'type' => Type::getType('integer'),
             'default' => 0,
-            'notnull' => TRUE,
+            'notnull' => true,
             'comment' => 'expected+column+comment',
         );
         $columnDefinition = substr($this->_conn->getDatabasePlatform()->getColumnDeclarationSQL('id', $options), strlen('id') + 1);
