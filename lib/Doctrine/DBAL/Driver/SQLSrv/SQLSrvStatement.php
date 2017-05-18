@@ -244,6 +244,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         $this->result = true;
+        return $this->result;
     }
 
     /**
