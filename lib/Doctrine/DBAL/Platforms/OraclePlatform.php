@@ -676,6 +676,7 @@ END;';
                              FROM   $colCommentsTableName d
                              WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
+                             " . ($ownerCondition ? "AND d.OWNER = c.OWNER": "") . "
                          ) AS comments
                 FROM     $tabColumnsTableName c
                 WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
