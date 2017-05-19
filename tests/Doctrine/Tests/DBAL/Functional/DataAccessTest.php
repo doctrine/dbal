@@ -866,6 +866,25 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('Mysqli driver dont support this feature.');
         }
     }
+
+    public function testIteratorCanBeIteratedMultipleTimes()
+    {
+        $sql = "SELECT test_int, test_string FROM fetch_table";
+        $stmt = $this->_conn->query($sql);
+        $stmt->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $i = 0;
+        foreach ($stmt as $row) {
+            $i++;
+        }
+
+        $j = 0;
+        foreach ($stmt as $row) {
+            $j++;
+        }
+
+        $this->assertEquals($i, $j);
+    }
 }
 
 class MyFetchClass
