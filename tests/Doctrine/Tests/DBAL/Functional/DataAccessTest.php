@@ -879,7 +879,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $j = 0;
-        foreach ($stmt as $row) {
+        foreach ($stmt as $row2) {
             $j++;
         }
 
