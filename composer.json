@@ -26,7 +26,10 @@
     },
     "bin": ["bin/doctrine-dbal"],
     "autoload": {
-        "psr-0": { "Doctrine\\DBAL\\": "lib/" }
+        "psr-0": { "Doctrine\\DBAL\\": "lib/" },
+        "classmap": [
+            "lib/Doctrine/DBAL/Compat/PDO.php"
+        ]
     },
     "autoload-dev": {
         "psr-0": { "Doctrine\\Tests\\": "tests/" }
