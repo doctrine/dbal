@@ -616,29 +616,63 @@ class Table extends AbstractAsset
     }
 
     /**
+     * Returns ordered list of columns (primary keys are first, then foreign keys, then the rest)
      * @return Column[]
      */
     public function getColumns()
     {
-        $columns = $this->_columns;
+        return array_merge($this->getPrimaryKeyColumns(), $this->getForeignKeyColumns(), $this->_columns);
+    }
 
-        $pkCols = array();
-        $fkCols = array();
+    /**
+     * Returns primary key columns
+     * @return Column[]
+     */
+    public function getPrimaryKeyColumns()
+    {
+        $primaryKeyColumnNames = $this->getPrimaryKeyColumnNames();
+        return array_filter($this->_columns, function ($key) use ($primaryKeyColumnNames) {
+            return in_array($key, $primaryKeyColumnNames);
+        }, ARRAY_FILTER_USE_KEY);
+    }
 
+    /**
+     * Returns foreign key columns
+     * @return Column[]
+     */
+    public function getForeignKeyColumns()
+    {
+        $foreignKeyColumnNames = $this->getForeignKeyColumnNames();
+        return array_filter($this->_columns, function ($key) use ($foreignKeyColumnNames) {
+            return in_array($key, $foreignKeyColumnNames);
+        }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * Returns primary key column names
+     * @return array
+     */
+    public function getPrimaryKeyColumnNames()
+    {
+        $primaryKeyColumnNames = [];
         if ($this->hasPrimaryKey()) {
-            $pkCols = $this->getPrimaryKey()->getColumns();
+            $primaryKeyColumnNames = $this->getPrimaryKey()->getColumns();
         }
-        foreach ($this->getForeignKeys() as $fk) {
-            /* @var $fk ForeignKeyConstraint */
-            $fkCols = array_merge($fkCols, $fk->getColumns());
+        return $primaryKeyColumnNames;
+    }
+
+    /**
+     * Returns foreign key column names
+     * @return array
+     */
+    public function getForeignKeyColumnNames()
+    {
+        $foreignKeyColumnNames = [];
+        foreach ($this->getForeignKeys() as $foreignKey) {
+            /* @var $foreignKey ForeignKeyConstraint */
+            $foreignKeyColumnNames = array_merge($foreignKeyColumnNames, $foreignKey->getColumns());
         }
-        $colNames = array_unique(array_merge($pkCols, $fkCols, array_keys($columns)));
-
-        uksort($columns, function ($a, $b) use ($colNames) {
-            return (array_search($a, $colNames) >= array_search($b, $colNames));
-        });
-
-        return $columns;
+        return $foreignKeyColumnNames;
     }
 
     /**
@@ -686,22 +720,6 @@ class Table extends AbstractAsset
         }
 
         return $this->getIndex($this->_primaryKeyName);
-    }
-
-    /**
-     * Returns the primary key columns.
-     *
-     * @return array
-     *
-     * @throws DBALException
-     */
-    public function getPrimaryKeyColumns()
-    {
-        if ( ! $this->hasPrimaryKey()) {
-            throw new DBALException("Table " . $this->getName() . " has no primary key.");
-        }
-
-        return $this->getPrimaryKey()->getColumns();
     }
 
     /**
