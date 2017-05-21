@@ -742,7 +742,7 @@ class MySqlPlatform extends AbstractPlatform
         foreach ($diff->changedIndexes as $changedIndex) {
             // Changed primary key
             if ($changedIndex->isPrimary() && $diff->fromTable instanceof Table) {
-                foreach ($diff->fromTable->getPrimaryKeyColumnNames() as $columnName) {
+                foreach ($diff->fromTable->getPrimaryKeyColumns() as $columnName) {
                     $column = $diff->fromTable->getColumn($columnName);
 
                     // Check if an autoincrement column was dropped from the primary key.
