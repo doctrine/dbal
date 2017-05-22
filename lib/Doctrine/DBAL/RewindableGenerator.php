@@ -16,8 +16,6 @@ class RewindableGenerator implements \IteratorAggregate
 
     public function getIterator()
     {
-        $g = $this->generator;
-
-        return $g();
+        return ($this->generator)();
     }
 }

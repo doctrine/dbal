@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use PDO;
@@ -869,7 +870,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testIteratorCanBeIteratedMultipleTimes()
     {
-        $sql = "SELECT test_int, test_string FROM fetch_table";
+        $preTestLogger = $this->_conn->getConfiguration()->getSQLLogger();
+        $stack = new DebugStack();
+        $this->_conn->getConfiguration()->setSQLLogger($stack);
+
+        $sql = 'SELECT test_int, test_string FROM fetch_table';
         $stmt = $this->_conn->query($sql);
         $stmt->setFetchMode(\PDO::FETCH_ASSOC);
 
@@ -884,6 +889,12 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->assertEquals($i, $j);
+
+        // Check only 1 query is run.
+        $this->assertCount(1, $stack->queries);
+
+        // Reset the SQL logger
+        $this->_conn->getConfiguration()->setSQLLogger($preTestLogger);
     }
 }
 
