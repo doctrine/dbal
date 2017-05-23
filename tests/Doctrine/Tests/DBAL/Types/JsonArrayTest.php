@@ -43,7 +43,7 @@ class JsonArrayTest extends \Doctrine\Tests\DbalTestCase
 
     public function testJsonNullConvertsToPHPValue()
     {
-        $this->assertSame(array(), $this->type->convertToPHPValue(null, $this->platform));
+        $this->assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testJsonEmptyStringConvertsToPHPValue()
@@ -67,6 +67,13 @@ class JsonArrayTest extends \Doctrine\Tests\DbalTestCase
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
         $this->assertSame($value, $phpValue);
+    }
+
+    public function testConversionFailure()
+    {
+        error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
+        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->type->convertToPHPValue('{', $this->platform);
     }
 
     public function testRequiresSQLCommentHint()
