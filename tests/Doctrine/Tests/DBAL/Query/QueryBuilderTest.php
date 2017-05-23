@@ -881,16 +881,53 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testJoinWithNonUniqueAliasThrowsException()
     {
+        $this->setExpectedException(
+            'Doctrine\DBAL\Query\QueryException',
+            "The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a."
+        );
+
         $qb = new QueryBuilder($this->conn);
 
         $qb->select('a.id')
             ->from('table_a', 'a')
             ->join('a', 'table_b', 'a', 'a.fk_b = a.id');
 
+        $qb->getSQL();
+    }
+
+    public function testNonUniqueAliasThrowsException()
+    {
         $this->setExpectedException(
             'Doctrine\DBAL\Query\QueryException',
-            "The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a."
+            "The given alias 'b' is not unique in FROM and JOIN clause table. The currently registered aliases are: a, c, b."
         );
+        
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('a.id, b.id, c.id')
+            ->from('table_a', 'a')
+            ->from('table_b', 'b')
+            ->join('a', 'table_c', 'c', 'a.fk_c = c.id')
+            ->leftJoin('a', 'table_b', 'b', 'a.fk_b = b.id')
+            ->andWhere('a.fk_b = b.id');
+
+        $qb->getSQL();
+    }
+
+    public function testDuplicateFromAliasThrowsException()
+    {
+        $this->setExpectedException(
+            'Doctrine\DBAL\Query\QueryException',
+            "The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a, b."
+        );
+        
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('a.id, b.id, c.id')
+            ->from('table_a', 'a')
+            ->from('table_b', 'b')
+            ->from('table_aa', 'a')
+            ->andWhere('a.fk_b = b.id');
 
         $qb->getSQL();
     }
