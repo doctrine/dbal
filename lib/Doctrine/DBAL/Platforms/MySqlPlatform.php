@@ -1046,6 +1046,7 @@ class MySqlPlatform extends AbstractPlatform
             'binary'        => 'binary',
             'varbinary'     => 'binary',
             'set'           => 'simple_array',
+            'enum'          => 'string'  
         );
     }
 
