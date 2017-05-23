@@ -28,7 +28,7 @@ use Doctrine\DBAL\Types;
  * @since  2.0
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class Comparator
+class Comparator implements ComparatorInterface
 {
     /**
      * @param \Doctrine\DBAL\Schema\Schema $fromSchema
