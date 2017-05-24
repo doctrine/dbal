@@ -86,52 +86,30 @@ class OCI8StatementTest extends DbalTestCase
     }
 
     /**
-     * @dataProvider convertSuccessProvider
+     * @dataProvider nonTerminatedLiteralProvider
      */
-    public function testConvertSuccess($statement, $expectedStatement, $expectedParamCount)
-    {
-        list($converted, $paramMap) = OCI8Statement::convertPositionalToNamedPlaceholders($statement);
-        $this->assertEquals($expectedStatement, $converted);
-        $this->assertCount($expectedParamCount, $paramMap);
-    }
-
-    public static function convertSuccessProvider()
-    {
-        return array(
-            'simple' => array(
-                'INSERT INTO table (column) VALUES(?)',
-                'INSERT INTO table (column) VALUES(:param1)',
-                1,
-            ),
-            'literal-with-placeholder' => array(
-                "INSERT INTO table (col1, col2, col3) VALUES('?', ?, \"?\", ?)",
-                "INSERT INTO table (col1, col2, col3) VALUES('?', :param1, \"?\", :param2)",
-                2,
-            ),
-            'literal-with-quotes' => array(
-                "INSERT INTO table (col1, col2, col3, col4) VALUES('?\"?\\'?', ?, \"?'?\\\"?\", ?)",
-                "INSERT INTO table (col1, col2, col3, col4) VALUES('?\"?\'?', :param1, \"?'?\\\"?\", :param2)",
-                2,
-            ),
-            'placeholder-at-the-end' => array(
-                "SELECT id FROM table WHERE col = ?",
-                "SELECT id FROM table WHERE col = :param1",
-                1,
-            ),
-            'multi-line-literal' => array(
-                "SELECT id FROM table WHERE col1 = ? AND col2 = 'Hello,
-World!' AND col3 = ?",
-                "SELECT id FROM table WHERE col1 = :param1 AND col2 = 'Hello,
-World!' AND col3 = :param2",
-                2,
-            ),
-        );
-    }
-
-    public function testConvertNonTerminatedLiteral()
+    public function testConvertNonTerminatedLiteral($sql, $message)
     {
         $this->expectException(OCI8Exception::class);
-        $this->expectExceptionMessageRegExp('/offset 7/');
-        OCI8Statement::convertPositionalToNamedPlaceholders('SELECT "literal');
+        $this->expectExceptionMessageRegExp($message);
+        OCI8Statement::convertPositionalToNamedPlaceholders($sql);
+    }
+
+    public static function nonTerminatedLiteralProvider()
+    {
+        return array(
+            'no-matching-quote' => array(
+                "SELECT 'literal FROM DUAL",
+                '/offset 7/',
+            ),
+            'no-matching-double-quote' => array(
+                'SELECT 1 "COL1 FROM DUAL',
+                '/offset 9/',
+            ),
+            'incorrect-escaping-syntax' => array(
+                "SELECT 'quoted \\'string' FROM DUAL",
+                '/offset 23/',
+            ),
+        );
     }
 }

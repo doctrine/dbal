@@ -218,7 +218,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
         $token = self::findToken(
             $statement,
             $tokenOffset,
-            '/(?<!\\\\)' . preg_quote($currentLiteralDelimiter, '/') . '/'
+            '/' . preg_quote($currentLiteralDelimiter, '/') . '/'
         );
 
         if (!$token) {
