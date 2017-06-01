@@ -97,7 +97,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getGuidExpression()
     {
-        return 'SYS_GUID()';
+        return 'RAWTOHEX(SYS_GUID()) FROM DUAL';
     }
 
     /**
