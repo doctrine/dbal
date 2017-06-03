@@ -826,6 +826,20 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Prepares and executes an SQL query and returns the result as a numerically indexed array.
+     *
+     * @param string $sql    The SQL query.
+     * @param array  $params The query parameters.
+     * @param array  $types  The query parameter types.
+     *
+     * @return array All rows returned by the SQL query as a two dimensional numerically indexed array.
+     */
+    public function fetchAllArray($sql, array $params = array(), $types = array())
+    {
+        return $this->executeQuery($sql, $params, $types)->fetchAll(PDO::FETCH_NUM);
+    }
+
+    /**
      * Prepares an SQL statement.
      *
      * @param string $statement The SQL statement to prepare.
