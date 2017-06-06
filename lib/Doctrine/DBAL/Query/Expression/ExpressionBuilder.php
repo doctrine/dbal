@@ -71,7 +71,11 @@ class ExpressionBuilder
      */
     public function andX($x = null)
     {
-        return new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
+        if (is_array($x)) {
+            return new CompositeExpression(CompositeExpression::TYPE_AND, $x);
+        } else {
+            return new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
+        }
     }
 
     /**
@@ -90,7 +94,11 @@ class ExpressionBuilder
      */
     public function orX($x = null)
     {
-        return new CompositeExpression(CompositeExpression::TYPE_OR, func_get_args());
+        if (is_array($x)) {
+            return new CompositeExpression(CompositeExpression::TYPE_OR, $x);
+        } else {
+            return new CompositeExpression(CompositeExpression::TYPE_OR, func_get_args());
+        }
     }
 
     /**

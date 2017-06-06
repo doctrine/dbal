@@ -37,6 +37,14 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals($expected, (string) $composite);
     }
 
+    /**
+     * @dataProvider provideDataForAndX
+     */
+    public function testAndXWithArray($parts, $expected)
+    {
+        $this->assertEquals($expected, $this->expr->andX($parts));
+    }
+
     public function provideDataForAndX()
     {
         return array(
@@ -91,6 +99,14 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
         }
 
         $this->assertEquals($expected, (string) $composite);
+    }
+
+    /**
+     * @dataProvider provideDataForOrX
+     */
+    public function testOrXWithArray($parts, $expected)
+    {
+        $this->assertEquals($expected, $this->expr->orX($parts));
     }
 
     public function provideDataForOrX()
