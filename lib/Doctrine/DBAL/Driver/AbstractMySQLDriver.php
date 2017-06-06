@@ -34,7 +34,11 @@ use Doctrine\DBAL\VersionAwarePlatformDriver;
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
+abstract class AbstractMySQLDriver implements
+    Driver,
+    ExceptionConverterDriver,
+    VersionAwarePlatformDriver,
+    ForeignKeyCheckDeactivatableDriver
 {
     /**
      * {@inheritdoc}
@@ -151,6 +155,22 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
         }
 
         return $this->getDatabasePlatform();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function activateForeignKeyChecks(\Doctrine\DBAL\Connection $conn)
+    {
+        $conn->query('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deactivateForeignKeyChecks(\Doctrine\DBAL\Connection $conn)
+    {
+        $conn->query('SET FOREIGN_KEY_CHECKS=0');
     }
 
     /**
