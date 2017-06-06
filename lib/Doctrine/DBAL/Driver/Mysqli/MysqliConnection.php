@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection as Connection;
+use Doctrine\DBAL\Driver\CloseableConnection;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 
@@ -27,7 +28,7 @@ use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  * @author Till Klampaeckel <till@php.net>
  */
-class MysqliConnection implements Connection, PingableConnection, ServerInfoAwareConnection
+class MysqliConnection implements Connection, CloseableConnection, PingableConnection, ServerInfoAwareConnection
 {
     /**
      * Name of the option to set connection flags
@@ -262,6 +263,16 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function ping()
     {
         return $this->_conn->ping();
+    }
+
+    /**
+     * Immediately close the current database connection.
+     *
+     * @return bool true on success or false on failure.
+     */
+    public function close()
+    {
+        return $this->_conn->close();
     }
 
     /**

@@ -31,6 +31,7 @@ use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
+use Doctrine\DBAL\Driver\CloseableConnection;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Throwable;
 
@@ -645,6 +646,9 @@ class Connection implements DriverConnection
      */
     public function close()
     {
+        if ($this->_conn && $this->_conn instanceof CloseableConnection) {
+            $this->_conn->close();
+        }
         $this->_conn = null;
 
         $this->_isConnected = false;
