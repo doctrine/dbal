@@ -1,5 +1,30 @@
 # Upgrade to 2.6
 
+## MINOR BC BREAK: `fetch()` and `fetchAll()` method signatures in `Doctrine\DBAL\Driver\ResultStatement`
+
+1. ``Doctrine\DBAL\Driver\ResultStatement::fetch()`` now has 3 arguments instead of 1, respecting
+``PDO::fetch()`` signature.
+
+Before:
+
+    Doctrine\DBAL\Driver\ResultStatement::fetch($fetchMode);
+
+After:
+
+    Doctrine\DBAL\Driver\ResultStatement::fetch($fetchMode, $cursorOrientation, $cursorOffset);
+
+2. ``Doctrine\DBAL\Driver\ResultStatement::fetchAll()`` now has 3 arguments instead of 1, respecting
+``PDO::fetchAll()`` signature.
+
+Before:
+
+    Doctrine\DBAL\Driver\ResultStatement::fetchAll($fetchMode);
+
+After:
+
+    Doctrine\DBAL\Driver\ResultStatement::fetch($fetchMode, $fetchArgument, $ctorArgs);
+
+
 ## MINOR BC BREAK: URL-style DSN with percentage sign in password
 
 URL-style DSNs (e.g. ``mysql://foo@bar:localhost/db``) are now assumed to be percent-encoded
