@@ -257,7 +257,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         $params = array();
 
         foreach ($this->variables as $column => &$variable) {
-            if ($this->types[$column] === \PDO::PARAM_LOB) {
+            if (PDO::PARAM_LOB === $this->types[$column]) {
                 $params[$column - 1] = array(
                     &$variable,
                     SQLSRV_PARAM_IN,
@@ -302,8 +302,10 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @throws SQLSrvException
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -318,25 +320,25 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?: false;
         }
 
-        if ($fetchMode == PDO::FETCH_OBJ || $fetchMode == PDO::FETCH_CLASS) {
+        if (in_array($fetchMode, array(PDO::FETCH_OBJ, PDO::FETCH_CLASS), true)) {
             $className = $this->defaultFetchClass;
             $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
             if (count($args) >= 2) {
                 $className = $args[1];
-                $ctorArgs  = (isset($args[2])) ? $args[2] : array();
+                $ctorArgs  = isset($args[2]) ? $args[2] : array();
             }
 
             return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
         }
 
-        throw new SQLSrvException("Fetch mode is not supported!");
+        throw new SQLSrvException('Fetch mode is not supported!');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
         $rows = array();
 

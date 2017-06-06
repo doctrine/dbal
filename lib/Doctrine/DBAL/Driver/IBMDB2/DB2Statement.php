@@ -26,7 +26,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * @var resource
      */
-    private $_stmt = null;
+    private $_stmt;
 
     /**
      * @var array
@@ -147,8 +147,8 @@ class DB2Statement implements \IteratorAggregate, Statement
     public function errorInfo()
     {
         return array(
-            0 => db2_stmt_errormsg(),
-            1 => db2_stmt_error(),
+            db2_stmt_errormsg(),
+            db2_stmt_error(),
         );
     }
 
@@ -207,7 +207,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -243,14 +243,14 @@ class DB2Statement implements \IteratorAggregate, Statement
             case \PDO::FETCH_OBJ:
                 return db2_fetch_object($this->_stmt);
             default:
-                throw new DB2Exception("Given Fetch-Style " . $fetchMode . " is not supported.");
+                throw new DB2Exception('Given Fetch-Style ' . $fetchMode . ' is not supported.');
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
         $rows = array();
 

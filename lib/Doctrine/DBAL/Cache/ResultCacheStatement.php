@@ -147,7 +147,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         if ($this->data === null) {
             $this->data = array();
@@ -179,7 +179,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
         $rows = array();
         while ($row = $this->fetch($fetchMode)) {
