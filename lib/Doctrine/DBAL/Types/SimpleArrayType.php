@@ -47,6 +47,10 @@ class SimpleArrayType extends Type
         if (!$value) {
             return null;
         }
+        
+        if (!is_array($value)) {
+            $value = array($value);
+        }
 
         return implode(',', $value);
     }
