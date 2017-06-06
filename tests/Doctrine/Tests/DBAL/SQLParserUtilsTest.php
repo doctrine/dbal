@@ -426,4 +426,43 @@ SQLDATA
 
         SQLParserUtils::expandListParameters($query, $params, $types);
     }
+
+    public function dataSplitInClause()
+    {
+        return [
+            //two IN clauses, only one requires splitting
+            [
+                "SELECT * FROM Foo WHERE bar IN (?, ?, ?) AND baz IN (?)",
+                "SELECT * FROM Foo WHERE (bar IN (?, ?) OR bar IN (?)) AND baz IN (?)",
+                2,
+            ],
+            //two IN clauses, both requires splitting
+            [
+                "SELECT * FROM Foo WHERE bar IN (?, ?, ?, ?, ?) AND baz IN (?, ?, ?, ?)",
+                "SELECT * FROM Foo WHERE (bar IN (?, ?, ?) OR bar IN (?, ?)) AND (baz IN (?, ?, ?) OR baz IN (?))",
+                3,
+            ],
+            //IN clauses (requiring and not requiring spliting) mixed with non IN clause
+            [
+                "SELECT * FROM Foo WHERE bar = ? AND baz IN (?, ?, ?, ?) OR ban IN (?, ?)",
+                "SELECT * FROM Foo WHERE bar = ? AND (baz IN (?, ?, ?) OR baz IN (?)) OR ban IN (?, ?)",
+                3,
+            ],
+            //no IN clauses, nothing should happen
+            [
+                "SELECT * FROM Foo WHERE bar = ? AND baz = ?",
+                "SELECT * FROM Foo WHERE bar = ? AND baz = ?",
+                3,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataSplitInClause
+     */
+    public function testSplitInClause($query, $expectedQuery, $maxInElementsCount)
+    {
+        $resultQuery = SQLParserUtils::splitInClause($query, $maxInElementsCount);
+        $this->assertEquals($expectedQuery, $resultQuery, "IN clause was not split correctly");
+    }
 }
