@@ -17,17 +17,14 @@ class DebugStackTest extends \Doctrine\Tests\DbalTestCase
     public function testLoggedQuery()
     {
         $this->logger->startQuery('SELECT column FROM table');
-        $this->assertEquals(
-            array(
-                1 => array(
-                    'sql' => 'SELECT column FROM table',
-                    'params' => null,
-                    'types' => null,
-                    'executionMS' => 0,
-                ),
-            ),
-            $this->logger->queries
-        );
+        $this->assertTrue(is_array($this->logger->queries));
+        $this->assertTrue(is_array($this->logger->queries[1]));
+        $this->assertEquals('SELECT column FROM table', $this->logger->queries[1]['sql']);
+        $this->assertNull($this->logger->queries[1]['params']);
+        $this->assertNull($this->logger->queries[1]['types']);
+        $this->assertEquals(0, $this->logger->queries[1]['executionMS']);
+        $this->assertTrue(is_array($this->logger->queries[1]['stacktrace']));
+        $this->assertNotEmpty($this->logger->queries[1]['stacktrace']);
 
         $this->logger->stopQuery();
         $this->assertGreaterThan(0, $this->logger->queries[1]['executionMS']);
