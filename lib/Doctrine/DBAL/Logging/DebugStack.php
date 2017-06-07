@@ -72,7 +72,7 @@ class DebugStack implements SQLLogger
     public function stopQuery()
     {
         if ($this->enabled) {
-            $this->queries[$this->currentQuery]['executionMS'] = microtime(true) - $this->start;
+            $this->queries[$this->currentQuery]['executionMS'] = (microtime(true) - $this->start) * 1000;
         }
     }
 }
