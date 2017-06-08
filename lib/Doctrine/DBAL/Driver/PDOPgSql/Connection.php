@@ -17,53 +17,37 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\PDOSqlsrv;
+namespace Doctrine\DBAL\Driver\PDOPgSql;
 
 use Doctrine\DBAL\Driver\PDOConnection;
 
 /**
- * Sqlsrv Connection implementation.
+ * pdo_pgsql connection implementation.
  *
- * @since 2.0
+ * @author Steve Müller <deeky666@googlemail.com>
  */
-class Connection extends PDOConnection
+class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
 {
     /**
      * {@inheritdoc}
      */
-    public function __construct($dsn, $user = null, $password = null, array $options = null)
+    public function lastInsertId($name = null)
     {
-        parent::__construct($dsn, $user, $password, $options);
-        $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, array(Statement::class, array($this)));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function quote($value, $type=\PDO::PARAM_STR)
-    {
-        $val = parent::quote($value, $type);
-
-        // Fix for a driver version terminating all values with null byte
-        if (strpos($val, "\0") !== false) {
-            $val = substr($val, 0, -1);
+        try {
+            return $this->fetchLastInsertId($name);
+        } catch (\PDOException $exception) {
+            return '0';
         }
-
-        return $val;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function fetchLastInsertId($name = null)
+    public function trackLastInsertId()
     {
-        if (null === $name) {
-            return parent::fetchLastInsertId($name);
-        }
-
-        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
-        $stmt->execute(array($name));
-
-        return $stmt->fetchColumn();
+        // Do not track last insert ID as it is not considered "safe" and can cause transactions to fail.
+        // If there is no last insert ID yet, we get an error with SQLSTATE 55000:
+        // "Object not in prerequisite state: 7 ERROR:  lastval is not yet defined in this session"
+        // That error can modify the transaction/connection state.
     }
 }

@@ -10,19 +10,25 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        try {
-            /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-            $table = new \Doctrine\DBAL\Schema\Table("write_table");
-            $table->addColumn('id', 'integer', array('autoincrement' => true));
-            $table->addColumn('test_int', 'integer');
-            $table->addColumn('test_string', 'string', array('notnull' => false));
-            $table->setPrimaryKey(array('id'));
+        $this->createTable('write_table');
+    }
 
-            $this->_conn->getSchemaManager()->createTable($table);
-        } catch(\Exception $e) {
+    private function createTable($tableName)
+    {
+        $table = new \Doctrine\DBAL\Schema\Table($tableName);
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('test_int', 'integer');
+        $table->addColumn('test_string', 'string', array('notnull' => false));
+        $table->setPrimaryKey(array('id'));
 
-        }
-        $this->_conn->executeUpdate('DELETE FROM write_table');
+        $this->_conn->getSchemaManager()->createTable($table);
+    }
+
+    protected function tearDown()
+    {
+        $this->_conn->getSchemaManager()->dropTable('write_table');
+
+        parent::tearDown();
     }
 
     /**
@@ -132,55 +138,6 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertEquals(0, $this->_conn->update('write_table', array('test_string' => 'baz'), array('test_string' => 'bar')));
     }
 
-    public function testLastInsertId()
-    {
-        if ( ! $this->_conn->getDatabasePlatform()->prefersIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
-
-        $this->assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 2, 'test_string' => 'bar')));
-        $num = $this->_conn->lastInsertId();
-
-        $this->assertNotNull($num, "LastInsertId() should not be null.");
-        $this->assertTrue($num > 0, "LastInsertId() should be non-negative number.");
-    }
-
-    public function testLastInsertIdSequence()
-    {
-        if ( ! $this->_conn->getDatabasePlatform()->supportsSequences()) {
-            $this->markTestSkipped('Test only works on platforms with sequences.');
-        }
-
-        $sequence = new \Doctrine\DBAL\Schema\Sequence('write_table_id_seq');
-        try {
-            $this->_conn->getSchemaManager()->createSequence($sequence);
-        } catch(\Exception $e) {
-        }
-
-        $sequences = $this->_conn->getSchemaManager()->listSequences();
-        $this->assertEquals(1, count(array_filter($sequences, function($sequence) {
-            return strtolower($sequence->getName()) === 'write_table_id_seq';
-        })));
-
-        $stmt = $this->_conn->query($this->_conn->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
-        $nextSequenceVal = $stmt->fetchColumn();
-
-        $lastInsertId = $this->_conn->lastInsertId('write_table_id_seq');
-
-        $this->assertTrue($lastInsertId > 0);
-        $this->assertEquals($nextSequenceVal, $lastInsertId);
-    }
-
-    public function testLastInsertIdNoSequenceGiven()
-    {
-        if ( ! $this->_conn->getDatabasePlatform()->supportsSequences() || $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped("Test only works consistently on platforms that support sequences and don't support identity columns.");
-        }
-
-        $this->assertFalse($this->_conn->lastInsertId( null ));
-
-    }
-
     /**
      * @group DBAL-445
      */
@@ -247,41 +204,15 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testEmptyIdentityInsert()
     {
-        $platform = $this->_conn->getDatabasePlatform();
-
-        if ( ! ($platform->supportsIdentityColumns() || $platform->usesSequenceEmulatedIdentityColumns()) ) {
-            $this->markTestSkipped(
-                'Test only works on platforms with identity columns or sequence emulated identity columns.'
-            );
-        }
-
         $table = new \Doctrine\DBAL\Schema\Table('test_empty_identity');
         $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->setPrimaryKey(array('id'));
 
-        try {
-            $this->_conn->getSchemaManager()->dropTable($table->getQuotedName($platform));
-        } catch(\Exception $e) { }
+        $this->_conn->getSchemaManager()->createTable($table);
 
-        foreach ($platform->getCreateTableSQL($table) as $sql) {
-            $this->_conn->exec($sql);
-        }
+        $sql = $this->_conn->getDatabasePlatform()->getEmptyIdentityInsertSQL('test_empty_identity', 'id');
 
-        $seqName = $platform->usesSequenceEmulatedIdentityColumns()
-            ? $platform->getIdentitySequenceName('test_empty_identity', 'id')
-            : null;
-
-        $sql = $platform->getEmptyIdentityInsertSQL('test_empty_identity', 'id');
-
-        $this->_conn->exec($sql);
-
-        $firstId = $this->_conn->lastInsertId($seqName);
-
-        $this->_conn->exec($sql);
-
-        $secondId = $this->_conn->lastInsertId($seqName);
-
-        $this->assertTrue($secondId > $firstId);
+        $this->assertSame(1, $this->_conn->exec($sql));
 
     }
 

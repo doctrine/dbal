@@ -47,6 +47,6 @@ class OCI8ConnectionTest extends DbalFunctionalTestCase
         $schema = $this->_conn->getDatabase();
         $sequence = $platform->getIdentitySequenceName($schema . '.DBAL2595', 'id');
 
-        $this->assertSame(1, $this->driverConnection->lastInsertId($sequence));
+        $this->assertSame('1', $this->driverConnection->lastInsertId($sequence));
     }
 }
