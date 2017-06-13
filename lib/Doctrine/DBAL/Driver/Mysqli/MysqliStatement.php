@@ -30,13 +30,13 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * @var array
      */
-    protected static $_paramTypeMap = array(
+    protected static $_paramTypeMap = [
         PDO::PARAM_STR => 's',
         PDO::PARAM_BOOL => 'i',
         PDO::PARAM_NULL => 's',
         PDO::PARAM_INT => 'i',
         PDO::PARAM_LOB => 's' // TODO Support LOB bigger then max package size.
-    );
+    ];
 
     /**
      * @var \mysqli
@@ -73,7 +73,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      *
      * @var array
      */
-    protected $_values = array();
+    protected $_values = [];
 
     /**
      * @var integer
@@ -162,7 +162,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
                     throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             } else {
-                if (!call_user_func_array(array($this->_stmt, 'bind_param'), array($this->types) + $this->_bindedValues)) {
+                if (!call_user_func_array([$this->_stmt, 'bind_param'], [$this->types] + $this->_bindedValues)) {
                     throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
                 }
             }
@@ -175,7 +175,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         if (null === $this->_columnNames) {
             $meta = $this->_stmt->result_metadata();
             if (false !== $meta) {
-                $columnNames = array();
+                $columnNames = [];
                 foreach ($meta->fetch_fields() as $col) {
                     $columnNames[] = $col->name;
                 }
@@ -206,12 +206,12 @@ class MysqliStatement implements \IteratorAggregate, Statement
             // to the length of the ones fetched during the previous execution.
             $this->_rowBindedValues = array_fill(0, count($this->_columnNames), null);
 
-            $refs = array();
+            $refs = [];
             foreach ($this->_rowBindedValues as $key => &$value) {
                 $refs[$key] =& $value;
             }
 
-            if (!call_user_func_array(array($this->_stmt, 'bind_result'), $refs)) {
+            if (!call_user_func_array([$this->_stmt, 'bind_result'], $refs)) {
                 throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
             }
         }
@@ -230,7 +230,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     private function _bindValues($values)
     {
-        $params = array();
+        $params = [];
         $types = str_repeat('s', count($values));
         $params[0] = $types;
 
@@ -238,7 +238,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             $params[] =& $v;
         }
 
-        return call_user_func_array(array($this->_stmt, 'bind_param'), $params);
+        return call_user_func_array([$this->_stmt, 'bind_param'], $params);
     }
 
     /**
@@ -249,7 +249,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         $ret = $this->_stmt->fetch();
 
         if (true === $ret) {
-            $values = array();
+            $values = [];
             foreach ($this->_rowBindedValues as $v) {
                 $values[] = $v;
             }
@@ -317,7 +317,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
-        $rows = array();
+        $rows = [];
         if (PDO::FETCH_COLUMN == $fetchMode) {
             while (($row = $this->fetchColumn()) !== false) {
                 $rows[] = $row;

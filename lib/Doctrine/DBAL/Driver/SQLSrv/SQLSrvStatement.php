@@ -57,25 +57,25 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @var array
      */
-    private $variables = array();
+    private $variables = [];
 
     /**
      * Bound parameter types.
      *
      * @var array
      */
-    private $types = array();
+    private $types = [];
 
     /**
      * Translations.
      *
      * @var array
      */
-    private static $fetchMap = array(
+    private static $fetchMap = [
         PDO::FETCH_BOTH => SQLSRV_FETCH_BOTH,
         PDO::FETCH_ASSOC => SQLSRV_FETCH_ASSOC,
         PDO::FETCH_NUM => SQLSRV_FETCH_NUMERIC,
-    );
+    ];
 
     /**
      * The name of the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
@@ -89,7 +89,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @var string
      */
-    private $defaultFetchClassCtorArgs = array();
+    private $defaultFetchClassCtorArgs = [];
 
     /**
      * The fetch style.
@@ -254,16 +254,16 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     private function prepare()
     {
-        $params = array();
+        $params = [];
 
         foreach ($this->variables as $column => &$variable) {
             if (PDO::PARAM_LOB === $this->types[$column]) {
-                $params[$column - 1] = array(
+                $params[$column - 1] = [
                     &$variable,
                     SQLSRV_PARAM_IN,
                     SQLSRV_PHPTYPE_STREAM(SQLSRV_ENC_BINARY),
                     SQLSRV_SQLTYPE_VARBINARY('max'),
-                );
+                ];
             } else {
                 $params[$column - 1] =& $variable;
             }
@@ -320,13 +320,13 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?: false;
         }
 
-        if (in_array($fetchMode, array(PDO::FETCH_OBJ, PDO::FETCH_CLASS), true)) {
+        if (in_array($fetchMode, [PDO::FETCH_OBJ, PDO::FETCH_CLASS], true)) {
             $className = $this->defaultFetchClass;
             $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
             if (count($args) >= 2) {
                 $className = $args[1];
-                $ctorArgs  = isset($args[2]) ? $args[2] : array();
+                $ctorArgs  = isset($args[2]) ? $args[2] : [];
             }
 
             return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
@@ -340,11 +340,11 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $rows = array();
+        $rows = [];
 
         switch ($fetchMode) {
             case PDO::FETCH_CLASS:
-                while ($row = call_user_func_array(array($this, 'fetch'), func_get_args())) {
+                while ($row = call_user_func_array([$this, 'fetch'], func_get_args())) {
                     $rows[] = $row;
                 }
                 break;
