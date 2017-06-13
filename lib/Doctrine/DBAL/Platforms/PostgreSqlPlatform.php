@@ -996,7 +996,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getGuidExpression()
     {
-        return 'UUID_GENERATE_V4()';
+        return 'gen_random_uuid()';
     }
 
     /**
