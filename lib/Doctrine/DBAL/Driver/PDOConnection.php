@@ -41,7 +41,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     {
         try {
             parent::__construct($dsn, $user, $password, $options);
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('Doctrine\DBAL\Driver\PDOStatement', array()));
+            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, ['Doctrine\DBAL\Driver\PDOStatement', []]);
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
@@ -71,7 +71,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString, $driverOptions = array())
+    public function prepare($prepareString, $driverOptions = [])
     {
         try {
             return parent::prepare($prepareString, $driverOptions);

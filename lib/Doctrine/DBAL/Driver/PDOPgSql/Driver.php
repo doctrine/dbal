@@ -35,7 +35,7 @@ class Driver extends AbstractPostgreSQLDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         try {
             $pdo = new PDOConnection(

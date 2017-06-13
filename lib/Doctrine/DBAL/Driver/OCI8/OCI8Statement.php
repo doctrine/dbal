@@ -54,12 +54,12 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * @var array
      */
-    protected static $fetchModeMap = array(
+    protected static $fetchModeMap = [
         PDO::FETCH_BOTH => OCI_BOTH,
         PDO::FETCH_ASSOC => OCI_ASSOC,
         PDO::FETCH_NUM => OCI_NUM,
         PDO::FETCH_COLUMN => OCI_NUM,
-    );
+    ];
 
     /**
      * @var integer
@@ -69,7 +69,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * @var array
      */
-    protected $_paramMap = array();
+    protected $_paramMap = [];
 
     /**
      * Holds references to bound parameter values.
@@ -78,7 +78,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
      *
      * @var array
      */
-    private $boundValues = array();
+    private $boundValues = [];
 
     /**
      * Indicates whether the statement is in the state when fetching results is possible
@@ -126,7 +126,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     static public function convertPositionalToNamedPlaceholders($statement)
     {
         $fragmentOffset = $tokenOffset = 0;
-        $fragments = $paramMap = array();
+        $fragments = $paramMap = [];
         $currentLiteralDelimiter = null;
 
         do {
@@ -154,7 +154,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
         $fragments[] = substr($statement, $fragmentOffset);
         $statement = implode('', $fragments);
 
-        return array($statement, $paramMap);
+        return [$statement, $paramMap];
     }
 
     /**
@@ -409,7 +409,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
-        $result = array();
+        $result = [];
 
         if (PDO::FETCH_OBJ == $fetchMode) {
             while ($row = $this->fetch($fetchMode)) {
@@ -436,7 +436,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
             // do not try fetching from the statement if it's not expected to contain result
             // in order to prevent exceptional situation
             if (!$this->result) {
-                return array();
+                return [];
             }
 
             oci_fetch_all($this->_sth, $result, 0, -1,

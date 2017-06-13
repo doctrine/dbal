@@ -47,7 +47,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      *
      * @throws \Doctrine\DBAL\Driver\Mysqli\MysqliException
      */
-    public function __construct(array $params, $username, $password, array $driverOptions = array())
+    public function __construct(array $params, $username, $password, array $driverOptions = [])
     {
         $port = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
 
@@ -211,15 +211,15 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      * @throws MysqliException When one of of the options is not supported.
      * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
      */
-    private function setDriverOptions(array $driverOptions = array())
+    private function setDriverOptions(array $driverOptions = [])
     {
-        $supportedDriverOptions = array(
+        $supportedDriverOptions = [
             \MYSQLI_OPT_CONNECT_TIMEOUT,
             \MYSQLI_OPT_LOCAL_INFILE,
             \MYSQLI_INIT_COMMAND,
             \MYSQLI_READ_DEFAULT_FILE,
             \MYSQLI_READ_DEFAULT_GROUP,
-        );
+        ];
 
         if (defined('MYSQLI_SERVER_PUBLIC_KEY')) {
             $supportedDriverOptions[] = \MYSQLI_SERVER_PUBLIC_KEY;
