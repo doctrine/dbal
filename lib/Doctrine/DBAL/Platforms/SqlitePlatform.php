@@ -394,6 +394,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getMaximumNumberOfPreparedStatementPlaceholders()
+    {
+        return 999;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getClobTypeDeclarationSQL(array $field)
     {
         return 'CLOB';

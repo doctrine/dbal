@@ -1066,6 +1066,14 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getMaximumNumberOfPreparedStatementPlaceholders()
+    {
+        return 65535;
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function getReservedKeywordsClass()

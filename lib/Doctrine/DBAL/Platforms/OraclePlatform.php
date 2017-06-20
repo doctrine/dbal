@@ -354,6 +354,14 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getMaximumNumberOfPreparedStatementPlaceholders()
+    {
+        return 64000;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $field)

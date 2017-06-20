@@ -1158,6 +1158,14 @@ class SQLServerPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getMaximumNumberOfPreparedStatementPlaceholders()
+    {
+        return 2100;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $field)

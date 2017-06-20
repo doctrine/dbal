@@ -1162,6 +1162,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getMaximumNumberOfPreparedStatementPlaceholders()
+    {
+        return 34464;
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function getReservedKeywordsClass()

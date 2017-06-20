@@ -601,6 +601,16 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Gets the maximum number of placeholders for prepared statements
+     *
+     * @return integer
+     */
+    public function getMaximumNumberOfPreparedStatementPlaceholders()
+    {
+        return 950;
+    }
+
+    /**
      * Gets all SQL wildcard characters of the platform.
      *
      * @return array
