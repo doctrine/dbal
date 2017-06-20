@@ -798,7 +798,7 @@ class Connection implements DriverConnection
      * Quotes a given input parameter.
      *
      * @param mixed       $input The parameter to be quoted.
-     * @param string|null $type  The type of the parameter.
+     * @param int|null $type  The type of the parameter.
      *
      * @return string The quoted parameter.
      */
