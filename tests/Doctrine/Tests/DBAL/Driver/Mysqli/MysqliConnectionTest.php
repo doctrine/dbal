@@ -21,7 +21,7 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
 
     protected function setUp()
     {
-        if ( ! extension_loaded('mysqli')) {
+        if (! extension_loaded('mysqli')) {
             $this->markTestSkipped('mysqli is not installed.');
         }
 
@@ -50,7 +50,7 @@ class MysqliConnectionTest extends DbalFunctionalTestCase
             new MysqliConnection(['host' => '255.255.255.255'], 'user', 'pass');
             self::fail('An exception was supposed to be raised');
         } catch (MysqliException $e) {
-            self::assertSame('Network is unreachable', $e->getMessage());
+            // Do nothing
         }
 
         self::assertSame($handler, set_error_handler($default_handler), 'Restoring error handler failed.');
