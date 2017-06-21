@@ -5,10 +5,9 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Visitor\Visitor;
 use Doctrine\DBAL\Types\Type;
-use const ARRAY_FILTER_USE_KEY;
-use function array_filter;
 use function array_keys;
 use function array_merge;
+use function array_search;
 use function array_unique;
 use function in_array;
 use function is_numeric;
@@ -16,6 +15,7 @@ use function is_string;
 use function preg_match;
 use function strlen;
 use function strtolower;
+use function uksort;
 
 /**
  * Object Representation of a table.
@@ -561,11 +561,12 @@ class Table extends AbstractAsset
      */
     public function getColumns()
     {
-        $pkCols = [];
-        $fkCols = [];
+        $columns = $this->_columns;
+        $pkCols  = [];
+        $fkCols  = [];
 
         if ($this->hasPrimaryKey()) {
-            $pkCols = $this->filterColumns($this->getPrimaryKey()->getColumns());
+            $pkCols = $this->getPrimaryKey()->getColumns();
         }
 
         foreach ($this->getForeignKeys() as $fk) {
@@ -573,21 +574,13 @@ class Table extends AbstractAsset
             $fkCols = array_merge($fkCols, $fk->getColumns());
         }
 
-        return array_unique(array_merge($pkCols, $fkCols, array_keys($this->_columns)));
-    }
+        $colNames = array_unique(array_merge($pkCols, $fkCols, array_keys($columns)));
 
-    /**
-     * Returns only columns that have specified names
-     *
-     * @param string[] $columnNames
-     *
-     * @return Column[]
-     */
-    private function filterColumns(array $columnNames)
-    {
-        return array_filter($this->_columns, static function ($columnName) use ($columnNames) {
-            return in_array($columnName, $columnNames, true);
-        }, ARRAY_FILTER_USE_KEY);
+        uksort($columns, static function ($a, $b) use ($colNames) {
+            return array_search($a, $colNames) >= array_search($b, $colNames);
+        });
+
+        return $columns;
     }
 
     /**
