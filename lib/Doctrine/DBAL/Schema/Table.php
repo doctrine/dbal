@@ -588,11 +588,12 @@ class Table extends AbstractAsset
      */
     public function getColumns()
     {
-        $pkCols = [];
-        $fkCols = [];
+        $columns = $this->_columns;
+        $pkCols  = [];
+        $fkCols  = [];
 
         if ($this->hasPrimaryKey()) {
-            $pkCols = $this->filterColumns($this->getPrimaryKey()->getColumns());
+            $pkCols = $this->getPrimaryKey()->getColumns();
         }
 
         foreach ($this->getForeignKeys() as $fk) {
@@ -600,7 +601,11 @@ class Table extends AbstractAsset
             $fkCols = array_merge($fkCols, $fk->getColumns());
         }
 
-        $columns = array_unique(array_merge($pkCols, $fkCols, array_keys($this->_columns)));
+        $colNames = array_unique(array_merge($pkCols, $fkCols, array_keys($columns)));
+
+        uksort($columns, function ($a, $b) use ($colNames) {
+            return (array_search($a, $colNames) >= array_search($b, $colNames));
+        });
 
         return $columns;
     }
