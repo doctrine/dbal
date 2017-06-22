@@ -857,10 +857,10 @@ class Table extends AbstractAsset
      */
     protected function _addUniqueConstraint(UniqueConstraint $constraint)
     {
-        $name = strlen($uniqueConstraint->getName())
-            ? $uniqueConstraint->getName()
+        $name = strlen($constraint->getName())
+            ? $constraint->getName()
             : $this->_generateIdentifierName(
-                array_merge((array) $this->getName(), $uniqueConstraint->getLocalColumns()),
+                array_merge((array) $this->getName(), $constraint->getLocalColumns()),
                 'fk',
                 $this->_getMaxIdentifierLength()
             );
@@ -873,12 +873,12 @@ class Table extends AbstractAsset
         // calling this method during hydration from schema-details all the explicitly added indexes lead to duplicates.
         // This creates computation overhead in this case, however no duplicate indexes are ever added (column based).
         $indexName = $this->_generateIdentifierName(
-            array_merge([$this->getName()], $uniqueConstraint->getColumns()),
+            array_merge([$this->getName()], $constraint->getColumns()),
             'idx',
             $this->_getMaxIdentifierLength()
         );
 
-        $indexCandidate = $this->_createIndex($uniqueConstraint->getColumns(), $indexName, true, false);
+        $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, true, false);
 
         foreach ($this->_indexes as $existingIndex) {
             if ($indexCandidate->isFullfilledBy($existingIndex)) {
