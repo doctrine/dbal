@@ -603,6 +603,36 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Gathers conditions for an update or delete call.
+     *
+     * @param array $identifiers Input array of columns to values
+     *
+     * @return string[][] a triplet with:
+     *                    - the first key being the columns
+     *                    - the second key being the values
+     *                    - the third key being the conditions
+     */
+    private function gatherConditions(array $identifiers)
+    {
+        $columns = [];
+        $values = [];
+        $conditions = [];
+
+        foreach ($identifiers as $columnName => $value) {
+            if (null === $value) {
+                $conditions[] = $this->getDatabasePlatform()->getIsNullExpression($columnName);
+                continue;
+            }
+
+            $columns[] = $columnName;
+            $values[] = $value;
+            $conditions[] = $columnName . ' = ?';
+        }
+
+        return [$columns, $values, $conditions];
+    }
+
+    /**
      * Executes an SQL DELETE statement on a table.
      *
      * Table expression and columns are not escaped and are not safe for user-input.
@@ -621,20 +651,12 @@ class Connection implements DriverConnection
             throw InvalidArgumentException::fromEmptyCriteria();
         }
 
-        $columnList = array();
-        $criteria = array();
-        $paramValues = array();
-
-        foreach ($identifier as $columnName => $value) {
-            $columnList[] = $columnName;
-            $criteria[] = $columnName . ' = ?';
-            $paramValues[] = $value;
-        }
+        list($columns, $values, $conditions) = $this->gatherConditions($identifier);
 
         return $this->executeUpdate(
-            'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $criteria),
-            $paramValues,
-            is_string(key($types)) ? $this->extractTypeValues($columnList, $types) : $types
+            'DELETE FROM ' . $tableExpression . ' WHERE ' . implode(' AND ', $conditions),
+            $values,
+            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
         );
     }
 
@@ -692,31 +714,28 @@ class Connection implements DriverConnection
      */
     public function update($tableExpression, array $data, array $identifier, array $types = array())
     {
-        $columnList = array();
+        $setColumns = array();
+        $setValues = array();
         $set = array();
-        $criteria = array();
-        $paramValues = array();
 
         foreach ($data as $columnName => $value) {
-            $columnList[] = $columnName;
+            $setColumns[] = $columnName;
+            $setValues[] = $value;
             $set[] = $columnName . ' = ?';
-            $paramValues[] = $value;
         }
 
-        foreach ($identifier as $columnName => $value) {
-            $columnList[] = $columnName;
-            $criteria[] = $columnName . ' = ?';
-            $paramValues[] = $value;
-        }
+        list($conditionColumns, $conditionValues, $conditions) = $this->gatherConditions($identifier);
+        $columns = array_merge($setColumns, $conditionColumns);
+        $values = array_merge($setValues, $conditionValues);
 
         if (is_string(key($types))) {
-            $types = $this->extractTypeValues($columnList, $types);
+            $types = $this->extractTypeValues($columns, $types);
         }
 
         $sql  = 'UPDATE ' . $tableExpression . ' SET ' . implode(', ', $set)
-                . ' WHERE ' . implode(' AND ', $criteria);
+                . ' WHERE ' . implode(' AND ', $conditions);
 
-        return $this->executeUpdate($sql, $paramValues, $types);
+        return $this->executeUpdate($sql, $values, $types);
     }
 
     /**
@@ -736,21 +755,21 @@ class Connection implements DriverConnection
             return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' ()' . ' VALUES ()');
         }
 
-        $columnList = array();
-        $paramPlaceholders = array();
-        $paramValues = array();
+        $columns = array();
+        $values = array();
+        $set = array();
 
         foreach ($data as $columnName => $value) {
-            $columnList[] = $columnName;
-            $paramPlaceholders[] = '?';
-            $paramValues[] = $value;
+            $columns[] = $columnName;
+            $values[] = $value;
+            $set[] = '?';
         }
 
         return $this->executeUpdate(
-            'INSERT INTO ' . $tableExpression . ' (' . implode(', ', $columnList) . ')' .
-            ' VALUES (' . implode(', ', $paramPlaceholders) . ')',
-            $paramValues,
-            is_string(key($types)) ? $this->extractTypeValues($columnList, $types) : $types
+            'INSERT INTO ' . $tableExpression . ' (' . implode(', ', $columns) . ')' .
+            ' VALUES (' . implode(', ', $set) . ')',
+            $values,
+            is_string(key($types)) ? $this->extractTypeValues($columns, $types) : $types
         );
     }
 
