@@ -265,6 +265,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
                     SQLSRV_SQLTYPE_VARBINARY('max'),
                 );
             } else {
+                if ($this->types[$column] === \PDO::PARAM_STR) {
+                    $variable = (string) $variable;
+                }
                 $params[$column - 1] =& $variable;
             }
         }
