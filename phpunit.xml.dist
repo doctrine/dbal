@@ -49,11 +49,6 @@
             <directory>./tests/Doctrine/Tests/DBAL/Performance</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist addUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./lib/Doctrine</directory>
-        </whitelist>
-    </filter>
     <listeners>
         <listener class="Doctrine\Tests\DbalPerformanceTestListener"/>
     </listeners>
