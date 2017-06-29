@@ -1048,6 +1048,28 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertEquals("It's a comment with a quote", $columns['id']->getComment());
     }
 
+    public function testCommentNotDuplicated()
+    {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsInlineColumnComments()) {
+            $this->markTestSkipped('Database does not support column comments.');
+        }
+
+        $options = array(
+            'type' => Type::getType('integer'),
+            'default' => 0,
+            'notnull' => true,
+            'comment' => 'expected+column+comment',
+        );
+        $columnDefinition = substr($this->_conn->getDatabasePlatform()->getColumnDeclarationSQL('id', $options), strlen('id') + 1);
+
+        $table = new Table('my_table');
+        $table->addColumn('id', 'integer', array('columnDefinition' => $columnDefinition, 'comment' => 'unexpected_column_comment'));
+        $sql = $this->_conn->getDatabasePlatform()->getCreateTableSQL($table);
+
+        $this->assertContains('expected+column+comment', $sql[0]);
+        $this->assertNotContains('unexpected_column_comment', $sql[0]);
+    }
+
     /**
      * @group DBAL-1009
      *
