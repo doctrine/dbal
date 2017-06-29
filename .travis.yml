@@ -112,6 +112,9 @@ matrix:
   allow_failures:
     - php: nightly
 
+after_script:
+  - sh .travis.coverage.sh
+
 install:
   - travis_retry composer install
 
