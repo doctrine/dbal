@@ -16,6 +16,7 @@
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
+declare (strict_types=1);
 
 namespace Doctrine\DBAL\Query;
 
@@ -29,12 +30,12 @@ use Doctrine\DBAL\Schema\Identifier;
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
+ * @since  2.6
  */
 class BulkInsertQuery
 {
     /**
-     * @var array
+     * @var string[]
      */
     private $columns;
 
@@ -68,23 +69,15 @@ class BulkInsertQuery
      *
      * @param Connection $connection The connection to use for query execution.
      * @param string     $table      The name of the table to insert rows into.
-     * @param array      $columns    The names of the columns to insert values into.
+     * @param string[]   $columns    The names of the columns to insert values into.
      *                               Can be left empty to allow arbitrary table row inserts
      *                               based on the table's column order.
      */
-    public function __construct(Connection $connection, $table, array $columns = array())
+    public function __construct(Connection $connection, string $table, array $columns = array())
     {
         $this->connection = $connection;
         $this->table = new Identifier($table);
         $this->columns = $columns;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __toString()
-    {
-        return $this->getSQL();
     }
 
     /**
@@ -114,25 +107,118 @@ class BulkInsertQuery
      */
     public function addValues(array $values, array $types = array())
     {
-        $valueSet = array();
-
         if (empty($this->columns)) {
-            foreach ($values as $index => $value) {
-                $this->parameters[] = $value; // todo: allow expressions.
-                $this->types[] = isset($types[$index]) ? $types[$index] : null;
-                $valueSet[] = '?'; // todo: allow expressions.
-            }
+            $this->addValuesInDbOrder($values, $types);
+        } else {
+            $this->addValuesByColumnDefinition($values, $types);
+        }
+    }
 
-            $this->values[] = $valueSet;
+    /**
+     * Executes this INSERT query using the bound parameters and their types.
+     *
+     * @return integer The number of affected rows.
+     *
+     * @throws \LogicException if this query contains more rows than acceptable
+     *                         for a single INSERT statement by the underlying platform.
+     */
+    public function execute(): int
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        $insertMaxRows = $platform->getInsertMaxRows();
+        $totalValues = count($this->values);
 
-            return;
+        if ($insertMaxRows > 0 && $totalValues > $insertMaxRows && !$this->connection->isTransactionActive()) {
+            throw QueryException::transactionRequired();
         }
 
+        $offset = 0;
+        $result = 0;
+        while ($offset < $totalValues) {
+            $values = array_slice($this->values, $offset, $insertMaxRows);
+            $parameters = array_slice($this->parameters, $offset, $insertMaxRows);
+            $types = array_slice($this->types, $offset, $insertMaxRows);
+
+            $result += $this->connection->executeUpdate($this->getSqlForValues($values), $parameters, $types);
+
+            $offset += $insertMaxRows;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns the parameters for this INSERT query being constructed indexed by parameter index.
+     *
+     * @return array
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * Returns the parameter types for this INSERT query being constructed indexed by parameter index.
+     *
+     * @return array
+     */
+    public function getParameterTypes(): array
+    {
+        return $this->types;
+    }
+
+    /**
+     * Returns the SQL formed by the current specifications of this INSERT query.
+     *
+     * @return string
+     *
+     * @throws \LogicException if no values have been specified yet.
+     */
+    public function getSQL(): string
+    {
+        if (empty($this->values)) {
+            throw new \LogicException('You need to add at least one set of values before generating the SQL.');
+        }
+
+        return $this->getSqlForValues($this->values);
+    }
+
+    /**
+     * This method handles the situation when user did not specified any columns at all
+     *
+     * @param array $values Values to be inserted
+     * @param array $types  Corresponding value types
+     *
+     * @return void
+     */
+    private function addValuesInDbOrder(array $values, array $types): void
+    {
+        $valueSet = [];
+        foreach ($values as $index => $value) {
+            $this->parameters[] = $value; // todo: allow expressions.
+            $this->types[]      = $types[$index] ?? null;
+            $valueSet[]         = '?'; // todo: allow expressions.
+        }
+
+        $this->values[] = $valueSet;
+    }
+
+    /**
+     * Handles adding values when user has specified column names
+     *
+     * @param array $values Values to be inserted
+     * @param array $types  Corresponding value types
+     *
+     * @return void
+     */
+    private function addValuesByColumnDefinition(array $values, array $types): void
+    {
+        $valueSet = array();
         foreach ($this->columns as $index => $column) {
-            $namedValue = isset($values[$column]) || array_key_exists($column, $values);
+            $namedValue      = isset($values[$column]) || array_key_exists($column, $values);
             $positionalValue = isset($values[$index]) || array_key_exists($index, $values);
 
-            if ( ! $namedValue && ! $positionalValue) {
+            if (!$namedValue && !$positionalValue) {
                 throw new \InvalidArgumentException(
                     sprintf('No value specified for column %s (index %d).', $column, $index)
                 );
@@ -147,96 +233,31 @@ class BulkInsertQuery
             $this->parameters[] = $namedValue ? $values[$column] : $values[$index]; // todo: allow expressions.
             $valueSet[] = '?'; // todo: allow expressions.
 
-            $namedType = isset($types[$column]);
-            $positionalType = isset($types[$index]);
-
-            if ($namedType && $positionalType && $types[$column] !== $types[$index]) {
+            if (isset($types[$column], $types[$index]) && $types[$column] !== $types[$index]) {
                 throw new \InvalidArgumentException(
                     sprintf('Multiple types specified for column %s (index %d).', $column, $index)
                 );
             }
 
-            if ($namedType) {
-                $this->types[] = $types[$column];
-
-                continue;
-            }
-
-            if ($positionalType) {
-                $this->types[] = $types[$index];
-
-                continue;
-            }
-
-            $this->types[] = null;
+            $this->types[] = $types[$column] ?? $types[$index] ?? null;
         }
 
         $this->values[] = $valueSet;
     }
 
     /**
-     * Executes this INSERT query using the bound parameters and their types.
+     * Return query for given list of values
      *
-     * @return integer The number of affected rows.
-     *
-     * @throws \LogicException if this query contains more rows than acceptable
-     *                         for a single INSERT statement by the underlying platform.
-     */
-    public function execute()
-    {
-        $platform = $this->connection->getDatabasePlatform();
-        $insertMaxRows = $platform->getInsertMaxRows();
-
-        if ($insertMaxRows > 0 && count($this->values) > $insertMaxRows) {
-            throw new \LogicException(
-                sprintf(
-                    'You can only insert %d rows in a single INSERT statement with platform "%s".',
-                    $insertMaxRows,
-                    $platform->getName()
-                )
-            );
-        }
-
-        return $this->connection->executeUpdate($this->getSQL(), $this->parameters, $this->types);
-    }
-
-    /**
-     * Returns the parameters for this INSERT query being constructed indexed by parameter index.
-     *
-     * @return array
-     */
-    public function getParameters()
-    {
-        return $this->parameters;
-    }
-
-    /**
-     * Returns the parameter types for this INSERT query being constructed indexed by parameter index.
-     *
-     * @return array
-     */
-    public function getParameterTypes()
-    {
-        return $this->types;
-    }
-
-    /**
-     * Returns the SQL formed by the current specifications of this INSERT query.
+     * @param array $values Values to be inserted
      *
      * @return string
-     *
-     * @throws \LogicException if no values have been specified yet.
      */
-    public function getSQL()
+    private function getSqlForValues(array $values): string
     {
-        if (empty($this->values)) {
-            throw new \LogicException('You need to add at least one set of values before generating the SQL.');
-        }
-
-        $platform = $this->connection->getDatabasePlatform();
+        $platform   = $this->connection->getDatabasePlatform();
         $columnList = '';
 
-        if (! empty($this->columns)) {
+        if (!empty($this->columns)) {
             $columnList = sprintf(
                 ' (%s)',
                 implode(
@@ -263,7 +284,7 @@ class BulkInsertQuery
                     function (array $valueSet) {
                         return implode(', ', $valueSet);
                     },
-                    $this->values
+                    $values
                 )
             )
         );

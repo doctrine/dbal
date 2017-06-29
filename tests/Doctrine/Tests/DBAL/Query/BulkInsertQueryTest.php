@@ -11,7 +11,7 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
-     * @var \Doctrine\DBAL\Connection
+     * @var \Doctrine\DBAL\Connection|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $connection;
 
@@ -46,7 +46,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
         $query->addValues(array());
 
-        $this->assertSame("INSERT INTO foo VALUES ()", (string) $query);
+        $this->assertSame("INSERT INTO foo VALUES ()", $query->getSQL());
         $this->assertSame(array(), $query->getParameters());
         $this->assertSame(array(), $query->getParameterTypes());
 
@@ -54,7 +54,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
         $query->addValues(array(), array(\PDO::PARAM_BOOL));
 
-        $this->assertSame("INSERT INTO foo VALUES ()", (string) $query);
+        $this->assertSame("INSERT INTO foo VALUES ()", $query->getSQL());
         $this->assertSame(array(), $query->getParameters());
         $this->assertSame(array(), $query->getParameterTypes());
     }
@@ -65,7 +65,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
         $query->addValues(array('bar', 'baz', 'named' => 'bloo'));
 
-        $this->assertSame("INSERT INTO foo VALUES (?, ?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo VALUES (?, ?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz', 'bloo'), $query->getParameters());
         $this->assertSame(array(null, null, null), $query->getParameterTypes());
 
@@ -76,7 +76,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
             array('named' => \PDO::PARAM_BOOL, null, \PDO::PARAM_INT)
         );
 
-        $this->assertSame("INSERT INTO foo VALUES (?, ?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo VALUES (?, ?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz', 'bloo'), $query->getParameters());
         $this->assertSame(array(null, \PDO::PARAM_INT, \PDO::PARAM_BOOL), $query->getParameterTypes());
     }
@@ -90,7 +90,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
         $query->addValues(array('bar', 'baz', 'bloo'));
         $query->addValues(array('bar', 'baz', 'named' => 'bloo'));
 
-        $this->assertSame("INSERT INTO foo VALUES (), (?, ?), (?, ?, ?), (?, ?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo VALUES (), (?, ?), (?, ?, ?), (?, ?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz', 'bar', 'baz', 'bloo', 'bar', 'baz', 'bloo'), $query->getParameters());
         $this->assertSame(array(null, null, null, null, null, null, null, null), $query->getParameterTypes());
 
@@ -104,7 +104,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
             array('named' => \PDO::PARAM_INT, null, \PDO::PARAM_BOOL)
         );
 
-        $this->assertSame("INSERT INTO foo VALUES (), (?, ?), (?, ?, ?), (?, ?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo VALUES (), (?, ?), (?, ?, ?), (?, ?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz', 'bar', 'baz', 'bloo', 'bar', 'baz', 'bloo'), $query->getParameters());
         $this->assertSame(
             array(null, \PDO::PARAM_BOOL, \PDO::PARAM_INT, null, \PDO::PARAM_BOOL, null, \PDO::PARAM_BOOL, \PDO::PARAM_INT),
@@ -118,7 +118,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
         $query->addValues(array('bar', 'baz'));
 
-        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz'), $query->getParameters());
         $this->assertSame(array(null, null), $query->getParameterTypes());
 
@@ -126,7 +126,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
         $query->addValues(array('bar', 'baz'), array(1 => \PDO::PARAM_BOOL));
 
-        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz'), $query->getParameters());
         $this->assertSame(array(null, \PDO::PARAM_BOOL), $query->getParameterTypes());
     }
@@ -137,7 +137,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
         $query->addValues(array('baz' => 'baz', 'bar' => 'bar'));
 
-        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz'), $query->getParameters());
         $this->assertSame(array(null, null), $query->getParameterTypes());
 
@@ -145,7 +145,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
         $query->addValues(array('baz' => 'baz', 'bar' => 'bar'), array(null, \PDO::PARAM_INT));
 
-        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz'), $query->getParameters());
         $this->assertSame(array(null, \PDO::PARAM_INT), $query->getParameterTypes());
     }
@@ -156,7 +156,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
         $query->addValues(array(1 => 'baz', 'bar' => 'bar'));
 
-        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz'), $query->getParameters());
         $this->assertSame(array(null, null), $query->getParameterTypes());
 
@@ -164,7 +164,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
         $query->addValues(array(1 => 'baz', 'bar' => 'bar'), array(\PDO::PARAM_INT, \PDO::PARAM_BOOL));
 
-        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz'), $query->getParameters());
         $this->assertSame(array(\PDO::PARAM_INT, \PDO::PARAM_BOOL), $query->getParameterTypes());
     }
@@ -178,7 +178,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
         $query->addValues(array('bar', 'baz' => 'baz'));
         $query->addValues(array('bar' => 'bar', 'baz' => 'baz'));
 
-        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?), (?, ?), (?, ?), (?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?), (?, ?), (?, ?), (?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz', 'bar', 'baz', 'bar', 'baz', 'bar', 'baz'), $query->getParameters());
         $this->assertSame(array(null, null, null, null, null, null, null, null), $query->getParameterTypes());
 
@@ -192,7 +192,7 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
             array('bar' => \PDO::PARAM_INT, 'baz' => \PDO::PARAM_BOOL)
         );
 
-        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?), (?, ?), (?, ?), (?, ?)", (string) $query);
+        $this->assertSame("INSERT INTO foo (bar, baz) VALUES (?, ?), (?, ?), (?, ?), (?, ?)", $query->getSQL());
         $this->assertSame(array('bar', 'baz', 'bar', 'baz', 'bar', 'baz', 'bar', 'baz'), $query->getParameters());
         $this->assertSame(
             array(\PDO::PARAM_INT, \PDO::PARAM_BOOL, \PDO::PARAM_INT, \PDO::PARAM_BOOL, null, null, \PDO::PARAM_INT, \PDO::PARAM_BOOL),
@@ -235,11 +235,15 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
 
     public function testExecuteWithMaxInsertRowsPerStatementExceededThrowsException()
     {
+        $this->connection->expects($this->any())
+            ->method('isTransactionActive')
+            ->will($this->returnValue(false));
+
         $platform = $this->connection->getDatabasePlatform();
         $insertMaxRows = $platform->getInsertMaxRows();
 
-        $this->setExpectedException(
-            '\LogicException',
+        $this->expectException(
+            '\Doctrine\DBAL\Query\QueryException',
             sprintf(
                 'You can only insert %d rows in a single INSERT statement with platform "%s".',
                 $insertMaxRows,
@@ -254,5 +258,56 @@ class BulkInsertQueryTest extends \Doctrine\Tests\DbalTestCase
         }
 
         $query->execute();
+    }
+
+    /**
+     * testAllValuesInserted
+     *
+     * @return void
+     */
+    public function testAllValuesInserted()
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        $insertMaxRows = $platform->getInsertMaxRows();
+
+        $this->connection->expects($this->any())
+            ->method('isTransactionActive')
+            ->will($this->returnValue(true));
+
+        $actualTypes      = [];
+        $actualParameters = [];
+
+        $this->connection->expects($this->exactly(5))
+            ->method('executeUpdate')
+            ->will($this->returnCallback(
+                function (string $sql, array $parameters, array $types) use (&$actualParameters, &$actualTypes) {
+                    $valueSet = [];
+                    $parameterCount = count($parameters);
+                    for ($i = 0; $i < $parameterCount; $i++) {
+                        $valueSet[] = "\\(\\?\\)";
+                    }
+                    $sqlRegExp = "INSERT\\s+INTO\\s+foo\\s+\\(id\\)\s+VALUES\\s+" . implode("\\s*,\\s*", $valueSet);
+
+                    self::assertRegExp("/$sqlRegExp/", $sql, 'Incorrect sql received');
+                    $actualParameters = array_merge($actualParameters, $parameters);
+                    $actualTypes = array_merge($actualTypes, $types);
+
+                    return $parameterCount;
+                }
+            )
+        );
+
+        $query = new BulkInsertQuery($this->connection, 'foo', ['id']);
+
+        $numberOfRows = 4*$insertMaxRows + (int) ceil($insertMaxRows / 2);
+        for ($i = 0; $i < $numberOfRows; $i++) {
+            $query->addValues(array('id' => $i), array('id' => 'type' . $i));
+        }
+
+        $inserted = $query->execute();
+        $this->assertSame($numberOfRows, $inserted, 'Unexpected number of inserted rows returned');
+
+        $this->assertSame($query->getParameters(), $actualParameters, 'Incorrect parameters were passed into the query');
+        $this->assertSame($query->getParameterTypes(), $actualTypes, 'Incorrect types were passed into the query');
     }
 }

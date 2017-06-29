@@ -16,6 +16,7 @@
  * and is licensed under the MIT license. For more information, see
  * <http://www.doctrine-project.org>.
  */
+declare(strict_types=1);
 
 namespace Doctrine\DBAL\Query;
 
@@ -27,12 +28,22 @@ use Doctrine\DBAL\DBALException;
 class QueryException extends DBALException
 {
     /**
+     * Throws when query must be run in active transaction
+     *
+     * @return \Doctrine\DBAL\Query\QueryException
+     */
+    static public function transactionRequired(): QueryException
+    {
+        return new self('This query requires active transaction for completing.');
+    }
+
+    /**
      * @param string $alias
      * @param array  $registeredAliases
      *
      * @return \Doctrine\DBAL\Query\QueryException
      */
-    static public function unknownAlias($alias, $registeredAliases)
+    static public function unknownAlias(string $alias, array $registeredAliases): QueryException
     {
         return new self("The given alias '" . $alias . "' is not part of " .
             "any FROM or JOIN clause table. The currently registered " .
@@ -45,7 +56,7 @@ class QueryException extends DBALException
      *
      * @return \Doctrine\DBAL\Query\QueryException
      */
-    static public function nonUniqueAlias($alias, $registeredAliases)
+    static public function nonUniqueAlias(string $alias, array $registeredAliases): QueryException
     {
         return new self("The given alias '" . $alias . "' is not unique " .
             "in FROM and JOIN clause table. The currently registered " .
