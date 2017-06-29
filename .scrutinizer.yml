@@ -13,7 +13,6 @@ tools:
 filter:
     excluded_paths:
         - docs
-        - tools
 
 build_failure_conditions:
     - 'elements.rating(<= C).new.exists'                        # No new classes/methods with a rating of C or worse allowed

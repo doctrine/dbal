@@ -15,6 +15,9 @@ env:
   - DB=mysql
   - DB=mysqli
 
+before_script:
+  - if [[ $TRAVIS_PHP_VERSION = '7.1' && $DB = 'sqlite' ]]; then PHPUNIT_FLAGS="--coverage-clover .clover.xml"; else PHPUNIT_FLAGS=""; fi
+
 matrix:
   fast_finish: true
   include:
@@ -113,9 +116,10 @@ matrix:
     - php: nightly
 
 after_script:
-  - sh .travis.coverage.sh
+ - if [[ "$PHPUNIT_FLAGS" != "" ]]; then wget https://scrutinizer-ci.com/ocular.phar; fi
+ - if [[ "$PHPUNIT_FLAGS" != "" ]]; then php ocular.phar code-coverage:upload --format=php-clover ./clover.xml; fi
 
 install:
   - travis_retry composer install
 
-script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
+script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml $PHPUNIT_FLAGS
