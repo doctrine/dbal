@@ -259,8 +259,8 @@ A practical example is as follows:
 If you need stricter control, you can catch the concrete exceptions directly:
 
 - ``Doctrine/DBAL/Exception/DeadlockException``: this can happen when each member
-of a group of actions is waiting for some other member to release a shared lock.
+  of a group of actions is waiting for some other member to release a shared lock.
 - ``Doctrine/DBAL/Exception/LockWaitTimeoutException``: this exception happens when 
-a transaction have to wait a considerable amount of time to obtain a lock, even if a deadlock
-is not involved. 
+  a transaction have to wait a considerable amount of time to obtain a lock, even if
+  a deadlock is not involved.
 
