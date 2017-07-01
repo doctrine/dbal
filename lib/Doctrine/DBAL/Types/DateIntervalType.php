@@ -22,7 +22,7 @@ class DateIntervalType extends Type
      */
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        $fieldDeclaration['length'] = 20;
+        $fieldDeclaration['length'] = 21;
         $fieldDeclaration['fixed']  = true;
 
         return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
@@ -38,7 +38,9 @@ class DateIntervalType extends Type
         }
 
         if ($value instanceof \DateInterval) {
-            return 'P'
+            $sign = (0 === $value->invert) ? '+' : '-';
+
+            return $sign . 'P'
                 . str_pad($value->y, 4, '0', STR_PAD_LEFT) . '-'
                 . $value->format('%M-%DT%H:%I:%S');
         }
@@ -56,9 +58,21 @@ class DateIntervalType extends Type
         }
 
         try {
-            return new \DateInterval($value);
+            $firstCharacter = substr($value, 0, 1);
+
+            if ($firstCharacter !== '+' && $firstCharacter !== '-') {
+                return new \DateInterval($value);
+            }
+
+            $interval = new \DateInterval(substr($value, 1));
+
+            if ($firstCharacter === '-') {
+                $interval->invert = 1;
+            }
+
+            return $interval;
         } catch (\Exception $exception) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), 'PY-m-dTH:i:s', $exception);
+            throw ConversionException::conversionFailedFormat($value, $this->getName(), 'RPY-m-dTH:i:s', $exception);
         }
     }
     
