@@ -98,7 +98,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     private $result = false;
 
     /**
-     * @var LastInsertId|null
+     * @var LastInsertId
      */
     private $lastInsertId;
 
@@ -121,7 +121,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             $this->_bindedValues = array_fill(1, $paramCount, null);
         }
 
-        $this->lastInsertId = $lastInsertId;
+        $this->lastInsertId = $lastInsertId ?? new LastInsertId();
     }
 
     /**
@@ -188,10 +188,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
-        // Keep track of the las insert ID (if any).
-        if (null !== $this->lastInsertId) {
-            $this->lastInsertId->set((string) $this->_conn->insert_id);
-        }
+        $this->lastInsertId->set((string) $this->_conn->insert_id);
 
         if (null === $this->_columnNames) {
             $meta = $this->_stmt->result_metadata();
