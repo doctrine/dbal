@@ -7,12 +7,12 @@ use Doctrine\DBAL\Driver\PDOConnection;
 /**
  * pdo_pgsql connection implementation.
  */
-class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
+class Connection extends PDOConnection
 {
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId($name = null) : string
     {
         try {
             return $this->fetchLastInsertId($name);
@@ -24,7 +24,7 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
     /**
      * {@inheritdoc}
      */
-    public function trackLastInsertId()
+    public function trackLastInsertId() : void
     {
         // Do not track last insert ID as it is not considered "safe" and can cause transactions to fail.
         // If there is no last insert ID yet, we get an error with SQLSTATE 55000:

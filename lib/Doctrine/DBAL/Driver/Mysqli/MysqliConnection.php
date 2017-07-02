@@ -19,10 +19,11 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
-use Doctrine\DBAL\Driver\Connection as Connection;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\LastInsertId;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
 use function defined;
 use function floor;
@@ -143,8 +144,10 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
     /**
      * {@inheritdoc}
+     *
+     * @throws MysqliException
      */
-    public function prepare($prepareString)
+    public function prepare($prepareString) : Statement
     {
         return new MysqliStatement($this->_conn, $prepareString, $this->lastInsertId);
     }
@@ -172,6 +175,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
     /**
      * {@inheritdoc}
+     *
+     * @throws MysqliException
      */
     public function exec($statement)
     {
@@ -187,7 +192,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId($name = null) : string
     {
         return $this->lastInsertId->get();
     }

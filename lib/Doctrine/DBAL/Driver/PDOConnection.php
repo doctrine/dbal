@@ -174,15 +174,17 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      * If this PDO driver is not able to fetch the last insert ID for identity columns
      * without influencing connection state or transaction state, this is a noop method.
      *
-     * @return void
+     * @internal this method is only supposed to be used in DBAL internals
+     *
+     * @throws \PDOException
      */
-    public function trackLastInsertId()
+    public function trackLastInsertId() : void
     {
         // We need to avoid unnecessary exception generation for drivers not supporting this feature,
         // by temporarily disabling exception mode.
         $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
 
-        $lastInsertId = $this->fetchLastInsertId();
+        $lastInsertId = $this->fetchLastInsertId(null);
 
         // Reactivate exception mode.
         $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -208,7 +210,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      *
      * @throws PDOException
      */
-    protected function fetchLastInsertId($sequenceName = null)
+    protected function fetchLastInsertId(?string $sequenceName) : string
     {
         return parent::lastInsertId($sequenceName);
     }

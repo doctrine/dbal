@@ -407,7 +407,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         return sqlsrv_rows_affected($this->stmt);
     }
 
-    private function trackLastInsertId()
+    private function trackLastInsertId() : void
     {
         if (! $this->lastInsertId) {
             return;
