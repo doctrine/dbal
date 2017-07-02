@@ -32,7 +32,7 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
     {
         $interval = new \DateInterval('P2Y1DT1H2M3S');
 
-        $expected = 'P0002-00-01T01:02:03';
+        $expected = 'P02Y00M01DT01H02M03S';
         $actual = $this->type->convertToDatabaseValue($interval, $this->platform);
 
         $this->assertEquals($expected, $actual);
@@ -40,9 +40,9 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
 
     public function testDateIntervalConvertsToPHPValue()
     {
-        $date = $this->type->convertToPHPValue('P0002-00-01T01:02:03', $this->platform);
+        $date = $this->type->convertToPHPValue('P02Y00M01DT01H02M03S', $this->platform);
         $this->assertInstanceOf('DateInterval', $date);
-        $this->assertEquals('P2Y0M1DT1H2M3S', $date->format('P%yY%mM%dDT%hH%iM%sS'));
+        $this->assertEquals('P02Y00M01DT01H02M03S', $date->format('P%YY%MM%DDT%HH%IM%SS'));
     }
 
     public function testInvalidDateIntervalFormatConversion()
