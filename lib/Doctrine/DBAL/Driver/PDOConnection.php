@@ -182,13 +182,15 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     {
         // We need to avoid unnecessary exception generation for drivers not supporting this feature,
         // by temporarily disabling exception mode.
+        $originalErrorMode = $this->getAttribute(\PDO::ATTR_ERRMODE);
+
         $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
 
         try {
             $lastInsertId = $this->fetchLastInsertId(null);
         } finally {
             // Reactivate exception mode.
-            $this->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->setAttribute(\PDO::ATTR_ERRMODE, $originalErrorMode);
         }
 
         if ($lastInsertId === null) {
