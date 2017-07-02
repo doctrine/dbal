@@ -143,6 +143,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      * Append to any INSERT query to retrieve the last insert id.
      *
      * @var string
+     *
+     * @deprecated do not rely on this constant in the future, as it will be completely removed
+     * @internal
      */
     const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
 
