@@ -14,18 +14,12 @@ final class LastInsertId
      */
     private $value = '0';
 
-    /**
-     * @return string
-     */
-    public function get()
+    public function get() : string
     {
         return $this->value;
     }
 
-    /**
-     * @param string $value
-     */
-    public function set($value)
+    public function set(string $value) : void
     {
         // The last insert ID is reset to "0" in certain situations by some implementations,
         // therefore we keep the previously set insert ID locally.
