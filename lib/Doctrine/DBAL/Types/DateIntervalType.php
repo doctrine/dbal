@@ -9,6 +9,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class DateIntervalType extends Type
 {
+    const FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
+
     /**
      * {@inheritdoc}
      */
@@ -38,7 +40,7 @@ class DateIntervalType extends Type
         }
 
         if ($value instanceof \DateInterval) {
-            return $value->format('P%YY%MM%DDT%HH%IM%SS');
+            return $value->format(self::FORMAT);
         }
 
         throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateInterval']);
@@ -54,9 +56,15 @@ class DateIntervalType extends Type
         }
 
         try {
-            return new \DateInterval($value);
+            $interval = new \DateInterval(substr($value, 1));
+
+            if (substr($value, 0, 1) === '-') {
+                $interval->invert = 1;
+            }
+
+            return $interval;
         } catch (\Exception $exception) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), 'P%YY%MM%DDT%HH%IM%SS', $exception);
+            throw ConversionException::conversionFailedFormat($value, $this->getName(), self::FORMAT, $exception);
         }
     }
 

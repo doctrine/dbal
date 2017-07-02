@@ -32,7 +32,7 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
     {
         $interval = new \DateInterval('P2Y1DT1H2M3S');
 
-        $expected = 'P02Y00M01DT01H02M03S';
+        $expected = '+P02Y00M01DT01H02M03S';
         $actual = $this->type->convertToDatabaseValue($interval, $this->platform);
 
         self::assertEquals($expected, $actual);
@@ -40,9 +40,29 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
 
     public function testDateIntervalConvertsToPHPValue()
     {
-        $date = $this->type->convertToPHPValue('P02Y00M01DT01H02M03S', $this->platform);
-        self::assertInstanceOf('DateInterval', $date);
-        self::assertEquals('P02Y00M01DT01H02M03S', $date->format('P%YY%MM%DDT%HH%IM%SS'));
+        $interval = $this->type->convertToPHPValue('+P02Y00M01DT01H02M03S', $this->platform);
+
+        self::assertInstanceOf('DateInterval', $interval);
+        self::assertEquals('+P02Y00M01DT01H02M03S', $interval->format('%RP%YY%MM%DDT%HH%IM%SS'));
+    }
+
+    public function testNegativeDateIntervalConvertsToDatabaseValue()
+    {
+        $interval = new \DateInterval('P2Y1DT1H2M3S');
+        $interval->invert = 1;
+
+        $expected = '-P02Y00M01DT01H02M03S';
+        $actual = $this->type->convertToDatabaseValue($interval, $this->platform);
+
+        self::assertEquals($expected, $actual);
+    }
+
+    public function testNegativeDateIntervalConvertsToPHPValue()
+    {
+        $interval = $this->type->convertToPHPValue('-P02Y00M01DT01H02M03S', $this->platform);
+
+        self::assertInstanceOf('DateInterval', $interval);
+        self::assertEquals('-P02Y00M01DT01H02M03S', $interval->format('%RP%YY%MM%DDT%HH%IM%SS'));
     }
 
     public function testInvalidDateIntervalFormatConversion()
