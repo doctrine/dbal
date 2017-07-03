@@ -367,6 +367,132 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
+     * Lists the tables for this connection.
+     *
+     * @return \Doctrine\DBAL\Schema\Table[]
+     */
+    public function listTables()
+    {
+        $tableNames = $this->listTableNames();
+
+        // Get all column definitions in one database call
+        $tablesColumns = $this->listTablesColumns();
+
+        // Get all foreign keys in one database call
+        $tablesForeignKeys = array();
+        if ($this->_platform->supportsForeignKeyConstraints()) {
+            $tablesForeignKeys = $this->listTablesForeignKeys();
+        }
+
+        // Get all indexes in one database call
+        $tablesIndexes = $this->listTablesIndexes("KX_SITE1_P0");
+
+        $tables = array();
+        foreach ($tableNames as $tableName) {
+            // Get the column list from the dictionnary that contains all columns for the current database
+            if (array_key_exists($tableName, $tablesColumns)) {
+                $columns = $tablesColumns[$tableName];
+            } else {
+                $columns = array();
+            }
+
+            // Get the foreign keys list from the dictionnary that contains all foreign keys for the current database
+            if (array_key_exists($tableName, $tablesForeignKeys)) {
+                $foreignKeys = $tablesForeignKeys[$tableName];
+            } else {
+                $foreignKeys = array();
+            }
+
+            // Get the index list from the dictionnary that contains all indexes for the current database
+            if (array_key_exists($tableName, $tablesIndexes)) {
+                $indexes = $tablesIndexes[$tableName];
+            } else {
+                $indexes = array();
+            }
+
+            $tables[] = new Table($tableName, $columns, $indexes, $foreignKeys, false, array());
+        }
+
+        return $tables;
+    }
+
+    private function listTablesColumns($database = null)
+    {
+        $sql = $this->_platform->getListTablesColumnsSQL($database);
+        $tablesColumnsRows = $this->_conn->fetchAll($sql);
+
+        $tablesColumns = array();
+        foreach ($tablesColumnsRows as $columnRow) {
+            $columnRow = \array_change_key_case($columnRow, CASE_LOWER);
+
+            if (!array_key_exists($columnRow['table_name'], $tablesColumns)) {
+                $tablesColumns[$columnRow['table_name']] = array($columnRow);
+            } else {
+                $tablesColumns[$columnRow['table_name']][] = $columnRow;
+            }
+        }
+
+        $portableTablesColumns = array();
+        foreach ($tablesColumns as $tableName => $tableColumns) {
+            $portableTablesColumns[$this->_conn->quoteIdentifier($tableName)] =
+                $this->_getPortableTableColumnList($tableColumns['table_name'], $database, $tableColumns);
+        }
+
+        return $portableTablesColumns;
+
+    }
+
+    private function listTablesForeignKeys($database = null)
+    {
+        $sql = $this->_platform->getListTablesForeignKeysSQL($database);
+        $tablesForeignKeysRows = $this->_conn->fetchAll($sql);
+
+        $tablesForeignKeys = array();
+        foreach ($tablesForeignKeysRows as $foreignKeyRow) {
+            $foreignKeyRow = \array_change_key_case($foreignKeyRow, CASE_LOWER);
+
+            if (!array_key_exists($foreignKeyRow['table_name'], $tablesForeignKeys)) {
+                $tablesForeignKeys[$foreignKeyRow['table_name']] = array($foreignKeyRow);
+            } else {
+                $tablesForeignKeys[$foreignKeyRow['table_name']][] = $foreignKeyRow;
+            }
+        }
+
+        $portableTablesForeignKeys = array();
+        foreach ($tablesForeignKeys as $tableName => $tableForeignKeys) {
+            $portableTablesForeignKeys[$this->_conn->quoteIdentifier($tableName)] =
+                $this->_getPortableTableForeignKeysList($tableForeignKeys);
+        }
+
+        return $portableTablesForeignKeys;
+    }
+
+    private function listTablesIndexes($database = null)
+    {
+        $sql = $this->_platform->getListTablesIndexesSQL($database);
+        $tablesIndexesRows = $this->_conn->fetchAll($sql);
+
+        $tablesIndexes = array();
+        foreach ($tablesIndexesRows as $indexRow) {
+            $indexRow = \array_change_key_case($indexRow, CASE_LOWER);
+
+            if (!array_key_exists($indexRow['table_name'], $tablesIndexes)) {
+                $tablesIndexes[$indexRow['table_name']] = array($indexRow);
+            } else {
+                $tablesIndexes[$indexRow['table_name']][] = $indexRow;
+            }
+        }
+
+        $portableTablesIndexes = array();
+        foreach ($tablesIndexes as $tableName => $tableIndexes) {
+            $portableTablesIndexes[$this->_conn->quoteIdentifier($tableName)] =
+                $this->_getPortableTableIndexesList($tableIndexes, $tableIndexes['table_name']);
+        }
+
+        return $portableTablesIndexes;
+    }
+
+    /**
      * Returns the quoted representation of the given identifier name.
      *
      * Quotes non-uppercase identifiers explicitly to preserve case

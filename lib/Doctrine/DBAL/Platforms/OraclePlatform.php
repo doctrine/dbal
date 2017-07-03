@@ -451,6 +451,55 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
+     * Get the SQL to list all tables indexes for a given database
+     */
+    public function getListTablesIndexesSQL($currentDatabase = null)
+    {
+        $indColumnsTableName = "user_ind_columns";
+        $colConstraintsTableName = "user_constraints";
+        $indColumnsOwnerCondition = '';
+        $colConstraintsOwnerCondition = '';
+
+        if (null !== $currentDatabase && '/' !== $currentDatabase) {
+            $currentDatabase = $this->normalizeIdentifier($currentDatabase);
+            $currentDatabase = $this->quoteStringLiteral($currentDatabase->getName());
+            $indColumnsTableName = "all_ind_columns";
+            $colConstraintsTableName = "all_constraints";
+            $indColumnsOwnerCondition = "WHERE uind_col.index_owner = " . $currentDatabase;
+            $colConstraintsOwnerCondition = " AND ucon.owner = " . $currentDatabase;
+        }
+
+        return "SELECT uind_col.table_name as table_name,
+                       uind_col.index_name AS name,
+                       (
+                           SELECT uind.index_type
+                           FROM   user_indexes uind
+                           WHERE  uind.index_name = uind_col.index_name
+                       ) AS type,
+                       decode(
+                           (
+                               SELECT uind.uniqueness
+                               FROM   user_indexes uind
+                               WHERE  uind.index_name = uind_col.index_name
+                           ),
+                           'NONUNIQUE',
+                           0,
+                           'UNIQUE',
+                           1
+                       ) AS is_unique,
+                       uind_col.column_name AS column_name,
+                       uind_col.column_position AS column_pos,
+                       (
+                           SELECT ucon.constraint_type
+                           FROM   " . $colConstraintsTableName . " ucon
+                           WHERE  ucon.constraint_name = uind_col.index_name" . $colConstraintsOwnerCondition . "
+                       ) AS is_primary
+             FROM      " . $indColumnsTableName . " uind_col
+             " . $indColumnsOwnerCondition . "
+             ORDER BY  uind_col.column_position ASC";
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getListTablesSQL()
@@ -638,6 +687,44 @@ END;';
     }
 
     /**
+     * Get the SQL to list all foreign keys for a given database
+     */
+    public function getListTablesForeignKeysSQL($database = null)
+    {
+        $colConstraintsTableName = "user_constraints";
+        $consColumnsTableName = "user_cons_columns";
+        $colConstraintsOwnerCondition = '';
+
+        if (null !== $database && '/' !== $database) {
+            $database = $this->normalizeIdentifier($database);
+            $database = $this->quoteStringLiteral($database->getName());
+            $colConstraintsTableName = "all_constraints";
+            $consColumnsTableName = "all_cons_columns";
+            $colConstraintsOwnerCondition = "AND alc.owner = " . $database . " AND r_alc.owner = " . $database;
+            $consColumnsOwnerCondition = "AND cols.owner = " . $database . " AND r_cols.owner = " . $database;
+        }
+
+        return "SELECT alc.constraint_name,
+          alc.DELETE_RULE,
+          alc.search_condition,
+          cols.column_name \"local_column\",
+          cols.position,
+          r_alc.table_name \"references_table\",
+          r_cols.column_name \"foreign_column\"
+     FROM $consColumnsTableName cols
+LEFT JOIN $colConstraintsTableName alc
+       ON alc.constraint_name = cols.constraint_name
+LEFT JOIN $colConstraintsTableName r_alc
+       ON alc.r_constraint_name = r_alc.constraint_name
+LEFT JOIN $consColumnsTableName r_cols
+       ON r_alc.constraint_name = r_cols.constraint_name
+      AND cols.position = r_cols.position
+    WHERE alc.constraint_name = cols.constraint_name
+      AND alc.constraint_type = 'R' " . $colConstraintsOwnerCondition . " " . $consColumnsOwnerCondition . "
+    ORDER BY cols.constraint_name ASC, cols.position ASC";
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getListTableConstraintsSQL($table)
@@ -680,6 +767,36 @@ END;';
                 FROM     $tabColumnsTableName c
                 WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
                 ORDER BY c.column_id";
+    }
+
+    /**
+     * Get the SQL to list all tables columns for a given database
+     */
+    public function getListTablesColumnsSQL($database = null)
+    {
+        $tabColumnsTableName = "user_tab_columns";
+        $colCommentsTableName = "user_col_comments";
+        $tabColumnsOwnerCondition = '';
+        $colCommentsOwnerCondition = '';
+
+        if (null !== $database && '/' !== $database) {
+            $database = $this->normalizeIdentifier($database);
+            $database = $this->quoteStringLiteral($database->getName());
+            $tabColumnsTableName = "all_tab_columns";
+            $colCommentsTableName = "all_col_comments";
+            $tabColumnsOwnerCondition = "AND c.owner = " . $database;
+            $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
+        }
+
+        return "SELECT   c.*,
+                         (
+                             SELECT d.comments
+                             FROM   $colCommentsTableName d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                         ) AS comments
+                FROM     $tabColumnsTableName c
+                ORDER BY c.column_name";
     }
 
     /**
