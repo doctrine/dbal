@@ -273,4 +273,19 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertSame('datetime', $columns['col_datetime']->getType()->getName());
         $this->assertSame('datetimetz', $columns['col_datetimetz']->getType()->getName());
     }
+
+    public function testCreateSchemaOnLargeNumberOfTables()
+    {
+        $sql = "CREATE TABLE tbl_test_2766_0 (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, PRIMARY KEY(x_id))";
+        $this->_conn->executeUpdate($sql);
+
+        for ($i = 1; $i < 150; $i++) {
+          $sql = "CREATE TABLE tbl_test_2766_$i (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, PRIMARY KEY(x_id))";
+          $this->_conn->executeUpdate($sql);
+        }
+
+        $dbal_schema = $this->_sm->createSchema();
+
+        $this->assertSame(150, count($dbal_schema->getTables()));
+    }
 }
