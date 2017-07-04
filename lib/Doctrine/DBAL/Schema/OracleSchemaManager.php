@@ -385,25 +385,25 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         // Get all indexes in one database call
-        $tablesIndexes = $this->listTablesIndexes("KX_SITE1_P0");
+        $tablesIndexes = $this->listTablesIndexes();
 
         $tables = array();
         foreach ($tableNames as $tableName) {
-            // Get the column list from the dictionnary that contains all columns for the current database
+            // Get the column list from the dictionary that contains all columns for the current database
             if (array_key_exists($tableName, $tablesColumns)) {
                 $columns = $tablesColumns[$tableName];
             } else {
                 $columns = array();
             }
 
-            // Get the foreign keys list from the dictionnary that contains all foreign keys for the current database
+            // Get the foreign keys list from the dictionary that contains all foreign keys for the current database
             if (array_key_exists($tableName, $tablesForeignKeys)) {
                 $foreignKeys = $tablesForeignKeys[$tableName];
             } else {
                 $foreignKeys = array();
             }
 
-            // Get the index list from the dictionnary that contains all indexes for the current database
+            // Get the index list from the dictionary that contains all indexes for the current database
             if (array_key_exists($tableName, $tablesIndexes)) {
                 $indexes = $tablesIndexes[$tableName];
             } else {
@@ -435,7 +435,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $portableTablesColumns = array();
         foreach ($tablesColumns as $tableName => $tableColumns) {
             $portableTablesColumns[$this->_conn->quoteIdentifier($tableName)] =
-                $this->_getPortableTableColumnList($tableColumns['table_name'], $database, $tableColumns);
+                $this->_getPortableTableColumnList($tableName, $database, $tableColumns);
         }
 
         return $portableTablesColumns;
@@ -486,7 +486,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $portableTablesIndexes = array();
         foreach ($tablesIndexes as $tableName => $tableIndexes) {
             $portableTablesIndexes[$this->_conn->quoteIdentifier($tableName)] =
-                $this->_getPortableTableIndexesList($tableIndexes, $tableIndexes['table_name']);
+                $this->_getPortableTableIndexesList($tableIndexes, $tableName);
         }
 
         return $portableTablesIndexes;

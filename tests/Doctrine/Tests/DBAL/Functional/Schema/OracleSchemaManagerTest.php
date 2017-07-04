@@ -284,8 +284,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
           $this->_conn->executeUpdate($sql);
         }
 
-        $dbal_schema = $this->_sm->createSchema();
+        $startTime = microtime(TRUE);
+        $schema = $this->_sm->createSchema();
+        $endTime = microtime(TRUE);
 
-        $this->assertSame(150, count($dbal_schema->getTables()));
+        $this->assertGreaterThanOrEqual(150, count($schema->getTables()));
+        $this->assertLessThan(15, $endTime - $startTime, 'createSchema() executed in less than 15 sec.');
     }
 }
