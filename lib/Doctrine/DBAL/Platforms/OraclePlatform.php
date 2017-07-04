@@ -694,6 +694,7 @@ END;';
         $colConstraintsTableName = "user_constraints";
         $consColumnsTableName = "user_cons_columns";
         $colConstraintsOwnerCondition = '';
+        $consColumnsOwnerCondition = '';
 
         if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
@@ -776,7 +777,6 @@ LEFT JOIN $consColumnsTableName r_cols
     {
         $tabColumnsTableName = "user_tab_columns";
         $colCommentsTableName = "user_col_comments";
-        $tabColumnsOwnerCondition = '';
         $colCommentsOwnerCondition = '';
 
         if (null !== $database && '/' !== $database) {
@@ -784,7 +784,6 @@ LEFT JOIN $consColumnsTableName r_cols
             $database = $this->quoteStringLiteral($database->getName());
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
-            $tabColumnsOwnerCondition = "AND c.owner = " . $database;
             $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
         }
 
