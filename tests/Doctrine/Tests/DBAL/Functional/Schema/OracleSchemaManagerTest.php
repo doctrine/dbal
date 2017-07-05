@@ -282,16 +282,16 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         // Create a large number of tables with indexes and foreign keys.
         for ($i = 1; $i < 149; $i++) {
-          $sql = "CREATE TABLE tbl_test_2766_$i (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL, FOREIGN KEY tbl_test_2766_fk_$i (x_parent_id) REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(x_id))";
+          $sql = "CREATE TABLE tbl_test_2766_$i (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT tbl_test_2766_fk_$i FOREIGN KEY (x_parent_id) REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(x_id))";
           $this->_conn->executeUpdate($sql);
           $sql = "CREATE UNIQUE INDEX tbl_test_2766_uix_$i ON tbl_test_2766_$i (x_number)";
           $this->_conn->executeUpdate($sql);
         }
 
         // Create a table with quoted identifiers.
-        $sql = "CREATE TABLE \"tbl_testq_2766_149\" (\"q_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, \"q_data\" CLOB DEFAULT NULL NULL, \"q_number\" NUMBER(10) DEFAULT 0 NOT NULL, \"q_parent_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, FOREIGN KEY \"tbl_testq_2766_fk_149\" (\"q_parent_id\") REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(\"q_id\"))";
+        $sql = "CREATE TABLE \"tbl_testQ_2766_149\" (\"Q_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, \"Q_data\" CLOB DEFAULT NULL NULL, \"Q_number\" NUMBER(10) DEFAULT 0 NOT NULL, \"Q_parent_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT \"tbl_testQ_2766_fk_149\"  FOREIGN KEY (\"Q_parent_id\") REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(\"Q_id\"))";
         $this->_conn->executeUpdate($sql);
-        $sql = "CREATE UNIQUE INDEX \"tbl_testq_2766_uix_149\" ON \"tbl_testq_2766_149\" (\"q_number\")";
+        $sql = "CREATE UNIQUE INDEX \"tbl_testQ_2766_uix_149\" ON \"tbl_testQ_2766_149\" (\"Q_number\")";
         $this->_conn->executeUpdate($sql);
 
         // Introspect the db schema.
@@ -300,6 +300,16 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $endTime = microtime(TRUE);
 
         $this->assertGreaterThanOrEqual(150, count($schema->getTables()));
+
+        // Check tables schema.
+        $testTable = 'tbl_test_2766_0';
+        $this->assertTrue($schema->hasTable($testTable));
+
+        $testTable = 'tbl_test_2766_10';
+        $this->assertTrue($schema->hasTable($testTable));
+
+        $testTable = '"tbl_testQ_2766_149"';
+        $this->assertTrue($schema->hasTable($testTable));
 
         $this->assertLessThan(15, $endTime - $startTime, 'createSchema() executed in less than 15 sec.');
     }
