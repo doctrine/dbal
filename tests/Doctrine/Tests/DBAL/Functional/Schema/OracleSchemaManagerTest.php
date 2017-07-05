@@ -311,7 +311,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // Check arbitrary table schema.
         $testTable = 'TBL_TEST_2766_10';
         $this->assertTrue($schema->hasTable($testTable));
-        $this->assertSame(['X_ID', 'X_PARENT_ID', 'X_DATA', 'X_NUMBER'], $this->resolveAssetsNames($schema->getTable($testTable)->getColumns()));
+        $this->assertSame(['X_ID', 'X_DATA', 'X_NUMBER', 'X_PARENT_ID'], $this->resolveAssetsNames($schema->getTable($testTable)->getColumns()));
         $this->assertTrue($schema->getTable($testTable)->hasPrimaryKey());
         $this->assertSame(['X_ID'], $schema->getTable($testTable)->getPrimaryKey()->getColumns());
         $this->assertSame(['X_NUMBER'], $schema->getTable($testTable)->getIndex('tbl_test_2766_uix_10')->getColumns());
@@ -325,7 +325,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // Check table schema with quoted identifiers.
         $testTable = '"tbl_testQ_2766_149"';
         $this->assertTrue($schema->hasTable($testTable));
-        $this->assertSame(['"Q_id"', '"Q_parent_id"', '"Q_data"', '"Q_number"'], $this->resolveAssetsNames($schema->getTable($testTable)->getColumns()));
+        $this->assertSame(['"Q_id"', '"Q_data"', '"Q_number"', '"Q_parent_id"'], $this->resolveAssetsNames($schema->getTable($testTable)->getColumns()));
         $this->assertTrue($schema->getTable($testTable)->hasPrimaryKey());
         $this->assertSame(['"Q_id"'], $schema->getTable($testTable)->getPrimaryKey()->getColumns());
         $this->assertSame(['"Q_number"'], $schema->getTable($testTable)->getIndex('"tbl_testQ_2766_uix_149"')->getColumns());
