@@ -36,6 +36,38 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
+    public function listTables()
+    {
+        $tableNames = $this->listTableNames();
+
+        // Get all column definitions in one database call.
+        $allColumns = $this->_conn->fetchAll($this->_platform->getListTableColumnsSQL(null));
+
+        $tables = array();
+        foreach ($tableNames as $tableName) {
+            $unquotedTableName = rtrim(ltrim($tableName, '"'), '"');
+
+            // Process columns for this table.
+            $tableColumns = array_filter($allColumns, function ($column) use ($unquotedTableName) {
+                return $column['TABLE_NAME'] === $unquotedTableName;
+            });
+            $columns = $this->_getPortableTableColumnList($tableName, null, $tableColumns);
+
+            $foreignKeys = array();
+            if ($this->_platform->supportsForeignKeyConstraints()) {
+                $foreignKeys = $this->listTableForeignKeys($tableName);
+            }
+            $indexes = $this->listTableIndexes($tableName);
+
+            $tables[] = new Table($tableName, $columns, $indexes, $foreignKeys, false, array());
+        }
+
+        return $tables;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function dropDatabase($database)
     {
         try {
