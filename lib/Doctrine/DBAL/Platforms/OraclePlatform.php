@@ -653,9 +653,6 @@ END;';
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
         $tabColumnsTableName = "user_tab_columns";
         $colCommentsTableName = "user_col_comments";
         $tabColumnsOwnerCondition = '';
@@ -666,20 +663,32 @@ END;';
             $database = $this->quoteStringLiteral($database->getName());
             $tabColumnsTableName = "all_tab_columns";
             $colCommentsTableName = "all_col_comments";
-            $tabColumnsOwnerCondition = "AND c.owner = " . $database;
+            $tabColumnsOwnerCondition = "c.owner = " . $database;
             $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
         }
 
-        return "SELECT   c.*,
+        $sql = "SELECT   c.*,
                          (
                              SELECT d.comments
                              FROM   $colCommentsTableName d
                              WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
-                FROM     $tabColumnsTableName c
-                WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
-                ORDER BY c.column_id";
+                FROM     $tabColumnsTableName c ";
+        if (null !== $table)
+        {
+            $table = $this->normalizeIdentifier($table);
+            $table = $this->quoteStringLiteral($table->getName());
+
+            $sql .= " WHERE    c.table_name = " . $table;
+            $sql .= !empty($tabColumnsOwnerCondition) ? " AND $tabColumnsOwnerCondition " : '';
+            $sql .= " ORDER BY c.column_id";
+            return $sql;
+        } else {
+            $sql .= !empty($tabColumnsOwnerCondition) ? " WHERE $tabColumnsOwnerCondition " : '';
+            $sql .= " ORDER BY c.table_name, c.column_id";
+            return $sql;
+        }
     }
 
     /**
