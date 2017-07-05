@@ -282,10 +282,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         // Create a large number of tables with indexes and foreign keys.
         for ($i = 1; $i < 149; $i++) {
-          $sql = "CREATE TABLE tbl_test_2766_$i (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT tbl_test_2766_fk_$i FOREIGN KEY (x_parent_id) REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(x_id))";
-          $this->_conn->executeUpdate($sql);
-          $sql = "CREATE UNIQUE INDEX tbl_test_2766_uix_$i ON tbl_test_2766_$i (x_number)";
-          $this->_conn->executeUpdate($sql);
+            $sql = "CREATE TABLE tbl_test_2766_$i (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT tbl_test_2766_fk_$i FOREIGN KEY (x_parent_id) REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(x_id))";
+            $this->_conn->executeUpdate($sql);
+            $sql = "CREATE UNIQUE INDEX tbl_test_2766_uix_$i ON tbl_test_2766_$i (x_number)";
+            $this->_conn->executeUpdate($sql);
         }
 
         // Create a table with quoted identifiers.
@@ -304,40 +304,50 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // Check base table schema.
         $testTable = 'tbl_test_2766_0';
         $this->assertTrue($schema->hasTable($testTable));
-        $this->assertSame(['x_id', 'x_data', 'x_number'], array_keys($schema->getTable($testTable)->getColumns()));
+        $this->assertSame(['X_ID', 'X_DATA', 'X_NUMBER'], $this->resolveAssetNames($schema->getTable($testTable)->getColumns()));
         $this->assertTrue($schema->getTable($testTable)->hasPrimaryKey());
-        $this->assertSame(['x_id'], array_keys($schema->getTable($testTable)->getPrimaryKey()->getColumns()));
+        $this->assertSame(['X_ID'], $schema->getTable($testTable)->getPrimaryKey()->getColumns());
 
         // Check arbitrary table schema.
-        $testTable = 'tbl_test_2766_10';
+        $testTable = 'TBL_TEST_2766_10';
         $this->assertTrue($schema->hasTable($testTable));
-        $this->assertSame(['x_id', 'x_parent_id', 'x_data', 'x_number'], array_keys($schema->getTable($testTable)->getColumns()));
+        $this->assertSame(['X_ID', 'X_PARENT_ID', 'X_DATA', 'X_NUMBER'], $this->resolveAssetNames($schema->getTable($testTable)->getColumns()));
         $this->assertTrue($schema->getTable($testTable)->hasPrimaryKey());
-        $this->assertSame(['x_id'], array_keys($schema->getTable($testTable)->getPrimaryKey()->getColumns()));
-        $this->assertSame(['tbl_test_2766_uix_10'], array_keys($schema->getTable($testTable)->getIndexes()));
-        $this->assertSame(['x_number'], array_keys($schema->getTable($testTable)->getIndex('tbl_test_2766_uix_10')->getColumns()));
-        $testForeignKey = 'tbl_test_2766_fk_10';
-        $this->assertSame([$testForeignKey], array_keys($schema->getTable($testTable)->getForeignKeys()));
-        $this->assertSame($testTable, $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalTable());
-        $this->assertSame(['x_parent_id'], array_keys($schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalColumns()));
-        $this->assertSame('tbl_test_2766_0', $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignTableName());
-        $this->assertSame(['x_id'], array_keys($schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignColumns()));
+        $this->assertSame(['X_ID'], $schema->getTable($testTable)->getPrimaryKey()->getColumns());
+        $this->assertSame(['X_NUMBER'], $schema->getTable($testTable)->getIndex('tbl_test_2766_uix_10')->getColumns());
+        $testForeignKey = 'TBL_TEST_2766_FK_10';
+        $this->assertSame([$testForeignKey], $this->resolveAssetNames($schema->getTable($testTable)->getForeignKeys()));
+        $this->assertSame($testTable, $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalTable()->getQuotedName($this->_conn->getDatabasePlatform()));
+        $this->assertSame(['X_PARENT_ID'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalColumns());
+        $this->assertSame('TBL_TEST_2766_0', $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignTableName());
+        $this->assertSame(['X_ID'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignColumns());
 
         // Check table schema with quoted identifiers.
         $testTable = '"tbl_testQ_2766_149"';
         $this->assertTrue($schema->hasTable($testTable));
-        $this->assertSame(['"Q_id"', '"Q_parent_id"', '"Q_data"', '"Q_number"'], array_keys($schema->getTable($testTable)->getColumns()));
+        $this->assertSame(['"Q_id"', '"Q_parent_id"', '"Q_data"', '"Q_number"'], $this->resolveAssetNames($schema->getTable($testTable)->getColumns()));
         $this->assertTrue($schema->getTable($testTable)->hasPrimaryKey());
-        $this->assertSame(['"Q_id"'], array_keys($schema->getTable($testTable)->getPrimaryKey()->getColumns()));
-        $this->assertSame(['"tbl_testQ_2766_uix_149"'], array_keys($schema->getTable($testTable)->getIndexes()));
-        $this->assertSame(['"Q_number"'], array_keys($schema->getTable($testTable)->getIndex('"tbl_testQ_2766_uix_149"')->getColumns()));
+        $this->assertSame(['"Q_id"'], $schema->getTable($testTable)->getPrimaryKey()->getColumns());
+        $this->assertSame(['"Q_number"'], $schema->getTable($testTable)->getIndex('"tbl_testQ_2766_uix_149"')->getColumns());
         $testForeignKey = '"tbl_testQ_2766_fk_149"';
-        $this->assertSame([$testForeignKey], array_keys($schema->getTable($testTable)->getForeignKeys()));
-        $this->assertSame($testTable, $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalTable());
-        $this->assertSame(['"Q_parent_id"'], array_keys($schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalColumns()));
-        $this->assertSame('tbl_test_2766_0', $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignTableName());
-        $this->assertSame(['x_id'], array_keys($schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignColumns()));
+        $this->assertSame([$testForeignKey], $this->resolveAssetNames($schema->getTable($testTable)->getForeignKeys()));
+        $this->assertSame($testTable, $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalTable()->getQuotedName($this->_conn->getDatabasePlatform()));
+        $this->assertSame(['"Q_parent_id"'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalColumns());
+        $this->assertSame('TBL_TEST_2766_0', $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignTableName());
+        $this->assertSame(['X_ID'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignColumns());
 
         $this->assertLessThan(15, $endTime - $startTime, 'createSchema() executed in less than 15 sec.');
     }
+
+    protected function resolveAssetsNames(array $assets)
+    {
+        $ret = [];
+
+        foreach ($assets as $asset) {
+            $ret[] = $asset->getQuotedName($this->_conn->getDatabasePlatform());
+        }
+
+        return $ret;
+    }
+
 }
