@@ -242,7 +242,7 @@ Error handling
 
 In order to handle errors related to deadlocks or lock wait timeouts,
 you can use Doctrine built-in transaction exceptions.
-All transaction exceptions have a marker interface: ``Doctrine/DBAL/Exception/RetryableException``.
+All transaction exceptions where retrying makes sense have a marker interface: ``Doctrine\DBAL\Exception\RetryableException``.
 A practical example is as follows:
 
 ::
@@ -251,16 +251,16 @@ A practical example is as follows:
 
     try {
         // process stuff
-    } catch (\Doctrine/DBAL/Exception/RetryableException $e) {
+    } catch (\Doctrine\DBAL\Exception\RetryableException $e) {
         // retry the processing
     }
 
 
 If you need stricter control, you can catch the concrete exceptions directly:
 
-- ``Doctrine/DBAL/Exception/DeadlockException``: this can happen when each member
+- ``Doctrine\DBAL\Exception\DeadlockException``: this can happen when each member
   of a group of actions is waiting for some other member to release a shared lock.
-- ``Doctrine/DBAL/Exception/LockWaitTimeoutException``: this exception happens when 
-  a transaction have to wait a considerable amount of time to obtain a lock, even if
+- ``Doctrine\DBAL\Exception\LockWaitTimeoutException``: this exception happens when 
+  a transaction has to wait a considerable amount of time to obtain a lock, even if
   a deadlock is not involved.
 
