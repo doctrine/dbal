@@ -667,24 +667,30 @@ END;';
             $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
         }
 
-        $sql = "SELECT   c.*,
+        if (null !== $table)
+        {
+            $table = $this->normalizeIdentifier($table);
+            $table = $this->quoteStringLiteral($table->getName());
+
+            return "SELECT   c.*,
                          (
                              SELECT d.comments
                              FROM   $colCommentsTableName d
                              WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
-                FROM     $tabColumnsTableName c ";
-        if (null !== $table)
-        {
-            $table = $this->normalizeIdentifier($table);
-            $table = $this->quoteStringLiteral($table->getName());
-
-            $sql .= " WHERE    c.table_name = " . $table;
-            $sql .= !empty($tabColumnsOwnerCondition) ? " AND $tabColumnsOwnerCondition " : '';
-            $sql .= " ORDER BY c.column_id";
-            return $sql;
+                FROM     $tabColumnsTableName c
+                WHERE    c.table_name = " . $table . (!empty($tabColumnsOwnerCondition) ? ' AND' : '') . " $tabColumnsOwnerCondition
+                ORDER BY c.column_id";
         } else {
+            $sql = "SELECT   c.*,
+                             (
+                                 SELECT d.comments
+                                 FROM   $colCommentsTableName d
+                                 WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
+                                 AND    d.COLUMN_NAME = c.COLUMN_NAME
+                             ) AS comments
+                    FROM     $tabColumnsTableName c ";
             $sql .= !empty($tabColumnsOwnerCondition) ? " WHERE $tabColumnsOwnerCondition " : '';
             $sql .= " ORDER BY c.table_name, c.column_id";
             return $sql;
