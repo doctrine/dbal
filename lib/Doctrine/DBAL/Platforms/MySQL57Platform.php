@@ -70,7 +70,7 @@ class MySQL57Platform extends MySqlPlatform
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
         return array(
-            'ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)
+            'ALTER TABLE ' . $tableName . ' RENAME INDEX `' . $oldIndexName . '` TO ' . $index->getQuotedName($this)
         );
     }
 
