@@ -677,47 +677,34 @@ END;';
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        $tabColumnsTableName = "user_tab_columns";
-        $colCommentsTableName = "user_col_comments";
-        $tabColumnsOwnerCondition = '';
-        $colCommentsOwnerCondition = '';
+        if (null !== $table) {
+            $table = $this->normalizeIdentifier($table);
+            $table = $this->quoteStringLiteral($table->getName());
+            $tableWhereClause = "AND c.table_name = " . $table;
+        } else {
+            $tableWhereClause = '';
+        }
 
         if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
             $database = $this->quoteStringLiteral($database->getName());
-            $tabColumnsTableName = "all_tab_columns";
-            $colCommentsTableName = "all_col_comments";
-            $tabColumnsOwnerCondition = "c.owner = " . $database;
-            $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
-        }
-
-        if (null !== $table)
-        {
-            $table = $this->normalizeIdentifier($table);
-            $table = $this->quoteStringLiteral($table->getName());
-
+            return "SELECT   c.*, d.comments AS comments
+                    FROM    all_tab_columns c
+               LEFT JOIN    all_col_comments d
+                      ON    d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
+                   WHERE    c.owner = $database $tableWhereClause
+                   ORDER BY c.table_name, c.column_id";
+        } else {
             return "SELECT   c.*,
                          (
                              SELECT d.comments
-                             FROM   $colCommentsTableName d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
+                             FROM   user_col_comments d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
-                FROM     $tabColumnsTableName c
-                WHERE    c.table_name = " . $table . (!empty($tabColumnsOwnerCondition) ? ' AND' : '') . " $tabColumnsOwnerCondition
+                FROM     user_tab_columns c
+                WHERE    c.table_name = $table
                 ORDER BY c.column_id";
-        } else {
-            $sql = "SELECT   c.*,
-                             (
-                                 SELECT d.comments
-                                 FROM   $colCommentsTableName d
-                                 WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
-                                 AND    d.COLUMN_NAME = c.COLUMN_NAME
-                             ) AS comments
-                    FROM     $tabColumnsTableName c ";
-            $sql .= !empty($tabColumnsOwnerCondition) ? " WHERE $tabColumnsOwnerCondition " : '';
-            $sql .= " ORDER BY c.table_name, c.column_id";
-            return $sql;
         }
     }
 
