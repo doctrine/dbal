@@ -429,30 +429,16 @@ class OraclePlatform extends AbstractPlatform
 
         return "SELECT uind_col.table_name as table_name,
                        uind_col.index_name AS name,
-                       (
-                           SELECT uind.index_type
-                           FROM   user_indexes uind
-                           WHERE  uind.index_name = uind_col.index_name
-                       ) AS type,
-                       decode(
-                           (
-                               SELECT uind.uniqueness
-                               FROM   user_indexes uind
-                               WHERE  uind.index_name = uind_col.index_name
-                           ),
-                           'NONUNIQUE',
-                           0,
-                           'UNIQUE',
-                           1
-                       ) AS is_unique,
+                       uind.index_type AS type,
+                       decode(uind.uniqueness, 'NONUNIQUE', 0, 'UNIQUE', 1) AS is_unique,
                        uind_col.column_name AS column_name,
                        uind_col.column_position AS column_pos,
-                       (
-                           SELECT ucon.constraint_type
-                           FROM   user_constraints ucon
-                           WHERE  ucon.index_name = uind_col.index_name
-                       ) AS is_primary
-             FROM      user_ind_columns uind_col
+                       ucon.constraint_type AS is_primary
+                 FROM  user_ind_columns uind_col
+            LEFT JOIN  user_indexes uind
+                   ON  uind_col.index_name = uind.index_name
+            LEFT JOIN  user_constraints ucon
+                   ON  uind_col.index_name = ucon.index_name
              " . $whereClause . "
              ORDER BY  uind_col.table_name, uind_col.index_name, uind_col.column_position";
     }
