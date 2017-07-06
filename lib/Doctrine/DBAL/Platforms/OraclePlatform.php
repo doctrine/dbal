@@ -434,11 +434,11 @@ class OraclePlatform extends AbstractPlatform
                        uind_col.column_name AS column_name,
                        uind_col.column_position AS column_pos,
                        ucon.constraint_type AS is_primary
-                 FROM  user_indexes uind
-                 JOIN  user_ind_columns uind_col
+                 FROM  user_ind_columns uind_col
+            LEFT JOIN  user_indexes uind
                    ON  uind.index_name = uind_col.index_name
             LEFT JOIN  user_constraints ucon
-                   ON  uind.index_name = ucon.index_name
+                   ON  ucon.index_name = uind_col.index_name
              " . $whereClause . "
              ORDER BY  uind_col.table_name, uind_col.index_name, uind_col.column_position";
     }
