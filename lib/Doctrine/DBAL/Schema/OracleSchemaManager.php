@@ -38,13 +38,15 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function listTables()
     {
+        $currentDatabase = $this->_conn->getDatabase();
+
         $tableNames = $this->listTableNames();
 
         // Get all column definitions in one database call.
-        $allColumns = $this->_conn->fetchAll($this->_platform->getListTableColumnsSQL(null));
+        $allColumns = $this->_conn->fetchAll($this->_platform->getListTableColumnsSQL(null, $currentDatabase));
 
         // Get all indexes definitions in one database call.
-        $allIndexes = $this->_conn->fetchAll($this->_platform->getListTableIndexesSQL(null));
+        $allIndexes = $this->_conn->fetchAll($this->_platform->getListTableIndexesSQL(null, $currentDatabase));
 
         $tables = array();
         foreach ($tableNames as $tableName) {
