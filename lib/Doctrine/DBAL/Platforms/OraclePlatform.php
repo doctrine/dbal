@@ -418,29 +418,34 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        if (null !== $table)
-        {
+        if (null === $currentDatabase) {
+            $currentDatabase = $this->_conn->getDatabase();
+        }
+        $currentDatabase = $this->normalizeIdentifier($currentDatabase);
+        $currentDatabase = $this->quoteStringLiteral($currentDatabase->getName());
+
+        if (null !== $table) {
             $table = $this->normalizeIdentifier($table);
             $table = $this->quoteStringLiteral($table->getName());
-            $whereClause = " WHERE     uind_col.table_name = " . $table;
+            $tableWhereClause = "AND aind_col.table_name = " . $table;
         } else {
-            $whereClause = '';
+            $tableWhereClause = '';
         }
 
-        return "SELECT uind_col.table_name as table_name,
-                       uind_col.index_name AS name,
-                       uind.index_type AS type,
-                       decode(uind.uniqueness, 'NONUNIQUE', 0, 'UNIQUE', 1) AS is_unique,
-                       uind_col.column_name AS column_name,
-                       uind_col.column_position AS column_pos,
-                       ucon.constraint_type AS is_primary
-                 FROM  user_ind_columns uind_col
-            LEFT JOIN  user_indexes uind
-                   ON  uind.index_name = uind_col.index_name
-            LEFT JOIN  user_constraints ucon
-                   ON  ucon.index_name = uind_col.index_name
-             " . $whereClause . "
-             ORDER BY  uind_col.table_name, uind_col.index_name, uind_col.column_position";
+        return "SELECT aind_col.table_name as table_name,
+                       aind_col.index_name AS name,
+                       aind.index_type AS type,
+                       decode(aind.uniqueness, 'NONUNIQUE', 0, 'UNIQUE', 1) AS is_unique,
+                       aind_col.column_name AS column_name,
+                       aind_col.column_position AS column_pos,
+                       acon.constraint_type AS is_primary
+                 FROM  all_ind_columns aind_col
+            LEFT JOIN  all_indexes aind
+                   ON  aind.owner = aind_col.index_owner AND aind.index_name = aind_col.index_name
+            LEFT JOIN  all_constraints acon
+                   ON  acon.owner = aind_col.index_owner AND acon.index_name = aind_col.index_name
+                WHERE  aind_col.index_owner = $currentDatabase $tableWhereClause
+             ORDER BY  aind_col.table_name, aind_col.index_name, aind_col.column_position";
     }
 
     /**
