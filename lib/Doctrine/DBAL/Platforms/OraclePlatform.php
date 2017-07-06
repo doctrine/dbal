@@ -418,10 +418,17 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
+        if (null !== $table)
+        {
+            $table = $this->normalizeIdentifier($table);
+            $table = $this->quoteStringLiteral($table->getName());
+            $whereClause = " WHERE     uind_col.table_name = " . $table;
+        } else {
+            $whereClause = '';
+        }
 
-        return "SELECT uind_col.index_name AS name,
+        return "SELECT uind_col.table_name as table_name,
+                       uind_col.index_name AS name,
                        (
                            SELECT uind.index_type
                            FROM   user_indexes uind
@@ -446,8 +453,8 @@ class OraclePlatform extends AbstractPlatform
                            WHERE  ucon.index_name = uind_col.index_name
                        ) AS is_primary
              FROM      user_ind_columns uind_col
-             WHERE     uind_col.table_name = " . $table . "
-             ORDER BY  uind_col.column_position ASC";
+             " . $whereClause . "
+             ORDER BY  uind_col.table_name, uind_col.index_name, uind_col.column_position";
     }
 
     /**
