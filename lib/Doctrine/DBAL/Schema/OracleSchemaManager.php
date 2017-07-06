@@ -68,7 +68,6 @@ class OracleSchemaManager extends AbstractSchemaManager
                 return $index['TABLE_NAME'] === $unquotedTableName;
             });
             $indexes = !empty($tableIndexes) ? $this->_getPortableTableIndexesList($tableIndexes, $tableName) : array();
-            $this->listTableIndexes($tableName);
 
             $tables[] = new Table($tableName, $columns, $indexes, $foreignKeys, false, array());
         }
