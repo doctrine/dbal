@@ -43,6 +43,9 @@ class OracleSchemaManager extends AbstractSchemaManager
         // Get all column definitions in one database call.
         $allColumns = $this->_conn->fetchAll($this->_platform->getListTableColumnsSQL(null));
 
+        // Get all indexes definitions in one database call.
+        $allIndexes = $this->_conn->fetchAll($this->_platform->getListTableIndexesSQL(null));
+
         $tables = array();
         foreach ($tableNames as $tableName) {
             $unquotedTableName = rtrim(ltrim($tableName, '"'), '"');
@@ -57,7 +60,13 @@ class OracleSchemaManager extends AbstractSchemaManager
             if ($this->_platform->supportsForeignKeyConstraints()) {
                 $foreignKeys = $this->listTableForeignKeys($tableName);
             }
-            $indexes = $this->listTableIndexes($tableName);
+
+            // Process indexes for this table.
+            $tableIndexes = array_filter($allIndexes, function ($index) use ($unquotedTableName) {
+                return $index['TABLE_NAME'] === $unquotedTableName;
+            });
+            $indexes = !empty($tableIndexes) ? $this->_getPortableTableIndexesList($tableIndexes, $tableName) : array();
+            $this->listTableIndexes($tableName);
 
             $tables[] = new Table($tableName, $columns, $indexes, $foreignKeys, false, array());
         }
