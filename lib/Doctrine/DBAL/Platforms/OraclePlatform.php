@@ -632,11 +632,34 @@ END;';
     /**
      * {@inheritDoc}
      */
-    public function getListTableForeignKeysSQL($table)
+    public function getListTableForeignKeysSQL($table, $database = null)
     {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
+        if (null !== $table) {
+            $table = $this->normalizeIdentifier($table);
+            $table = $this->quoteStringLiteral($table->getName());
+            $tableWhereClause = "AND cols.table_name = " . $table;
+        } else {
+            $tableWhereClause = '';
+        }
 
+        if (null !== $database && '/' !== $database) {
+            $database = $this->normalizeIdentifier($database);
+            $database = $this->quoteStringLiteral($database->getName());
+                return "SELECT cols.table_name,
+                   alc.constraint_name,
+                   alc.DELETE_RULE,
+                   cols.column_name \"local_column\",
+                   cols.position,
+                   r_cols.table_name \"references_table\",
+                   r_cols.column_name \"foreign_column\"
+              FROM all_cons_columns cols
+         LEFT JOIN all_constraints alc
+                ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
+         LEFT JOIN all_cons_columns r_cols
+                ON r_cols.owner = alc.r_owner AND r_cols.constraint_name = alc.r_constraint_name AND r_cols.position = cols.position
+             WHERE cols.owner = $database $tableWhereClause AND alc.constraint_type = 'R'
+             ORDER BY cols.table_name, cols.constraint_name, cols.position";
+        } else {
         return "SELECT alc.constraint_name,
           alc.DELETE_RULE,
           cols.column_name \"local_column\",
@@ -659,6 +682,7 @@ END;';
       AND alc.constraint_type = 'R'
       AND alc.table_name = " . $table . "
     ORDER BY cols.constraint_name ASC, cols.position ASC";
+        }
     }
 
     /**
