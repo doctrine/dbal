@@ -336,7 +336,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertSame('TBL_TEST_2766_0', $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignTableName());
         $this->assertSame(['X_ID'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignColumns());
 
-        $this->assertLessThan(3, $endTime - $startTime, 'createSchema() executed in less than 3 sec.');
+        $this->assertLessThan(15, $endTime - $startTime, 'createSchema() executed in less than 15 sec.');
     }
 
     protected function resolveAssetsNames(array $assets)
