@@ -281,7 +281,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_conn->executeUpdate($sql);
 
         // Create a large number of tables with indexes and foreign keys.
-        for ($i = 1; $i < 2149; $i++) {
+        for ($i = 1; $i < 649; $i++) {
             $sql = "CREATE TABLE tbl_test_2766_$i (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT tbl_test_2766_fk_$i FOREIGN KEY (x_parent_id) REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(x_id))";
             $this->_conn->executeUpdate($sql);
             $sql = "CREATE UNIQUE INDEX tbl_test_2766_uix_$i ON tbl_test_2766_$i (x_number)";
@@ -289,9 +289,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         // Create a table with quoted identifiers.
-        $sql = "CREATE TABLE \"tbl_testQ_2766_2149\" (\"Q_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, \"Q_data\" CLOB DEFAULT NULL NULL, \"Q_number\" NUMBER(10) DEFAULT 0 NOT NULL, \"Q_parent_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT \"tbl_testQ_2766_fk_2149\"  FOREIGN KEY (\"Q_parent_id\") REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(\"Q_id\"))";
+        $sql = "CREATE TABLE \"tbl_testQ_2766_649\" (\"Q_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, \"Q_data\" CLOB DEFAULT NULL NULL, \"Q_number\" NUMBER(10) DEFAULT 0 NOT NULL, \"Q_parent_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT \"tbl_testQ_2766_fk_649\"  FOREIGN KEY (\"Q_parent_id\") REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(\"Q_id\"))";
         $this->_conn->executeUpdate($sql);
-        $sql = "CREATE UNIQUE INDEX \"tbl_testQ_2766_uix_2149\" ON \"tbl_testQ_2766_2149\" (\"Q_number\")";
+        $sql = "CREATE UNIQUE INDEX \"tbl_testQ_2766_uix_649\" ON \"tbl_testQ_2766_649\" (\"Q_number\")";
         $this->_conn->executeUpdate($sql);
 
         // Introspect the db schema.
@@ -299,7 +299,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $schema = $this->_sm->createSchema();
         $endTime = microtime(TRUE);
 
-        $this->assertGreaterThanOrEqual(2150, count($schema->getTables()));
+        $this->assertGreaterThanOrEqual(650, count($schema->getTables()));
 
         // Check base table schema.
         $testTable = 'tbl_test_2766_0';
@@ -323,13 +323,13 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertSame(['X_ID'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignColumns());
 
         // Check table schema with quoted identifiers.
-        $testTable = '"tbl_testQ_2766_2149"';
+        $testTable = '"tbl_testQ_2766_649"';
         $this->assertTrue($schema->hasTable($testTable));
         $this->assertSame(['"Q_id"', '"Q_data"', '"Q_number"', '"Q_parent_id"'], $this->resolveAssetsNames($schema->getTable($testTable)->getColumns()));
         $this->assertTrue($schema->getTable($testTable)->hasPrimaryKey());
         $this->assertSame(['"Q_id"'], $schema->getTable($testTable)->getPrimaryKey()->getColumns());
-        $this->assertSame(['"Q_number"'], $schema->getTable($testTable)->getIndex('"tbl_testQ_2766_uix_2149"')->getColumns());
-        $testForeignKey = '"tbl_testQ_2766_fk_2149"';
+        $this->assertSame(['"Q_number"'], $schema->getTable($testTable)->getIndex('"tbl_testQ_2766_uix_649"')->getColumns());
+        $testForeignKey = '"tbl_testQ_2766_fk_649"';
         $this->assertSame([$testForeignKey], $this->resolveAssetsNames($schema->getTable($testTable)->getForeignKeys()));
         $this->assertSame($testTable, $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalTable()->getQuotedName($this->_conn->getDatabasePlatform()));
         $this->assertSame(['"Q_parent_id"'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalColumns());
