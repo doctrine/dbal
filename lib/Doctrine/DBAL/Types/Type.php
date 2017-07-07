@@ -36,12 +36,17 @@ abstract class Type
     const TARRAY = 'array';
     const SIMPLE_ARRAY = 'simple_array';
     const JSON_ARRAY = 'json_array';
+    const JSON = 'json';
     const BIGINT = 'bigint';
     const BOOLEAN = 'boolean';
     const DATETIME = 'datetime';
+    const DATETIME_IMMUTABLE = 'datetime_immutable';
     const DATETIMETZ = 'datetimetz';
+    const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
     const DATE = 'date';
+    const DATE_IMMUTABLE = 'date_immutable';
     const TIME = 'time';
+    const TIME_IMMUTABLE = 'time_immutable';
     const DECIMAL = 'decimal';
     const INTEGER = 'integer';
     const OBJECT = 'object';
@@ -67,26 +72,31 @@ abstract class Type
      * @var array
      */
     private static $_typesMap = array(
-        self::TARRAY => 'Doctrine\DBAL\Types\ArrayType',
-        self::SIMPLE_ARRAY => 'Doctrine\DBAL\Types\SimpleArrayType',
-        self::JSON_ARRAY => 'Doctrine\DBAL\Types\JsonArrayType',
-        self::OBJECT => 'Doctrine\DBAL\Types\ObjectType',
-        self::BOOLEAN => 'Doctrine\DBAL\Types\BooleanType',
-        self::INTEGER => 'Doctrine\DBAL\Types\IntegerType',
-        self::SMALLINT => 'Doctrine\DBAL\Types\SmallIntType',
-        self::BIGINT => 'Doctrine\DBAL\Types\BigIntType',
-        self::STRING => 'Doctrine\DBAL\Types\StringType',
-        self::TEXT => 'Doctrine\DBAL\Types\TextType',
-        self::DATETIME => 'Doctrine\DBAL\Types\DateTimeType',
-        self::DATETIMETZ => 'Doctrine\DBAL\Types\DateTimeTzType',
-        self::DATE => 'Doctrine\DBAL\Types\DateType',
-        self::TIME => 'Doctrine\DBAL\Types\TimeType',
-        self::DECIMAL => 'Doctrine\DBAL\Types\DecimalType',
-        self::FLOAT => 'Doctrine\DBAL\Types\FloatType',
-        self::BINARY => 'Doctrine\DBAL\Types\BinaryType',
-        self::BLOB => 'Doctrine\DBAL\Types\BlobType',
-        self::GUID => 'Doctrine\DBAL\Types\GuidType',
-        self::DATEINTERVAL => 'Doctrine\DBAL\Types\DateIntervalType',
+        self::TARRAY => ArrayType::class,
+        self::SIMPLE_ARRAY => SimpleArrayType::class,
+        self::JSON_ARRAY => JsonArrayType::class,
+        self::JSON => JsonType::class,
+        self::OBJECT => ObjectType::class,
+        self::BOOLEAN => BooleanType::class,
+        self::INTEGER => IntegerType::class,
+        self::SMALLINT => SmallIntType::class,
+        self::BIGINT => BigIntType::class,
+        self::STRING => StringType::class,
+        self::TEXT => TextType::class,
+        self::DATETIME => DateTimeType::class,
+        self::DATETIME_IMMUTABLE => DateTimeImmutableType::class,
+        self::DATETIMETZ => DateTimeTzType::class,
+        self::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
+        self::DATE => DateType::class,
+        self::DATE_IMMUTABLE => DateImmutableType::class,
+        self::TIME => TimeType::class,
+        self::TIME_IMMUTABLE => TimeImmutableType::class,
+        self::DECIMAL => DecimalType::class,
+        self::FLOAT => FloatType::class,
+        self::BINARY => BinaryType::class,
+        self::BLOB => BlobType::class,
+        self::GUID => GuidType::class,
+        self::DATEINTERVAL => DateIntervalType::class,
     );
 
     /**

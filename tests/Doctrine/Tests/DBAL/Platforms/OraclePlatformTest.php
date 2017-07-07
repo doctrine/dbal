@@ -187,6 +187,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $this->assertTrue($this->_platform->supportsSavepoints());
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsCommentOnStatement()
+    {
+        return true;
+    }
+
     public function getGenerateIndexSql()
     {
         return 'CREATE INDEX my_idx ON mytable (user_name, last_login)';
@@ -253,6 +261,18 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
         $this->assertEquals('SELECT a.* FROM (SELECT * FROM user) a WHERE ROWNUM <= 10', $sql);
+    }
+
+    public function testModifyLimitQueryWithNonEmptyOffset()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 10);
+        $this->assertEquals('SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 20) WHERE doctrine_rownum >= 11', $sql);
+    }
+
+    public function testModifyLimitQueryWithEmptyLimit()
+    {
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', null, 10);
+        $this->assertEquals('SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a) WHERE doctrine_rownum >= 11', $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy()
@@ -392,6 +412,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }
 
+    /**
+     * @group DBAL-2555
+     */
     public function testInitializesDoctrineTypeMappings()
     {
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('long raw'));
@@ -399,6 +422,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('raw'));
         $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('raw'));
+
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('date'));
+        $this->assertSame('date', $this->_platform->getDoctrineTypeMapping('date'));
     }
 
     protected function getBinaryMaxLength()
@@ -697,6 +723,63 @@ EOD;
     }
 
     /**
+     * @dataProvider getReturnsGetListTableColumnsSQL
+     * @group DBAL-831
+     */
+    public function testReturnsGetListTableColumnsSQL($database, $expectedSql)
+    {
+        // note: this assertion is a bit strict, as it compares a full SQL string.
+        // Should this break in future, then please try to reduce the matching to substring matching while reworking
+        // the tests
+        $this->assertEquals($expectedSql, $this->_platform->getListTableColumnsSQL('"test"', $database));
+    }
+
+    public function getReturnsGetListTableColumnsSQL()
+    {
+        return array(
+            array(
+                null,
+                "SELECT   c.*,
+                         (
+                             SELECT d.comments
+                             FROM   user_col_comments d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME 
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                         ) AS comments
+                FROM     user_tab_columns c
+                WHERE    c.table_name = 'test' 
+                ORDER BY c.column_id"
+            ),
+            array(
+                '/',
+                "SELECT   c.*,
+                         (
+                             SELECT d.comments
+                             FROM   user_col_comments d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME 
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                         ) AS comments
+                FROM     user_tab_columns c
+                WHERE    c.table_name = 'test' 
+                ORDER BY c.column_id"
+            ),
+            array(
+                'scott',
+                "SELECT   c.*,
+                         (
+                             SELECT d.comments
+                             FROM   all_col_comments d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME AND d.OWNER = c.OWNER
+                             AND    d.COLUMN_NAME = c.COLUMN_NAME
+                         ) AS comments
+                FROM     all_tab_columns c
+                WHERE    c.table_name = 'test' AND c.owner = 'SCOTT'
+                ORDER BY c.column_id"
+            ),
+        );
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getQuotesReservedKeywordInUniqueConstraintDeclarationSQL()
@@ -738,5 +821,53 @@ EOD;
         return array(
             'ALTER INDEX idx_foo RENAME TO idx_foo_renamed',
         );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListSequencesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListSequencesSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableConstraintsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
     }
 }

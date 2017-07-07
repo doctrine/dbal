@@ -43,6 +43,35 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function getCurrentDateSQL()
+    {
+        return $this->getConvertExpression('date', 'GETDATE()');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCurrentTimeSQL()
+    {
+        return $this->getConvertExpression('time', 'GETDATE()');
+    }
+
+    /**
+     * Returns an expression that converts an expression of one data type to another.
+     *
+     * @param string $dataType   The target native data type. Alias data types cannot be used.
+     * @param string $expression The SQL expression to convert.
+     *
+     * @return string
+     */
+    private function getConvertExpression($dataType, $expression)
+    {
+        return sprintf('CONVERT(%s, %s)', $dataType, $expression);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
         $factorClause = '';
@@ -144,7 +173,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function supportsCreateDropDatabase()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -928,12 +957,14 @@ class SQLServerPlatform extends AbstractPlatform
     {
         if (strpos($table, ".") !== false) {
             list($schema, $table) = explode(".", $table);
-            $schema = "'" . $schema . "'";
+            $schema = $this->quoteStringLiteral($schema);
+            $table = $this->quoteStringLiteral($table);
         } else {
             $schema = "SCHEMA_NAME()";
+            $table = $this->quoteStringLiteral($table);
         }
 
-        return "({$tableColumn} = '{$table}' AND {$schemaColumn} = {$schema})";
+        return "({$tableColumn} = {$table} AND {$schemaColumn} = {$schema})";
     }
 
     /**
@@ -1190,7 +1221,7 @@ class SQLServerPlatform extends AbstractPlatform
         // Even if the TOP n is very large, the use of a CTE will
         // allow the SQL Server query planner to optimize it so it doesn't
         // actually scan the entire range covered by the TOP clause.
-        $selectPattern = '/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/i';
+        $selectPattern = '/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/im';
         $replacePattern = sprintf('$1%s $2', "TOP $end");
         $query = preg_replace($selectPattern, $replacePattern, $query);
 
@@ -1222,12 +1253,16 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function scrubInnerOrderBy($query)
     {
-        $count = substr_count(strtoupper($query), "ORDER BY");
+        $count = substr_count(strtoupper($query), 'ORDER BY');
         $offset = 0;
 
         while ($count-- > 0) {
+            $orderByPos = stripos($query, ' ORDER BY', $offset);
+            if ($orderByPos === false) {
+                break;
+            }
+
             $qLen = strlen($query);
-            $orderByPos = stripos($query, " ORDER BY", $offset);
             $parenCount = 0;
             $currentPosition = $orderByPos;
 
@@ -1279,7 +1314,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             // Only yank query text on the same nesting level as the ORDER BY clause.
-            $subQueryBuffer = ($parenCount === 0 ? $query[$currentPosition] : " ") . $subQueryBuffer;
+            $subQueryBuffer = ($parenCount === 0 ? $query[$currentPosition] : ' ') . $subQueryBuffer;
 
             $currentPosition--;
         }

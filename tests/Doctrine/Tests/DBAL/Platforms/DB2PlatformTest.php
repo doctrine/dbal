@@ -115,6 +115,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return array(
             "CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))",
+            "COMMENT ON COLUMN test.id IS 'This is a comment'",
         );
     }
 
@@ -134,6 +135,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         return array(
             'CREATE TABLE test (id INTEGER NOT NULL, "data" CLOB(1M) NOT NULL, PRIMARY KEY(id))',
+            'COMMENT ON COLUMN test."data" IS \'(DC2Type:array)\'',
         );
     }
 
@@ -285,6 +287,15 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         $this->assertSame('datetime', $this->_platform->getDoctrineTypeMapping('timestamp'));
     }
 
+    public function getIsCommentedDoctrineType()
+    {
+        $data = parent::getIsCommentedDoctrineType();
+
+        $data[Type::BOOLEAN] = array(Type::getType(Type::BOOLEAN), true);
+
+        return $data;
+    }
+
     public function testGeneratesDDLSnippets()
     {
         $this->assertEquals("CREATE DATABASE foobar", $this->_platform->getCreateDatabaseSQL('foobar'));
@@ -347,21 +358,21 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
 
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM <= 10',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0)
         );
 
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 1 AND 10',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM <= 10',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10)
         );
 
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 15',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM >= 6 AND db22.DC_ROWNUM <= 15',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 5)
         );
         $this->assertEquals(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM BETWEEN 6 AND 5',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM >= 6 AND db22.DC_ROWNUM <= 5',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
         );
     }
@@ -659,6 +670,14 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     /**
      * {@inheritdoc}
      */
+    protected function supportsCommentOnStatement()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getAlterStringToFixedStringSQL()
     {
         return array(
@@ -675,5 +694,29 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return array(
             'RENAME INDEX idx_foo TO idx_foo_renamed',
         );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
 }

@@ -24,7 +24,7 @@ class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
         $this->command = $application->find('dbal:run-sql');
         $this->commandTester = new CommandTester($this->command);
 
-        $this->connectionMock = $this->getMock('\Doctrine\DBAL\Connection', array(), array(), '', false);
+        $this->connectionMock = $this->createMock('\Doctrine\DBAL\Connection');
         $this->connectionMock->method('fetchAll')
             ->willReturn(array(array(1)));
         $this->connectionMock->method('executeUpdate')

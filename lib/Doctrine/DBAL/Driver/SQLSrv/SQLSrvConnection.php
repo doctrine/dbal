@@ -118,10 +118,13 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function exec($statement)
     {
-        $stmt = $this->prepare($statement);
-        $stmt->execute();
+        $stmt = sqlsrv_query($this->conn, $statement);
 
-        return $stmt->rowCount();
+        if (false === $stmt) {
+            throw SQLSrvException::fromSqlSrvErrors();
+        }
+
+        return sqlsrv_rows_affected($stmt);
     }
 
     /**
@@ -130,9 +133,8 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function lastInsertId($name = null)
     {
         if ($name !== null) {
-            $sql = "SELECT IDENT_CURRENT(".$this->quote($name).") AS LastInsertId";
-            $stmt = $this->prepare($sql);
-            $stmt->execute();
+            $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
+            $stmt->execute([$name]);
 
             return $stmt->fetchColumn();
         }

@@ -34,6 +34,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array("SELECT '?' FROM foo WHERE bar = ?", true, array(32)),
             array("SELECT `?` FROM foo WHERE bar = ?", true, array(32)), // Ticket DBAL-552
             array("SELECT [?] FROM foo WHERE bar = ?", true, array(32)),
+            array('SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[?])', true, array(56)), // Ticket GH-2295
             array("SELECT 'Doctrine\DBAL?' FROM foo WHERE bar = ?", true, array(45)), // Ticket DBAL-558
             array('SELECT "Doctrine\DBAL?" FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
             array('SELECT `Doctrine\DBAL?` FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
@@ -53,6 +54,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT foo::date as date FROM Foo WHERE bar > :start_date AND baz > :start_date', false, array(46 => 'start_date', 68 =>  'start_date')), // Ticket GH-259
             array('SELECT `d.ns:col_name` FROM my_table d WHERE `d.date` >= :param1', false, array(57 => 'param1')), // Ticket DBAL-552
             array('SELECT [d.ns:col_name] FROM my_table d WHERE [d.date] >= :param1', false, array(57 => 'param1')), // Ticket DBAL-552
+            array('SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[:foo])', false, array(56 => 'foo')), // Ticket GH-2295
             array(
 <<<'SQLDATA'
 SELECT * FROM foo WHERE 
@@ -65,6 +67,11 @@ OR bar=:a_param3
 SQLDATA
                 , false, array(74 => 'a_param1', 91 => 'a_param2', 190 => 'a_param3')
             ),
+            array("SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE '\\\\') AND (data.description LIKE :condition_1 ESCAPE '\\\\') ORDER BY id ASC", false, array(121 => 'condition_0', 174 => 'condition_1')),
+            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE "\\\\") ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
+            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
+            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
+            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
             
         );
     }

@@ -18,7 +18,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
             'password' => 'bar',
         );
 
-        $statement = $this->getMock('Doctrine\Tests\Mocks\DriverResultStatementMock');
+        $statement = $this->createMock('Doctrine\Tests\Mocks\DriverResultStatementMock');
 
         $statement->expects($this->once())
             ->method('fetchColumn')

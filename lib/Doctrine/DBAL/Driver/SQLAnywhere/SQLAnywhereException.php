@@ -42,11 +42,11 @@ class SQLAnywhereException extends AbstractDriverException
      */
     public static function fromSQLAnywhereError($conn = null, $stmt = null)
     {
-        if (null !== $conn && ! (is_resource($conn) && get_resource_type($conn) === 'SQLAnywhere connection')) {
+        if (null !== $conn && ! (is_resource($conn))) {
             throw new \InvalidArgumentException('Invalid SQL Anywhere connection resource given: ' . $conn);
         }
 
-        if (null !== $stmt && ! (is_resource($stmt) && get_resource_type($stmt) === 'SQLAnywhere statement')) {
+        if (null !== $stmt && ! (is_resource($stmt))) {
             throw new \InvalidArgumentException('Invalid SQL Anywhere statement resource given: ' . $stmt);
         }
 

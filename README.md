@@ -3,6 +3,7 @@
 | [Master][Master] | [2.5][2.5] |
 |:----------------:|:----------:|
 | [![Build status][Master image]][Master] | [![Build status][2.5 image]][2.5] |
+| [![Code Coverage](https://scrutinizer-ci.com/g/doctrine/dbal/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/doctrine/dbal/?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/doctrine/dbal/badges/coverage.png?b=2.5)](https://scrutinizer-ci.com/g/doctrine/dbal/?branch=2.5) |
 
 
 Powerful database abstraction layer with many features for database schema introspection, schema management and PDO abstraction.

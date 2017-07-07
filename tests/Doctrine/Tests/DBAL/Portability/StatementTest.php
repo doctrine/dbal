@@ -188,6 +188,6 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
      */
     protected function createWrappedStatement()
     {
-        return $this->getMock('Doctrine\Tests\Mocks\DriverStatementMock');
+        return $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
     }
 }

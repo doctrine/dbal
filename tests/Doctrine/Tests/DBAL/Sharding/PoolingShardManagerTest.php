@@ -24,12 +24,15 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
 {
     private function createConnectionMock()
     {
-        return $this->getMock('Doctrine\DBAL\Sharding\PoolingShardConnection', array('connect', 'getParams', 'fetchAll'), array(), '', false);
+        return $this->getMockBuilder('Doctrine\DBAL\Sharding\PoolingShardConnection')
+            ->setMethods(array('connect', 'getParams', 'fetchAll'))
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     private function createPassthroughShardChoser()
     {
-        $mock = $this->getMock('Doctrine\DBAL\Sharding\ShardChoser\ShardChoser');
+        $mock = $this->createMock('Doctrine\DBAL\Sharding\ShardChoser\ShardChoser');
         $mock->expects($this->any())
              ->method('pickShard')
              ->will($this->returnCallback(function($value) { return $value; }));
@@ -38,7 +41,7 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
 
     private function createStaticShardChoser()
     {
-        $mock = $this->getMock('Doctrine\DBAL\Sharding\ShardChoser\ShardChoser');
+        $mock = $this->createMock('Doctrine\DBAL\Sharding\ShardChoser\ShardChoser');
         $mock->expects($this->any())
             ->method('pickShard')
             ->will($this->returnCallback(function($value) { return 1; }));

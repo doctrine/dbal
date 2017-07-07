@@ -227,6 +227,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $this->assertTrue($this->_platform->supportsSequences());
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsCommentOnStatement()
+    {
+        return true;
+    }
+
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
@@ -825,6 +833,90 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $this->assertSame(
             "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = 'foo'",
             $this->_platform->getCloseActiveDatabaseConnectionsSQL('foo')
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesSchemaNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\\\'",
+            $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
+            '',
+            true
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableConstraintsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesSchemaNameInListTableIndexesSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\\\'",
+            $this->_platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
+            '',
+            true
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesSchemaNameInListTableColumnsSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\\\'",
+            $this->_platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
+            '',
+            true
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInCloseActiveDatabaseConnectionsSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\\\'",
+            $this->_platform->getCloseActiveDatabaseConnectionsSQL("Foo'Bar\\"),
+            '',
+            true
         );
     }
 }

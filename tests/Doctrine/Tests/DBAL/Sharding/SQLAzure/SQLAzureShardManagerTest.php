@@ -85,7 +85,10 @@ class SQLAzureShardManagerTest extends \PHPUnit_Framework_TestCase
 
     private function createConnection(array $params)
     {
-        $conn = $this->getMock('Doctrine\DBAL\Connection', array('getParams', 'exec', 'isTransactionActive'), array(), '', false);
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('getParams', 'exec', 'isTransactionActive'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $conn->expects($this->at(0))->method('getParams')->will($this->returnValue($params));
         return $conn;
     }

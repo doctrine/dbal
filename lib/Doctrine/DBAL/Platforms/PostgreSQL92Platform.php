@@ -78,6 +78,8 @@ class PostgreSQL92Platform extends PostgreSQL91Platform
      */
     public function getCloseActiveDatabaseConnectionsSQL($database)
     {
-        return "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$database'";
+        $database = $this->quoteStringLiteral($database);
+
+        return "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $database";
     }
 }

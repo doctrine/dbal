@@ -712,4 +712,36 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'CREATE INDEX idx_foo_renamed ON mytable (foo)',
         );
     }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableConstraintsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+    }
 }

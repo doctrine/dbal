@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\TestUtil;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -215,5 +217,60 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
             array('"Id"'),
             $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignColumns($platform)
         );
+    }
+
+    public function testListTableColumnsSameTableNamesInDifferentSchemas()
+    {
+        $table = $this->createListTableColumns();
+        $this->_sm->dropAndCreateTable($table);
+
+        $otherTable = new Table($table->getName());
+        $otherTable->addColumn('id', Type::STRING);
+        TestUtil::getTempConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
+
+        $columns = $this->_sm->listTableColumns($table->getName(), $this->_conn->getUsername());
+        $this->assertCount(7, $columns);
+    }
+
+    /**
+     * @group DBAL-1234
+     */
+    public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName()
+    {
+        $table = new Table('list_table_indexes_pk_id_test');
+        $table->setSchemaConfig($this->_sm->createSchemaConfig());
+        $table->addColumn('id', 'integer', array('notnull' => true));
+        $table->addUniqueIndex(array('id'), 'id_unique_index');
+        $this->_sm->dropAndCreateTable($table);
+
+        // Adding a primary key on already indexed columns
+        // Oracle will reuse the unique index, which cause a constraint name differing from the index name
+        $this->_sm->createConstraint(new Schema\Index('id_pk_id_index', array('id'), true, true), 'list_table_indexes_pk_id_test');
+
+        $tableIndexes = $this->_sm->listTableIndexes('list_table_indexes_pk_id_test');
+
+        $this->assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
+        $this->assertEquals(array('id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+        $this->assertTrue($tableIndexes['primary']->isUnique());
+        $this->assertTrue($tableIndexes['primary']->isPrimary());
+    }
+
+    /**
+     * @group DBAL-2555
+     */
+    public function testListTableDateTypeColumns()
+    {
+        $table = new Table('tbl_date');
+        $table->addColumn('col_date', 'date');
+        $table->addColumn('col_datetime', 'datetime');
+        $table->addColumn('col_datetimetz', 'datetimetz');
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns('tbl_date');
+
+        $this->assertSame('date', $columns['col_date']->getType()->getName());
+        $this->assertSame('datetime', $columns['col_datetime']->getType()->getName());
+        $this->assertSame('datetimetz', $columns['col_datetimetz']->getType()->getName());
     }
 }

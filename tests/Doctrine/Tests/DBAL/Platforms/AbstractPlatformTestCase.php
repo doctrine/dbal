@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Tests\Types\CommentedType;
 
 abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 {
@@ -105,6 +106,49 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $this->setExpectedException('Doctrine\DBAL\DBALException');
         $this->_platform->registerDoctrineTypeMapping('foo', 'bar');
+    }
+
+    /**
+     * @group DBAL-2594
+     */
+    public function testRegistersCommentedDoctrineMappingTypeImplicitly()
+    {
+        if (!Type::hasType('my_commented')) {
+            Type::addType('my_commented', CommentedType::class);
+        }
+
+        $type = Type::getType('my_commented');
+        $this->_platform->registerDoctrineTypeMapping('foo', 'my_commented');
+
+        $this->assertTrue($this->_platform->isCommentedDoctrineType($type));
+    }
+
+    /**
+     * @group DBAL-939
+     *
+     * @dataProvider getIsCommentedDoctrineType
+     */
+    public function testIsCommentedDoctrineType(Type $type, $commented)
+    {
+        $this->assertSame($commented, $this->_platform->isCommentedDoctrineType($type));
+    }
+
+    public function getIsCommentedDoctrineType()
+    {
+        $this->setUp();
+
+        $data = array();
+
+        foreach (Type::getTypesMap() as $typeName => $className) {
+            $type = Type::getType($typeName);
+
+            $data[$typeName] = array(
+                $type,
+                $type->requiresSQLCommentHint($this->_platform),
+            );
+        }
+
+        return $data;
     }
 
     public function testCreateWithNoColumns()
@@ -318,7 +362,9 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGetCreateTableSqlDispatchEvent()
     {
-        $listenerMock = $this->getMock('GetCreateTableSqlDispatchEvenListener', array('onSchemaCreateTable', 'onSchemaCreateTableColumn'));
+        $listenerMock = $this->getMockBuilder('GetCreateTableSqlDispatchEvenListener')
+            ->setMethods(array('onSchemaCreateTable', 'onSchemaCreateTableColumn'))
+            ->getMock();
         $listenerMock
             ->expects($this->once())
             ->method('onSchemaCreateTable');
@@ -340,7 +386,9 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGetDropTableSqlDispatchEvent()
     {
-        $listenerMock = $this->getMock('GetDropTableSqlDispatchEventListener', array('onSchemaDropTable'));
+        $listenerMock = $this->getMockBuilder('GetDropTableSqlDispatchEventListener')
+            ->setMethods(array('onSchemaDropTable'))
+            ->getMock();
         $listenerMock
             ->expects($this->once())
             ->method('onSchemaDropTable');
@@ -363,7 +411,9 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             'onSchemaAlterTableRenameColumn'
         );
 
-        $listenerMock = $this->getMock('GetAlterTableSqlDispatchEvenListener', $events);
+        $listenerMock = $this->getMockBuilder('GetAlterTableSqlDispatchEvenListener')
+            ->setMethods($events)
+            ->getMock();
         $listenerMock
             ->expects($this->once())
             ->method('onSchemaAlterTable');
@@ -665,6 +715,19 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     protected function supportsInlineIndexDeclaration()
     {
         return true;
+    }
+
+    public function testSupportsCommentOnStatement()
+    {
+        $this->assertSame($this->supportsCommentOnStatement(), $this->_platform->supportsCommentOnStatement());
+    }
+
+    /**
+     * @return bool
+     */
+    protected function supportsCommentOnStatement()
+    {
+        return false;
     }
 
     /**

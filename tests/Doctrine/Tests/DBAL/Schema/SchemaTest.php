@@ -349,7 +349,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     public function testVisitsVisitor()
     {
         $schema = new Schema();
-        $visitor = $this->getMock('Doctrine\DBAL\Schema\Visitor\Visitor');
+        $visitor = $this->createMock('Doctrine\DBAL\Schema\Visitor\Visitor');
 
         $schema->createNamespace('foo');
         $schema->createNamespace('bar');
@@ -363,9 +363,6 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
         $visitor->expects($this->once())
             ->method('acceptSchema')
             ->with($schema);
-
-        $visitor->expects($this->never())
-            ->method('acceptNamespace');
 
         $visitor->expects($this->at(1))
             ->method('acceptTable')
@@ -398,7 +395,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     public function testVisitsNamespaceVisitor()
     {
         $schema = new Schema();
-        $visitor = $this->getMock('Doctrine\DBAL\Schema\Visitor\AbstractVisitor');
+        $visitor = $this->createMock('Doctrine\DBAL\Schema\Visitor\AbstractVisitor');
 
         $schema->createNamespace('foo');
         $schema->createNamespace('bar');

@@ -1131,8 +1131,12 @@ class ComparatorTest extends \PHPUnit_Framework_TestCase
     public function testComparesNamespaces()
     {
         $comparator = new Comparator();
-        $fromSchema = $this->getMock('Doctrine\DBAL\Schema\Schema', array('getNamespaces', 'hasNamespace'));
-        $toSchema = $this->getMock('Doctrine\DBAL\Schema\Schema', array('getNamespaces', 'hasNamespace'));
+        $fromSchema = $this->getMockBuilder('Doctrine\DBAL\Schema\Schema')
+            ->setMethods(array('getNamespaces', 'hasNamespace'))
+            ->getMock();
+        $toSchema = $this->getMockBuilder('Doctrine\DBAL\Schema\Schema')
+            ->setMethods(array('getNamespaces', 'hasNamespace'))
+            ->getMock();
 
         $fromSchema->expects($this->once())
             ->method('getNamespaces')

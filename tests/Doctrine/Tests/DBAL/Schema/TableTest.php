@@ -742,6 +742,34 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
+     * @group DBAL-2508
+     */
+    public function testKeepsIndexOptionsOnRenamingRegularIndex()
+    {
+        $table = new Table('foo');
+        $table->addColumn('id', 'integer');
+        $table->addIndex(array('id'), 'idx_bar', array(), array('where' => '1 = 1'));
+
+        $table->renameIndex('idx_bar', 'idx_baz');
+
+        $this->assertSame(array('where' => '1 = 1'), $table->getIndex('idx_baz')->getOptions());
+    }
+
+    /**
+     * @group DBAL-2508
+     */
+    public function testKeepsIndexOptionsOnRenamingUniqueIndex()
+    {
+        $table = new Table('foo');
+        $table->addColumn('id', 'integer');
+        $table->addUniqueIndex(array('id'), 'idx_bar', array('where' => '1 = 1'));
+
+        $table->renameIndex('idx_bar', 'idx_baz');
+
+        $this->assertSame(array('where' => '1 = 1'), $table->getIndex('idx_baz')->getOptions());
+    }
+
+    /**
      * @group DBAL-234
      * @expectedException \Doctrine\DBAL\Schema\SchemaException
      */

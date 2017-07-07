@@ -55,6 +55,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testGeneratesSqlSnippets()
     {
+        $this->assertEquals('CONVERT(date, GETDATE())', $this->_platform->getCurrentDateSQL());
+        $this->assertEquals('CONVERT(time, GETDATE())', $this->_platform->getCurrentTimeSQL());
+        $this->assertEquals('CURRENT_TIMESTAMP', $this->_platform->getCurrentTimestampSQL());
         $this->assertEquals('"', $this->_platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
         $this->assertEquals('(column1 + column2 + column3)', $this->_platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
     }
@@ -138,6 +141,11 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testSupportsIdentityColumns()
     {
         $this->assertTrue($this->_platform->supportsIdentityColumns());
+    }
+
+    public function testSupportsCreateDropDatabase()
+    {
+        $this->assertTrue($this->_platform->supportsCreateDropDatabase());
     }
 
     public function testSupportsSchemas()
@@ -1350,5 +1358,68 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
         $this->assertEquals(sprintf(static::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesSchemaNameInListTableColumnsSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\'",
+            $this->_platform->getListTableColumnsSQL("Foo'Bar\\.baz_table"),
+            '',
+            true
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesSchemaNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\'",
+            $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\.baz_table"),
+            '',
+            true
+        );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesSchemaNameInListTableIndexesSQL()
+    {
+        $this->assertContains(
+            "'Foo''Bar\\'",
+            $this->_platform->getListTableIndexesSQL("Foo'Bar\\.baz_table"),
+            '',
+            true
+        );
     }
 }

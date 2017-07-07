@@ -14,6 +14,22 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
         return new MySQL57Platform();
     }
 
+    public function testHasNativeJsonType()
+    {
+        $this->assertTrue($this->_platform->hasNativeJsonType());
+    }
+
+    public function testReturnsJsonTypeDeclarationSQL()
+    {
+        $this->assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
+    }
+
+    public function testInitializesJsonTypeMapping()
+    {
+        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
+        $this->assertSame('json_array', $this->_platform->getDoctrineTypeMapping('json'));
+    }
+
     /**
      * @group DBAL-234
      */

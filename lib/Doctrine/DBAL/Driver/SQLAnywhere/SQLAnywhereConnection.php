@@ -50,7 +50,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     {
         $this->connection = $persistent ? @sasql_pconnect($dsn) : @sasql_connect($dsn);
 
-        if ( ! is_resource($this->connection) || get_resource_type($this->connection) !== 'SQLAnywhere connection') {
+        if ( ! is_resource($this->connection)) {
             throw SQLAnywhereException::fromSQLAnywhereError();
         }
 
@@ -121,11 +121,11 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      */
     public function exec($statement)
     {
-        $stmt = $this->prepare($statement);
+        if (false === sasql_real_query($this->connection, $statement)) {
+            throw SQLAnywhereException::fromSQLAnywhereError($this->connection);
+        }
 
-        $stmt->execute();
-
-        return $stmt->rowCount();
+        return sasql_affected_rows($this->connection);
     }
 
     /**

@@ -151,8 +151,6 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
             return false;
         }
 
-        OraclePlatform::assertValidIdentifier($name);
-
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
         $stmt   = $this->query($sql);
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);

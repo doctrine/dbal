@@ -8,7 +8,7 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $sql = $this->_conn->getDatabasePlatform()->getDummySelectSQL();
 
-        $logMock = $this->getMock('Doctrine\DBAL\Logging\SQLLogger');
+        $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
         $logMock->expects($this->at(0))
                 ->method('startQuery')
                 ->with($this->equalTo($sql), $this->equalTo(array()), $this->equalTo(array()));
@@ -24,7 +24,7 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = $this->_conn->getDatabasePlatform()->getDummySelectSQL();
 
-        $logMock = $this->getMock('Doctrine\DBAL\Logging\SQLLogger');
+        $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
         $logMock->expects($this->at(0))
                 ->method('startQuery')
                 ->with($this->equalTo($sql), $this->equalTo(array()), $this->equalTo(array()));
@@ -38,7 +38,7 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $sql = $this->_conn->getDatabasePlatform()->getDummySelectSQL();
 
-        $logMock = $this->getMock('Doctrine\DBAL\Logging\SQLLogger');
+        $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
         $logMock->expects($this->once())
                 ->method('startQuery')
                 ->with($this->equalTo($sql), $this->equalTo(array()));

@@ -11,7 +11,7 @@ class DBAL461Test extends \PHPUnit_Framework_TestCase
 {
     public function testIssue()
     {
-        $conn = $this->getMock('Doctrine\DBAL\Connection', array(), array(), '', false);
+        $conn = $this->createMock('Doctrine\DBAL\Connection');
         $platform = $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform');
         $platform->registerDoctrineTypeMapping('numeric', 'decimal');
 

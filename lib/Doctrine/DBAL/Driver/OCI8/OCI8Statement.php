@@ -54,12 +54,12 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * @var array
      */
-    protected static $fetchModeMap = array(
+    protected static $fetchModeMap = [
         PDO::FETCH_BOTH => OCI_BOTH,
         PDO::FETCH_ASSOC => OCI_ASSOC,
         PDO::FETCH_NUM => OCI_NUM,
         PDO::FETCH_COLUMN => OCI_NUM,
-    );
+    ];
 
     /**
      * @var integer
@@ -69,7 +69,23 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * @var array
      */
-    protected $_paramMap = array();
+    protected $_paramMap = [];
+
+    /**
+     * Holds references to bound parameter values.
+     *
+     * This is a new requirement for PHP7's oci8 extension that prevents bound values from being garbage collected.
+     *
+     * @var array
+     */
+    private $boundValues = [];
+
+    /**
+     * Indicates whether the statement is in the state when fetching results is possible
+     *
+     * @var bool
+     */
+    private $result = false;
 
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
@@ -105,28 +121,133 @@ class OCI8Statement implements \IteratorAggregate, Statement
      * @param string $statement The SQL statement to convert.
      *
      * @return string
+     * @throws \Doctrine\DBAL\Driver\OCI8\OCI8Exception
      */
     static public function convertPositionalToNamedPlaceholders($statement)
     {
-        $count = 1;
-        $inLiteral = false; // a valid query never starts with quotes
-        $stmtLen = strlen($statement);
-        $paramMap = array();
-        for ($i = 0; $i < $stmtLen; $i++) {
-            if ($statement[$i] == '?' && !$inLiteral) {
-                // real positional parameter detected
-                $paramMap[$count] = ":param$count";
-                $len = strlen($paramMap[$count]);
-                $statement = substr_replace($statement, ":param$count", $i, 1);
-                $i += $len-1; // jump ahead
-                $stmtLen = strlen($statement); // adjust statement length
-                ++$count;
-            } elseif ($statement[$i] == "'" || $statement[$i] == '"') {
-                $inLiteral = ! $inLiteral; // switch state!
+        $fragmentOffset = $tokenOffset = 0;
+        $fragments = $paramMap = [];
+        $currentLiteralDelimiter = null;
+
+        do {
+            if (!$currentLiteralDelimiter) {
+                $result = self::findPlaceholderOrOpeningQuote(
+                    $statement,
+                    $tokenOffset,
+                    $fragmentOffset,
+                    $fragments,
+                    $currentLiteralDelimiter,
+                    $paramMap
+                );
+            } else {
+                $result = self::findClosingQuote($statement, $tokenOffset, $currentLiteralDelimiter);
             }
+        } while ($result);
+
+        if ($currentLiteralDelimiter) {
+            throw new OCI8Exception(sprintf(
+                'The statement contains non-terminated string literal starting at offset %d',
+                $tokenOffset - 1
+            ));
         }
 
-        return array($statement, $paramMap);
+        $fragments[] = substr($statement, $fragmentOffset);
+        $statement = implode('', $fragments);
+
+        return [$statement, $paramMap];
+    }
+
+    /**
+     * Finds next placeholder or opening quote.
+     *
+     * @param string $statement The SQL statement to parse
+     * @param string $tokenOffset The offset to start searching from
+     * @param int $fragmentOffset The offset to build the next fragment from
+     * @param string[] $fragments Fragments of the original statement not containing placeholders
+     * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
+     *                                             or NULL if not currently in a literal
+     * @param array<int, string> $paramMap Mapping of the original parameter positions to their named replacements
+     * @return bool Whether the token was found
+     */
+    private static function findPlaceholderOrOpeningQuote(
+        $statement,
+        &$tokenOffset,
+        &$fragmentOffset,
+        &$fragments,
+        &$currentLiteralDelimiter,
+        &$paramMap
+    ) {
+        $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
+
+        if (!$token) {
+            return false;
+        }
+
+        if ($token === '?') {
+            $position = count($paramMap) + 1;
+            $param = ':param' . $position;
+            $fragments[] = substr($statement, $fragmentOffset, $tokenOffset - $fragmentOffset);
+            $fragments[] = $param;
+            $paramMap[$position] = $param;
+            $tokenOffset += 1;
+            $fragmentOffset = $tokenOffset;
+
+            return true;
+        }
+
+        $currentLiteralDelimiter = $token;
+        ++$tokenOffset;
+
+        return true;
+    }
+
+    /**
+     * Finds closing quote
+     *
+     * @param string $statement The SQL statement to parse
+     * @param string $tokenOffset The offset to start searching from
+     * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
+     *                                             or NULL if not currently in a literal
+     * @return bool Whether the token was found
+     */
+    private static function findClosingQuote(
+        $statement,
+        &$tokenOffset,
+        &$currentLiteralDelimiter
+    ) {
+        $token = self::findToken(
+            $statement,
+            $tokenOffset,
+            '/' . preg_quote($currentLiteralDelimiter, '/') . '/'
+        );
+
+        if (!$token) {
+            return false;
+        }
+
+        $currentLiteralDelimiter = false;
+        ++$tokenOffset;
+
+        return true;
+    }
+
+    /**
+     * Finds the token described by regex starting from the given offset. Updates the offset with the position
+     * where the token was found.
+     *
+     * @param string $statement The SQL statement to parse
+     * @param string $offset The offset to start searching from
+     * @param string $regex The regex containing token pattern
+     * @return string|null Token or NULL if not found
+     */
+    private static function findToken($statement, &$offset, $regex)
+    {
+        if (preg_match($regex, $statement, $matches, PREG_OFFSET_CAPTURE, $offset)) {
+            $offset = $matches[0][1];
+            return $matches[0][0];
+        }
+
+        return null;
     }
 
     /**
@@ -148,10 +269,16 @@ class OCI8Statement implements \IteratorAggregate, Statement
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
             $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
+            $this->boundValues[$column] =& $lob;
+
             return oci_bind_by_name($this->_sth, $column, $lob, -1, OCI_B_BLOB);
         } elseif ($length !== null) {
+            $this->boundValues[$column] =& $variable;
+
             return oci_bind_by_name($this->_sth, $column, $variable, $length);
         }
+
+        $this->boundValues[$column] =& $variable;
 
         return oci_bind_by_name($this->_sth, $column, $variable);
     }
@@ -161,7 +288,16 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        return oci_free_statement($this->_sth);
+        // not having the result means there's nothing to close
+        if (!$this->result) {
+            return true;
+        }
+
+        oci_cancel($this->_sth);
+
+        $this->result = false;
+
+        return true;
     }
 
     /**
@@ -214,6 +350,8 @@ class OCI8Statement implements \IteratorAggregate, Statement
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
 
+        $this->result = true;
+
         return $ret;
     }
 
@@ -240,8 +378,14 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
+        // do not try fetching from the statement if it's not expected to contain result
+        // in order to prevent exceptional situation
+        if (!$this->result) {
+            return false;
+        }
+
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
         if (PDO::FETCH_OBJ == $fetchMode) {
@@ -261,11 +405,11 @@ class OCI8Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
-        $result = array();
+        $result = [];
 
         if (PDO::FETCH_OBJ == $fetchMode) {
             while ($row = $this->fetch($fetchMode)) {
@@ -289,6 +433,12 @@ class OCI8Statement implements \IteratorAggregate, Statement
                 $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
             }
 
+            // do not try fetching from the statement if it's not expected to contain result
+            // in order to prevent exceptional situation
+            if (!$this->result) {
+                return [];
+            }
+
             oci_fetch_all($this->_sth, $result, 0, -1,
                 self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
 
@@ -305,6 +455,12 @@ class OCI8Statement implements \IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
+        // do not try fetching from the statement if it's not expected to contain result
+        // in order to prevent exceptional situation
+        if (!$this->result) {
+            return false;
+        }
+
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
 
         if (false === $row) {

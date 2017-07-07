@@ -385,6 +385,60 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     }
 
     /**
+     * @group DBAL-2302
+     */
+    public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn()
+    {
+        $table = new Table("tbl");
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
+        $table->addColumn('bar', 'integer');
+        $table->setPrimaryKey(array('id', 'foo'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+
+        $diffTable->dropPrimaryKey();
+        $diffTable->setPrimaryKey(array('id'));
+
+        $this->assertSame(
+            array(
+                'ALTER TABLE tbl MODIFY id INT NOT NULL',
+                'ALTER TABLE tbl DROP PRIMARY KEY',
+                'ALTER TABLE tbl ADD PRIMARY KEY (id)',
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
+    }
+
+    /**
+     * @group DBAL-2302
+     */
+    public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn()
+    {
+        $table = new Table("tbl");
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
+        $table->addColumn('bar', 'integer');
+        $table->setPrimaryKey(array('id'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+
+        $diffTable->dropPrimaryKey();
+        $diffTable->setPrimaryKey(array('id', 'foo'));
+
+        $this->assertSame(
+            array(
+                'ALTER TABLE tbl MODIFY id INT NOT NULL',
+                'ALTER TABLE tbl DROP PRIMARY KEY',
+                'ALTER TABLE tbl ADD PRIMARY KEY (id, foo)',
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );
+    }
+
+    /**
      * @group DBAL-586
      */
     public function testAddAutoIncrementPrimaryKey()
@@ -415,9 +469,33 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $sql = $this->_platform->getAlterTableSQL($diff);
 
         $this->assertEquals(array(
-	        "ALTER TABLE mytable DROP PRIMARY KEY",
+            "ALTER TABLE mytable DROP PRIMARY KEY",
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
+    }
+    
+    public function testAlterPrimaryKeyWithNewColumn()
+    {
+        $table = new Table("yolo");
+        $table->addColumn('pkc1', 'integer');
+        $table->addColumn('col_a', 'integer');
+        $table->setPrimaryKey(array('pkc1'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+        
+        $diffTable->addColumn('pkc2', 'integer');
+        $diffTable->dropPrimaryKey();
+        $diffTable->setPrimaryKey(array('pkc1', 'pkc2'));
+
+        $this->assertSame(
+            array(
+                'ALTER TABLE yolo DROP PRIMARY KEY',
+                'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
+                'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );      
     }
 
     public function testInitializesDoctrineTypeMappings()
@@ -760,5 +838,73 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             array(array('scale' => 5), 'DOUBLE PRECISION'),
             array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
         );
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\", 'foo_db'), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListTableIndexesSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL('foo_table', "Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListViewsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListViewsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListTableForeignKeysSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL('foo_table', "Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesTableNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+    }
+
+    /**
+     * @group DBAL-2436
+     */
+    public function testQuotesDatabaseNameInListTableColumnsSQL()
+    {
+        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
+    }
+
+    public function testListTableForeignKeysSQLEvaluatesDatabase()
+    {
+        $sql = $this->_platform->getListTableForeignKeysSQL('foo');
+
+        $this->assertContains('DATABASE()', $sql);
+
+        $sql = $this->_platform->getListTableForeignKeysSQL('foo', 'bar');
+
+        $this->assertContains('bar', $sql);
+        $this->assertNotContains('DATABASE()', $sql);
     }
 }

@@ -26,12 +26,12 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * @var resource
      */
-    private $_stmt = null;
+    private $_stmt;
 
     /**
      * @var array
      */
-    private $_bindParam = array();
+    private $_bindParam = [];
 
     /**
      * @var string Name of the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
@@ -41,7 +41,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * @var string Constructor arguments for the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
      */
-    private $defaultFetchClassCtorArgs = array();
+    private $defaultFetchClassCtorArgs = [];
 
     /**
      * @var integer
@@ -49,14 +49,21 @@ class DB2Statement implements \IteratorAggregate, Statement
     private $_defaultFetchMode = \PDO::FETCH_BOTH;
 
     /**
+     * Indicates whether the statement is in the state when fetching results is possible
+     *
+     * @var bool
+     */
+    private $result = false;
+
+    /**
      * DB2_BINARY, DB2_CHAR, DB2_DOUBLE, or DB2_LONG
      *
      * @var array
      */
-    static private $_typeMap = array(
+    static private $_typeMap = [
         \PDO::PARAM_INT => DB2_LONG,
         \PDO::PARAM_STR => DB2_CHAR,
-    );
+    ];
 
     /**
      * @param resource $stmt
@@ -103,12 +110,15 @@ class DB2Statement implements \IteratorAggregate, Statement
             return false;
         }
 
-        $this->_bindParam = array();
-        db2_free_result($this->_stmt);
-        $ret = db2_free_stmt($this->_stmt);
-        $this->_stmt = false;
+        $this->_bindParam = [];
 
-        return $ret;
+        if (!db2_free_result($this->_stmt)) {
+            return false;
+        }
+
+        $this->result = false;
+
+        return true;
     }
 
     /**
@@ -136,10 +146,10 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function errorInfo()
     {
-        return array(
-            0 => db2_stmt_errormsg(),
-            1 => db2_stmt_error(),
-        );
+        return [
+            db2_stmt_errormsg(),
+            db2_stmt_error(),
+        ];
     }
 
     /**
@@ -151,21 +161,23 @@ class DB2Statement implements \IteratorAggregate, Statement
             return false;
         }
 
-        /*$retval = true;
-        if ($params !== null) {
-            $retval = @db2_execute($this->_stmt, $params);
-        } else {
-            $retval = @db2_execute($this->_stmt);
-        }*/
         if ($params === null) {
             ksort($this->_bindParam);
-            $params = array_values($this->_bindParam);
+
+            $params = [];
+
+            foreach ($this->_bindParam as $column => $value) {
+                $params[] = $value;
+            }
         }
+
         $retval = @db2_execute($this->_stmt, $params);
 
         if ($retval === false) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
+
+        $this->result = true;
 
         return $retval;
     }
@@ -195,8 +207,14 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
+        // do not try fetching from the statement if it's not expected to contain result
+        // in order to prevent exceptional situation
+        if (!$this->result) {
+            return false;
+        }
+
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
         switch ($fetchMode) {
             case \PDO::FETCH_BOTH:
@@ -210,7 +228,7 @@ class DB2Statement implements \IteratorAggregate, Statement
                 if (func_num_args() >= 2) {
                     $args      = func_get_args();
                     $className = $args[1];
-                    $ctorArgs  = isset($args[2]) ? $args[2] : array();
+                    $ctorArgs  = isset($args[2]) ? $args[2] : [];
                 }
 
                 $result = db2_fetch_object($this->_stmt);
@@ -225,20 +243,20 @@ class DB2Statement implements \IteratorAggregate, Statement
             case \PDO::FETCH_OBJ:
                 return db2_fetch_object($this->_stmt);
             default:
-                throw new DB2Exception("Given Fetch-Style " . $fetchMode . " is not supported.");
+                throw new DB2Exception('Given Fetch-Style ' . $fetchMode . ' is not supported.');
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $rows = array();
+        $rows = [];
 
         switch ($fetchMode) {
             case \PDO::FETCH_CLASS:
-                while ($row = call_user_func_array(array($this, 'fetch'), func_get_args())) {
+                while ($row = call_user_func_array([$this, 'fetch'], func_get_args())) {
                     $rows[] = $row;
                 }
                 break;
@@ -275,7 +293,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function rowCount()
     {
-        return (@db2_num_rows($this->_stmt))?:0;
+        return (@db2_num_rows($this->_stmt)) ? : 0;
     }
 
     /**
@@ -289,7 +307,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      *
      * @throws DB2Exception
      */
-    private function castObject(\stdClass $sourceObject, $destinationClass, array $ctorArgs = array())
+    private function castObject(\stdClass $sourceObject, $destinationClass, array $ctorArgs = [])
     {
         if ( ! is_string($destinationClass)) {
             if ( ! is_object($destinationClass)) {

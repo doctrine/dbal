@@ -19,6 +19,8 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         if ($this->portableConnection) {
             $this->portableConnection->close();
         }
+
+        parent::tearDown();
     }
 
     /**
@@ -128,7 +130,9 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
             'portability' => $portability
         );
 
-        $driverMock = $this->getMock('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver', array('connect'));
+        $driverMock = $this->getMockBuilder('Doctrine\\DBAL\\Driver\\PDOSqlsrv\\Driver')
+            ->setMethods(array('connect'))
+            ->getMock();
 
         $driverMock->expects($this->once())
                    ->method('connect')
@@ -139,5 +143,40 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $connection->connect($params);
 
         $this->assertEquals($portability, $connection->getPortability());
+    }
+
+    /**
+     * @dataProvider fetchAllColumnProvider
+     */
+    public function testFetchAllColumn($field, array $expected)
+    {
+        $conn = $this->getPortableConnection();
+        $stmt = $conn->query('SELECT ' . $field . ' FROM portability_table');
+
+        $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertEquals($expected, $column);
+    }
+
+    public static function fetchAllColumnProvider()
+    {
+        return array(
+            'int' => array(
+                'Test_Int',
+                array(1, 2),
+            ),
+            'string' => array(
+                'Test_String',
+                array('foo', 'foo'),
+            ),
+        );
+    }
+
+    public function testFetchAllNullColumn()
+    {
+        $conn = $this->getPortableConnection();
+        $stmt = $conn->query('SELECT Test_Null FROM portability_table');
+
+        $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertSame(array(null, null), $column);
     }
 }

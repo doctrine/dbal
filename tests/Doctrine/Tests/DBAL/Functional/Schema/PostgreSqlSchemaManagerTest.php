@@ -353,7 +353,6 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlineTable->addColumn('name', 'string');
         $offlineTable->addColumn('email', 'string');
         $offlineTable->addUniqueIndex(array('id', 'name'), 'simple_partial_index', array('where' => '(id IS NULL)'));
-        $offlineTable->addIndex(array('id', 'name'), 'complex_partial_index', array(), array('where' => '(((id IS NOT NULL) AND (name IS NULL)) AND (email IS NULL))'));
 
         $this->_sm->dropAndCreateTable($offlineTable);
 
@@ -363,14 +362,8 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertFalse($comparator->diffTable($offlineTable, $onlineTable));
         $this->assertTrue($onlineTable->hasIndex('simple_partial_index'));
-        $this->assertTrue($onlineTable->hasIndex('complex_partial_index'));
         $this->assertTrue($onlineTable->getIndex('simple_partial_index')->hasOption('where'));
-        $this->assertTrue($onlineTable->getIndex('complex_partial_index')->hasOption('where'));
         $this->assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
-        $this->assertSame(
-            '(((id IS NOT NULL) AND (name IS NULL)) AND (email IS NULL))',
-            $onlineTable->getIndex('complex_partial_index')->getOption('where')
-        );
     }
 
     public function testJsonbColumn()
@@ -389,6 +382,31 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertEquals('json_array', $columns['foo']->getType()->getName());
         $this->assertEquals(true, $columns['foo']->getPlatformOption('jsonb'));
+    }
+
+    /**
+     * @group DBAL-2427
+     */
+    public function testListNegativeColumnDefaultValue()
+    {
+        $table = new Schema\Table('test_default_negative');
+        $table->addColumn('col_smallint', 'smallint', array('default' => -1));
+        $table->addColumn('col_integer', 'integer', array('default' => -1));
+        $table->addColumn('col_bigint', 'bigint', array('default' => -1));
+        $table->addColumn('col_float', 'float', array('default' => -1.1));
+        $table->addColumn('col_decimal', 'decimal', array('default' => -1.1));
+        $table->addColumn('col_string', 'string', array('default' => '(-1)'));
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns('test_default_negative');
+
+        $this->assertEquals(-1, $columns['col_smallint']->getDefault());
+        $this->assertEquals(-1, $columns['col_integer']->getDefault());
+        $this->assertEquals(-1, $columns['col_bigint']->getDefault());
+        $this->assertEquals(-1.1, $columns['col_float']->getDefault());
+        $this->assertEquals(-1.1, $columns['col_decimal']->getDefault());
+        $this->assertEquals('(-1)', $columns['col_string']->getDefault());
     }
 }
 

@@ -253,10 +253,10 @@ class Table extends AbstractAsset
         unset($this->_indexes[$oldIndexName]);
 
         if ($oldIndex->isUnique()) {
-            return $this->addUniqueIndex($oldIndex->getColumns(), $newIndexName);
+            return $this->addUniqueIndex($oldIndex->getColumns(), $newIndexName, $oldIndex->getOptions());
         }
 
-        return $this->addIndex($oldIndex->getColumns(), $newIndexName, $oldIndex->getFlags());
+        return $this->addIndex($oldIndex->getColumns(), $newIndexName, $oldIndex->getFlags(), $oldIndex->getOptions());
     }
 
     /**
@@ -616,29 +616,43 @@ class Table extends AbstractAsset
     }
 
     /**
+     * Returns ordered list of columns (primary keys are first, then foreign keys, then the rest)
      * @return Column[]
      */
     public function getColumns()
     {
-        $columns = $this->_columns;
-
-        $pkCols = array();
-        $fkCols = array();
-
+        $primaryKeyColumns = [];
         if ($this->hasPrimaryKey()) {
-            $pkCols = $this->getPrimaryKey()->getColumns();
+            $primaryKeyColumns = $this->filterColumns($this->getPrimaryKey()->getColumns());
         }
-        foreach ($this->getForeignKeys() as $fk) {
-            /* @var $fk ForeignKeyConstraint */
-            $fkCols = array_merge($fkCols, $fk->getColumns());
+
+        return array_merge($primaryKeyColumns, $this->getForeignKeyColumns(), $this->_columns);
+    }
+
+    /**
+     * Returns foreign key columns
+     * @return Column[]
+     */
+    private function getForeignKeyColumns()
+    {
+        $foreignKeyColumns = [];
+        foreach ($this->getForeignKeys() as $foreignKey) {
+            /* @var $foreignKey ForeignKeyConstraint */
+            $foreignKeyColumns = array_merge($foreignKeyColumns, $foreignKey->getColumns());
         }
-        $colNames = array_unique(array_merge($pkCols, $fkCols, array_keys($columns)));
+        return $this->filterColumns($foreignKeyColumns);
+    }
 
-        uksort($columns, function ($a, $b) use ($colNames) {
-            return (array_search($a, $colNames) >= array_search($b, $colNames));
-        });
-
-        return $columns;
+    /**
+     * Returns only columns that have specified names
+     * @param array $columnNames
+     * @return Column[]
+     */
+    private function filterColumns(array $columnNames)
+    {
+        return array_filter($this->_columns, function ($columnName) use ($columnNames) {
+            return in_array($columnName, $columnNames, true);
+        }, ARRAY_FILTER_USE_KEY);
     }
 
     /**
@@ -700,7 +714,6 @@ class Table extends AbstractAsset
         if ( ! $this->hasPrimaryKey()) {
             throw new DBALException("Table " . $this->getName() . " has no primary key.");
         }
-
         return $this->getPrimaryKey()->getColumns();
     }
 

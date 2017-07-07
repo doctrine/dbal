@@ -40,7 +40,14 @@ class DbalFunctionalTestCase extends DbalTestCase
         $this->_conn->getConfiguration()->setSQLLogger($this->_sqlLoggerStack);
     }
 
-    protected function onNotSuccessfulTest(\Exception $e)
+    protected function tearDown()
+    {
+        while ($this->_conn->isTransactionActive()) {
+            $this->_conn->rollBack();
+        }
+    }
+
+    protected function onNotSuccessfulTest($e)
     {
         if ($e instanceof \PHPUnit_Framework_AssertionFailedError) {
             throw $e;
@@ -50,8 +57,16 @@ class DbalFunctionalTestCase extends DbalTestCase
             $queries = "";
             $i = count($this->_sqlLoggerStack->queries);
             foreach (array_reverse($this->_sqlLoggerStack->queries) as $query) {
-                $params = array_map(function($p) { if (is_object($p)) return get_class($p); else return "'".$p."'"; }, $query['params'] ?: array());
-                $queries .= ($i+1).". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
+                $params = array_map(function($p) {
+                    if (is_object($p)) {
+                        return get_class($p);
+                    } elseif (is_scalar($p)) {
+                        return "'".$p."'";
+                    } else {
+                        return var_export($p, true);
+                    }
+                }, $query['params'] ?: array());
+                $queries .= $i.". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
                 $i--;
             }
 

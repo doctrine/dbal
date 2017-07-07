@@ -112,6 +112,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             case '1171':
             case '1252':
             case '1263':
+            case '1364':
             case '1566':
                 return new Exception\NotNullConstraintViolationException($message, $exception);
         }
@@ -137,10 +138,15 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
 
         $majorVersion = $versionParts['major'];
         $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
-        $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
-        $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+        $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : null;
 
-        if (version_compare($version, '5.7', '>=')) {
+        if ('5' === $majorVersion && '7' === $minorVersion && null === $patchVersion) {
+            $patchVersion = '9';
+        }
+
+        $version = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+
+        if (version_compare($version, '5.7.9', '>=')) {
             return new MySQL57Platform();
         }
 

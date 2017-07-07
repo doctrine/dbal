@@ -14,13 +14,25 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
     protected function setUp()
     {
-        $this->conn = $this->getMock('Doctrine\DBAL\Connection', array(), array(), '', false);
+        $this->conn = $this->createMock('Doctrine\DBAL\Connection');
 
         $expressionBuilder = new ExpressionBuilder($this->conn);
 
         $this->conn->expects($this->any())
                    ->method('getExpressionBuilder')
                    ->will($this->returnValue($expressionBuilder));
+    }
+
+    /**
+     * @group DBAL-2291
+     */
+    public function testSimpleSelectWithoutFrom()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('some_function()');
+
+        $this->assertEquals('SELECT some_function()', (string) $qb);
     }
 
     public function testSimpleSelect()

@@ -18,7 +18,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             'password' => 'bar',
         );
 
-        $statement = $this->getMock('Doctrine\Tests\Mocks\DriverResultStatementMock');
+        $statement = $this->createMock('Doctrine\Tests\Mocks\DriverResultStatementMock');
 
         $statement->expects($this->once())
             ->method('fetchColumn')
@@ -57,8 +57,10 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
         return array(
             array('5.6.9', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
             array('5.7', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('5.7.0', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('5.7.1', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
+            array('5.7.0', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
+            array('5.7.8', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
+            array('5.7.9', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
+            array('5.7.10', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
             array('6', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
             array('10.0.15-MariaDB-1~wheezy', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
             array('10.1.2a-MariaDB-a1~lenny-log', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
@@ -105,6 +107,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
                 array('1171', null, null),
                 array('1252', null, null),
                 array('1263', null, null),
+                array('1364', null, null),
                 array('1566', null, null),
             ),
             self::EXCEPTION_SYNTAX_ERROR => array(

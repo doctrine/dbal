@@ -45,7 +45,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * @var string Constructor arguments for the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
      */
-    private $defaultFetchClassCtorArgs = array();
+    private $defaultFetchClassCtorArgs = [];
 
     /**
      * @var int Default fetch mode to use.
@@ -74,14 +74,14 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function __construct($conn, $sql)
     {
-        if ( ! is_resource($conn) || get_resource_type($conn) !== 'SQLAnywhere connection') {
+        if ( ! is_resource($conn)) {
             throw new SQLAnywhereException('Invalid SQL Anywhere connection resource: ' . $conn);
         }
 
         $this->conn = $conn;
         $this->stmt = sasql_prepare($conn, $sql);
 
-        if ( ! is_resource($this->stmt) || get_resource_type($this->stmt) !== 'SQLAnywhere statement') {
+        if ( ! is_resource($this->stmt)) {
             throw SQLAnywhereException::fromSQLAnywhereError($conn);
         }
     }
@@ -131,7 +131,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        if ( ! sasql_stmt_free_result($this->stmt)) {
+        if (!sasql_stmt_reset($this->stmt)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
         }
 
@@ -193,9 +193,9 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
-        if ( ! is_resource($this->result) || get_resource_type($this->result) !== 'SQLAnywhere result') {
+        if ( ! is_resource($this->result)) {
             return false;
         }
 
@@ -213,7 +213,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 if (func_num_args() >= 2) {
                     $args      = func_get_args();
                     $className = $args[1];
-                    $ctorArgs  = isset($args[2]) ? $args[2] : array();
+                    $ctorArgs  = isset($args[2]) ? $args[2] : [];
                 }
 
                 $result = sasql_fetch_object($this->result);
@@ -235,13 +235,13 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $rows = array();
+        $rows = [];
 
         switch ($fetchMode) {
             case PDO::FETCH_CLASS:
-                while ($row = call_user_func_array(array($this, 'fetch'), func_get_args())) {
+                while ($row = call_user_func_array([$this, 'fetch'], func_get_args())) {
                     $rows[] = $row;
                 }
                 break;
@@ -310,7 +310,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    private function castObject(\stdClass $sourceObject, $destinationClass, array $ctorArgs = array())
+    private function castObject(\stdClass $sourceObject, $destinationClass, array $ctorArgs = [])
     {
         if ( ! is_string($destinationClass)) {
             if ( ! is_object($destinationClass)) {

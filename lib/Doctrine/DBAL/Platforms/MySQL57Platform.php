@@ -23,14 +23,31 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
 
 /**
- * Provides the behavior, features and SQL dialect of the MySQL 5.7 database platform.
+ * Provides the behavior, features and SQL dialect of the MySQL 5.7 (5.7.9 GA) database platform.
  *
+ * @author İsmail BASKIN <ismailbaskin1@gmail.com>
  * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
  * @since  2.5
  */
 class MySQL57Platform extends MySqlPlatform
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function hasNativeJsonType()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getJsonTypeDeclarationSQL(array $field)
+    {
+        return 'JSON';
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -63,5 +80,15 @@ class MySQL57Platform extends MySqlPlatform
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function initializeDoctrineTypeMappings()
+    {
+        parent::initializeDoctrineTypeMappings();
+
+        $this->doctrineTypeMapping['json'] = 'json_array';
     }
 }

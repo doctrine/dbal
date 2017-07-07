@@ -235,6 +235,11 @@ mysqli
    the database.
 -  ``charset`` (string): The charset used when connecting to the
    database.
+-  ``ssl_key`` (string): The path name to the key file to use for SSL encryption.
+-  ``ssl_cert`` (string): The path name to the certificate file to use for SSL encryption.
+-  ``ssl_ca`` (string): The path name to the certificate authority file to use for SSL encryption.
+-  ``ssl_capath`` (string): The pathname to a directory that contains trusted SSL CA certificates in PEM format.
+-  ``ssl_cipher`` (string): A list of allowable ciphers to use for SSL encryption.
 -  ``driverOptions`` Any supported flags for mysqli found on `http://www.php.net/manual/en/mysqli.real-connect.php`
 
 pdo\_pgsql
@@ -261,6 +266,14 @@ pdo\_pgsql
    the server's certificate will be verified to be signed by one of these
    authorities.
    See http://www.postgresql.org/docs/9.0/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
+-  ``sslcert`` (string): specifies the file name of the client SSL certificate.
+   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT`
+-  ``sslkey`` (string): specifies the location for the secret key used for the 
+   client certificate.
+   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY`
+-  ``sslcrl`` (string): specifies the file name of the SSL certificate 
+   revocation list (CRL). 
+   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
 
@@ -300,6 +313,7 @@ pdo\_oci / oci8
    you will still need to provide the ``user`` and ``password`` parameters, but the other
    parameters will no longer be used. Note that when using this parameter, the ``getHost``
    and ``getPort`` methods from ``Doctrine\DBAL\Connection`` will no longer function as expected.
+-  ``persistent`` (boolean): Whether to establish a persistent connection.
 
 pdo\_sqlsrv / sqlsrv
 ^^^^^^^^^^^^^^^^^^^^

@@ -18,9 +18,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $table->addColumn('test_string', 'string', array('notnull' => false));
             $table->setPrimaryKey(array('id'));
 
-            foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
-                $this->_conn->executeQuery($sql);
-            }
+            $this->_conn->getSchemaManager()->createTable($table);
         } catch(\Exception $e) {
 
         }
@@ -287,4 +285,44 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     }
 
+    /**
+     * @group DBAL-2688
+     */
+    public function testUpdateWhereIsNull()
+    {
+        $this->_conn->insert(
+            'write_table',
+            ['test_int' => '30', 'test_string' => null],
+            ['test_string' => 'string', 'test_int' => 'integer']
+        );
+
+        $data = $this->_conn->fetchAll('SELECT * FROM write_table WHERE test_int = 30');
+
+        $this->assertCount(1, $data);
+
+        $this->_conn->update('write_table', ['test_int' => 10], ['test_string' => null], ['test_string' => 'string', 'test_int' => 'integer']);
+
+        $data = $this->_conn->fetchAll('SELECT * FROM write_table WHERE test_int = 30');
+
+        $this->assertCount(0, $data);
+    }
+
+    public function testDeleteWhereIsNull()
+    {
+        $this->_conn->insert(
+            'write_table',
+            ['test_int' => '30', 'test_string' => null],
+            ['test_string' => 'string', 'test_int' => 'integer']
+        );
+
+        $data = $this->_conn->fetchAll('SELECT * FROM write_table WHERE test_int = 30');
+
+        $this->assertCount(1, $data);
+
+        $this->_conn->delete('write_table', ['test_string' => null], ['test_string' => 'string']);
+
+        $data = $this->_conn->fetchAll('SELECT * FROM write_table WHERE test_int = 30');
+
+        $this->assertCount(0, $data);
+    }
 }

@@ -22,9 +22,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
-        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
-            $this->_conn->executeQuery($sql);
-        }
+        $this->_conn->getSchemaManager()->createTable($table);
 
         $this->_conn->insert("duplicatekey_table", array('id' => 1));
 
@@ -43,17 +41,14 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTableExistsException()
     {
+        $schemaManager = $this->_conn->getSchemaManager();
         $table = new \Doctrine\DBAL\Schema\Table("alreadyexist_table");
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
         $this->setExpectedException('\Doctrine\DBAL\Exception\TableExistsException');
-        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
-            $this->_conn->executeQuery($sql);
-        }
-        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
-            $this->_conn->executeQuery($sql);
-        }
+        $schemaManager->createTable($table);
+        $schemaManager->createTable($table);
     }
 
     public function testForeignKeyConstraintViolationExceptionOnInsert()
@@ -204,7 +199,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->setPrimaryKey(array('id'));
 
         foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
-            $this->_conn->executeQuery($sql);
+            $this->_conn->exec($sql);
         }
 
         $this->setExpectedException('\Doctrine\DBAL\Exception\NotNullConstraintViolationException');
@@ -219,7 +214,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer', array());
 
         foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
-            $this->_conn->executeQuery($sql);
+            $this->_conn->exec($sql);
         }
 
         $this->setExpectedException('\Doctrine\DBAL\Exception\InvalidFieldNameException');
@@ -237,7 +232,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table2->addColumn('id', 'integer');
 
         foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
-            $this->_conn->executeQuery($sql);
+            $this->_conn->exec($sql);
         }
 
         $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
@@ -254,7 +249,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addUniqueIndex(array('id'));
 
         foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
-            $this->_conn->executeQuery($sql);
+            $this->_conn->exec($sql);
         }
 
         $this->_conn->insert("unique_field_table", array('id' => 5));
@@ -268,9 +263,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
-        foreach ($this->_conn->getDatabasePlatform()->getCreateTableSQL($table) as $sql) {
-            $this->_conn->executeQuery($sql);
-        }
+        $this->_conn->getSchemaManager()->createTable($table);
 
         $sql = 'SELECT id FRO syntax_error_table';
         $this->setExpectedException('\Doctrine\DBAL\Exception\SyntaxErrorException');
@@ -286,9 +279,10 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped("Only fails this way on sqlite");
         }
 
-        $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection.db');
+        $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection_'.$mode.'.db');
 
         if (file_exists($filename)) {
+            chmod($filename, 0200); // make the file writable again, so it can be removed on Windows
             unlink($filename);
         }
 
@@ -307,14 +301,15 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->setExpectedException($exceptionClass);
         foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-            $conn->executeQuery($sql);
+            $conn->exec($sql);
         }
     }
 
     public function getSqLiteOpenConnection()
     {
         return array(
-            array(0000, '\Doctrine\DBAL\Exception\ConnectionException'),
+            // mode 0 is considered read-only on Windows
+            array(0000, defined('PHP_WINDOWS_VERSION_BUILD') ? '\Doctrine\DBAL\Exception\ReadOnlyException' : '\Doctrine\DBAL\Exception\ConnectionException'),
             array(0444, '\Doctrine\DBAL\Exception\ReadOnlyException'),
         );
     }
@@ -348,7 +343,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->setExpectedException('Doctrine\DBAL\Exception\ConnectionException');
 
         foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
-            $conn->executeQuery($sql);
+            $conn->exec($sql);
         }
     }
 

@@ -99,4 +99,16 @@ class ConversionException extends \Doctrine\DBAL\DBALException
             implode(', ', $possibleTypes)
         ));
     }
+
+    static public function conversionFailedSerialization($value, $format, $error)
+    {
+        $actualType = is_object($value) ? get_class($value) : gettype($value);
+
+        return new self(sprintf(
+            "Could not convert PHP type '%s' to '%s', as an '%s' error was triggered by the serialization",
+            $actualType,
+            $format,
+            $error
+        ));
+    }
 }

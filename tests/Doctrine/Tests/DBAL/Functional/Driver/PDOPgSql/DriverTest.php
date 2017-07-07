@@ -47,7 +47,7 @@ class DriverTest extends AbstractDriverTest
     public function getDatabaseParameter()
     {
         $params = TestUtil::getConnection()->getParams();
-        $realDatabaseName = $params['dbname'];
+        $realDatabaseName = isset($params['dbname']) ? $params['dbname'] : '';
         $dummyDatabaseName = $realDatabaseName . 'a';
 
         return array(
@@ -73,12 +73,15 @@ class DriverTest extends AbstractDriverTest
         $connection = $this->driver->connect($parameters, $user, $password);
 
         $hash = microtime(true); // required to identify the record in the results uniquely
-        $sql = sprintf('SELECT query, application_name FROM pg_stat_activity WHERE %d = %d', $hash, $hash);
+        $sql = sprintf('SELECT * FROM pg_stat_activity WHERE %d = %d', $hash, $hash);
         $statement = $connection->query($sql);
         $records = $statement->fetchAll();
 
         foreach ($records as $record) {
-            if ($record['query'] === $sql) {
+            // The query column is named "current_query" on PostgreSQL < 9.2
+            $queryColumnName = array_key_exists('current_query', $record) ? 'current_query' : 'query';
+
+            if ($record[$queryColumnName] === $sql) {
                 $this->assertSame('doctrine', $record['application_name']);
 
                 return;

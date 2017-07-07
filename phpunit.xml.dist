@@ -49,7 +49,6 @@
             <directory>./tests/Doctrine/Tests/DBAL/Performance</directory>
         </testsuite>
     </testsuites>
-
     <listeners>
         <listener class="Doctrine\Tests\DbalPerformanceTestListener"/>
     </listeners>

@@ -77,10 +77,22 @@ class DBALException extends \Exception
     }
 
     /**
+     * @param string|null $url The URL that was provided in the connection parameters (if any).
+     *
      * @return \Doctrine\DBAL\DBALException
      */
-    public static function driverRequired()
+    public static function driverRequired($url = null)
     {
+        if ($url) {
+            return new self(
+                sprintf(
+                    "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
+                    "is given to DriverManager::getConnection(). Given URL: %s",
+                    $url
+                )
+            );
+        }
+
         return new self("The options 'driver' or 'driverClass' are mandatory if no PDO ".
             "instance is given to DriverManager::getConnection().");
     }
@@ -214,7 +226,7 @@ class DBALException extends \Exception
      */
     public static function limitOffsetInvalid()
     {
-        return new self("Invalid Offset in Limit Query, it has to be larger or equal to 0.");
+        return new self("Invalid Offset in Limit Query, it has to be larger than or equal to 0.");
     }
 
     /**
@@ -237,7 +249,7 @@ class DBALException extends \Exception
         return new self('Unknown column type "'.$name.'" requested. Any Doctrine type that you use has ' .
             'to be registered with \Doctrine\DBAL\Types\Type::addType(). You can get a list of all the ' .
             'known types with \Doctrine\DBAL\Types\Type::getTypesMap(). If this error occurs during database ' .
-            'introspection then you might have forgot to register all database types for a Doctrine Type. Use ' .
+            'introspection then you might have forgotten to register all database types for a Doctrine Type. Use ' .
             'AbstractPlatform#registerDoctrineTypeMapping() or have your custom types implement ' .
             'Type#getMappedDatabaseTypes(). If the type name is empty you might ' .
             'have a problem with the cache or forgot some mapping information.'

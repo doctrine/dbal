@@ -25,6 +25,8 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
             } catch(\Exception $e) { }
         }
+
+        parent::tearDown();
     }
 
     /**
@@ -50,16 +52,14 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn("id", "integer");
         $table->setPrimaryKey(array('id'));
 
-        foreach ($platform->getCreateTableSQL($table) as $sql) {
-            $this->_conn->executeQuery($sql);
-        }
+        $this->_conn->getSchemaManager()->createTable($table);
 
         $this->_conn->beginTransaction();
         $this->_conn->insert("nontemporary", array("id" => 1));
         $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
         $this->_conn->insert("nontemporary", array("id" => 2));
 
-        $this->_conn->rollback();
+        $this->_conn->rollBack();
 
         $rows = $this->_conn->fetchAll('SELECT * FROM nontemporary');
         $this->assertEquals(array(), $rows, "In an event of an error this result has one row, because of an implicit commit.");
@@ -87,9 +87,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn("id", "integer");
         $table->setPrimaryKey(array('id'));
 
-        foreach ($platform->getCreateTableSQL($table) as $sql) {
-            $this->_conn->executeQuery($sql);
-        }
+        $this->_conn->getSchemaManager()->createTable($table);
 
         $this->_conn->beginTransaction();
         $this->_conn->insert("nontemporary", array("id" => 1));
@@ -97,7 +95,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->exec($createTempTableSQL);
         $this->_conn->insert("nontemporary", array("id" => 2));
 
-        $this->_conn->rollback();
+        $this->_conn->rollBack();
 
         try {
             $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
