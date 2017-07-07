@@ -654,7 +654,7 @@ class MySqlPlatform extends AbstractPlatform
                         $indexClause = 'UNIQUE INDEX ' . $addIndex->getName();
                     }
 
-                    $query = 'ALTER TABLE ' . $table . ' DROP INDEX `' . $remIndex->getName() . '`, ';
+                    $query = 'ALTER TABLE ' . $table . ' DROP INDEX ' . $this->quoteStringLiteral() . $remIndex->getName() . $this->quoteStringLiteral() . ', ';
                     $query .= 'ADD ' . $indexClause;
                     $query .= ' (' . $this->getIndexFieldDeclarationListSQL($addIndex->getQuotedColumns($this)) . ')';
 
@@ -973,7 +973,7 @@ class MySqlPlatform extends AbstractPlatform
             return $this->getDropPrimaryKeySQL($table);
         }
 
-        return 'DROP INDEX `' . $indexName . '` ON ' . $table;
+        return 'DROP INDEX ' . $this->quoteStringLiteral() . $indexName . $this->quoteStringLiteral() . ' ON ' . $table;
     }
 
     /**
