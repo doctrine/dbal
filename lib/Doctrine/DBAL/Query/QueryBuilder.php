@@ -409,7 +409,7 @@ class QueryBuilder
      * 'groupBy', 'having' and 'orderBy'.
      *
      * @param string  $sqlPartName
-     * @param string  $sqlPart
+     * @param mixed  $sqlPart
      * @param boolean $append
      *
      * @return $this This QueryBuilder instance.
@@ -420,7 +420,7 @@ class QueryBuilder
         $isMultiple = is_array($this->sqlParts[$sqlPartName]);
 
         if ($isMultiple && !$isArray) {
-            $sqlPart = array($sqlPart);
+            $sqlPart = [$sqlPart];
         }
 
         $this->state = self::STATE_DIRTY;
