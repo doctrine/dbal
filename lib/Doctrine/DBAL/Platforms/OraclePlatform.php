@@ -418,17 +418,18 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
+        $tableWhereClause = '';
         if (null !== $table) {
-            $table = $this->normalizeIdentifier($table);
-            $table = $this->quoteStringLiteral($table->getName());
-            $tableWhereClause = "AND ind_col.table_name = " . $table;
-        } else {
-            $tableWhereClause = '';
+            $tableIdentifier = $this->normalizeIdentifier($table);
+            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
+            $tableWhereClause = "AND ind_col.table_name = " . $quotedTableIdentifier;
         }
 
-        if (null !== $currentDatabase && '/' !== $currentDatabase) {
-            $currentDatabase = $this->normalizeIdentifier($currentDatabase);
-            $currentDatabase = $this->quoteStringLiteral($currentDatabase->getName());
+        // If database is specified, return SQL for all indexes in database,
+        // optionally filtered by table.
+        if ($this->isDatabaseSelected($currentDatabase)) {
+            $databaseIdentifier = $this->normalizeIdentifier($currentDatabase);
+            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
             return "SELECT ind_col.table_name as table_name,
                            ind_col.index_name AS name,
                            ind.index_type AS type,
@@ -441,9 +442,12 @@ class OraclePlatform extends AbstractPlatform
                        ON  ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
                 LEFT JOIN  all_constraints con
                        ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
-                    WHERE  ind_col.index_owner = $currentDatabase $tableWhereClause
+                    WHERE  ind_col.index_owner = $quotedDatabaseIdentifier $tableWhereClause
                  ORDER BY  ind_col.table_name, ind_col.index_name, ind_col.column_position";
-        } else {
+        }
+
+        // If database is not specified, return SQL for the indexes of the
+        // specified table from the current database.
         return "SELECT uind_col.index_name AS name,
                        (
                            SELECT uind.index_type
@@ -469,9 +473,8 @@ class OraclePlatform extends AbstractPlatform
                            WHERE  ucon.index_name = uind_col.index_name
                        ) AS is_primary
              FROM      user_ind_columns uind_col
-             WHERE     uind_col.table_name = " . $table . "
+             WHERE     uind_col.table_name = " . $quotedTableIdentifier . "
              ORDER BY  uind_col.column_position ASC";
-        }
     }
 
     /**
@@ -632,19 +635,33 @@ END;';
     /**
      * {@inheritDoc}
      */
-    public function getListTableForeignKeysSQL($table, $database = null)
+    public function getListTableForeignKeysSQL($table)
     {
+        return $this->getListForeignKeysSQL($table);
+    }
+
+    /**
+     * Returns the list of foreign keys for the current database.
+     *
+     * @param string $table
+     * @param string $database
+     *
+     * @return string
+     */
+    public function getListForeignKeysSQL($table = null, $database = null)
+    {
+        $tableWhereClause = '';
         if (null !== $table) {
-            $table = $this->normalizeIdentifier($table);
-            $table = $this->quoteStringLiteral($table->getName());
-            $tableWhereClause = "AND cols.table_name = " . $table;
-        } else {
-            $tableWhereClause = '';
+            $tableIdentifier = $this->normalizeIdentifier($table);
+            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
+            $tableWhereClause = "AND cols.table_name = " . $quotedTableIdentifier;
         }
 
-        if (null !== $database && '/' !== $database) {
-            $database = $this->normalizeIdentifier($database);
-            $database = $this->quoteStringLiteral($database->getName());
+        // If database is specified, return SQL for all foreign keys in
+        // database, optionally filtered by table.
+        if ($this->isDatabaseSelected($database)) {
+            $databaseIdentifier = $this->normalizeIdentifier($database);
+            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
                 return "SELECT cols.table_name,
                    alc.constraint_name,
                    alc.DELETE_RULE,
@@ -657,9 +674,12 @@ END;';
                 ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
          LEFT JOIN all_cons_columns r_cols
                 ON r_cols.owner = alc.r_owner AND r_cols.constraint_name = alc.r_constraint_name AND r_cols.position = cols.position
-             WHERE cols.owner = $database $tableWhereClause AND alc.constraint_type = 'R'
+             WHERE cols.owner = $quotedDatabaseIdentifier $tableWhereClause AND alc.constraint_type = 'R'
              ORDER BY cols.table_name, cols.constraint_name, cols.position";
-        } else {
+        }
+
+        // If database is not specified, return SQL for the foreign keys of the
+        // specified table from the current database.
         return "SELECT alc.constraint_name,
           alc.DELETE_RULE,
           cols.column_name \"local_column\",
@@ -680,9 +700,8 @@ END;';
      JOIN user_constraints alc
        ON alc.constraint_name = cols.constraint_name
       AND alc.constraint_type = 'R'
-      AND alc.table_name = " . $table . "
+      AND alc.table_name = " . $quotedTableIdentifier . "
     ORDER BY cols.constraint_name ASC, cols.position ASC";
-        }
     }
 
     /**
@@ -701,25 +720,29 @@ END;';
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
+        $tableWhereClause = '';
         if (null !== $table) {
-            $table = $this->normalizeIdentifier($table);
-            $table = $this->quoteStringLiteral($table->getName());
-            $tableWhereClause = "AND c.table_name = " . $table;
-        } else {
-            $tableWhereClause = '';
+            $tableIdentifier = $this->normalizeIdentifier($table);
+            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
+            $tableWhereClause = "AND c.table_name = " . $quotedTableIdentifier;
         }
 
-        if (null !== $database && '/' !== $database) {
-            $database = $this->normalizeIdentifier($database);
-            $database = $this->quoteStringLiteral($database->getName());
+        // If database is specified, return SQL for all columns in database,
+        // optionally filtered by table.
+        if ($this->isDatabaseSelected($database)) {
+            $databaseIdentifier = $this->normalizeIdentifier($database);
+            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
             return "SELECT   c.*, d.comments AS comments
                     FROM    all_tab_columns c
                LEFT JOIN    all_col_comments d
                       ON    d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
-                   WHERE    c.owner = $database $tableWhereClause
+                   WHERE    c.owner = $quotedDatabaseIdentifier $tableWhereClause
                    ORDER BY c.table_name, c.column_id";
-        } else {
-            return "SELECT   c.*,
+        }
+
+        // If database is not specified, return SQL for the columns of the
+        // specified table from the current database.
+        return "SELECT   c.*,
                          (
                              SELECT d.comments
                              FROM   user_col_comments d
@@ -727,9 +750,8 @@ END;';
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
                 FROM     user_tab_columns c
-                WHERE    c.table_name = $table 
+                WHERE    c.table_name = $quotedTableIdentifier 
                 ORDER BY c.column_id";
-        }
     }
 
     /**
@@ -1225,5 +1247,17 @@ END;';
         $str = str_replace('\\', '\\\\', $str); // Oracle requires backslashes to be escaped aswell.
 
         return parent::quoteStringLiteral($str);
+    }
+
+    /**
+     * Determines if the input variable identifies a specific database.
+     *
+     * @param string $database
+     *
+     * @return bool
+     */
+    private function isDatabaseSelected($database)
+    {
+        return null !== $database && '/' !== $database;
     }
 }

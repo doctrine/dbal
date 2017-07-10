@@ -2,7 +2,9 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
-use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\TestUtil;
@@ -42,7 +44,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $tableName = 'test_binary_table';
 
-        $table = new \Doctrine\DBAL\Schema\Table($tableName);
+        $table = new Table($tableName);
         $table->addColumn('id', 'integer');
         $table->addColumn('column_varbinary', 'binary', array());
         $table->addColumn('column_binary', 'binary', array('fixed' => true));
@@ -65,9 +67,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testAlterTableColumnNotNull()
     {
-        $comparator = new Schema\Comparator();
+        $comparator = new Comparator();
         $tableName  = 'list_table_column_notnull';
-        $table      = new Schema\Table($tableName);
+        $table      = new Table($tableName);
 
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
@@ -114,7 +116,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableDetailsWithDifferentIdentifierQuotingRequirements()
     {
         $primaryTableName = '"Primary_Table"';
-        $offlinePrimaryTable = new Schema\Table($primaryTableName);
+        $offlinePrimaryTable = new Table($primaryTableName);
         $offlinePrimaryTable->addColumn(
             '"Id"',
             'integer',
@@ -131,7 +133,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlinePrimaryTable->setPrimaryKey(array('"Id"'));
 
         $foreignTableName = 'foreign';
-        $offlineForeignTable = new Schema\Table($foreignTableName);
+        $offlineForeignTable = new Table($foreignTableName);
         $offlineForeignTable->addColumn('id', 'integer', array('autoincrement' => true));
         $offlineForeignTable->addColumn('"Fk"', 'integer');
         $offlineForeignTable->addIndex(array('"Fk"'), '"Fk_index"');
@@ -245,7 +247,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         // Adding a primary key on already indexed columns
         // Oracle will reuse the unique index, which cause a constraint name differing from the index name
-        $this->_sm->createConstraint(new Schema\Index('id_pk_id_index', array('id'), true, true), 'list_table_indexes_pk_id_test');
+        $this->_sm->createConstraint(new Index('id_pk_id_index', array('id'), true, true), 'list_table_indexes_pk_id_test');
 
         $tableIndexes = $this->_sm->listTableIndexes('list_table_indexes_pk_id_test');
 
@@ -274,7 +276,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertSame('datetimetz', $columns['col_datetimetz']->getType()->getName());
     }
 
-    public function testCreateSchemaOnLargeNumberOfTables()
+    /**
+     * {@inheritdoc}
+     */
+    protected function createLargeNumberOfTables(): int
     {
         // Create a base table for test.
         $sql = "CREATE TABLE tbl_test_2766_0 (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, PRIMARY KEY(x_id))";
@@ -294,13 +299,14 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $sql = "CREATE UNIQUE INDEX \"tbl_testQ_2766_uix_649\" ON \"tbl_testQ_2766_649\" (\"Q_number\")";
         $this->_conn->executeUpdate($sql);
 
-        // Introspect the db schema.
-        $startTime = microtime(TRUE);
-        $schema = $this->_sm->createSchema();
-        $endTime = microtime(TRUE);
+        return 650;
+    }
 
-        $this->assertGreaterThanOrEqual(650, count($schema->getTables()));
-
+    /**
+     * {@inheritdoc}
+     */
+    protected function checkLargeNumberOfTables(Schema $schema): void
+    {
         // Check base table schema.
         $testTable = 'tbl_test_2766_0';
         $this->assertTrue($schema->hasTable($testTable));
@@ -335,11 +341,16 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertSame(['"Q_parent_id"'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalColumns());
         $this->assertSame('TBL_TEST_2766_0', $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignTableName());
         $this->assertSame(['X_ID'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignColumns());
-
-        $this->assertLessThan(15, $endTime - $startTime, 'createSchema() executed in less than 15 sec.');
     }
 
-    protected function resolveAssetsNames(array $assets)
+    /**
+     * Returs an array of quoted names for an array of assets.
+     *
+     * @param \Doctrine\DBAL\Schema\AbstractAsset[] The assets for which to find the quoted name.
+     *
+     * @return string[] The corresponding array of quoted asset names.
+     */
+    private function resolveAssetsNames(array $assets): array
     {
         $ret = [];
 

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -18,6 +19,13 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      * @var \Doctrine\DBAL\Schema\AbstractSchemaManager
      */
     protected $_sm;
+
+    /**
+     * Maximum expected run time for createSchema, in seconds.
+     *
+     * @var int
+     */
+    protected $timeThresholdForCreateSchema = 15;
 
     protected function getPlatformName()
     {
@@ -1164,5 +1172,44 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertCount(2, $indexes);
         $this->assertArrayHasKey('explicit_fk1_idx', $indexes);
         $this->assertArrayHasKey('idx_3d6c147fdc58d6c', $indexes);
+    }
+
+    public function testCreateSchemaOnLargeNumberOfTables(): void
+    {
+        $numberOfTablesCreated = $this->createLargeNumberOfTables();
+
+        // Introspect the db schema.
+        $startTime = microtime(TRUE);
+        $schema = $this->_sm->createSchema();
+        $endTime = microtime(TRUE);
+
+        $this->assertGreaterThanOrEqual($numberOfTablesCreated, count($schema->getTables()));
+        $this->assertLessThan($this->timeThresholdForCreateSchema, $endTime - $startTime, 'createSchema() executed in less than ' . $this->timeThresholdForCreateSchema . ' sec.');
+
+        $this->checkLargeNumberOfTables($schema);
+    }
+
+    /**
+     * Create a large number of tables with specific database syntax.
+     *
+     * @return int The number of tables created.
+     *
+     * @see ::testCreateSchemaOnLargeNumberOfTables
+     */
+    protected function createLargeNumberOfTables(): int
+    {
+        $this->markTestIncomplete($this->_conn->getDriver()->getName().' does not implement ' . __METHOD__);
+    }
+
+    /**
+     * Checks schema against a large number of tables created.
+     *
+     * @param \Doctrine\DBAL\Schema\Schema The schema created from the database.
+     *
+     * @see ::testCreateSchemaOnLargeNumberOfTables
+     */
+    protected function checkLargeNumberOfTables(Schema $schema): void
+    {
+        $this->markTestIncomplete($this->_conn->getDriver()->getName().' does not implement ' . __METHOD__);
     }
 }

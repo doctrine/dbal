@@ -46,7 +46,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $allColumns = $this->_conn->fetchAll($this->_platform->getListTableColumnsSQL(null, $currentDatabase));
 
         // Get all foreign keys definitions in one database call.
-        $allForeignKeys = $this->_conn->fetchAll($this->_platform->getListTableForeignKeysSQL(null, $currentDatabase));
+        $allForeignKeys = $this->_conn->fetchAll($this->_platform->getListForeignKeysSQL(null, $currentDatabase));
 
         // Get all indexes definitions in one database call.
         $allIndexes = $this->_conn->fetchAll($this->_platform->getListTableIndexesSQL(null, $currentDatabase));
