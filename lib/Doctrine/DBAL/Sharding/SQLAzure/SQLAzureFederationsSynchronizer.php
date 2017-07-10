@@ -69,7 +69,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
      */
     public function getCreateSchema(Schema $createSchema)
     {
-        $sql = array();
+        $sql = [];
 
         list($global, $federation) = $this->partitionSchema($createSchema);
 
@@ -234,7 +234,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     private function work(Schema $schema, \Closure $operation)
     {
         list($global, $federation) = $this->partitionSchema($schema);
-        $sql = array();
+        $sql = [];
 
         $this->shardManager->selectGlobal();
         $globalSql = $operation($this->synchronizer, $global);
@@ -290,7 +290,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     private function getCreateFederationStatement()
     {
         $federationType = Type::getType($this->shardManager->getDistributionType());
-        $federationTypeSql = $federationType->getSQLDeclaration(array(), $this->conn->getDatabasePlatform());
+        $federationTypeSql = $federationType->getSQLDeclaration([], $this->conn->getDatabasePlatform());
 
         return "--Create Federation\n" .
                "CREATE FEDERATION " . $this->shardManager->getFederationName() . " (" . $this->shardManager->getDistributionKey() . " " . $federationTypeSql ."  RANGE)";
