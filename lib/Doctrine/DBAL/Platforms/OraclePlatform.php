@@ -418,6 +418,10 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
+        if (null === $table && !$this->isDatabaseSelected($currentDatabase)) {
+            throw new \InvalidArgumentException('Table name must be specified if no database is specified');
+        }
+
         $tableWhereClause = '';
         if (null !== $table) {
             $tableIdentifier = $this->normalizeIdentifier($table);
@@ -650,6 +654,10 @@ END;';
      */
     public function getListForeignKeysSQL($table = null, $database = null)
     {
+        if (null === $table && !$this->isDatabaseSelected($database)) {
+            throw new \InvalidArgumentException('Table name must be specified if no database is specified');
+        }
+
         $tableWhereClause = '';
         if (null !== $table) {
             $tableIdentifier = $this->normalizeIdentifier($table);
@@ -720,6 +728,10 @@ END;';
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
+        if (null === $table && !$this->isDatabaseSelected($database)) {
+            throw new \InvalidArgumentException('Table name must be specified if no database is specified');
+        }
+
         $tableWhereClause = '';
         if (null !== $table) {
             $tableIdentifier = $this->normalizeIdentifier($table);
