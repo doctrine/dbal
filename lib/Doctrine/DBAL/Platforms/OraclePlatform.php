@@ -422,6 +422,7 @@ class OraclePlatform extends AbstractPlatform
             throw new \InvalidArgumentException('Table name must be specified if no database is specified');
         }
 
+        $quotedTableIdentifier = '';
         $tableWhereClause = '';
         if (null !== $table) {
             $tableIdentifier = $this->normalizeIdentifier($table);
@@ -658,6 +659,7 @@ END;';
             throw new \InvalidArgumentException('Table name must be specified if no database is specified');
         }
 
+        $quotedTableIdentifier = '';
         $tableWhereClause = '';
         if (null !== $table) {
             $tableIdentifier = $this->normalizeIdentifier($table);
@@ -732,6 +734,7 @@ END;';
             throw new \InvalidArgumentException('Table name must be specified if no database is specified');
         }
 
+        $quotedTableIdentifier = '';
         $tableWhereClause = '';
         if (null !== $table) {
             $tableIdentifier = $this->normalizeIdentifier($table);
