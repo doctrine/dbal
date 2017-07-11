@@ -3083,6 +3083,27 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Gets the sequence name prefix based on table information.
+     *
+     * @param string $tableName
+     * @param string|null $schemaName
+     *
+     * @return string
+     */
+    public function getSequencePrefix($tableName, $schemaName = null)
+    {
+        if (! $schemaName) {
+            return $tableName;
+        }
+
+        // Prepend the schema name to the table name if there is one
+        return (! $this->supportsSchemas() && $this->canEmulateSchemas())
+            ? $schemaName . '__' . $tableName
+            : $schemaName . '.' . $tableName
+        ;
+    }
+
+    /**
      * Returns the name of the sequence for a particular identity column in a particular table.
      *
      * @param string $tableName  The name of the table to return the sequence name for.
