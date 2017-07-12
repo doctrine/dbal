@@ -1198,7 +1198,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     protected function createLargeNumberOfTables(): int
     {
-        $this->markTestIncomplete($this->_conn->getDriver()->getName().' does not implement ' . __METHOD__);
+        $this->markTestIncomplete("Test not implemented for '{$this->_sm->getDatabasePlatform()->getName()}'");
     }
 
     /**
@@ -1210,6 +1210,6 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     protected function checkLargeNumberOfTables(Schema $schema): void
     {
-        $this->markTestIncomplete($this->_conn->getDriver()->getName().' does not implement ' . __METHOD__);
+        $this->markTestIncomplete("Test not implemented for '{$this->_sm->getDatabasePlatform()->getName()}'");
     }
 }

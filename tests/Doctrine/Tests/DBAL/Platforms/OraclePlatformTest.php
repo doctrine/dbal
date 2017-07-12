@@ -739,7 +739,7 @@ EOD;
         return array(
             array(
                 null,
-                "SELECT   c.*,
+                "                 SELECT   c.*,
                          (
                              SELECT d.comments
                              FROM   user_col_comments d
@@ -752,7 +752,7 @@ EOD;
             ),
             array(
                 '/',
-                "SELECT   c.*,
+                "                 SELECT   c.*,
                          (
                              SELECT d.comments
                              FROM   user_col_comments d
@@ -765,7 +765,7 @@ EOD;
             ),
             array(
                 'scott',
-                "SELECT   c.*, d.comments AS comments
+                "                  SELECT    c.*, d.comments AS comments
                     FROM    all_tab_columns c
                LEFT JOIN    all_col_comments d
                       ON    d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
@@ -773,6 +773,108 @@ EOD;
                    ORDER BY c.table_name, c.column_id"
             ),
         );
+    }
+
+    public function testReturnsGetListTableColumnsSQLNoTable(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->_platform->getListTableColumnsSQL(null);
+    }
+
+    /**
+     * @dataProvider dataReturnsGetListTableIndexesSQL
+     */
+    public function testReturnsGetListTableIndexesSQL(string $table = null, string $database = null, array $expectedResult): void
+    {
+        if (isset($expectedResult['sql_contains'])) {
+            $this->assertNotFalse(strpos($this->_platform->getListTableIndexesSQL($table, $database), $expectedResult['sql_contains']));
+        }
+        else {
+            $this->expectException($expectedResult['exception']);
+            $this->_platform->getListTableIndexesSQL($table, $database);
+        }
+    }
+
+    public function dataReturnsGetListTableIndexesSQL(): array
+    {
+        return [
+            'table no db no' => [
+                null,
+                null,
+                [
+                    'exception' => \InvalidArgumentException::class,
+                ]
+            ],
+            'table yes db no' => [
+                'test',
+                null,
+                [
+                    'sql_contains' => "WHERE     uind_col.table_name = 'TEST'",
+                ]
+            ],
+            'table no db yes' => [
+                null,
+                'SCOTT',
+                [
+                    'sql_contains' => "WHERE  ind_col.index_owner = 'SCOTT'",
+                ]
+            ],
+            'table yes db yes' => [
+                'test',
+                'SCOTT',
+                [
+                    'sql_contains' => "WHERE  ind_col.index_owner = 'SCOTT' AND ind_col.table_name = 'TEST'",
+                ]
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataReturnsGetListForeignKeysSQL
+     */
+    public function testReturnsGetListForeignKeysSQL(string $table = null, string $database = null, array $expectedResult): void
+    {
+        if (isset($expectedResult['sql_contains'])) {
+            $this->assertNotFalse(strpos($this->_platform->getListForeignKeysSQL($table, $database), $expectedResult['sql_contains']));
+        }
+        else {
+            $this->expectException($expectedResult['exception']);
+            $this->_platform->getListForeignKeysSQL($table, $database);
+        }
+    }
+
+    public function dataReturnsGetListForeignKeysSQL(): array
+    {
+        return [
+            'table no db no' => [
+                null,
+                null,
+                [
+                    'exception' => \InvalidArgumentException::class,
+                ]
+            ],
+            'table yes db no' => [
+                'test',
+                null,
+                [
+                    'sql_contains' => "FROM user_cons_columns cols",
+                ]
+            ],
+            'table no db yes' => [
+                null,
+                'SCOTT',
+                [
+                    'sql_contains' => "WHERE cols.owner = 'SCOTT'  AND alc.constraint_type = 'R'",
+                ]
+            ],
+            'table yes db yes' => [
+                'test',
+                'SCOTT',
+                [
+                    'sql_contains' => "WHERE cols.owner = 'SCOTT' AND cols.table_name = 'TEST' AND alc.constraint_type = 'R'",
+                ]
+            ],
+        ];
     }
 
     /**

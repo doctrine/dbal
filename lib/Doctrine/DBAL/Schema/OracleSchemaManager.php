@@ -51,7 +51,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         // Get all indexes definitions in one database call.
         $allIndexes = $this->_conn->fetchAll($this->_platform->getListTableIndexesSQL(null, $currentDatabase));
 
-        $tables = array();
+        $tables = [];
         foreach ($tableNames as $tableName) {
             $unquotedTableName = rtrim(ltrim($tableName, '"'), '"');
 
@@ -65,15 +65,15 @@ class OracleSchemaManager extends AbstractSchemaManager
             $tableForeignKeys = array_filter($allForeignKeys, function ($foreignKey) use ($unquotedTableName) {
                 return $foreignKey['TABLE_NAME'] === $unquotedTableName;
             });
-            $foreignKeys = !empty($tableForeignKeys) ? $this->_getPortableTableForeignKeysList($tableForeignKeys) : array();
+            $foreignKeys = !empty($tableForeignKeys) ? $this->_getPortableTableForeignKeysList($tableForeignKeys) : [];
 
             // Process indexes for this table.
             $tableIndexes = array_filter($allIndexes, function ($index) use ($unquotedTableName) {
                 return $index['TABLE_NAME'] === $unquotedTableName;
             });
-            $indexes = !empty($tableIndexes) ? $this->_getPortableTableIndexesList($tableIndexes, $tableName) : array();
+            $indexes = !empty($tableIndexes) ? $this->_getPortableTableIndexesList($tableIndexes, $tableName) : [];
 
-            $tables[] = new Table($tableName, $columns, $indexes, $foreignKeys, false, array());
+            $tables[] = new Table($tableName, $columns, $indexes, $foreignKeys, false, []);
         }
 
         return $tables;
