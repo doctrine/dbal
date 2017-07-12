@@ -804,7 +804,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         return array(
             'ALTER TABLE mytable DROP FOREIGN KEY fk_foo',
-            'DROP INDEX idx_foo ON mytable',
+            'DROP INDEX `idx_foo` ON mytable',
             'CREATE INDEX idx_foo_renamed ON mytable (foo)',
             'ALTER TABLE mytable ADD CONSTRAINT fk_foo FOREIGN KEY (foo) REFERENCES foreign_table (id)',
         );
