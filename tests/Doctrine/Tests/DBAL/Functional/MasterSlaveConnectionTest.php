@@ -38,15 +38,19 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $this->_conn->insert('master_slave_table', array('test_int' => 1));
     }
 
-    public function createMasterSlaveConnection($keepSlave = false)
+    public function prepareConnectionParameters($keepSlave = false)
     {
         $params = $this->_conn->getParams();
         $params['master']       = $params;
         $params['slaves']       = array($params, $params);
         $params['keepSlave']    = $keepSlave;
         $params['wrapperClass'] = 'Doctrine\DBAL\Connections\MasterSlaveConnection';
+        return $params;
+    }
 
-        return DriverManager::getConnection($params);
+    public function createMasterSlaveConnection($keepSlave = false)
+    {
+        return DriverManager::getConnection($this->prepareConnectionParameters($keepSlave));
     }
 
     public function testMasterOnConnect()
@@ -138,5 +142,16 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
         $conn->connect('master');
         $this->assertTrue($conn->isConnectedToMaster());
+    }
+
+    public function testMasterSlaveFailSlave()
+    {
+        $params = $this->prepareConnectionParameters();
+        $invalidParams = $params['master'];
+        $invalidParams['password'] = 'MUUHAAAAHAAAA';
+        $params['slaves'] = array($invalidParams, $invalidParams);
+        $conn = DriverManager::getConnection($params);
+        $this->assertTrue($conn->connect('slave'));
+
     }
 }
