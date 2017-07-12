@@ -180,7 +180,14 @@ class MasterSlaveConnection extends Connection
                 $this->connections['slave'] = $this->connections['master'];
             }
         } else {
-            $this->connections['slave'] = $this->_conn = $this->connectTo($connectionName);
+            try {
+                $this->connections['slave'] = $this->_conn = $this->connectTo($connectionName);
+            } catch(\Exception $ex) {
+                //failover when slave is dead
+                $this->connections['slave'] = $this->_conn =
+                    (isset($this->connections['master']) && is_object($this->connections['master'])) ?
+                    $this->connections['master'] : $this->connectTo('master');
+            }
         }
 
         if ($this->_eventManager->hasListeners(Events::postConnect)) {
@@ -364,7 +371,7 @@ class MasterSlaveConnection extends Connection
         if ($logger) {
             $logger->startQuery($args[0]);
         }
-        
+
         $statement = $this->_conn->query(...$args);
 
         if ($logger) {
