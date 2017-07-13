@@ -46,11 +46,11 @@ class RunSqlCommand extends Command
         $this
         ->setName('dbal:run-sql')
         ->setDescription('Executes arbitrary SQL directly from the command line.')
-        ->setDefinition(array(
+        ->setDefinition([
             new InputArgument('sql', InputArgument::REQUIRED, 'The SQL statement to execute.'),
             new InputOption('depth', null, InputOption::VALUE_REQUIRED, 'Dumping depth of result set.', 7),
             new InputOption('force-fetch', null, InputOption::VALUE_NONE, 'Forces fetching the result.'),
-        ))
+        ])
         ->setHelp(<<<EOT
 Executes arbitrary SQL directly from the command line.
 EOT

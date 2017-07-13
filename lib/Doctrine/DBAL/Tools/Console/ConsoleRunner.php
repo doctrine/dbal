@@ -42,9 +42,9 @@ class ConsoleRunner
      */
     static public function createHelperSet(Connection $connection)
     {
-        return new HelperSet(array(
+        return new HelperSet([
             'db' => new ConnectionHelper($connection)
-        ));
+        ]);
     }
 
     /**
@@ -55,7 +55,7 @@ class ConsoleRunner
      *
      * @return void
      */
-    static public function run(HelperSet $helperSet, $commands = array())
+    static public function run(HelperSet $helperSet, $commands = [])
     {
         $cli = new Application('Doctrine Command Line Interface', Version::VERSION);
 
@@ -75,11 +75,11 @@ class ConsoleRunner
      */
     static public function addCommands(Application $cli)
     {
-        $cli->addCommands(array(
+        $cli->addCommands([
             new RunSqlCommand(),
             new ImportCommand(),
             new ReservedWordsCommand(),
-        ));
+        ]);
     }
 
     /**
