@@ -36,7 +36,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
     protected function getAlterTableRenameIndexSQL()
     {
         return array(
-            'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_bar',
+            'ALTER TABLE mytable RENAME INDEX `idx-foo` TO `idx-bar`',
         );
     }
 
@@ -57,7 +57,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
         return array(
-            'ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar',
+            'ALTER TABLE myschema.mytable RENAME INDEX `idx-foo` TO `idx-bar`',// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
         );
     }
 
@@ -68,7 +68,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
     {
         return array(
             'ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`',
-            'ALTER TABLE `schema`.`table` RENAME INDEX `foo` TO `bar`',
+            'ALTER TABLE `schema`.`table` RENAME INDEX `foo` TO `bar`',// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
         );
     }
 
@@ -78,7 +78,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
     {
         return array(
-            'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed',
+            'ALTER TABLE mytable RENAME INDEX `idx-foo` TO `idx-foo-renamed`',// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
         );
     }
 }
