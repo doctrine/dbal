@@ -1283,7 +1283,7 @@ SQL;
      *
      * @return bool
      */
-    private function isDatabaseSelected(string $database = null): bool
+    private function isDatabaseSelected(?string $database): bool
     {
         return null !== $database && '/' !== $database;
     }
