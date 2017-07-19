@@ -838,7 +838,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $tableDiff->fromTable->addColumn('id', 'integer');
         $tableDiff->fromTable->setPrimaryKey(array('id'));
         $tableDiff->renamedIndexes = array(
-            'idx_foo' => new Index('idx_bar', array('id'))
+            '`idx-foo`' => new Index('`idx-bar`', array('id'))// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
         );
 
         $this->assertSame(
@@ -853,8 +853,8 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     protected function getAlterTableRenameIndexSQL()
     {
         return array(
-            'DROP INDEX idx_foo',
-            'CREATE INDEX idx_bar ON mytable (id)',
+            'DROP INDEX `idx-foo`',// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
+            'CREATE INDEX `idx-bar` ON mytable (id)',// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
         );
     }
 
@@ -993,7 +993,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $tableDiff->fromTable->addColumn('id', 'integer');
         $tableDiff->fromTable->setPrimaryKey(array('id'));
         $tableDiff->renamedIndexes = array(
-            'idx_foo' => new Index('idx_bar', array('id'))
+            '`idx-foo`' => new Index('`idx-bar`', array('id'))// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
         );
 
         $this->assertSame(
@@ -1008,8 +1008,8 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
         return array(
-            'DROP INDEX idx_foo',
-            'CREATE INDEX idx_bar ON myschema.mytable (id)',
+            'DROP INDEX `idx-foo`',// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
+            'CREATE INDEX `idx-bar` ON myschema.mytable (id)',// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
         );
     }
 
@@ -1376,14 +1376,14 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $primaryTable->addColumn('foo', 'integer');
         $primaryTable->addColumn('bar', 'integer');
         $primaryTable->addColumn('baz', 'integer');
-        $primaryTable->addIndex(array('foo'), 'idx_foo');
-        $primaryTable->addIndex(array('bar'), 'idx_bar');
-        $primaryTable->addForeignKeyConstraint($foreignTable, array('foo'), array('id'), array(), 'fk_foo');
-        $primaryTable->addForeignKeyConstraint($foreignTable, array('bar'), array('id'), array(), 'fk_bar');
+        $primaryTable->addIndex(array('foo'), '`idx-foo`');// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
+        $primaryTable->addIndex(array('bar'), '`idx-bar`');// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
+        $primaryTable->addForeignKeyConstraint($foreignTable, array('foo'), array('id'), array(), '`fk-foo`');// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
+        $primaryTable->addForeignKeyConstraint($foreignTable, array('bar'), array('id'), array(), '`fk-bar`');// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
         $tableDiff = new TableDiff('mytable');
         $tableDiff->fromTable = $primaryTable;
-        $tableDiff->renamedIndexes['idx_foo'] = new Index('idx_foo_renamed', array('foo'));
+        $tableDiff->renamedIndexes['`idx-foo`'] = new Index('`idx-foo-renamed`', array('foo'));// Index name with special character in name (needs quotation on some platforms, e.g. Sqlite).
 
         $this->assertSame(
             $this->getGeneratesAlterTableRenameIndexUsedByForeignKeySQL(),
