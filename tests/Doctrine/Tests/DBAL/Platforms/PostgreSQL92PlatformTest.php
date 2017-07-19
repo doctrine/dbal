@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
+use Doctrine\DBAL\Types\Type;
 
 class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
 {
@@ -54,7 +55,7 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
     public function testInitializesJsonTypeMapping()
     {
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
-        $this->assertEquals('json_array', $this->_platform->getDoctrineTypeMapping('json'));
+        $this->assertEquals(Type::JSON, $this->_platform->getDoctrineTypeMapping('json'));
     }
 
     /**
