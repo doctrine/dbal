@@ -61,7 +61,7 @@ class PostgreSQL92Platform extends PostgreSQL91Platform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords';
+        return Keywords\PostgreSQL92Keywords::class;
     }
 
     /**

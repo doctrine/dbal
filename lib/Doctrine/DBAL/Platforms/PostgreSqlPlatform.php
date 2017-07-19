@@ -1166,7 +1166,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords';
+        return Keywords\PostgreSQLKeywords::class;
     }
 
     /**

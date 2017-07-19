@@ -79,7 +79,7 @@ class MySQL57Platform extends MySqlPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords';
+        return Keywords\MySQL57Keywords::class;
     }
 
     /**
