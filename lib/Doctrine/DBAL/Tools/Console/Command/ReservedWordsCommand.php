@@ -70,11 +70,11 @@ class ReservedWordsCommand extends Command
         $this
         ->setName('dbal:reserved-words')
         ->setDescription('Checks if the current database contains identifiers that are reserved.')
-        ->setDefinition(array(
+        ->setDefinition([
             new InputOption(
                 'list', 'l', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Keyword-List name.'
             )
-        ))
+        ])
         ->setHelp(<<<EOT
 Checks if the current database contains tables and columns
 with names that are identifiers in this dialect or in other SQL dialects.
@@ -138,7 +138,7 @@ EOT
             );
         }
 
-        $keywords = array();
+        $keywords = [];
         foreach ($keywordLists as $keywordList) {
             if (!isset($this->keywordListClasses[$keywordList])) {
                 throw new \InvalidArgumentException(
