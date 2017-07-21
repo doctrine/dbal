@@ -102,6 +102,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
             case '1143':
             case '1227':
             case '1370':
+            case '1429':
             case '2002':
             case '2005':
                 return new Exception\ConnectionException($message, $exception);
