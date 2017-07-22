@@ -19,13 +19,13 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Identifier;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
-use Doctrine\DBAL\Connection;
 
 /**
  * The MySqlPlatform provides the behavior, features and SQL dialect of the
@@ -712,7 +712,7 @@ class MySqlPlatform extends AbstractPlatform
             if (! $diff->fromTable->hasColumn($columnName)) {
                 continue;
             }
-          
+
             $column = $diff->fromTable->getColumn($columnName);
 
             if ($column->getAutoincrement() === true) {
@@ -1070,7 +1070,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords';
+        return Keywords\MySQLKeywords::class;
     }
 
     /**

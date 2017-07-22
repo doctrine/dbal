@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Types\Type;
+
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4 database platform.
  *
@@ -45,7 +47,7 @@ class PostgreSQL94Platform extends PostgreSQL92Platform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords';
+        return Keywords\PostgreSQL94Keywords::class;
     }
 
     /**
@@ -54,6 +56,7 @@ class PostgreSQL94Platform extends PostgreSQL92Platform
     protected function initializeDoctrineTypeMappings()
     {
         parent::initializeDoctrineTypeMappings();
-        $this->doctrineTypeMapping['jsonb'] = 'json_array';
+
+        $this->doctrineTypeMapping['jsonb'] = Type::JSON;
     }
 }

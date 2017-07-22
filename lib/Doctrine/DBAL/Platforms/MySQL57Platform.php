@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * Provides the behavior, features and SQL dialect of the MySQL 5.7 (5.7.9 GA) database platform.
@@ -79,7 +80,7 @@ class MySQL57Platform extends MySqlPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords';
+        return Keywords\MySQL57Keywords::class;
     }
 
     /**
@@ -89,6 +90,6 @@ class MySQL57Platform extends MySqlPlatform
     {
         parent::initializeDoctrineTypeMappings();
 
-        $this->doctrineTypeMapping['json'] = 'json_array';
+        $this->doctrineTypeMapping['json'] = Type::JSON;
     }
 }

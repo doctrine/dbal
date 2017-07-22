@@ -22,9 +22,11 @@ class PostgreSQLSchemaManagerTest extends \PHPUnit_Framework_TestCase
     {
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
         $platform = $this->createMock('Doctrine\DBAL\Platforms\PostgreSqlPlatform');
+
         $this->connection = $this->getMockBuilder('Doctrine\DBAL\Connection')
-            ->setConstructorArgs(array(array('platform' => $platform), $driverMock))
+            ->setConstructorArgs([['platform' => $platform], $driverMock])
             ->getMock();
+
         $this->schemaManager = new PostgreSqlSchemaManager($this->connection, $platform);
     }
 
@@ -36,12 +38,12 @@ class PostgreSQLSchemaManagerTest extends \PHPUnit_Framework_TestCase
         $configuration = new Configuration();
         $configuration->setFilterSchemaAssetsExpression('/^schema/');
 
-        $sequences = array(
-            array('relname' => 'foo', 'schemaname' => 'schema'),
-            array('relname' => 'bar', 'schemaname' => 'schema'),
-            array('relname' => 'baz', 'schemaname' => ''),
-            array('relname' => 'bloo', 'schemaname' => 'bloo_schema'),
-        );
+        $sequences = [
+            ['relname' => 'foo', 'schemaname' => 'schema'],
+            ['relname' => 'bar', 'schemaname' => 'schema'],
+            ['relname' => 'baz', 'schemaname' => ''],
+            ['relname' => 'bloo', 'schemaname' => 'bloo_schema'],
+        ];
 
         $this->connection->expects($this->any())
             ->method('getConfiguration')
@@ -53,20 +55,20 @@ class PostgreSQLSchemaManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->connection->expects($this->at(1))
             ->method('fetchAll')
-            ->will($this->returnValue(array(array('min_value' => 1, 'increment_by' => 1))));
+            ->will($this->returnValue([['min_value' => 1, 'increment_by' => 1]]));
 
         $this->connection->expects($this->at(2))
             ->method('fetchAll')
-            ->will($this->returnValue(array(array('min_value' => 2, 'increment_by' => 2))));
+            ->will($this->returnValue([['min_value' => 2, 'increment_by' => 2]]));
 
         $this->connection->expects($this->exactly(3))
             ->method('fetchAll');
 
         $this->assertEquals(
-            array(
+            [
                 new Sequence('schema.foo', 2, 2),
                 new Sequence('schema.bar', 1, 1),
-            ),
+            ],
             $this->schemaManager->listSequences('database')
         );
     }

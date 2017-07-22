@@ -28,7 +28,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $params = $this->_conn->getParams();
 
         $paths = $this->_sm->getSchemaSearchPaths();
-        $this->assertEquals(array($params['user'], 'public'), $paths);
+        $this->assertEquals([$params['user'], 'public'], $paths);
     }
 
     /**
@@ -40,7 +40,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->assertInternalType('array', $names);
         $this->assertTrue(count($names) > 0);
-        $this->assertTrue(in_array('public', $names), "The public schema should be found.");
+        $this->assertContains('public', $names, 'The public schema should be found.');
     }
 
     /**
@@ -366,7 +366,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertSame('(id IS NULL)', $onlineTable->getIndex('simple_partial_index')->getOption('where'));
     }
 
-    public function testJsonbColumn()
+    /**
+     * @dataProvider jsonbColumnTypeProvider
+     */
+    public function testJsonbColumn(string $type): void
     {
         if (!$this->_sm->getDatabasePlatform() instanceof PostgreSQL94Platform) {
             $this->markTestSkipped("Requires PostgresSQL 9.4+");
@@ -374,14 +377,22 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         }
 
         $table = new Schema\Table('test_jsonb');
-        $table->addColumn('foo', 'json_array')->setPlatformOption('jsonb', true);
+        $table->addColumn('foo', $type)->setPlatformOption('jsonb', true);
         $this->_sm->dropAndCreateTable($table);
 
         /** @var Schema\Column[] $columns */
         $columns = $this->_sm->listTableColumns('test_jsonb');
 
-        $this->assertEquals('json_array', $columns['foo']->getType()->getName());
-        $this->assertEquals(true, $columns['foo']->getPlatformOption('jsonb'));
+        $this->assertSame(TYPE::JSON, $columns['foo']->getType()->getName());
+        $this->assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
+    }
+
+    public function jsonbColumnTypeProvider(): array
+    {
+        return [
+            [Type::JSON],
+            [Type::JSON_ARRAY],
+        ];
     }
 
     /**
