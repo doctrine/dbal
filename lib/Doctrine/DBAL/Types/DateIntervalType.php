@@ -3,13 +3,14 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function substr;
 
 /**
  * Type that maps interval string to a PHP DateInterval Object.
  */
 class DateIntervalType extends Type
 {
-    const FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
+    public const FORMAT = '%RP%YY%MM%DDT%HH%IM%SS';
 
     /**
      * {@inheritdoc}
