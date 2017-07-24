@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Driver\PDOStatementIterator;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use PDO;
@@ -1034,7 +1033,7 @@ class Connection implements DriverConnection
             $logger->stopQuery();
         }
 
-        return new PDOStatementIterator($statement);
+        return $statement;
     }
 
     /**

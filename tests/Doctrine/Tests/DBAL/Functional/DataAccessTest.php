@@ -869,6 +869,24 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testIteratorCanBeIteratedMultipleTimes()
     {
+        $skippedMessage = <<<'MSG'
+Iterators are not rewindable for either PDO or Non PDO drivers. This is because PDO by default is not rewindable and 
+to be consistent we have not implemented rewindable iterators for non PDO drivers. Should PDO ever become rewindable by
+default we should wrap the legacy drivers in Doctrine\DBAL\RewindableGenerator for example on the Mysqli driver you 
+would do something like the following:
+
+return new RewindableGenerator(function() {
+    $this->_stmt->data_seek(0);
+    while ($row = $this->fetch()) {
+        yield $row;
+    }
+});
+
+If this has been done you can include this test. 
+MSG;
+
+        $this->markTestSkipped($skippedMessage);
+
         $sql = 'SELECT CURTIME(6) AS time_started, test_int, test_string FROM fetch_table';
         $stmt = $this->_conn->query($sql);
         $stmt->setFetchMode(\PDO::FETCH_ASSOC);

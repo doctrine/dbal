@@ -20,7 +20,6 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\RewindableGenerator;
 use PDO;
 
 /**
@@ -407,11 +406,8 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        return new RewindableGenerator(function() {
-            $this->_stmt->data_seek(0);
-            while ($row = $this->fetch()) {
-                yield $row;
-            }
-        });
+        while ($row = $this->fetch()) {
+            yield $row;
+        }
     }
 }
