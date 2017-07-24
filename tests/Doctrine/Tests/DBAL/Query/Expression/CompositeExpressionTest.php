@@ -20,6 +20,29 @@ class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals(2, count($expr));
     }
 
+    public function testAdd()
+    {
+        $expr = new CompositeExpression(CompositeExpression::TYPE_OR, array('u.group_id = 1'));
+
+        $this->assertCount(1, $expr);
+
+        $expr->add(new CompositeExpression(CompositeExpression::TYPE_AND, array()));
+
+        $this->assertCount(1, $expr);
+
+        $expr->add(new CompositeExpression(CompositeExpression::TYPE_OR, array('u.user_id = 1')));
+
+        $this->assertCount(2, $expr);
+
+        $expr->add(null);
+
+        $this->assertCount(2, $expr);
+
+        $expr->add('u.user_id = 1');
+
+        $this->assertCount(3, $expr);
+    }
+
     /**
      * @dataProvider provideDataForConvertToString
      */

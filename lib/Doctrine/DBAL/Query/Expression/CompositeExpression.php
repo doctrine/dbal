@@ -91,9 +91,15 @@ class CompositeExpression implements \Countable
      */
     public function add($part)
     {
-        if ( ! empty($part) || ($part instanceof self && $part->count() > 0)) {
-            $this->parts[] = $part;
+        if (empty($part)) {
+            return $this;
         }
+
+        if ($part instanceof self && 0 === count($part)) {
+            return $this;
+        }
+
+        $this->parts[] = $part;
 
         return $this;
     }
