@@ -420,7 +420,7 @@ class QueryBuilder
         $isMultiple = is_array($this->sqlParts[$sqlPartName]);
 
         if ($isMultiple && !$isArray) {
-            $sqlPart = array($sqlPart);
+            $sqlPart = [$sqlPart];
         }
 
         $this->state = self::STATE_DIRTY;
@@ -1093,7 +1093,7 @@ class QueryBuilder
     public function resetQueryPart($queryPartName)
     {
         $this->sqlParts[$queryPartName] = is_array($this->sqlParts[$queryPartName])
-            ? array() : null;
+            ? [] : null;
 
         $this->state = self::STATE_DIRTY;
 
@@ -1131,8 +1131,8 @@ class QueryBuilder
      */
     private function getFromClauses()
     {
-        $fromClauses = array();
-        $knownAliases = array();
+        $fromClauses = [];
+        $knownAliases = [];
 
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {

@@ -64,14 +64,14 @@ abstract class Type
      *
      * @var array
      */
-    private static $_typeObjects = array();
+    private static $_typeObjects = [];
 
     /**
      * The map of supported doctrine mapping types.
      *
      * @var array
      */
-    private static $_typesMap = array(
+    private static $_typesMap = [
         self::TARRAY => ArrayType::class,
         self::SIMPLE_ARRAY => SimpleArrayType::class,
         self::JSON_ARRAY => JsonArrayType::class,
@@ -97,7 +97,7 @@ abstract class Type
         self::BLOB => BlobType::class,
         self::GUID => GuidType::class,
         self::DATEINTERVAL => DateIntervalType::class,
-    );
+    ];
 
     /**
      * Prevents instantiation and forces use of the factory method.
@@ -333,7 +333,7 @@ abstract class Type
      */
     public function getMappedDatabaseTypes(AbstractPlatform $platform)
     {
-        return array();
+        return [];
     }
 
     /**

@@ -37,7 +37,7 @@ final class DriverManager
      *
      * @var array
      */
-     private static $_driverMap = array(
+     private static $_driverMap = [
          'pdo_mysql'          => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
          'pdo_sqlite'         => 'Doctrine\DBAL\Driver\PDOSqlite\Driver',
          'pdo_pgsql'          => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
@@ -49,12 +49,12 @@ final class DriverManager
          'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
          'sqlanywhere'        => 'Doctrine\DBAL\Driver\SQLAnywhere\Driver',
          'sqlsrv'             => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
-    );
+    ];
 
     /**
      * List of URL schemes from a database URL and their mappings to driver.
      */
-    private static $driverSchemeAliases = array(
+    private static $driverSchemeAliases = [
         'db2'        => 'ibm_db2',
         'mssql'      => 'pdo_sqlsrv',
         'mysql'      => 'pdo_mysql',
@@ -64,7 +64,7 @@ final class DriverManager
         'pgsql'      => 'pdo_pgsql',
         'sqlite'     => 'pdo_sqlite',
         'sqlite3'    => 'pdo_sqlite',
-    );
+    ];
 
     /**
      * Private constructor. This class cannot be instantiated.
@@ -334,7 +334,7 @@ final class DriverManager
             return $params;
         }
 
-        $query = array();
+        $query = [];
 
         parse_str($url['query'], $query); // simply ingest query as extra params, e.g. charset or sslmode
 

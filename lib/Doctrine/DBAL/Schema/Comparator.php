@@ -60,7 +60,7 @@ class Comparator
         $diff = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
-        $foreignKeysToTable = array();
+        $foreignKeysToTable = [];
 
         foreach ($toSchema->getNamespaces() as $namespace) {
             if ( ! $fromSchema->hasNamespace($namespace)) {
@@ -99,7 +99,7 @@ class Comparator
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $foreignTable = strtolower($foreignKey->getForeignTableName());
                 if (!isset($foreignKeysToTable[$foreignTable])) {
-                    $foreignKeysToTable[$foreignTable] = array();
+                    $foreignKeysToTable[$foreignTable] = [];
                 }
                 $foreignKeysToTable[$foreignTable][] = $foreignKey;
             }
@@ -315,11 +315,11 @@ class Comparator
      */
     private function detectColumnRenamings(TableDiff $tableDifferences)
     {
-        $renameCandidates = array();
+        $renameCandidates = [];
         foreach ($tableDifferences->addedColumns as $addedColumnName => $addedColumn) {
             foreach ($tableDifferences->removedColumns as $removedColumn) {
                 if (count($this->diffColumn($addedColumn, $removedColumn)) == 0) {
-                    $renameCandidates[$addedColumn->getName()][] = array($removedColumn, $addedColumn, $addedColumnName);
+                    $renameCandidates[$addedColumn->getName()][] = [$removedColumn, $addedColumn, $addedColumnName];
                 }
             }
         }
@@ -349,13 +349,13 @@ class Comparator
      */
     private function detectIndexRenamings(TableDiff $tableDifferences)
     {
-        $renameCandidates = array();
+        $renameCandidates = [];
 
         // Gather possible rename candidates by comparing each added and removed index based on semantics.
         foreach ($tableDifferences->addedIndexes as $addedIndexName => $addedIndex) {
             foreach ($tableDifferences->removedIndexes as $removedIndex) {
                 if (! $this->diffIndex($addedIndex, $removedIndex)) {
-                    $renameCandidates[$addedIndex->getName()][] = array($removedIndex, $addedIndex, $addedIndexName);
+                    $renameCandidates[$addedIndex->getName()][] = [$removedIndex, $addedIndex, $addedIndexName];
                 }
             }
         }
@@ -427,9 +427,9 @@ class Comparator
         $properties1 = $column1->toArray();
         $properties2 = $column2->toArray();
 
-        $changedProperties = array();
+        $changedProperties = [];
 
-        foreach (array('type', 'notnull', 'unsigned', 'autoincrement') as $property) {
+        foreach (['type', 'notnull', 'unsigned', 'autoincrement'] as $property) {
             if ($properties1[$property] != $properties2[$property]) {
                 $changedProperties[] = $property;
             }

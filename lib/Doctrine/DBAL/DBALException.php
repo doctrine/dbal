@@ -117,7 +117,7 @@ class DBALException extends \Exception
      *
      * @return \Doctrine\DBAL\DBALException
      */
-    public static function driverExceptionDuringQuery(Driver $driver, \Exception $driverEx, $sql, array $params = array())
+    public static function driverExceptionDuringQuery(Driver $driver, \Exception $driverEx, $sql, array $params = [])
     {
         $msg = "An exception occurred while executing '".$sql."'";
         if ($params) {

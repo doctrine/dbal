@@ -52,11 +52,11 @@ class SQLParserUtils
     {
         $match = ($isPositional) ? '?' : ':';
         if (strpos($statement, $match) === false) {
-            return array();
+            return [];
         }
 
         $token = ($isPositional) ? self::POSITIONAL_TOKEN : self::NAMED_TOKEN;
-        $paramMap = array();
+        $paramMap = [];
 
         foreach (self::getUnquotedStatementFragments($statement) as $fragment) {
             preg_match_all("/$token/", $fragment[0], $matches, PREG_OFFSET_CAPTURE);
@@ -87,7 +87,7 @@ class SQLParserUtils
     static public function expandListParameters($query, $params, $types)
     {
         $isPositional   = is_int(key($params));
-        $arrayPositions = array();
+        $arrayPositions = [];
         $bindIndex      = -1;
 
         if ($isPositional) {
@@ -110,7 +110,7 @@ class SQLParserUtils
         }
 
         if (( ! $arrayPositions && $isPositional)) {
-            return array($query, $params, $types);
+            return [$query, $params, $types];
         }
 
         $paramPos = self::getPlaceholderPositions($query, $isPositional);
@@ -140,7 +140,7 @@ class SQLParserUtils
                     array_slice($types, 0, $needle),
                     $count ?
                         array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) : // array needles are at PDO::PARAM_* + 100
-                        array(),
+                        [],
                     array_slice($types, $needle + 1)
                 );
 
@@ -151,12 +151,12 @@ class SQLParserUtils
                 $queryOffset += (strlen($expandStr) - 1);
             }
 
-            return array($query, $params, $types);
+            return [$query, $params, $types];
         }
 
         $queryOffset = 0;
-        $typesOrd    = array();
-        $paramsOrd   = array();
+        $typesOrd    = [];
+        $paramsOrd   = [];
 
         foreach ($paramPos as $pos => $paramName) {
             $paramLen = strlen($paramName) + 1;
@@ -185,7 +185,7 @@ class SQLParserUtils
             $query        = substr($query, 0, $pos) . $expandStr . substr($query, ($pos + $paramLen));
         }
 
-        return array($query, $paramsOrd, $typesOrd);
+        return [$query, $paramsOrd, $typesOrd];
     }
 
     /**

@@ -42,7 +42,7 @@ class OracleKeywords extends KeywordList
      */
     protected function getKeywords()
     {
-        return array(
+        return [
             'ACCESS',
             'ELSE',
             'MODIFY',
@@ -156,6 +156,6 @@ class OracleKeywords extends KeywordList
             'ROWS',
             'WITH',
             'RANGE',
-        );
+        ];
     }
 }

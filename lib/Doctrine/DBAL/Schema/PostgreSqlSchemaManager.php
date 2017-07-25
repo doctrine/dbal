@@ -118,10 +118,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             }
 
             $this->_execSql(
-                array(
+                [
                     $this->_platform->getDisallowDatabaseConnectionsSQL($database),
                     $this->_platform->getCloseActiveDatabaseConnectionsSQL($database),
-                )
+                ]
             );
 
             parent::dropDatabase($database);
@@ -153,7 +153,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         return new ForeignKeyConstraint(
             $localColumns, $foreignTable, $foreignColumns, $tableForeignKey['conname'],
-            array('onUpdate' => $onUpdate, 'onDelete' => $onDelete)
+            ['onUpdate' => $onUpdate, 'onDelete' => $onDelete]
         );
     }
 
@@ -178,10 +178,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableUserDefinition($user)
     {
-        return array(
+        return [
             'user' => $user['usename'],
             'password' => $user['passwd']
-        );
+        ];
     }
 
     /**
@@ -207,7 +207,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
-        $buffer = array();
+        $buffer = [];
         foreach ($tableIndexes as $row) {
             $colNumbers = explode(' ', $row['indkey']);
             $colNumbersSql = 'IN (' . join(' ,', $colNumbers) . ' )';
@@ -221,13 +221,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             foreach ($colNumbers as $colNum) {
                 foreach ($indexColumns as $colRow) {
                     if ($colNum == $colRow['attnum']) {
-                        $buffer[] = array(
+                        $buffer[] = [
                             'key_name' => $row['relname'],
                             'column_name' => trim($colRow['attname']),
                             'non_unique' => !$row['indisunique'],
                             'primary' => $row['indisprimary'],
                             'where' => $row['where'],
-                        );
+                        ];
                     }
                 }
             }
@@ -249,7 +249,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableSequencesList($sequences)
     {
-        $sequenceDefinitions = array();
+        $sequenceDefinitions = [];
 
         foreach ($sequences as $sequence) {
             if ($sequence['schemaname'] != 'public') {
@@ -261,7 +261,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $sequenceDefinitions[$sequenceName] = $sequence;
         }
 
-        $list = array();
+        $list = [];
 
         foreach ($this->filterAssetNames(array_keys($sequenceDefinitions)) as $sequenceName) {
             $list[] = $this->_getPortableSequenceDefinition($sequenceDefinitions[$sequenceName]);
@@ -307,7 +307,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $tableColumn['length'] = $length;
         }
 
-        $matches = array();
+        $matches = [];
 
         $autoincrement = false;
         if (preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches)) {
@@ -423,7 +423,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $tableColumn['default'] = $match[1];
         }
 
-        $options = array(
+        $options = [
             'length'        => $length,
             'notnull'       => (bool) $tableColumn['isnotnull'],
             'default'       => $tableColumn['default'],
@@ -436,7 +436,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
-        );
+        ];
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 

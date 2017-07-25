@@ -39,7 +39,7 @@ class DrizzleKeywords extends KeywordList
      */
     protected function getKeywords()
     {
-        return array(
+        return [
             'ABS',
             'ALL',
             'ALLOCATE',
@@ -340,6 +340,6 @@ class DrizzleKeywords extends KeywordList
             'XMLROOT',
             'XMLSERIALIZE',
             'YEAR',
-        );
+        ];
     }
 }

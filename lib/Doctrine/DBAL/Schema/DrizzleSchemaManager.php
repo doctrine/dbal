@@ -39,7 +39,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         $type = $this->extractDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
         $tableColumn['COLUMN_COMMENT'] = $this->removeDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
 
-        $options = array(
+        $options = [
             'notnull' => !(bool) $tableColumn['IS_NULLABLE'],
             'length' => (int) $tableColumn['CHARACTER_MAXIMUM_LENGTH'],
             'default' => isset($tableColumn['COLUMN_DEFAULT']) ? $tableColumn['COLUMN_DEFAULT'] : null,
@@ -49,7 +49,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
             'comment' => isset($tableColumn['COLUMN_COMMENT']) && '' !== $tableColumn['COLUMN_COMMENT']
                 ? $tableColumn['COLUMN_COMMENT']
                 : null,
-        );
+        ];
 
         $column = new Column($tableColumn['COLUMN_NAME'], Type::getType($type), $options);
 
@@ -81,12 +81,12 @@ class DrizzleSchemaManager extends AbstractSchemaManager
      */
     public function _getPortableTableForeignKeyDefinition($tableForeignKey)
     {
-        $columns = array();
+        $columns = [];
         foreach (explode(',', $tableForeignKey['CONSTRAINT_COLUMNS']) as $value) {
             $columns[] = trim($value, ' `');
         }
 
-        $refColumns = array();
+        $refColumns = [];
         foreach (explode(',', $tableForeignKey['REFERENCED_TABLE_COLUMNS']) as $value) {
             $refColumns[] = trim($value, ' `');
         }
@@ -96,10 +96,10 @@ class DrizzleSchemaManager extends AbstractSchemaManager
             $tableForeignKey['REFERENCED_TABLE_NAME'],
             $refColumns,
             $tableForeignKey['CONSTRAINT_NAME'],
-            array(
+            [
                 'onUpdate' => $tableForeignKey['UPDATE_RULE'],
                 'onDelete' => $tableForeignKey['DELETE_RULE'],
-            )
+            ]
         );
     }
 
@@ -108,7 +108,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
-        $indexes = array();
+        $indexes = [];
         foreach ($tableIndexes as $k) {
             $k['primary'] = (boolean) $k['primary'];
             $indexes[] = $k;

@@ -153,7 +153,7 @@ class Connection implements DriverConnection
      *
      * @var array
      */
-    private $_params = array();
+    private $_params = [];
 
     /**
      * The DatabasePlatform object that provides information about the
@@ -355,7 +355,7 @@ class Connection implements DriverConnection
         }
 
         $driverOptions = isset($this->_params['driverOptions']) ?
-            $this->_params['driverOptions'] : array();
+            $this->_params['driverOptions'] : [];
         $user = isset($this->_params['user']) ? $this->_params['user'] : null;
         $password = isset($this->_params['password']) ?
             $this->_params['password'] : null;
@@ -546,7 +546,7 @@ class Connection implements DriverConnection
      *
      * @return array|bool False is returned if no rows are found.
      */
-    public function fetchAssoc($statement, array $params = array(), array $types = array())
+    public function fetchAssoc($statement, array $params = [], array $types = [])
     {
         return $this->executeQuery($statement, $params, $types)->fetch(PDO::FETCH_ASSOC);
     }
@@ -561,7 +561,7 @@ class Connection implements DriverConnection
      *
      * @return array|bool False is returned if no rows are found.
      */
-    public function fetchArray($statement, array $params = array(), array $types = array())
+    public function fetchArray($statement, array $params = [], array $types = [])
     {
         return $this->executeQuery($statement, $params, $types)->fetch(PDO::FETCH_NUM);
     }
@@ -577,7 +577,7 @@ class Connection implements DriverConnection
      *
      * @return mixed|bool False is returned if no rows are found.
      */
-    public function fetchColumn($statement, array $params = array(), $column = 0, array $types = array())
+    public function fetchColumn($statement, array $params = [], $column = 0, array $types = [])
     {
         return $this->executeQuery($statement, $params, $types)->fetchColumn($column);
     }
@@ -645,7 +645,7 @@ class Connection implements DriverConnection
      *
      * @throws InvalidArgumentException
      */
-    public function delete($tableExpression, array $identifier, array $types = array())
+    public function delete($tableExpression, array $identifier, array $types = [])
     {
         if (empty($identifier)) {
             throw InvalidArgumentException::fromEmptyCriteria();
@@ -712,11 +712,11 @@ class Connection implements DriverConnection
      *
      * @return integer The number of affected rows.
      */
-    public function update($tableExpression, array $data, array $identifier, array $types = array())
+    public function update($tableExpression, array $data, array $identifier, array $types = [])
     {
-        $setColumns = array();
-        $setValues = array();
-        $set = array();
+        $setColumns = [];
+        $setValues = [];
+        $set = [];
 
         foreach ($data as $columnName => $value) {
             $setColumns[] = $columnName;
@@ -749,15 +749,15 @@ class Connection implements DriverConnection
      *
      * @return integer The number of affected rows.
      */
-    public function insert($tableExpression, array $data, array $types = array())
+    public function insert($tableExpression, array $data, array $types = [])
     {
         if (empty($data)) {
             return $this->executeUpdate('INSERT INTO ' . $tableExpression . ' ()' . ' VALUES ()');
         }
 
-        $columns = array();
-        $values = array();
-        $set = array();
+        $columns = [];
+        $values = [];
+        $set = [];
 
         foreach ($data as $columnName => $value) {
             $columns[] = $columnName;
@@ -783,7 +783,7 @@ class Connection implements DriverConnection
      */
     private function extractTypeValues(array $columnList, array $types)
     {
-        $typeValues = array();
+        $typeValues = [];
 
         foreach ($columnList as $columnIndex => $columnName) {
             $typeValues[] = isset($types[$columnName])
@@ -839,7 +839,7 @@ class Connection implements DriverConnection
      *
      * @return array
      */
-    public function fetchAll($sql, array $params = array(), $types = array())
+    public function fetchAll($sql, array $params = [], $types = [])
     {
         return $this->executeQuery($sql, $params, $types)->fetchAll();
     }
@@ -881,7 +881,7 @@ class Connection implements DriverConnection
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
+    public function executeQuery($query, array $params = [], $types = [], QueryCacheProfile $qcp = null)
     {
         if ($qcp !== null) {
             return $this->executeCacheQuery($query, $params, $types, $qcp);
@@ -948,7 +948,7 @@ class Connection implements DriverConnection
             if (isset($data[$realKey])) {
                 $stmt = new ArrayStatement($data[$realKey]);
             } elseif (array_key_exists($realKey, $data)) {
-                $stmt = new ArrayStatement(array());
+                $stmt = new ArrayStatement([]);
             }
         }
 
@@ -975,7 +975,7 @@ class Connection implements DriverConnection
      */
     public function project($query, array $params, Closure $function)
     {
-        $result = array();
+        $result = [];
         $stmt = $this->executeQuery($query, $params);
 
         while ($row = $stmt->fetch()) {
@@ -1034,7 +1034,7 @@ class Connection implements DriverConnection
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function executeUpdate($query, array $params = array(), array $types = array())
+    public function executeUpdate($query, array $params = [], array $types = [])
     {
         $this->connect();
 
@@ -1574,7 +1574,7 @@ class Connection implements DriverConnection
             $bindingType = $type; // PDO::PARAM_* constants
         }
 
-        return array($value, $bindingType);
+        return [$value, $bindingType];
     }
 
     /**
@@ -1590,7 +1590,7 @@ class Connection implements DriverConnection
      */
     public function resolveParams(array $params, array $types)
     {
-        $resolvedParams = array();
+        $resolvedParams = [];
 
         // Check whether parameters are positional or named. Mixing is not allowed, just like in PDO.
         if (is_int(key($params))) {
