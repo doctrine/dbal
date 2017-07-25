@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use PDO;
@@ -867,47 +868,82 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
-    public function testIteratorCanBeIteratedMultipleTimes()
+    public function testIteratorCallsFetchTheExpectedNumberOfTimes()
     {
-        $skippedMessage = <<<'MSG'
-Iterators are not rewindable for either PDO or Non PDO drivers. This is because PDO by default is not rewindable and 
-to be consistent we have not implemented rewindable iterators for non PDO drivers. Should PDO ever become rewindable by
-default we should wrap the legacy drivers in Doctrine\DBAL\RewindableGenerator for example on the Mysqli driver you 
-would do something like the following:
+        $sql = 'SELECT test_int, test_string FROM fetch_table';
+        $originalStmt = $this->_conn->prepare($sql);
 
-return new RewindableGenerator(function() {
-    $this->_stmt->data_seek(0);
-    while ($row = $this->fetch()) {
-        yield $row;
-    }
-});
+        // Mock the connection
+        $connectionMock = $this->getMockBuilder('Doctrine\\DBAL\\Driver\\Connection')
+            ->setMethods(['prepare', 'query'])
+            ->getMockForAbstractClass();
 
-If this has been done you can include this test. 
-MSG;
+        $stmtSpy = new StatementSpy($originalStmt);
 
-        $this->markTestSkipped($skippedMessage);
+        // Return our mocked statement from the query
+        $connectionMock->expects($this->any())
+            ->method('prepare')
+            ->will($this->returnValue($stmtSpy));
 
-        $sql = 'SELECT CURTIME(6) AS time_started, test_int, test_string FROM fetch_table';
-        $stmt = $this->_conn->query($sql);
+        $connectionMock->expects($this->any())
+            ->method('query')
+            ->will($this->returnCallback(function () use ($stmtSpy) {
+                $stmtSpy->execute();
+                return $stmtSpy;
+            }));
+
+        $stmt = $connectionMock->query($sql);
         $stmt->setFetchMode(\PDO::FETCH_ASSOC);
 
-        $timeStartedMsFirstLoop = null;
-        $timeStartedMsSecondLoop = null;
+        // Assert no fetch calls thus far
+        self::assertEquals(0, $stmtSpy->getFetchCalls());
 
         $i = 0;
         foreach ($stmt as $row) {
-            $timeStartedMsFirstLoop = $row['time_started'];
             $i++;
         }
 
-        $j = 0;
-        foreach ($stmt as $row2) {
-            $timeStartedMsSecondLoop = $row2['time_started'];
-            $j++;
-        }
+        // Assert expected number of fetches
+        $this->assertGreaterThan(0, $stmtSpy->getFetchCalls());
+        $this->assertEquals($i, $stmtSpy->getFetchCalls());
+    }
+}
 
-        $this->assertEquals($i, $j);
-        $this->assertEquals($timeStartedMsFirstLoop, $timeStartedMsSecondLoop);
+class StatementSpy implements \IteratorAggregate
+{
+    /**
+     * @var Statement|\Doctrine\DBAL\Statement
+     */
+    private $stmt;
+
+    private $fetchCalls = 0;
+
+    public function __construct(Statement $stmt)
+    {
+        $this->stmt = $stmt;
+    }
+
+    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    {
+        return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
+    }
+
+    public function execute($params = null)
+    {
+        return $this->stmt->execute($params);
+    }
+
+    public function getIterator()
+    {
+        foreach ($this->stmt as $item) {
+            $this->fetchCalls++;
+            yield $item;
+        }
+    }
+
+    public function getFetchCalls()
+    {
+        return $this->fetchCalls;
     }
 }
 
