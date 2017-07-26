@@ -378,7 +378,7 @@ using deserialization or ``null`` if no data is present.
     This type will always be mapped to the database vendor's ``text`` type
     internally as there is no way of storing a PHP array representation
     natively in the database.
-    Furthermore this type requires a SQL column comment hint so that it can be
+    Furthermore this type requires an SQL column comment hint so that it can be
     reverse engineered from the database. Doctrine cannot map back this type
     properly on vendors not supporting column comments and will fall back to
     ``text`` type instead.
@@ -398,7 +398,7 @@ using comma delimited ``explode()`` or ``null`` if no data is present.
     This type will always be mapped to the database vendor's ``text`` type
     internally as there is no way of storing a PHP array representation
     natively in the database.
-    Furthermore this type requires a SQL column comment hint so that it can be
+    Furthermore this type requires an SQL column comment hint so that it can be
     reverse engineered from the database. Doctrine cannot map back this type
     properly on vendors not supporting column comments and will fall back to
     ``text`` type instead.
@@ -426,7 +426,7 @@ Values retrieved from the database are always converted to PHP's ``array`` or
     Some vendors have a native JSON type and Doctrine will use it if possible
     and otherwise silently fall back to the vendor's ``text`` type to ensure
     the most efficient storage requirements.
-    If the vendor does not have a native JSON type, this type requires a SQL
+    If the vendor does not have a native JSON type, this type requires an SQL
     column comment hint so that it can be reverse engineered from the database.
     Doctrine cannot map back this type properly on vendors not supporting column
     comments and will fall back to ``text`` type instead.
@@ -449,7 +449,7 @@ using PHP's ``json_decode()`` function.
     Some vendors have a native JSON type and Doctrine will use it if possible
     and otherwise silently fall back to the vendor's ``text`` type to ensure
     the most efficient storage requirements.
-    If the vendor does not have a native JSON type, this type requires a SQL
+    If the vendor does not have a native JSON type, this type requires an SQL
     column comment hint so that it can be reverse engineered from the database.
     Doctrine cannot map back this type properly on vendors not supporting column
     comments and will fall back to ``text`` type instead.
@@ -474,7 +474,7 @@ using deserialization or ``null`` if no data is present.
     This type will always be mapped to the database vendor's ``text`` type
     internally as there is no way of storing a PHP object representation
     natively in the database.
-    Furthermore this type requires a SQL column comment hint so that it can be
+    Furthermore this type requires an SQL column comment hint so that it can be
     reverse engineered from the database. Doctrine cannot map back this type
     properly on vendors not supporting column comments and will fall back to
     ``text`` type instead.
