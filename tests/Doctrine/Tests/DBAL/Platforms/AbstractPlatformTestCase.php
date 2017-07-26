@@ -1445,4 +1445,52 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
         );
     }
+
+    /**
+     * @group DBAL-2791
+     */
+    public function testPowerExpressionIsBuilt()
+    {
+        static::assertSame('POWER(42)', $this->_platform->getPowerExpression(42));
+    }
+
+    /**
+     * @group DBAL-2791
+     */
+    public function testAsinExpressionIsBuilt()
+    {
+        static::assertSame('ASIN(3.4)', $this->_platform->getAsinExpression(3.4));
+    }
+
+    /**
+     * @group DBAL-2791
+     */
+    public function testTanExpressionIsBuilt()
+    {
+        static::assertSame('TAN(2.456)', $this->_platform->getTanExpression(2.456));
+    }
+
+    /**
+     * @group DBAL-2791
+     */
+    public function testAtanExpressionIsBuilt()
+    {
+        static::assertSame('ATAN(-0.8)', $this->_platform->getAtanExpression(-0.8));
+    }
+
+    /**
+     * @group DBAL-2791
+     */
+    public function testRadiansExpressionIsBuilt()
+    {
+        static::assertSame('RADIANS(90)', $this->_platform->getRadiansExpression(90));
+    }
+
+    /**
+     * @group DBAL-2791
+     */
+    public function testDegreesExpressionIsBuilt()
+    {
+        static::assertSame('DEGREES(1.57079)', $this->_platform->getDegreesExpression(1.57079));
+    }
 }
