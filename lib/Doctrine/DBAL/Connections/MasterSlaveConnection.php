@@ -131,7 +131,7 @@ class MasterSlaveConnection extends Connection
      *
      * @return boolean
      */
-    public function isConnectedToMaster()
+    public function isConnectedToMaster(): bool
     {
         return $this->_conn !== null && $this->_conn === $this->connections['master'];
     }
@@ -139,7 +139,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function connect($connectionName = null)
+    public function connect(?string $connectionName = null): bool
     {
         $requestedConnectionChange = ($connectionName !== null);
         $connectionName            = $connectionName ?: 'slave';
@@ -198,7 +198,7 @@ class MasterSlaveConnection extends Connection
      *
      * @return \Doctrine\DBAL\Driver
      */
-    protected function connectTo($connectionName)
+    protected function connectTo(string $connectionName): Driver
     {
         $params = $this->getParams();
 
@@ -230,7 +230,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function executeUpdate($query, array $params = [], array $types = [])
+    public function executeUpdate(string $query, array $params = [], array $types = []): int
     {
         $this->connect('master');
 
@@ -240,7 +240,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         $this->connect('master');
 
@@ -250,7 +250,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function commit()
+    public function commit(): bool
     {
         $this->connect('master');
 
@@ -260,7 +260,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function rollBack()
+    public function rollBack(): bool
     {
         $this->connect('master');
 
@@ -270,7 +270,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function delete($tableName, array $identifier, array $types = [])
+    public function delete(string $tableName, array $identifier, array $types = []): int
     {
         $this->connect('master');
 
@@ -280,7 +280,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function close()
+    public function close(): void
     {
         unset($this->connections['master']);
         unset($this->connections['slave']);
@@ -294,7 +294,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function update($tableName, array $data, array $identifier, array $types = [])
+    public function update(string $tableName, array $data, array $identifier, array $types = []): int
     {
         $this->connect('master');
 
@@ -304,7 +304,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function insert($tableName, array $data, array $types = [])
+    public function insert(string $tableName, array $data, array $types = []): int
     {
         $this->connect('master');
 
@@ -314,7 +314,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec(string $statement): int
     {
         $this->connect('master');
 
@@ -324,7 +324,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function createSavepoint($savepoint)
+    public function createSavepoint(string $savepoint): void
     {
         $this->connect('master');
 
@@ -334,7 +334,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function releaseSavepoint($savepoint)
+    public function releaseSavepoint(string $savepoint): void
     {
         $this->connect('master');
 
@@ -344,7 +344,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function rollbackSavepoint($savepoint)
+    public function rollbackSavepoint(string $savepoint): void
     {
         $this->connect('master');
 
@@ -354,7 +354,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function query()
+    public function query(): Driver\Statement
     {
         $this->connect('master');
 
@@ -377,7 +377,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function prepare($statement)
+    public function prepare(string $statement): Driver\Statement
     {
         $this->connect('master');
 
