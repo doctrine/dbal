@@ -28,7 +28,7 @@ class CacheException extends \Doctrine\DBAL\DBALException
     /**
      * @return \Doctrine\DBAL\Cache\CacheException
      */
-    static public function noCacheKey()
+    static public function noCacheKey(): CacheException
     {
         return new self("No cache key was set.");
     }
@@ -36,7 +36,7 @@ class CacheException extends \Doctrine\DBAL\DBALException
     /**
      * @return \Doctrine\DBAL\Cache\CacheException
      */
-    static public function noResultDriverConfigured()
+    static public function noResultDriverConfigured(): CacheException
     {
         return new self("Trying to cache a query but no result driver is configured.");
     }
