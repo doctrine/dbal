@@ -57,7 +57,7 @@ abstract class AbstractAsset
      *
      * @return void
      */
-    protected function _setName($name)
+    protected function _setName(string $name): void
     {
         if ($this->isIdentifierQuoted($name)) {
             $this->_quoted = true;
@@ -78,7 +78,7 @@ abstract class AbstractAsset
      *
      * @return boolean
      */
-    public function isInDefaultNamespace($defaultNamespaceName)
+    public function isInDefaultNamespace(string $defaultNamespaceName): bool
     {
         return $this->_namespace == $defaultNamespaceName || $this->_namespace === null;
     }
@@ -90,7 +90,7 @@ abstract class AbstractAsset
      *
      * @return string|null
      */
-    public function getNamespaceName()
+    public function getNamespaceName(): ?string
     {
         return $this->_namespace;
     }
@@ -103,7 +103,7 @@ abstract class AbstractAsset
      *
      * @return string
      */
-    public function getShortestName($defaultNamespaceName)
+    public function getShortestName(string $defaultNamespaceName): string
     {
         $shortestName = $this->getName();
         if ($this->_namespace == $defaultNamespaceName) {
@@ -126,7 +126,7 @@ abstract class AbstractAsset
      *
      * @return string
      */
-    public function getFullQualifiedName($defaultNamespaceName)
+    public function getFullQualifiedName(string $defaultNamespaceName): string
     {
         $name = $this->getName();
         if ( ! $this->_namespace) {
@@ -141,7 +141,7 @@ abstract class AbstractAsset
      *
      * @return boolean
      */
-    public function isQuoted()
+    public function isQuoted(): bool
     {
         return $this->_quoted;
     }
@@ -153,7 +153,7 @@ abstract class AbstractAsset
      *
      * @return boolean
      */
-    protected function isIdentifierQuoted($identifier)
+    protected function isIdentifierQuoted(string $identifier): bool
     {
         return (isset($identifier[0]) && ($identifier[0] == '`' || $identifier[0] == '"' || $identifier[0] == '['));
     }
@@ -165,7 +165,7 @@ abstract class AbstractAsset
      *
      * @return string
      */
-    protected function trimQuotes($identifier)
+    protected function trimQuotes(string $identifier): string
     {
         return str_replace(array('`', '"', '[', ']'), '', $identifier);
     }
@@ -175,7 +175,7 @@ abstract class AbstractAsset
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         if ($this->_namespace) {
             return $this->_namespace . "." . $this->_name;
@@ -192,7 +192,7 @@ abstract class AbstractAsset
      *
      * @return string
      */
-    public function getQuotedName(AbstractPlatform $platform)
+    public function getQuotedName(AbstractPlatform $platform): string
     {
         $keywords = $platform->getReservedKeywordsList();
         $parts = explode(".", $this->getName());
@@ -216,7 +216,7 @@ abstract class AbstractAsset
      *
      * @return string
      */
-    protected function _generateIdentifierName($columnNames, $prefix='', $maxSize=30)
+    protected function _generateIdentifierName(array $columnNames, string $prefix='', int $maxSize=30): string
     {
         $hash = implode("", array_map(function ($column) {
             return dechex(crc32($column));

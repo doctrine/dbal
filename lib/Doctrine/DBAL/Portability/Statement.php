@@ -56,7 +56,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      * @param \Doctrine\DBAL\Driver\Statement       $stmt
      * @param \Doctrine\DBAL\Portability\Connection $conn
      */
-    public function __construct($stmt, Connection $conn)
+    public function __construct(\Doctrine\DBAL\Driver\Statement $stmt, Connection $conn)
     {
         $this->stmt = $stmt;
         $this->portability = $conn->getPortability();
@@ -66,7 +66,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null, $length = null)
+    public function bindParam($column, &$variable, ?int $type = null, ?int $length = null): bool
     {
         return $this->stmt->bindParam($column, $variable, $type, $length);
     }
@@ -74,7 +74,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      * {@inheritdoc}
      */
 
-    public function bindValue($param, $value, $type = null)
+    public function bindValue($param, $value, ?int $type = null): bool
     {
         return $this->stmt->bindValue($param, $value, $type);
     }
@@ -82,7 +82,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor(): bool
     {
         return $this->stmt->closeCursor();
     }
@@ -90,7 +90,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount(): int
     {
         return $this->stmt->columnCount();
     }
@@ -98,7 +98,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
+    public function errorCode(): string
     {
         return $this->stmt->errorCode();
     }
@@ -106,7 +106,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function errorInfo()
+    public function errorInfo(): array
     {
         return $this->stmt->errorInfo();
     }
@@ -114,7 +114,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null)
+    public function execute(array $params = null): bool
     {
         return $this->stmt->execute($params);
     }
@@ -122,7 +122,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg1 = null, $arg2 = null)
+    public function setFetchMode(int $fetchMode, $arg1 = null, $arg2 = null): bool
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -132,7 +132,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         $data = $this->fetchAll();
 
@@ -142,7 +142,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch(?int $fetchMode = null, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0)
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
@@ -159,7 +159,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ?int $fetchArgument = null, array $ctorArgs = null): array
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
@@ -201,7 +201,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      *
      * @return array
      */
-    protected function fixRow($row, $iterateRow, $fixCase)
+    protected function fixRow($row, int $iterateRow, bool $fixCase): array
     {
         if ( ! $row) {
             return $row;
@@ -227,7 +227,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $value = $this->stmt->fetchColumn($columnIndex);
 
@@ -245,7 +245,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount(): int
     {
         return $this->stmt->rowCount();
     }

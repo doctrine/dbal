@@ -118,7 +118,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId(?string $name = null): string
     {
         return parent::lastInsertId($name);
     }
@@ -126,7 +126,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function requiresQueryForServerVersion()
+    public function requiresQueryForServerVersion(): bool
     {
         return false;
     }

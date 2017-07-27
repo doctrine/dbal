@@ -40,7 +40,7 @@ abstract class KeywordList
      *
      * @return boolean
      */
-    public function isKeyword($word)
+    public function isKeyword(string $word): bool
     {
         if ($this->keywords === null) {
             $this->initializeKeywords();
@@ -52,7 +52,7 @@ abstract class KeywordList
     /**
      * @return void
      */
-    protected function initializeKeywords()
+    protected function initializeKeywords(): void
     {
         $this->keywords = array_flip(array_map('strtoupper', $this->getKeywords()));
     }
@@ -62,12 +62,12 @@ abstract class KeywordList
      *
      * @return array
      */
-    abstract protected function getKeywords();
+    abstract protected function getKeywords(): array;
 
     /**
      * Returns the name of this keyword list.
      *
      * @return string
      */
-    abstract public function getName();
+    abstract public function getName(): string;
 }

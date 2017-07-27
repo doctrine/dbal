@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
  * Contract for a driver that is able to create platform instances by version.
  *
@@ -43,5 +45,5 @@ interface VersionAwarePlatformDriver
      *
      * @throws DBALException if the given version string could not be evaluated.
      */
-    public function createDatabasePlatformForVersion($version);
+    public function createDatabasePlatformForVersion(string $version): AbstractPlatform;
 }

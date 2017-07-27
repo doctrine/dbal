@@ -143,7 +143,7 @@ abstract class Type
      *
      * @todo Needed?
      */
-    public function getDefaultLength(AbstractPlatform $platform)
+    public function getDefaultLength(AbstractPlatform $platform): ?int
     {
         return null;
     }
@@ -156,7 +156,7 @@ abstract class Type
      *
      * @return string
      */
-    abstract public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform);
+    abstract public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string;
 
     /**
      * Gets the name of this type.
@@ -165,7 +165,7 @@ abstract class Type
      *
      * @todo Needed?
      */
-    abstract public function getName();
+    abstract public function getName(): string;
 
     /**
      * Factory method to create type instances.
@@ -177,7 +177,7 @@ abstract class Type
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public static function getType($name)
+    public static function getType(string $name): Type
     {
         if ( ! isset(self::$_typeObjects[$name])) {
             if ( ! isset(self::$_typesMap[$name])) {
@@ -199,7 +199,7 @@ abstract class Type
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public static function addType($name, $className)
+    public static function addType(string $name, string $className): void
     {
         if (isset(self::$_typesMap[$name])) {
             throw DBALException::typeExists($name);
@@ -215,7 +215,7 @@ abstract class Type
      *
      * @return boolean TRUE if type is supported; FALSE otherwise.
      */
-    public static function hasType($name)
+    public static function hasType(string $name): bool
     {
         return isset(self::$_typesMap[$name]);
     }
@@ -230,7 +230,7 @@ abstract class Type
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public static function overrideType($name, $className)
+    public static function overrideType(string $name, string $className): void
     {
         if ( ! isset(self::$_typesMap[$name])) {
             throw DBALException::typeNotFound($name);
@@ -257,7 +257,7 @@ abstract class Type
      *
      * @return integer
      */
-    public function getBindingType()
+    public function getBindingType(): int
     {
         return \PDO::PARAM_STR;
     }
@@ -268,7 +268,7 @@ abstract class Type
      *
      * @return array
      */
-    public static function getTypesMap()
+    public static function getTypesMap(): array
     {
         return self::$_typesMap;
     }
@@ -276,7 +276,7 @@ abstract class Type
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $e = explode('\\', get_class($this));
 
@@ -293,7 +293,7 @@ abstract class Type
      *
      * @return boolean
      */
-    public function canRequireSQLConversion()
+    public function canRequireSQLConversion(): bool
     {
         return false;
     }
@@ -306,7 +306,7 @@ abstract class Type
      *
      * @return string
      */
-    public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform)
+    public function convertToDatabaseValueSQL(string $sqlExpr, AbstractPlatform $platform): string
     {
         return $sqlExpr;
     }
@@ -319,7 +319,7 @@ abstract class Type
      *
      * @return string
      */
-    public function convertToPHPValueSQL($sqlExpr, $platform)
+    public function convertToPHPValueSQL(string $sqlExpr, AbstractPlatform $platform): string
     {
         return $sqlExpr;
     }
@@ -331,7 +331,7 @@ abstract class Type
      *
      * @return array
      */
-    public function getMappedDatabaseTypes(AbstractPlatform $platform)
+    public function getMappedDatabaseTypes(AbstractPlatform $platform): array
     {
         return array();
     }
@@ -346,7 +346,7 @@ abstract class Type
      *
      * @return boolean
      */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return false;
     }

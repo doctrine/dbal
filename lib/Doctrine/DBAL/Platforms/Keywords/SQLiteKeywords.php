@@ -31,7 +31,7 @@ class SQLiteKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'SQLite';
     }
@@ -39,7 +39,7 @@ class SQLiteKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return array(
             'ABORT',

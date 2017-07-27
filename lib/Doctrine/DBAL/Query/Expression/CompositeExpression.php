@@ -59,7 +59,7 @@ class CompositeExpression implements \Countable
      * @param string $type  Instance type of composite expression.
      * @param array  $parts Composition of expressions to be joined on composite expression.
      */
-    public function __construct($type, array $parts = [])
+    public function __construct(string $type, array $parts = [])
     {
         $this->type = $type;
 
@@ -71,9 +71,9 @@ class CompositeExpression implements \Countable
      *
      * @param array $parts
      *
-     * @return \Doctrine\DBAL\Query\Expression\CompositeExpression
+     * @return $this This CompositeExpression instance.
      */
-    public function addMultiple(array $parts = [])
+    public function addMultiple(array $parts = []): self
     {
         foreach ((array) $parts as $part) {
             $this->add($part);
@@ -87,9 +87,9 @@ class CompositeExpression implements \Countable
      *
      * @param mixed $part
      *
-     * @return \Doctrine\DBAL\Query\Expression\CompositeExpression
+     * @return $this This CompositeExpression instance.
      */
-    public function add($part)
+    public function add($part): self
     {
         if ( ! empty($part) || ($part instanceof self && $part->count() > 0)) {
             $this->parts[] = $part;
@@ -103,7 +103,7 @@ class CompositeExpression implements \Countable
      *
      * @return integer
      */
-    public function count()
+    public function count(): int
     {
         return count($this->parts);
     }
@@ -113,7 +113,7 @@ class CompositeExpression implements \Countable
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->count() === 1) {
             return (string) $this->parts[0];
@@ -127,7 +127,7 @@ class CompositeExpression implements \Countable
      *
      * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }

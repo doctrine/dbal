@@ -40,14 +40,14 @@ interface Visitor
      *
      * @return void
      */
-    public function acceptSchema(Schema $schema);
+    public function acceptSchema(Schema $schema): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\Table $table
      *
      * @return void
      */
-    public function acceptTable(Table $table);
+    public function acceptTable(Table $table): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\Table  $table
@@ -55,7 +55,7 @@ interface Visitor
      *
      * @return void
      */
-    public function acceptColumn(Table $table, Column $column);
+    public function acceptColumn(Table $table, Column $column): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\Table                $localTable
@@ -63,7 +63,7 @@ interface Visitor
      *
      * @return void
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint);
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\Table $table
@@ -71,12 +71,12 @@ interface Visitor
      *
      * @return void
      */
-    public function acceptIndex(Table $table, Index $index);
+    public function acceptIndex(Table $table, Index $index): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\Sequence $sequence
      *
      * @return void
      */
-    public function acceptSequence(Sequence $sequence);
+    public function acceptSequence(Sequence $sequence): void;
 }

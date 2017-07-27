@@ -31,7 +31,7 @@ class PostgreSQL94Keywords extends PostgreSQL92Keywords
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'PostgreSQL94';
     }
@@ -41,7 +41,7 @@ class PostgreSQL94Keywords extends PostgreSQL92Keywords
      *
      * @link http://www.postgresql.org/docs/9.4/static/sql-keywords-appendix.html
      */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         $parentKeywords = array_diff(parent::getKeywords(), array(
             'OVER',

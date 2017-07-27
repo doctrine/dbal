@@ -58,7 +58,7 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function connect()
+    public function connect(): bool
     {
         $ret = parent::connect();
         if ($ret) {
@@ -99,7 +99,7 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * @return integer
      */
-    public function getPortability()
+    public function getPortability(): int
     {
         return $this->portability;
     }
@@ -107,7 +107,7 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * @return integer
      */
-    public function getFetchCase()
+    public function getFetchCase(): int
     {
         return $this->case;
     }
@@ -115,7 +115,7 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null)
+    public function executeQuery(string $query, array $params = array(), $types = array(), QueryCacheProfile $qcp = null): Statement
     {
         $stmt = new Statement(parent::executeQuery($query, $params, $types, $qcp), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -126,7 +126,7 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function prepare($statement)
+    public function prepare(string $statement): Statement
     {
         $stmt = new Statement(parent::prepare($statement), $this);
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -137,7 +137,7 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query(): Statement
     {
         $this->connect();
 

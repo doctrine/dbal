@@ -31,7 +31,7 @@ class Driver extends AbstractSQLServerDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    public function connect(array $params, ?string $username = null, ?string $password = null, array $driverOptions = [])
     {
         return new Connection(
             $this->_constructPdoDsn($params),

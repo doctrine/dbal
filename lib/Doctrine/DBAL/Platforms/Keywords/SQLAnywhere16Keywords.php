@@ -29,7 +29,7 @@ class SQLAnywhere16Keywords extends SQLAnywhere12Keywords
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'SQLAnywhere16';
     }
@@ -39,7 +39,7 @@ class SQLAnywhere16Keywords extends SQLAnywhere12Keywords
      *
      * @link http://dcx.sybase.com/index.html#sa160/en/dbreference/alhakeywords.html
      */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return array_merge(
             parent::getKeywords(),

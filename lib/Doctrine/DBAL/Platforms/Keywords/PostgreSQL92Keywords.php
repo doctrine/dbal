@@ -31,7 +31,7 @@ class PostgreSQL92Keywords extends PostgreSQL91Keywords
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'PostgreSQL92';
     }
@@ -41,7 +41,7 @@ class PostgreSQL92Keywords extends PostgreSQL91Keywords
      *
      * @link http://www.postgresql.org/docs/9.2/static/sql-keywords-appendix.html
      */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return array_merge(parent::getKeywords(), array(
             'COLLATION',

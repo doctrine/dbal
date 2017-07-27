@@ -40,5 +40,5 @@ interface ExceptionConverterDriver
      *
      * @return \Doctrine\DBAL\Exception\DriverException An instance of one of the DriverException subclasses.
      */
-    public function convertException($message, DriverException $exception);
+    public function convertException(string $message, DriverException $exception): \Doctrine\DBAL\Exception\DriverException;
 }
