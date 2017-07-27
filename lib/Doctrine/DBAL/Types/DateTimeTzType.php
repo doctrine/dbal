@@ -71,7 +71,7 @@ class DateTimeTzType extends Type
             return $value;
         }
 
-        if ($value instanceof \DateTime) {
+        if ($value instanceof \DateTime || $value instanceof \DateTimeImmutable) {
             return $value->format($platform->getDateTimeTzFormatString());
         }
 
@@ -83,7 +83,7 @@ class DateTimeTzType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTime) {
+        if ($value === null || $value instanceof \DateTime || $value instanceof \DateTimeImmutable) {
             return $value;
         }
 

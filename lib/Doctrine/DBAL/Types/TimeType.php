@@ -53,7 +53,7 @@ class TimeType extends Type
             return $value;
         }
 
-        if ($value instanceof \DateTime) {
+        if ($value instanceof \DateTime || $value instanceof \DateTimeImmutable) {
             return $value->format($platform->getTimeFormatString());
         }
 
@@ -65,7 +65,7 @@ class TimeType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTime) {
+        if ($value === null || $value instanceof \DateTime || $value instanceof \DateTimeImmutable) {
             return $value;
         }
 
