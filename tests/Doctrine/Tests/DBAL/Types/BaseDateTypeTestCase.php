@@ -71,6 +71,35 @@ abstract class BaseDateTypeTestCase extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group #2794
+     *
+     * Note that while \@see \DateTimeImmutable is supposed to be handled
+     * by @see \Doctrine\DBAL\Types\DateTimeImmutableType, previous DBAL versions handled it just fine.
+     * This test is just in place to prevent further regressions, even if the type is being misused
+     */
+    public function testConvertDateTimeImmutableToPHPValue()
+    {
+        $date = new \DateTimeImmutable('now');
+
+        self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
+    }
+
+    /**
+     * @group #2794
+     *
+     * Note that while \@see \DateTimeImmutable is supposed to be handled
+     * by @see \Doctrine\DBAL\Types\DateTimeImmutableType, previous DBAL versions handled it just fine.
+     * This test is just in place to prevent further regressions, even if the type is being misused
+     */
+    public function testDateTimeImmutableConvertsToDatabaseValue()
+    {
+        self::assertInternalType(
+            'string',
+            $this->type->convertToDatabaseValue(new \DateTimeImmutable(), $this->platform)
+        );
+    }
+
+    /**
      * @return mixed[][]
      */
     public function invalidPHPValuesProvider()

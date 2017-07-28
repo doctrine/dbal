@@ -53,7 +53,7 @@ class DateType extends Type
             return $value;
         }
 
-        if ($value instanceof \DateTime) {
+        if ($value instanceof \DateTimeInterface) {
             return $value->format($platform->getDateFormatString());
         }
 
@@ -65,7 +65,7 @@ class DateType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTime) {
+        if ($value === null || $value instanceof \DateTimeInterface) {
             return $value;
         }
 
