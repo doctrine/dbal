@@ -20,9 +20,9 @@
 namespace Doctrine\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
 
 class CreateSchemaSqlCollector extends AbstractVisitor
 {
@@ -63,7 +63,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptNamespace($namespaceName)
+    public function acceptNamespace(string $namespaceName): void
     {
         if ($this->platform->supportsSchemas()) {
             $this->createNamespaceQueries[] = $this->platform->getCreateSchemaSQL($namespaceName);
@@ -73,7 +73,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptTable(Table $table)
+    public function acceptTable(Table $table): void
     {
         $this->createTableQueries = array_merge($this->createTableQueries, (array) $this->platform->getCreateTableSQL($table));
     }
@@ -81,7 +81,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void
     {
         if ($this->platform->supportsForeignKeyConstraints()) {
             $this->createFkConstraintQueries[] = $this->platform->getCreateForeignKeySQL($fkConstraint, $localTable);
@@ -91,7 +91,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptSequence(Sequence $sequence)
+    public function acceptSequence(Sequence $sequence): void
     {
         $this->createSequenceQueries[] = $this->platform->getCreateSequenceSQL($sequence);
     }
@@ -99,7 +99,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     /**
      * @return void
      */
-    public function resetQueries()
+    public function resetQueries(): void
     {
         $this->createNamespaceQueries = array();
         $this->createTableQueries = array();
@@ -112,7 +112,7 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      *
      * @return array
      */
-    public function getQueries()
+    public function getQueries(): array
     {
         return array_merge(
             $this->createNamespaceQueries,

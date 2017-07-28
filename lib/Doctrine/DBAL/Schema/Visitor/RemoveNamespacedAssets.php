@@ -19,10 +19,10 @@
 
 namespace Doctrine\DBAL\Schema\Visitor;
 
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Removes assets from a schema that are not in the default namespace.
@@ -48,7 +48,7 @@ class RemoveNamespacedAssets extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptSchema(Schema $schema)
+    public function acceptSchema(Schema $schema): void
     {
         $this->schema = $schema;
     }
@@ -56,7 +56,7 @@ class RemoveNamespacedAssets extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptTable(Table $table)
+    public function acceptTable(Table $table): void
     {
         if ( ! $table->isInDefaultNamespace($this->schema->getName())) {
             $this->schema->dropTable($table->getName());
@@ -66,7 +66,7 @@ class RemoveNamespacedAssets extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptSequence(Sequence $sequence)
+    public function acceptSequence(Sequence $sequence): void
     {
         if ( ! $sequence->isInDefaultNamespace($this->schema->getName())) {
             $this->schema->dropSequence($sequence->getName());
@@ -76,7 +76,7 @@ class RemoveNamespacedAssets extends AbstractVisitor
     /**
      * {@inheritdoc}
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void
     {
         // The table may already be deleted in a previous
         // RemoveNamespacedAssets#acceptTable call. Removing Foreign keys that
