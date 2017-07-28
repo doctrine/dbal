@@ -89,7 +89,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      * @param string                          $realKey
      * @param integer                         $lifetime
      */
-    public function __construct(Statement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
+    public function __construct(Statement $stmt, Cache $resultCache, string $cacheKey, string $realKey, int $lifetime)
     {
         $this->statement = $stmt;
         $this->resultCache = $resultCache;
@@ -101,7 +101,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor(): bool
     {
         $this->statement->closeCursor();
         if ($this->emptied && $this->data !== null) {
@@ -119,7 +119,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount(): int
     {
         return $this->statement->columnCount();
     }
@@ -127,7 +127,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode(int $fetchMode, $arg2 = null, $arg3 = null): bool
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -137,7 +137,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         $data = $this->fetchAll();
 
@@ -147,7 +147,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch(?int $fetchMode = null, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0)
     {
         if ($this->data === null) {
             $this->data = array();
@@ -179,7 +179,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ?int $fetchArgument = null, array $ctorArgs = null): array
     {
         $rows = array();
         while ($row = $this->fetch($fetchMode)) {
@@ -192,7 +192,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(PDO::FETCH_NUM);
         if (!isset($row[$columnIndex])) {
@@ -214,7 +214,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      *
      * @return integer The number of rows.
      */
-    public function rowCount()
+    public function rowCount(): int
     {
         return $this->statement->rowCount();
     }

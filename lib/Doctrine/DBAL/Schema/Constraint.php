@@ -33,14 +33,14 @@ interface Constraint
     /**
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
      * @return string
      */
-    public function getQuotedName(AbstractPlatform $platform);
+    public function getQuotedName(AbstractPlatform $platform): string;
 
     /**
      * Returns the names of the referencing table columns
@@ -48,7 +48,7 @@ interface Constraint
      *
      * @return array
      */
-    public function getColumns();
+    public function getColumns(): array;
 
     /**
      * Returns the quoted representation of the column names
@@ -62,5 +62,5 @@ interface Constraint
      *
      * @return array
      */
-    public function getQuotedColumns(AbstractPlatform $platform);
+    public function getQuotedColumns(AbstractPlatform $platform): array;
 }

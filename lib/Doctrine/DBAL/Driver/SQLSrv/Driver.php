@@ -61,7 +61,7 @@ class Driver extends AbstractSQLServerDriver
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'sqlsrv';
     }

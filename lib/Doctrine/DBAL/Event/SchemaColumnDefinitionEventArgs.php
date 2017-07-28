@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Column;
 
 /**
@@ -64,7 +65,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      * @param string                    $database
      * @param \Doctrine\DBAL\Connection $connection
      */
-    public function __construct(array $tableColumn, $table, $database, Connection $connection)
+    public function __construct(array $tableColumn, string $table, string $database, Connection $connection)
     {
         $this->_tableColumn = $tableColumn;
         $this->_table       = $table;
@@ -78,9 +79,9 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
      *
      * @param null|\Doctrine\DBAL\Schema\Column $column
      *
-     * @return \Doctrine\DBAL\Event\SchemaColumnDefinitionEventArgs
+     * @return $this
      */
-    public function setColumn(Column $column = null)
+    public function setColumn(Column $column = null): self
     {
         $this->_column = $column;
 
@@ -90,7 +91,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return \Doctrine\DBAL\Schema\Column|null
      */
-    public function getColumn()
+    public function getColumn(): ?Column
     {
         return $this->_column;
     }
@@ -98,7 +99,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return array
      */
-    public function getTableColumn()
+    public function getTableColumn(): array
     {
         return $this->_tableColumn;
     }
@@ -106,7 +107,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return string
      */
-    public function getTable()
+    public function getTable(): string
     {
         return $this->_table;
     }
@@ -114,7 +115,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return string
      */
-    public function getDatabase()
+    public function getDatabase(): string
     {
         return $this->_database;
     }
@@ -130,7 +131,7 @@ class SchemaColumnDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return $this->_connection->getDatabasePlatform();
     }

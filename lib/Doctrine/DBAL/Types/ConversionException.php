@@ -39,7 +39,7 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    static public function conversionFailed($value, $toType)
+    static public function conversionFailed(string $value, string $toType): ConversionException
     {
         $value = (strlen($value) > 32) ? substr($value, 0, 20) . '...' : $value;
 
@@ -57,7 +57,7 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    static public function conversionFailedFormat($value, $toType, $expectedFormat, \Exception $previous = null)
+    static public function conversionFailedFormat($value, string $toType, string $expectedFormat, \Exception $previous = null): ConversionException
     {
         $value = (strlen($value) > 32) ? substr($value, 0, 20) . '...' : $value;
 
@@ -78,7 +78,7 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    static public function conversionFailedInvalidType($value, $toType, array $possibleTypes)
+    static public function conversionFailedInvalidType($value, string $toType, array $possibleTypes): ConversionException
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);
 
@@ -100,6 +100,13 @@ class ConversionException extends \Doctrine\DBAL\DBALException
         ));
     }
 
+    /**
+     * @param $value
+     * @param $format
+     * @param $error
+     *
+     * @return ConversionException
+     */
     static public function conversionFailedSerialization($value, $format, $error)
     {
         $actualType = is_object($value) ? get_class($value) : gettype($value);

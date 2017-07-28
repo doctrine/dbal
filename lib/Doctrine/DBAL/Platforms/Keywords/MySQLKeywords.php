@@ -32,7 +32,7 @@ class MySQLKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'MySQL';
     }
@@ -40,7 +40,7 @@ class MySQLKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return array(
             'ACCESSIBLE',

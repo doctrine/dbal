@@ -88,7 +88,7 @@ class ExpressionBuilder
      *
      * @return \Doctrine\DBAL\Query\Expression\CompositeExpression
      */
-    public function orX($x = null)
+    public function orX($x = null): CompositeExpression
     {
         return new CompositeExpression(CompositeExpression::TYPE_OR, func_get_args());
     }
@@ -102,7 +102,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function comparison($x, $operator, $y)
+    public function comparison($x, string $operator, $y): string
     {
         return $x . ' ' . $operator . ' ' . $y;
     }
@@ -122,7 +122,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function eq($x, $y)
+    public function eq($x, $y): string
     {
         return $this->comparison($x, self::EQ, $y);
     }
@@ -141,7 +141,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function neq($x, $y)
+    public function neq($x, $y): string
     {
         return $this->comparison($x, self::NEQ, $y);
     }
@@ -160,7 +160,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function lt($x, $y)
+    public function lt($x, $y): string
     {
         return $this->comparison($x, self::LT, $y);
     }
@@ -179,7 +179,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function lte($x, $y)
+    public function lte($x, $y): string
     {
         return $this->comparison($x, self::LTE, $y);
     }
@@ -198,7 +198,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function gt($x, $y)
+    public function gt($x, $y): string
     {
         return $this->comparison($x, self::GT, $y);
     }
@@ -217,7 +217,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function gte($x, $y)
+    public function gte($x, $y): string
     {
         return $this->comparison($x, self::GTE, $y);
     }
@@ -229,7 +229,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function isNull($x)
+    public function isNull(string $x): string
     {
         return $x . ' IS NULL';
     }
@@ -241,7 +241,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function isNotNull($x)
+    public function isNotNull(string $x): string
     {
         return $x . ' IS NOT NULL';
     }
@@ -254,7 +254,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function like($x, $y)
+    public function like(string $x, $y): string
     {
         return $this->comparison($x, 'LIKE', $y);
     }
@@ -267,7 +267,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function notLike($x, $y)
+    public function notLike(string $x, $y): string
     {
         return $this->comparison($x, 'NOT LIKE', $y);
     }
@@ -280,7 +280,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function in($x, $y)
+    public function in(string $x, $y): string
     {
         return $this->comparison($x, 'IN', '('.implode(', ', (array) $y).')');
     }
@@ -293,7 +293,7 @@ class ExpressionBuilder
      *
      * @return string
      */
-    public function notIn($x, $y)
+    public function notIn(string $x, $y): string
     {
         return $this->comparison($x, 'NOT IN', '('.implode(', ', (array) $y).')');
     }
@@ -302,11 +302,11 @@ class ExpressionBuilder
      * Quotes a given input parameter.
      *
      * @param mixed       $input The parameter to be quoted.
-     * @param string|null $type  The type of the parameter.
+     * @param int|null $type  The type of the parameter.
      *
      * @return string
      */
-    public function literal($input, $type = null)
+    public function literal($input, ?int $type = null): string
     {
         return $this->connection->quote($input, $type);
     }

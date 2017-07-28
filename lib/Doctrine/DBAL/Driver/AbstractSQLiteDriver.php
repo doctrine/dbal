@@ -21,7 +21,9 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
 /**
@@ -38,7 +40,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
      *
      * @link http://www.sqlite.org/c3ref/c_abort.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException(string $message, DriverException $exception): Exception\DriverException
     {
         if (strpos($exception->getMessage(), 'database is locked') !== false) {
             return new Exception\LockWaitTimeoutException($message, $exception);
@@ -92,7 +94,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(\Doctrine\DBAL\Connection $conn): string
     {
         $params = $conn->getParams();
 
@@ -102,7 +104,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new SqlitePlatform();
     }
@@ -110,7 +112,7 @@ abstract class AbstractSQLiteDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn): AbstractSchemaManager
     {
         return new SqliteSchemaManager($conn);
     }

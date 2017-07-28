@@ -40,7 +40,7 @@ class SQLSessionInit implements EventSubscriber
     /**
      * @param string $sql
      */
-    public function __construct($sql)
+    public function __construct(string $sql)
     {
         $this->sql = $sql;
     }
@@ -50,7 +50,7 @@ class SQLSessionInit implements EventSubscriber
      *
      * @return void
      */
-    public function postConnect(ConnectionEventArgs $args)
+    public function postConnect(ConnectionEventArgs $args): void
     {
         $conn = $args->getConnection();
         $conn->exec($this->sql);

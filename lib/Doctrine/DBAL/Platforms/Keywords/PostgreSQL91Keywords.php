@@ -32,7 +32,7 @@ class PostgreSQL91Keywords extends PostgreSQLKeywords
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'PostgreSQL91';
     }
@@ -42,7 +42,7 @@ class PostgreSQL91Keywords extends PostgreSQLKeywords
      *
      * @link http://www.postgresql.org/docs/9.1/static/sql-keywords-appendix.html
      */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return array(
             'ALL',

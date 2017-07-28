@@ -19,13 +19,13 @@
 
 namespace Doctrine\DBAL\Sharding\SQLAzure\Schema;
 
-use Doctrine\DBAL\Schema\Visitor\Visitor;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Visitor\Visitor;
 
 /**
  * Converts a single tenant schema into a multi-tenant schema for SQL Azure
@@ -78,7 +78,7 @@ class MultiTenantVisitor implements Visitor
      * @param string      $tenantColumnName
      * @param string|null $distributionName
      */
-    public function __construct(array $excludedTables = [], $tenantColumnName = 'tenant_id', $distributionName = null)
+    public function __construct(array $excludedTables = [], string $tenantColumnName = 'tenant_id', ?string $distributionName = null)
     {
         $this->excludedTables = $excludedTables;
         $this->tenantColumnName = $tenantColumnName;
@@ -88,7 +88,7 @@ class MultiTenantVisitor implements Visitor
     /**
      * {@inheritdoc}
      */
-    public function acceptTable(Table $table)
+    public function acceptTable(Table $table): void
     {
         if (in_array($table->getName(), $this->excludedTables)) {
             return;
@@ -120,7 +120,7 @@ class MultiTenantVisitor implements Visitor
      *
      * @throws \RuntimeException
      */
-    private function getClusteredIndex($table)
+    private function getClusteredIndex(Table $table): Index
     {
         foreach ($table->getIndexes() as $index) {
             if ($index->isPrimary() && ! $index->hasFlag('nonclustered')) {
@@ -135,35 +135,35 @@ class MultiTenantVisitor implements Visitor
     /**
      * {@inheritdoc}
      */
-    public function acceptSchema(Schema $schema)
+    public function acceptSchema(Schema $schema): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptColumn(Table $table, Column $column)
+    public function acceptColumn(Table $table, Column $column): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptIndex(Table $table, Index $index)
+    public function acceptIndex(Table $table, Index $index): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptSequence(Sequence $sequence)
+    public function acceptSequence(Sequence $sequence): void
     {
     }
 }

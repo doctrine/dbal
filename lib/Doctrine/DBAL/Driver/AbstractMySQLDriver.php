@@ -22,8 +22,10 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 
@@ -42,7 +44,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-client.html
      * @link http://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException(string $message, DriverException $exception): Exception\DriverException
     {
         switch ($exception->getErrorCode()) {
             case '1213':
@@ -124,7 +126,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      */
-    public function createDatabasePlatformForVersion($version)
+    public function createDatabasePlatformForVersion(string $version): AbstractPlatform
     {
         if ( ! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
             throw DBALException::invalidPlatformVersionSpecified(
@@ -157,7 +159,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(\Doctrine\DBAL\Connection $conn): string
     {
         $params = $conn->getParams();
 
@@ -171,7 +173,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new MySqlPlatform();
     }
@@ -179,7 +181,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn): AbstractSchemaManager
     {
         return new MySqlSchemaManager($conn);
     }

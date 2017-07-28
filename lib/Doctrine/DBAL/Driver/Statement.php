@@ -47,7 +47,7 @@ interface Statement extends ResultStatement
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    function bindValue($param, $value, $type = null);
+    function bindValue($param, $value, ?int $type = null): bool;
 
 
     /**
@@ -76,7 +76,7 @@ interface Statement extends ResultStatement
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    function bindParam($column, &$variable, $type = null, $length = null);
+    function bindParam($column, &$variable, ?int $type = null, ?int $length = null): bool;
 
     /**
      * Fetches the SQLSTATE associated with the last operation on the statement handle.
@@ -85,7 +85,7 @@ interface Statement extends ResultStatement
      *
      * @return string The error code string.
      */
-    function errorCode();
+    function errorCode(): string;
 
     /**
      * Fetches extended error information associated with the last operation on the statement handle.
@@ -94,7 +94,7 @@ interface Statement extends ResultStatement
      *
      * @return array The error info array.
      */
-    function errorInfo();
+    function errorInfo(): array;
 
     /**
      * Executes a prepared statement
@@ -111,7 +111,7 @@ interface Statement extends ResultStatement
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    function execute($params = null);
+    function execute(?array $params = null): bool;
 
     /**
      * Returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
@@ -124,5 +124,5 @@ interface Statement extends ResultStatement
      *
      * @return integer The number of rows.
      */
-    function rowCount();
+    function rowCount(): int;
 }

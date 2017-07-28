@@ -37,7 +37,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode(int $fetchMode, $arg2 = null, $arg3 = null): bool
     {
         // This thin wrapper is necessary to shield against the weird signature
         // of PDOStatement::setFetchMode(): even if the second and third
@@ -61,7 +61,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = \PDO::PARAM_STR)
+    public function bindValue($param, $value, ?int $type = \PDO::PARAM_STR): bool
     {
         try {
             return parent::bindValue($param, $value, $type);
@@ -73,7 +73,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = \PDO::PARAM_STR, $length = null, $driverOptions = null)
+    public function bindParam($column, &$variable, ?int $type = \PDO::PARAM_STR, ?int $length = null, $driverOptions = null): bool
     {
         try {
             return parent::bindParam($column, $variable, $type, $length, $driverOptions);
@@ -85,7 +85,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function closeCursor()
+    public function closeCursor(): bool
     {
         try {
             return parent::closeCursor();
@@ -99,7 +99,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null)
+    public function execute(?array $params = null): bool
     {
         try {
             return parent::execute($params);
@@ -111,7 +111,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch(?int $fetchMode = null, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0)
     {
         try {
             if ($fetchMode === null && \PDO::FETCH_ORI_NEXT === $cursorOrientation && 0 === $cursorOffset) {
@@ -135,7 +135,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ?int $fetchArgument = null, array $ctorArgs = null): array
     {
         try {
             if ($fetchMode === null && null === $fetchArgument && null === $ctorArgs) {
@@ -159,7 +159,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         try {
             return parent::fetchColumn($columnIndex);

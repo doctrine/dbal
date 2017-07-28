@@ -20,8 +20,8 @@
 namespace Doctrine\DBAL\Schema\Synchronizer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 
 /**
@@ -48,7 +48,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getCreateSchema(Schema $createSchema)
+    public function getCreateSchema(Schema $createSchema): array
     {
         return $createSchema->toSql($this->platform);
     }
@@ -57,7 +57,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getUpdateSchema(Schema $toSchema, $noDrops = false)
+    public function getUpdateSchema(Schema $toSchema, bool $noDrops = false): array
     {
         $comparator = new Comparator();
         $sm         = $this->conn->getSchemaManager();
@@ -75,7 +75,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getDropSchema(Schema $dropSchema)
+    public function getDropSchema(Schema $dropSchema): array
     {
         $visitor    = new DropSchemaSqlCollector($this->platform);
         $sm         = $this->conn->getSchemaManager();
@@ -130,7 +130,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getDropAllSchema()
+    public function getDropAllSchema(): array
     {
         $sm      = $this->conn->getSchemaManager();
         $visitor = new DropSchemaSqlCollector($this->platform);
@@ -145,7 +145,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function createSchema(Schema $createSchema)
+    public function createSchema(Schema $createSchema): void
     {
         $this->processSql($this->getCreateSchema($createSchema));
     }
@@ -153,7 +153,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function updateSchema(Schema $toSchema, $noDrops = false)
+    public function updateSchema(Schema $toSchema, bool $noDrops = false): void
     {
         $this->processSql($this->getUpdateSchema($toSchema, $noDrops));
     }
@@ -161,7 +161,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function dropSchema(Schema $dropSchema)
+    public function dropSchema(Schema $dropSchema): void
     {
         $this->processSqlSafely($this->getDropSchema($dropSchema));
     }
@@ -169,7 +169,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function dropAllSchema()
+    public function dropAllSchema(): void
     {
         $this->processSql($this->getDropAllSchema());
     }

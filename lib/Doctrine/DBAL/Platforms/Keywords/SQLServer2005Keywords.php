@@ -32,7 +32,7 @@ class SQLServer2005Keywords extends SQLServerKeywords
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'SQLServer2005';
     }
@@ -42,7 +42,7 @@ class SQLServer2005Keywords extends SQLServerKeywords
      *
      * @link http://msdn.microsoft.com/en-US/library/ms189822%28v=sql.90%29.aspx
      */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return array_merge(array_diff(parent::getKeywords(), array('DUMMY')), array(
             'EXTERNAL',

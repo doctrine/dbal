@@ -19,10 +19,10 @@
 
 namespace Doctrine\DBAL\Schema\Visitor;
 
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 
 /**
  * Visit a SchemaDiff.
@@ -38,45 +38,45 @@ interface SchemaDiffVisitor
      *
      * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey
      */
-    function visitOrphanedForeignKey(ForeignKeyConstraint $foreignKey);
+    function visitOrphanedForeignKey(ForeignKeyConstraint $foreignKey): void;
 
     /**
      * Visit a sequence that has changed.
      *
      * @param \Doctrine\DBAL\Schema\Sequence $sequence
      */
-    function visitChangedSequence(Sequence $sequence);
+    function visitChangedSequence(Sequence $sequence): void;
 
     /**
      * Visit a sequence that has been removed.
      *
      * @param \Doctrine\DBAL\Schema\Sequence $sequence
      */
-    function visitRemovedSequence(Sequence $sequence);
+    function visitRemovedSequence(Sequence $sequence): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\Sequence $sequence
      */
-    function visitNewSequence(Sequence $sequence);
+    function visitNewSequence(Sequence $sequence): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\Table $table
      */
-    function visitNewTable(Table $table);
+    function visitNewTable(Table $table): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\Table                $table
      * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey
      */
-    function visitNewTableForeignKey(Table $table, ForeignKeyConstraint $foreignKey);
+    function visitNewTableForeignKey(Table $table, ForeignKeyConstraint $foreignKey): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\Table $table
      */
-    function visitRemovedTable(Table $table);
+    function visitRemovedTable(Table $table): void;
 
     /**
      * @param \Doctrine\DBAL\Schema\TableDiff $tableDiff
      */
-    function visitChangedTable(TableDiff $tableDiff);
+    function visitChangedTable(TableDiff $tableDiff): void;
 }

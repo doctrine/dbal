@@ -32,7 +32,7 @@ class MultiTenantShardChoser implements ShardChoser
     /**
      * {@inheritdoc}
      */
-    public function pickShard($distributionValue, PoolingShardConnection $conn)
+    public function pickShard(string $distributionValue, PoolingShardConnection $conn): int
     {
         return $distributionValue;
     }

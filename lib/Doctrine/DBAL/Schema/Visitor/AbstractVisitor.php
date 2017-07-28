@@ -19,12 +19,12 @@
 
 namespace Doctrine\DBAL\Schema\Visitor;
 
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Abstract Visitor with empty methods for easy extension.
@@ -34,21 +34,21 @@ class AbstractVisitor implements Visitor, NamespaceVisitor
     /**
      * @param \Doctrine\DBAL\Schema\Schema $schema
      */
-    public function acceptSchema(Schema $schema)
+    public function acceptSchema(Schema $schema): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function acceptNamespace($namespaceName)
+    public function acceptNamespace(string $namespaceName): void
     {
     }
 
     /**
      * @param \Doctrine\DBAL\Schema\Table $table
      */
-    public function acceptTable(Table $table)
+    public function acceptTable(Table $table): void
     {
     }
 
@@ -56,7 +56,7 @@ class AbstractVisitor implements Visitor, NamespaceVisitor
      * @param \Doctrine\DBAL\Schema\Table  $table
      * @param \Doctrine\DBAL\Schema\Column $column
      */
-    public function acceptColumn(Table $table, Column $column)
+    public function acceptColumn(Table $table, Column $column): void
     {
     }
 
@@ -64,7 +64,7 @@ class AbstractVisitor implements Visitor, NamespaceVisitor
      * @param \Doctrine\DBAL\Schema\Table                $localTable
      * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $fkConstraint
      */
-    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
+    public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint): void
     {
     }
 
@@ -72,14 +72,14 @@ class AbstractVisitor implements Visitor, NamespaceVisitor
      * @param \Doctrine\DBAL\Schema\Table $table
      * @param \Doctrine\DBAL\Schema\Index $index
      */
-    public function acceptIndex(Table $table, Index $index)
+    public function acceptIndex(Table $table, Index $index): void
     {
     }
 
     /**
      * @param \Doctrine\DBAL\Schema\Sequence $sequence
      */
-    public function acceptSequence(Sequence $sequence)
+    public function acceptSequence(Sequence $sequence): void
     {
     }
 }

@@ -80,7 +80,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      * @param string                    $sql  The SQL of the statement.
      * @param \Doctrine\DBAL\Connection $conn The connection on which the statement should be executed.
      */
-    public function __construct($sql, Connection $conn)
+    public function __construct(string $sql, Connection $conn)
     {
         $this->sql = $sql;
         $this->stmt = $conn->getWrappedConnection()->prepare($sql);
@@ -102,7 +102,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return boolean TRUE on success, FALSE on failure.
      */
-    public function bindValue($name, $value, $type = null)
+    public function bindValue($name, $value, ?int $type = null): bool
     {
         $this->params[$name] = $value;
         $this->types[$name] = $type;
@@ -128,7 +128,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * Binding a parameter by reference does not support DBAL mapping types.
      *
-     * @param string       $name   The name or position of the parameter.
+     * @param string|int   $name   The name or position of the parameter.
      * @param mixed        $var    The reference to the variable to bind.
      * @param integer      $type   The PDO binding type.
      * @param integer|null $length Must be specified when using an OUT bind
@@ -136,7 +136,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return boolean TRUE on success, FALSE on failure.
      */
-    public function bindParam($name, &$var, $type = PDO::PARAM_STR, $length = null)
+    public function bindParam($name, &$var, ?int $type = PDO::PARAM_STR, ?int $length = null): bool
     {
         $this->params[$name] = $var;
         $this->types[$name] = $type;
@@ -153,7 +153,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function execute($params = null)
+    public function execute(array $params = null): bool
     {
         if (is_array($params)) {
             $this->params = $params;
@@ -192,7 +192,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return boolean TRUE on success, FALSE on failure.
      */
-    public function closeCursor()
+    public function closeCursor(): bool
     {
         return $this->stmt->closeCursor();
     }
@@ -202,7 +202,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return integer
      */
-    public function columnCount()
+    public function columnCount(): int
     {
         return $this->stmt->columnCount();
     }
@@ -212,7 +212,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return string
      */
-    public function errorCode()
+    public function errorCode(): string
     {
         return $this->stmt->errorCode();
     }
@@ -222,7 +222,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return array
      */
-    public function errorInfo()
+    public function errorInfo(): array
     {
         return $this->stmt->errorInfo();
     }
@@ -230,7 +230,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode(int $fetchMode, $arg2 = null, $arg3 = null): bool
     {
         if ($arg2 === null) {
             return $this->stmt->setFetchMode($fetchMode);
@@ -254,7 +254,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch(?int $fetchMode = null, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0)
     {
         return $this->stmt->fetch($fetchMode);
     }
@@ -262,7 +262,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ?int $fetchArgument = null, array $ctorArgs = null): array
     {
         if ($fetchArgument) {
             return $this->stmt->fetchAll($fetchMode, $fetchArgument);
@@ -278,7 +278,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return mixed A single column from the next row of a result set or FALSE if there are no more rows.
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         return $this->stmt->fetchColumn($columnIndex);
     }
@@ -288,7 +288,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return integer The number of affected rows.
      */
-    public function rowCount()
+    public function rowCount(): int
     {
         return $this->stmt->rowCount();
     }
@@ -298,7 +298,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return \Doctrine\DBAL\Driver\Statement
      */
-    public function getWrappedStatement()
+    public function getWrappedStatement(): \Doctrine\DBAL\Driver\Statement
     {
         return $this->stmt;
     }

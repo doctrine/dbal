@@ -84,7 +84,7 @@ class TableGenerator
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function __construct(Connection $conn, $generatorTableName = 'sequences')
+    public function __construct(Connection $conn, string $generatorTableName = 'sequences')
     {
         $params = $conn->getParams();
         if ($params['driver'] == 'pdo_sqlite') {
@@ -103,7 +103,7 @@ class TableGenerator
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function nextValue($sequenceName)
+    public function nextValue(string $sequenceName): int
     {
         if (isset($this->sequences[$sequenceName])) {
             $value = $this->sequences[$sequenceName]['value'];

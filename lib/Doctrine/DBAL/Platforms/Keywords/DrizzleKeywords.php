@@ -29,7 +29,7 @@ class DrizzleKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'drizzle';
     }
@@ -37,7 +37,7 @@ class DrizzleKeywords extends KeywordList
     /**
      * {@inheritdoc}
      */
-    protected function getKeywords()
+    protected function getKeywords(): array
     {
         return array(
             'ABS',

@@ -19,9 +19,9 @@
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
+use Doctrine\DBAL\Driver\Statement;
 use IteratorAggregate;
 use PDO;
-use Doctrine\DBAL\Driver\Statement;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
@@ -72,7 +72,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function __construct($conn, $sql)
+    public function __construct($conn, string $sql)
     {
         if ( ! is_resource($conn)) {
             throw new SQLAnywhereException('Invalid SQL Anywhere connection resource: ' . $conn);
@@ -91,7 +91,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function bindParam($column, &$variable, $type = null, $length = null)
+    public function bindParam($column, &$variable, ?int $type = null, ?int $length = null): bool
     {
         switch ($type) {
             case PDO::PARAM_INT:
@@ -119,7 +119,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = null)
+    public function bindValue($param, $value, ?int $type = null): bool
     {
         return $this->bindParam($param, $value, $type);
     }
@@ -129,7 +129,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function closeCursor()
+    public function closeCursor(): bool
     {
         if (!sasql_stmt_reset($this->stmt)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
@@ -141,7 +141,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount(): int
     {
         return sasql_stmt_field_count($this->stmt);
     }
@@ -149,7 +149,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
+    public function errorCode(): string
     {
         return sasql_stmt_errno($this->stmt);
     }
@@ -157,7 +157,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function errorInfo()
+    public function errorInfo(): array
     {
         return sasql_stmt_error($this->stmt);
     }
@@ -167,7 +167,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function execute($params = null)
+    public function execute(?array $params = null): bool
     {
         if (is_array($params)) {
             $hasZeroIndex = array_key_exists(0, $params);
@@ -193,7 +193,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch(?int $fetchMode = null, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0)
     {
         if ( ! is_resource($this->result)) {
             return false;
@@ -235,7 +235,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ?int $fetchArgument = null, ?array $ctorArgs = null): array
     {
         $rows = [];
 
@@ -262,7 +262,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(PDO::FETCH_NUM);
 
@@ -276,7 +276,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->fetchAll());
     }
@@ -284,7 +284,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount(): int
     {
         return sasql_stmt_affected_rows($this->stmt);
     }
@@ -292,7 +292,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode(int $fetchMode, $arg2 = null, $arg3 = null): bool
     {
         $this->defaultFetchMode          = $fetchMode;
         $this->defaultFetchClass         = $arg2 ? $arg2 : $this->defaultFetchClass;

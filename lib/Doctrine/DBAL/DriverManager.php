@@ -177,7 +177,7 @@ final class DriverManager
      *
      * @return array
      */
-    public static function getAvailableDrivers()
+    public static function getAvailableDrivers(): array
     {
         return array_keys(self::$_driverMap);
     }
@@ -219,7 +219,7 @@ final class DriverManager
      *
      * @return string The normalized connection URL path
      */
-    private static function normalizeDatabaseUrlPath($urlPath)
+    private static function normalizeDatabaseUrlPath(string $urlPath): string
     {
         // Trim leading slash from URL path.
         return substr($urlPath, 1);
@@ -236,7 +236,7 @@ final class DriverManager
      *
      * @throws DBALException
      */
-    private static function parseDatabaseUrl(array $params)
+    private static function parseDatabaseUrl(array $params): array
     {
         if (!isset($params['url'])) {
             return $params;
@@ -299,7 +299,7 @@ final class DriverManager
      *
      * @see parseDatabaseUrlScheme
      */
-    private static function parseDatabaseUrlPath(array $url, array $params)
+    private static function parseDatabaseUrlPath(array $url, array $params): array
     {
         if (! isset($url['path'])) {
             return $params;
@@ -328,7 +328,7 @@ final class DriverManager
      *
      * @return array The resolved connection parameters.
      */
-    private static function parseDatabaseUrlQuery(array $url, array $params)
+    private static function parseDatabaseUrlQuery(array $url, array $params): array
     {
         if (! isset($url['query'])) {
             return $params;
@@ -353,7 +353,7 @@ final class DriverManager
      *
      * @see normalizeDatabaseUrlPath
      */
-    private static function parseRegularDatabaseUrlPath(array $url, array $params)
+    private static function parseRegularDatabaseUrlPath(array $url, array $params): array
     {
         $params['dbname'] = $url['path'];
 
@@ -372,7 +372,7 @@ final class DriverManager
      *
      * @see normalizeDatabaseUrlPath
      */
-    private static function parseSqliteDatabaseUrlPath(array $url, array $params)
+    private static function parseSqliteDatabaseUrlPath(array $url, array $params): array
     {
         if ($url['path'] === ':memory:') {
             $params['memory'] = true;
@@ -395,7 +395,7 @@ final class DriverManager
      *
      * @throws DBALException if parsing failed or resolution is not possible.
      */
-    private static function parseDatabaseUrlScheme(array $url, array $params)
+    private static function parseDatabaseUrlScheme(array $url, array $params): array
     {
         if (isset($url['scheme'])) {
             // The requested driver from the URL scheme takes precedence

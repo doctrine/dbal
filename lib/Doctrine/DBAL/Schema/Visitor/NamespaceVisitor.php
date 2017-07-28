@@ -33,5 +33,5 @@ interface NamespaceVisitor
      *
      * @param string $namespaceName The schema namespace name to accept.
      */
-    public function acceptNamespace($namespaceName);
+    public function acceptNamespace(string $namespaceName): void;
 }

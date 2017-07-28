@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Driver\PDOMySql;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDOConnection;
 use PDOException;
 
@@ -34,7 +35,7 @@ class Driver extends AbstractMySQLDriver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    public function connect(array $params, ?string $username = null, ?string $password = null, array $driverOptions = []): Connection
     {
         try {
             $conn = new PDOConnection(
@@ -57,7 +58,7 @@ class Driver extends AbstractMySQLDriver
      *
      * @return string The DSN.
      */
-    protected function constructPdoDsn(array $params)
+    protected function constructPdoDsn(array $params): string
     {
         $dsn = 'mysql:';
         if (isset($params['host']) && $params['host'] != '') {
@@ -82,7 +83,7 @@ class Driver extends AbstractMySQLDriver
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'pdo_mysql';
     }

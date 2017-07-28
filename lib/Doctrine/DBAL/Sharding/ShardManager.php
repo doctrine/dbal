@@ -47,7 +47,7 @@ interface ShardManager
      *
      * @return void
      */
-    function selectGlobal();
+    function selectGlobal(): void;
 
     /**
      * Selects the shard against which the queries after this statement will be issued.
@@ -58,14 +58,14 @@ interface ShardManager
      *
      * @throws \Doctrine\DBAL\Sharding\ShardingException If no value is passed as shard identifier.
      */
-    function selectShard($distributionValue);
+    function selectShard(string $distributionValue): void;
 
     /**
      * Gets the distribution value currently used for sharding.
      *
-     * @return string
+     * @return string|null
      */
-    function getCurrentDistributionValue();
+    function getCurrentDistributionValue(): ?string;
 
     /**
      * Gets information about the amount of shards and other details.
@@ -75,7 +75,7 @@ interface ShardManager
      *
      * @return array
      */
-    function getShards();
+    function getShards(): array;
 
     /**
      * Queries all shards in undefined order and return the results appended to
@@ -89,5 +89,5 @@ interface ShardManager
      *
      * @return array
      */
-    function queryAll($sql, array $params, array $types);
+    function queryAll(string $sql, array $params, array $types): array;
 }

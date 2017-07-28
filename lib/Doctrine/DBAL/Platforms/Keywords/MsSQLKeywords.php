@@ -36,7 +36,7 @@ class MsSQLKeywords extends SQLServerKeywords
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'MsSQL';
     }

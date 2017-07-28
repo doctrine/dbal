@@ -31,7 +31,7 @@ interface ResultStatement extends \Traversable
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    public function closeCursor();
+    public function closeCursor(): bool;
 
     /**
      * Returns the number of columns in the result set
@@ -40,7 +40,7 @@ interface ResultStatement extends \Traversable
      *                 by the PDOStatement object. If there is no result set,
      *                 this method should return 0.
      */
-    public function columnCount();
+    public function columnCount(): int;
 
     /**
      * Sets the fetch mode to use while iterating this statement.
@@ -53,7 +53,7 @@ interface ResultStatement extends \Traversable
      *
      * @see PDO::FETCH_* constants.
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null);
+    public function setFetchMode(int $fetchMode, $arg2 = null, $arg3 = null): bool;
 
     /**
      * Returns the next row of a result set.
@@ -82,7 +82,7 @@ interface ResultStatement extends \Traversable
      *
      * @see PDO::FETCH_* constants.
      */
-    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0);
+    public function fetch(?int $fetchMode = null, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0);
 
     /**
      * Returns an array containing all of the result set rows.
@@ -104,7 +104,7 @@ interface ResultStatement extends \Traversable
      *
      * @see \PDO::FETCH_* constants.
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null);
+    public function fetchAll(?int $fetchMode = null, ?int $fetchArgument = null, ?array $ctorArgs = null): array;
 
     /**
      * Returns a single column from the next row of a result set or FALSE if there are no more rows.
@@ -115,5 +115,5 @@ interface ResultStatement extends \Traversable
      *
      * @return string|boolean A single column in the next row of a result set, or FALSE if there are no more rows.
      */
-    public function fetchColumn($columnIndex = 0);
+    public function fetchColumn(int $columnIndex = 0);
 }

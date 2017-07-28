@@ -58,7 +58,7 @@ class DebugStack implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, array $params = null, array $types = null)
+    public function startQuery(string $sql, array $params = null, array $types = null): void
     {
         if ($this->enabled) {
             $this->start = microtime(true);
@@ -69,7 +69,7 @@ class DebugStack implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function stopQuery()
+    public function stopQuery(): void
     {
         if ($this->enabled) {
             $this->queries[$this->currentQuery]['executionMS'] = microtime(true) - $this->start;

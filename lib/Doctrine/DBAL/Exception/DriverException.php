@@ -43,7 +43,7 @@ class DriverException extends DBALException
      * @param string                                $message         The exception message.
      * @param \Doctrine\DBAL\Driver\DriverException $driverException The DBAL driver exception to chain.
      */
-    public function __construct($message, \Doctrine\DBAL\Driver\DriverException $driverException)
+    public function __construct(string $message, \Doctrine\DBAL\Driver\DriverException $driverException)
     {
         $exception = null;
 
@@ -75,7 +75,7 @@ class DriverException extends DBALException
      *
      * @return string|null
      */
-    public function getSQLState()
+    public function getSQLState(): ?string
     {
         return $this->driverException->getSQLState();
     }

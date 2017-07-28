@@ -73,7 +73,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     /**
      * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    public function getPlatform()
+    public function getPlatform(): AbstractPlatform
     {
         return $this->_platform;
     }
@@ -93,7 +93,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     /**
      * @return string|null
      */
-    public function getSql()
+    public function getSql(): ?string
     {
         return $this->_sql;
     }

@@ -49,7 +49,7 @@ class Configuration
      *
      * @return void
      */
-    public function setSQLLogger(SQLLogger $logger = null)
+    public function setSQLLogger(SQLLogger $logger = null): void
     {
         $this->_attributes['sqlLogger'] = $logger;
     }
@@ -59,7 +59,7 @@ class Configuration
      *
      * @return \Doctrine\DBAL\Logging\SQLLogger|null
      */
-    public function getSQLLogger()
+    public function getSQLLogger(): ?SQLLogger
     {
         return isset($this->_attributes['sqlLogger']) ?
                 $this->_attributes['sqlLogger'] : null;
@@ -70,7 +70,7 @@ class Configuration
      *
      * @return \Doctrine\Common\Cache\Cache|null
      */
-    public function getResultCacheImpl()
+    public function getResultCacheImpl(): ?Cache
     {
         return isset($this->_attributes['resultCacheImpl']) ?
                 $this->_attributes['resultCacheImpl'] : null;
@@ -83,7 +83,7 @@ class Configuration
      *
      * @return void
      */
-    public function setResultCacheImpl(Cache $cacheImpl)
+    public function setResultCacheImpl(Cache $cacheImpl): void
     {
         $this->_attributes['resultCacheImpl'] = $cacheImpl;
     }
@@ -99,7 +99,7 @@ class Configuration
      *
      * @return void
      */
-    public function setFilterSchemaAssetsExpression($filterExpression)
+    public function setFilterSchemaAssetsExpression($filterExpression): void
     {
         $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
     }
@@ -109,7 +109,7 @@ class Configuration
      *
      * @return string|null
      */
-    public function getFilterSchemaAssetsExpression()
+    public function getFilterSchemaAssetsExpression(): ?string
     {
         if (isset($this->_attributes['filterSchemaAssetsExpression'])) {
             return $this->_attributes['filterSchemaAssetsExpression'];
@@ -129,7 +129,7 @@ class Configuration
      *
      * @see   getAutoCommit
      */
-    public function setAutoCommit($autoCommit)
+    public function setAutoCommit(bool $autoCommit): void
     {
         $this->_attributes['autoCommit'] = (boolean) $autoCommit;
     }
@@ -141,10 +141,10 @@ class Configuration
      *
      * @see    setAutoCommit
      */
-    public function getAutoCommit()
+    public function getAutoCommit(): bool
     {
         if (isset($this->_attributes['autoCommit'])) {
-            return $this->_attributes['autoCommit'];
+            return (bool) $this->_attributes['autoCommit'];
         }
 
         return true;

@@ -19,6 +19,9 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
+
 /**
  * Driver interface.
  * Interface that all DBAL drivers must implement.
@@ -37,7 +40,7 @@ interface Driver
      *
      * @return \Doctrine\DBAL\Driver\Connection The database connection.
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array());
+    public function connect(array $params, ?string $username = null, ?string $password = null, array $driverOptions = array()): \Doctrine\DBAL\Driver\Connection;
 
     /**
      * Gets the DatabasePlatform instance that provides all the metadata about
@@ -45,7 +48,7 @@ interface Driver
      *
      * @return \Doctrine\DBAL\Platforms\AbstractPlatform The database platform.
      */
-    public function getDatabasePlatform();
+    public function getDatabasePlatform(): AbstractPlatform;
 
     /**
      * Gets the SchemaManager that can be used to inspect and change the underlying
@@ -55,14 +58,14 @@ interface Driver
      *
      * @return \Doctrine\DBAL\Schema\AbstractSchemaManager
      */
-    public function getSchemaManager(Connection $conn);
+    public function getSchemaManager(Connection $conn): AbstractSchemaManager;
 
     /**
      * Gets the name of the driver.
      *
      * @return string The name of the driver.
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Gets the name of the database connected to for this driver.
@@ -71,5 +74,5 @@ interface Driver
      *
      * @return string The name of the database.
      */
-    public function getDatabase(Connection $conn);
+    public function getDatabase(Connection $conn): string;
 }
