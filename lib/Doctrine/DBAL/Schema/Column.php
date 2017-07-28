@@ -102,7 +102,7 @@ class Column extends AbstractAsset
      * @param Type   $type
      * @param array  $options
      */
-    public function __construct($columnName, Type $type, array $options=array())
+    public function __construct(string $columnName, Type $type, array $options=array())
     {
         $this->_setName($columnName);
         $this->setType($type);
@@ -112,9 +112,9 @@ class Column extends AbstractAsset
     /**
      * @param array $options
      *
-     * @return Column
+     * @return $this
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): self
     {
         foreach ($options as $name => $value) {
             $method = "set".$name;
@@ -129,9 +129,9 @@ class Column extends AbstractAsset
     /**
      * @param Type $type
      *
-     * @return Column
+     * @return $this
      */
-    public function setType(Type $type)
+    public function setType(Type $type): self
     {
         $this->_type = $type;
 
@@ -141,9 +141,9 @@ class Column extends AbstractAsset
     /**
      * @param integer|null $length
      *
-     * @return Column
+     * @return $this
      */
-    public function setLength($length)
+    public function setLength(?int $length): self
     {
         if ($length !== null) {
             $this->_length = (int) $length;
@@ -157,9 +157,9 @@ class Column extends AbstractAsset
     /**
      * @param integer $precision
      *
-     * @return Column
+     * @return $this
      */
-    public function setPrecision($precision)
+    public function setPrecision(int $precision): self
     {
         if (!is_numeric($precision)) {
             $precision = 10; // defaults to 10 when no valid precision is given.
@@ -173,9 +173,9 @@ class Column extends AbstractAsset
     /**
      * @param integer $scale
      *
-     * @return Column
+     * @return $this
      */
-    public function setScale($scale)
+    public function setScale(int $scale): self
     {
         if (!is_numeric($scale)) {
             $scale = 0;
@@ -191,7 +191,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setUnsigned($unsigned)
+    public function setUnsigned(bool $unsigned): self
     {
         $this->_unsigned = (bool) $unsigned;
 
@@ -203,7 +203,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setFixed($fixed)
+    public function setFixed(bool $fixed): self
     {
         $this->_fixed = (bool) $fixed;
 
@@ -215,7 +215,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setNotnull($notnull)
+    public function setNotnull(bool $notnull): self
     {
         $this->_notnull = (bool) $notnull;
 
@@ -239,7 +239,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setPlatformOptions(array $platformOptions)
+    public function setPlatformOptions(array $platformOptions): self
     {
         $this->_platformOptions = $platformOptions;
 
@@ -252,7 +252,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setPlatformOption($name, $value)
+    public function setPlatformOption(string $name, $value): self
     {
         $this->_platformOptions[$name] = $value;
 
@@ -264,7 +264,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setColumnDefinition($value)
+    public function setColumnDefinition(string $value): self
     {
         $this->_columnDefinition = $value;
 
@@ -274,7 +274,7 @@ class Column extends AbstractAsset
     /**
      * @return Type
      */
-    public function getType()
+    public function getType(): Type
     {
         return $this->_type;
     }
@@ -282,7 +282,7 @@ class Column extends AbstractAsset
     /**
      * @return integer|null
      */
-    public function getLength()
+    public function getLength(): ?int
     {
         return $this->_length;
     }
@@ -290,7 +290,7 @@ class Column extends AbstractAsset
     /**
      * @return integer
      */
-    public function getPrecision()
+    public function getPrecision(): int
     {
         return $this->_precision;
     }
@@ -298,7 +298,7 @@ class Column extends AbstractAsset
     /**
      * @return integer
      */
-    public function getScale()
+    public function getScale(): int
     {
         return $this->_scale;
     }
@@ -306,7 +306,7 @@ class Column extends AbstractAsset
     /**
      * @return boolean
      */
-    public function getUnsigned()
+    public function getUnsigned(): bool
     {
         return $this->_unsigned;
     }
@@ -314,7 +314,7 @@ class Column extends AbstractAsset
     /**
      * @return boolean
      */
-    public function getFixed()
+    public function getFixed(): bool
     {
         return $this->_fixed;
     }
@@ -322,7 +322,7 @@ class Column extends AbstractAsset
     /**
      * @return boolean
      */
-    public function getNotnull()
+    public function getNotnull(): bool
     {
         return $this->_notnull;
     }
@@ -330,7 +330,7 @@ class Column extends AbstractAsset
     /**
      * @return string|null
      */
-    public function getDefault()
+    public function getDefault(): ?string
     {
         return $this->_default;
     }
@@ -338,7 +338,7 @@ class Column extends AbstractAsset
     /**
      * @return array
      */
-    public function getPlatformOptions()
+    public function getPlatformOptions(): array
     {
         return $this->_platformOptions;
     }
@@ -348,7 +348,7 @@ class Column extends AbstractAsset
      *
      * @return boolean
      */
-    public function hasPlatformOption($name)
+    public function hasPlatformOption(string $name): bool
     {
         return isset($this->_platformOptions[$name]);
     }
@@ -358,7 +358,7 @@ class Column extends AbstractAsset
      *
      * @return mixed
      */
-    public function getPlatformOption($name)
+    public function getPlatformOption(string $name)
     {
         return $this->_platformOptions[$name];
     }
@@ -366,7 +366,7 @@ class Column extends AbstractAsset
     /**
      * @return string|null
      */
-    public function getColumnDefinition()
+    public function getColumnDefinition(): ?string
     {
         return $this->_columnDefinition;
     }
@@ -374,7 +374,7 @@ class Column extends AbstractAsset
     /**
      * @return boolean
      */
-    public function getAutoincrement()
+    public function getAutoincrement(): bool
     {
         return $this->_autoincrement;
     }
@@ -384,7 +384,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setAutoincrement($flag)
+    public function setAutoincrement(bool $flag): self
     {
         $this->_autoincrement = $flag;
 
@@ -396,7 +396,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setComment($comment)
+    public function setComment(string $comment): self
     {
         $this->_comment = $comment;
 
@@ -406,7 +406,7 @@ class Column extends AbstractAsset
     /**
      * @return string|null
      */
-    public function getComment()
+    public function getComment(): ?string
     {
         return $this->_comment;
     }
@@ -417,7 +417,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setCustomSchemaOption($name, $value)
+    public function setCustomSchemaOption(string $name, $value): self
     {
         $this->_customSchemaOptions[$name] = $value;
 
@@ -429,7 +429,7 @@ class Column extends AbstractAsset
      *
      * @return boolean
      */
-    public function hasCustomSchemaOption($name)
+    public function hasCustomSchemaOption(string $name): bool
     {
         return isset($this->_customSchemaOptions[$name]);
     }
@@ -439,7 +439,7 @@ class Column extends AbstractAsset
      *
      * @return mixed
      */
-    public function getCustomSchemaOption($name)
+    public function getCustomSchemaOption(string $name)
     {
         return $this->_customSchemaOptions[$name];
     }
@@ -449,7 +449,7 @@ class Column extends AbstractAsset
      *
      * @return Column
      */
-    public function setCustomSchemaOptions(array $customSchemaOptions)
+    public function setCustomSchemaOptions(array $customSchemaOptions): self
     {
         $this->_customSchemaOptions = $customSchemaOptions;
 
@@ -459,7 +459,7 @@ class Column extends AbstractAsset
     /**
      * @return array
      */
-    public function getCustomSchemaOptions()
+    public function getCustomSchemaOptions(): array
     {
         return $this->_customSchemaOptions;
     }
@@ -467,7 +467,7 @@ class Column extends AbstractAsset
     /**
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return array_merge(array(
             'name'          => $this->_name,
