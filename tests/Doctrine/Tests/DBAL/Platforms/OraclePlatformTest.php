@@ -11,7 +11,7 @@ use Doctrine\DBAL\Types\Type;
 
 class OraclePlatformTest extends AbstractPlatformTestCase
 {
-    static public function dataValidIdentifiers()
+    public static function dataValidIdentifiers()
     {
         return array(
             array('a'),
@@ -35,7 +35,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $platform->assertValidIdentifier($identifier);
     }
 
-    static public function dataInvalidIdentifiers()
+    public static function dataInvalidIdentifiers()
     {
         return array(
             array('1'),
