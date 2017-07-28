@@ -1,9 +1,10 @@
 # Doctrine DBAL
 
-| [Master][Master] | [2.5][2.5] |
-|:----------------:|:----------:|
-| [![Build status][Master image]][Master] | [![Build status][2.5 image]][2.5] |
-| [![Code Coverage](https://scrutinizer-ci.com/g/doctrine/dbal/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/doctrine/dbal/?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/doctrine/dbal/badges/coverage.png?b=2.5)](https://scrutinizer-ci.com/g/doctrine/dbal/?branch=2.5) |
+| [Master][Master] | [2.5][2.5] | [2.6][2.6] |
+|:----------------:|:----------:|:----------:|
+| [![Build status][Master image]][Master] | [![Build status][2.5 image]][2.5] | [![Build status][2.6 image]][2.6] |
+| [![Code Coverage](https://scrutinizer-ci.com/g/doctrine/dbal/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/doctrine/dbal/?branch=master) | [![Code Coverage](https://scrutinizer-ci.com/g/doctrine/dbal/badges/coverage.png?b=2.5)](https://scrutinizer-ci.com/g/doctrine/dbal/?branch=2.5) | [![Code Coverage](https://scrutinizer-ci.com/g/doctrine/dbal/badges/coverage.png?b=2.6)](https://scrutinizer-ci.com/g/doctrine/dbal/?branch=2.6) |
+| [![Build Status](https://img.shields.io/continuousphp/git-hub/doctrine/dbal/master.svg)](https://continuousphp.com/git-hub/doctrine/dbal) | [![Build Status](https://img.shields.io/continuousphp/git-hub/doctrine/dbal/2.5.svg)](https://continuousphp.com/git-hub/doctrine/dbal) | [![Build Status](https://img.shields.io/continuousphp/git-hub/doctrine/dbal/2.6.svg)](https://continuousphp.com/git-hub/doctrine/dbal) |
 
 
 Powerful database abstraction layer with many features for database schema introspection, schema management and PDO abstraction.
@@ -20,3 +21,5 @@ Powerful database abstraction layer with many features for database schema intro
   [Master]: https://travis-ci.org/doctrine/dbal
   [2.5 image]: https://img.shields.io/travis/doctrine/dbal/2.5.svg?style=flat-square
   [2.5]: https://github.com/doctrine/dbal/tree/2.5
+  [2.6 image]: https://img.shields.io/travis/doctrine/dbal/2.6.svg?style=flat-square
+  [2.6]: https://github.com/doctrine/dbal/tree/2.6
