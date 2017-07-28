@@ -75,7 +75,7 @@ class DriverException extends DBALException
      *
      * @return string|null
      */
-    public function getSQLState()
+    public function getSQLState(): ?string
     {
         return $this->driverException->getSQLState();
     }
