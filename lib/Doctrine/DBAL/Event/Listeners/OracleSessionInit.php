@@ -63,7 +63,7 @@ class OracleSessionInit implements EventSubscriber
      *
      * @return void
      */
-    public function postConnect(ConnectionEventArgs $args)
+    public function postConnect(ConnectionEventArgs $args): void
     {
         if (count($this->_defaultSessionVars)) {
             array_change_key_case($this->_defaultSessionVars, \CASE_UPPER);
