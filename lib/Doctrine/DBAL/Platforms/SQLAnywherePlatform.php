@@ -303,6 +303,8 @@ class SQLAnywherePlatform extends AbstractPlatform
 
             return $columnAlterationClause;
         }
+
+        return null;
     }
 
     /**
