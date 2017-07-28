@@ -19,13 +19,12 @@
 
 namespace Doctrine\DBAL\Sharding\SQLAzure;
 
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Type;
-
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Synchronizer\AbstractSchemaSynchronizer;
-use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 use Doctrine\DBAL\Schema\Synchronizer\SchemaSynchronizer;
+use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * SQL Azure Schema Synchronizer.
@@ -67,7 +66,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getCreateSchema(Schema $createSchema)
+    public function getCreateSchema(Schema $createSchema): array
     {
         $sql = [];
 
@@ -96,7 +95,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getUpdateSchema(Schema $toSchema, $noDrops = false)
+    public function getUpdateSchema(Schema $toSchema, bool $noDrops = false): array
     {
         return $this->work($toSchema, function ($synchronizer, $schema) use ($noDrops) {
             return $synchronizer->getUpdateSchema($schema, $noDrops);
@@ -106,7 +105,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getDropSchema(Schema $dropSchema)
+    public function getDropSchema(Schema $dropSchema): array
     {
         return $this->work($dropSchema, function ($synchronizer, $schema) {
             return $synchronizer->getDropSchema($schema);
@@ -116,7 +115,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function createSchema(Schema $createSchema)
+    public function createSchema(Schema $createSchema): void
     {
         $this->processSql($this->getCreateSchema($createSchema));
     }
@@ -124,7 +123,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function updateSchema(Schema $toSchema, $noDrops = false)
+    public function updateSchema(Schema $toSchema, bool $noDrops = false): void
     {
         $this->processSql($this->getUpdateSchema($toSchema, $noDrops));
     }
@@ -132,7 +131,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function dropSchema(Schema $dropSchema)
+    public function dropSchema(Schema $dropSchema): void
     {
         $this->processSqlSafely($this->getDropSchema($dropSchema));
     }
@@ -140,7 +139,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function getDropAllSchema()
+    public function getDropAllSchema(): array
     {
         $this->shardManager->selectGlobal();
         $globalSql = $this->synchronizer->getDropAllSchema();
@@ -171,7 +170,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * {@inheritdoc}
      */
-    public function dropAllSchema()
+    public function dropAllSchema(): void
     {
         $this->processSqlSafely($this->getDropAllSchema());
     }
@@ -181,7 +180,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
      *
      * @return array
      */
-    private function partitionSchema(Schema $schema)
+    private function partitionSchema(Schema $schema): array
     {
         return array(
             $this->extractSchemaFederation($schema, false),
@@ -197,7 +196,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
      *
      * @throws \RuntimeException
      */
-    private function extractSchemaFederation(Schema $schema, $isFederation)
+    private function extractSchemaFederation(Schema $schema, bool $isFederation): Schema
     {
         $partitionedSchema = clone $schema;
 
@@ -231,7 +230,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
      *
      * @return array
      */
-    private function work(Schema $schema, \Closure $operation)
+    private function work(Schema $schema, \Closure $operation): array
     {
         list($global, $federation) = $this->partitionSchema($schema);
         $sql = [];
@@ -263,7 +262,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * @return string
      */
-    private function getFederationTypeDefaultValue()
+    private function getFederationTypeDefaultValue(): string
     {
         $federationType = Type::getType($this->shardManager->getDistributionType());
 
@@ -287,7 +286,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
     /**
      * @return string
      */
-    private function getCreateFederationStatement()
+    private function getCreateFederationStatement(): string
     {
         $federationType = Type::getType($this->shardManager->getDistributionType());
         $federationTypeSql = $federationType->getSQLDeclaration([], $this->conn->getDatabasePlatform());

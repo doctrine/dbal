@@ -19,9 +19,9 @@
 
 namespace Doctrine\DBAL\Sharding\SQLAzure;
 
-use Doctrine\DBAL\Sharding\ShardManager;
-use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Sharding\ShardingException;
+use Doctrine\DBAL\Sharding\ShardManager;
 use Doctrine\DBAL\Types\Type;
 
 /**
@@ -57,7 +57,7 @@ class SQLAzureShardManager implements ShardManager
     private $conn;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $currentDistributionValue;
 
@@ -94,7 +94,7 @@ class SQLAzureShardManager implements ShardManager
      *
      * @return string
      */
-    public function getFederationName()
+    public function getFederationName(): string
     {
         return $this->federationName;
     }
@@ -104,7 +104,7 @@ class SQLAzureShardManager implements ShardManager
      *
      * @return string
      */
-    public function getDistributionKey()
+    public function getDistributionKey(): string
     {
         return $this->distributionKey;
     }
@@ -114,7 +114,7 @@ class SQLAzureShardManager implements ShardManager
      *
      * @return string
      */
-    public function getDistributionType()
+    public function getDistributionType(): string
     {
         return $this->distributionType;
     }
@@ -126,7 +126,7 @@ class SQLAzureShardManager implements ShardManager
      *
      * @return void
      */
-    public function setFilteringEnabled($flag)
+    public function setFilteringEnabled(bool $flag): void
     {
         $this->filteringEnabled = (bool) $flag;
     }
@@ -134,7 +134,7 @@ class SQLAzureShardManager implements ShardManager
     /**
      * {@inheritDoc}
      */
-    public function selectGlobal()
+    public function selectGlobal(): void
     {
         if ($this->conn->isTransactionActive()) {
             throw ShardingException::activeTransaction();
@@ -148,7 +148,7 @@ class SQLAzureShardManager implements ShardManager
     /**
      * {@inheritDoc}
      */
-    public function selectShard($distributionValue)
+    public function selectShard(string $distributionValue): void
     {
         if ($this->conn->isTransactionActive()) {
             throw ShardingException::activeTransaction();
@@ -174,7 +174,7 @@ class SQLAzureShardManager implements ShardManager
     /**
      * {@inheritDoc}
      */
-    public function getCurrentDistributionValue()
+    public function getCurrentDistributionValue(): ?string
     {
         return $this->currentDistributionValue;
     }
@@ -182,7 +182,7 @@ class SQLAzureShardManager implements ShardManager
     /**
      * {@inheritDoc}
      */
-    public function getShards()
+    public function getShards(): array
     {
         $sql = "SELECT member_id as id,
                       distribution_name as distribution_key,
@@ -198,7 +198,7 @@ class SQLAzureShardManager implements ShardManager
      /**
       * {@inheritDoc}
       */
-    public function queryAll($sql, array $params = [], array $types = [])
+    public function queryAll(string $sql, array $params = [], array $types = []): array
     {
         $shards = $this->getShards();
         if (!$shards) {
@@ -231,7 +231,7 @@ class SQLAzureShardManager implements ShardManager
      *
      * @return void
      */
-    public function splitFederation($splitDistributionValue)
+    public function splitFederation($splitDistributionValue): void
     {
         $type = Type::getType($this->distributionType);
 

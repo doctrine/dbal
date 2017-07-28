@@ -131,7 +131,7 @@ class PoolingShardConnection extends Connection
      * 
      * @return integer
      */
-    public function getActiveShardId()
+    public function getActiveShardId(): int
     {
         return $this->activeShardId;
     }
@@ -139,7 +139,7 @@ class PoolingShardConnection extends Connection
     /**
      * {@inheritdoc}
      */
-    public function getParams()
+    public function getParams(): array
     {
         return $this->activeShardId ? $this->connections[$this->activeShardId] : $this->connections[0];
     }
@@ -147,7 +147,7 @@ class PoolingShardConnection extends Connection
     /**
      * {@inheritdoc}
      */
-    public function getHost()
+    public function getHost(): ?string
     {
         $params = $this->getParams();
 
@@ -167,7 +167,7 @@ class PoolingShardConnection extends Connection
     /**
      * {@inheritdoc}
      */
-    public function getUsername()
+    public function getUsername(): ?string
     {
         $params = $this->getParams();
 
@@ -177,7 +177,7 @@ class PoolingShardConnection extends Connection
     /**
      * {@inheritdoc}
      */
-    public function getPassword()
+    public function getPassword(): ?string
     {
         $params = $this->getParams();
 
@@ -193,7 +193,7 @@ class PoolingShardConnection extends Connection
      *
      * @throws \Doctrine\DBAL\Sharding\ShardingException
      */
-    public function connect($shardId = null)
+    public function connect($shardId = null): bool
     {
         if ($shardId === null && $this->_conn) {
             return false;
@@ -232,7 +232,7 @@ class PoolingShardConnection extends Connection
      *
      * @return \Doctrine\DBAL\Driver\Connection
      */
-    protected function connectTo($shardId)
+    protected function connectTo(string $shardId): Driver\Connection
     {
         $params = $this->getParams();
 
@@ -251,7 +251,7 @@ class PoolingShardConnection extends Connection
      *
      * @return boolean
      */
-    public function isConnected($shardId = null)
+    public function isConnected(?string $shardId = null): bool
     {
         if ($shardId === null) {
             return $this->_conn !== null;
@@ -263,7 +263,7 @@ class PoolingShardConnection extends Connection
     /**
      * @return void
      */
-    public function close()
+    public function close(): void
     {
         $this->_conn             = null;
         $this->activeConnections = null;

@@ -58,14 +58,14 @@ interface ShardManager
      *
      * @throws \Doctrine\DBAL\Sharding\ShardingException If no value is passed as shard identifier.
      */
-    function selectShard($distributionValue): void;
+    function selectShard(string $distributionValue): void;
 
     /**
      * Gets the distribution value currently used for sharding.
      *
-     * @return string
+     * @return string|null
      */
-    function getCurrentDistributionValue(): string;
+    function getCurrentDistributionValue(): ?string;
 
     /**
      * Gets information about the amount of shards and other details.
