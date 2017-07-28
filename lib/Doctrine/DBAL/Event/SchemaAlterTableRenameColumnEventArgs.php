@@ -63,7 +63,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
      * @param \Doctrine\DBAL\Schema\TableDiff           $tableDiff
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      */
-    public function __construct($oldColumnName, Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
+    public function __construct(string $oldColumnName, Column $column, TableDiff $tableDiff, AbstractPlatform $platform)
     {
         $this->_oldColumnName = $oldColumnName;
         $this->_column        = $column;
@@ -74,7 +74,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     /**
      * @return string
      */
-    public function getOldColumnName()
+    public function getOldColumnName(): string
     {
         return $this->_oldColumnName;
     }
@@ -82,7 +82,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     /**
      * @return \Doctrine\DBAL\Schema\Column
      */
-    public function getColumn()
+    public function getColumn(): Column
     {
         return $this->_column;
     }
@@ -90,7 +90,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     /**
      * @return \Doctrine\DBAL\Schema\TableDiff
      */
-    public function getTableDiff()
+    public function getTableDiff(): TableDiff
     {
         return $this->_tableDiff;
     }
@@ -98,7 +98,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     /**
      * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    public function getPlatform()
+    public function getPlatform(): AbstractPlatform
     {
         return $this->_platform;
     }
@@ -106,9 +106,9 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     /**
      * @param string|array $sql
      *
-     * @return \Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs
+     * @return $this
      */
-    public function addSql($sql)
+    public function addSql($sql): self
     {
         if (is_array($sql)) {
             $this->_sql = array_merge($this->_sql, $sql);
@@ -122,7 +122,7 @@ class SchemaAlterTableRenameColumnEventArgs extends SchemaEventArgs
     /**
      * @return array
      */
-    public function getSql()
+    public function getSql(): array
     {
         return $this->_sql;
     }

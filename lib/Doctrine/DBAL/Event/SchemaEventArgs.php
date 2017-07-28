@@ -36,9 +36,9 @@ class SchemaEventArgs extends EventArgs
     private $_preventDefault = false;
 
     /**
-     * @return \Doctrine\DBAL\Event\SchemaEventArgs
+     * @return $this
      */
-    public function preventDefault()
+    public function preventDefault(): self
     {
         $this->_preventDefault = true;
 
@@ -48,7 +48,7 @@ class SchemaEventArgs extends EventArgs
     /**
      * @return boolean
      */
-    public function isDefaultPrevented()
+    public function isDefaultPrevented(): bool
     {
         return $this->_preventDefault;
     }

@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Event;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Index;
 
 /**
@@ -58,7 +59,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      * @param string                    $table
      * @param \Doctrine\DBAL\Connection $connection
      */
-    public function __construct(array $tableIndex, $table, Connection $connection)
+    public function __construct(array $tableIndex, string $table, Connection $connection)
     {
         $this->_tableIndex = $tableIndex;
         $this->_table      = $table;
@@ -70,9 +71,9 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
      *
      * @param null|\Doctrine\DBAL\Schema\Index $index
      *
-     * @return SchemaIndexDefinitionEventArgs
+     * @return $this
      */
-    public function setIndex(Index $index = null)
+    public function setIndex(Index $index = null): self
     {
         $this->_index = $index;
 
@@ -82,7 +83,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return \Doctrine\DBAL\Schema\Index|null
      */
-    public function getIndex()
+    public function getIndex(): ?Index
     {
         return $this->_index;
     }
@@ -90,7 +91,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return array
      */
-    public function getTableIndex()
+    public function getTableIndex(): array
     {
         return $this->_tableIndex;
     }
@@ -98,7 +99,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return string
      */
-    public function getTable()
+    public function getTable(): string
     {
         return $this->_table;
     }
@@ -106,7 +107,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return \Doctrine\DBAL\Connection
      */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         return $this->_connection;
     }
@@ -114,7 +115,7 @@ class SchemaIndexDefinitionEventArgs extends SchemaEventArgs
     /**
      * @return \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return $this->_connection->getDatabasePlatform();
     }
