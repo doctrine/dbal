@@ -19,9 +19,9 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-use PDO;
-use IteratorAggregate;
 use Doctrine\DBAL\Driver\Statement;
+use IteratorAggregate;
+use PDO;
 
 /**
  * SQL Server Statement.
@@ -190,7 +190,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount(): int
     {
         return sqlsrv_num_fields($this->stmt);
     }
@@ -198,7 +198,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function errorCode()
+    public function errorCode(): string
     {
         $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
         if ($errors) {
@@ -211,7 +211,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function errorInfo()
+    public function errorInfo(): array
     {
         return sqlsrv_errors(SQLSRV_ERR_ERRORS);
     }
@@ -219,7 +219,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function execute($params = null)
+    public function execute(?array $params = null): bool
     {
         if ($params) {
             $hasZeroIndex = array_key_exists(0, $params);
@@ -281,7 +281,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode(int $fetchMode, $arg2 = null, $arg3 = null): bool
     {
         $this->defaultFetchMode          = $fetchMode;
         $this->defaultFetchClass         = $arg2 ?: $this->defaultFetchClass;
@@ -293,7 +293,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         $data = $this->fetchAll();
 
@@ -305,7 +305,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @throws SQLSrvException
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch(?int $fetchMode = null, int $cursorOrientation = PDO::FETCH_ORI_NEXT, int $cursorOffset = 0)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -338,7 +338,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll(?int $fetchMode = null, ?int $fetchArgument = null, ?array $ctorArgs = null): array
     {
         $rows = [];
 
@@ -365,7 +365,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn(int $columnIndex = 0)
     {
         $row = $this->fetch(PDO::FETCH_NUM);
 
@@ -379,7 +379,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount(): int
     {
         return sqlsrv_rows_affected($this->stmt);
     }

@@ -32,7 +32,7 @@ class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    public function connect(array $params, ?string $username = null, ?string $password = null, array $driverOptions = []): \Doctrine\DBAL\Driver\Connection
     {
         $conn = new Connection(
             $this->constructPdoDsn($params),
@@ -71,7 +71,7 @@ class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'drizzle_pdo_mysql';
     }

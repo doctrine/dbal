@@ -104,7 +104,7 @@ interface ResultStatement extends \Traversable
      *
      * @see \PDO::FETCH_* constants.
      */
-    public function fetchAll(?int $fetchMode = null, ?int $fetchArgument = null, array $ctorArgs = null): array;
+    public function fetchAll(?int $fetchMode = null, ?int $fetchArgument = null, ?array $ctorArgs = null): array;
 
     /**
      * Returns a single column from the next row of a result set or FALSE if there are no more rows.

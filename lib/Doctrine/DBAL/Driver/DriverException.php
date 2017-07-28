@@ -46,7 +46,7 @@ interface DriverException extends \Throwable
      *
      * @return string
      */
-    public function getMessage();
+    public function getMessage(): string;
 
     /**
      * Returns the SQLSTATE the driver was in at the time the error occurred.
@@ -55,5 +55,5 @@ interface DriverException extends \Throwable
      *
      * @return string|null
      */
-    public function getSQLState();
+    public function getSQLState(): ?string;
 }

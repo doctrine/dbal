@@ -22,10 +22,12 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 
@@ -43,7 +45,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
      *
      * @link http://www.postgresql.org/docs/9.3/static/errcodes-appendix.html
      */
-    public function convertException($message, DriverException $exception)
+    public function convertException(string $message, DriverException $exception): Exception\DriverException
     {
         switch ($exception->getSQLState()) {
             case '40001':
@@ -98,7 +100,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     /**
      * {@inheritdoc}
      */
-    public function createDatabasePlatformForVersion($version)
+    public function createDatabasePlatformForVersion(string $version): AbstractPlatform
     {
         if ( ! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
             throw DBALException::invalidPlatformVersionSpecified(
@@ -127,7 +129,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(\Doctrine\DBAL\Connection $conn): string
     {
         $params = $conn->getParams();
 
@@ -139,7 +141,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new PostgreSqlPlatform();
     }
@@ -147,7 +149,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn): AbstractSchemaManager
     {
         return new PostgreSqlSchemaManager($conn);
     }

@@ -43,7 +43,7 @@ interface Connection
      *
      * @return \Doctrine\DBAL\Driver\Statement
      */
-    function query():Statement;
+    function query(): Statement;
 
     /**
      * Quotes a string for use in a query.

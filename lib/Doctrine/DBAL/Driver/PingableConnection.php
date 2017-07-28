@@ -35,5 +35,5 @@ interface PingableConnection
      *
      * @return bool
      */
-    public function ping();
+    public function ping(): bool;
 }
