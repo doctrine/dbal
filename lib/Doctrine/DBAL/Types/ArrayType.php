@@ -55,6 +55,11 @@ class ArrayType extends Type
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
+        // Declaring array type on NOT NULL column with existing table data will save '' for array column in existing rows.
+        if( $value === '' )
+        {
+            return [];
+        }
         $val = unserialize($value);
         if ($val === false && $value != 'b:0;') {
             throw ConversionException::conversionFailed($value, $this->getName());
