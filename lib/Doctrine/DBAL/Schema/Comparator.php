@@ -244,7 +244,10 @@ class Comparator
 
         /* See if all the indexes in table 1 exist in table 2 */
         foreach ($table2Indexes as $indexName => $index) {
-            if (($index->isPrimary() && $table1->hasPrimaryKey()) || $table1->hasIndex($indexName)) {
+            //comparison should be on column name of the index, because the primary key has always "primary" as index name even though the index might be totally different
+            //if (($index->isPrimary() && $table1->hasPrimaryKey()) || $table1->hasIndex($indexName))
+            // is therefor not a good comparison, Primary (id) will be seen as the same as Primary (someOtherColumn)
+            if ($table1->hasIndex($indexName) && $table1->hasColumn($index->getColumns()[0])) {
                 continue;
             }
 
