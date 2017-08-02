@@ -620,8 +620,9 @@ class MySqlPlatform extends AbstractPlatform
             }
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),
-                $sql,
-                $this->getPostAlterTableIndexForeignKeySQL($diff)
+                $sql
+            //this is causing trouble, adds another drop primary key
+//                $this->getPostAlterTableIndexForeignKeySQL($diff)
             );
         }
 
