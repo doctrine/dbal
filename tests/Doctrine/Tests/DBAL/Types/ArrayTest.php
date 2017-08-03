@@ -56,4 +56,10 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
     {
         $this->assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
     }
+
+    public function testEmptyStringConvertsToEmptyArray()
+    {
+        $this->assertEquals([], $this->_type->convertToPHPValue('', $this->_platform));
+    }
+
 }
