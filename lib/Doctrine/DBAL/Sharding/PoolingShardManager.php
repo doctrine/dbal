@@ -54,7 +54,7 @@ class PoolingShardManager implements ShardManager
     }
 
     /**
-     * @return void
+     * {@inheritDoc}
      */
     public function selectGlobal()
     {
@@ -63,9 +63,7 @@ class PoolingShardManager implements ShardManager
     }
 
     /**
-     * @param string $distributionValue
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function selectShard($distributionValue)
     {
@@ -75,7 +73,7 @@ class PoolingShardManager implements ShardManager
     }
 
     /**
-     * @return string|null
+     * {@inheritDoc}
      */
     public function getCurrentDistributionValue()
     {
@@ -83,7 +81,7 @@ class PoolingShardManager implements ShardManager
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
     public function getShards()
     {
