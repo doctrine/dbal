@@ -322,6 +322,8 @@ class Connection implements DriverConnection
      * Gets the DatabasePlatform for the connection.
      *
      * @return \Doctrine\DBAL\Platforms\AbstractPlatform
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function getDatabasePlatform()
     {
@@ -410,6 +412,8 @@ class Connection implements DriverConnection
      * version without having to query it (performance reasons).
      *
      * @return string|null
+     *
+     * @throws Exception
      */
     private function getDatabasePlatformVersion()
     {
@@ -545,6 +549,8 @@ class Connection implements DriverConnection
      * @param array  $types     The query parameter types.
      *
      * @return array|bool False is returned if no rows are found.
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function fetchAssoc($statement, array $params = array(), array $types = array())
     {
@@ -576,6 +582,8 @@ class Connection implements DriverConnection
      * @param array  $types      The query parameter types.
      *
      * @return mixed|bool False is returned if no rows are found.
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function fetchColumn($statement, array $params = array(), $column = 0, array $types = array())
     {
@@ -643,6 +651,7 @@ class Connection implements DriverConnection
      *
      * @return integer The number of affected rows.
      *
+     * @throws \Doctrine\DBAL\DBALException
      * @throws InvalidArgumentException
      */
     public function delete($tableExpression, array $identifier, array $types = array())
@@ -711,6 +720,8 @@ class Connection implements DriverConnection
      * @param array  $types      Types of the merged $data and $identifier arrays in that order.
      *
      * @return integer The number of affected rows.
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function update($tableExpression, array $data, array $identifier, array $types = array())
     {
@@ -748,6 +759,8 @@ class Connection implements DriverConnection
      * @param array  $types     Types of the inserted data.
      *
      * @return integer The number of affected rows.
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function insert($tableExpression, array $data, array $types = array())
     {
@@ -1165,7 +1178,8 @@ class Connection implements DriverConnection
      *
      * @return mixed The value returned by $func
      *
-     * @throws \Exception
+     * @throws Exception
+     * @throws Throwable
      */
     public function transactional(Closure $func)
     {
