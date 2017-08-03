@@ -23,10 +23,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Tools\Console\Command\ImportCommand;
 use Doctrine\DBAL\Tools\Console\Command\ReservedWordsCommand;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
-use Symfony\Component\Console\Helper\HelperSet;
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
-use Symfony\Component\Console\Application;
 use Doctrine\DBAL\Version;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Helper\HelperSet;
 
 /**
  * Handles running the Console Tools inside Symfony Console context.
@@ -40,7 +40,7 @@ class ConsoleRunner
      *
      * @return HelperSet
      */
-    static public function createHelperSet(Connection $connection)
+    public static function createHelperSet(Connection $connection)
     {
         return new HelperSet([
             'db' => new ConnectionHelper($connection)
@@ -55,7 +55,7 @@ class ConsoleRunner
      *
      * @return void
      */
-    static public function run(HelperSet $helperSet, $commands = [])
+    public static function run(HelperSet $helperSet, $commands = [])
     {
         $cli = new Application('Doctrine Command Line Interface', Version::VERSION);
 
@@ -73,7 +73,7 @@ class ConsoleRunner
      *
      * @return void
      */
-    static public function addCommands(Application $cli)
+    public static function addCommands(Application $cli)
     {
         $cli->addCommands([
             new RunSqlCommand(),
@@ -85,7 +85,7 @@ class ConsoleRunner
     /**
      * Prints the instructions to create a configuration file
      */
-    static public function printCliConfigTemplate()
+    public static function printCliConfigTemplate()
     {
         echo <<<'HELP'
 You are missing a "cli-config.php" or "config/cli-config.php" file in your

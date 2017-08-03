@@ -48,7 +48,7 @@ class SQLParserUtils
      *
      * @return array
      */
-    static public function getPlaceholderPositions($statement, $isPositional = true)
+    public static function getPlaceholderPositions($statement, $isPositional = true)
     {
         $match = ($isPositional) ? '?' : ':';
         if (strpos($statement, $match) === false) {
@@ -84,7 +84,7 @@ class SQLParserUtils
      *
      * @throws SQLParserUtilsException
      */
-    static public function expandListParameters($query, $params, $types)
+    public static function expandListParameters($query, $params, $types)
     {
         $isPositional   = is_int(key($params));
         $arrayPositions = array();
@@ -199,7 +199,7 @@ class SQLParserUtils
      * @param string $statement
      * @return array
      */
-    static private function getUnquotedStatementFragments($statement)
+    private static function getUnquotedStatementFragments($statement)
     {
         $literal = self::ESCAPED_SINGLE_QUOTED_TEXT . '|' .
                    self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
@@ -219,7 +219,7 @@ class SQLParserUtils
      * @throws SQLParserUtilsException
      * @return mixed
      */
-    static private function extractParam($paramName, $paramsOrTypes, $isParam, $defaultValue = null)
+    private static function extractParam($paramName, $paramsOrTypes, $isParam, $defaultValue = null)
     {
         if (array_key_exists($paramName, $paramsOrTypes)) {
             return $paramsOrTypes[$paramName];

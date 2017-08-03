@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL;
 
 class UtilTest extends \Doctrine\Tests\DbalTestCase
 {
-    static public function dataConvertPositionalToNamedParameters()
+    public static function dataConvertPositionalToNamedParameters()
     {
         return array(
             array(

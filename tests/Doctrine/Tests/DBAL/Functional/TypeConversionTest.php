@@ -40,7 +40,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
-    static public function dataIdempotentDataConversion()
+    public static function dataIdempotentDataConversion()
     {
         $obj = new \stdClass();
         $obj->foo = "bar";
