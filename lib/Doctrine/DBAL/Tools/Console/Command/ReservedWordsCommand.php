@@ -19,11 +19,11 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
-use Symfony\Component\Console\Input\InputOption;
+use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 
 class ReservedWordsCommand extends Command
 {
@@ -168,5 +168,7 @@ EOT
 
             return 1;
         }
+
+        return 0;
     }
 }
