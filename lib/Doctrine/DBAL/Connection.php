@@ -413,7 +413,7 @@ class Connection implements DriverConnection
      *
      * @return string|null
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function getDatabasePlatformVersion()
     {
