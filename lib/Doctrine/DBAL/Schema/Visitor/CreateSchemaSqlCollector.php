@@ -29,22 +29,22 @@ class CreateSchemaSqlCollector extends AbstractVisitor
     /**
      * @var array
      */
-    private $createNamespaceQueries = array();
+    private $createNamespaceQueries = [];
 
     /**
      * @var array
      */
-    private $createTableQueries = array();
+    private $createTableQueries = [];
 
     /**
      * @var array
      */
-    private $createSequenceQueries = array();
+    private $createSequenceQueries = [];
 
     /**
      * @var array
      */
-    private $createFkConstraintQueries = array();
+    private $createFkConstraintQueries = [];
 
     /**
      *
@@ -101,10 +101,10 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      */
     public function resetQueries()
     {
-        $this->createNamespaceQueries = array();
-        $this->createTableQueries = array();
-        $this->createSequenceQueries = array();
-        $this->createFkConstraintQueries = array();
+        $this->createNamespaceQueries = [];
+        $this->createTableQueries = [];
+        $this->createSequenceQueries = [];
+        $this->createFkConstraintQueries = [];
     }
 
     /**

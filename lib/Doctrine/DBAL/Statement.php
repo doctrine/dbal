@@ -44,14 +44,14 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @var array
      */
-    protected $params = array();
+    protected $params = [];
 
     /**
      * The parameter types.
      *
      * @var array
      */
-    protected $types = array();
+    protected $types = [];
 
     /**
      * The underlying driver statement.
@@ -181,8 +181,8 @@ class Statement implements \IteratorAggregate, DriverStatement
         if ($logger) {
             $logger->stopQuery();
         }
-        $this->params = array();
-        $this->types = array();
+        $this->params = [];
+        $this->types = [];
 
         return $stmt;
     }

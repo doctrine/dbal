@@ -334,7 +334,7 @@ final class DriverManager
             return $params;
         }
 
-        $query = array();
+        $query = [];
 
         parse_str($url['query'], $query); // simply ingest query as extra params, e.g. charset or sslmode
 

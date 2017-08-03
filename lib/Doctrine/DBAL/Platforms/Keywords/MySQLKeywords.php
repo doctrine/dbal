@@ -42,7 +42,7 @@ class MySQLKeywords extends KeywordList
      */
     protected function getKeywords()
     {
-        return array(
+        return [
             'ACCESSIBLE',
             'ADD',
             'ALL',
@@ -282,6 +282,6 @@ class MySQLKeywords extends KeywordList
             'XOR',
             'YEAR_MONTH',
             'ZEROFILL',
-        );
+        ];
     }
 }

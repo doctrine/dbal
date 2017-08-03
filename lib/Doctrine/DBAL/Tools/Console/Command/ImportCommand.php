@@ -45,11 +45,11 @@ class ImportCommand extends Command
         $this
         ->setName('dbal:import')
         ->setDescription('Import SQL file(s) directly to Database.')
-        ->setDefinition(array(
+        ->setDefinition([
             new InputArgument(
                 'file', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'File path(s) of SQL to be executed.'
             )
-        ))
+        ])
         ->setHelp(<<<EOT
 Import SQL file(s) directly to Database.
 EOT

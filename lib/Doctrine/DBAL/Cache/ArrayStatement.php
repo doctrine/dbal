@@ -124,7 +124,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $rows = array();
+        $rows = [];
         while ($row = $this->fetch($fetchMode)) {
             $rows[] = $row;
         }

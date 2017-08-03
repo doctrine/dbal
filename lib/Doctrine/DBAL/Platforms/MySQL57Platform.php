@@ -54,7 +54,7 @@ class MySQL57Platform extends MySqlPlatform
      */
     protected function getPreAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
     {
-        return array();
+        return [];
     }
 
     /**
@@ -62,7 +62,7 @@ class MySQL57Platform extends MySqlPlatform
      */
     protected function getPostAlterTableRenameIndexForeignKeySQL(TableDiff $diff)
     {
-        return array();
+        return [];
     }
 
     /**
@@ -70,9 +70,9 @@ class MySQL57Platform extends MySqlPlatform
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
-        return array(
+        return [
             'ALTER TABLE ' . $tableName . ' RENAME INDEX ' . $oldIndexName . ' TO ' . $index->getQuotedName($this)
-        );
+        ];
     }
 
     /**

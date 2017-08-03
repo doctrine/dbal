@@ -44,12 +44,12 @@ class SQLServer2012Keywords extends SQLServer2008Keywords
      */
     protected function getKeywords()
     {
-        return array_merge(parent::getKeywords(), array(
+        return array_merge(parent::getKeywords(), [
             'SEMANTICKEYPHRASETABLE',
             'SEMANTICSIMILARITYDETAILSTABLE',
             'SEMANTICSIMILARITYTABLE',
             'TRY_CONVERT',
             'WITHIN GROUP'
-        ));
+        ]);
     }
 }

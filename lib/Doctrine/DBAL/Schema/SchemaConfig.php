@@ -46,7 +46,7 @@ class SchemaConfig
     /**
      * @var array
      */
-    protected $defaultTableOptions = array();
+    protected $defaultTableOptions = [];
 
     /**
      * @return boolean

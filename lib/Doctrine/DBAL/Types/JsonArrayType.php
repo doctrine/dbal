@@ -36,7 +36,7 @@ class JsonArrayType extends JsonType
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === null || $value === '') {
-            return array();
+            return [];
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;

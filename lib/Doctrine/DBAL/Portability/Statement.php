@@ -177,7 +177,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 
         if ($fetchMode === PDO::FETCH_COLUMN) {
             foreach ($rows as $num => $row) {
-                $rows[$num] = array($row);
+                $rows[$num] = [$row];
             }
         }
 

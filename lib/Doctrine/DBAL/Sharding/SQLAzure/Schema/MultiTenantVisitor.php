@@ -53,7 +53,7 @@ class MultiTenantVisitor implements Visitor
     /**
      * @var array
      */
-    private $excludedTables = array();
+    private $excludedTables = [];
 
     /**
      * @var string
