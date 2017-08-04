@@ -1412,6 +1412,31 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function getGeneratesDecimalTypeDeclarationSQL()
     {
         return array(
+            array(array(), 'DECIMAL(10, 0)'),
+            array(array('unsigned' => true), 'DECIMAL(10, 0)'),
+            array(array('unsigned' => false), 'DECIMAL(10, 0)'),
+            array(array('precision' => 5), 'DECIMAL(5, 0)'),
+            array(array('scale' => 5), 'DECIMAL(10, 5)'),
+            array(array('precision' => 8, 'scale' => 2), 'DECIMAL(8, 2)'),
+        );
+    }
+
+    /**
+     * @group DBAL-1082
+     *
+     * @dataProvider getGeneratesNumericTypeDeclarationSQL
+     */
+    public function testGeneratesNumericTypeDeclarationSQL(array $column, $expectedSql)
+    {
+        $this->assertSame($expectedSql, $this->_platform->getNumericTypeDeclarationSQL($column));
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratesNumericTypeDeclarationSQL()
+    {
+        return array(
             array(array(), 'NUMERIC(10, 0)'),
             array(array('unsigned' => true), 'NUMERIC(10, 0)'),
             array(array('unsigned' => false), 'NUMERIC(10, 0)'),
