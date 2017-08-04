@@ -153,6 +153,22 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             ));
     }
 
+    public function testGeneratesTypeDeclarationForNumerics()
+    {
+        $this->assertEquals(
+            'NUMERIC(10, 2)',
+            $this->_platform->getNumericTypeDeclarationSQL(array('precision' => 10, 'scale' => 2))
+        );
+        $this->assertEquals(
+            'NUMERIC(10, 2)',
+            $this->_platform->getNumericTypeDeclarationSQL(array('precision' => 10, 'scale' => 2)
+            ));
+        $this->assertEquals(
+            'NUMERIC(10, 2)',
+            $this->_platform->getNumericTypeDeclarationSQL(array('precision' => 10, 'scale' => 2)
+            ));
+    }
+
     public function testGeneratesTypeDeclarationsForStrings()
     {
         $this->assertEquals(
