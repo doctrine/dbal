@@ -910,6 +910,14 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getNumericTypeDeclarationSQL(array $columnDef)
+    {
+        return parent::getNumericTypeDeclarationSQL($columnDef) . $this->getUnsignedDeclaration($columnDef);
+    }
+
+    /**
      * Get unsigned declaration for a column.
      *
      * @param array $columnDef
