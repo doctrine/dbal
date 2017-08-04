@@ -2261,6 +2261,23 @@ abstract class AbstractPlatform
         $columnDef['scale'] = ( ! isset($columnDef['scale']) || empty($columnDef['scale']))
             ? 0 : $columnDef['scale'];
 
+        return 'DECIMAL(' . $columnDef['precision'] . ', ' . $columnDef['scale'] . ')';
+    }
+
+    /**
+     * Returns the SQL snippet that declares a floating point column of arbitrary precision.
+     *
+     * @param array $columnDef
+     *
+     * @return string
+     */
+    public function getNumericTypeDeclarationSQL(array $columnDef)
+    {
+        $columnDef['precision'] = ( ! isset($columnDef['precision']) || empty($columnDef['precision']))
+            ? 10 : $columnDef['precision'];
+        $columnDef['scale'] = ( ! isset($columnDef['scale']) || empty($columnDef['scale']))
+            ? 0 : $columnDef['scale'];
+
         return 'NUMERIC(' . $columnDef['precision'] . ', ' . $columnDef['scale'] . ')';
     }
 
