@@ -843,7 +843,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $this->assertSame('bigint', $this->_platform->getDoctrineTypeMapping('bigint'));
 
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('numeric'));
-        $this->assertSame('decimal', $this->_platform->getDoctrineTypeMapping('numeric'));
+        $this->assertSame('numeric', $this->_platform->getDoctrineTypeMapping('numeric'));
 
         $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('bit'));
         $this->assertSame('boolean', $this->_platform->getDoctrineTypeMapping('bit'));
