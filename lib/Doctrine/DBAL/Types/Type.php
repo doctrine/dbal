@@ -48,6 +48,7 @@ abstract class Type
     const TIME = 'time';
     const TIME_IMMUTABLE = 'time_immutable';
     const DECIMAL = 'decimal';
+    const NUMERIC = 'numeric';
     const INTEGER = 'integer';
     const OBJECT = 'object';
     const SMALLINT = 'smallint';
@@ -92,6 +93,7 @@ abstract class Type
         self::TIME => TimeType::class,
         self::TIME_IMMUTABLE => TimeImmutableType::class,
         self::DECIMAL => DecimalType::class,
+        self::NUMERIC => NumericType::class,
         self::FLOAT => FloatType::class,
         self::BINARY => BinaryType::class,
         self::BLOB => BlobType::class,
