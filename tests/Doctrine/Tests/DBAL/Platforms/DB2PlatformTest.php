@@ -595,11 +595,21 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             array(
                 'precision',
                 new Column('bar', Type::getType('decimal'), array('precision' => 10, 'scale' => 2)),
-                'SET DATA TYPE NUMERIC(10, 2)'
+                'SET DATA TYPE DECIMAL(10, 2)'
             ),
             array(
                 'scale',
                 new Column('bar', Type::getType('decimal'), array('precision' => 5, 'scale' => 4)),
+                'SET DATA TYPE DECIMAL(5, 4)'
+            ),
+            array(
+                'precision',
+                new Column('bar', Type::getType('numeric'), array('precision' => 10, 'scale' => 2)),
+                'SET DATA TYPE NUMERIC(10, 2)'
+            ),
+            array(
+                'scale',
+                new Column('bar', Type::getType('numeric'), array('precision' => 5, 'scale' => 4)),
                 'SET DATA TYPE NUMERIC(5, 4)'
             ),
             array(
