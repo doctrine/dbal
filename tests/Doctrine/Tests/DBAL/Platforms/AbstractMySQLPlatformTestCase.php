@@ -473,7 +473,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
-    
+
     public function testAlterPrimaryKeyWithNewColumn()
     {
         $table = new Table("yolo");
@@ -483,7 +483,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
         $diffTable = clone $table;
-        
+
         $diffTable->addColumn('pkc2', 'integer');
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('pkc1', 'pkc2'));
@@ -495,7 +495,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
-        );      
+        );
     }
 
     public function testInitializesDoctrineTypeMappings()
@@ -814,6 +814,21 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      * {@inheritdoc}
      */
     public function getGeneratesDecimalTypeDeclarationSQL()
+    {
+        return array(
+            array(array(), 'DECIMAL(10, 0)'),
+            array(array('unsigned' => true), 'DECIMAL(10, 0) UNSIGNED'),
+            array(array('unsigned' => false), 'DECIMAL(10, 0)'),
+            array(array('precision' => 5), 'DECIMAL(5, 0)'),
+            array(array('scale' => 5), 'DECIMAL(10, 5)'),
+            array(array('precision' => 8, 'scale' => 2), 'DECIMAL(8, 2)'),
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getGeneratesNumericTypeDeclarationSQL()
     {
         return array(
             array(array(), 'NUMERIC(10, 0)'),
