@@ -623,7 +623,7 @@ class SqlitePlatform extends AbstractPlatform
             'double precision' => 'float',
             'real'             => 'float',
             'decimal'          => 'decimal',
-            'numeric'          => 'decimal',
+            'numeric'          => 'numeric',
             'blob'             => 'blob',
         ];
     }

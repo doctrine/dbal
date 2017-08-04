@@ -72,6 +72,7 @@ class DB2Platform extends AbstractPlatform
             'clob'          => 'text',
             'blob'          => 'blob',
             'decimal'       => 'decimal',
+            'numeric'       => 'numeric',
             'double'        => 'float',
             'real'          => 'float',
             'timestamp'     => 'datetime',

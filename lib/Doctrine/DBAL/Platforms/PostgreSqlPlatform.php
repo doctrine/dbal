@@ -1130,7 +1130,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'real'          => 'float',
             'decimal'       => 'decimal',
             'money'         => 'decimal',
-            'numeric'       => 'decimal',
+            'numeric'       => 'numeric',
             'year'          => 'date',
             'uuid'          => 'guid',
             'bytea'         => 'blob',

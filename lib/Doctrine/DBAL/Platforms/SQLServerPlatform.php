@@ -1415,7 +1415,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $this->doctrineTypeMapping = [
             'bigint' => 'bigint',
-            'numeric' => 'decimal',
+            'numeric' => 'numeric',
             'bit' => 'boolean',
             'smallint' => 'smallint',
             'decimal' => 'decimal',

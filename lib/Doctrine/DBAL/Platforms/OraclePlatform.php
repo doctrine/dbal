@@ -1140,6 +1140,7 @@ END;';
             'rowid'             => 'string',
             'urowid'            => 'string',
             'blob'              => 'blob',
+            'numeric'           => 'numeric',
         ];
     }
 

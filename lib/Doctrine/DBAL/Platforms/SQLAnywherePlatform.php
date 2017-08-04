@@ -1469,7 +1469,7 @@ class SQLAnywherePlatform extends AbstractPlatform
             'int' => 'integer',
             'integer' => 'integer',
             'unsigned int' => 'integer',
-            'numeric' => 'decimal',
+            'numeric' => 'numeric',
             'smallint' => 'smallint',
             'unsigned smallint', 'smallint',
             'tinyint' => 'smallint',

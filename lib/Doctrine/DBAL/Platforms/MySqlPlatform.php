@@ -1037,7 +1037,7 @@ class MySqlPlatform extends AbstractPlatform
             'double'        => 'float',
             'real'          => 'float',
             'decimal'       => 'decimal',
-            'numeric'       => 'decimal',
+            'numeric'       => 'numeric',
             'year'          => 'date',
             'longblob'      => 'blob',
             'blob'          => 'blob',

@@ -149,6 +149,7 @@ class DrizzlePlatform extends AbstractPlatform
             'integer'       => 'integer',
             'blob'          => 'blob',
             'decimal'       => 'decimal',
+            'numeric'       => 'numeric',
             'datetime'      => 'datetime',
             'date'          => 'date',
             'time'          => 'time',
