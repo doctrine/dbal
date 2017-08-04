@@ -445,6 +445,54 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $sql = $this->_platform->getAlterTableSQL($tableDiff);
 
         $expectedSql = array(
+            'ALTER TABLE mytable ALTER dloo1 TYPE DECIMAL(16, 6)',
+            'ALTER TABLE mytable ALTER dloo2 TYPE DECIMAL(10, 4)',
+            'ALTER TABLE mytable ALTER dloo4 TYPE DECIMAL(16, 8)',
+        );
+
+        $this->assertEquals($expectedSql, $sql);
+    }
+
+    public function testAlterNumericPrecisionScale()
+    {
+
+        $table = new Table('mytable');
+        $table->addColumn('dfoo1', 'numeric');
+        $table->addColumn('dfoo2', 'numeric', array('precision' => 10, 'scale' => 6));
+        $table->addColumn('dfoo3', 'numeric', array('precision' => 10, 'scale' => 6));
+        $table->addColumn('dfoo4', 'numeric', array('precision' => 10, 'scale' => 6));
+
+        $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = $table;
+
+        $tableDiff->changedColumns['dloo1'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'dloo1', new \Doctrine\DBAL\Schema\Column(
+                'dloo1', \Doctrine\DBAL\Types\Type::getType('numeric'), array('precision' => 16, 'scale' => 6)
+            ),
+            array('precision')
+        );
+        $tableDiff->changedColumns['dloo2'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'dloo2', new \Doctrine\DBAL\Schema\Column(
+                'dloo2', \Doctrine\DBAL\Types\Type::getType('numeric'), array('precision' => 10, 'scale' => 4)
+            ),
+            array('scale')
+        );
+        $tableDiff->changedColumns['dloo3'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'dloo3', new \Doctrine\DBAL\Schema\Column(
+                'dloo3', \Doctrine\DBAL\Types\Type::getType('numeric'), array('precision' => 10, 'scale' => 6)
+            ),
+            array()
+        );
+        $tableDiff->changedColumns['dloo4'] = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'dloo4', new \Doctrine\DBAL\Schema\Column(
+                'dloo4', \Doctrine\DBAL\Types\Type::getType('numeric'), array('precision' => 16, 'scale' => 8)
+            ),
+            array('precision', 'scale')
+        );
+
+        $sql = $this->_platform->getAlterTableSQL($tableDiff);
+
+        $expectedSql = array(
             'ALTER TABLE mytable ALTER dloo1 TYPE NUMERIC(16, 6)',
             'ALTER TABLE mytable ALTER dloo2 TYPE NUMERIC(10, 4)',
             'ALTER TABLE mytable ALTER dloo4 TYPE NUMERIC(16, 8)',
