@@ -119,7 +119,7 @@ class OCI8Statement implements \IteratorAggregate, Statement
      *
      * @param string $statement The SQL statement to convert.
      *
-     * @return string
+     * @return array [0] => the statement value (string), [1] => the paramMap value (array).
      * @throws \Doctrine\DBAL\Driver\OCI8\OCI8Exception
      */
     public static function convertPositionalToNamedPlaceholders($statement)
