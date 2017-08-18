@@ -540,7 +540,7 @@ class QueryBuilder
      * <code>
      *     $qb = $conn->createQueryBuilder()
      *         ->update('users', 'u')
-     *         ->set('u.password', md5('password'))
+     *         ->set('u.last_login', 'NOW()')
      *         ->where('u.id = ?');
      * </code>
      *
@@ -733,7 +733,7 @@ class QueryBuilder
      * <code>
      *     $qb = $conn->createQueryBuilder()
      *         ->update('users', 'u')
-     *         ->set('u.password', md5('password'))
+     *         ->set('u.last_login', 'NOW()')
      *         ->where('u.id = ?');
      * </code>
      *
@@ -765,7 +765,7 @@ class QueryBuilder
      *     $or->add($qb->expr()->eq('u.id', 2));
      *
      *     $qb->update('users', 'u')
-     *         ->set('u.password', md5('password'))
+     *         ->set('u.last_login', 'NOW()')
      *         ->where($or);
      * </code>
      *
