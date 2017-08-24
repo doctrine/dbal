@@ -778,7 +778,10 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
-    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery()
+    /**
+     * @group DBAL-2821
+     */
+    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
         $resultCacheDriverMock = $this->createMock(Cache::class);
 
@@ -788,10 +791,6 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
             ->with('cacheKey')
             ->will($this->returnValue(['realKey' => []]));
 
-        $query  = 'SELECT * FROM foo WHERE bar = ?';
-        $params = [666];
-        $types  = [\PDO::PARAM_INT];
-
         /* @var $queryCacheProfileMock QueryCacheProfile|\PHPUnit_Framework_MockObject_MockObject */
         $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
 
@@ -800,25 +799,23 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
             ->method('getResultCacheDriver')
             ->will($this->returnValue($resultCacheDriverMock));
 
-        $connectionParams = $this->params;
-        $expectedParams = $connectionParams;
+        $query  = 'SELECT 1';
 
-        $connectionParams["platform"] = $this->createMock(AbstractPlatform::class);
+        $connectionParams = $this->params;
 
         // This is our main expectation
         $queryCacheProfileMock
             ->expects($this->once())
             ->method('generateCacheKeys')
-            ->with($query, $params, $types, $expectedParams)
+            ->with($query, [], [], $connectionParams)
             ->will($this->returnValue(['cacheKey', 'realKey']));
+
+        $connectionParams['platform'] = $this->createMock(AbstractPlatform::class);
 
         /* @var $driver Driver */
         $driver = $this->createMock(Driver::class);
 
-        $this->assertInstanceOf(
-            ArrayStatement::class,
-            (new Connection($connectionParams, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock)
-        );
+        (new Connection($connectionParams, $driver))->executeCacheQuery($query, [], [], $queryCacheProfileMock);
     }
 
     /**
