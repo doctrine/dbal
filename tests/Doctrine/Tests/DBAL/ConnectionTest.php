@@ -7,6 +7,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -816,6 +817,25 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $driver = $this->createMock(Driver::class);
 
         (new Connection($connectionParams, $driver))->executeCacheQuery($query, [], [], $queryCacheProfileMock);
+    }
+
+    /**
+     * @group DBAL-2821
+     */
+    public function testThrowsExceptionWhenInValidPlatformSpecified(): void
+    {
+        self::expectException(DBALException::class);
+        self::expectExceptionMessage(
+            "Given 'platform' option 'stdClass' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform'"
+        );
+
+        $connectionParams = $this->params;
+        $connectionParams['platform'] = new \stdClass();
+
+        /* @var $driver Driver */
+        $driver = $this->createMock(Driver::class);
+
+        new Connection($connectionParams, $driver);
     }
 
     /**

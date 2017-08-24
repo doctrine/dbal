@@ -213,7 +213,7 @@ class Connection implements DriverConnection
 
         if (isset($params["platform"])) {
             if ( ! $params['platform'] instanceof Platforms\AbstractPlatform) {
-                throw DBALException::invalidPlatformSpecified();
+                throw DBALException::invalidPlatformSpecified($params['platform']);
             }
 
             $this->platform = $params["platform"];
