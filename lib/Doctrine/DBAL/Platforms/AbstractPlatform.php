@@ -244,7 +244,8 @@ abstract class AbstractPlatform
         $this->initializeDoctrineTypeMappings();
 
         foreach (Type::getTypesMap() as $typeName => $className) {
-            foreach (Type::getType($typeName)->getMappedDatabaseTypes($this) as $dbType) {
+            $type = Type::getType($typeName);
+            foreach ($type->getMappedDatabaseTypes($this) as $dbType) {
                 $this->doctrineTypeMapping[$dbType] = $typeName;
             }
         }
