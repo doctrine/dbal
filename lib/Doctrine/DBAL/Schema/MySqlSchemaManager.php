@@ -178,12 +178,19 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $length = ((int) $length == 0) ? null : (int) $length;
 
+        $isNotNull = ($tableColumn['null'] !== 'YES');
+        $columnDefault = (isset($tableColumn['default'])) ? $tableColumn['default'] : null;
+        if ($columnDefault === 'NULL' && !$isNotNull) {
+            // for mariadb 10.2.7
+            $columnDefault = null;
+        }
+
         $options = [
             'length'        => $length,
             'unsigned'      => (bool) (strpos($tableColumn['type'], 'unsigned') !== false),
             'fixed'         => (bool) $fixed,
-            'default'       => isset($tableColumn['default']) ? $tableColumn['default'] : null,
-            'notnull'       => (bool) ($tableColumn['null'] != 'YES'),
+            'default'       => $columnDefault,
+            'notnull'       => $isNotNull,
             'scale'         => null,
             'precision'     => null,
             'autoincrement' => (bool) (strpos($tableColumn['extra'], 'auto_increment') !== false),

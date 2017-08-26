@@ -37,6 +37,70 @@ class MySqlSchemaManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('column_1', 'column_2', 'column_3'), array_map('strtolower', $fkeys[0]->getForeignColumns()));
     }
 
+    public function testPortableTableColumnDefinition()
+    {
+        $eventManager = new EventManager();
+        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
+        $platform = new \Doctrine\DBAL\Platforms\MySqlPlatform();
+        $conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+            ->setMethods(array('fetchAll'))
+            ->setConstructorArgs(array(array('platform' => $platform), $driverMock, new Configuration(), $eventManager))
+            ->getMock();
+        $this->manager = new MySqlSchemaManager($conn);
+
+
+        $conn->expects($this->once())->method('fetchAll')->will($this->returnValue($this->getColumnDefinition()));
+        $columns = $this->manager->listTableColumns('dummy');
+        $this->assertEquals(count($this->getColumnDefinition()), count($columns));
+        $this->assertTrue($columns['id']->getNotnull());
+        $this->assertNull($columns['id']->getDefault());
+        $this->assertFalse($columns['updated_at']->getNotnull());
+        $this->assertNull($columns['updated_at']->getDefault());
+        $this->assertFalse($columns['created_by']->getNotnull());
+        $this->assertNull($columns['created_by']->getDefault());
+
+    }
+
+    public function getColumnDefinition()
+    {
+        return [
+            [
+                'Field'   => 'id',
+                'Type'    => 'int(10) unsigned',
+                'Null'    => 'NO',
+                'Key'     => 'PRI',
+                'Default' => null,
+                'Extra'   => 'auto_increment',
+                'Comment' => '',
+                'CharacterSet' => null,
+                'Collation' => null
+            ],
+            [
+                'Field'   => 'updated_at',
+                'Type'    => 'datetime',
+                'Null'    => 'YES',
+                'Key'     => '',
+                'Default' => 'NULL', // MariaDB 10.2.7 return 'NULL'
+                'Extra'   => '',
+                'Comment' => 'Record last update timestamp',
+                'CharacterSet' => null,
+                'Collation' => null
+            ],[
+                'Field'=> 'created_by',
+                'Type'=> 'varchar(40)',
+                'Null'=> 'YES',
+                'Key'=>  '',
+                'Default'=> null, // MySQL 5.1 - 5.7 sends: null
+                'Extra' => '',
+                'Comment' => 'Creator name',
+                'CharacterSet' => 'utf8',
+                'Collation'=> 'utf8_unicode_ci'
+            ]
+        ];
+
+    }
+
+
     public function getFKDefinition()
     {
         return array(
