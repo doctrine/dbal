@@ -804,7 +804,6 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $connectionParams = $this->params;
 
-        // This is our main expectation
         $queryCacheProfileMock
             ->expects($this->once())
             ->method('generateCacheKeys')
@@ -824,16 +823,14 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {
-        self::expectException(DBALException::class);
-        self::expectExceptionMessage(
-            "Given 'platform' option 'stdClass' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform'"
-        );
 
         $connectionParams = $this->params;
         $connectionParams['platform'] = new \stdClass();
 
         /* @var $driver Driver */
         $driver = $this->createMock(Driver::class);
+
+        $this->expectException(DBALException::class);
 
         new Connection($connectionParams, $driver);
     }
