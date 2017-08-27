@@ -37,19 +37,31 @@ class DBALException extends \Exception
     }
 
     /**
-     * @param $invalidPlatform
+     * Returns a new instance for an invalid platform specified.
+     *
+     * @param mixed $invalidPlatform The invalid platform given.
+     *
      * @return DBALException
      */
     public static function invalidPlatformSpecified($invalidPlatform): self
     {
+        if (is_object($invalidPlatform)) {
+            return new self(
+                sprintf(
+                    "Option 'platform' must be a subtype of '%s', instance of '%s' given",
+                    AbstractPlatform::class,
+                    get_class($invalidPlatform)
+                )
+            );
+        }
+
         return new self(
             sprintf(
-            "Given 'platform' option '%s' must be a subtype of '%s'",
-            get_class($invalidPlatform),
-            AbstractPlatform::class
+                "Option 'platform' must be an object and subtype of '%s'. Got '%s'",
+                AbstractPlatform::class,
+                gettype($invalidPlatform)
             )
         );
-
     }
 
     /**
