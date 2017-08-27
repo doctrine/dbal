@@ -823,7 +823,6 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {
-
         $connectionParams = $this->params;
         $connectionParams['platform'] = new \stdClass();
 

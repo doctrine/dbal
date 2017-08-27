@@ -64,8 +64,8 @@ class DBALExceptionTest extends DbalTestCase
      */
     public function testInvalidPlatformSpecifiedObject(): void
     {
-
         $exception = DBALException::invalidPlatformSpecified(new \stdClass());
+
         self::assertSame(
             "Option 'platform' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform', instance of 'stdClass' given",
             $exception->getMessage()
