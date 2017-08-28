@@ -780,7 +780,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @group DBAL-2821
+     * @group #2821
      */
     public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
     {
@@ -819,7 +819,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
-     * @group DBAL-2821
+     * @group #2821
      */
     public function testThrowsExceptionWhenInValidPlatformSpecified(): void
     {

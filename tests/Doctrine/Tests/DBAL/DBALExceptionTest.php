@@ -60,7 +60,7 @@ class DBALExceptionTest extends DbalTestCase
     }
 
     /**
-     * @group DBAL-2821
+     * @group #2821
      */
     public function testInvalidPlatformTypeObject(): void
     {
@@ -73,7 +73,7 @@ class DBALExceptionTest extends DbalTestCase
     }
 
     /**
-     * @group DBAL-2821
+     * @group #2821
      */
     public function testInvalidPlatformTypeScalar(): void
     {
