@@ -1,16 +1,3 @@
-# Upgrade to 2.6.2
-
-## MINOR BC BREAK:
-1 ``Doctrine\DBALDBALException::invalidPlatformSpecified()`` now has one argument which takes the invalid platform option.
-
-Before:
-
-    Doctrine\DBALDBALException::invalidPlatformSpecified();
-
-After:
-
-    Doctrine\DBALDBALException::invalidPlatformSpecified($invalidPlatform);
-
 # Upgrade to 2.6
 
 ## MINOR BC BREAK: `fetch()` and `fetchAll()` method signatures in `Doctrine\DBAL\Driver\ResultStatement`
