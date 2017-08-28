@@ -22,6 +22,7 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class DBALException extends \Exception
 {
@@ -35,14 +36,35 @@ class DBALException extends \Exception
         return new self("Operation '$method' is not supported by platform.");
     }
 
-    /**
-     * @return \Doctrine\DBAL\DBALException
-     */
-    public static function invalidPlatformSpecified()
+    public static function invalidPlatformSpecified() : self
     {
         return new self(
             "Invalid 'platform' option specified, need to give an instance of ".
             "\Doctrine\DBAL\Platforms\AbstractPlatform.");
+    }
+
+    /**
+     * @param mixed $invalidPlatform
+     */
+    public static function invalidPlatformType($invalidPlatform) : self
+    {
+        if (\is_object($invalidPlatform)) {
+            return new self(
+                sprintf(
+                    "Option 'platform' must be a subtype of '%s', instance of '%s' given",
+                    AbstractPlatform::class,
+                    \get_class($invalidPlatform)
+                )
+            );
+        }
+
+        return new self(
+            sprintf(
+                "Option 'platform' must be an object and subtype of '%s'. Got '%s'",
+                AbstractPlatform::class,
+                \gettype($invalidPlatform)
+            )
+        );
     }
 
     /**
