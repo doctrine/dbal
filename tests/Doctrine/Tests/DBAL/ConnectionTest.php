@@ -7,8 +7,10 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Tests\Mocks\DriverConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
 use Doctrine\DBAL\Cache\ArrayStatement;
@@ -775,6 +777,61 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
             ArrayStatement::class,
             (new Connection($this->params, $driver))->executeCacheQuery($query, $params, $types, $queryCacheProfileMock)
         );
+    }
+
+    /**
+     * @group DBAL-2821
+     */
+    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
+    {
+        $resultCacheDriverMock = $this->createMock(Cache::class);
+
+        $resultCacheDriverMock
+            ->expects($this->atLeastOnce())
+            ->method('fetch')
+            ->with('cacheKey')
+            ->will($this->returnValue(['realKey' => []]));
+
+        /* @var $queryCacheProfileMock QueryCacheProfile|\PHPUnit_Framework_MockObject_MockObject */
+        $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);
+
+        $queryCacheProfileMock
+            ->expects($this->any())
+            ->method('getResultCacheDriver')
+            ->will($this->returnValue($resultCacheDriverMock));
+
+        $query  = 'SELECT 1';
+
+        $connectionParams = $this->params;
+
+        $queryCacheProfileMock
+            ->expects($this->once())
+            ->method('generateCacheKeys')
+            ->with($query, [], [], $connectionParams)
+            ->will($this->returnValue(['cacheKey', 'realKey']));
+
+        $connectionParams['platform'] = $this->createMock(AbstractPlatform::class);
+
+        /* @var $driver Driver */
+        $driver = $this->createMock(Driver::class);
+
+        (new Connection($connectionParams, $driver))->executeCacheQuery($query, [], [], $queryCacheProfileMock);
+    }
+
+    /**
+     * @group DBAL-2821
+     */
+    public function testThrowsExceptionWhenInValidPlatformSpecified(): void
+    {
+        $connectionParams = $this->params;
+        $connectionParams['platform'] = new \stdClass();
+
+        /* @var $driver Driver */
+        $driver = $this->createMock(Driver::class);
+
+        $this->expectException(DBALException::class);
+
+        new Connection($connectionParams, $driver);
     }
 
     /**

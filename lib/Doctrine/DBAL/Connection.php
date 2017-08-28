@@ -211,6 +211,15 @@ class Connection implements DriverConnection
             unset($this->_params['pdo']);
         }
 
+        if (isset($params["platform"])) {
+            if ( ! $params['platform'] instanceof Platforms\AbstractPlatform) {
+                throw DBALException::invalidPlatformType($params['platform']);
+            }
+
+            $this->platform = $params["platform"];
+            unset($this->_params["platform"]);
+        }
+
         // Create default config and event manager if none given
         if ( ! $config) {
             $config = new Configuration();
@@ -384,18 +393,12 @@ class Connection implements DriverConnection
      */
     private function detectDatabasePlatform()
     {
-        if ( ! isset($this->_params['platform'])) {
-            $version = $this->getDatabasePlatformVersion();
+        $version = $this->getDatabasePlatformVersion();
 
-            if (null !== $version) {
-                $this->platform = $this->_driver->createDatabasePlatformForVersion($version);
-            } else {
-                $this->platform = $this->_driver->getDatabasePlatform();
-            }
-        } elseif ($this->_params['platform'] instanceof Platforms\AbstractPlatform) {
-            $this->platform = $this->_params['platform'];
+        if (null !== $version) {
+            $this->platform = $this->_driver->createDatabasePlatformForVersion($version);
         } else {
-            throw DBALException::invalidPlatformSpecified();
+            $this->platform = $this->_driver->getDatabasePlatform();
         }
 
         $this->platform->setEventManager($this->_eventManager);
