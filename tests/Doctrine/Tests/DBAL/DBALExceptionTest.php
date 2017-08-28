@@ -62,9 +62,9 @@ class DBALExceptionTest extends DbalTestCase
     /**
      * @group DBAL-2821
      */
-    public function testInvalidPlatformSpecifiedObject(): void
+    public function testInvalidPlatformTypeObject(): void
     {
-        $exception = DBALException::invalidPlatformSpecified(new \stdClass());
+        $exception = DBALException::invalidPlatformType(new \stdClass());
 
         self::assertSame(
             "Option 'platform' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform', instance of 'stdClass' given",
@@ -75,9 +75,9 @@ class DBALExceptionTest extends DbalTestCase
     /**
      * @group DBAL-2821
      */
-    public function testInvalidPlatformSpecifiedScalar(): void
+    public function testInvalidPlatformTypeScalar(): void
     {
-        $exception = DBALException::invalidPlatformSpecified("some string");
+        $exception = DBALException::invalidPlatformType('some string');
 
         self::assertSame(
             "Option 'platform' must be an object and subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform'. Got 'string'",

@@ -36,21 +36,24 @@ class DBALException extends \Exception
         return new self("Operation '$method' is not supported by platform.");
     }
 
-    /**
-     * Returns a new instance for an invalid platform specified.
-     *
-     * @param mixed $invalidPlatform The invalid platform given.
-     *
-     * @return DBALException
-     */
-    public static function invalidPlatformSpecified($invalidPlatform): self
+    public static function invalidPlatformSpecified() : self
     {
-        if (is_object($invalidPlatform)) {
+        return new self(
+            "Invalid 'platform' option specified, need to give an instance of ".
+            "\Doctrine\DBAL\Platforms\AbstractPlatform.");
+    }
+
+    /**
+     * @param mixed $invalidPlatform
+     */
+    public static function invalidPlatformType($invalidPlatform) : self
+    {
+        if (\is_object($invalidPlatform)) {
             return new self(
                 sprintf(
                     "Option 'platform' must be a subtype of '%s', instance of '%s' given",
                     AbstractPlatform::class,
-                    get_class($invalidPlatform)
+                    \get_class($invalidPlatform)
                 )
             );
         }
@@ -59,7 +62,7 @@ class DBALException extends \Exception
             sprintf(
                 "Option 'platform' must be an object and subtype of '%s'. Got '%s'",
                 AbstractPlatform::class,
-                gettype($invalidPlatform)
+                \gettype($invalidPlatform)
             )
         );
     }
