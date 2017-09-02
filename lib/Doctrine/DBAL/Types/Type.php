@@ -159,19 +159,10 @@ abstract class Type
     abstract public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform);
 
     /**
-     * Gets the name of this type.
-     *
-     * @return string
-     *
-     * @todo Needed?
-     */
-    abstract public function getName();
-
-    /**
      * Factory method to create type instances.
      * Type instances are implemented as flyweights.
      *
-     * @param string $name The name of the type (as returned by getName()).
+     * @param string $name The name of the type (as provided to addName()).
      *
      * @return \Doctrine\DBAL\Types\Type
      *
@@ -192,7 +183,7 @@ abstract class Type
     /**
      * Adds a custom type to the type map.
      *
-     * @param string $name      The name of the type. This should correspond to what getName() returns.
+     * @param string $name      The name of the type.
      * @param string $className The class name of the custom type.
      *
      * @return void
