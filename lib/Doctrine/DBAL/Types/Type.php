@@ -99,12 +99,6 @@ abstract class Type
         self::DATEINTERVAL => DateIntervalType::class,
     ];
 
-    /**
-     * Prevents instantiation and forces use of the factory method.
-     */
-    final private function __construct()
-    {
-    }
 
     /**
      * Converts a value from its PHP representation to its database representation
@@ -167,6 +161,15 @@ abstract class Type
      */
     abstract public function getName();
 
+    private static function warnAgainstUsingTheOldAPI()
+    {
+        @trigger_error(
+            'Using '.__CLASS__.' as a type registry is deprecated, please use '.
+            TypeRegistry::class.' instead',
+            E_USER_DEPRECATED
+        );
+    }
+
     /**
      * Factory method to create type instances.
      * Type instances are implemented as flyweights.
@@ -179,14 +182,19 @@ abstract class Type
      */
     public static function getType($name)
     {
-        if ( ! isset(self::$_typeObjects[$name])) {
-            if ( ! isset(self::$_typesMap[$name])) {
-                throw DBALException::unknownColumnType($name);
+        self::warnAgainstUsingTheOldAPI();
+        try {
+            return TypeRegistry::getType($name);
+        } catch (DBALException $e) {
+            if ( ! isset(self::$_typeObjects[$name])) {
+                if ( ! isset(self::$_typesMap[$name])) {
+                    throw DBALException::unknownColumnType($name, true);
+                }
+                self::$_typeObjects[$name] = new self::$_typesMap[$name]();
             }
-            self::$_typeObjects[$name] = new self::$_typesMap[$name]();
-        }
 
-        return self::$_typeObjects[$name];
+            return self::$_typeObjects[$name];
+        }
     }
 
     /**
@@ -201,6 +209,11 @@ abstract class Type
      */
     public static function addType($name, $className)
     {
+        self::warnAgainstUsingTheOldAPI();
+        if ($name === $className) {
+            TypeRegistry::addType($className);
+            return;
+        }
         if (isset(self::$_typesMap[$name])) {
             throw DBALException::typeExists($name);
         }
@@ -217,6 +230,7 @@ abstract class Type
      */
     public static function hasType($name)
     {
+        self::warnAgainstUsingTheOldAPI();
         return isset(self::$_typesMap[$name]);
     }
 

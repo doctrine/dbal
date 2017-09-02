@@ -19,10 +19,12 @@
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 
 class DBALException extends \Exception
 {
@@ -263,14 +265,16 @@ class DBALException extends \Exception
 
     /**
      * @param string $name
+     * @param bool   $legacy whether to recommend the legacy workflow
      *
      * @return \Doctrine\DBAL\DBALException
      */
-    public static function unknownColumnType($name)
+    public static function unknownColumnType($name, $legacy = false)
     {
+        $recommendedAPI = $legacy ? Type::class : TypeRegistry::class;
         return new self('Unknown column type "'.$name.'" requested. Any Doctrine type that you use has ' .
-            'to be registered with \Doctrine\DBAL\Types\Type::addType(). You can get a list of all the ' .
-            'known types with \Doctrine\DBAL\Types\Type::getTypesMap(). If this error occurs during database ' .
+            'to be registered with '.$recommendedAPI.'::addType(). You can get a list of all the ' .
+            'known types with '.$recommendedAPI.'::getTypesMap(). If this error occurs during database ' .
             'introspection then you might have forgotten to register all database types for a Doctrine Type. Use ' .
             'AbstractPlatform#registerDoctrineTypeMapping() or have your custom types implement ' .
             'Type#getMappedDatabaseTypes(). If the type name is empty you might ' .
