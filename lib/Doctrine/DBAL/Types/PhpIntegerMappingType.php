@@ -22,41 +22,9 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
- * Type that maps a database SMALLINT to a PHP integer.
- *
- * @author robo
+ * Implementations should map a database type to a PHP integer.
+ * @internal
  */
-class SmallIntType extends Type implements PhpIntegerMappingType
+interface PhpIntegerMappingType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return Type::SMALLINT;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
-    {
-        return $platform->getSmallIntTypeDeclarationSQL($fieldDeclaration);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
-    {
-        return (null === $value) ? null : (int) $value;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getBindingType()
-    {
-        return \PDO::PARAM_INT;
-    }
 }

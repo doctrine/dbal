@@ -27,7 +27,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * @author Roman Borschel <roman@code-factory.org>
  * @since 2.0
  */
-class IntegerType extends Type
+class IntegerType extends Type implements PhpIntegerMappingType
 {
     /**
      * {@inheritdoc}

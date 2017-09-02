@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
+use Doctrine\DBAL\Types\DecimalType;
 
 /**
  * @group DBAL-461
@@ -31,6 +32,6 @@ class DBAL461Test extends \PHPUnit\Framework\TestCase
             'comment' => null,
         ));
 
-        self::assertEquals('Decimal', (string)$column->getType());
+        $this->assertInstanceOf(DecimalType::class, $column->getType());
     }
 }
