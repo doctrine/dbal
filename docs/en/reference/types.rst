@@ -969,5 +969,3 @@ hook it into the database platform:
 This would allow using a money type in the ORM for example and
 have Doctrine automatically convert it back and forth to the
 database.
-
-
