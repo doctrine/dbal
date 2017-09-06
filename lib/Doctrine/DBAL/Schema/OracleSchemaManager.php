@@ -43,13 +43,13 @@ class OracleSchemaManager extends AbstractSchemaManager
         $tableNames = $this->listTableNames();
 
         // Get all column definitions in one database call.
-        $allColumns = $this->_conn->fetchAll($this->_platform->getListTableColumnsSQL(null, $currentDatabase));
+        $allColumns = $this->_conn->fetchAll($this->_platform->getListAllColumnsSQL($currentDatabase));
 
         // Get all foreign keys definitions in one database call.
-        $allForeignKeys = $this->_conn->fetchAll($this->_platform->getListForeignKeysSQL(null, $currentDatabase));
+        $allForeignKeys = $this->_conn->fetchAll($this->_platform->getListAllForeignKeysSQL($currentDatabase));
 
         // Get all indexes definitions in one database call.
-        $allIndexes = $this->_conn->fetchAll($this->_platform->getListTableIndexesSQL(null, $currentDatabase));
+        $allIndexes = $this->_conn->fetchAll($this->_platform->getListAllIndexesSQL($currentDatabase));
 
         $tables = [];
         foreach ($tableNames as $tableName) {

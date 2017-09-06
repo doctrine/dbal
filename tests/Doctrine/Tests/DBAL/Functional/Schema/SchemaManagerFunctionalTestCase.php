@@ -20,13 +20,6 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     protected $_sm;
 
-    /**
-     * Maximum expected run time for createSchema, in seconds.
-     *
-     * @var int
-     */
-    protected $timeThresholdForCreateSchema = 15;
-
     protected function getPlatformName()
     {
         $class = get_class($this);
@@ -1179,12 +1172,9 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $numberOfTablesCreated = $this->createLargeNumberOfTables();
 
         // Introspect the db schema.
-        $startTime = microtime(TRUE);
         $schema = $this->_sm->createSchema();
-        $endTime = microtime(TRUE);
 
         $this->assertGreaterThanOrEqual($numberOfTablesCreated, count($schema->getTables()));
-        $this->assertLessThan($this->timeThresholdForCreateSchema, $endTime - $startTime, 'createSchema() executed in less than ' . $this->timeThresholdForCreateSchema . ' sec.');
 
         $this->checkLargeNumberOfTables($schema);
     }

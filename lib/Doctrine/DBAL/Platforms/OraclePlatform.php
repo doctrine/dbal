@@ -412,51 +412,41 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
+     */
+    public function getListAllIndexesSQL(string $database): string
+    {
+        $databaseIdentifier = $this->normalizeIdentifier($database);
+        $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        return <<<SQL
+          SELECT ind_col.table_name as table_name,
+                 ind_col.index_name AS name,
+                 ind.index_type AS type,
+                 decode(ind.uniqueness, 'NONUNIQUE', 0, 'UNIQUE', 1) AS is_unique,
+                 ind_col.column_name AS column_name,
+                 ind_col.column_position AS column_pos,
+                 con.constraint_type AS is_primary
+           FROM  all_ind_columns ind_col
+      LEFT JOIN  all_indexes ind
+             ON  ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
+      LEFT JOIN  all_constraints con
+             ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
+          WHERE  ind_col.index_owner = $quotedDatabaseIdentifier
+       ORDER BY  ind_col.table_name, ind_col.index_name, ind_col.column_position
+SQL;
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaOracleReader.html
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        if (null === $table && !$this->isDatabaseSelected($currentDatabase)) {
-            throw new \InvalidArgumentException('Table name must be specified if no database is specified');
-        }
+        $table = $this->normalizeIdentifier($table);
+        $table = $this->quoteStringLiteral($table->getName());
 
-        $quotedTableIdentifier = '';
-        $tableWhereClause = '';
-        if (null !== $table) {
-            $tableIdentifier = $this->normalizeIdentifier($table);
-            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableWhereClause = "AND ind_col.table_name = " . $quotedTableIdentifier;
-        }
-
-        // If database is specified, return SQL for all indexes in database,
-        // optionally filtered by table.
-        if ($this->isDatabaseSelected($currentDatabase)) {
-            $databaseIdentifier = $this->normalizeIdentifier($currentDatabase);
-            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
-            return <<<SQL
-                    SELECT ind_col.table_name as table_name,
-                           ind_col.index_name AS name,
-                           ind.index_type AS type,
-                           decode(ind.uniqueness, 'NONUNIQUE', 0, 'UNIQUE', 1) AS is_unique,
-                           ind_col.column_name AS column_name,
-                           ind_col.column_position AS column_pos,
-                           con.constraint_type AS is_primary
-                     FROM  all_ind_columns ind_col
-                LEFT JOIN  all_indexes ind
-                       ON  ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
-                LEFT JOIN  all_constraints con
-                       ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
-                    WHERE  ind_col.index_owner = $quotedDatabaseIdentifier $tableWhereClause
-                 ORDER BY  ind_col.table_name, ind_col.index_name, ind_col.column_position
-SQL;
-        }
-
-        // If database is not specified, return SQL for the indexes of the
-        // specified table from the current database.
-        return <<<SQL
-                SELECT uind_col.index_name AS name,
+        return "SELECT uind_col.index_name AS name,
                        (
                            SELECT uind.index_type
                            FROM   user_indexes uind
@@ -481,9 +471,8 @@ SQL;
                            WHERE  ucon.index_name = uind_col.index_name
                        ) AS is_primary
              FROM      user_ind_columns uind_col
-             WHERE     uind_col.table_name = $quotedTableIdentifier
-             ORDER BY  uind_col.column_position ASC
-SQL;
+             WHERE     uind_col.table_name = " . $table . "
+             ORDER BY  uind_col.column_position ASC";
     }
 
     /**
@@ -644,82 +633,58 @@ END;';
     /**
      * {@inheritDoc}
      */
-    public function getListTableForeignKeysSQL($table)
+    public function getListAllForeignKeysSQL(string $database): string
     {
-        return $this->getListForeignKeysSQL($table);
+        $databaseIdentifier = $this->normalizeIdentifier($database);
+        $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        return <<<SQL
+          SELECT cols.table_name,
+                 alc.constraint_name,
+                 alc.DELETE_RULE,
+                 cols.column_name "local_column",
+                 cols.position,
+                 r_cols.table_name "references_table",
+                 r_cols.column_name "foreign_column"
+            FROM all_cons_columns cols
+       LEFT JOIN all_constraints alc
+              ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
+       LEFT JOIN all_cons_columns r_cols
+              ON r_cols.owner = alc.r_owner AND r_cols.constraint_name = alc.r_constraint_name AND r_cols.position = cols.position
+           WHERE cols.owner = $quotedDatabaseIdentifier AND alc.constraint_type = 'R'
+           ORDER BY cols.table_name, cols.constraint_name, cols.position
+SQL;
     }
 
     /**
-     * Returns the list of foreign keys for the current database.
-     *
-     * @param string $table
-     * @param string $database
-     *
-     * @return string
+     * {@inheritDoc}
      */
-    public function getListForeignKeysSQL($table = null, $database = null)
+    public function getListTableForeignKeysSQL($table)
     {
-        if (null === $table && !$this->isDatabaseSelected($database)) {
-            throw new \InvalidArgumentException('Table name must be specified if no database is specified');
-        }
+        $table = $this->normalizeIdentifier($table);
+        $table = $this->quoteStringLiteral($table->getName());
 
-        $quotedTableIdentifier = '';
-        $tableWhereClause = '';
-        if (null !== $table) {
-            $tableIdentifier = $this->normalizeIdentifier($table);
-            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableWhereClause = "AND cols.table_name = " . $quotedTableIdentifier;
-        }
-
-        // If database is specified, return SQL for all foreign keys in
-        // database, optionally filtered by table.
-        if ($this->isDatabaseSelected($database)) {
-            $databaseIdentifier = $this->normalizeIdentifier($database);
-            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
-                return <<<SQL
-            SELECT cols.table_name,
-                   alc.constraint_name,
-                   alc.DELETE_RULE,
-                   cols.column_name "local_column",
-                   cols.position,
-                   r_cols.table_name "references_table",
-                   r_cols.column_name "foreign_column"
-              FROM all_cons_columns cols
-         LEFT JOIN all_constraints alc
-                ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
-         LEFT JOIN all_cons_columns r_cols
-                ON r_cols.owner = alc.r_owner AND r_cols.constraint_name = alc.r_constraint_name AND r_cols.position = cols.position
-             WHERE cols.owner = $quotedDatabaseIdentifier $tableWhereClause AND alc.constraint_type = 'R'
-             ORDER BY cols.table_name, cols.constraint_name, cols.position
-SQL;
-        }
-
-        // If database is not specified, return SQL for the foreign keys of the
-        // specified table from the current database.
-        return <<<SQL
-   SELECT alc.constraint_name,
+        return "SELECT alc.constraint_name,
           alc.DELETE_RULE,
-          cols.column_name "local_column",
+          cols.column_name \"local_column\",
           cols.position,
           (
               SELECT r_cols.table_name
               FROM   user_cons_columns r_cols
               WHERE  alc.r_constraint_name = r_cols.constraint_name
               AND    r_cols.position = cols.position
-          ) AS "references_table",
+          ) AS \"references_table\",
           (
               SELECT r_cols.column_name
               FROM   user_cons_columns r_cols
               WHERE  alc.r_constraint_name = r_cols.constraint_name
               AND    r_cols.position = cols.position
-          ) AS "foreign_column"
+          ) AS \"foreign_column\"
      FROM user_cons_columns cols
      JOIN user_constraints alc
        ON alc.constraint_name = cols.constraint_name
       AND alc.constraint_type = 'R'
-      AND alc.table_name = $quotedTableIdentifier
-    ORDER BY cols.constraint_name ASC, cols.position ASC
-SQL;
+      AND alc.table_name = " . $table . "
+    ORDER BY cols.constraint_name ASC, cols.position ASC";
     }
 
     /**
@@ -736,49 +701,52 @@ SQL;
     /**
      * {@inheritDoc}
      */
+    public function getListAllColumnsSQL(string $database): string
+    {
+        $databaseIdentifier = $this->normalizeIdentifier($database);
+        $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        return <<<SQL
+          SELECT    c.*, d.comments AS comments
+            FROM    all_tab_columns c
+       LEFT JOIN    all_col_comments d
+              ON    d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
+           WHERE    c.owner = $quotedDatabaseIdentifier
+           ORDER BY c.table_name, c.column_id
+SQL;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        if (null === $table && !$this->isDatabaseSelected($database)) {
-            throw new \InvalidArgumentException('Table name must be specified if no database is specified');
+        $table = $this->normalizeIdentifier($table);
+        $table = $this->quoteStringLiteral($table->getName());
+
+        $tabColumnsTableName = "user_tab_columns";
+        $colCommentsTableName = "user_col_comments";
+        $tabColumnsOwnerCondition = '';
+        $colCommentsOwnerCondition = '';
+
+        if (null !== $database && '/' !== $database) {
+            $database = $this->normalizeIdentifier($database);
+            $database = $this->quoteStringLiteral($database->getName());
+            $tabColumnsTableName = "all_tab_columns";
+            $colCommentsTableName = "all_col_comments";
+            $tabColumnsOwnerCondition = "AND c.owner = " . $database;
+            $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
         }
 
-        $quotedTableIdentifier = '';
-        $tableWhereClause = '';
-        if (null !== $table) {
-            $tableIdentifier = $this->normalizeIdentifier($table);
-            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
-            $tableWhereClause = "AND c.table_name = " . $quotedTableIdentifier;
-        }
-
-        // If database is specified, return SQL for all columns in database,
-        // optionally filtered by table.
-        if ($this->isDatabaseSelected($database)) {
-            $databaseIdentifier = $this->normalizeIdentifier($database);
-            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
-            return <<<SQL
-                  SELECT    c.*, d.comments AS comments
-                    FROM    all_tab_columns c
-               LEFT JOIN    all_col_comments d
-                      ON    d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
-                   WHERE    c.owner = $quotedDatabaseIdentifier $tableWhereClause
-                   ORDER BY c.table_name, c.column_id
-SQL;
-        }
-
-        // If database is not specified, return SQL for the columns of the
-        // specified table from the current database.
-        return <<<SQL
-                 SELECT   c.*,
+        return "SELECT   c.*,
                          (
                              SELECT d.comments
-                             FROM   user_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME 
+                             FROM   $colCommentsTableName d
+                             WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
                              AND    d.COLUMN_NAME = c.COLUMN_NAME
                          ) AS comments
-                FROM     user_tab_columns c
-                WHERE    c.table_name = $quotedTableIdentifier 
-                ORDER BY c.column_id
-SQL;
+                FROM     $tabColumnsTableName c
+                WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
+                ORDER BY c.column_id";
     }
 
     /**
@@ -1274,17 +1242,5 @@ SQL;
         $str = str_replace('\\', '\\\\', $str); // Oracle requires backslashes to be escaped aswell.
 
         return parent::quoteStringLiteral($str);
-    }
-
-    /**
-     * Determines if the input variable identifies a specific database.
-     *
-     * @param string $database
-     *
-     * @return bool
-     */
-    private function isDatabaseSelected(?string $database): bool
-    {
-        return null !== $database && '/' !== $database;
     }
 }
