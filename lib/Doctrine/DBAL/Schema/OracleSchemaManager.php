@@ -238,7 +238,6 @@ class OracleSchemaManager extends AbstractSchemaManager
             'comment'    => isset($tableColumn['comments']) && '' !== $tableColumn['comments']
                 ? $tableColumn['comments']
                 : null,
-            'platformDetails' => [],
         ];
 
         return new Column($this->getQuotedIdentifierName($tableColumn['column_name']), Type::getType($type), $options);

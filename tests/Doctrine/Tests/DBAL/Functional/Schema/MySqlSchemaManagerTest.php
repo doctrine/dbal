@@ -132,8 +132,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDropPrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("drop_primary_key");
-        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
-        $table->addColumn('foo', 'integer', array('primary' => true));
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('foo', 'integer');
         $table->setPrimaryKey(array('id', 'foo'));
 
         $this->_sm->dropAndCreateTable($table);

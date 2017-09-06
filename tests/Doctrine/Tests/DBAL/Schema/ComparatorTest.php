@@ -784,15 +784,15 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
     {
         $table = new \Doctrine\DBAL\Schema\Table('twitter_users');
         $table->addColumn('id', 'integer', array('autoincrement' => true));
-        $table->addColumn('twitterId', 'integer', array('nullable' => false));
-        $table->addColumn('displayName', 'string', array('nullable' => false));
+        $table->addColumn('twitterId', 'integer');
+        $table->addColumn('displayName', 'string');
         $table->setPrimaryKey(array('id'));
 
         $newtable = new \Doctrine\DBAL\Schema\Table('twitter_users');
         $newtable->addColumn('id', 'integer', array('autoincrement' => true));
-        $newtable->addColumn('twitter_id', 'integer', array('nullable' => false));
-        $newtable->addColumn('display_name', 'string', array('nullable' => false));
-        $newtable->addColumn('logged_in_at', 'datetime', array('nullable' => true));
+        $newtable->addColumn('twitter_id', 'integer');
+        $newtable->addColumn('display_name', 'string');
+        $newtable->addColumn('logged_in_at', 'datetime');
         $newtable->setPrimaryKey(array('id'));
 
         $c = new Comparator();

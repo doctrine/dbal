@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Types\Type;
 
 /**
@@ -118,9 +119,17 @@ class Column extends AbstractAsset
     {
         foreach ($options as $name => $value) {
             $method = "set".$name;
-            if (method_exists($this, $method)) {
-                $this->$method($value);
+            if ( ! method_exists($this, $method)) {
+                // next major: use InvalidArgumentException::fromUnsupportedOption()
+                @trigger_error(sprintf(
+                    'The "%s" option is not supported,'.
+                    ' setting it is deprecated and will cause an exception in 3.0',
+                    $name
+                ), E_USER_DEPRECATED);
+
+                return $this;
             }
+            $this->$method($value);
         }
 
         return $this;

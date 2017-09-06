@@ -37,4 +37,9 @@ class InvalidArgumentException extends DBALException
     {
         return new self('Empty criteria was used, expected non-empty criteria');
     }
+
+    public static function fromUnsupportedOption(string $name) : self
+    {
+        return new self(sprintf('The "%s" option is not supported', $name));
+    }
 }

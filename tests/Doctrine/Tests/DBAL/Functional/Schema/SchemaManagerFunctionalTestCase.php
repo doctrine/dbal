@@ -738,7 +738,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $tableDiff->fromTable = $table;
         $tableDiff->changedColumns['id'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'id', new \Doctrine\DBAL\Schema\Column(
-                'id', \Doctrine\DBAL\Types\Type::getType('integer'), array('primary' => true)
+                'id', \Doctrine\DBAL\Types\Type::getType('integer')
             ),
             array('comment'),
             new \Doctrine\DBAL\Schema\Column(
@@ -948,7 +948,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     public function testColumnDefaultLifecycle()
     {
         $table = new Table("col_def_lifecycle");
-        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->addColumn('column1', 'string', array('default' => null));
         $table->addColumn('column2', 'string', array('default' => false));
         $table->addColumn('column3', 'string', array('default' => true));
