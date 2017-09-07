@@ -43,40 +43,41 @@ class OracleSchemaManager extends AbstractSchemaManager
         $tableNames = $this->listTableNames();
 
         // Get all column definitions in one database call.
-        $allColumns = $this->_conn->fetchAll($this->_platform->getListAllColumnsSQL($currentDatabase));
+        $columnsByTable = $this->getNestedArrayByTableName($this->_conn->fetchAll($this->_platform->getListAllColumnsSQL($currentDatabase)));
 
         // Get all foreign keys definitions in one database call.
-        $allForeignKeys = $this->_conn->fetchAll($this->_platform->getListAllForeignKeysSQL($currentDatabase));
+        $foreignKeysByTable = $this->getNestedArrayByTableName($this->_conn->fetchAll($this->_platform->getListAllForeignKeysSQL($currentDatabase)));
 
         // Get all indexes definitions in one database call.
-        $allIndexes = $this->_conn->fetchAll($this->_platform->getListAllIndexesSQL($currentDatabase));
+        $indexesByTable = $this->getNestedArrayByTableName($this->_conn->fetchAll($this->_platform->getListAllIndexesSQL($currentDatabase)));
 
         $tables = [];
         foreach ($tableNames as $tableName) {
-            $unquotedTableName = rtrim(ltrim($tableName, '"'), '"');
-
-            // Process columns for this table.
-            $tableColumns = array_filter($allColumns, function ($column) use ($unquotedTableName) {
-                return $column['TABLE_NAME'] === $unquotedTableName;
-            });
-            $columns = $this->_getPortableTableColumnList($tableName, null, $tableColumns);
-
-            // Process foreign keys for this table.
-            $tableForeignKeys = array_filter($allForeignKeys, function ($foreignKey) use ($unquotedTableName) {
-                return $foreignKey['TABLE_NAME'] === $unquotedTableName;
-            });
-            $foreignKeys = !empty($tableForeignKeys) ? $this->_getPortableTableForeignKeysList($tableForeignKeys) : [];
-
-            // Process indexes for this table.
-            $tableIndexes = array_filter($allIndexes, function ($index) use ($unquotedTableName) {
-                return $index['TABLE_NAME'] === $unquotedTableName;
-            });
-            $indexes = !empty($tableIndexes) ? $this->_getPortableTableIndexesList($tableIndexes, $tableName) : [];
-
+            $columns = $this->_getPortableTableColumnList($tableName, null, $columnsByTable[$tableName]);
+            $foreignKeys = $this->_getPortableTableForeignKeysList(isset($foreignKeysByTable[$tableName]) ? $foreignKeysByTable[$tableName] : []);
+            $indexes = $this->_getPortableTableIndexesList(isset($indexesByTable[$tableName]) ? $indexesByTable[$tableName] : [], $tableName);
             $tables[] = new Table($tableName, $columns, $indexes, $foreignKeys, false, []);
         }
 
         return $tables;
+    }
+
+    /**
+     * Helper method to group a set of records by the table name.
+     *
+     * @param array $input A recordset of database information with a
+     *                     TABLE_NAME field present.
+     *
+     * @return array An associative array with key being the table name, and
+     *               value a simple array of records associated with the table.
+     */
+    private function getNestedArrayByTableName(array $input): array
+    {
+        $output = [];
+        foreach ($input as $record) {
+            $output[$record['TABLE_NAME']][] = $record;
+        }
+        return $output;
     }
 
     /**
