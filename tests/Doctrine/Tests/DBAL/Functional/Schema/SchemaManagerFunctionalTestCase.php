@@ -1172,10 +1172,14 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $numberOfTablesCreated = $this->createLargeNumberOfTables();
 
         // Introspect the db schema.
+        $preCreateSchemaQueryCount = $this->_sqlLoggerStack->currentQuery;
         $schema = $this->_sm->createSchema();
+        $postCreateSchemaQueryCount = $this->_sqlLoggerStack->currentQuery;
 
+for ($i = $preCreateSchemaQueryCount; $i < count($this->_sqlLoggerStack->queries); $i++) {
+  error_log($i . ': ' . $this->_sqlLoggerStack->queries[$i]);
+}
         $this->assertGreaterThanOrEqual($numberOfTablesCreated, count($schema->getTables()));
-
         $this->checkLargeNumberOfTables($schema);
     }
 
