@@ -11,6 +11,20 @@ use Doctrine\Tests\TestUtil;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
+    /**
+     * Number of SQL queries expected to be executed by createSchema.
+     *
+     * For Oracle, we expect 5 queries:
+     *   1. fetch sequences
+     *   2. fetch tables
+     *   3. fetch all columns
+     *   4. fetch all foreign keys
+     *   5. fetch all indexes
+     *
+     * @var int
+     */
+    protected $expectedQueryCountToCreateSchema = 5;
+
     protected function setUp()
     {
         parent::setUp();
