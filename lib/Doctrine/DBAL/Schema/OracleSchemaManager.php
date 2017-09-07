@@ -50,7 +50,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         // Get all indexes definitions in one database call.
         $indexesByTable = $this->getNestedArrayByTableName($this->_conn->fetchAll($this->_platform->getListAllIndexesSQL($currentDatabase)));
-error_log(var_export([$tableNames, $columnsByTable, $foreignKeysByTable, $indexesByTable], TRUE));
+error_log(var_export($tableNames, TRUE));
         $tables = [];
         foreach ($tableNames as $tableName) {
             $columns = $this->_getPortableTableColumnList($tableName, null, $columnsByTable[$tableName]);
