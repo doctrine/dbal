@@ -1,5 +1,6 @@
 language: php
 sudo: false
+dist: trusty
 
 cache:
     directories:
@@ -19,9 +20,7 @@ before_script:
   - if [[ $TRAVIS_PHP_VERSION = '7.1' && $DB = 'sqlite' ]]; then PHPUNIT_FLAGS="--coverage-clover .clover.xml"; else PHPUNIT_FLAGS=""; fi
   - if [[ "$PHPUNIT_FLAGS" == "" ]]; then phpenv config-rm xdebug.ini || true; fi
   - if [ "$MYSQL_VERSION" == "5.7" ]; then bash ./tests/travis/install-mysql-5.7.sh; fi;
-  - if [[ "$MYSQL_VERSION" == "5.6" || "$MYSQL_VERSION" == "5.7" ]]; then mysql -e "CREATE SCHEMA doctrine_tests; GRANT ALL PRIVILEGES ON doctrine_tests.* to travis@'%'"; fi;
-  - if [[ "$MYSQL_VERSION" == "5.6" || "$MYSQL_VERSION" == "5.7" ]]; then mysql -e "CREATE SCHEMA test_create_database; GRANT ALL PRIVILEGES ON test_create_database.* to travis@'%'"; fi;
-  - if [[ "$MYSQL_VERSION" == "5.6" || "$MYSQL_VERSION" == "5.7" ]]; then mysql -e "CREATE SCHEMA test_drop_database; GRANT ALL PRIVILEGES ON test_drop_database.* to travis@'%'"; fi;
+  - if [[ "$MYSQL_VERSION" == "5.6" || "$MYSQL_VERSION" == "5.7" || "$MARIADB_VERSION" == "10.2" || "$MARIADB_VERSION" == "10.1" || "$MARIADB_VERSION" == "10.0" || "$DB" == "mysql" || "$DB" == "mysqli" ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
 
 matrix:
   fast_finish: true
