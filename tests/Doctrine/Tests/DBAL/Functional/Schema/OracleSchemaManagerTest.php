@@ -298,5 +298,4 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         // same regardless of additional tables added.
         $this->assertEquals($firstQueryCount, $secondQueryCount);
     }
-
- }
+}
