@@ -15,7 +15,7 @@ class DBALExceptionTest extends DbalTestCase
         /* @var $driver Driver */
         $driver = $this->createMock(Driver::class);
         $e = DBALException::driverExceptionDuringQuery($driver, new \Exception, '', array('ABC', chr(128)));
-        $this->assertContains('with params ["ABC", "\x80"]', $e->getMessage());
+        self::assertContains('with params ["ABC", "\x80"]', $e->getMessage());
     }
 
     public function testAvoidOverWrappingOnDriverException()
@@ -40,7 +40,7 @@ class DBALExceptionTest extends DbalTestCase
         };
         $ex = new DriverException('', $inner);
         $e = DBALException::driverExceptionDuringQuery($driver, $ex, '');
-        $this->assertSame($ex, $e);
+        self::assertSame($ex, $e);
     }
 
     public function testDriverRequiredWithUrl()
@@ -48,8 +48,8 @@ class DBALExceptionTest extends DbalTestCase
         $url = 'mysql://localhost';
         $exception = DBALException::driverRequired($url);
 
-        $this->assertInstanceOf(DBALException::class, $exception);
-        $this->assertSame(
+        self::assertInstanceOf(DBALException::class, $exception);
+        self::assertSame(
             sprintf(
                 "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
                 'is given to DriverManager::getConnection(). Given URL: %s',

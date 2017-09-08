@@ -34,7 +34,7 @@ class InvalidArgumentExceptionTest extends \PHPUnit\Framework\TestCase
     {
         $exception = InvalidArgumentException::fromEmptyCriteria();
 
-        $this->assertInstanceOf('Doctrine\DBAL\Exception\InvalidArgumentException', $exception);
-        $this->assertSame('Empty criteria was used, expected non-empty criteria', $exception->getMessage());
+        self::assertInstanceOf('Doctrine\DBAL\Exception\InvalidArgumentException', $exception);
+        self::assertSame('Empty criteria was used, expected non-empty criteria', $exception->getMessage());
     }
 }

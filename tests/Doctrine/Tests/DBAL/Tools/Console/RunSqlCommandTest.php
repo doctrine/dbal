@@ -43,7 +43,7 @@ class RunSqlCommandTest extends \PHPUnit\Framework\TestCase
             ));
             $this->fail('Expected a runtime exception when omitting sql argument');
         } catch (\RuntimeException $e) {
-            $this->assertContains("Argument 'SQL", $e->getMessage());
+            self::assertContains("Argument 'SQL", $e->getMessage());
         }
     }
 
@@ -57,7 +57,7 @@ class RunSqlCommandTest extends \PHPUnit\Framework\TestCase
             ));
             $this->fail('Expected a logic exception when executing with a stringy depth');
         } catch (\LogicException $e) {
-            $this->assertContains("Option 'depth'", $e->getMessage());
+            self::assertContains("Option 'depth'", $e->getMessage());
         }
     }
 
@@ -70,8 +70,8 @@ class RunSqlCommandTest extends \PHPUnit\Framework\TestCase
             'sql' => 'SELECT 1',
         ));
 
-        $this->assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
-        $this->assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
     public function testUpdateStatementsPrintsAffectedLines()
@@ -83,8 +83,8 @@ class RunSqlCommandTest extends \PHPUnit\Framework\TestCase
             'sql' => 'UPDATE foo SET bar = 42',
         ));
 
-        $this->assertRegExp('@int.*42.*@', $this->commandTester->getDisplay());
-        $this->assertNotRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@int.*42.*@', $this->commandTester->getDisplay());
+        self::assertNotRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
     private function expectConnectionExecuteUpdate()
@@ -117,7 +117,7 @@ class RunSqlCommandTest extends \PHPUnit\Framework\TestCase
             '--force-fetch' => true,
         ));
 
-        $this->assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
-        $this->assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 }

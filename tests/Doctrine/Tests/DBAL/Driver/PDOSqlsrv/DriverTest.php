@@ -9,7 +9,7 @@ class DriverTest extends AbstractSQLServerDriverTest
 {
     public function testReturnsName()
     {
-        $this->assertSame('pdo_sqlsrv', $this->driver->getName());
+        self::assertSame('pdo_sqlsrv', $this->driver->getName());
     }
 
     protected function createDriver()

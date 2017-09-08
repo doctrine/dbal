@@ -35,7 +35,7 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         $conn = $this->createConnection(array('sharding' => array('federationName' => 'abc', 'distributionKey' => 'foo', 'distributionType' => 'integer')));
 
         $sm = new SQLAzureShardManager($conn);
-        $this->assertNull($sm->getCurrentDistributionValue());
+        self::assertNull($sm->getCurrentDistributionValue());
     }
 
     public function testSelectGlobalTransactionActive()
@@ -69,7 +69,7 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         $sm = new SQLAzureShardManager($conn);
         $sm->selectShard(1234);
 
-        $this->assertEquals(1234, $sm->getCurrentDistributionValue());
+        self::assertEquals(1234, $sm->getCurrentDistributionValue());
     }
 
     public function testSelectShardNoDistributionValue()

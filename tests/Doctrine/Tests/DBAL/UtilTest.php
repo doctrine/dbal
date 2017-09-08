@@ -70,7 +70,7 @@ class UtilTest extends \Doctrine\Tests\DbalTestCase
     {
         list($statement, $params) = \Doctrine\DBAL\Driver\OCI8\OCI8Statement::convertPositionalToNamedPlaceholders($inputSQL);
 
-        $this->assertEquals($expectedOutputSQL, $statement);
-        $this->assertEquals($expectedOutputParamsMap, $params);
+        self::assertEquals($expectedOutputSQL, $statement);
+        self::assertEquals($expectedOutputParamsMap, $params);
     }
 }

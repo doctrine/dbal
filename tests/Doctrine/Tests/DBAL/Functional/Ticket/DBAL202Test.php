@@ -33,7 +33,7 @@ class DBAL202Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute();
         $this->_conn->rollBack();
 
-        $this->assertEquals(0, $this->_conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
+        self::assertEquals(0, $this->_conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
     }
 
     public function testStatementCommit()
@@ -43,6 +43,6 @@ class DBAL202Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute();
         $this->_conn->commit();
 
-        $this->assertEquals(1, $this->_conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
+        self::assertEquals(1, $this->_conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
     }
 }

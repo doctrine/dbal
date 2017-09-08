@@ -62,7 +62,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->rollBack();
 
         $rows = $this->_conn->fetchAll('SELECT * FROM nontemporary');
-        $this->assertEquals(array(), $rows, "In an event of an error this result has one row, because of an implicit commit.");
+        self::assertEquals(array(), $rows, "In an event of an error this result has one row, because of an implicit commit.");
     }
 
     /**
@@ -104,6 +104,6 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $rows = $this->_conn->fetchAll('SELECT * FROM nontemporary');
-        $this->assertEquals(array(), $rows, "In an event of an error this result has one row, because of an implicit commit.");
+        self::assertEquals(array(), $rows, "In an event of an error this result has one row, because of an implicit commit.");
     }
 }

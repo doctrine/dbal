@@ -34,7 +34,7 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
             ->method('query')
             ->will($this->returnValue($statement));
 
-        $this->assertSame($database, $this->driver->getDatabase($connection));
+        self::assertSame($database, $this->driver->getDatabase($connection));
     }
 
     protected function createDriver()

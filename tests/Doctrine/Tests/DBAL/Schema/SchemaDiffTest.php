@@ -18,7 +18,7 @@ class SchemaDiffTest extends \PHPUnit\Framework\TestCase
 
         $expected = array('create_schema', 'drop_orphan_fk', 'alter_seq', 'drop_seq', 'create_seq', 'create_table', 'create_foreign_key', 'drop_table', 'alter_table');
 
-        $this->assertEquals($expected, $sql);
+        self::assertEquals($expected, $sql);
     }
 
     public function testSchemaDiffToSaveSql()
@@ -30,7 +30,7 @@ class SchemaDiffTest extends \PHPUnit\Framework\TestCase
 
         $expected = array('create_schema', 'alter_seq', 'create_seq', 'create_table', 'create_foreign_key', 'alter_table');
 
-        $this->assertEquals($expected, $sql);
+        self::assertEquals($expected, $sql);
     }
 
     public function createPlatform($unsafe = false)

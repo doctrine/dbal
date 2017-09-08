@@ -60,7 +60,7 @@ final class DB2SchemaManagerTest extends \PHPUnit\Framework\TestCase
             ],
         ]));
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'FOO',
                 'BAR',

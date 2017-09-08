@@ -82,7 +82,7 @@ SQLDATA
     public function testGetPlaceholderPositions($query, $isPositional, $expectedParamPos)
     {
         $actualParamPos = SQLParserUtils::getPlaceholderPositions($query, $isPositional);
-        $this->assertEquals($expectedParamPos, $actualParamPos);
+        self::assertEquals($expectedParamPos, $actualParamPos);
     }
 
     public function dataExpandListParameters()
@@ -373,9 +373,9 @@ SQLDATA
     {
         list($query, $params, $types) = SQLParserUtils::expandListParameters($q, $p, $t);
 
-        $this->assertEquals($expectedQuery, $query, "Query was not rewritten correctly.");
-        $this->assertEquals($expectedParams, $params, "Params dont match");
-        $this->assertEquals($expectedTypes, $types, "Types dont match");
+        self::assertEquals($expectedQuery, $query, "Query was not rewritten correctly.");
+        self::assertEquals($expectedParams, $params, "Params dont match");
+        self::assertEquals($expectedTypes, $types, "Types dont match");
     }
 
     public function dataQueryWithMissingParameters()

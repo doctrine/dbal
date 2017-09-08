@@ -19,7 +19,7 @@ class DateTest extends BaseDateTypeTestCase
     public function testDateConvertsToPHPValue()
     {
         // Birthday of jwage and also birthday of Doctrine. Send him a present ;)
-        $this->assertTrue(
+        self::assertTrue(
             $this->type->convertToPHPValue('1985-09-01', $this->platform)
             instanceof \DateTime
         );
@@ -29,7 +29,7 @@ class DateTest extends BaseDateTypeTestCase
     {
         $date = $this->type->convertToPHPValue('1985-09-01', $this->platform);
 
-        $this->assertEquals('00:00:00', $date->format('H:i:s'));
+        self::assertEquals('00:00:00', $date->format('H:i:s'));
     }
 
     public function testDateRests_SummerTimeAffection()
@@ -37,12 +37,12 @@ class DateTest extends BaseDateTypeTestCase
         date_default_timezone_set('Europe/Berlin');
 
         $date = $this->type->convertToPHPValue('2009-08-01', $this->platform);
-        $this->assertEquals('00:00:00', $date->format('H:i:s'));
-        $this->assertEquals('2009-08-01', $date->format('Y-m-d'));
+        self::assertEquals('00:00:00', $date->format('H:i:s'));
+        self::assertEquals('2009-08-01', $date->format('Y-m-d'));
 
         $date = $this->type->convertToPHPValue('2009-11-01', $this->platform);
-        $this->assertEquals('00:00:00', $date->format('H:i:s'));
-        $this->assertEquals('2009-11-01', $date->format('Y-m-d'));
+        self::assertEquals('00:00:00', $date->format('H:i:s'));
+        self::assertEquals('2009-11-01', $date->format('Y-m-d'));
     }
 
     public function testInvalidDateFormatConversion()

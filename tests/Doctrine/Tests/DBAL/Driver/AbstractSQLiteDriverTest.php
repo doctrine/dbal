@@ -23,7 +23,7 @@ class AbstractSQLiteDriverTest extends AbstractDriverTest
             ->method('getParams')
             ->will($this->returnValue($params));
 
-        $this->assertSame($params['path'], $this->driver->getDatabase($connection));
+        self::assertSame($params['path'], $this->driver->getDatabase($connection));
     }
 
     protected function createDriver()

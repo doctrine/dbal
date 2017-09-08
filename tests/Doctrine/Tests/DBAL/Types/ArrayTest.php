@@ -25,14 +25,14 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
 
     public function testArrayConvertsToDatabaseValue()
     {
-        $this->assertTrue(
+        self::assertTrue(
             is_string($this->_type->convertToDatabaseValue(array(), $this->_platform))
         );
     }
 
     public function testArrayConvertsToPHPValue()
     {
-        $this->assertTrue(
+        self::assertTrue(
             is_array($this->_type->convertToPHPValue(serialize(array()), $this->_platform))
         );
     }
@@ -46,7 +46,7 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
 
     public function testNullConversion()
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
     }
 
     /**
@@ -54,6 +54,6 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testFalseConversion()
     {
-        $this->assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
+        self::assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
     }
 }

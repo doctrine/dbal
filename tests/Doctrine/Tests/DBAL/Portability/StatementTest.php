@@ -47,7 +47,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->with($column, $variable, $type, $length)
             ->will($this->returnValue(true));
 
-        $this->assertTrue($this->stmt->bindParam($column, $variable, $type, $length));
+        self::assertTrue($this->stmt->bindParam($column, $variable, $type, $length));
     }
 
     public function testBindValue()
@@ -61,7 +61,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->with($param, $value, $type)
             ->will($this->returnValue(true));
 
-        $this->assertTrue($this->stmt->bindValue($param, $value, $type));
+        self::assertTrue($this->stmt->bindValue($param, $value, $type));
     }
 
     public function testCloseCursor()
@@ -70,7 +70,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->method('closeCursor')
             ->will($this->returnValue(true));
 
-        $this->assertTrue($this->stmt->closeCursor());
+        self::assertTrue($this->stmt->closeCursor());
     }
 
     public function testColumnCount()
@@ -81,7 +81,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->method('columnCount')
             ->will($this->returnValue($columnCount));
 
-        $this->assertSame($columnCount, $this->stmt->columnCount());
+        self::assertSame($columnCount, $this->stmt->columnCount());
     }
 
     public function testErrorCode()
@@ -92,7 +92,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->method('errorCode')
             ->will($this->returnValue($errorCode));
 
-        $this->assertSame($errorCode, $this->stmt->errorCode());
+        self::assertSame($errorCode, $this->stmt->errorCode());
     }
 
     public function testErrorInfo()
@@ -103,7 +103,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->method('errorInfo')
             ->will($this->returnValue($errorInfo));
 
-        $this->assertSame($errorInfo, $this->stmt->errorInfo());
+        self::assertSame($errorInfo, $this->stmt->errorInfo());
     }
 
     public function testExecute()
@@ -118,7 +118,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->with($params)
             ->will($this->returnValue(true));
 
-        $this->assertTrue($this->stmt->execute($params));
+        self::assertTrue($this->stmt->execute($params));
     }
 
     public function testSetFetchMode()
@@ -132,9 +132,9 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->with($fetchMode, $arg1, $arg2)
             ->will($this->returnValue(true));
 
-        $this->assertAttributeSame(\PDO::FETCH_BOTH, 'defaultFetchMode', $this->stmt);
-        $this->assertTrue($this->stmt->setFetchMode($fetchMode, $arg1, $arg2));
-        $this->assertAttributeSame($fetchMode, 'defaultFetchMode', $this->stmt);
+        self::assertAttributeSame(\PDO::FETCH_BOTH, 'defaultFetchMode', $this->stmt);
+        self::assertTrue($this->stmt->setFetchMode($fetchMode, $arg1, $arg2));
+        self::assertAttributeSame($fetchMode, 'defaultFetchMode', $this->stmt);
     }
 
     public function testGetIterator()
@@ -148,7 +148,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->method('fetchAll')
             ->will($this->returnValue($data));
 
-        $this->assertEquals(new \ArrayIterator($data), $this->stmt->getIterator());
+        self::assertEquals(new \ArrayIterator($data), $this->stmt->getIterator());
     }
 
     public function testRowCount()
@@ -159,7 +159,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->method('rowCount')
             ->will($this->returnValue($rowCount));
 
-        $this->assertSame($rowCount, $this->stmt->rowCount());
+        self::assertSame($rowCount, $this->stmt->rowCount());
     }
 
     /**

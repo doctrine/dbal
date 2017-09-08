@@ -37,25 +37,25 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
         ));
 
-        $this->assertFalse($conn->isConnected(0));
+        self::assertFalse($conn->isConnected(0));
         $conn->connect(0);
-        $this->assertEquals(1, $conn->fetchColumn('SELECT 1'));
-        $this->assertTrue($conn->isConnected(0));
+        self::assertEquals(1, $conn->fetchColumn('SELECT 1'));
+        self::assertTrue($conn->isConnected(0));
 
-        $this->assertFalse($conn->isConnected(1));
+        self::assertFalse($conn->isConnected(1));
         $conn->connect(1);
-        $this->assertEquals(1, $conn->fetchColumn('SELECT 1'));
-        $this->assertTrue($conn->isConnected(1));
+        self::assertEquals(1, $conn->fetchColumn('SELECT 1'));
+        self::assertTrue($conn->isConnected(1));
 
-        $this->assertFalse($conn->isConnected(2));
+        self::assertFalse($conn->isConnected(2));
         $conn->connect(2);
-        $this->assertEquals(1, $conn->fetchColumn('SELECT 1'));
-        $this->assertTrue($conn->isConnected(2));
+        self::assertEquals(1, $conn->fetchColumn('SELECT 1'));
+        self::assertTrue($conn->isConnected(2));
 
         $conn->close();
-        $this->assertFalse($conn->isConnected(0));
-        $this->assertFalse($conn->isConnected(1));
-        $this->assertFalse($conn->isConnected(2));
+        self::assertFalse($conn->isConnected(0));
+        self::assertFalse($conn->isConnected(1));
+        self::assertFalse($conn->isConnected(2));
     }
 
     public function testNoGlobalServerException()
@@ -192,16 +192,16 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
         ));
 
-        $this->assertNull($conn->getActiveShardId());
+        self::assertNull($conn->getActiveShardId());
 
         $conn->connect(0);
-        $this->assertEquals(0, $conn->getActiveShardId());
+        self::assertEquals(0, $conn->getActiveShardId());
 
         $conn->connect(1);
-        $this->assertEquals(1, $conn->getActiveShardId());
+        self::assertEquals(1, $conn->getActiveShardId());
 
         $conn->close();
-        $this->assertNull($conn->getActiveShardId());
+        self::assertNull($conn->getActiveShardId());
     }
 
     public function testGetParamsOverride()
@@ -216,7 +216,7 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
         ));
 
-        $this->assertEquals(array(
+        self::assertEquals(array(
             'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
             'driver' => 'pdo_sqlite',
             'global' => array('memory' => true, 'host' => 'localhost'),
@@ -229,7 +229,7 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
         ), $conn->getParams());
 
         $conn->connect(1);
-        $this->assertEquals(array(
+        self::assertEquals(array(
             'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
             'driver' => 'pdo_sqlite',
             'global' => array('memory' => true, 'host' => 'localhost'),
@@ -256,10 +256,10 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
         ));
 
-        $this->assertEquals('localhost', $conn->getHost());
+        self::assertEquals('localhost', $conn->getHost());
 
         $conn->connect(1);
-        $this->assertEquals('foo', $conn->getHost());
+        self::assertEquals('foo', $conn->getHost());
     }
 
     public function testGetPortOverride()
@@ -275,10 +275,10 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
         ));
 
-        $this->assertEquals(3306, $conn->getPort());
+        self::assertEquals(3306, $conn->getPort());
 
         $conn->connect(1);
-        $this->assertEquals(3307, $conn->getPort());
+        self::assertEquals(3307, $conn->getPort());
     }
 
     public function testGetUsernameOverride()
@@ -294,10 +294,10 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
         ));
 
-        $this->assertEquals('foo', $conn->getUsername());
+        self::assertEquals('foo', $conn->getUsername());
 
         $conn->connect(1);
-        $this->assertEquals('bar', $conn->getUsername());
+        self::assertEquals('bar', $conn->getUsername());
     }
 
     public function testGetPasswordOverride()
@@ -313,9 +313,9 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
             'shardChoser' => 'Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser',
         ));
 
-        $this->assertEquals('foo', $conn->getPassword());
+        self::assertEquals('foo', $conn->getPassword());
 
         $conn->connect(1);
-        $this->assertEquals('bar', $conn->getPassword());
+        self::assertEquals('bar', $conn->getPassword());
     }
 }

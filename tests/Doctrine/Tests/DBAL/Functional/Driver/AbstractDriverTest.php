@@ -34,7 +34,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
 
         $connection = $this->driver->connect($params, $user, $password);
 
-        $this->assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
+        self::assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
     }
 
     /**
@@ -52,7 +52,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
             $this->_conn->getEventManager()
         );
 
-        $this->assertSame(
+        self::assertSame(
             $this->getDatabaseNameForConnectionWithoutDatabaseNameParameter(),
             $this->driver->getDatabase($connection)
         );

@@ -38,23 +38,23 @@ SQL
 
         $fetchedTable = $schemaManager->listTableDetails('dbal752_unsigneds');
 
-        $this->assertEquals('smallint', $fetchedTable->getColumn('small')->getType()->getName());
-        $this->assertEquals('smallint', $fetchedTable->getColumn('small_unsigned')->getType()->getName());
-        $this->assertEquals('integer', $fetchedTable->getColumn('medium')->getType()->getName());
-        $this->assertEquals('integer', $fetchedTable->getColumn('medium_unsigned')->getType()->getName());
-        $this->assertEquals('integer', $fetchedTable->getColumn('integer')->getType()->getName());
-        $this->assertEquals('integer', $fetchedTable->getColumn('integer_unsigned')->getType()->getName());
-        $this->assertEquals('bigint', $fetchedTable->getColumn('big')->getType()->getName());
-        $this->assertEquals('bigint', $fetchedTable->getColumn('big_unsigned')->getType()->getName());
+        self::assertEquals('smallint', $fetchedTable->getColumn('small')->getType()->getName());
+        self::assertEquals('smallint', $fetchedTable->getColumn('small_unsigned')->getType()->getName());
+        self::assertEquals('integer', $fetchedTable->getColumn('medium')->getType()->getName());
+        self::assertEquals('integer', $fetchedTable->getColumn('medium_unsigned')->getType()->getName());
+        self::assertEquals('integer', $fetchedTable->getColumn('integer')->getType()->getName());
+        self::assertEquals('integer', $fetchedTable->getColumn('integer_unsigned')->getType()->getName());
+        self::assertEquals('bigint', $fetchedTable->getColumn('big')->getType()->getName());
+        self::assertEquals('bigint', $fetchedTable->getColumn('big_unsigned')->getType()->getName());
 
-        $this->assertTrue($fetchedTable->getColumn('small_unsigned')->getUnsigned());
-        $this->assertTrue($fetchedTable->getColumn('medium_unsigned')->getUnsigned());
-        $this->assertTrue($fetchedTable->getColumn('integer_unsigned')->getUnsigned());
-        $this->assertTrue($fetchedTable->getColumn('big_unsigned')->getUnsigned());
+        self::assertTrue($fetchedTable->getColumn('small_unsigned')->getUnsigned());
+        self::assertTrue($fetchedTable->getColumn('medium_unsigned')->getUnsigned());
+        self::assertTrue($fetchedTable->getColumn('integer_unsigned')->getUnsigned());
+        self::assertTrue($fetchedTable->getColumn('big_unsigned')->getUnsigned());
 
-        $this->assertFalse($fetchedTable->getColumn('small')->getUnsigned());
-        $this->assertFalse($fetchedTable->getColumn('medium')->getUnsigned());
-        $this->assertFalse($fetchedTable->getColumn('integer')->getUnsigned());
-        $this->assertFalse($fetchedTable->getColumn('big')->getUnsigned());
+        self::assertFalse($fetchedTable->getColumn('small')->getUnsigned());
+        self::assertFalse($fetchedTable->getColumn('medium')->getUnsigned());
+        self::assertFalse($fetchedTable->getColumn('integer')->getUnsigned());
+        self::assertFalse($fetchedTable->getColumn('big')->getUnsigned());
     }
 }

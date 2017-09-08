@@ -15,7 +15,7 @@ class TableDiffTest extends \PHPUnit\Framework\TestCase
     {
         $tableDiff = new TableDiff('foo');
 
-        $this->assertEquals(new Identifier('foo'), $tableDiff->getName(new MockPlatform()));
+        self::assertEquals(new Identifier('foo'), $tableDiff->getName(new MockPlatform()));
     }
 
     /**
@@ -36,7 +36,7 @@ class TableDiffTest extends \PHPUnit\Framework\TestCase
             ->with($platformMock)
             ->will($this->returnValue('foo'));
 
-        $this->assertEquals(new Identifier('foo'), $tableDiff->getName($platformMock));
+        self::assertEquals(new Identifier('foo'), $tableDiff->getName($platformMock));
     }
 
     /**
@@ -46,10 +46,10 @@ class TableDiffTest extends \PHPUnit\Framework\TestCase
     {
         $tableDiff = new TableDiff('foo');
 
-        $this->assertFalse($tableDiff->getNewName());
+        self::assertFalse($tableDiff->getNewName());
 
         $tableDiff->newName = 'bar';
 
-        $this->assertEquals(new Identifier('bar'), $tableDiff->getNewName());
+        self::assertEquals(new Identifier('bar'), $tableDiff->getNewName());
     }
 }

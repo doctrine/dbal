@@ -22,7 +22,7 @@ class ForeignKeyConstraintTest extends \PHPUnit\Framework\TestCase
             ->method('getColumns')
             ->will($this->returnValue($indexColumns));
 
-        $this->assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
+        self::assertSame($expectedResult, $foreignKey->intersectsIndexColumns($index));
     }
 
     /**

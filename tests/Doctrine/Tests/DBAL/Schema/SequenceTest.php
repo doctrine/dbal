@@ -20,9 +20,9 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
         $sequence2 = new Sequence("bar_id_seq");
         $sequence3 = new Sequence("other.foo_id_seq");
 
-        $this->assertTrue($sequence->isAutoIncrementsFor($table));
-        $this->assertFalse($sequence2->isAutoIncrementsFor($table));
-        $this->assertFalse($sequence3->isAutoIncrementsFor($table));
+        self::assertTrue($sequence->isAutoIncrementsFor($table));
+        self::assertFalse($sequence2->isAutoIncrementsFor($table));
+        self::assertFalse($sequence3->isAutoIncrementsFor($table));
     }
 
     public function testIsAutoincrementForCaseInsensitive()
@@ -37,11 +37,11 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
         $sequence3 = new Sequence("bar_ID_seq");
         $sequence4 = new Sequence("other.foo_id_seq");
 
-        $this->assertTrue($sequence->isAutoIncrementsFor($table));
-        $this->assertTrue($sequence1->isAutoIncrementsFor($table));
-        $this->assertFalse($sequence2->isAutoIncrementsFor($table));
-        $this->assertFalse($sequence3->isAutoIncrementsFor($table));
-        $this->assertFalse($sequence4->isAutoIncrementsFor($table));
+        self::assertTrue($sequence->isAutoIncrementsFor($table));
+        self::assertTrue($sequence1->isAutoIncrementsFor($table));
+        self::assertFalse($sequence2->isAutoIncrementsFor($table));
+        self::assertFalse($sequence3->isAutoIncrementsFor($table));
+        self::assertFalse($sequence4->isAutoIncrementsFor($table));
     }
 }
 

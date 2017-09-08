@@ -24,7 +24,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
             'pdo' => new \PDO('sqlite::memory:')
         );
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
+        self::assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
     }
 
     /**
@@ -39,7 +39,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(\PDO::ATTR_ERRMODE));
+        self::assertEquals(\PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(\PDO::ATTR_ERRMODE));
     }
 
     /**
@@ -67,7 +67,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertSame($mockPlatform, $conn->getDatabasePlatform());
+        self::assertSame($mockPlatform, $conn->getDatabasePlatform());
     }
 
     public function testCustomWrapper()
@@ -80,7 +80,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertInstanceOf($wrapperClass, $conn);
+        self::assertInstanceOf($wrapperClass, $conn);
     }
 
     public function testInvalidWrapperClass()
@@ -113,7 +113,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $conn->getDriver());
+        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $conn->getDriver());
     }
 
     /**
@@ -134,9 +134,9 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {
             if (in_array($key, array('pdo', 'driver', 'driverClass'), true)) {
-                $this->assertInstanceOf($value, $conn->getDriver());
+                self::assertInstanceOf($value, $conn->getDriver());
             } else {
-                $this->assertEquals($value, $params[$key]);
+                self::assertEquals($value, $params[$key]);
             }
         }
     }

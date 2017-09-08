@@ -20,7 +20,7 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
      */
     public function testHasNativeJsonType()
     {
-        $this->assertTrue($this->_platform->hasNativeJsonType());
+        self::assertTrue($this->_platform->hasNativeJsonType());
     }
 
     /**
@@ -28,22 +28,22 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
      */
     public function testReturnsJsonTypeDeclarationSQL()
     {
-        $this->assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
+        self::assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
     }
 
     public function testReturnsSmallIntTypeDeclarationSQL()
     {
-        $this->assertSame(
+        self::assertSame(
             'SMALLSERIAL',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => true))
         );
 
-        $this->assertSame(
+        self::assertSame(
             'SMALLINT',
             $this->_platform->getSmallIntTypeDeclarationSQL(array('autoincrement' => false))
         );
 
-        $this->assertSame(
+        self::assertSame(
             'SMALLINT',
             $this->_platform->getSmallIntTypeDeclarationSQL(array())
         );
@@ -54,8 +54,8 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
      */
     public function testInitializesJsonTypeMapping()
     {
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
-        $this->assertEquals(Type::JSON, $this->_platform->getDoctrineTypeMapping('json'));
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
+        self::assertEquals(Type::JSON, $this->_platform->getDoctrineTypeMapping('json'));
     }
 
     /**
@@ -63,7 +63,7 @@ class PostgreSQL92PlatformTest extends AbstractPostgreSqlPlatformTestCase
      */
     public function testReturnsCloseActiveDatabaseConnectionsSQL()
     {
-        $this->assertSame(
+        self::assertSame(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'foo'",
             $this->_platform->getCloseActiveDatabaseConnectionsSQL('foo')
         );

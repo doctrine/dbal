@@ -24,12 +24,12 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
 
     public function testObjectConvertsToDatabaseValue()
     {
-        $this->assertInternalType('string', $this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform));
+        self::assertInternalType('string', $this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform));
     }
 
     public function testObjectConvertsToPHPValue()
     {
-        $this->assertInternalType('object', $this->_type->convertToPHPValue(serialize(new \stdClass), $this->_platform));
+        self::assertInternalType('object', $this->_type->convertToPHPValue(serialize(new \stdClass), $this->_platform));
     }
 
     public function testConversionFailure()
@@ -41,7 +41,7 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
 
     public function testNullConversion()
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
     }
 
     /**
@@ -49,6 +49,6 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testFalseConversion()
     {
-        $this->assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
+        self::assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
     }
 }

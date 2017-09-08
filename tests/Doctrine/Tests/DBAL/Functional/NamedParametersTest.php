@@ -157,7 +157,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $result[$k] = array_change_key_case($v, CASE_LOWER);
         }
 
-        $this->assertEquals($result, $expected);
+        self::assertEquals($result, $expected);
     }
 
 }

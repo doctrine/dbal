@@ -31,6 +31,6 @@ class DBAL461Test extends \PHPUnit\Framework\TestCase
             'comment' => null,
         ));
 
-        $this->assertEquals('Decimal', (string)$column->getType());
+        self::assertEquals('Decimal', (string)$column->getType());
     }
 }

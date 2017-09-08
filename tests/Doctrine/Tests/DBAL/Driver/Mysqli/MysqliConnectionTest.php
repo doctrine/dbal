@@ -30,7 +30,7 @@ class MysqliConnectionTest extends DbalTestCase
 
     public function testDoesNotRequireQueryForServerVersion()
     {
-        $this->assertFalse($this->connectionMock->requiresQueryForServerVersion());
+        self::assertFalse($this->connectionMock->requiresQueryForServerVersion());
     }
 
     public function testRestoresErrorHandlerOnException()

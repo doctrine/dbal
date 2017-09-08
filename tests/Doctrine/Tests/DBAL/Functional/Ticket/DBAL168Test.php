@@ -22,6 +22,6 @@ class DBAL168Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->getSchemaManager()->createTable($table);
         $table = $this->_conn->getSchemaManager()->listTableDetails('domains');
 
-        $this->assertEquals('domains', $table->getName());
+        self::assertEquals('domains', $table->getName());
     }
 }

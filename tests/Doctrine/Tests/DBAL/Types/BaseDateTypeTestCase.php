@@ -29,7 +29,7 @@ abstract class BaseDateTypeTestCase extends \PHPUnit\Framework\TestCase
         $this->platform        = new MockPlatform();
         $this->currentTimezone = date_default_timezone_get();
 
-        $this->assertInstanceOf('Doctrine\DBAL\Types\Type', $this->type);
+        self::assertInstanceOf('Doctrine\DBAL\Types\Type', $this->type);
     }
 
     /**
@@ -42,7 +42,7 @@ abstract class BaseDateTypeTestCase extends \PHPUnit\Framework\TestCase
 
     public function testDateConvertsToDatabaseValue()
     {
-        $this->assertInternalType('string', $this->type->convertToDatabaseValue(new \DateTime(), $this->platform));
+        self::assertInternalType('string', $this->type->convertToDatabaseValue(new \DateTime(), $this->platform));
     }
 
     /**
@@ -59,14 +59,14 @@ abstract class BaseDateTypeTestCase extends \PHPUnit\Framework\TestCase
 
     public function testNullConversion()
     {
-        $this->assertNull($this->type->convertToPHPValue(null, $this->platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testConvertDateTimeToPHPValue()
     {
         $date = new \DateTime('now');
 
-        $this->assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
+        self::assertSame($date, $this->type->convertToPHPValue($date, $this->platform));
     }
 
     /**

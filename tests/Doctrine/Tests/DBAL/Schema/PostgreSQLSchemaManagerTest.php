@@ -64,7 +64,7 @@ class PostgreSQLSchemaManagerTest extends \PHPUnit\Framework\TestCase
         $this->connection->expects($this->exactly(3))
             ->method('fetchAll');
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 new Sequence('schema.foo', 2, 2),
                 new Sequence('schema.bar', 1, 1),
