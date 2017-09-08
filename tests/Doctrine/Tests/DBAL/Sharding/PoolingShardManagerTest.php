@@ -20,7 +20,7 @@ namespace Doctrine\Tests\DBAL\Sharding;
 
 use Doctrine\DBAL\Sharding\PoolingShardManager;
 
-class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
+class PoolingShardManagerTest extends \PHPUnit\Framework\TestCase
 {
     private function createConnectionMock()
     {

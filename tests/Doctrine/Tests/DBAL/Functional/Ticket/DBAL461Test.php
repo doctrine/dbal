@@ -7,7 +7,7 @@ use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 /**
  * @group DBAL-461
  */
-class DBAL461Test extends \PHPUnit_Framework_TestCase
+class DBAL461Test extends \PHPUnit\Framework\TestCase
 {
     public function testIssue()
     {

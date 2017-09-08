@@ -41,7 +41,7 @@ use Doctrine\DBAL\Types\Type;
  * @version $Revision$
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
-class ComparatorTest extends \PHPUnit_Framework_TestCase
+class ComparatorTest extends \PHPUnit\Framework\TestCase
 {
     public function testCompareSame1()
     {

@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use \Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 
-class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
+class CreateSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform|\PHPUnit_Framework_MockObject_MockObject

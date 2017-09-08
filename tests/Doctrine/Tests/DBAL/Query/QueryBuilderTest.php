@@ -648,7 +648,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->innerJoin('nt', 'node', 'n', 'nt.node = n.id')
             ->where('nt.lang = :lang AND n.deleted != 1');
 
-        $this->setExpectedException('Doctrine\DBAL\Query\QueryException', "The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.");
+        $this->expectException('Doctrine\DBAL\Query\QueryException', "The given alias 'invalid' is not part of any FROM or JOIN clause table. The currently registered aliases are: news, nv.");
         $this->assertEquals('', $qb->getSQL());
     }
 
@@ -887,7 +887,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->from('table_a', 'a')
             ->join('a', 'table_b', 'a', 'a.fk_b = a.id');
 
-        $this->setExpectedException(
+        $this->expectException(
             'Doctrine\DBAL\Query\QueryException',
             "The given alias 'a' is not unique in FROM and JOIN clause table. The currently registered aliases are: a."
         );

@@ -47,7 +47,7 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
 
     public function testInvalidDateIntervalFormatConversion()
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
@@ -71,7 +71,7 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
      */
     public function testInvalidTypeConversionToDatabaseValue($value)
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
 
         $this->type->convertToDatabaseValue($value, $this->platform);
     }

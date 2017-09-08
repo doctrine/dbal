@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Schema\Platforms;
 
 use Doctrine\DBAL\Schema\Table;
 
-class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
+class MySQLSchemaTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Comparator

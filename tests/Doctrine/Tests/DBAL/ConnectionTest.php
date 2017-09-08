@@ -4,16 +4,18 @@ namespace Doctrine\Tests\DBAL;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Events;
+use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Tests\Mocks\DriverConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
-use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock;
 
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
@@ -64,25 +66,25 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
     public function testCommitWithNoActiveTransaction_ThrowsException()
     {
-        $this->setExpectedException('Doctrine\DBAL\ConnectionException');
+        $this->expectException(ConnectionException::class);
         $this->_conn->commit();
     }
 
     public function testRollbackWithNoActiveTransaction_ThrowsException()
     {
-        $this->setExpectedException('Doctrine\DBAL\ConnectionException');
+        $this->expectException(ConnectionException::class);
         $this->_conn->rollBack();
     }
 
     public function testSetRollbackOnlyNoActiveTransaction_ThrowsException()
     {
-        $this->setExpectedException('Doctrine\DBAL\ConnectionException');
+        $this->expectException(ConnectionException::class);
         $this->_conn->setRollbackOnly();
     }
 
     public function testIsRollbackOnlyNoActiveTransaction_ThrowsException()
     {
-        $this->setExpectedException('Doctrine\DBAL\ConnectionException');
+        $this->expectException(ConnectionException::class);
         $this->_conn->isRollbackOnly();
     }
 
@@ -156,7 +158,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testDriverExceptionIsWrapped($method)
     {
-        $this->setExpectedException('Doctrine\DBAL\DBALException', "An exception occurred while executing 'MUUHAAAAHAAAA':\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
+        $this->expectException(DBALException::class);
+        $this->expectExceptionMessage("An exception occurred while executing 'MUUHAAAAHAAAA':\n\nSQLSTATE[HY000]: General error: 1 near \"MUUHAAAAHAAAA\"");
 
         $con = \Doctrine\DBAL\DriverManager::getConnection(array(
             'driver' => 'pdo_sqlite',
@@ -666,7 +669,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $conn = new Connection(array('pdo' => $pdoMock), $driver);
 
-        $this->setExpectedException('Doctrine\DBAL\Exception\InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $conn->delete('kittens', array());
     }
 

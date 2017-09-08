@@ -6,7 +6,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
-class TableDiffTest extends \PHPUnit_Framework_TestCase
+class TableDiffTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @group DBAL-1013

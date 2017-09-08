@@ -7,7 +7,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets;
 
-class RemoveNamespacedAssetsTest extends \PHPUnit_Framework_TestCase
+class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @group DBAL-204

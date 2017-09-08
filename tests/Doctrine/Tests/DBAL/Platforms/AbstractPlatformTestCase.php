@@ -86,13 +86,13 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGetInvalidForeignKeyReferentialActionSQL()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $this->_platform->getForeignKeyReferentialActionSQL('unknown');
     }
 
     public function testGetUnknownDoctrineMappingType()
     {
-        $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $this->expectException('Doctrine\DBAL\DBALException');
         $this->_platform->getDoctrineTypeMapping('foobar');
     }
 
@@ -104,7 +104,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testRegisterUnknownDoctrineMappingType()
     {
-        $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $this->expectException('Doctrine\DBAL\DBALException');
         $this->_platform->registerDoctrineTypeMapping('foo', 'bar');
     }
 
@@ -155,7 +155,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $table = new Table('test');
 
-        $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $this->expectException('Doctrine\DBAL\DBALException');
         $sql = $this->_platform->getCreateTableSQL($table);
     }
 
@@ -268,7 +268,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
                 $this->_platform->getCreateForeignKeySQL($fk, 'test')
             );
         } else {
-            $this->setExpectedException('Doctrine\DBAL\DBALException');
+            $this->expectException('Doctrine\DBAL\DBALException');
             $this->_platform->getCreateForeignKeySQL($fk, 'test');
         }
     }
@@ -695,7 +695,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $index = new Index('select', array('foo'));
 
         if (! $this->supportsInlineIndexDeclaration()) {
-            $this->setExpectedException('Doctrine\DBAL\DBALException');
+            $this->expectException('Doctrine\DBAL\DBALException');
         }
 
         $this->assertSame(
@@ -1225,7 +1225,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             $this->markTestSkipped(sprintf('%s supports inline column comments.', get_class($this->_platform)));
         }
 
-        $this->setExpectedException(
+        $this->expectException(
             'Doctrine\DBAL\DBALException',
             "Operation 'Doctrine\\DBAL\\Platforms\\AbstractPlatform::getInlineColumnCommentSQL' is not supported by platform.",
             0

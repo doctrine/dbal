@@ -30,7 +30,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->_conn->beginTransaction();
         $this->_conn->setRollbackOnly();
-        $this->setExpectedException('Doctrine\DBAL\ConnectionException');
+
+        $this->expectException(ConnectionException::class);
         $this->_conn->commit();
     }
 
@@ -121,7 +122,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
-        $this->setExpectedException('Doctrine\DBAL\ConnectionException', "Savepoints are not supported by this driver.");
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
 
         $this->_conn->setNestTransactionsWithSavepoints(true);
     }
@@ -132,7 +134,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
-        $this->setExpectedException('Doctrine\DBAL\ConnectionException', "Savepoints are not supported by this driver.");
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
 
         $this->_conn->createSavepoint('foo');
     }
@@ -143,7 +146,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
-        $this->setExpectedException('Doctrine\DBAL\ConnectionException', "Savepoints are not supported by this driver.");
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
 
         $this->_conn->releaseSavepoint('foo');
     }
@@ -154,7 +158,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('This test requires the platform not to support savepoints.');
         }
 
-        $this->setExpectedException('Doctrine\DBAL\ConnectionException', "Savepoints are not supported by this driver.");
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
 
         $this->_conn->rollbackSavepoint('foo');
     }

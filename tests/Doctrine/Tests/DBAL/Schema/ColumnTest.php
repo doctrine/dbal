@@ -5,7 +5,7 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Types\Type;
 
-class ColumnTest extends \PHPUnit_Framework_TestCase
+class ColumnTest extends \PHPUnit\Framework\TestCase
 {
     public function testGet()
     {

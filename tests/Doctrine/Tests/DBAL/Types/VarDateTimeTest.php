@@ -41,7 +41,7 @@ class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
 
     public function testInvalidDateTimeFormatConversion()
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
         $this->_type->convertToPHPValue('abcdefg', $this->_platform);
     }
 

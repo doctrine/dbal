@@ -23,7 +23,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 
-class SingleDatabaseSynchronizerTest extends \PHPUnit_Framework_TestCase
+class SingleDatabaseSynchronizerTest extends \PHPUnit\Framework\TestCase
 {
     private $conn;
     private $synchronizer;

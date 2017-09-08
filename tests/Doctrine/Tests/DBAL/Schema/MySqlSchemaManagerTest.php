@@ -6,7 +6,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 
-class MySqlSchemaManagerTest extends \PHPUnit_Framework_TestCase
+class MySqlSchemaManagerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      *

@@ -7,7 +7,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 
-class SchemaDiffTest extends \PHPUnit_Framework_TestCase
+class SchemaDiffTest extends \PHPUnit\Framework\TestCase
 {
     public function testSchemaDiffToSql()
     {

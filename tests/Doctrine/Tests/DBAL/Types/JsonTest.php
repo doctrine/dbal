@@ -63,7 +63,7 @@ class JsonTest extends \Doctrine\Tests\DbalTestCase
     /** @dataProvider providerFailure */
     public function testConversionFailure($data)
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
         $this->type->convertToPHPValue($data, $this->platform);
     }
 

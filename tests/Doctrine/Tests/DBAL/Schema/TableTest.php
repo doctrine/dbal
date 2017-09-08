@@ -12,7 +12,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 {
     public function testCreateWithInvalidTableName()
     {
-        $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $this->expectException('Doctrine\DBAL\DBALException');
         $table = new \Doctrine\DBAL\Schema\Table('');
     }
 
@@ -85,7 +85,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testGetUnknownColumnThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $table = new Table("foo", array(), array(), array());
         $table->getColumn('unknown');
@@ -93,7 +93,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testAddColumnTwiceThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $type = \Doctrine\DBAL\Types\Type::getType('integer');
         $columns = array();
@@ -156,7 +156,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testGetUnknownIndexThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $table = new Table("foo", array(), array(), array());
         $table->getIndex("unknownIndex");
@@ -164,7 +164,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testAddTwoPrimaryThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $type = \Doctrine\DBAL\Types\Type::getType('integer');
         $columns = array(new Column("foo", $type), new Column("bar", $type));
@@ -177,7 +177,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testAddTwoIndexesWithSameNameThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $type = \Doctrine\DBAL\Types\Type::getType('integer');
         $columns = array(new Column("foo", $type), new Column("bar", $type));
@@ -246,7 +246,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testBuilderAddIndexWithInvalidNameThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $table = new Table("foo");
         $table->addColumn("bar",'integer');
@@ -255,7 +255,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testBuilderAddIndexWithUnknownColumnThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $table = new Table("foo");
         $table->addIndex(array("bar"), "invalidName");
@@ -271,7 +271,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testAddForeignKeyConstraint_UnknownLocalColumn_ThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $table = new Table("foo");
         $table->addColumn("id", 'integer');
@@ -284,7 +284,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
     public function testAddForeignKeyConstraint_UnknownForeignColumn_ThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $table = new Table("foo");
         $table->addColumn("id", 'integer');

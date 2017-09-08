@@ -51,7 +51,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testInvalidIdentifiers($identifier)
     {
-        $this->setExpectedException('Doctrine\DBAL\DBALException');
+        $this->expectException('Doctrine\DBAL\DBALException');
         $platform = $this->createPlatform();
         $platform->assertValidIdentifier($identifier);
     }

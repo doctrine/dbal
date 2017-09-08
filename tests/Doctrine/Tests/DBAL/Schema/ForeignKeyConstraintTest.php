@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 
-class ForeignKeyConstraintTest extends \PHPUnit_Framework_TestCase
+class ForeignKeyConstraintTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @group DBAL-1062

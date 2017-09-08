@@ -21,7 +21,7 @@ namespace Doctrine\Tests\DBAL\Sharding\ShardChoser;
 
 use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
 
-class MultiTenantShardChoserTest extends \PHPUnit_Framework_TestCase
+class MultiTenantShardChoserTest extends \PHPUnit\Framework\TestCase
 {
     public function testPickShard()
     {

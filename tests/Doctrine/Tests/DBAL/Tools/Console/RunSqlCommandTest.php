@@ -7,7 +7,7 @@ use Doctrine\DBAL\Tools\Console\ConsoleRunner;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
+class RunSqlCommandTest extends \PHPUnit\Framework\TestCase
 {
     /** @var CommandTester */
     private $commandTester;

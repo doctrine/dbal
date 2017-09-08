@@ -17,7 +17,7 @@
         "doctrine/common": "^2.7.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^5.4.6",
+        "phpunit/phpunit": "^6.3",
         "phpunit/phpunit-mock-objects": "!=3.2.4,!=3.2.5",
         "symfony/console": "2.*||^3.0"
     },

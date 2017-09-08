@@ -23,7 +23,7 @@ use Doctrine\DBAL\Platforms\SQLAzurePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Sharding\SQLAzure\Schema\MultiTenantVisitor;
 
-class MultiTenantVisitorTest extends \PHPUnit_Framework_TestCase
+class MultiTenantVisitorTest extends \PHPUnit\Framework\TestCase
 {
     public function testMultiTenantPrimaryKey()
     {

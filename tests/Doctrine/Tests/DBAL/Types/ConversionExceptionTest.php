@@ -3,9 +3,8 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\ConversionException;
-use PHPUnit_Framework_TestCase;
 
-class ConversionExceptionTest extends PHPUnit_Framework_TestCase
+class ConversionExceptionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider scalarsProvider

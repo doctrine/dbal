@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\VarDateTimeImmutableType;
 use Doctrine\DBAL\Types\Type;
 
-class VarDateTimeImmutableTypeTest extends \PHPUnit_Framework_TestCase
+class VarDateTimeImmutableTypeTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform|\Prophecy\Prophecy\ObjectProphecy

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Types\Type;
 
-class ColumnDiffTest extends \PHPUnit_Framework_TestCase
+class ColumnDiffTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @group DBAL-1255

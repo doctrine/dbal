@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\DBAL;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\Tests\Mocks\PDOMock;
+
 class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
@@ -82,7 +85,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 
     public function testInvalidWrapperClass()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException(DBALException::class);
 
         $options = array(
             'pdo' => new \PDO('sqlite::memory:'),
@@ -94,7 +97,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 
     public function testInvalidDriverClass()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException(DBALException::class);
 
         $options = array(
             'driverClass' => 'stdClass'
@@ -123,7 +126,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         if ($expected === false) {
-            $this->setExpectedException('Doctrine\DBAL\DBALException');
+            $this->expectException(DBALException::class);
         }
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
@@ -140,7 +143,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 
     public function databaseUrls()
     {
-        $pdoMock = $this->getMock('Doctrine\Tests\Mocks\PDOMock');
+        $pdoMock = $this->createMock(PDOMock::class);
 
         return array(
             'simple URL' => array(

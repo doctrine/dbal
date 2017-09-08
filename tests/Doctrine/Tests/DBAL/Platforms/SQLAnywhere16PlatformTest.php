@@ -63,7 +63,7 @@ class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
 
     public function testThrowsExceptionOnInvalidWithNullsNotDistinctIndexOptions()
     {
-        $this->setExpectedException('UnexpectedValueException');
+        $this->expectException('UnexpectedValueException');
 
         $this->_platform->getCreateIndexSQL(
             new Index(

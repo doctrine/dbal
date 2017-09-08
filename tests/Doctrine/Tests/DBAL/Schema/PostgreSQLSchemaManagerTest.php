@@ -6,7 +6,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 
-class PostgreSQLSchemaManagerTest extends \PHPUnit_Framework_TestCase
+class PostgreSQLSchemaManagerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Doctrine\DBAL\Schema\PostgreSQLSchemaManager

@@ -340,7 +340,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testCannotGeneratePrimaryKeyDeclarationSQLWithEmptyColumns()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getPrimaryKeyDeclarationSQL(new Index('pk', array(), true, true));
     }
@@ -380,7 +380,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testCannotGenerateUniqueConstraintDeclarationSQLWithEmptyColumns()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getUniqueConstraintDeclarationSQL('constr', new Index('constr', array(), true));
     }
@@ -422,39 +422,39 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testCannotGenerateInvalidForeignKeyMatchClauseSQL()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getForeignKeyMatchCLauseSQL(3);
     }
 
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyLocalColumns()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(array(), 'foreign_tbl', array('c', 'd')));
     }
 
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignColumns()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(array('a', 'b'), 'foreign_tbl', array()));
     }
 
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignTableName()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
         $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(array('a', 'b'), '', array('c', 'd')));
     }
 
     public function testCannotGenerateCommonIndexWithCreateConstraintSQL()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getCreateConstraintSQL(new Index('fooindex', array()), new Table('footable'));
     }
 
     public function testCannotGenerateCustomConstraintWithCreateConstraintSQL()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getCreateConstraintSQL($this->createMock('\Doctrine\DBAL\Schema\Constraint'), 'footable');
     }
@@ -478,7 +478,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testDoesNotSupportIndexDeclarationInCreateAlterTableStatements()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException('\Doctrine\DBAL\DBALException');
 
         $this->_platform->getIndexDeclarationSQL('index', new Index('index', array()));
     }
@@ -497,14 +497,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testCannotGenerateDropIndexSQLWithInvalidIndexParameter()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getDropIndexSQL(array('index'), 'table');
     }
 
     public function testCannotGenerateDropIndexSQLWithInvalidTableParameter()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getDropIndexSQL('index', array('table'));
     }
@@ -585,7 +585,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testDoesNotSupportRegexp()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException('\Doctrine\DBAL\DBALException');
 
         $this->_platform->getRegexpExpression();
     }
@@ -628,7 +628,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testCannotGenerateTransactionCommandWithInvalidIsolationLevel()
     {
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException('\InvalidArgumentException');
 
         $this->_platform->getSetTransactionIsolationSQL('invalid_transaction_isolation_level');
     }

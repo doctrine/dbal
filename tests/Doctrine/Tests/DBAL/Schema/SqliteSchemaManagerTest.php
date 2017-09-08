@@ -5,7 +5,7 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
-class SqliteSchemaManagerTest extends \PHPUnit_Framework_TestCase
+class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
 {
 
     /**

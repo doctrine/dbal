@@ -72,7 +72,7 @@ SQLDATA
             array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
             array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
             array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
-            
+
         );
     }
 
@@ -419,7 +419,7 @@ SQLDATA
      */
     public function testExceptionIsThrownForMissingParam($query, $params, $types = array())
     {
-        $this->setExpectedException(
+        $this->expectException(
             'Doctrine\DBAL\SQLParserUtilsException',
             'Value for :param not found in params array. Params array key should be "param"'
         );

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 
-class SchemaTest extends \PHPUnit_Framework_TestCase
+class SchemaTest extends \PHPUnit\Framework\TestCase
 {
     public function testAddTable()
     {
@@ -39,7 +39,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUnknownTableThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $schema = new Schema();
         $schema->getTable("unknown");
@@ -47,7 +47,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateTableTwiceThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $tableName = "foo";
         $table = new Table($tableName);
@@ -124,7 +124,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUnknownSequenceThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $schema = new Schema();
         $schema->getSequence("unknown");
@@ -158,7 +158,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
 
     public function testAddSequenceTwiceThrowsException()
     {
-        $this->setExpectedException("Doctrine\DBAL\Schema\SchemaException");
+        $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $sequence = new Sequence("a_seq", 1, 1);
 

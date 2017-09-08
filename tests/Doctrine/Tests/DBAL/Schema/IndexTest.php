@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Index;
 
-class IndexTest extends \PHPUnit_Framework_TestCase
+class IndexTest extends \PHPUnit\Framework\TestCase
 {
     public function createIndex($unique = false, $primary = false, $options = array())
     {

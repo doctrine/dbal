@@ -36,7 +36,7 @@ class DateTimeTzTest extends BaseDateTypeTestCase
 
     public function testInvalidDateFormatConversion()
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 }

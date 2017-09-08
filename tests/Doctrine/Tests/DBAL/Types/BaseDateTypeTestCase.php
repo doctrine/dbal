@@ -3,9 +3,8 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
-use PHPUnit_Framework_TestCase;
 
-abstract class BaseDateTypeTestCase extends PHPUnit_Framework_TestCase
+abstract class BaseDateTypeTestCase extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var MockPlatform
@@ -53,7 +52,7 @@ abstract class BaseDateTypeTestCase extends PHPUnit_Framework_TestCase
      */
     public function testInvalidTypeConversionToDatabaseValue($value)
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
 
         $this->type->convertToDatabaseValue($value, $this->platform);
     }

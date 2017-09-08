@@ -31,7 +31,7 @@ class TimeTest extends BaseDateTypeTestCase
 
     public function testInvalidTimeFormatConversion()
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 }
