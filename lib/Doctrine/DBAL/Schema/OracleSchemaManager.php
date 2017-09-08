@@ -43,20 +43,30 @@ class OracleSchemaManager extends AbstractSchemaManager
         $tableNames = $this->listTableNames();
 
         // Get all column definitions in one database call.
-        $columnsByTable = $this->getNestedArrayByTableName($this->_conn->fetchAll($this->_platform->getListAllColumnsSQL($currentDatabase)));
+        $columnsByTable = $this->getAssetRecordsByTable($this->_platform->getListAllColumnsSQL($currentDatabase));
 
         // Get all foreign keys definitions in one database call.
-        $foreignKeysByTable = $this->getNestedArrayByTableName($this->_conn->fetchAll($this->_platform->getListAllForeignKeysSQL($currentDatabase)));
+        $foreignKeysByTable = $this->getAssetRecordsByTable($this->_platform->getListAllForeignKeysSQL($currentDatabase));
 
         // Get all indexes definitions in one database call.
-        $indexesByTable = $this->getNestedArrayByTableName($this->_conn->fetchAll($this->_platform->getListAllIndexesSQL($currentDatabase)));
+        $indexesByTable = $this->getAssetRecordsByTable($this->_platform->getListAllIndexesSQL($currentDatabase));
 
         $tables = [];
         foreach ($tableNames as $tableName) {
             $unquotedTableName = trim($tableName, '"');
+
             $columns = $this->_getPortableTableColumnList($tableName, null, $columnsByTable[$unquotedTableName]);
-            $foreignKeys = $this->_getPortableTableForeignKeysList(isset($foreignKeysByTable[$unquotedTableName]) ? $foreignKeysByTable[$unquotedTableName] : []);
-            $indexes = $this->_getPortableTableIndexesList(isset($indexesByTable[$unquotedTableName]) ? $indexesByTable[$unquotedTableName] : [], $tableName);
+
+            $foreignKeys = [];
+            if (isset($foreignKeysByTable[$unquotedTableName])) {
+                $foreignKeys = $this->_getPortableTableForeignKeysList($foreignKeysByTable[$unquotedTableName]);
+            }
+
+            $indexes = [];
+            if (isset($indexesByTable[$unquotedTableName])) {
+                $indexes = $this->_getPortableTableIndexesList($indexesByTable[$unquotedTableName], $tableName);
+            }
+
             $tables[] = new Table($tableName, $columns, $indexes, $foreignKeys, false, []);
         }
 
@@ -64,16 +74,17 @@ class OracleSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * Helper method to group a set of records by the table name.
+     * Helper method to group a set of asset records by the table name.
      *
-     * @param array $input A recordset of database information with a
-     *                     TABLE_NAME field present.
+     * @param string $sql An SQL statement to be executed, that contains a
+     *                    TABLE_NAME field for grouping.
      *
      * @return array An associative array with key being the table name, and
      *               value a simple array of records associated with the table.
      */
-    private function getNestedArrayByTableName(array $input): array
+    private function getAssetRecordsByTable(string $sql): array
     {
+        $input = $this->_conn->fetchAll($sql);
         $output = [];
         foreach ($input as $record) {
             $output[$record['TABLE_NAME']][] = $record;
