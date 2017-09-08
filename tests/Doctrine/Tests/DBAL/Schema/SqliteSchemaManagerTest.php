@@ -7,7 +7,6 @@ use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
 class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
 {
-
     /**
      * @dataProvider getDataColumnCollation
      */

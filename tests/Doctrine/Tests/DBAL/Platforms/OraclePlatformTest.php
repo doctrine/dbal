@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
@@ -13,17 +14,17 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 {
     public static function dataValidIdentifiers()
     {
-        return array(
-            array('a'),
-            array('foo'),
-            array('Foo'),
-            array('Foo123'),
-            array('Foo#bar_baz$'),
-            array('"a"'),
-            array('"1"'),
-            array('"foo_bar"'),
-            array('"@$%&!"'),
-        );
+        return [
+            ['a'],
+            ['foo'],
+            ['Foo'],
+            ['Foo123'],
+            ['Foo#bar_baz$'],
+            ['"a"'],
+            ['"1"'],
+            ['"foo_bar"'],
+            ['"@$%&!"'],
+        ];
     }
 
     /**
@@ -33,17 +34,19 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $platform = $this->createPlatform();
         $platform->assertValidIdentifier($identifier);
+
+        $this->addToAssertionCount(1);
     }
 
     public static function dataInvalidIdentifiers()
     {
-        return array(
-            array('1'),
-            array('abc&'),
-            array('abc-def'),
-            array('"'),
-            array('"foo"bar"'),
-        );
+        return [
+            ['1'],
+            ['abc&'],
+            ['abc-def'],
+            ['"'],
+            ['"foo"bar"'],
+        ];
     }
 
     /**
@@ -51,7 +54,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testInvalidIdentifiers($identifier)
     {
-        $this->expectException('Doctrine\DBAL\DBALException');
+        $this->expectException(DBALException::class);
+
         $platform = $this->createPlatform();
         $platform->assertValidIdentifier($identifier);
     }

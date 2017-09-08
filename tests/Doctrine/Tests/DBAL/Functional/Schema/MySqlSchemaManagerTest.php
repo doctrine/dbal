@@ -24,7 +24,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableOld = new Table("switch_primary_key_columns");
         $tableOld->addColumn('foo_id', 'integer');
         $tableOld->addColumn('bar_id', 'integer');
-        $tableNew = clone $tableOld;
 
         $this->_sm->createTable($tableOld);
         $tableFetched = $this->_sm->listTableDetails("switch_primary_key_columns");
@@ -33,6 +32,13 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator;
         $this->_sm->alterTable($comparator->diffTable($tableFetched, $tableNew));
+
+        $table      = $this->_sm->listTableDetails('switch_primary_key_columns');
+        $primaryKey = $table->getPrimaryKeyColumns();
+
+        self::assertCount(2, $primaryKey);
+        self::assertContains('bar_id', $primaryKey);
+        self::assertContains('foo_id', $primaryKey);
     }
 
     public function testDiffTableBug()

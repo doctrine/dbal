@@ -771,9 +771,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testEmptyFetchColumnReturnsFalse()
     {
+        $this->_conn->beginTransaction();
         $this->_conn->exec('DELETE FROM fetch_table');
         $this->assertFalse($this->_conn->fetchColumn('SELECT test_int FROM fetch_table'));
         $this->assertFalse($this->_conn->query('SELECT test_int FROM fetch_table')->fetchColumn());
+        $this->_conn->rollBack();
     }
 
     /**
@@ -785,10 +787,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $this->_conn->executeQuery($sql, array(1, "foo"));
         $stmt->setFetchMode(\PDO::FETCH_NUM);
 
-        while ($row = $stmt->fetch()) {
-            $this->assertTrue(isset($row[0]));
-            $this->assertTrue(isset($row[1]));
-        }
+        $row = $stmt->fetch();
+
+        self::assertArrayHasKey(0, $row);
+        self::assertArrayHasKey(1, $row);
+        self::assertFalse($stmt->fetch());
     }
 
     /**
@@ -810,11 +813,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->_conn->executeUpdate(
             'INSERT INTO fetch_table (test_int, test_string) VALUES (?, ?)',
-            array(1, 'foo')
+            array(2, 'foo')
         );
 
         $this->assertNull(
-            $this->_conn->fetchColumn('SELECT test_datetime FROM fetch_table WHERE test_int = ?', array(1))
+            $this->_conn->fetchColumn('SELECT test_datetime FROM fetch_table WHERE test_int = ?', array(2))
         );
     }
 

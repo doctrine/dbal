@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Schema;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
@@ -12,8 +13,9 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 {
     public function testCreateWithInvalidTableName()
     {
-        $this->expectException('Doctrine\DBAL\DBALException');
-        $table = new \Doctrine\DBAL\Schema\Table('');
+        $this->expectException(DBALException::class);
+
+        new \Doctrine\DBAL\Schema\Table('');
     }
 
     public function testGetName()
@@ -601,7 +603,9 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table = new Table("test");
         $table->addColumn('"foo"', 'integer');
         $table->addColumn('bar', 'integer');
-        $table->addIndex(array('"foo"', '"bar"'));
+        $table->addIndex(['"foo"', '"bar"']);
+
+        self::assertTrue($table->columnsAreIndexed(['"foo"', '"bar"']));
     }
 
     /**
@@ -612,7 +616,9 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table = new Table("test");
         $table->addColumn('"foo"', 'integer');
         $table->addColumn('bar', 'integer');
-        $table->addForeignKeyConstraint('"boing"', array('"foo"', '"bar"'), array("id"));
+        $table->addForeignKeyConstraint('"boing"', ['"foo"', '"bar"'], ["id"]);
+
+        self::assertCount(1, $table->getForeignKeys());
     }
 
     /**

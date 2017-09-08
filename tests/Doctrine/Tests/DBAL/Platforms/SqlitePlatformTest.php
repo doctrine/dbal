@@ -336,25 +336,29 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $this->assertEquals($expected, $this->_platform->getAlterTableSQL($diff));
     }
 
-    public function testAlterTableAddComplexColumns()
+    /**
+     * @dataProvider complexDiffProvider
+     */
+    public function testAlterTableAddComplexColumns(TableDiff $diff) : void
     {
-        $diff = new TableDiff('user');
-        $diff->addedColumns['time'] = new Column('time', Type::getType('date'), array('default' => 'CURRENT_DATE'));
+        $this->expectException(DBALException::class);
 
-        try {
-            $this->_platform->getAlterTableSQL($diff);
-            $this->fail();
-        } catch (DBALException $e) {
-        }
+        $this->_platform->getAlterTableSQL($diff);
+    }
 
-        $diff = new TableDiff('user');
-        $diff->addedColumns['id'] = new Column('id', Type::getType('integer'), array('autoincrement' => true));
+    public function complexDiffProvider() : array
+    {
+        $date = new TableDiff('user');
+        $date->addedColumns['time'] = new Column('time', Type::getType('date'), array('default' => 'CURRENT_DATE'));
 
-        try {
-            $this->_platform->getAlterTableSQL($diff);
-            $this->fail();
-        } catch (DBALException $e) {
-        }
+
+        $id = new TableDiff('user');
+        $id->addedColumns['id'] = new Column('id', Type::getType('integer'), array('autoincrement' => true));
+
+        return [
+            'date column with default value' => [$date],
+            'id column with auto increment'  => [$id],
+        ];
     }
 
     public function testCreateTableWithDeferredForeignKeys()

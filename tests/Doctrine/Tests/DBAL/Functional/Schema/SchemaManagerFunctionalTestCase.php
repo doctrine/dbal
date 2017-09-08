@@ -83,12 +83,27 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     public function testDropAndCreateSequence()
     {
-        if(!$this->_conn->getDatabasePlatform()->supportsSequences()) {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsSequences()) {
             $this->markTestSkipped($this->_conn->getDriver()->getName().' does not support sequences.');
         }
 
-        $sequence = new \Doctrine\DBAL\Schema\Sequence('dropcreate_sequences_test_seq', 20, 10);
-        $this->_sm->dropAndCreateSequence($sequence);
+        $name = 'dropcreate_sequences_test_seq';
+
+        $this->_sm->dropAndCreateSequence(new \Doctrine\DBAL\Schema\Sequence($name, 20, 10));
+
+        self::assertTrue($this->hasElementWithName($this->_sm->listSequences(), $name));
+    }
+
+    private function hasElementWithName(array $items, string $name) : bool
+    {
+        $filteredList = array_filter(
+            $items,
+            function (\Doctrine\DBAL\Schema\AbstractAsset $item) use ($name) : bool {
+                return $item->getShortestName($item->getNamespaceName()) === $name;
+            }
+        );
+
+        return count($filteredList) === 1;
     }
 
     public function testListSequences()
@@ -569,7 +584,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->_sm->dropAndCreateView($view);
 
-        $views = $this->_sm->listViews();
+        self::assertTrue($this->hasElementWithName($this->_sm->listViews(), $name));
     }
 
     public function testAutoincrementDetection()
@@ -648,6 +663,13 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $tableDiff = $c->diffTable($tableFK, $tableFKNew);
 
         $this->_sm->alterTable($tableDiff);
+
+        $table       = $this->_sm->listTableDetails('test_fk_rename');
+        $foreignKeys = $table->getForeignKeys();
+
+        self::assertTrue($table->hasColumn('rename_fk_id'));
+        self::assertCount(1, $foreignKeys);
+        self::assertSame(['rename_fk_id'], array_map('strtolower', current($foreignKeys)->getColumns()));
     }
 
     /**
@@ -830,12 +852,17 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     public function testListTableWithBlob()
     {
         $table = new Table('test_blob_table');
-        $table->addColumn('id', 'integer', array('comment' => 'This is a comment'));
-        $table->addColumn('binarydata', 'blob', array());
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('id', 'integer', ['comment' => 'This is a comment']);
+        $table->addColumn('binarydata', 'blob', []);
+        $table->setPrimaryKey(['id']);
 
         $this->_sm->createTable($table);
-        $this->_sm->listTableDetails('test_blob_table');
+
+        $created = $this->_sm->listTableDetails('test_blob_table');
+
+        self::assertTrue($created->hasColumn('id'));
+        self::assertTrue($created->hasColumn('binarydata'));
+        self::assertTrue($created->hasPrimaryKey());
     }
 
     /**
