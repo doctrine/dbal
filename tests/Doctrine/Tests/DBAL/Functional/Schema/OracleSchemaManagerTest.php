@@ -2,29 +2,13 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
-use Doctrine\DBAL\Schema\Comparator;
-use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\TestUtil;
 
 class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    /**
-     * Number of SQL queries expected to be executed by createSchema.
-     *
-     * For Oracle, we expect 5 queries:
-     *   1. fetch sequences
-     *   2. fetch tables
-     *   3. fetch all columns
-     *   4. fetch all foreign keys
-     *   5. fetch all indexes
-     *
-     * @var int
-     */
-    protected $expectedQueryCountToCreateSchema = 5;
-
     protected function setUp()
     {
         parent::setUp();
@@ -58,7 +42,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $tableName = 'test_binary_table';
 
-        $table = new Table($tableName);
+        $table = new \Doctrine\DBAL\Schema\Table($tableName);
         $table->addColumn('id', 'integer');
         $table->addColumn('column_varbinary', 'binary', array());
         $table->addColumn('column_binary', 'binary', array('fixed' => true));
@@ -81,9 +65,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testAlterTableColumnNotNull()
     {
-        $comparator = new Comparator();
+        $comparator = new Schema\Comparator();
         $tableName  = 'list_table_column_notnull';
-        $table      = new Table($tableName);
+        $table      = new Schema\Table($tableName);
 
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
@@ -130,7 +114,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableDetailsWithDifferentIdentifierQuotingRequirements()
     {
         $primaryTableName = '"Primary_Table"';
-        $offlinePrimaryTable = new Table($primaryTableName);
+        $offlinePrimaryTable = new Schema\Table($primaryTableName);
         $offlinePrimaryTable->addColumn(
             '"Id"',
             'integer',
@@ -147,7 +131,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlinePrimaryTable->setPrimaryKey(array('"Id"'));
 
         $foreignTableName = 'foreign';
-        $offlineForeignTable = new Table($foreignTableName);
+        $offlineForeignTable = new Schema\Table($foreignTableName);
         $offlineForeignTable->addColumn('id', 'integer', array('autoincrement' => true));
         $offlineForeignTable->addColumn('"Fk"', 'integer');
         $offlineForeignTable->addIndex(array('"Fk"'), '"Fk_index"');
@@ -261,7 +245,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         // Adding a primary key on already indexed columns
         // Oracle will reuse the unique index, which cause a constraint name differing from the index name
-        $this->_sm->createConstraint(new Index('id_pk_id_index', array('id'), true, true), 'list_table_indexes_pk_id_test');
+        $this->_sm->createConstraint(new Schema\Index('id_pk_id_index', array('id'), true, true), 'list_table_indexes_pk_id_test');
 
         $tableIndexes = $this->_sm->listTableIndexes('list_table_indexes_pk_id_test');
 
@@ -291,88 +275,28 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
-     * {@inheritdoc}
+     * @group DBAL-2766
      */
-    protected function createLargeNumberOfTables(): int
+    public function testCreateSchemaNumberOfQueriesInvariable(): void
     {
-        // Create a base table for test.
-        $sql = "CREATE TABLE tbl_test_2766_0 (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, PRIMARY KEY(x_id))";
-        $this->_conn->executeUpdate($sql);
+        // Introspect the db schema.
+        $preCount = $this->_sqlLoggerStack->currentQuery;
+        $schema = $this->_sm->createSchema();
+        $firstQueryCount = $this->_sqlLoggerStack->currentQuery - $preCount;
 
-        // Create a large number of tables with indexes and foreign keys.
-        for ($i = 1; $i < 649; $i++) {
-            $sql = "CREATE TABLE tbl_test_2766_$i (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT tbl_test_2766_fk_$i FOREIGN KEY (x_parent_id) REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(x_id))";
-            $this->_conn->executeUpdate($sql);
-            $sql = "CREATE UNIQUE INDEX tbl_test_2766_uix_$i ON tbl_test_2766_$i (x_number)";
-            $this->_conn->executeUpdate($sql);
-        }
+        // Create a couple of additional tables.
+        $this->_conn->executeUpdate("CREATE TABLE tbl_test_2766_0 (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, PRIMARY KEY(x_id))");
+        $this->_conn->executeUpdate("CREATE TABLE tbl_test_2766_1 (x_id VARCHAR2(255) DEFAULT 'x' NOT NULL, x_data CLOB DEFAULT NULL NULL, x_number NUMBER(10) DEFAULT 0 NOT NULL, x_parent_id VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT tbl_test_2766_fk_1 FOREIGN KEY (x_parent_id) REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(x_id))");
+        $this->_conn->executeUpdate("CREATE UNIQUE INDEX tbl_test_2766_uix_1 ON tbl_test_2766_1 (x_number)");
 
-        // Create a table with quoted identifiers.
-        $sql = "CREATE TABLE \"tbl_testQ_2766_649\" (\"Q_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, \"Q_data\" CLOB DEFAULT NULL NULL, \"Q_number\" NUMBER(10) DEFAULT 0 NOT NULL, \"Q_parent_id\" VARCHAR2(255) DEFAULT 'x' NOT NULL, CONSTRAINT \"tbl_testQ_2766_fk_649\"  FOREIGN KEY (\"Q_parent_id\") REFERENCES tbl_test_2766_0(x_id), PRIMARY KEY(\"Q_id\"))";
-        $this->_conn->executeUpdate($sql);
-        $sql = "CREATE UNIQUE INDEX \"tbl_testQ_2766_uix_649\" ON \"tbl_testQ_2766_649\" (\"Q_number\")";
-        $this->_conn->executeUpdate($sql);
+        // Introspect the db schema again.
+        $preCount = $this->_sqlLoggerStack->currentQuery;
+        $schema = $this->_sm->createSchema();
+        $secondQueryCount = $this->_sqlLoggerStack->currentQuery - $preCount;
 
-        return 650;
+        // The number of queries needed to execute createSchema should be the
+        // same regardless of additional tables added.
+        $this->assertEquals($firstQueryCount, $secondQueryCount);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function checkLargeNumberOfTables(Schema $schema): void
-    {
-        // Check base table schema.
-        $testTable = 'tbl_test_2766_0';
-        $this->assertTrue($schema->hasTable($testTable));
-        $this->assertSame(['X_ID', 'X_DATA', 'X_NUMBER'], $this->resolveAssetsNames($schema->getTable($testTable)->getColumns()));
-        $this->assertTrue($schema->getTable($testTable)->hasPrimaryKey());
-        $this->assertSame(['X_ID'], $schema->getTable($testTable)->getPrimaryKey()->getColumns());
-
-        // Check arbitrary table schema.
-        $testTable = 'TBL_TEST_2766_10';
-        $this->assertTrue($schema->hasTable($testTable));
-        $this->assertSame(['X_ID', 'X_DATA', 'X_NUMBER', 'X_PARENT_ID'], $this->resolveAssetsNames($schema->getTable($testTable)->getColumns()));
-        $this->assertTrue($schema->getTable($testTable)->hasPrimaryKey());
-        $this->assertSame(['X_ID'], $schema->getTable($testTable)->getPrimaryKey()->getColumns());
-        $this->assertSame(['X_NUMBER'], $schema->getTable($testTable)->getIndex('tbl_test_2766_uix_10')->getColumns());
-        $testForeignKey = 'TBL_TEST_2766_FK_10';
-        $this->assertSame([$testForeignKey], $this->resolveAssetsNames($schema->getTable($testTable)->getForeignKeys()));
-        $this->assertSame($testTable, $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalTable()->getQuotedName($this->_conn->getDatabasePlatform()));
-        $this->assertSame(['X_PARENT_ID'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalColumns());
-        $this->assertSame('TBL_TEST_2766_0', $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignTableName());
-        $this->assertSame(['X_ID'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignColumns());
-
-        // Check table schema with quoted identifiers.
-        $testTable = '"tbl_testQ_2766_649"';
-        $this->assertTrue($schema->hasTable($testTable));
-        $this->assertSame(['"Q_id"', '"Q_data"', '"Q_number"', '"Q_parent_id"'], $this->resolveAssetsNames($schema->getTable($testTable)->getColumns()));
-        $this->assertTrue($schema->getTable($testTable)->hasPrimaryKey());
-        $this->assertSame(['"Q_id"'], $schema->getTable($testTable)->getPrimaryKey()->getColumns());
-        $this->assertSame(['"Q_number"'], $schema->getTable($testTable)->getIndex('"tbl_testQ_2766_uix_649"')->getColumns());
-        $testForeignKey = '"tbl_testQ_2766_fk_649"';
-        $this->assertSame([$testForeignKey], $this->resolveAssetsNames($schema->getTable($testTable)->getForeignKeys()));
-        $this->assertSame($testTable, $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalTable()->getQuotedName($this->_conn->getDatabasePlatform()));
-        $this->assertSame(['"Q_parent_id"'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getLocalColumns());
-        $this->assertSame('TBL_TEST_2766_0', $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignTableName());
-        $this->assertSame(['X_ID'], $schema->getTable($testTable)->getForeignKey($testForeignKey)->getForeignColumns());
-    }
-
-    /**
-     * Returs an array of quoted names for an array of assets.
-     *
-     * @param \Doctrine\DBAL\Schema\AbstractAsset[] The assets for which to find the quoted name.
-     *
-     * @return string[] The corresponding array of quoted asset names.
-     */
-    private function resolveAssetsNames(array $assets): array
-    {
-        $ret = [];
-
-        foreach ($assets as $asset) {
-            $ret[] = $asset->getQuotedName($this->_conn->getDatabasePlatform());
-        }
-
-        return $ret;
-    }
-
-}
+ }

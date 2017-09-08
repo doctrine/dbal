@@ -1167,41 +1167,4 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->assertArrayHasKey('idx_3d6c147fdc58d6c', $indexes);
     }
 
-    public function testCreateSchemaOnLargeNumberOfTables(): void
-    {
-        $numberOfTablesCreated = $this->createLargeNumberOfTables();
-
-        // Introspect the db schema.
-        $preCreateSchemaQueryCount = $this->_sqlLoggerStack->currentQuery;
-        $schema = $this->_sm->createSchema();
-        $postCreateSchemaQueryCount = $this->_sqlLoggerStack->currentQuery;
-
-        $this->assertEquals($this->expectedQueryCountToCreateSchema, $postCreateSchemaQueryCount - $preCreateSchemaQueryCount);
-        $this->assertGreaterThanOrEqual($numberOfTablesCreated, count($schema->getTables()));
-        $this->checkLargeNumberOfTables($schema);
-    }
-
-    /**
-     * Create a large number of tables with specific database syntax.
-     *
-     * @return int The number of tables created.
-     *
-     * @see ::testCreateSchemaOnLargeNumberOfTables
-     */
-    protected function createLargeNumberOfTables(): int
-    {
-        $this->markTestIncomplete("Test not implemented for '{$this->_sm->getDatabasePlatform()->getName()}'");
-    }
-
-    /**
-     * Checks schema against a large number of tables created.
-     *
-     * @param \Doctrine\DBAL\Schema\Schema The schema created from the database.
-     *
-     * @see ::testCreateSchemaOnLargeNumberOfTables
-     */
-    protected function checkLargeNumberOfTables(Schema $schema): void
-    {
-        $this->markTestIncomplete("Test not implemented for '{$this->_sm->getDatabasePlatform()->getName()}'");
-    }
 }
