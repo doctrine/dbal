@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Types\Type;
 
 class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
 {
@@ -58,4 +59,17 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
         );
     }
 
+    public function testGetDefaultValueDeclarationSQLForDateType()
+    {
+        $currentDateSql = $this->_platform->getCurrentDateSQL();
+        $field = array(
+            'type'    => Type::getType('date'),
+            'default' => $currentDateSql,
+        );
+
+        $this->assertEquals(
+            " DEFAULT '".$currentDateSql."'",
+            $this->_platform->getDefaultValueDeclarationSQL($field)
+        );
+    }
 }
