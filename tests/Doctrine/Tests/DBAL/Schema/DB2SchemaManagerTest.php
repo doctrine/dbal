@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\DB2SchemaManager;
 /**
  * @covers \Doctrine\DBAL\Schema\DB2SchemaManager
  */
-final class DB2SchemaManagerTest extends \PHPUnit_Framework_TestCase
+final class DB2SchemaManagerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Connection|\PHPUnit_Framework_MockObject_MockObject
@@ -60,7 +60,7 @@ final class DB2SchemaManagerTest extends \PHPUnit_Framework_TestCase
             ],
         ]));
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'FOO',
                 'BAR',

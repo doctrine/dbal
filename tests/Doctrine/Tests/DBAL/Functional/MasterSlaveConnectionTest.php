@@ -53,11 +53,11 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         $conn = $this->createMasterSlaveConnection();
 
-        $this->assertFalse($conn->isConnectedToMaster());
+        self::assertFalse($conn->isConnectedToMaster());
         $conn->connect('slave');
-        $this->assertFalse($conn->isConnectedToMaster());
+        self::assertFalse($conn->isConnectedToMaster());
         $conn->connect('master');
-        $this->assertTrue($conn->isConnectedToMaster());
+        self::assertTrue($conn->isConnectedToMaster());
     }
 
     public function testNoMasterOnExecuteQuery()
@@ -68,8 +68,8 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $data = $conn->fetchAll($sql);
         $data[0] = array_change_key_case($data[0], CASE_LOWER);
 
-        $this->assertEquals(1, $data[0]['num']);
-        $this->assertFalse($conn->isConnectedToMaster());
+        self::assertEquals(1, $data[0]['num']);
+        self::assertFalse($conn->isConnectedToMaster());
     }
 
     public function testMasterOnWriteOperation()
@@ -77,14 +77,14 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn = $this->createMasterSlaveConnection();
         $conn->insert('master_slave_table', array('test_int' => 30));
 
-        $this->assertTrue($conn->isConnectedToMaster());
+        self::assertTrue($conn->isConnectedToMaster());
 
         $sql = "SELECT count(*) as num FROM master_slave_table";
         $data = $conn->fetchAll($sql);
         $data[0] = array_change_key_case($data[0], CASE_LOWER);
 
-        $this->assertEquals(2, $data[0]['num']);
-        $this->assertTrue($conn->isConnectedToMaster());
+        self::assertEquals(2, $data[0]['num']);
+        self::assertTrue($conn->isConnectedToMaster());
     }
 
     /**
@@ -99,13 +99,13 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn->insert('master_slave_table', array('test_int' => 30));
         $conn->commit();
 
-        $this->assertTrue($conn->isConnectedToMaster());
+        self::assertTrue($conn->isConnectedToMaster());
 
         $conn->connect();
-        $this->assertTrue($conn->isConnectedToMaster());
+        self::assertTrue($conn->isConnectedToMaster());
 
         $conn->connect('slave');
-        $this->assertFalse($conn->isConnectedToMaster());
+        self::assertFalse($conn->isConnectedToMaster());
     }
 
     /**
@@ -118,25 +118,25 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
         $conn->insert('master_slave_table', array('test_int' => 30));
 
-        $this->assertTrue($conn->isConnectedToMaster());
+        self::assertTrue($conn->isConnectedToMaster());
 
         $conn->connect();
-        $this->assertTrue($conn->isConnectedToMaster());
+        self::assertTrue($conn->isConnectedToMaster());
 
         $conn->connect('slave');
-        $this->assertFalse($conn->isConnectedToMaster());
+        self::assertFalse($conn->isConnectedToMaster());
     }
 
     public function testMasterSlaveConnectionCloseAndReconnect()
     {
         $conn = $this->createMasterSlaveConnection();
         $conn->connect('master');
-        $this->assertTrue($conn->isConnectedToMaster());
+        self::assertTrue($conn->isConnectedToMaster());
 
         $conn->close();
-        $this->assertFalse($conn->isConnectedToMaster());
+        self::assertFalse($conn->isConnectedToMaster());
 
         $conn->connect('master');
-        $this->assertTrue($conn->isConnectedToMaster());
+        self::assertTrue($conn->isConnectedToMaster());
     }
 }

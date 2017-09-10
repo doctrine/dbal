@@ -7,7 +7,7 @@ use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 /**
  * @group DBAL-461
  */
-class DBAL461Test extends \PHPUnit_Framework_TestCase
+class DBAL461Test extends \PHPUnit\Framework\TestCase
 {
     public function testIssue()
     {
@@ -31,6 +31,6 @@ class DBAL461Test extends \PHPUnit_Framework_TestCase
             'comment' => null,
         ));
 
-        $this->assertEquals('Decimal', (string)$column->getType());
+        self::assertEquals('Decimal', (string)$column->getType());
     }
 }

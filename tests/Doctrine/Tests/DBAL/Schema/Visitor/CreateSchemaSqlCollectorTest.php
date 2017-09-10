@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use \Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 
-class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
+class CreateSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform|\PHPUnit_Framework_MockObject_MockObject
@@ -56,11 +56,11 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
         $this->visitor->acceptNamespace('foo');
 
-        $this->assertEmpty($this->visitor->getQueries());
+        self::assertEmpty($this->visitor->getQueries());
 
         $this->visitor->acceptNamespace('foo');
 
-        $this->assertSame(array('foo'), $this->visitor->getQueries());
+        self::assertSame(array('foo'), $this->visitor->getQueries());
     }
 
     public function testAcceptsTable()
@@ -69,7 +69,7 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
         $this->visitor->acceptTable($table);
 
-        $this->assertSame(array('foo'), $this->visitor->getQueries());
+        self::assertSame(array('foo'), $this->visitor->getQueries());
     }
 
     public function testAcceptsForeignKey()
@@ -87,11 +87,11 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
         $this->visitor->acceptForeignKey($table, $foreignKey);
 
-        $this->assertEmpty($this->visitor->getQueries());
+        self::assertEmpty($this->visitor->getQueries());
 
         $this->visitor->acceptForeignKey($table, $foreignKey);
 
-        $this->assertSame(array('foo'), $this->visitor->getQueries());
+        self::assertSame(array('foo'), $this->visitor->getQueries());
     }
 
     public function testAcceptsSequences()
@@ -100,7 +100,7 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
         $this->visitor->acceptSequence($sequence);
 
-        $this->assertSame(array('foo'), $this->visitor->getQueries());
+        self::assertSame(array('foo'), $this->visitor->getQueries());
     }
 
     public function testResetsQueries()
@@ -120,11 +120,11 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
         $this->visitor->acceptForeignKey($table, $foreignKey);
         $this->visitor->acceptSequence($sequence);
 
-        $this->assertNotEmpty($this->visitor->getQueries());
+        self::assertNotEmpty($this->visitor->getQueries());
 
         $this->visitor->resetQueries();
 
-        $this->assertEmpty($this->visitor->getQueries());
+        self::assertEmpty($this->visitor->getQueries());
     }
 
     /**

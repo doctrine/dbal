@@ -32,6 +32,6 @@ class DBAL510Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $comparator = new Comparator();
         $diff = $comparator->diffTable($onlineTable, $table);
 
-        $this->assertFalse($diff);
+        self::assertFalse($diff);
     }
 }

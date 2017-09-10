@@ -9,7 +9,7 @@ class DriverTest extends AbstractSQLAnywhereDriverTest
 {
     public function testReturnsName()
     {
-        $this->assertSame('sqlanywhere', $this->driver->getName());
+        self::assertSame('sqlanywhere', $this->driver->getName());
     }
 
     protected function createDriver()

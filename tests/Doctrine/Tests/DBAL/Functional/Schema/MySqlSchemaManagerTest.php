@@ -24,7 +24,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableOld = new Table("switch_primary_key_columns");
         $tableOld->addColumn('foo_id', 'integer');
         $tableOld->addColumn('bar_id', 'integer');
-        $tableNew = clone $tableOld;
 
         $this->_sm->createTable($tableOld);
         $tableFetched = $this->_sm->listTableDetails("switch_primary_key_columns");
@@ -33,6 +32,13 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator;
         $this->_sm->alterTable($comparator->diffTable($tableFetched, $tableNew));
+
+        $table      = $this->_sm->listTableDetails('switch_primary_key_columns');
+        $primaryKey = $table->getPrimaryKeyColumns();
+
+        self::assertCount(2, $primaryKey);
+        self::assertContains('bar_id', $primaryKey);
+        self::assertContains('foo_id', $primaryKey);
     }
 
     public function testDiffTableBug()
@@ -55,7 +61,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator;
         $diff = $comparator->diffTable($tableFetched, $table);
 
-        $this->assertFalse($diff, "no changes expected.");
+        self::assertFalse($diff, "no changes expected.");
     }
 
     public function testFulltextIndex()
@@ -71,8 +77,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->dropAndCreateTable($table);
 
         $indexes = $this->_sm->listTableIndexes('fulltext_index');
-        $this->assertArrayHasKey('f_index', $indexes);
-        $this->assertTrue($indexes['f_index']->hasFlag('fulltext'));
+        self::assertArrayHasKey('f_index', $indexes);
+        self::assertTrue($indexes['f_index']->hasFlag('fulltext'));
     }
 
     public function testSpatialIndex()
@@ -88,8 +94,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->dropAndCreateTable($table);
 
         $indexes = $this->_sm->listTableIndexes('spatial_index');
-        $this->assertArrayHasKey('s_index', $indexes);
-        $this->assertTrue($indexes['s_index']->hasFlag('spatial'));
+        self::assertArrayHasKey('s_index', $indexes);
+        self::assertTrue($indexes['s_index']->hasFlag('spatial'));
     }
 
     /**
@@ -114,8 +120,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = $this->_sm->listTableDetails("alter_table_add_pk");
 
-        $this->assertFalse($table->hasIndex('idx_id'));
-        $this->assertTrue($table->hasPrimaryKey());
+        self::assertFalse($table->hasIndex('idx_id'));
+        self::assertTrue($table->hasPrimaryKey());
     }
 
     /**
@@ -140,8 +146,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = $this->_sm->listTableDetails("drop_primary_key");
 
-        $this->assertFalse($table->hasPrimaryKey());
-        $this->assertFalse($table->getColumn('id')->getAutoincrement());
+        self::assertFalse($table->hasPrimaryKey());
+        self::assertFalse($table->getColumn('id')->getAutoincrement());
     }
 
     /**
@@ -159,12 +165,12 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
 
-        $this->assertNull($onlineTable->getColumn('def_text')->getDefault());
-        $this->assertNull($onlineTable->getColumn('def_text_null')->getDefault());
-        $this->assertFalse($onlineTable->getColumn('def_text_null')->getNotnull());
-        $this->assertNull($onlineTable->getColumn('def_blob')->getDefault());
-        $this->assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
-        $this->assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
+        self::assertNull($onlineTable->getColumn('def_text')->getDefault());
+        self::assertNull($onlineTable->getColumn('def_text_null')->getDefault());
+        self::assertFalse($onlineTable->getColumn('def_text_null')->getNotnull());
+        self::assertNull($onlineTable->getColumn('def_blob')->getDefault());
+        self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
+        self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
 
         $comparator = new Comparator();
 
@@ -172,12 +178,12 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
 
-        $this->assertNull($onlineTable->getColumn('def_text')->getDefault());
-        $this->assertNull($onlineTable->getColumn('def_text_null')->getDefault());
-        $this->assertFalse($onlineTable->getColumn('def_text_null')->getNotnull());
-        $this->assertNull($onlineTable->getColumn('def_blob')->getDefault());
-        $this->assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
-        $this->assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
+        self::assertNull($onlineTable->getColumn('def_text')->getDefault());
+        self::assertNull($onlineTable->getColumn('def_text_null')->getDefault());
+        self::assertFalse($onlineTable->getColumn('def_text_null')->getNotnull());
+        self::assertNull($onlineTable->getColumn('def_blob')->getDefault());
+        self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
+        self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
     }
 
     public function testColumnCollation()
@@ -193,10 +199,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->_sm->listTableColumns('test_collation');
 
-        $this->assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
-        $this->assertEquals('latin1_swedish_ci', $columns['text']->getPlatformOption('collation'));
-        $this->assertEquals('latin1_swedish_ci', $columns['foo']->getPlatformOption('collation'));
-        $this->assertEquals('utf8_general_ci', $columns['bar']->getPlatformOption('collation'));
+        self::assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
+        self::assertEquals('latin1_swedish_ci', $columns['text']->getPlatformOption('collation'));
+        self::assertEquals('latin1_swedish_ci', $columns['foo']->getPlatformOption('collation'));
+        self::assertEquals('utf8_general_ci', $columns['bar']->getPlatformOption('collation'));
     }
 
     /**
@@ -223,36 +229,36 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlineColumns = $table->getColumns();
         $onlineColumns = $this->_sm->listTableColumns($tableName);
 
-        $this->assertSame(
+        self::assertSame(
             $platform->getClobTypeDeclarationSQL($offlineColumns['col_tinytext']->toArray()),
             $platform->getClobTypeDeclarationSQL($onlineColumns['col_tinytext']->toArray())
         );
-        $this->assertSame(
+        self::assertSame(
             $platform->getClobTypeDeclarationSQL($offlineColumns['col_text']->toArray()),
             $platform->getClobTypeDeclarationSQL($onlineColumns['col_text']->toArray())
         );
-        $this->assertSame(
+        self::assertSame(
             $platform->getClobTypeDeclarationSQL($offlineColumns['col_mediumtext']->toArray()),
             $platform->getClobTypeDeclarationSQL($onlineColumns['col_mediumtext']->toArray())
         );
-        $this->assertSame(
+        self::assertSame(
             $platform->getClobTypeDeclarationSQL($offlineColumns['col_longtext']->toArray()),
             $platform->getClobTypeDeclarationSQL($onlineColumns['col_longtext']->toArray())
         );
 
-        $this->assertSame(
+        self::assertSame(
             $platform->getBlobTypeDeclarationSQL($offlineColumns['col_tinyblob']->toArray()),
             $platform->getBlobTypeDeclarationSQL($onlineColumns['col_tinyblob']->toArray())
         );
-        $this->assertSame(
+        self::assertSame(
             $platform->getBlobTypeDeclarationSQL($offlineColumns['col_blob']->toArray()),
             $platform->getBlobTypeDeclarationSQL($onlineColumns['col_blob']->toArray())
         );
-        $this->assertSame(
+        self::assertSame(
             $platform->getBlobTypeDeclarationSQL($offlineColumns['col_mediumblob']->toArray()),
             $platform->getBlobTypeDeclarationSQL($onlineColumns['col_mediumblob']->toArray())
         );
-        $this->assertSame(
+        self::assertSame(
             $platform->getBlobTypeDeclarationSQL($offlineColumns['col_longblob']->toArray()),
             $platform->getBlobTypeDeclarationSQL($onlineColumns['col_longblob']->toArray())
         );
@@ -272,7 +278,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $comparator = new Comparator();
 
-        $this->assertFalse(
+        self::assertFalse(
             $comparator->diffTable($offlineTable, $onlineTable),
             "No differences should be detected with the offline vs online schema."
         );
@@ -293,10 +299,10 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->_sm->listTableColumns($tableName);
 
-        $this->assertArrayHasKey('col', $columns);
-        $this->assertArrayHasKey('col_unsigned', $columns);
-        $this->assertFalse($columns['col']->getUnsigned());
-        $this->assertTrue($columns['col_unsigned']->getUnsigned());
+        self::assertArrayHasKey('col', $columns);
+        self::assertArrayHasKey('col_unsigned', $columns);
+        self::assertFalse($columns['col']->getUnsigned());
+        self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 
     /**
@@ -314,9 +320,9 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->_sm->listTableColumns($tableName);
 
-        $this->assertArrayHasKey('col', $columns);
-        $this->assertArrayHasKey('col_unsigned', $columns);
-        $this->assertFalse($columns['col']->getUnsigned());
-        $this->assertTrue($columns['col_unsigned']->getUnsigned());
+        self::assertArrayHasKey('col', $columns);
+        self::assertArrayHasKey('col_unsigned', $columns);
+        self::assertFalse($columns['col']->getUnsigned());
+        self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 }

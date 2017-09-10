@@ -19,12 +19,12 @@ class IntegerTest extends \Doctrine\Tests\DbalTestCase
 
     public function testIntegerConvertsToPHPValue()
     {
-        $this->assertInternalType('integer', $this->_type->convertToPHPValue('1', $this->_platform));
-        $this->assertInternalType('integer', $this->_type->convertToPHPValue('0', $this->_platform));
+        self::assertInternalType('integer', $this->_type->convertToPHPValue('1', $this->_platform));
+        self::assertInternalType('integer', $this->_type->convertToPHPValue('0', $this->_platform));
     }
 
     public function testIntegerNullConvertsToPHPValue()
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
     }
 }

@@ -8,3 +8,4 @@ build.properties export-ignore
 build.xml export-ignore
 phpunit.xml.dist export-ignore
 run-all.sh export-ignore
+/phpcs.xml.dist export-ignore

@@ -12,7 +12,7 @@ class DriverTest extends PDOMySQLDriverTest
 {
     public function testReturnsName()
     {
-        $this->assertSame('drizzle_pdo_mysql', $this->driver->getName());
+        self::assertSame('drizzle_pdo_mysql', $this->driver->getName());
     }
 
     public function testThrowsExceptionOnCreatingDatabasePlatformsForInvalidVersion()

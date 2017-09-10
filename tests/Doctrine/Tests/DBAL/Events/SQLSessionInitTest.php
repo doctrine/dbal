@@ -28,6 +28,6 @@ class SQLSessionInitTest extends DbalTestCase
     public function testGetSubscribedEvents()
     {
         $listener = new SQLSessionInit("SET SEARCH_PATH TO foo, public, TIMEZONE TO 'Europe/Berlin'");
-        $this->assertEquals(array(Events::postConnect), $listener->getSubscribedEvents());
+        self::assertEquals(array(Events::postConnect), $listener->getSubscribedEvents());
     }
 }

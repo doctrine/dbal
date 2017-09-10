@@ -38,7 +38,7 @@ class DriverTest extends AbstractDriverTest
             $this->_conn->getEventManager()
         );
 
-        $this->assertSame(
+        self::assertSame(
             $expectedDatabaseName,
             $this->driver->getDatabase($connection)
         );
@@ -82,7 +82,7 @@ class DriverTest extends AbstractDriverTest
             $queryColumnName = array_key_exists('current_query', $record) ? 'current_query' : 'query';
 
             if ($record[$queryColumnName] === $sql) {
-                $this->assertSame('doctrine', $record['application_name']);
+                self::assertSame('doctrine', $record['application_name']);
 
                 return;
             }

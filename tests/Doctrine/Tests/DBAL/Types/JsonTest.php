@@ -28,27 +28,27 @@ class JsonTest extends \Doctrine\Tests\DbalTestCase
 
     public function testReturnsBindingType()
     {
-        $this->assertSame(\PDO::PARAM_STR, $this->type->getBindingType());
+        self::assertSame(\PDO::PARAM_STR, $this->type->getBindingType());
     }
 
     public function testReturnsName()
     {
-        $this->assertSame(Type::JSON, $this->type->getName());
+        self::assertSame(Type::JSON, $this->type->getName());
     }
 
     public function testReturnsSQLDeclaration()
     {
-        $this->assertSame('DUMMYJSON', $this->type->getSQLDeclaration(array(), $this->platform));
+        self::assertSame('DUMMYJSON', $this->type->getSQLDeclaration(array(), $this->platform));
     }
 
     public function testJsonNullConvertsToPHPValue()
     {
-        $this->assertNull($this->type->convertToPHPValue(null, $this->platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testJsonEmptyStringConvertsToPHPValue()
     {
-        $this->assertNull($this->type->convertToPHPValue('', $this->platform));
+        self::assertNull($this->type->convertToPHPValue('', $this->platform));
     }
 
     public function testJsonStringConvertsToPHPValue()
@@ -57,13 +57,13 @@ class JsonTest extends \Doctrine\Tests\DbalTestCase
         $databaseValue = json_encode($value);
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        $this->assertEquals($value, $phpValue);
+        self::assertEquals($value, $phpValue);
     }
 
     /** @dataProvider providerFailure */
     public function testConversionFailure($data)
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
         $this->type->convertToPHPValue($data, $this->platform);
     }
 
@@ -78,11 +78,11 @@ class JsonTest extends \Doctrine\Tests\DbalTestCase
         $databaseValue = fopen('data://text/plain;base64,' . base64_encode(json_encode($value)), 'r');
         $phpValue      = $this->type->convertToPHPValue($databaseValue, $this->platform);
 
-        $this->assertSame($value, $phpValue);
+        self::assertSame($value, $phpValue);
     }
 
     public function testRequiresSQLCommentHint()
     {
-        $this->assertTrue($this->type->requiresSQLCommentHint($this->platform));
+        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }
 }

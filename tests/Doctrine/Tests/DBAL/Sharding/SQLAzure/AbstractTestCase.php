@@ -6,7 +6,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureShardManager;
 
-abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
+abstract class AbstractTestCase extends \PHPUnit\Framework\TestCase
 {
     protected $conn;
     protected $sm;

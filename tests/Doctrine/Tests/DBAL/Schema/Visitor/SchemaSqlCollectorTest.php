@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Schema\Schema;
 
-class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
+class SchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 {
     public function testCreateSchema()
     {
@@ -25,7 +25,7 @@ class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
         $sql = $schema->toSql($platformMock);
 
-        $this->assertEquals(array("foo", "foo", "bar", "baz"), $sql);
+        self::assertEquals(array("foo", "foo", "bar", "baz"), $sql);
     }
 
     public function testDropSchema()
@@ -47,7 +47,7 @@ class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
         $sql = $schema->toDropSql($platformMock);
 
-        $this->assertEquals(array("fk", "seq", "tbl", "tbl"), $sql);
+        self::assertEquals(array("fk", "seq", "tbl", "tbl"), $sql);
     }
 
     /**

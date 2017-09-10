@@ -35,7 +35,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tables = $this->_sm->listTables();
 
-        $this->assertHasTable($tables, 'list_tables_test_new_name');
+        self::assertHasTable($tables, 'list_tables_test_new_name');
     }
 
     public function testListTableWithBinary()
@@ -52,11 +52,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = $this->_sm->listTableDetails($tableName);
 
-        $this->assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_varbinary')->getType());
-        $this->assertFalse($table->getColumn('column_varbinary')->getFixed());
+        self::assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_varbinary')->getType());
+        self::assertFalse($table->getColumn('column_varbinary')->getFixed());
 
-        $this->assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_binary')->getType());
-        $this->assertFalse($table->getColumn('column_binary')->getFixed());
+        self::assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_binary')->getType());
+        self::assertFalse($table->getColumn('column_binary')->getFixed());
     }
 
     /**
@@ -78,9 +78,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->_sm->listTableColumns($tableName);
 
-        $this->assertTrue($columns['id']->getNotnull());
-        $this->assertTrue($columns['foo']->getNotnull());
-        $this->assertTrue($columns['bar']->getNotnull());
+        self::assertTrue($columns['id']->getNotnull());
+        self::assertTrue($columns['foo']->getNotnull());
+        self::assertTrue($columns['bar']->getNotnull());
 
         $diffTable = clone $table;
         $diffTable->changeColumn('foo', array('notnull' => false));
@@ -90,9 +90,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->_sm->listTableColumns($tableName);
 
-        $this->assertTrue($columns['id']->getNotnull());
-        $this->assertFalse($columns['foo']->getNotnull());
-        $this->assertTrue($columns['bar']->getNotnull());
+        self::assertTrue($columns['id']->getNotnull());
+        self::assertFalse($columns['foo']->getNotnull());
+        self::assertTrue($columns['bar']->getNotnull());
     }
 
     public function testListDatabases()
@@ -105,7 +105,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $databases = $this->_sm->listDatabases();
         $databases = array_map('strtolower', $databases);
 
-        $this->assertContains('c##test_create_database', $databases);
+        self::assertContains('c##test_create_database', $databases);
     }
 
     /**
@@ -156,64 +156,64 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $platform = $this->_sm->getDatabasePlatform();
 
         // Primary table assertions
-        $this->assertSame($primaryTableName, $onlinePrimaryTable->getQuotedName($platform));
+        self::assertSame($primaryTableName, $onlinePrimaryTable->getQuotedName($platform));
 
-        $this->assertTrue($onlinePrimaryTable->hasColumn('"Id"'));
-        $this->assertSame('"Id"', $onlinePrimaryTable->getColumn('"Id"')->getQuotedName($platform));
-        $this->assertTrue($onlinePrimaryTable->hasPrimaryKey());
-        $this->assertSame(array('"Id"'), $onlinePrimaryTable->getPrimaryKey()->getQuotedColumns($platform));
+        self::assertTrue($onlinePrimaryTable->hasColumn('"Id"'));
+        self::assertSame('"Id"', $onlinePrimaryTable->getColumn('"Id"')->getQuotedName($platform));
+        self::assertTrue($onlinePrimaryTable->hasPrimaryKey());
+        self::assertSame(array('"Id"'), $onlinePrimaryTable->getPrimaryKey()->getQuotedColumns($platform));
 
-        $this->assertTrue($onlinePrimaryTable->hasColumn('select'));
-        $this->assertSame('"select"', $onlinePrimaryTable->getColumn('select')->getQuotedName($platform));
+        self::assertTrue($onlinePrimaryTable->hasColumn('select'));
+        self::assertSame('"select"', $onlinePrimaryTable->getColumn('select')->getQuotedName($platform));
 
-        $this->assertTrue($onlinePrimaryTable->hasColumn('foo'));
-        $this->assertSame('FOO', $onlinePrimaryTable->getColumn('foo')->getQuotedName($platform));
+        self::assertTrue($onlinePrimaryTable->hasColumn('foo'));
+        self::assertSame('FOO', $onlinePrimaryTable->getColumn('foo')->getQuotedName($platform));
 
-        $this->assertTrue($onlinePrimaryTable->hasColumn('BAR'));
-        $this->assertSame('BAR', $onlinePrimaryTable->getColumn('BAR')->getQuotedName($platform));
+        self::assertTrue($onlinePrimaryTable->hasColumn('BAR'));
+        self::assertSame('BAR', $onlinePrimaryTable->getColumn('BAR')->getQuotedName($platform));
 
-        $this->assertTrue($onlinePrimaryTable->hasColumn('"BAZ"'));
-        $this->assertSame('BAZ', $onlinePrimaryTable->getColumn('"BAZ"')->getQuotedName($platform));
+        self::assertTrue($onlinePrimaryTable->hasColumn('"BAZ"'));
+        self::assertSame('BAZ', $onlinePrimaryTable->getColumn('"BAZ"')->getQuotedName($platform));
 
-        $this->assertTrue($onlinePrimaryTable->hasIndex('from'));
-        $this->assertTrue($onlinePrimaryTable->getIndex('from')->hasColumnAtPosition('"select"'));
-        $this->assertSame(array('"select"'), $onlinePrimaryTable->getIndex('from')->getQuotedColumns($platform));
+        self::assertTrue($onlinePrimaryTable->hasIndex('from'));
+        self::assertTrue($onlinePrimaryTable->getIndex('from')->hasColumnAtPosition('"select"'));
+        self::assertSame(array('"select"'), $onlinePrimaryTable->getIndex('from')->getQuotedColumns($platform));
 
-        $this->assertTrue($onlinePrimaryTable->hasIndex('foo_index'));
-        $this->assertTrue($onlinePrimaryTable->getIndex('foo_index')->hasColumnAtPosition('foo'));
-        $this->assertSame(array('FOO'), $onlinePrimaryTable->getIndex('foo_index')->getQuotedColumns($platform));
+        self::assertTrue($onlinePrimaryTable->hasIndex('foo_index'));
+        self::assertTrue($onlinePrimaryTable->getIndex('foo_index')->hasColumnAtPosition('foo'));
+        self::assertSame(array('FOO'), $onlinePrimaryTable->getIndex('foo_index')->getQuotedColumns($platform));
 
-        $this->assertTrue($onlinePrimaryTable->hasIndex('BAR_INDEX'));
-        $this->assertTrue($onlinePrimaryTable->getIndex('BAR_INDEX')->hasColumnAtPosition('BAR'));
-        $this->assertSame(array('BAR'), $onlinePrimaryTable->getIndex('BAR_INDEX')->getQuotedColumns($platform));
+        self::assertTrue($onlinePrimaryTable->hasIndex('BAR_INDEX'));
+        self::assertTrue($onlinePrimaryTable->getIndex('BAR_INDEX')->hasColumnAtPosition('BAR'));
+        self::assertSame(array('BAR'), $onlinePrimaryTable->getIndex('BAR_INDEX')->getQuotedColumns($platform));
 
-        $this->assertTrue($onlinePrimaryTable->hasIndex('BAZ_INDEX'));
-        $this->assertTrue($onlinePrimaryTable->getIndex('BAZ_INDEX')->hasColumnAtPosition('"BAZ"'));
-        $this->assertSame(array('BAZ'), $onlinePrimaryTable->getIndex('BAZ_INDEX')->getQuotedColumns($platform));
+        self::assertTrue($onlinePrimaryTable->hasIndex('BAZ_INDEX'));
+        self::assertTrue($onlinePrimaryTable->getIndex('BAZ_INDEX')->hasColumnAtPosition('"BAZ"'));
+        self::assertSame(array('BAZ'), $onlinePrimaryTable->getIndex('BAZ_INDEX')->getQuotedColumns($platform));
 
         // Foreign table assertions
-        $this->assertTrue($onlineForeignTable->hasColumn('id'));
-        $this->assertSame('ID', $onlineForeignTable->getColumn('id')->getQuotedName($platform));
-        $this->assertTrue($onlineForeignTable->hasPrimaryKey());
-        $this->assertSame(array('ID'), $onlineForeignTable->getPrimaryKey()->getQuotedColumns($platform));
+        self::assertTrue($onlineForeignTable->hasColumn('id'));
+        self::assertSame('ID', $onlineForeignTable->getColumn('id')->getQuotedName($platform));
+        self::assertTrue($onlineForeignTable->hasPrimaryKey());
+        self::assertSame(array('ID'), $onlineForeignTable->getPrimaryKey()->getQuotedColumns($platform));
 
-        $this->assertTrue($onlineForeignTable->hasColumn('"Fk"'));
-        $this->assertSame('"Fk"', $onlineForeignTable->getColumn('"Fk"')->getQuotedName($platform));
+        self::assertTrue($onlineForeignTable->hasColumn('"Fk"'));
+        self::assertSame('"Fk"', $onlineForeignTable->getColumn('"Fk"')->getQuotedName($platform));
 
-        $this->assertTrue($onlineForeignTable->hasIndex('"Fk_index"'));
-        $this->assertTrue($onlineForeignTable->getIndex('"Fk_index"')->hasColumnAtPosition('"Fk"'));
-        $this->assertSame(array('"Fk"'), $onlineForeignTable->getIndex('"Fk_index"')->getQuotedColumns($platform));
+        self::assertTrue($onlineForeignTable->hasIndex('"Fk_index"'));
+        self::assertTrue($onlineForeignTable->getIndex('"Fk_index"')->hasColumnAtPosition('"Fk"'));
+        self::assertSame(array('"Fk"'), $onlineForeignTable->getIndex('"Fk_index"')->getQuotedColumns($platform));
 
-        $this->assertTrue($onlineForeignTable->hasForeignKey('"Primary_Table_Fk"'));
-        $this->assertSame(
+        self::assertTrue($onlineForeignTable->hasForeignKey('"Primary_Table_Fk"'));
+        self::assertSame(
             $primaryTableName,
             $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignTableName($platform)
         );
-        $this->assertSame(
+        self::assertSame(
             array('"Fk"'),
             $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedLocalColumns($platform)
         );
-        $this->assertSame(
+        self::assertSame(
             array('"Id"'),
             $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignColumns($platform)
         );
@@ -229,7 +229,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         TestUtil::getTempConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
 
         $columns = $this->_sm->listTableColumns($table->getName(), $this->_conn->getUsername());
-        $this->assertCount(7, $columns);
+        self::assertCount(7, $columns);
     }
 
     /**
@@ -249,10 +249,10 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $tableIndexes = $this->_sm->listTableIndexes('list_table_indexes_pk_id_test');
 
-        $this->assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        $this->assertEquals(array('id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
-        $this->assertTrue($tableIndexes['primary']->isUnique());
-        $this->assertTrue($tableIndexes['primary']->isPrimary());
+        self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
+        self::assertEquals(array('id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+        self::assertTrue($tableIndexes['primary']->isUnique());
+        self::assertTrue($tableIndexes['primary']->isPrimary());
     }
 
     /**
@@ -269,8 +269,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->_sm->listTableColumns('tbl_date');
 
-        $this->assertSame('date', $columns['col_date']->getType()->getName());
-        $this->assertSame('datetime', $columns['col_datetime']->getType()->getName());
-        $this->assertSame('datetimetz', $columns['col_datetimetz']->getType()->getName());
+        self::assertSame('date', $columns['col_date']->getType()->getName());
+        self::assertSame('datetime', $columns['col_datetime']->getType()->getName());
+        self::assertSame('datetimetz', $columns['col_datetimetz']->getType()->getName());
     }
 }

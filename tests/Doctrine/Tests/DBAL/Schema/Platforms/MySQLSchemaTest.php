@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL\Schema\Platforms;
 
 use Doctrine\DBAL\Schema\Table;
 
-class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
+class MySQLSchemaTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Comparator
@@ -35,7 +35,7 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
         $sql = $this->platform->getAlterTableSQL($diff);
 
-        $this->assertEquals(
+        self::assertEquals(
             array(
                 'ALTER TABLE test DROP PRIMARY KEY',
                 'ALTER TABLE test ADD PRIMARY KEY (bar_id, foo_id)'
@@ -57,7 +57,7 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
             $sqls[] = $this->platform->getCreateForeignKeySQL($fk, $tableOld);
         }
 
-        $this->assertEquals(array("ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F FOREIGN KEY (foo_id) REFERENCES test_foreign (foo_id)"), $sqls);
+        self::assertEquals(array("ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C8E48560F FOREIGN KEY (foo_id) REFERENCES test_foreign (foo_id)"), $sqls);
     }
 
     /**
@@ -75,7 +75,7 @@ class MySQLSchemaTest extends \PHPUnit_Framework_TestCase
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
         $sql = $this->platform->getAlterTableSQL($diff);
 
-        $this->assertEquals(
+        self::assertEquals(
             array('ALTER TABLE test ADD PRIMARY KEY (id)'),
             $sql
         );

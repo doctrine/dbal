@@ -40,7 +40,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
             $this->_conn->getEventManager()
         );
 
-        $this->assertEquals($charset, $connection->query("SHOW client_encoding")->fetch(\PDO::FETCH_COLUMN));
+        self::assertEquals($charset, $connection->query("SHOW client_encoding")->fetch(\PDO::FETCH_COLUMN));
     }
 
     /**

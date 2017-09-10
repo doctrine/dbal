@@ -13,7 +13,7 @@ class PostgreSql91PlatformTest extends PostgreSqlPlatformTest
 
     public function testColumnCollationDeclarationSQL()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'COLLATE "en_US.UTF-8"',
             $this->_platform->getColumnCollationDeclarationSQL('en_US.UTF-8')
         );

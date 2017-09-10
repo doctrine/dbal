@@ -72,7 +72,7 @@ SQLDATA
             array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\\\') ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
             array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\\\`) AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
             array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\\\') AND (data.description LIKE :condition_1 ESCAPE `\\\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 174 => 'condition_1')),
-            
+
         );
     }
 
@@ -82,7 +82,7 @@ SQLDATA
     public function testGetPlaceholderPositions($query, $isPositional, $expectedParamPos)
     {
         $actualParamPos = SQLParserUtils::getPlaceholderPositions($query, $isPositional);
-        $this->assertEquals($expectedParamPos, $actualParamPos);
+        self::assertEquals($expectedParamPos, $actualParamPos);
     }
 
     public function dataExpandListParameters()
@@ -373,9 +373,9 @@ SQLDATA
     {
         list($query, $params, $types) = SQLParserUtils::expandListParameters($q, $p, $t);
 
-        $this->assertEquals($expectedQuery, $query, "Query was not rewritten correctly.");
-        $this->assertEquals($expectedParams, $params, "Params dont match");
-        $this->assertEquals($expectedTypes, $types, "Types dont match");
+        self::assertEquals($expectedQuery, $query, "Query was not rewritten correctly.");
+        self::assertEquals($expectedParams, $params, "Params dont match");
+        self::assertEquals($expectedTypes, $types, "Types dont match");
     }
 
     public function dataQueryWithMissingParameters()
@@ -419,7 +419,7 @@ SQLDATA
      */
     public function testExceptionIsThrownForMissingParam($query, $params, $types = array())
     {
-        $this->setExpectedException(
+        $this->expectException(
             'Doctrine\DBAL\SQLParserUtilsException',
             'Value for :param not found in params array. Params array key should be "param"'
         );

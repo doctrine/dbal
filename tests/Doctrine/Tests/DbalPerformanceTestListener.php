@@ -7,14 +7,14 @@ namespace Doctrine\Tests;
  *
  * @author Bill Schaller
  */
-class DbalPerformanceTestListener extends \PHPUnit_Framework_BaseTestListener
+class DbalPerformanceTestListener extends \PHPUnit\Framework\BaseTestListener
 {
     private $timings = [];
 
     /**
      * {@inheritdoc}
      */
-    public function endTest(\PHPUnit_Framework_Test $test, $time)
+    public function endTest(\PHPUnit\Framework\Test $test, $time)
     {
         // This listener only applies to performance tests.
         if ($test instanceof \Doctrine\Tests\DbalPerformanceTestCase)

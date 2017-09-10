@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests\DBAL;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\Tests\Mocks\PDOMock;
+
 class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
@@ -21,7 +24,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
             'pdo' => new \PDO('sqlite::memory:')
         );
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
+        self::assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
     }
 
     /**
@@ -36,7 +39,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertEquals(\PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(\PDO::ATTR_ERRMODE));
+        self::assertEquals(\PDO::ERRMODE_EXCEPTION, $pdo->getAttribute(\PDO::ATTR_ERRMODE));
     }
 
     /**
@@ -64,7 +67,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertSame($mockPlatform, $conn->getDatabasePlatform());
+        self::assertSame($mockPlatform, $conn->getDatabasePlatform());
     }
 
     public function testCustomWrapper()
@@ -77,12 +80,12 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertInstanceOf($wrapperClass, $conn);
+        self::assertInstanceOf($wrapperClass, $conn);
     }
 
     public function testInvalidWrapperClass()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException(DBALException::class);
 
         $options = array(
             'pdo' => new \PDO('sqlite::memory:'),
@@ -94,7 +97,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 
     public function testInvalidDriverClass()
     {
-        $this->setExpectedException('\Doctrine\DBAL\DBALException');
+        $this->expectException(DBALException::class);
 
         $options = array(
             'driverClass' => 'stdClass'
@@ -110,7 +113,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
-        $this->assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $conn->getDriver());
+        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $conn->getDriver());
     }
 
     /**
@@ -123,7 +126,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         if ($expected === false) {
-            $this->setExpectedException('Doctrine\DBAL\DBALException');
+            $this->expectException(DBALException::class);
         }
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
@@ -131,16 +134,16 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $params = $conn->getParams();
         foreach ($expected as $key => $value) {
             if (in_array($key, array('pdo', 'driver', 'driverClass'), true)) {
-                $this->assertInstanceOf($value, $conn->getDriver());
+                self::assertInstanceOf($value, $conn->getDriver());
             } else {
-                $this->assertEquals($value, $params[$key]);
+                self::assertEquals($value, $params[$key]);
             }
         }
     }
 
     public function databaseUrls()
     {
-        $pdoMock = $this->getMock('Doctrine\Tests\Mocks\PDOMock');
+        $pdoMock = $this->createMock(PDOMock::class);
 
         return array(
             'simple URL' => array(

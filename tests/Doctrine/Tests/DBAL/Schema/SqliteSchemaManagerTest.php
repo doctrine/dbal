@@ -5,9 +5,8 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\SqliteSchemaManager;
 
-class SqliteSchemaManagerTest extends \PHPUnit_Framework_TestCase
+class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
 {
-
     /**
      * @dataProvider getDataColumnCollation
      */
@@ -20,7 +19,7 @@ class SqliteSchemaManagerTest extends \PHPUnit_Framework_TestCase
         $ref = new \ReflectionMethod($manager, 'parseColumnCollationFromSQL');
         $ref->setAccessible(true);
 
-        $this->assertEquals($collation, $ref->invoke($manager, $column, $sql));
+        self::assertEquals($collation, $ref->invoke($manager, $column, $sql));
     }
 
     public function getDataColumnCollation()

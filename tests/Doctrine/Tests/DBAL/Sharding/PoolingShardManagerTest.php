@@ -20,7 +20,7 @@ namespace Doctrine\Tests\DBAL\Sharding;
 
 use Doctrine\DBAL\Sharding\PoolingShardManager;
 
-class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
+class PoolingShardManagerTest extends \PHPUnit\Framework\TestCase
 {
     private function createConnectionMock()
     {
@@ -56,7 +56,7 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
         $shardManager = new PoolingShardManager($conn, $this->createPassthroughShardChoser());
         $shardManager->selectGlobal();
 
-        $this->assertNull($shardManager->getCurrentDistributionValue());
+        self::assertNull($shardManager->getCurrentDistributionValue());
     }
 
     public function testSelectShard()
@@ -69,7 +69,7 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
         $shardManager = new PoolingShardManager($conn);
         $shardManager->selectShard($shardId);
 
-        $this->assertEquals($shardId, $shardManager->getCurrentDistributionValue());
+        self::assertEquals($shardId, $shardManager->getCurrentDistributionValue());
     }
 
     public function testGetShards()
@@ -84,7 +84,7 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
         $shardManager = new PoolingShardManager($conn, $this->createPassthroughShardChoser());
         $shards = $shardManager->getShards();
 
-        $this->assertEquals(array(array('id' => 1), array('id' => 2)), $shards);
+        self::assertEquals(array(array('id' => 1), array('id' => 2)), $shards);
     }
 
     public function testQueryAll()
@@ -114,7 +114,7 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
         $shardManager = new PoolingShardManager($conn, $this->createPassthroughShardChoser());
         $result = $shardManager->queryAll($sql, $params, $types);
 
-        $this->assertEquals(array(array('id' => 1), array('id' => 2)), $result);
+        self::assertEquals(array(array('id' => 1), array('id' => 2)), $result);
     }
 
     public function testQueryAllWithStaticShardChoser()
@@ -144,7 +144,7 @@ class PoolingShardManagerTest extends \PHPUnit_Framework_TestCase
         $shardManager = new PoolingShardManager($conn, $this->createStaticShardChoser());
         $result = $shardManager->queryAll($sql, $params, $types);
 
-        $this->assertEquals(array(array('id' => 1), array('id' => 2)), $result);
+        self::assertEquals(array(array('id' => 1), array('id' => 2)), $result);
     }
 }
 

@@ -13,34 +13,34 @@ class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
     {
         $expr = new CompositeExpression(CompositeExpression::TYPE_OR, array('u.group_id = 1'));
 
-        $this->assertEquals(1, count($expr));
+        self::assertEquals(1, count($expr));
 
         $expr->add('u.group_id = 2');
 
-        $this->assertEquals(2, count($expr));
+        self::assertEquals(2, count($expr));
     }
 
     public function testAdd()
     {
         $expr = new CompositeExpression(CompositeExpression::TYPE_OR, array('u.group_id = 1'));
 
-        $this->assertCount(1, $expr);
+        self::assertCount(1, $expr);
 
         $expr->add(new CompositeExpression(CompositeExpression::TYPE_AND, array()));
 
-        $this->assertCount(1, $expr);
+        self::assertCount(1, $expr);
 
         $expr->add(new CompositeExpression(CompositeExpression::TYPE_OR, array('u.user_id = 1')));
 
-        $this->assertCount(2, $expr);
+        self::assertCount(2, $expr);
 
         $expr->add(null);
 
-        $this->assertCount(2, $expr);
+        self::assertCount(2, $expr);
 
         $expr->add('u.user_id = 1');
 
-        $this->assertCount(3, $expr);
+        self::assertCount(3, $expr);
     }
 
     /**
@@ -50,7 +50,7 @@ class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
     {
         $expr = new CompositeExpression($type, $parts);
 
-        $this->assertEquals($expects, (string) $expr);
+        self::assertEquals($expects, (string) $expr);
     }
 
     public function provideDataForConvertToString()

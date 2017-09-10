@@ -6,7 +6,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\DBAL\Schema\Sequence;
 
-class PostgreSQLSchemaManagerTest extends \PHPUnit_Framework_TestCase
+class PostgreSQLSchemaManagerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Doctrine\DBAL\Schema\PostgreSQLSchemaManager
@@ -64,7 +64,7 @@ class PostgreSQLSchemaManagerTest extends \PHPUnit_Framework_TestCase
         $this->connection->expects($this->exactly(3))
             ->method('fetchAll');
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 new Sequence('schema.foo', 2, 2),
                 new Sequence('schema.bar', 1, 1),

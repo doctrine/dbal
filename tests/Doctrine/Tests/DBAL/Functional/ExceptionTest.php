@@ -2,7 +2,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Table;
 
 class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
@@ -26,8 +26,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->_conn->insert("duplicatekey_table", array('id' => 1));
 
-        $this->setExpectedException(
-            '\Doctrine\DBAL\Exception\UniqueConstraintViolationException');
+        $this->expectException(Exception\UniqueConstraintViolationException::class);
         $this->_conn->insert("duplicatekey_table", array('id' => 1));
     }
 
@@ -35,7 +34,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $sql = "SELECT * FROM unknown_table";
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\TableNotFoundException');
+        $this->expectException(Exception\TableNotFoundException::class);
         $this->_conn->executeQuery($sql);
     }
 
@@ -46,7 +45,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\TableExistsException');
+        $this->expectException(Exception\TableExistsException::class);
         $schemaManager->createTable($table);
         $schemaManager->createTable($table);
     }
@@ -68,11 +67,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             throw $exception;
         }
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException');
+        $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
             $this->_conn->insert('owning_table', array('id' => 2, 'constraint_id' => 2));
-        } catch (ForeignKeyConstraintViolationException $exception) {
+        } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
             throw $exception;
@@ -102,11 +101,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             throw $exception;
         }
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException');
+        $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
             $this->_conn->update('constraint_error_table', array('id' => 2), array('id' => 1));
-        } catch (ForeignKeyConstraintViolationException $exception) {
+        } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
             throw $exception;
@@ -136,11 +135,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             throw $exception;
         }
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException');
+        $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
             $this->_conn->delete('constraint_error_table', array('id' => 1));
-        } catch (ForeignKeyConstraintViolationException $exception) {
+        } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
             throw $exception;
@@ -172,11 +171,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             throw $exception;
         }
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException');
+        $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
             $this->_conn->executeUpdate($platform->getTruncateTableSQL('constraint_error_table'));
-        } catch (ForeignKeyConstraintViolationException $exception) {
+        } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
             throw $exception;
@@ -202,7 +201,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->exec($sql);
         }
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\NotNullConstraintViolationException');
+        $this->expectException(Exception\NotNullConstraintViolationException::class);
         $this->_conn->insert("notnull_table", array('id' => 1, 'value' => null));
     }
 
@@ -217,7 +216,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->exec($sql);
         }
 
-        $this->setExpectedException('\Doctrine\DBAL\Exception\InvalidFieldNameException');
+        $this->expectException(Exception\InvalidFieldNameException::class);
         $this->_conn->insert("bad_fieldname_table", array('name' => 5));
     }
 
@@ -236,7 +235,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $sql = 'SELECT id FROM ambiguous_list_table, ambiguous_list_table_2';
-        $this->setExpectedException('\Doctrine\DBAL\Exception\NonUniqueFieldNameException');
+        $this->expectException(Exception\NonUniqueFieldNameException::class);
         $this->_conn->executeQuery($sql);
     }
 
@@ -253,7 +252,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->_conn->insert("unique_field_table", array('id' => 5));
-        $this->setExpectedException('\Doctrine\DBAL\Exception\UniqueConstraintViolationException');
+        $this->expectException(Exception\UniqueConstraintViolationException::class);
         $this->_conn->insert("unique_field_table", array('id' => 5));
     }
 
@@ -266,7 +265,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->getSchemaManager()->createTable($table);
 
         $sql = 'SELECT id FRO syntax_error_table';
-        $this->setExpectedException('\Doctrine\DBAL\Exception\SyntaxErrorException');
+        $this->expectException(Exception\SyntaxErrorException::class);
         $this->_conn->executeQuery($sql);
     }
 
@@ -299,7 +298,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table = $schema->createTable("no_connection");
         $table->addColumn('id', 'integer');
 
-        $this->setExpectedException($exceptionClass);
+        $this->expectException($exceptionClass);
         foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
             $conn->exec($sql);
         }
@@ -309,8 +308,8 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         return array(
             // mode 0 is considered read-only on Windows
-            array(0000, defined('PHP_WINDOWS_VERSION_BUILD') ? '\Doctrine\DBAL\Exception\ReadOnlyException' : '\Doctrine\DBAL\Exception\ConnectionException'),
-            array(0444, '\Doctrine\DBAL\Exception\ReadOnlyException'),
+            array(0000, defined('PHP_WINDOWS_VERSION_BUILD') ? Exception\ReadOnlyException::class : Exception\ConnectionException::class),
+            array(0444, Exception\ReadOnlyException::class),
         );
     }
 
@@ -340,7 +339,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table = $schema->createTable("no_connection");
         $table->addColumn('id', 'integer');
 
-        $this->setExpectedException('Doctrine\DBAL\Exception\ConnectionException');
+        $this->expectException(Exception\ConnectionException::class);
 
         foreach ($schema->toSql($conn->getDatabasePlatform()) as $sql) {
             $conn->exec($sql);
