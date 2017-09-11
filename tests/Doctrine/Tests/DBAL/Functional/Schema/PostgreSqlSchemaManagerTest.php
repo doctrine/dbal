@@ -383,7 +383,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         /** @var Schema\Column[] $columns */
         $columns = $this->_sm->listTableColumns('test_jsonb');
 
-        $this->assertSame(TYPE::JSON, $columns['foo']->getType()->getName());
+        $this->assertSame($type, $columns['foo']->getType()->getName());
         $this->assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
     }
 
