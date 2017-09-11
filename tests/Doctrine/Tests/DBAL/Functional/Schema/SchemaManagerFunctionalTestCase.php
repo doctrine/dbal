@@ -1192,4 +1192,146 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         self::assertArrayHasKey('explicit_fk1_idx', $indexes);
         self::assertArrayHasKey('idx_3d6c147fdc58d6c', $indexes);
     }
+
+    /**
+     * @after
+     */
+    public function removeJsonArrayTable() : void
+    {
+        if ($this->_sm->tablesExist(['json_array_test'])) {
+            $this->_sm->dropTable('json_array_test');
+        }
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldReturnFalseWhenLegacyJsonArrayColumnHasComment() : void
+    {
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $this->_sm->createTable($table);
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertFalse($tableDiff);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldModifyOnlyTheCommentWhenUpdatingFromJsonArrayTypeOnLegacyPlatforms() : void
+    {
+        if ($this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that do not have native JSON type.');
+        }
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $this->_sm->createTable($table);
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
+
+        $changedColumn = $tableDiff->changedColumns['parameters'] ?? $tableDiff->changedColumns['PARAMETERS'];
+
+        self::assertSame(['comment'], $changedColumn->changedProperties);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldAddCommentToLegacyJsonArrayTypeThatDoesNotHaveIt() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
+        }
+
+        $this->_conn->executeQuery('CREATE TABLE json_array_test (parameters JSON NOT NULL)');
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
+        self::assertSame(['comment'], $tableDiff->changedColumns['parameters']->changedProperties);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldReturnAllChangesWhenUsingLegacyJsonArrayType() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
+        }
+
+        $this->_conn->executeQuery('CREATE TABLE json_array_test (parameters JSON DEFAULT NULL)');
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
+        self::assertSame(['notnull', 'comment'], $tableDiff->changedColumns['parameters']->changedProperties);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldReturnAllChangesWhenUsingLegacyJsonArrayTypeEvenWhenPlatformHasJsonSupport() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
+        }
+
+        $this->_conn->executeQuery('CREATE TABLE json_array_test (parameters JSON DEFAULT NULL)');
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
+        self::assertSame(['notnull', 'comment'], $tableDiff->changedColumns['parameters']->changedProperties);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldNotAddCommentToJsonTypeSinceItIsTheDefaultNow() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
+        }
+
+        $this->_conn->executeQuery('CREATE TABLE json_test (parameters JSON NOT NULL)');
+
+        $table = new Table('json_test');
+        $table->addColumn('parameters', 'json');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_test'), $table);
+
+        self::assertFalse($tableDiff);
+    }
 }
