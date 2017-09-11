@@ -563,6 +563,20 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         }
     }
 
+    public function testGetDefaultValueDeclarationSQLForDateType()
+    {
+        $currentDateSql = $this->_platform->getCurrentDateSQL();
+        $field = array(
+            'type'    => Type::getType('date'),
+            'default' => $currentDateSql,
+        );
+
+        $this->assertEquals(
+            ' DEFAULT '.$currentDateSql,
+            $this->_platform->getDefaultValueDeclarationSQL($field)
+        );
+    }
+
     /**
      * @group DBAL-45
      */
