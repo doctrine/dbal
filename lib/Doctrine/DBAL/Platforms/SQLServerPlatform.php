@@ -27,6 +27,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types;
 
 /**
  * The SQLServerPlatform provides the behavior, features and SQL dialect of the
@@ -1554,15 +1555,18 @@ class SQLServerPlatform extends AbstractPlatform
             return " DEFAULT '" . $field['default'] . "'";
         }
 
-        if (in_array((string) $field['type'], ['Integer', 'BigInt', 'SmallInt'])) {
+        $type = $field['type'];
+
+        if ($type instanceof Types\PhpIntegerMappingType) {
             return " DEFAULT " . $field['default'];
         }
 
-        if (in_array((string) $field['type'], ['DateTime', 'DateTimeTz']) && $field['default'] == $this->getCurrentTimestampSQL()) {
+        if ($type instanceof Types\PhpDateTimeMappingType
+            && $field['default'] == $this->getCurrentTimestampSQL()) {
             return " DEFAULT " . $this->getCurrentTimestampSQL();
         }
 
-        if ((string) $field['type'] == 'Boolean') {
+        if ($type instanceof Types\BooleanType) {
             return " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
         }
 

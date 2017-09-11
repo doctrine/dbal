@@ -44,7 +44,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * @author Jonathan Wage <jonwage@gmail.com>
  * @author Roman Borschel <roman@code-factory.org>
  */
-class DateTimeTzType extends Type
+class DateTimeTzType extends Type implements PhpDateTimeMappingType
 {
     /**
      * {@inheritdoc}

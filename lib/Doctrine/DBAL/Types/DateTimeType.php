@@ -26,7 +26,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  *
  * @since 2.0
  */
-class DateTimeType extends Type
+class DateTimeType extends Type implements PhpDateTimeMappingType
 {
     /**
      * {@inheritdoc}
