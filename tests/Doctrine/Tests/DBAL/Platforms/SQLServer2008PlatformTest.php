@@ -21,16 +21,16 @@ class SQLServer2008PlatformTest extends AbstractSQLServerPlatformTestCase
         );
     }
 
-    public function testGetDefaultValueDeclarationSQLForDateType()
+    public function testGetDefaultValueDeclarationSQLForDateType() : void
     {
         $currentDateSql = $this->_platform->getCurrentDateSQL();
-        $field = array(
+        $field = [
             'type'    => Type::getType('date'),
             'default' => $currentDateSql,
-        );
+        ];
 
-        $this->assertEquals(
-            " DEFAULT '".$currentDateSql."'",
+        self::assertSame(
+            " DEFAULT '" . $currentDateSql . "'",
             $this->_platform->getDefaultValueDeclarationSQL($field)
         );
     }
