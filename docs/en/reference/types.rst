@@ -940,8 +940,8 @@ At first, to enable this feature, you must override the
         return true;
     }
 
-Then you override the methods ``convertToPhpValueSQL`` and
-``convertToDatabaseValueSQL`` :
+Then you override the ``convertToPhpValueSQL`` and
+``convertToDatabaseValueSQL`` methods :
 
 ::
 
