@@ -325,7 +325,7 @@ class QueryBuilder
      */
     public function getParameter($key)
     {
-        return isset($this->params[$key]) ? $this->params[$key] : null;
+        return $this->params[$key] ?? null;
     }
 
     /**
@@ -347,7 +347,7 @@ class QueryBuilder
      */
     public function getParameterType($key)
     {
-        return isset($this->paramTypes[$key]) ? $this->paramTypes[$key] : null;
+        return $this->paramTypes[$key] ?? null;
     }
 
     /**

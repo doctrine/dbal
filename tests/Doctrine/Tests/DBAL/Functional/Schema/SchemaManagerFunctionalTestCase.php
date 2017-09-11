@@ -66,8 +66,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             $params['dbname'] = 'test_drop_database';
         }
 
-        $user = isset($params['user']) ? $params['user'] : null;
-        $password = isset($params['password']) ? $params['password'] : null;
+        $user = $params['user'] ?? null;
+        $password = $params['password'] ?? null;
 
         $connection = $this->_conn->getDriver()->connect($params, $user, $password);
 
