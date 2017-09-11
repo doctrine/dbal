@@ -108,8 +108,8 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
         }
 
         $majorVersion = $versionParts['major'];
-        $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
-        $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
+        $minorVersion = $versionParts['minor'] ?? 0;
+        $patchVersion = $versionParts['patch'] ?? 0;
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
 
         switch(true) {

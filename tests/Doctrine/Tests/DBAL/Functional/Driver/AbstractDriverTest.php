@@ -29,8 +29,8 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
         $params = $this->_conn->getParams();
         unset($params['dbname']);
 
-        $user = isset($params['user']) ? $params['user'] : null;
-        $password = isset($params['password']) ? $params['password'] : null;
+        $user = $params['user'] ?? null;
+        $password = $params['password'] ?? null;
 
         $connection = $this->driver->connect($params, $user, $password);
 

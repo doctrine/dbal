@@ -151,7 +151,7 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
-        return isset($params['host']) ? $params['host'] : parent::getHost();
+        return $params['host'] ?? parent::getHost();
     }
 
     /**
@@ -161,7 +161,7 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
-        return isset($params['port']) ? $params['port'] : parent::getPort();
+        return $params['port'] ?? parent::getPort();
     }
 
     /**
@@ -171,7 +171,7 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
-        return isset($params['user']) ? $params['user'] : parent::getUsername();
+        return $params['user'] ?? parent::getUsername();
     }
 
     /**
@@ -181,7 +181,7 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
-        return isset($params['password']) ? $params['password'] : parent::getPassword();
+        return $params['password'] ?? parent::getPassword();
     }
 
     /**
