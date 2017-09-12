@@ -21,7 +21,6 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\Platforms\OraclePlatform;
 
 /**
  * OCI8 implementation of the Connection interface.
@@ -38,7 +37,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * @var integer
      */
-    protected $executeMode = OCI_COMMIT_ON_SUCCESS;
+    protected $executeMode;
 
     /**
      * Creates a Connection to an Oracle Database using oci8 extension.
@@ -57,6 +56,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         if (!defined('OCI_NO_AUTO_COMMIT')) {
             define('OCI_NO_AUTO_COMMIT', 0);
         }
+
+        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
         $this->dbh = $persistent
             ? @oci_pconnect($username, $password, $db, $charset, $sessionMode)

@@ -3,9 +3,19 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\IBMDB2\DB2Connection;
+use Doctrine\DBAL\Driver\IBMDB2\DB2Statement;
+use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
+use Doctrine\DBAL\Driver\Mysqli\MysqliStatement;
+use Doctrine\DBAL\Driver\OCI8\OCI8Connection;
+use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
+use Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereConnection;
+use Doctrine\DBAL\Driver\SQLAnywhere\SQLAnywhereStatement;
+use Doctrine\DBAL\Driver\SQLSrv\SQLSrvConnection;
+use Doctrine\DBAL\Driver\SQLSrv\SQLSrvStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use IteratorIterator;
 use PDO;
 
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
@@ -868,86 +878,54 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
 
-    public function testIteratorCallsFetchTheExpectedNumberOfTimes()
+    public function getConnections()
     {
-        $sql = 'SELECT test_int, test_string FROM fetch_table';
-        $originalStmt = $this->_conn->prepare($sql);
-
-        // Mock the connection
-        $connectionMock = $this->getMockBuilder('Doctrine\\DBAL\\Driver\\Connection')
-            ->setMethods(['prepare', 'query'])
-            ->getMockForAbstractClass();
-
-        $stmtSpy = new StatementSpy($originalStmt);
-
-        // Return our mocked statement from the query
-        $connectionMock->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($stmtSpy));
-
-        $connectionMock->expects($this->any())
-            ->method('query')
-            ->will($this->returnCallback(function () use ($stmtSpy) {
-                $stmtSpy->execute();
-                return $stmtSpy;
-            }));
-
-        $stmt = $connectionMock->query($sql);
-        $stmt->setFetchMode(\PDO::FETCH_ASSOC);
-
-        // Assert no fetch calls thus far
-        self::assertEquals(0, $stmtSpy->getFetchCalls());
-
-        $i = 0;
-        foreach ($stmt as $row) {
-            $i++;
-        }
-
-        // Assert expected number of fetches
-        $this->assertGreaterThan(0, $stmtSpy->getFetchCalls());
-        $this->assertEquals($i, $stmtSpy->getFetchCalls());
+        return [
+            [MysqliConnection::class, MysqliStatement::class],
+            [OCI8Connection::class, OCI8Statement::class],
+            [DB2Connection::class, DB2Statement::class],
+            [SQLAnywhereConnection::class, SQLAnywhereStatement::class],
+            [SQLSrvConnection::class, SQLSrvStatement::class],
+        ];
     }
-}
 
-class StatementSpy implements \IteratorAggregate
-{
     /**
-     * @var Statement|\Doctrine\DBAL\Statement
+     * @dataProvider getConnections
      */
-    private $stmt;
-
-    private $fetchCalls = 0;
-
-    public function __construct(Statement $stmt)
+    public function testGettingIteratorDoesNotCallFetch($connection, $statement)
     {
-        $this->stmt = $stmt;
+        $stmt = $this->createPartialMock($statement, ['fetch']);
+        $stmt->expects($this->never())->method('fetch');
+
+        $conn = $this->createMock($connection);
+        $conn->expects($this->any())->method('prepare')->willReturn($stmt);
+
+        $ii = new IteratorIterator($stmt);
+        $ii->getInnerIterator();
     }
 
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    /**
+     * @dataProvider getConnections
+     */
+    public function testIterationCallsFetchOncePerStep($connection, $statement)
     {
-        return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
-    }
+        $values = ['foo', '', 'bar', '0', 'baz', 0, 'qux', null, 'quz', false];
+        $calls = 0;
 
-    public function execute($params = null)
-    {
-        return $this->stmt->execute($params);
-    }
+        $stmt = $this->createPartialMock($statement, ['fetch']);
+        $stmt->expects($this->exactly(10))
+            ->method('fetch')
+            ->willReturnCallback(function() use ($values, &$calls) {
+                $calls++;
+                yield from $values;
+            });
 
-    public function getIterator()
-    {
-        foreach ($this->stmt as $item) {
-            $this->fetchCalls++;
-            yield $item;
+        $conn = $this->createMock($connection);
+        $conn->expects($this->any())->method('prepare')->willReturn($stmt);
+
+        foreach ($stmt as $i => $_) {
+            $_->next();
+            $this->assertEquals($i + 1, $calls);
         }
     }
-
-    public function getFetchCalls()
-    {
-        return $this->fetchCalls;
-    }
-}
-
-class MyFetchClass
-{
-    public $test_int, $test_string, $test_datetime;
 }
