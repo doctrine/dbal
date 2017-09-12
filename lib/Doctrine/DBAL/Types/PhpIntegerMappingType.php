@@ -19,8 +19,6 @@
 
 namespace Doctrine\DBAL\Types;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-
 /**
  * Implementations should map a database type to a PHP integer.
  * @internal
