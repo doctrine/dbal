@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
+use Doctrine\DBAL\Driver\StatementIterator;
 use PDO;
 use IteratorAggregate;
 use Doctrine\DBAL\Driver\Statement;
@@ -295,9 +296,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        while ($row = $this->fetch()) {
-            yield $row;
-        }
+        return new StatementIterator($this);
     }
 
     /**

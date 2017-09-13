@@ -20,7 +20,8 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Statement;
-use \IteratorAggregate;
+use Doctrine\DBAL\Driver\StatementIterator;
+use IteratorAggregate;
 use PDO;
 
 /**
@@ -370,9 +371,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        while ($row = $this->fetch()) {
-            yield $row;
-        }
+        return new StatementIterator($this);
     }
 
     /**

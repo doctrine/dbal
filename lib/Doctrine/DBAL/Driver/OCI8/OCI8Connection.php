@@ -37,7 +37,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * @var integer
      */
-    protected $executeMode;
+    protected $executeMode = OCI_COMMIT_ON_SUCCESS;
 
     /**
      * Creates a Connection to an Oracle Database using oci8 extension.
@@ -56,8 +56,6 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         if (!defined('OCI_NO_AUTO_COMMIT')) {
             define('OCI_NO_AUTO_COMMIT', 0);
         }
-
-        $this->executeMode = OCI_COMMIT_ON_SUCCESS;
 
         $this->dbh = $persistent
             ? @oci_pconnect($username, $password, $db, $charset, $sessionMode)
