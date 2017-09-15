@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
+use Doctrine\DBAL\Driver\StatementIterator;
 use IteratorAggregate;
 use PDO;
 use Doctrine\DBAL\Driver\Statement;
@@ -278,7 +279,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->fetchAll());
+        return new StatementIterator($this);
     }
 
     /**
