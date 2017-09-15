@@ -1135,6 +1135,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'uuid'          => 'guid',
             'bytea'         => 'blob',
             'int4range'     => 'integer',
+            'int8range'     => 'bigint',
         ];
     }
 
