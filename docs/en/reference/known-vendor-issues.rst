@@ -138,35 +138,6 @@ difference is subtle but can be potentially very nasty. Derick
 Rethans explains it very well
 `in a blog post of his <http://derickrethans.nl/storing-date-time-in-database.html>`_.
 
-OCI8: SQL Queries with Question Marks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-We had to implement a question mark to named parameter translation
-inside the OCI8 DBAL Driver. It works as a very simple parser with two states: Inside Literal, Outside Literal.
-From our perspective it should be working in all cases, but you have to be careful with certain
-queries:
-
-.. code-block:: sql
-
-    SELECT * FROM users WHERE name = 'bar?'
-
-Could in case of a bug with the parser be rewritten into:
-
-.. code-block:: sql
-
-    SELECT * FROM users WHERE name = 'bar:oci1'
-
-For this reason you should always use prepared statements with
-Oracle OCI8, never use string literals inside the queries. A query
-for the user 'bar?' should look like:
-
-.. code-block:: php
-
-    $sql = 'SELECT * FROM users WHERE name = ?'
-    $stmt = $conn->prepare($sql);
-    $stmt->bindValue(1, 'bar?');
-    $stmt->execute();
-
 OCI-LOB instances
 ~~~~~~~~~~~~~~~~~
 
