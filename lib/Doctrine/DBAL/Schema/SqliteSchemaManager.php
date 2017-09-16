@@ -454,18 +454,14 @@ class SqliteSchemaManager extends AbstractSchemaManager
     }
 
     /**
-     * @param string $column
-     * @param string $sql
-     *
      * @return string|false
      */
     private function parseColumnCommentFromSQL($column, $sql)
     {
-        if (preg_match(
-            '{[\s(,](?:'.preg_quote($this->_platform->quoteSingleIdentifier($column)).'|'.preg_quote($column).')
-            (?:\(.*?\)|[^,(])*?,?((?:\s*--[^\n]*\n?)+)
-            }isx', $sql, $match
-        )) {
+        $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
+                 . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}ix';
+
+        if (preg_match($pattern, $sql, $match) === 1) {
             $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
 
             return '' === $comment ? false : $comment;
