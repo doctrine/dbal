@@ -443,11 +443,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     private function parseColumnCollationFromSQL($column, $sql)
     {
-        if (preg_match(
-            '{(?:'.preg_quote($column).'|'.preg_quote($this->_platform->quoteSingleIdentifier($column)).')
-                [^,(]+(?:\([^()]+\)[^,]*)?
-                (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
-                COLLATE\s+["\']?([^\s,"\')]+)}isx', $sql, $match)) {
+        $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
+                 . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
+
+        if (preg_match($pattern, $sql, $match) === 1) {
             return $match[1];
         }
 
