@@ -874,4 +874,15 @@ EOD;
     {
         self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
     }
+
+    public function testGetDefaultValueDeclarationSQLEscaped()
+    {
+        // string must be escaped
+        $field = array(
+            'type' => 'string',
+            'default' => 'Foo\\Bar'
+        );
+
+        self::assertEquals(" DEFAULT 'Foo\\\\Bar'", $this->_platform->getDefaultValueDeclarationSQL($field));
+    }
 }

@@ -907,4 +907,15 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertContains('bar', $sql);
         self::assertNotContains('DATABASE()', $sql);
     }
+
+    public function testGetDefaultValueDeclarationSQLEscaped()
+    {
+        // string must be escaped
+        $field = array(
+            'type' => 'string',
+            'default' => 'Foo\\Bar'
+        );
+
+        self::assertEquals(" DEFAULT 'Foo\\\\Bar'", $this->_platform->getDefaultValueDeclarationSQL($field));
+    }
 }

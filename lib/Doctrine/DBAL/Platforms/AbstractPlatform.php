@@ -2306,7 +2306,7 @@ abstract class AbstractPlatform
             return " DEFAULT '" . $this->convertBooleans($default) . "'";
         }
 
-        return " DEFAULT '" . $default . "'";
+        return " DEFAULT " . $this->quoteStringLiteral($default);
     }
 
     /**
