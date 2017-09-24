@@ -126,7 +126,7 @@ Following are examples of using prepared statements with SQL and DQL:
     $data = $query->getResult();
 
 You can see this is a bit more tedious to write, but this is the only way to write secure queries. If you
-are using just the DBAL there are also helper methods which simplify the usage quite alot:
+are using just the DBAL there are also helper methods which simplify the usage quite a lot:
 
 .. code-block:: php
 
@@ -137,7 +137,7 @@ are using just the DBAL there are also helper methods which simplify the usage q
 
 There is also ``executeUpdate`` which does not return a statement but the number of affected rows.
 
-Besides binding parameters you can also pass the type of the variable. This allows Doctrine or the underyling
+Besides binding parameters you can also pass the type of the variable. This allows Doctrine or the underlying
 vendor to not only escape but also cast the value to the correct type. See the docs on querying and DQL in the
 respective chapters for more information.
 
