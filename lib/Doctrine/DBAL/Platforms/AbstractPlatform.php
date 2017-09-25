@@ -2277,18 +2277,17 @@ abstract class AbstractPlatform
         $default = empty($field['notnull']) ? ' DEFAULT NULL' : '';
 
         if (isset($field['default'])) {
-            $default = " DEFAULT '".$field['default']."'";
+            $default = " DEFAULT '" . $field['default'] . "'";
             if (isset($field['type'])) {
                 $type = $field['type'];
                 if ($type instanceof Types\PhpIntegerMappingType) {
-                    $default = " DEFAULT ".$field['default'];
-                } elseif ($type instanceof Types\PhpDateTimeMappingType
-                    && $field['default'] == $this->getCurrentTimestampSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimestampSQL();
-                } elseif ($type instanceof Types\TimeType && $field['default'] == $this->getCurrentTimeSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimeSQL();
-                } elseif ($type instanceof Types\DateType && $field['default'] == $this->getCurrentDateSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentDateSQL();
+                    $default = " DEFAULT " . $field['default'];
+                } elseif ($type instanceof Types\PhpDateTimeMappingType && $field['default'] === $this->getCurrentTimestampSQL()) {
+                    $default = " DEFAULT " . $this->getCurrentTimestampSQL();
+                } elseif ($type instanceof Types\TimeType && $field['default'] === $this->getCurrentTimeSQL()) {
+                    $default = " DEFAULT " . $this->getCurrentTimeSQL();
+                } elseif ($type instanceof Types\DateType && $field['default'] === $this->getCurrentDateSQL()) {
+                    $default = " DEFAULT " . $this->getCurrentDateSQL();
                 } elseif ($type instanceof Types\BooleanType) {
                     $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
                 }
