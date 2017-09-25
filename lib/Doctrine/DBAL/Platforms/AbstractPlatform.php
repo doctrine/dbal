@@ -2277,17 +2277,19 @@ abstract class AbstractPlatform
         $default = empty($field['notnull']) ? ' DEFAULT NULL' : '';
 
         if (isset($field['default'])) {
-            $default = " DEFAULT '".$field['default']."'";
+            $default = " DEFAULT '" . $field['default'] . "'";
             if (isset($field['type'])) {
-                if (in_array((string) $field['type'], array("Integer", "BigInt", "SmallInt"))) {
-                    $default = " DEFAULT ".$field['default'];
-                } elseif (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getCurrentTimestampSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimestampSQL();
-                } elseif ((string) $field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimeSQL();
-                } elseif ((string) $field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentDateSQL();
-                } elseif ((string) $field['type'] == 'Boolean') {
+                $type = (string) $field['type'];
+
+                if (in_array($type, ["Integer", "BigInt", "SmallInt"], true)) {
+                    $default = " DEFAULT " . $field['default'];
+                } elseif (in_array($type, ['DateTime', 'DateTimeTz', 'DateTimeImmutable', 'DateTimeTzImmutable'], true) && $field['default'] === $this->getCurrentTimestampSQL()) {
+                    $default = " DEFAULT " . $this->getCurrentTimestampSQL();
+                } elseif (in_array($type, ['Time', 'TimeImmutable'], true) && $field['default'] === $this->getCurrentTimeSQL()) {
+                    $default = " DEFAULT " . $this->getCurrentTimeSQL();
+                } elseif (in_array($type, ['Date', 'DateImmutable'], true) && $field['default'] === $this->getCurrentDateSQL()) {
+                    $default = " DEFAULT " . $this->getCurrentDateSQL();
+                } elseif ($type === 'Boolean') {
                     $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
                 }
             }
