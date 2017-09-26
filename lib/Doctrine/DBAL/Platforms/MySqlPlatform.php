@@ -26,6 +26,7 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * The MySqlPlatform provides the behavior, features and SQL dialect of the
@@ -460,12 +461,23 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
+     * Tells whether a field type supports declaration of a default value.
+     *
+     * MySQL (as of 5.7.19) does not support default values for Blob and Text
+     * columns while MariaDB 10.2.1 does.
+     */
+    protected function isDefaultValueSupportedForType(Type $field): bool
+    {
+        return !($field instanceof TextType || $field instanceof BlobType);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getDefaultValueDeclarationSQL($field)
     {
-        // Unset the default value if the given field definition does not allow default values.
-        if ($field['type'] instanceof TextType || $field['type'] instanceof BlobType) {
+        // Unset the default value if the given field type does not allow default values.
+        if (!$this->isDefaultValueSupportedForType($field['type'])) {
             $field['default'] = null;
         }
 
@@ -583,7 +595,8 @@ class MySqlPlatform extends AbstractPlatform
             // Don't propagate default value changes for unsupported column types.
             if ($columnDiff->hasChanged('default') &&
                 count($columnDiff->changedProperties) === 1 &&
-                ($columnArray['type'] instanceof TextType || $columnArray['type'] instanceof BlobType)
+                !$this->isDefaultValueSupportedForType($columnArray['type'])
+                //($columnArray['type'] instanceof TextType || $columnArray['type'] instanceof BlobType)
             ) {
                 continue;
             }

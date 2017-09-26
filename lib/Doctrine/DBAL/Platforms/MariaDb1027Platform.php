@@ -17,63 +17,64 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Driver\DrizzlePDOMySql;
+namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\DrizzlePlatform;
-use Doctrine\DBAL\Schema\DrizzleSchemaManager;
+use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\StringType;
+use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\Type;
 
 /**
- * Drizzle driver using PDO MySql.
+ * Provides the behavior, features and SQL dialect of the MariaDB 10.2 (10.2.7 GA) database platform.
  *
- * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
+ * @author Vanvelthem Sébastien
+ * @link   www.doctrine-project.org
  */
-class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
+final class MariaDb1027Platform extends MySqlPlatform
 {
     /**
      * {@inheritdoc}
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
+    public function hasNativeJsonType(): bool
     {
-        $conn = new Connection(
-            $this->constructPdoDsn($params),
-            $username,
-            $password,
-            $driverOptions
-        );
+        return true;
+    }
 
-        return $conn;
+    /**
+     * {@inheritdoc}
+     * @link https://mariadb.com/kb/en/library/json-data-type/
+     */
+    public function getJsonTypeDeclarationSQL(array $field): string
+    {
+        return 'JSON';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createDatabasePlatformForVersion($version): AbstractPlatform
+    protected function getReservedKeywordsClass(): string
     {
-        return $this->getDatabasePlatform();
+        return Keywords\MariaDb102Keywords::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    protected function initializeDoctrineTypeMappings(): void
     {
-        return new DrizzlePlatform();
+        parent::initializeDoctrineTypeMappings();
+
+        $this->doctrineTypeMapping['json'] = Type::JSON;
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
+     *
+     * Since MariaDB 10.2.1 blob and text columns can have a default value.
+     * @link https://mariadb.com/kb/en/library/blob-and-text-data-types/
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    protected function isDefaultValueSupportedForType(Type $field): bool
     {
-        return new DrizzleSchemaManager($conn);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'drizzle_pdo_mysql';
+        return true;
     }
 }

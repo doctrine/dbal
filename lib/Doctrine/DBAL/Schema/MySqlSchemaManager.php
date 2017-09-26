@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
 
@@ -67,7 +68,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     {
         foreach ($tableIndexes as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
-            if ($v['key_name'] == 'PRIMARY') {
+            if ($v['key_name'] === 'PRIMARY') {
                 $v['primary'] = true;
             } else {
                 $v['primary'] = false;
@@ -176,17 +177,25 @@ class MySqlSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        $length = ((int) $length == 0) ? null : (int) $length;
+        $length = $length !== null ? (int) $length : null;
+
+        $isNotNull = $tableColumn['null'] !== 'YES';
+
+        if ($this->_platform instanceof MariaDb1027Platform) {
+            $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default'] ?? null);
+        } else {
+            $columnDefault = (isset($tableColumn['default'])) ? $tableColumn['default'] : null;
+        }
 
         $options = [
             'length'        => $length,
-            'unsigned'      => (bool) (strpos($tableColumn['type'], 'unsigned') !== false),
+            'unsigned'      => strpos($tableColumn['type'], 'unsigned') !== false,
             'fixed'         => (bool) $fixed,
-            'default'       => isset($tableColumn['default']) ? $tableColumn['default'] : null,
-            'notnull'       => (bool) ($tableColumn['null'] != 'YES'),
+            'default'       => $columnDefault,
+            'notnull'       => $isNotNull,
             'scale'         => null,
             'precision'     => null,
-            'autoincrement' => (bool) (strpos($tableColumn['extra'], 'auto_increment') !== false),
+            'autoincrement' => strpos($tableColumn['extra'], 'auto_increment') !== false,
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
@@ -206,6 +215,46 @@ class MySqlSchemaManager extends AbstractSchemaManager
         return $column;
     }
 
+
+    /**
+     * Return column default value for MariaDB >= 10.2.7 servers that is
+     * compatible with existing doctrine mysql implementation (unquoted literals)
+     *
+     * Since 10.2.7:
+     *
+     * 1. Column defaults stored in information_schema are now quoted
+     *    to distinguish them from expressions (see MDEV-10134 for a what is an expression).
+     *
+     * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
+     * @link https://jira.mariadb.org/browse/MDEV-13132
+     *
+     * 2. Quoted string defaults use double single quotes as escaping character in information_schema.
+     *
+     * @links https://mariadb.com/kb/en/library/string-literals/
+     *
+     * @param null|string $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
+     */
+    private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault): ?string {
+        if ($columnDefault === 'NULL' || $columnDefault === null) {
+            $defaultValue = null;
+        } elseif (strpos($columnDefault, "'") === 0) {
+            $defaultValue = stripslashes(
+                str_replace("''", "'",
+                    preg_replace('/^\'(.*)\'$/', '$1', $columnDefault)
+                )
+            );
+        } elseif ($columnDefault === 'current_timestamp()') {
+            $defaultValue = $platform->getCurrentTimestampSQL();
+        } elseif ($columnDefault === 'curdate()') {
+            $defaultValue = $platform->getCurrentDateSQL();
+        } elseif ($columnDefault === 'curtime()') {
+            $defaultValue = $platform->getCurrentTimeSQL();
+        } else {
+            $defaultValue = $columnDefault;
+        }
+        return $defaultValue;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -215,10 +264,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
             if (!isset($list[$value['constraint_name']])) {
-                if (!isset($value['delete_rule']) || $value['delete_rule'] == "RESTRICT") {
+                if (!isset($value['delete_rule']) || $value['delete_rule'] === "RESTRICT") {
                     $value['delete_rule'] = null;
                 }
-                if (!isset($value['update_rule']) || $value['update_rule'] == "RESTRICT") {
+                if (!isset($value['update_rule']) || $value['update_rule'] === "RESTRICT") {
                     $value['update_rule'] = null;
                 }
 

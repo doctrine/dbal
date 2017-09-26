@@ -2281,32 +2281,32 @@ abstract class AbstractPlatform
         $default = $field['default'];
 
         if ( ! isset($field['type'])) {
-            return " DEFAULT '" . $default . "'";
+            return ' DEFAULT ' . $this->quoteStringLiteral($default);
         }
 
         $type = $field['type'];
 
         if ($type instanceof Types\PhpIntegerMappingType) {
-            return " DEFAULT " . $default;
+            return ' DEFAULT ' . $default;
         }
 
         if ($type instanceof Types\PhpDateTimeMappingType && $default === $this->getCurrentTimestampSQL()) {
-            return " DEFAULT " . $this->getCurrentTimestampSQL();
+            return ' DEFAULT ' . $this->getCurrentTimestampSQL();
         }
 
         if ($type instanceof Types\TimeType && $default === $this->getCurrentTimeSQL()) {
-            return " DEFAULT " . $this->getCurrentTimeSQL();
+            return ' DEFAULT ' . $this->getCurrentTimeSQL();
         }
 
         if ($type instanceof Types\DateType && $default === $this->getCurrentDateSQL()) {
-            return " DEFAULT " . $this->getCurrentDateSQL();
+            return ' DEFAULT ' . $this->getCurrentDateSQL();
         }
 
         if ($type instanceof Types\BooleanType) {
             return " DEFAULT '" . $this->convertBooleans($default) . "'";
         }
 
-        return " DEFAULT '" . $default . "'";
+        return ' DEFAULT ' . $this->quoteStringLiteral($default);
     }
 
     /**

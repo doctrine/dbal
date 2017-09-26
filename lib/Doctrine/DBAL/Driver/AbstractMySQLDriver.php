@@ -22,6 +22,8 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
@@ -123,35 +125,72 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
 
     /**
      * {@inheritdoc}
+     *
+     * @return AbstractPlatform|MariaDb1027Platform|MySQL57Platform|MySqlPlatform
+     * @throws DBALException
      */
-    public function createDatabasePlatformForVersion($version)
+    public function createDatabasePlatformForVersion($version): AbstractPlatform
     {
-        if ( ! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
+        if (false !== stripos($version, 'mariadb')) {
+            $versionNumber = $this->getMariaDbMysqlVersionNumber($version);
+            if (version_compare($versionNumber, '10.2.7', '>=')) {
+                return new MariaDb1027Platform();
+            }
+        } else {
+            $versionNumber = $this->getOracleMysqlVersionNumber($version);
+            if (version_compare($versionNumber, '5.7.9', '>=')) {
+                return new MySQL57Platform();
+            }
+        }
+
+        return $this->getDatabasePlatform();
+    }
+
+    /**
+     * Get a normalized 'version number' from the server string
+     * returned by Oracle MySQL servers.
+     *
+     * @param string $versionString Version string returned by the driver, i.e. '5.7.10'
+     * @throws DBALException
+     */
+    private function getOracleMysqlVersionNumber(string $versionString): string
+    {
+        if (!preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $versionString, $versionParts)) {
             throw DBALException::invalidPlatformVersionSpecified(
-                $version,
+                $versionString,
                 '<major_version>.<minor_version>.<patch_version>'
             );
         }
-
-        if (false !== stripos($version, 'mariadb')) {
-            return $this->getDatabasePlatform();
-        }
-
         $majorVersion = $versionParts['major'];
-        $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
-        $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : null;
+        $minorVersion = $versionParts['minor'] ?? 0;
+        $patchVersion = $versionParts['patch'] ?? null;
 
         if ('5' === $majorVersion && '7' === $minorVersion && null === $patchVersion) {
             $patchVersion = '9';
         }
 
-        $version = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+        return $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+    }
 
-        if (version_compare($version, '5.7.9', '>=')) {
-            return new MySQL57Platform();
+    /**
+     * Detect MariaDB server version, including hack for some mariadb distributions
+     * that starts with the prefix '5.5.5-'
+     *
+     * @param string $versionString Version string as returned by mariadb server, i.e. '5.5.5-Mariadb-10.0.8-xenial'
+     * @throws DBALException
+     */
+    private function getMariaDbMysqlVersionNumber(string $versionString): string
+    {
+        $version = str_replace('5.5.5-', '', $versionString);
+
+        if (!preg_match('/^(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/', strtolower($version), $versionParts)) {
+            throw DBALException::invalidPlatformVersionSpecified(
+                $version,
+                '(mariadb-)?<major_version>.<minor_version>.<patch_version>'
+            );
         }
 
-        return $this->getDatabasePlatform();
+        return $versionParts['major'] . '.' . $versionParts['minor'] . '.' . $versionParts['patch'];
     }
 
     /**

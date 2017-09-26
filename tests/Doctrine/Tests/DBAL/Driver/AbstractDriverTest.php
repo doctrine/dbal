@@ -7,7 +7,6 @@ use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use Doctrine\Tests\DbalTestCase;
-use Throwable;
 
 abstract class AbstractDriverTest extends DbalTestCase
 {
@@ -122,7 +121,17 @@ abstract class AbstractDriverTest extends DbalTestCase
         }
 
         foreach ($data as $item) {
-            self::assertSame($item[1], get_class($this->driver->createDatabasePlatformForVersion($item[0])));
+            self::assertSame($item[1], get_class($this->driver->createDatabasePlatformForVersion($item[0])),
+                sprintf(
+                    "Expected platform for version %s should be '%s' %s",
+                    $item[0],
+                    $item[1],
+                    ($this->driver instanceof VersionAwarePlatformDriver
+                        ? 'expected: ' . get_class($this->driver->createDatabasePlatformForVersion($item[0]))
+                        : 'see:' . $item[0]
+                    )
+
+                ));
         }
     }
 

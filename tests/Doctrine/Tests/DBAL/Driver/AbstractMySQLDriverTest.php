@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 
@@ -55,16 +57,21 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
     protected function getDatabasePlatformsForVersions()
     {
         return array(
-            array('5.6.9', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
-            array('5.7', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('5.7.0', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
-            array('5.7.8', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
-            array('5.7.9', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('5.7.10', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('6', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('10.0.15-MariaDB-1~wheezy', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
-            array('10.1.2a-MariaDB-a1~lenny-log', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
-            array('5.5.40-MariaDB-1~wheezy', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
+            array('5.6.9', MySqlPlatform::class),
+            array('5.7', MySQL57Platform::class),
+            array('5.7.0', MySqlPlatform::class),
+            array('5.7.8', MySqlPlatform::class),
+            array('5.7.9', MySQL57Platform::class),
+            array('5.7.10', MySQL57Platform::class),
+            array('6', MySQL57Platform::class),
+            array('10.0.15-MariaDB-1~wheezy', MySqlPlatform::class),
+            array('5.5.5-10.1.25-MariaDB', MySqlPlatform::class),
+            array('10.1.2a-MariaDB-a1~lenny-log', MySqlPlatform::class),
+            array('5.5.40-MariaDB-1~wheezy', MySqlPlatform::class),
+            array('5.5.40-MariaDB-1~wheezy', MySqlPlatform::class),
+            array('5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class),
+            array('10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class),
+            array('10.2.8-MariaDB-1~lenny-log', MariaDb1027Platform::class)
         );
     }
 
