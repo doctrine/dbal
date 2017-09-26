@@ -394,7 +394,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        $this->assertFalse($diff, "Tables should be identical with double quoted literals.");
+        self::assertFalse($diff, "Tables should be identical with double quoted literals.");
 
     }
 
@@ -419,7 +419,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        $this->assertFalse($diff, "Tables should be identical with column defaults.");
+        self::assertFalse($diff, "Tables should be identical with column defaults.");
     }
 
     /**
@@ -454,7 +454,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        $this->assertFalse($diff, "Tables should be identical with column defaults.");
+        self::assertFalse($diff, "Tables should be identical with column defaults.");
     }
 
 
@@ -480,7 +480,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        $this->assertFalse($diff, "Tables should be identical with values escape sequences.");
+        self::assertFalse($diff, "Tables should be identical with values escape sequences.");
     }
 
     public function testColumnDefaultsUsingDoctrineTable(): void
@@ -584,7 +584,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             $comparator = new Comparator();
 
             $diff = $comparator->diffTable($table, $onlineTable);
-            $this->assertFalse($diff, "Tables should be identical with expression column defaults.");
+            self::assertFalse($diff, "Tables should be identical with expression column defaults.");
         }
     }
 
