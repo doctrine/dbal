@@ -19,7 +19,7 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb102Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
 
@@ -181,7 +181,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $isNotNull = $tableColumn['null'] !== 'YES';
 
-        if ($this->_platform instanceof MariaDb1027Platform) {
+        if ($this->_platform instanceof MariaDb102Platform) {
             $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default'] ?? null);
         } else {
             $columnDefault = (isset($tableColumn['default'])) ? $tableColumn['default'] : null;
@@ -217,24 +217,20 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
 
     /**
-     * Return column default value for MariaDB >= 10.2.7 servers that is
-     * compatible with existing doctrine mysql implementation (unquoted literals)
+     * Return Doctrine/Mysql-compatible column default values for MariaDB 10.2.7+ servers.
      *
-     * Since 10.2.7:
-     *
-     * 1. Column defaults stored in information_schema are now quoted
-     *    to distinguish them from expressions (see MDEV-10134 for a what is an expression).
+     * - Since MariaDb 10.2.7 column defaults stored in information_schema are now quoted
+     *   to distinguish them from expressions (see MDEV-10134 for a what is an expression).
+     * - CURRENT_TIMESTAMP, CURRENT_TIME, CURRENT_DATE are stored in information_schema
+     *   as current_timestamp(), currdate(), currtime()
+     * - Literal escaping is normalized in information schema (store "''" instead of "\'")
      *
      * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
      * @link https://jira.mariadb.org/browse/MDEV-13132
      *
-     * 2. Quoted string defaults use double single quotes as escaping character in information_schema.
-     *
-     * @links https://mariadb.com/kb/en/library/string-literals/
-     *
      * @param null|string $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
-    private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault): ?string {
+    private function getMariaDb1027ColumnDefault(MariaDb102Platform $platform, ?string $columnDefault): ?string {
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             $defaultValue = null;
         } elseif (strpos($columnDefault, "'") === 0) {

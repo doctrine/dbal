@@ -23,9 +23,10 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb102Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 
@@ -126,7 +127,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      *
-     * @return AbstractPlatform|MariaDb1027Platform|MySQL57Platform|MySqlPlatform
+     * @return AbstractPlatform|MariaDb102Platform|MySQL57Platform|MySqlPlatform
      * @throws DBALException
      */
     public function createDatabasePlatformForVersion($version): AbstractPlatform
@@ -134,7 +135,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
         if (false !== stripos($version, 'mariadb')) {
             $versionNumber = $this->getMariaDbMysqlVersionNumber($version);
             if (version_compare($versionNumber, '10.2.7', '>=')) {
-                return new MariaDb1027Platform();
+                return new MariaDb102Platform();
             }
         } else {
             $versionNumber = $this->getOracleMysqlVersionNumber($version);
@@ -196,7 +197,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(\Doctrine\DBAL\Connection $conn): ?string
     {
         $params = $conn->getParams();
 
@@ -209,16 +210,18 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
 
     /**
      * {@inheritdoc}
+     * @return MySqlPlatform
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new MySqlPlatform();
     }
 
     /**
      * {@inheritdoc}
+     * @return MySqlSchemaManager
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn): AbstractSchemaManager
     {
         return new MySqlSchemaManager($conn);
     }

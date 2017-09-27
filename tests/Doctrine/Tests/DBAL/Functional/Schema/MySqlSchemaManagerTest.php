@@ -2,12 +2,13 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
-use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MariaDb102Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Tests\Types\MySqlPointType;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -17,7 +18,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         parent::setUp();
 
         if (!Type::hasType('point')) {
-            Type::addType('point', 'Doctrine\Tests\Types\MySqlPointType');
+            Type::addType('point', MySqlPointType::class);
         }
     }
 
@@ -157,15 +158,15 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
     {
-        if ($this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
-            $this->markTestSkipped('MariaDb1027Platform supports default values for BLOB and TEXT columns and will propagate values');
+        if ($this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
+            $this->markTestSkipped('MariaDb102Platform supports default values for BLOB and TEXT columns and will propagate values');
         }
 
         $table = new Table("text_blob_default_value");
-        $table->addColumn('def_text', 'text', array('default' => 'def'));
-        $table->addColumn('def_text_null', 'text', array('notnull' => false, 'default' => 'def'));
-        $table->addColumn('def_blob', 'blob', array('default' => 'def'));
-        $table->addColumn('def_blob_null', 'blob', array('notnull' => false, 'default' => 'def'));
+        $table->addColumn('def_text', 'text', ['default' => 'def']);
+        $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
+        $table->addColumn('def_blob', 'blob', ['default' => 'def']);
+        $table->addColumn('def_blob_null', 'blob', ['notnull' => false, 'default' => 'def']);
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -190,37 +191,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($onlineTable->getColumn('def_blob')->getDefault());
         self::assertNull($onlineTable->getColumn('def_blob_null')->getDefault());
         self::assertFalse($onlineTable->getColumn('def_blob_null')->getNotnull());
-    }
-
-    /**
-     * Since MariaDB 10.2.1, Blob and text columns can have a default value
-     *
-     * @link https://mariadb.com/kb/en/library/blob-and-text-data-types
-     */
-    public function testDefaultValueSupportForBlobAndText()
-    {
-        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
-            $this->markTestSkipped('Only MariaDb1027Platform supports default values for BLOB and TEXT columns');
-        }
-
-        $table = new Table("text_blob_default_value");
-        $table->addColumn('def_text', 'text', array('default' => 'def'));
-        $table->addColumn('def_text_null', 'text', array('notnull' => false, 'default' => 'def'));
-        $table->addColumn('def_blob', 'blob', array('default' => 'def'));
-        $table->addColumn('def_blob_null', 'blob', array('notnull' => false, 'default' => 'def'));
-
-        $this->_sm->dropAndCreateTable($table);
-
-        $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
-
-        self::assertSame('def', $onlineTable->getColumn('def_text')->getDefault());
-        self::assertSame('def', $onlineTable->getColumn('def_text_null')->getDefault());
-        self::assertSame('def', $onlineTable->getColumn('def_blob')->getDefault());
-        self::assertSame('def', $onlineTable->getColumn('def_blob_null')->getDefault());
-
-        $comparator = new Comparator();
-
-        self::assertFalse($comparator->diffTable($table, $onlineTable));
     }
 
     public function testColumnCollation()
@@ -374,13 +344,12 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testColumnDefaultValuesDoubleQuoted(): void
     {
-
         $table = new Table("test_column_default_values_double_quoted");
         $table->addColumn('string_nullable_quoted', 'string', ['notnull' => false, 'default' => 'NULL']);
         $table->addColumn('string_nullable_double_quoted', 'string', ['notnull' => false, 'default' => "'NULL'"]);
 
         $table->addColumn('string_notnull_quoted', 'string', ['notnull' => true, 'default' => 'NULL']);
-        //$table->addColumn('string_notnull_double_quoted', 'string', ['notnull' => true, 'default' => "\\'NULL\\'"]);
+        $table->addColumn('string_notnull_double_quoted', 'string', ['notnull' => true, 'default' => "\\'NULL\\'"]);
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -389,15 +358,13 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertSame("'NULL'", $onlineTable->getColumn('string_nullable_double_quoted')->getDefault());
         self::assertSame("NULL", $onlineTable->getColumn('string_notnull_quoted')->getDefault());
-        //self::assertSame("'NULL'", $onlineTable->getColumn('string_notnull_double_quoted')->getDefault());
+        self::assertSame("\\'NULL\\'", $onlineTable->getColumn('string_notnull_double_quoted')->getDefault());
 
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
         self::assertFalse($diff, "Tables should be identical with double quoted literals.");
-
     }
-
 
     public function testColumnDefaultCurrentTimestamp(): void
     {
@@ -423,43 +390,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
-     * Test default CURRENT_TIME and CURRENT_DATE as default values
-     *
-     * Note: MySQL (as of 5.7.19) does not support default value
-     * for DATE and TIME fields while MariaDB 10.2+ does
-     */
-    public function testColumnDefaultCurrentTimeAndDate()
-    {
-        $platform = $this->_sm->getDatabasePlatform();
-
-        if (!$platform instanceof MariaDb1027Platform) {
-            $this->markTestSkipped('Currently only MariaDb1027Platform supports setting CURRENT_TIME and CURRENT_DATE default values.');
-        }
-
-        $table = new Table("test_column_defaults_current_time_and_date");
-
-        $currentTimeSql = $platform->getCurrentTimeSQL();
-        $currentDateSql = $platform->getCurrentDateSQL();
-
-        $table->addColumn('col_date', 'date', ['notnull' => true, 'default' => $currentDateSql]);
-        $table->addColumn('col_time', 'time', ['notnull' => true, 'default' => $currentTimeSql]);
-
-        $this->_sm->dropAndCreateTable($table);
-
-        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_current_time_and_date");
-
-        self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
-        self::assertSame($currentTimeSql, $onlineTable->getColumn('col_time')->getDefault());
-
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, "Tables should be identical with column defaults.");
-    }
-
-
-    /**
-     *
      * @link https://mariadb.com/kb/en/library/string-literals
      */
     public function testColumnDefaultValuesEscaping(): void
@@ -483,9 +413,26 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($diff, "Tables should be identical with values escape sequences.");
     }
 
+    public function testJsonColumnType(): void
+    {
+        $platform = $this->_sm->getDatabasePlatform();
+        if (!$platform->hasNativeJsonType()) {
+            $this->markTestSkipped("Requires native JSON type");
+        }
+
+        $table = new Table('test_mysql_json');
+        $table->addColumn('col_json', 'json');
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns('test_mysql_json');
+
+        self::assertSame(TYPE::JSON, $columns['col_json']->getType()->getName());
+    }
+    /**
+     * @todo split into multiple tests (most of them already made) and remove
+     */
     public function testColumnDefaultsUsingDoctrineTable(): void
     {
-
         $table = new Table("test_column_defaults_with_table");
         $table->addColumn('col0', 'integer', ['notnull' => false]);
         $table->addColumn('col1', 'integer', ['notnull' => false, 'default' => null]);
@@ -534,20 +481,22 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
-     * Ensure that an existing table with quoted (literals) default values
-     * does not trigger a table change.
+     * Ensure that a table created outside doctrine and containing
+     * quoted default values does not trigger a table diff change. I
+     * Note: MariaDb 10.2 silently change "\'" into "''" when storing in
+     * information schema, MariaDb102Platform should normalize the table details.
      */
-    public function testColumnDefaultsDoesNotTriggerADiff(): void
+    public function testExistingTableWithQuotedDefaultsDoesNotTriggerChange(): void
     {
-        $this->_conn->query('DROP TABLE IF EXISTS test_column_defaults_no_diff');
+        $this->_conn->query('DROP TABLE IF EXISTS test_column_defaults_with_create');
         $sql = "
             CREATE TABLE test_column_defaults_with_create (
                 col1 VARCHAR(255) NULL DEFAULT 'O''Connor\'\"',
                 col2 VARCHAR(255) NULL DEFAULT '''A'''
                 );
         ";
-
         $this->_conn->query($sql);
+
         $onlineTable = $this->_sm->listTableDetails("test_column_defaults_with_create");
         self::assertSame("O'Connor'\"", $onlineTable->getColumn('col1')->getDefault());
         self::assertSame("'A'", $onlineTable->getColumn('col2')->getDefault());
@@ -562,7 +511,76 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
+     * Since MariaDB 10.2.1, Blob and text columns can have a default value
+     *
+     * @link https://mariadb.com/kb/en/library/blob-and-text-data-types
+     */
+    public function testDoesPropagateDefaultValuesForBlobTextAndJson(): void
+    {
+        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
+            $this->markTestSkipped('Only relevant for MariaDb102Platform.');
+        }
+
+        $table = new Table("text_blob_default_value");
+
+        $json = json_encode(['prop1' => "O'Connor", 'prop2' => 10]);
+
+        $table->addColumn('def_text', 'text', ['default' => "O'Connor"]);
+        $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
+        $table->addColumn('def_blob', 'blob', ['default' => 'def']);
+        $table->addColumn('def_json', 'json', ['default' => $json]);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
+
+        self::assertSame("O'Connor", $onlineTable->getColumn('def_text')->getDefault());
+        self::assertSame('def', $onlineTable->getColumn('def_text_null')->getDefault());
+        self::assertSame('def', $onlineTable->getColumn('def_blob')->getDefault());
+        self::assertSame($json, $onlineTable->getColumn('def_json')->getDefault());
+
+        $comparator = new Comparator();
+
+        self::assertFalse($comparator->diffTable($table, $onlineTable));
+    }
+
+    /**
+     * Note: MySQL (as of 5.7.19) does not support default value
+     * for DATE and TIME fields while MariaDB 10.2+ does
+     */
+    public function testColumnDefaultValuesCurrentTimeAndDate(): void
+    {
+        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
+            $this->markTestSkipped('Only relevant for MariaDb102Platform.');
+        }
+
+        $platform = $this->_sm->getDatabasePlatform();
+
+        $table = new Table("test_column_defaults_current_time_and_date");
+
+        $currentTimeSql = $platform->getCurrentTimeSQL();
+        $currentDateSql = $platform->getCurrentDateSQL();
+
+        $table->addColumn('col_date', 'date', ['notnull' => true, 'default' => $currentDateSql]);
+        $table->addColumn('col_time', 'time', ['notnull' => true, 'default' => $currentTimeSql]);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_current_time_and_date");
+
+        self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
+        self::assertSame($currentTimeSql, $onlineTable->getColumn('col_time')->getDefault());
+
+        $comparator = new Comparator();
+
+        $diff = $comparator->diffTable($table, $onlineTable);
+        self::assertFalse($diff, "Tables should be identical with column defaults.");
+    }
+
+    /**
      * MariaDB supports expressions as default values
+     *
+     * @todo remove or implement !!!
      *
      * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
      */
@@ -570,22 +588,23 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $this->markTestSkipped('Setting an expression as a default value is not yet supported (WIP)');
 
-        if ($this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
-
-            $table = new Table("test_column_default_expressions");
-
-            $table->addColumn('expression', 'string', ['notnull' => false, 'default' => "concat('A','B')"]);
-
-            $this->_sm->dropAndCreateTable($table);
-
-            $onlineTable = $this->_sm->listTableDetails("test_column_default_expressions");
-            self::assertSame("concat('A','B')", $onlineTable->getColumn('expression')->getDefault());
-
-            $comparator = new Comparator();
-
-            $diff = $comparator->diffTable($table, $onlineTable);
-            self::assertFalse($diff, "Tables should be identical with expression column defaults.");
+        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
+            $this->markTestSkipped('Only relevant for MariaDb102Platform.');
         }
+
+        $table = new Table("test_column_default_expressions");
+
+        $table->addColumn('expression', 'string', ['notnull' => false, 'default' => "concat('A','B')"]);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $onlineTable = $this->_sm->listTableDetails("test_column_default_expressions");
+        self::assertSame("concat('A','B')", $onlineTable->getColumn('expression')->getDefault());
+
+        $comparator = new Comparator();
+
+        $diff = $comparator->diffTable($table, $onlineTable);
+        self::assertFalse($diff, "Tables should be identical with expression column defaults.");
     }
 
 }
