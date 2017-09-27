@@ -496,8 +496,14 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
-     * Note: MySQL (as of 5.7.19) does not support default value
-     * for DATE and TIME fields while MariaDB 10.2+ does
+     * MariaDB 10.2+ does support CURRENT_TIME and CURRENT_DATE as
+     * column default values for time and date columns.
+     * (Not supported on Mysql as of 5.7.19)
+     *
+     * Note that MariaDB 10.2+, when storing default in information_schema,
+     * silently change CURRENT_TIMESTAMP as 'current_timestamp()',
+     * CURRENT_TIME as 'currtime()' and CURRENT_DATE as 'currdate()'.
+     * This test also ensure proper aliasing to not trigger a table diff.
      */
     public function testColumnDefaultValuesCurrentTimeAndDate(): void
     {
@@ -509,23 +515,26 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = new Table("test_column_defaults_current_time_and_date");
 
+        $currentTimestampSql = $platform->getCurrentTimestampSQL();
         $currentTimeSql = $platform->getCurrentTimeSQL();
         $currentDateSql = $platform->getCurrentDateSQL();
 
-        $table->addColumn('col_date', 'date', ['notnull' => true, 'default' => $currentDateSql]);
-        $table->addColumn('col_time', 'time', ['notnull' => true, 'default' => $currentTimeSql]);
+        $table->addColumn('col_datetime', 'datetime', ['default' => $currentTimestampSql]);
+        $table->addColumn('col_date', 'date', ['default' => $currentDateSql]);
+        $table->addColumn('col_time', 'time', ['default' => $currentTimeSql]);
 
         $this->_sm->dropAndCreateTable($table);
 
         $onlineTable = $this->_sm->listTableDetails("test_column_defaults_current_time_and_date");
 
+        self::assertSame($currentTimestampSql, $onlineTable->getColumn('col_datetime')->getDefault());
         self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
         self::assertSame($currentTimeSql, $onlineTable->getColumn('col_time')->getDefault());
 
         $comparator = new Comparator();
 
         $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, "Tables should be identical with column defaults.");
+        self::assertFalse($diff, "Tables should be identical with column defauts time and date.");
     }
 
     /**
