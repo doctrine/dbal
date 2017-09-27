@@ -177,10 +177,6 @@ class MySqlSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        $length = $length !== null ? (int) $length : null;
-
-        $isNotNull = $tableColumn['null'] !== 'YES';
-
         if ($this->_platform instanceof MariaDb102Platform) {
             $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default'] ?? null);
         } else {
@@ -188,11 +184,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
 
         $options = [
-            'length'        => $length,
+            'length'        => $length !== null ? (int) $length : null,
             'unsigned'      => strpos($tableColumn['type'], 'unsigned') !== false,
             'fixed'         => (bool) $fixed,
             'default'       => $columnDefault,
-            'notnull'       => $isNotNull,
+            'notnull'       => $tableColumn['null'] !== 'YES',
             'scale'         => null,
             'precision'     => null,
             'autoincrement' => strpos($tableColumn['extra'], 'auto_increment') !== false,
