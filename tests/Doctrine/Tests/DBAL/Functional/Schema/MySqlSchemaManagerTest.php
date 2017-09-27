@@ -333,7 +333,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 
-
     /**
      * As of MariaDB 10.2.7, nullable default values literals are always single quoted in
      * information_schema. Non-nullable defaults behaviour is not affected.
@@ -366,38 +365,14 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($diff, "Tables should be identical with double quoted literals.");
     }
 
-    public function testColumnDefaultCurrentTimestamp(): void
-    {
-        $platform = $this->_sm->getDatabasePlatform();
-
-        $table = new Table("test_column_defaults_current_timestamp");
-
-        $currentTimeStampSql = $platform->getCurrentTimestampSQL();
-
-        $table->addColumn('col_datetime', 'datetime', ['notnull' => true, 'default' => $currentTimeStampSql]);
-        $table->addColumn('col_datetime_nullable', 'datetime', ['notnull' => false, 'default' => $currentTimeStampSql]);
-
-        $this->_sm->dropAndCreateTable($table);
-
-        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_current_timestamp");
-        self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
-        self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
-
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, "Tables should be identical with column defaults.");
-    }
-
     /**
-     * Test that default value escaping does not trigger a schema change
-     * using different escaping options.
      * @link https://mariadb.com/kb/en/library/string-literals
      * @link https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
      */
-    public function testColumnDefaultValuesEscaping(): void
+    public function testColumnEscapingDefaultValuesDoesNotTriggerSchemaChange(): void
     {
         $table = new Table("test_column_default_values_escaping");
+        $table->addColumn('single_backslash', 'string', ['default' => 'F\Q\D\N']);
         $table->addColumn('double_backslash', 'string', ['default' => 'F\\Q\\D\\N']);
         $table->addColumn('triple_backslash', 'string', ['default' => 'a\\\z']);
         $table->addColumn('repeated_single_quotes', 'string', ['default' => "a''z"]);
@@ -407,6 +382,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->dropAndCreateTable($table);
 
         $onlineTable = $this->_sm->listTableDetails("test_column_default_values_escaping");
+        self::assertSame('F\Q\D\N', $onlineTable->getColumn('single_backslash')->getDefault());
         self::assertSame('F\\Q\\D\\N', $onlineTable->getColumn('double_backslash')->getDefault());
         self::assertSame('a\\\z', $onlineTable->getColumn('triple_backslash')->getDefault());
         self::assertSame("a''z", $onlineTable->getColumn('repeated_single_quotes')->getDefault());
@@ -433,57 +409,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $columns = $this->_sm->listTableColumns('test_mysql_json');
 
         self::assertSame(TYPE::JSON, $columns['col_json']->getType()->getName());
-    }
-    /**
-     * @todo split into multiple tests (most of them already made) and remove
-     */
-    public function testColumnDefaultsUsingDoctrineTable(): void
-    {
-        $table = new Table("test_column_defaults_with_table");
-        $table->addColumn('col0', 'integer', ['notnull' => false]);
-        $table->addColumn('col1', 'integer', ['notnull' => false, 'default' => null]);
-        $table->addColumn('col2', 'string', ['notnull' => false, 'default' => null]);
-        $table->addColumn('col3', 'string', ['notnull' => false, 'default' => 'NULL']);
-        $table->addColumn('col4', 'string', ['notnull' => false, 'default' => 'Hello world']);
-        $table->addColumn('col5', 'datetime', ['notnull' => false, 'default' => null]);
-        $table->addColumn('col6', 'decimal', ['scale' => 3, 'precision' => 6, 'notnull' => false, 'default' => -2.3]);
-        $table->addColumn('col7', 'date', ['notnull' => false, 'default' => '2012-12-12']);
-        $table->addColumn('col8', 'string', ['notnull' => true, 'default' => '']);
-        $table->addColumn('col9', 'integer', ['notnull' => false, 'default' => 0]);
-        $table->addColumn('col10', 'string', ['notnull' => false, 'default' => 'He"ll"o world']);
-        $table->addColumn('col11', 'string', ['notnull' => false, 'default' => '2012-12-12 23:59:59']);
-        //$table->addColumn('col12', 'string', ['notnull' => false, 'default' => 'He\\\'llo \\\world']);
-
-        $table->addColumn('col20', 'string', ['notnull' => true, 'default' => 'CURRENT_TIMESTAMP()']);
-        $table->addColumn('col21', 'string', ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
-
-        $this->_sm->dropAndCreateTable($table);
-
-        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_with_table");
-        self::assertNull($onlineTable->getColumn('col0')->getDefault());
-        self::assertNull($onlineTable->getColumn('col1')->getDefault());
-        self::assertNull($onlineTable->getColumn('col2')->getDefault());
-        self::assertEquals('NULL', $onlineTable->getColumn('col3')->getDefault());
-        self::assertEquals('Hello world', $onlineTable->getColumn('col4')->getDefault());
-        self::assertNull($onlineTable->getColumn('col5')->getDefault());
-        self::assertEquals(-2.3, $onlineTable->getColumn('col6')->getDefault());
-        self::assertEquals('2012-12-12', $onlineTable->getColumn('col7')->getDefault());
-        self::assertTrue($onlineTable->getColumn('col8')->getNotnull());
-        self::assertEquals('', $onlineTable->getColumn('col8')->getDefault());
-        self::assertSame('0', $onlineTable->getColumn('col9')->getDefault());
-        self::assertEquals('He"ll"o world', $onlineTable->getColumn('col10')->getDefault());
-        self::assertEquals('2012-12-12 23:59:59', $onlineTable->getColumn('col11')->getDefault());
-        //self::assertEquals('He\\\'llo \\world', $onlineTable->getColumn('col12')->getDefault());
-
-        // MariaDB 10.2 and MySQL 5.7 differences while storing default now() in information schema.
-        // MariaDB will always store "current_timestamp()", mysql "CURRENT_TIMESTAMP"
-        self::assertStringStartsWith('current_timestamp', strtolower($onlineTable->getColumn('col20')->getDefault()));
-        self::assertStringStartsWith('current_timestamp', strtolower($onlineTable->getColumn('col21')->getDefault()));
-
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, "Tables should be identical with column defaults.");
     }
 
     /**
@@ -516,38 +441,58 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($diff);
     }
 
-    /**
-     * Since MariaDB 10.2.1, Blob and text columns can have a default value
-     *
-     * @link https://mariadb.com/kb/en/library/blob-and-text-data-types
-     */
-    public function testDoesPropagateDefaultValuesForBlobTextAndJson(): void
+    public function testColumnDefaultCurrentTimestamp(): void
     {
-        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
-            $this->markTestSkipped('Only relevant for MariaDb102Platform.');
-        }
+        $platform = $this->_sm->getDatabasePlatform();
 
-        $table = new Table("text_blob_default_value");
+        $table = new Table("test_column_defaults_current_timestamp");
 
-        $json = json_encode(['prop1' => "O'Connor", 'prop2' => 10]);
+        $currentTimeStampSql = $platform->getCurrentTimestampSQL();
 
-        $table->addColumn('def_text', 'text', ['default' => "O'Connor"]);
-        $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
-        $table->addColumn('def_blob', 'blob', ['default' => 'def']);
-        $table->addColumn('def_json', 'json', ['default' => $json]);
+        $table->addColumn('col_datetime', 'datetime', ['notnull' => true, 'default' => $currentTimeStampSql]);
+        $table->addColumn('col_datetime_nullable', 'datetime', ['default' => $currentTimeStampSql]);
 
         $this->_sm->dropAndCreateTable($table);
 
-        $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
-
-        self::assertSame("O'Connor", $onlineTable->getColumn('def_text')->getDefault());
-        self::assertSame('def', $onlineTable->getColumn('def_text_null')->getDefault());
-        self::assertSame('def', $onlineTable->getColumn('def_blob')->getDefault());
-        self::assertSame($json, $onlineTable->getColumn('def_json')->getDefault());
+        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_current_timestamp");
+        self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
+        self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
 
         $comparator = new Comparator();
 
-        self::assertFalse($comparator->diffTable($table, $onlineTable));
+        $diff = $comparator->diffTable($table, $onlineTable);
+        self::assertFalse($diff, "Tables should be identical with column defaults.");
+    }
+
+    public function testColumnDefaultsAreValid() {
+
+        $table = new Table("test_column_defaults_are_valid");
+
+        $currentTimeStampSql = $this->_sm->getDatabasePlatform()->getCurrentTimestampSQL();
+        $table->addColumn('col_datetime', 'datetime', ['default' => $currentTimeStampSql]);
+        $table->addColumn('col_datetime_null', 'datetime', ['notnull' => false, 'default' => null]);
+        $table->addColumn('col_int', 'integer', ['default' => 1]);
+        $table->addColumn('col_string', 'string', ['default' => 'A']);
+        $table->addColumn('col_decimal', 'decimal', ['scale' => 3, 'precision' => 6, 'default' => -2.3]);
+        $table->addColumn('col_date', 'date', ['default' => '2012-12-12']);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $this->_conn->executeUpdate(
+            "INSERT INTO test_column_defaults_are_valid () VALUES()"
+        );
+
+        $row = $this->_conn->fetchAssoc(
+            'SELECT *, DATEDIFF(CURRENT_TIMESTAMP(), col_datetime) as diff_seconds FROM test_column_defaults_are_valid'
+        );
+
+        self::assertInstanceOf(\DateTime::class, \DateTime::createFromFormat('Y-m-d H:i:s', $row['col_datetime']));
+        self::assertNull($row['col_datetime_null']);
+        self::assertSame('1', $row['col_int']);
+        self::assertSame('A', $row['col_string']);
+        self::assertSame('-2.300', $row['col_decimal']);
+        self::assertSame('2012-12-12', $row['col_date']);
+        self::assertLessThan(5, $row['diff_seconds']);
     }
 
     /**
@@ -584,33 +529,36 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
-     * MariaDB supports expressions as default values
+     * Since MariaDB 10.2.1, Blob and text columns can have a default value
      *
-     * @todo remove or implement !!!
-     *
-     * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
+     * @link https://mariadb.com/kb/en/library/blob-and-text-data-types
      */
-    public function testColumnDefaultExpressions(): void
+    public function testDoesPropagateDefaultValuesForBlobTextAndJson(): void
     {
-        $this->markTestSkipped('Setting an expression as a default value is not yet supported (WIP)');
-
         if (!$this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
             $this->markTestSkipped('Only relevant for MariaDb102Platform.');
         }
 
-        $table = new Table("test_column_default_expressions");
+        $table = new Table("text_blob_default_value");
 
-        $table->addColumn('expression', 'string', ['notnull' => false, 'default' => "concat('A','B')"]);
+        $json = json_encode(['prop1' => "O'Connor", 'prop2' => 10]);
+
+        $table->addColumn('def_text', 'text', ['default' => "O'Connor"]);
+        $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
+        $table->addColumn('def_blob', 'blob', ['default' => '\F\Q\D\N']);
+        $table->addColumn('def_json', 'json', ['default' => $json]);
 
         $this->_sm->dropAndCreateTable($table);
 
-        $onlineTable = $this->_sm->listTableDetails("test_column_default_expressions");
-        self::assertSame("concat('A','B')", $onlineTable->getColumn('expression')->getDefault());
+        $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
+
+        self::assertSame("O'Connor", $onlineTable->getColumn('def_text')->getDefault());
+        self::assertSame('def', $onlineTable->getColumn('def_text_null')->getDefault());
+        self::assertSame('\F\Q\D\N', $onlineTable->getColumn('def_blob')->getDefault());
+        self::assertSame($json, $onlineTable->getColumn('def_json')->getDefault());
 
         $comparator = new Comparator();
 
-        $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, "Tables should be identical with expression column defaults.");
+        self::assertFalse($comparator->diffTable($table, $onlineTable));
     }
-
 }
