@@ -390,22 +390,28 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
+     * Test that default value escaping does not trigger a schema change
+     * using different escaping options.
      * @link https://mariadb.com/kb/en/library/string-literals
+     * @link https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
      */
     public function testColumnDefaultValuesEscaping(): void
     {
         $table = new Table("test_column_default_values_escaping");
-        $table->addColumn('no_quotes', 'string', ['notnull' => false, 'default' => 'az']);
-
-        $table->addColumn('backslash', 'string', ['notnull' => false, 'default' => 'a\\\z']);
-        $table->addColumn('repeated_single_quotes', 'string', ['notnull' => false, 'default' => "a''z"]);
+        $table->addColumn('double_backslash', 'string', ['default' => 'F\\Q\\D\\N']);
+        $table->addColumn('triple_backslash', 'string', ['default' => 'a\\\z']);
+        $table->addColumn('repeated_single_quotes', 'string', ['default' => "a''z"]);
+        $table->addColumn('backslash_double_quote', 'string', ['default' => 'a\"z']);
+        $table->addColumn('backslash_newline', 'string', ['default' => 'a\nz']);
 
         $this->_sm->dropAndCreateTable($table);
 
         $onlineTable = $this->_sm->listTableDetails("test_column_default_values_escaping");
-        self::assertSame("az", $onlineTable->getColumn('no_quotes')->getDefault());
-        self::assertSame('a\\\z', $onlineTable->getColumn('backslash')->getDefault());
+        self::assertSame('F\\Q\\D\\N', $onlineTable->getColumn('double_backslash')->getDefault());
+        self::assertSame('a\\\z', $onlineTable->getColumn('triple_backslash')->getDefault());
         self::assertSame("a''z", $onlineTable->getColumn('repeated_single_quotes')->getDefault());
+        self::assertSame('a\"z', $onlineTable->getColumn('backslash_double_quote')->getDefault());
+        self::assertSame('a\nz', $onlineTable->getColumn('backslash_newline')->getDefault());
 
         $comparator = new Comparator();
 

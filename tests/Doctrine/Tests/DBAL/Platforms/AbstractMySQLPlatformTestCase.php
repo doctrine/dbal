@@ -917,7 +917,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         ];
 
         self::assertSame(sprintf(
-                " DEFAULT %s",
+                ' DEFAULT %s',
                 $this->_platform->quoteStringLiteral("'O'Connor said: \"Hello\" \ \r'")
             ),
             $this->_platform->getDefaultValueDeclarationSQL($field)
