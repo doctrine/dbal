@@ -366,7 +366,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             list($schema, $table) = explode(".", $table);
             $schema = $this->quoteStringLiteral($schema);
         } else {
-            $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') from pg_catalog.pg_settings where name = 'search_path'),','))";
+            $schema = "ANY(string_to_array((select replace(replace(replace(setting,'\"\$user\"',user),' ',''),'\"','') from pg_catalog.pg_settings where name = 'search_path'),','))";
         }
 
         $table = new Identifier($table);
