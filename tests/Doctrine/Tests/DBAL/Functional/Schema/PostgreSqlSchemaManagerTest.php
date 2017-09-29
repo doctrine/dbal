@@ -32,6 +32,20 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
+     * @group DBAL-177
+     */
+    public function testGetSearchPathContainsKeywords()
+    {
+        $stmt = $this->_conn->prepare('SET search_path TO "$user", public, "user";');
+        $stmt->execute();
+
+        $params = $this->_conn->getParams();
+
+        $paths = $this->_sm->getSchemaSearchPaths();
+        self::assertEquals([$params['user'], 'public', 'user'], $paths);
+    }
+
+    /**
      * @group DBAL-244
      */
     public function testGetSchemaNames()

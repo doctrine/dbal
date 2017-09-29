@@ -62,7 +62,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $schema = explode(",", $this->_conn->fetchColumn('SHOW search_path'));
 
         if (isset($params['user'])) {
-            $schema = str_replace('"$user"', $params['user'], $schema);
+            $schema = str_replace(['"', '$user'], ['', $params['user']], $schema);
         }
 
         return array_map('trim', $schema);
