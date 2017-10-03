@@ -12,7 +12,7 @@ DateTime, DateTimeTz and Time Types
 
 Postgres has a variable return format for the datatype TIMESTAMP(n)
 and TIME(n) if microseconds are allowed (n > 0). Whenever you save
-a value with microseconds = 0. PostgreSQL will return this value in
+a value with microseconds = 0, PostgreSQL will return this value in
 the format:
 
 ::
@@ -72,7 +72,7 @@ DateTimeTz
 ~~~~~~~~~~
 
 MySQL does not support saving timezones or offsets. The DateTimeTz
-type therefore behave like the DateTime type.
+type therefore behaves like the DateTime type.
 
 Sqlite
 ------
@@ -80,7 +80,7 @@ Sqlite
 Buffered Queries and Isolation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Careful if you execute a ``SELECT`` query and do not iterate over the
+Be careful if you execute a ``SELECT`` query and do not iterate over the
 statements results immediately. ``UPDATE`` statements executed before iteration
 affect only the rows that have not been buffered into PHP memory yet. This
 breaks the SERIALIZABLE transaction isolation property that SQLite supposedly
@@ -106,7 +106,7 @@ DateTimeTz
 ~~~~~~~~~~
 
 Sqlite does not support saving timezones or offsets. The DateTimeTz
-type therefore behave like the DateTime type.
+type therefore behaves like the DateTime type.
 
 Reverse engineering primary key order
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

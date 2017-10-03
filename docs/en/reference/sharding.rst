@@ -3,7 +3,7 @@ Sharding
 
 .. note::
 
-    The sharding extension is currently in transition from a seperate Project
+    The sharding extension is currently in transition from a separate Project
     into DBAL. Class names may differ.
 
 Starting with 2.3 Doctrine DBAL contains some functionality to simplify the
