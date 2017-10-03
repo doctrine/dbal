@@ -410,7 +410,7 @@ using comma delimited ``explode()`` or ``null`` if no data is present.
     the database as the ``explode()`` deserialization technique used
     by this type converts every single array item to ``string``.
     This basically means that every array item other than ``string``
-    will loose its type awareness.
+    will lose its type awareness.
 
 json
 ^^^^
@@ -927,7 +927,7 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
         }
     }
 
-The job of Doctrine-DBAL is to transform your type into SQL declaration. You can modify the SQL declaration Doctrine will produce. At first, you must to enable this feature by overriding the canRequireSQLConversion method:
+The job of Doctrine-DBAL is to transform your type into an SQL declaration. You can modify the SQL declaration Doctrine will produce. At first, to enable this feature, you must override the canRequireSQLConversion method:
 
 ::
 
@@ -962,7 +962,7 @@ hook it into the database platform:
     Type::addType('money', 'My\Project\Types\MoneyType');
     $conn->getDatabasePlatform()->registerDoctrineTypeMapping('MyMoney', 'money');
 
-This would allow to use a money type in the ORM for example and
+This would allow using a money type in the ORM for example and
 have Doctrine automatically convert it back and forth to the
 database.
 

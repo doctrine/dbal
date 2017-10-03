@@ -77,7 +77,7 @@ If you wanted to use the ``drizzle_pdo__mysql`` driver instead::
 
     drizzle-pdo-mysql://localhost:4486/foo?charset=UTF-8
 
-In the two last example above, mind the dashes instead of the
+In the last two examples above, mind the dashes instead of the
 underscores in the URL schemes.
 
 For connecting to an SQLite database, the authority portion of the
@@ -155,8 +155,8 @@ Wrapper Class
 ~~~~~~~~~~~~~
 
 By default a ``Doctrine\DBAL\Connection`` is wrapped around a
-driver ``Connection``. The ``wrapperClass`` option allows to
-specify a custom wrapper implementation to use, however, a custom
+driver ``Connection``. The ``wrapperClass`` option allows
+specifying a custom wrapper implementation to use, however, a custom
 wrapper class must be a subclass of ``Doctrine\DBAL\Connection``.
 
 Connection Details
@@ -208,7 +208,7 @@ drizzle\_pdo\_mysql
 
 **Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to be enabled.
 On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
-or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled daemon.
+or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restarting the drizzled daemon.
 
 -  ``user`` (string): Username to use when connecting to the
    database. Only needed if authentication is configured for drizzled.

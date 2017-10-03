@@ -44,7 +44,7 @@ $orderItems->addOption('azure.federatedOnColumnName', 'CustomerID');
 // Create the Schema + Federation:
 $synchronizer = new SQLAzureSchemaSynchronizer($conn, $shardManager);
 
-// Or jut look at the SQL:
+// Or just look at the SQL:
 echo implode("\n", $synchronizer->getCreateSchema($schema));
 
 $synchronizer->createSchema($schema);
