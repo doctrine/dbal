@@ -50,7 +50,7 @@ Assumptions:
 
 ### SQL Azure Federations
 
-SQL Azure is a special case, points 1, 2, 3, 4, 7 and 8 are partly handled on the database level. This makes it a perfect test-implementation for just the subset of features in points 5-6. However there need to be a way to configure SchemaTool to generate the correct Schema on SQL Azure.
+SQL Azure is a special case, points 1, 2, 3, 4, 7 and 8 are partly handled on the database level. This makes it a perfect test-implementation for just the subset of features in points 5-6. However there needs to be a way to configure SchemaTool to generate the correct Schema on SQL Azure.
 
 * SELECT Operations: The most simple assumption is to always query all shards unless the user specifies otherwise explicitly.
 * Queries can be merged in PHP code, this obviously does not work for DISTINCT, GROUP BY and ORDER BY queries.
