@@ -58,9 +58,9 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      */
     public function __construct($stmt, Connection $conn)
     {
-        $this->stmt = $stmt;
+        $this->stmt        = $stmt;
         $this->portability = $conn->getPortability();
-        $this->case = $conn->getFetchCase();
+        $this->case        = $conn->getFetchCase();
     }
 
     /**
@@ -148,9 +148,10 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 
         $row = $this->stmt->fetch($fetchMode);
 
-        $row = $this->fixRow($row,
+        $row = $this->fixRow(
+            $row,
             $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM),
-            !is_null($this->case) && ($fetchMode == PDO::FETCH_ASSOC || $fetchMode == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE)
+            ! is_null($this->case) && ($fetchMode == PDO::FETCH_ASSOC || $fetchMode == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE)
         );
 
         return $row;
@@ -170,8 +171,8 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         }
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
-        $fixCase = !is_null($this->case) && ($fetchMode == PDO::FETCH_ASSOC || $fetchMode == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE);
-        if ( ! $iterateRow && !$fixCase) {
+        $fixCase    = ! is_null($this->case) && ($fetchMode == PDO::FETCH_ASSOC || $fetchMode == PDO::FETCH_BOTH) && ($this->portability & Connection::PORTABILITY_FIX_CASE);
+        if ( ! $iterateRow && ! $fixCase) {
             return $rows;
         }
 
