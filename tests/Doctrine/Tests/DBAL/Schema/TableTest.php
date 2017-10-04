@@ -271,7 +271,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         self::assertEquals("bar", $table->getOption("foo"));
     }
 
-    public function testAddForeignKeyConstraint_UnknownLocalColumn_ThrowsException()
+    public function testAddForeignKeyConstraintUnknownLocalColumn_ThrowsException()
     {
         $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
@@ -284,7 +284,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->addForeignKeyConstraint($foreignTable, array("foo"), array("id"));
     }
 
-    public function testAddForeignKeyConstraint_UnknownForeignColumn_ThrowsException()
+    public function testAddForeignKeyConstraintUnknownForeignColumn_ThrowsException()
     {
         $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
@@ -329,7 +329,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         self::assertTrue($table->getIndex('my_idx')->spansColumns(array('id')));
     }
 
-    public function testAddPrimaryKey_ColumnsAreExplicitlySetToNotNull()
+    public function testAddPrimaryKeyColumnsAreExplicitlySetToNotNull()
     {
         $table  = new Table("foo");
         $column = $table->addColumn("id", 'integer', array('notnull' => false));
