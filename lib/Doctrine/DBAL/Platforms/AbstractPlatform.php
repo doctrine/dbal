@@ -2219,29 +2219,31 @@ abstract class AbstractPlatform
     {
         if (isset($field['columnDefinition'])) {
             $columnDef = $this->getCustomTypeDeclarationSQL($field);
-        } else {
-            $default = $this->getDefaultValueDeclarationSQL($field);
 
-            $charset = (isset($field['charset']) && $field['charset']) ?
-                    ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
+            return $name . ' ' . $columnDef;
+        }
 
-            $collation = (isset($field['collation']) && $field['collation']) ?
-                    ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
+        $default = $this->getDefaultValueDeclarationSQL($field);
 
-            $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+        $charset = (isset($field['charset']) && $field['charset']) ?
+                ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
 
-            $unique = (isset($field['unique']) && $field['unique']) ?
-                    ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+        $collation = (isset($field['collation']) && $field['collation']) ?
+                ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
-            $check = (isset($field['check']) && $field['check']) ?
-                    ' ' . $field['check'] : '';
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
 
-            $typeDecl = $field['type']->getSQLDeclaration($field, $this);
-            $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
+        $unique = (isset($field['unique']) && $field['unique']) ?
+                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
-            if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
-                $columnDef .= ' ' . $this->getInlineColumnCommentSQL($field['comment']);
-            }
+        $check = (isset($field['check']) && $field['check']) ?
+                ' ' . $field['check'] : '';
+
+        $typeDecl = $field['type']->getSQLDeclaration($field, $this);
+        $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
+
+        if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
+            $columnDef .= ' ' . $this->getInlineColumnCommentSQL($field['comment']);
         }
 
         return $name . ' ' . $columnDef;
