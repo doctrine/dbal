@@ -271,7 +271,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         self::assertEquals("bar", $table->getOption("foo"));
     }
 
-    public function testAddForeignKeyConstraintUnknownLocalColumn_ThrowsException()
+    public function testAddForeignKeyConstraintUnknownLocalColumnThrowsException()
     {
         $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
@@ -284,7 +284,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->addForeignKeyConstraint($foreignTable, array("foo"), array("id"));
     }
 
-    public function testAddForeignKeyConstraintUnknownForeignColumn_ThrowsException()
+    public function testAddForeignKeyConstraintUnknownForeignColumnThrowsException()
     {
         $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
