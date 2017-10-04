@@ -64,25 +64,25 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         self::assertFalse($this->_conn->isTransactionActive());
     }
 
-    public function testCommitWithNoActiveTransaction_ThrowsException()
+    public function testCommitWithNoActiveTransactionThrowsException()
     {
         $this->expectException(ConnectionException::class);
         $this->_conn->commit();
     }
 
-    public function testRollbackWithNoActiveTransaction_ThrowsException()
+    public function testRollbackWithNoActiveTransactionThrowsException()
     {
         $this->expectException(ConnectionException::class);
         $this->_conn->rollBack();
     }
 
-    public function testSetRollbackOnlyNoActiveTransaction_ThrowsException()
+    public function testSetRollbackOnlyNoActiveTransactionThrowsException()
     {
         $this->expectException(ConnectionException::class);
         $this->_conn->setRollbackOnly();
     }
 
-    public function testIsRollbackOnlyNoActiveTransaction_ThrowsException()
+    public function testIsRollbackOnlyNoActiveTransactionThrowsException()
     {
         $this->expectException(ConnectionException::class);
         $this->_conn->isRollbackOnly();
