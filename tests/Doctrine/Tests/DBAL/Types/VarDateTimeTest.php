@@ -7,8 +7,8 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected $_platform,
-        $_type;
+    protected $_platform;
+    protected $_type;
 
     protected function setUp()
     {
