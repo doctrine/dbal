@@ -694,7 +694,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($tableDiff);
     }
 
-    public function testCompareForeignKeyRestrictNoAction_AreTheSame()
+    public function testCompareForeignKeyRestrictNoActionAreTheSame()
     {
         $fk1 = new ForeignKeyConstraint(array("foo"), "bar", array("baz"), "fk1", array('onDelete' => 'NO ACTION'));
         $fk2 = new ForeignKeyConstraint(array("foo"), "bar", array("baz"), "fk1", array('onDelete' => 'RESTRICT'));

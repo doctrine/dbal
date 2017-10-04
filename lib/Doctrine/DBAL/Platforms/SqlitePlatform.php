@@ -140,12 +140,12 @@ class SqlitePlatform extends AbstractPlatform
                 switch ($unit) {
                     case self::DATE_INTERVAL_UNIT_WEEK:
                         $interval *= 7;
-                        $unit     = self::DATE_INTERVAL_UNIT_DAY;
+                        $unit      = self::DATE_INTERVAL_UNIT_DAY;
                         break;
 
                     case self::DATE_INTERVAL_UNIT_QUARTER:
                         $interval *= 3;
-                        $unit     = self::DATE_INTERVAL_UNIT_MONTH;
+                        $unit      = self::DATE_INTERVAL_UNIT_MONTH;
                         break;
                 }
 
@@ -328,8 +328,8 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $keyColumns  = array_unique(array_values($options['primary']));
-            $queryFields.= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+            $keyColumns   = array_unique(array_values($options['primary']));
+            $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
         if (isset($options['foreignKeys'])) {
@@ -873,7 +873,7 @@ class SqlitePlatform extends AbstractPlatform
             $newTable = new Table($table->getQuotedName($this), $columns, $this->getPrimaryIndexInAlteredTable($diff), $this->getForeignKeysInAlteredTable($diff), 0, $table->getOptions());
             $newTable->addOption('alter', true);
 
-            $sql   = $this->getPreAlterTableIndexForeignKeySQL($diff);
+            $sql = $this->getPreAlterTableIndexForeignKeySQL($diff);
             //$sql = array_merge($sql, $this->getCreateTableSQL($dataTable, 0));
             $sql[] = sprintf('CREATE TEMPORARY TABLE %s AS SELECT %s FROM %s', $dataTable->getQuotedName($this), implode(', ', $oldColumnNames), $table->getQuotedName($this));
             $sql[] = $this->getDropTableSQL($fromTable);
@@ -963,7 +963,7 @@ class SqlitePlatform extends AbstractPlatform
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
                 $newTable = new Identifier($diff->newName);
-                $sql[]    = 'ALTER TABLE '.$table->getQuotedName($this) . ' RENAME TO ' . $newTable->getQuotedName($this);
+                $sql[]    = 'ALTER TABLE ' . $table->getQuotedName($this) . ' RENAME TO ' . $newTable->getQuotedName($this);
             }
         }
 
@@ -997,7 +997,7 @@ class SqlitePlatform extends AbstractPlatform
         }
 
         foreach ($diff->changedColumns as $oldColumnName => $columnDiff) {
-            $columnName = $columnDiff->column->getName();
+            $columnName                          = $columnDiff->column->getName();
             $columns[strtolower($oldColumnName)] = $columnName;
             $columns[strtolower($columnName)]    = $columnName;
         }
