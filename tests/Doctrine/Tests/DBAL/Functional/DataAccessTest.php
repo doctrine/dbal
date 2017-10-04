@@ -880,5 +880,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
 class MyFetchClass
 {
-    public $test_int, $test_string, $test_datetime;
+    public $test_int;
+    public$test_string;
+    public $test_datetime;
 }
