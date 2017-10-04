@@ -370,8 +370,8 @@ class Connection implements DriverConnection
 
         $driverOptions = isset($this->_params['driverOptions']) ?
             $this->_params['driverOptions'] : [];
-        $user     = isset($this->_params['user']) ? $this->_params['user'] : null;
-        $password = isset($this->_params['password']) ?
+        $user          = isset($this->_params['user']) ? $this->_params['user'] : null;
+        $password      = isset($this->_params['password']) ?
             $this->_params['password'] : null;
 
         $this->_conn        = $this->_driver->connect($this->_params, $user, $password, $driverOptions);
@@ -460,7 +460,7 @@ class Connection implements DriverConnection
 
                 // Reset connection parameters.
                 $this->_params['dbname'] = $databaseName;
-                $serverVersion = $this->getServerVersion();
+                $serverVersion           = $this->getServerVersion();
 
                 // Close "temporary" connection to allow connecting to the real database again.
                 $this->close();
@@ -1619,8 +1619,8 @@ class Connection implements DriverConnection
             foreach ($params as $value) {
                 $typeIndex = $bindIndex + $typeOffset;
                 if (isset($types[$typeIndex])) {
-                    $type         = $types[$typeIndex];
-                    list($value,) = $this->getBindingInfo($value, $type);
+                    $type                       = $types[$typeIndex];
+                    list($value,)               = $this->getBindingInfo($value, $type);
                     $resolvedParams[$bindIndex] = $value;
                 } else {
                     $resolvedParams[$bindIndex] = $value;
@@ -1631,8 +1631,8 @@ class Connection implements DriverConnection
             // Named parameters
             foreach ($params as $name => $value) {
                 if (isset($types[$name])) {
-                    $type         = $types[$name];
-                    list($value,) = $this->getBindingInfo($value, $type);
+                    $type                  = $types[$name];
+                    list($value,)          = $this->getBindingInfo($value, $type);
                     $resolvedParams[$name] = $value;
                 } else {
                     $resolvedParams[$name] = $value;
