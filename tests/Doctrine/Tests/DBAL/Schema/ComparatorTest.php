@@ -209,7 +209,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertEquals($expected, Comparator::compareSchemas($schema1, $schema2));
     }
 
-    public function testCompareChangedColumns_ChangeType()
+    public function testCompareChangedColumnsChangeType()
     {
         $column1 = new Column('charfield1', Type::getType('string'));
         $column2 = new Column('charfield1', Type::getType('integer'));
@@ -219,7 +219,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertEquals(array(), $c->diffColumn($column1, $column1));
     }
 
-    public function testCompareChangedColumns_ChangeCustomSchemaOption()
+    public function testCompareChangedColumnsChangeCustomSchemaOption()
     {
         $column1 = new Column('charfield1', Type::getType('string'));
         $column2 = new Column('charfield1', Type::getType('string'));
@@ -235,7 +235,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertEquals(array(), $c->diffColumn($column1, $column1));
     }
 
-    public function testCompareChangeColumns_MultipleNewColumnsRename()
+    public function testCompareChangeColumnsMultipleNewColumnsRename()
     {
         $tableA = new Table("foo");
         $tableA->addColumn('datefield1', 'datetime');
@@ -694,7 +694,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($tableDiff);
     }
 
-    public function testCompareForeignKey_RestrictNoAction_AreTheSame()
+    public function testCompareForeignKeyRestrictNoAction_AreTheSame()
     {
         $fk1 = new ForeignKeyConstraint(array("foo"), "bar", array("baz"), "fk1", array('onDelete' => 'NO ACTION'));
         $fk2 = new ForeignKeyConstraint(array("foo"), "bar", array("baz"), "fk1", array('onDelete' => 'RESTRICT'));
@@ -706,7 +706,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @group DBAL-492
      */
-    public function testCompareForeignKeyNamesUnqualified_AsNoSchemaInformationIsAvailable()
+    public function testCompareForeignKeyNamesUnqualifiedAsNoSchemaInformationIsAvailable()
     {
         $fk1 = new ForeignKeyConstraint(array("foo"), "foo.bar", array("baz"), "fk1");
         $fk2 = new ForeignKeyConstraint(array("foo"), "baz.bar", array("baz"), "fk1");
