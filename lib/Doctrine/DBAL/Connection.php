@@ -199,9 +199,12 @@ class Connection implements DriverConnection
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function __construct(array $params, Driver $driver, Configuration $config = null,
-            EventManager $eventManager = null)
-    {
+    public function __construct(
+        array $params,
+        Driver $driver,
+        Configuration $config = null,
+        EventManager $eventManager = null
+    ) {
         $this->_driver = $driver;
         $this->_params = $params;
 
