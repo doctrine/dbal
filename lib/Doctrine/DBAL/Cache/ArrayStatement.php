@@ -60,7 +60,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
      */
     public function closeCursor()
     {
-        unset ($this->data);
+        unset($this->data);
     }
 
     /**
@@ -101,7 +101,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         if (isset($this->data[$this->num])) {
-            $row = $this->data[$this->num++];
+            $row       = $this->data[$this->num++];
             $fetchMode = $fetchMode ?: $this->defaultFetchMode;
             if ($fetchMode === PDO::FETCH_ASSOC) {
                 return $row;
@@ -138,7 +138,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     public function fetchColumn($columnIndex = 0)
     {
         $row = $this->fetch(PDO::FETCH_NUM);
-        if (!isset($row[$columnIndex])) {
+        if ( ! isset($row[$columnIndex])) {
             // TODO: verify this is correct behavior
             return false;
         }

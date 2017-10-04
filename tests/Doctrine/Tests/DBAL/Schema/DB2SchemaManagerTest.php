@@ -26,10 +26,10 @@ final class DB2SchemaManagerTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $eventManager = new EventManager();
-        $driverMock = $this->createMock(Driver::class);
-        $platform = $this->createMock(DB2Platform::class);
-        $this->conn = $this
+        $eventManager  = new EventManager();
+        $driverMock    = $this->createMock(Driver::class);
+        $platform      = $this->createMock(DB2Platform::class);
+        $this->conn    = $this
             ->getMockBuilder(Connection::class)
             ->setMethods(['fetchAll'])
             ->setConstructorArgs([['platform' => $platform], $driverMock, new Configuration(), $eventManager])

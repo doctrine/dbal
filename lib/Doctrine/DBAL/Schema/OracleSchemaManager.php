@@ -43,7 +43,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         } catch (DBALException $exception) {
             $exception = $exception->getPrevious();
 
-            if (! $exception instanceof DriverException) {
+            if ( ! $exception instanceof DriverException) {
                 throw $exception;
             }
 
@@ -99,7 +99,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
         $indexBuffer = [];
         foreach ($tableIndexes as $tableIndex) {
@@ -108,16 +108,16 @@ class OracleSchemaManager extends AbstractSchemaManager
             $keyName = strtolower($tableIndex['name']);
 
             if (strtolower($tableIndex['is_primary']) == "p") {
-                $keyName = 'primary';
-                $buffer['primary'] = true;
+                $keyName              = 'primary';
+                $buffer['primary']    = true;
                 $buffer['non_unique'] = false;
             } else {
-                $buffer['primary'] = false;
+                $buffer['primary']    = false;
                 $buffer['non_unique'] = ($tableIndex['is_unique'] == 0) ? true : false;
             }
-            $buffer['key_name'] = $keyName;
+            $buffer['key_name']    = $keyName;
             $buffer['column_name'] = $this->getQuotedIdentifierName($tableIndex['column_name']);
-            $indexBuffer[] = $buffer;
+            $indexBuffer[]         = $buffer;
         }
 
         return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
@@ -158,30 +158,30 @@ class OracleSchemaManager extends AbstractSchemaManager
         }
 
         $precision = null;
-        $scale = null;
+        $scale     = null;
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['comments'], $type);
+        $type                    = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type                    = $this->extractDoctrineTypeFromComment($tableColumn['comments'], $type);
         $tableColumn['comments'] = $this->removeDoctrineTypeFromComment($tableColumn['comments'], $type);
 
         switch ($dbType) {
             case 'number':
                 if ($tableColumn['data_precision'] == 20 && $tableColumn['data_scale'] == 0) {
                     $precision = 20;
-                    $scale = 0;
-                    $type = 'bigint';
+                    $scale     = 0;
+                    $type      = 'bigint';
                 } elseif ($tableColumn['data_precision'] == 5 && $tableColumn['data_scale'] == 0) {
-                    $type = 'smallint';
+                    $type      = 'smallint';
                     $precision = 5;
-                    $scale = 0;
+                    $scale     = 0;
                 } elseif ($tableColumn['data_precision'] == 1 && $tableColumn['data_scale'] == 0) {
                     $precision = 1;
-                    $scale = 0;
-                    $type = 'boolean';
+                    $scale     = 0;
+                    $type      = 'boolean';
                 } elseif ($tableColumn['data_scale'] > 0) {
                     $precision = $tableColumn['data_precision'];
-                    $scale = $tableColumn['data_scale'];
-                    $type = 'decimal';
+                    $scale     = $tableColumn['data_scale'];
+                    $type      = 'decimal';
                 }
                 $length = null;
                 break;
@@ -193,12 +193,12 @@ class OracleSchemaManager extends AbstractSchemaManager
             case 'varchar2':
             case 'nvarchar2':
                 $length = $tableColumn['char_length'];
-                $fixed = false;
+                $fixed  = false;
                 break;
             case 'char':
             case 'nchar':
                 $length = $tableColumn['char_length'];
-                $fixed = true;
+                $fixed  = true;
                 break;
             case 'date':
             case 'timestamp':
@@ -208,8 +208,8 @@ class OracleSchemaManager extends AbstractSchemaManager
             case 'binary_float':
             case 'binary_double':
                 $precision = $tableColumn['data_precision'];
-                $scale = $tableColumn['data_scale'];
-                $length = null;
+                $scale     = $tableColumn['data_scale'];
+                $length    = null;
                 break;
             case 'clob':
             case 'nclob':
@@ -252,7 +252,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = \array_change_key_case($value, CASE_LOWER);
-            if (!isset($list[$value['constraint_name']])) {
+            if ( ! isset($list[$value['constraint_name']])) {
                 if ($value['delete_rule'] == "NO ACTION") {
                     $value['delete_rule'] = null;
                 }
@@ -266,18 +266,20 @@ class OracleSchemaManager extends AbstractSchemaManager
                 ];
             }
 
-            $localColumn = $this->getQuotedIdentifierName($value['local_column']);
+            $localColumn   = $this->getQuotedIdentifierName($value['local_column']);
             $foreignColumn = $this->getQuotedIdentifierName($value['foreign_column']);
 
-            $list[$value['constraint_name']]['local'][$value['position']] = $localColumn;
+            $list[$value['constraint_name']]['local'][$value['position']]   = $localColumn;
             $list[$value['constraint_name']]['foreign'][$value['position']] = $foreignColumn;
         }
 
         $result = [];
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']), $this->getQuotedIdentifierName($constraint['foreignTable']),
-                array_values($constraint['foreign']), $this->getQuotedIdentifierName($constraint['name']),
+                array_values($constraint['local']),
+                $this->getQuotedIdentifierName($constraint['foreignTable']),
+                array_values($constraint['foreign']),
+                $this->getQuotedIdentifierName($constraint['name']),
                 ['onDelete' => $constraint['onDelete']]
             );
         }
@@ -328,11 +330,11 @@ class OracleSchemaManager extends AbstractSchemaManager
             $database = $this->_conn->getDatabase();
         }
 
-        $params = $this->_conn->getParams();
-        $username   = $database;
-        $password   = $params['password'];
+        $params   = $this->_conn->getParams();
+        $username = $database;
+        $password = $params['password'];
 
-        $query  = 'CREATE USER ' . $username . ' IDENTIFIED BY ' . $password;
+        $query = 'CREATE USER ' . $username . ' IDENTIFIED BY ' . $password;
         $this->_conn->executeUpdate($query);
 
         $query = 'GRANT DBA TO ' . $username;

@@ -21,11 +21,11 @@ class VarDateTimeImmutableTypeTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        if (! Type::hasType('vardatetime_immutable')) {
+        if ( ! Type::hasType('vardatetime_immutable')) {
             Type::addType('vardatetime_immutable', VarDateTimeImmutableType::class);
         }
 
-        $this->type = Type::getType('vardatetime_immutable');
+        $this->type     = Type::getType('vardatetime_immutable');
         $this->platform = $this->prophesize(AbstractPlatform::class);
     }
 

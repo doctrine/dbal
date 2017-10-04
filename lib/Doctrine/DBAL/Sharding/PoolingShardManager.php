@@ -107,11 +107,11 @@ class PoolingShardManager implements ShardManager
     public function queryAll($sql, array $params, array $types)
     {
         $shards = $this->getShards();
-        if (!$shards) {
+        if ( ! $shards) {
             throw new \RuntimeException("No shards found.");
         }
 
-        $result = [];
+        $result          = [];
         $oldDistribution = $this->getCurrentDistributionValue();
 
         foreach ($shards as $shard) {

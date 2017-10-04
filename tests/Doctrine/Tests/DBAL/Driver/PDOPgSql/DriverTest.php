@@ -107,11 +107,11 @@ class DriverTest extends AbstractPostgreSQLDriverTest
      */
     private function skipWhenNotUsingPhp56AndPdoPgsql()
     {
-        if (! defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')) {
+        if ( ! defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')) {
             $this->markTestSkipped('Test requires PHP 5.6+');
         }
 
-        if (! (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'pdo_pgsql')) {
+        if ( ! (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] === 'pdo_pgsql')) {
             $this->markTestSkipped('Test enabled only when using pdo_pgsql specific phpunit.xml');
         }
     }

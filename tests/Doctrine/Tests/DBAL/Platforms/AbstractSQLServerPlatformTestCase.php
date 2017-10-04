@@ -65,20 +65,20 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testGeneratesTransactionsCommands()
     {
         self::assertEquals(
-                'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
-                $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
+            'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
+            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
         );
         self::assertEquals(
-                'SET TRANSACTION ISOLATION LEVEL READ COMMITTED',
-                $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
+            'SET TRANSACTION ISOLATION LEVEL READ COMMITTED',
+            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
         );
         self::assertEquals(
-                'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ',
-                $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
+            'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ',
+            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
         );
         self::assertEquals(
-                'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-                $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
+            'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
+            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
         );
     }
 
@@ -95,36 +95,38 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testGeneratesTypeDeclarationForIntegers()
     {
         self::assertEquals(
-                'INT',
-                $this->_platform->getIntegerTypeDeclarationSQL(array())
+            'INT',
+            $this->_platform->getIntegerTypeDeclarationSQL(array())
         );
         self::assertEquals(
-                'INT IDENTITY',
-                $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
-        ));
+            'INT IDENTITY',
+            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true))
+        );
         self::assertEquals(
-                'INT IDENTITY',
-                $this->_platform->getIntegerTypeDeclarationSQL(
-                        array('autoincrement' => true, 'primary' => true)
-        ));
+            'INT IDENTITY',
+            $this->_platform->getIntegerTypeDeclarationSQL(
+                array('autoincrement' => true, 'primary' => true)
+            )
+        );
     }
 
     public function testGeneratesTypeDeclarationsForStrings()
     {
         self::assertEquals(
-                'NCHAR(10)',
-                $this->_platform->getVarcharTypeDeclarationSQL(
-                        array('length' => 10, 'fixed' => true)
-        ));
-        self::assertEquals(
-                'NVARCHAR(50)',
-                $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
-                'Variable string declaration is not correct'
+            'NCHAR(10)',
+            $this->_platform->getVarcharTypeDeclarationSQL(
+                array('length' => 10, 'fixed' => true)
+            )
         );
         self::assertEquals(
-                'NVARCHAR(255)',
-                $this->_platform->getVarcharTypeDeclarationSQL(array()),
-                'Long string declaration is not correct'
+            'NVARCHAR(50)',
+            $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
+            'Variable string declaration is not correct'
+        );
+        self::assertEquals(
+            'NVARCHAR(255)',
+            $this->_platform->getVarcharTypeDeclarationSQL(array()),
+            'Long string declaration is not correct'
         );
         self::assertSame('VARCHAR(MAX)', $this->_platform->getClobTypeDeclarationSQL(array()));
         self::assertSame(
@@ -175,17 +177,17 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testModifyLimitQuery()
     {
-        $querySql = 'SELECT * FROM user';
+        $querySql   = 'SELECT * FROM user';
         $alteredSql = 'SELECT TOP 10 * FROM user';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10, 0);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 0);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
     {
-        $querySql = 'SELECT * FROM user';
+        $querySql   = 'SELECT * FROM user';
         $alteredSql = 'SELECT TOP 10 * FROM user';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 
@@ -195,64 +197,64 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
         }
 
-        $querySql = 'SELECT * FROM user ORDER BY username DESC';
+        $querySql   = 'SELECT * FROM user ORDER BY username DESC';
         $alteredSql = 'SELECT TOP 15 * FROM user ORDER BY username DESC';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
 
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy()
     {
-        $querySql = 'SELECT * FROM user ORDER BY username ASC';
+        $querySql   = 'SELECT * FROM user ORDER BY username ASC';
         $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username ASC';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
 
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 
     public function testModifyLimitQueryWithLowercaseOrderBy()
     {
-        $querySql = 'SELECT * FROM user order by username';
+        $querySql   = 'SELECT * FROM user order by username';
         $alteredSql = 'SELECT TOP 10 * FROM user order by username';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 
     public function testModifyLimitQueryWithDescOrderBy()
     {
-        $querySql = 'SELECT * FROM user ORDER BY username DESC';
+        $querySql   = 'SELECT * FROM user ORDER BY username DESC';
         $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username DESC';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 
     public function testModifyLimitQueryWithMultipleOrderBy()
     {
-        $querySql = 'SELECT * FROM user ORDER BY username DESC, usereamil ASC';
+        $querySql   = 'SELECT * FROM user ORDER BY username DESC, usereamil ASC';
         $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username DESC, usereamil ASC';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 
     public function testModifyLimitQueryWithSubSelect()
     {
-        $querySql = 'SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
+        $querySql   = 'SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
         $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndOrder()
     {
-        $querySql = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC) dctrn_result';
+        $querySql   = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC) dctrn_result';
         $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
 
-        $querySql = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC) dctrn_result';
+        $querySql   = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC) dctrn_result';
         $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id, u.name) dctrn_result';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 
@@ -262,27 +264,27 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
         }
 
-        $querySql = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC, id ASC) dctrn_result';
+        $querySql   = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC, id ASC) dctrn_result';
         $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
 
-        $querySql = 'SELECT * FROM (SELECT u.id uid, u.name uname ORDER BY u.name DESC, id ASC) dctrn_result';
+        $querySql   = 'SELECT * FROM (SELECT u.id uid, u.name uname ORDER BY u.name DESC, id ASC) dctrn_result';
         $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id uid, u.name uname) dctrn_result';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
 
-        $querySql = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC, id ASC) dctrn_result';
+        $querySql   = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC, id ASC) dctrn_result';
         $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id, u.name) dctrn_result';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
     }
 
     public function testModifyLimitQueryWithFromColumnNames()
     {
-        $querySql = 'SELECT a.fromFoo, fromBar FROM foo';
+        $querySql   = 'SELECT a.fromFoo, fromBar FROM foo';
         $alteredSql = 'SELECT TOP 10 a.fromFoo, fromBar FROM foo';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 
@@ -291,15 +293,15 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithExtraLongQuery()
     {
-        $query = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
-        $query.= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
-        $query.= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
-        $query.= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
+        $query  = 'SELECT table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
+        $query .= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
+        $query .= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
+        $query .= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
 
-        $alteredSql = 'SELECT TOP 10 table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
-        $alteredSql.= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
-        $alteredSql.= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
-        $alteredSql.= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
+        $alteredSql  = 'SELECT TOP 10 table1.column1, table2.column2, table3.column3, table4.column4, table5.column5, table6.column6, table7.column7, table8.column8 FROM table1, table2, table3, table4, table5, table6, table7, table8 ';
+        $alteredSql .= 'WHERE (table1.column1 = table2.column2) AND (table1.column1 = table3.column3) AND (table1.column1 = table4.column4) AND (table1.column1 = table5.column5) AND (table1.column1 = table6.column6) AND (table1.column1 = table7.column7) AND (table1.column1 = table8.column8) AND (table2.column2 = table3.column3) AND (table2.column2 = table4.column4) AND (table2.column2 = table5.column5) AND (table2.column2 = table6.column6) ';
+        $alteredSql .= 'AND (table2.column2 = table7.column7) AND (table2.column2 = table8.column8) AND (table3.column3 = table4.column4) AND (table3.column3 = table5.column5) AND (table3.column3 = table6.column6) AND (table3.column3 = table7.column7) AND (table3.column3 = table8.column8) AND (table4.column4 = table5.column5) AND (table4.column4 = table6.column6) AND (table4.column4 = table7.column7) AND (table4.column4 = table8.column8) ';
+        $alteredSql .= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
 
         $sql = $this->_platform->modifyLimitQuery($query, 10);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
@@ -326,7 +328,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithSubSelectInSelectList()
     {
-        $querySql = "SELECT " .
+        $querySql   = "SELECT " .
             "u.id, " .
             "(u.foo/2) foodiv, " .
             "CONCAT(u.bar, u.baz) barbaz, " .
@@ -340,7 +342,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
             "FROM user u " .
             "WHERE u.status = 'disabled'";
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
 
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
@@ -354,7 +356,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
         }
 
-        $querySql = "SELECT " .
+        $querySql   = "SELECT " .
             "u.id, " .
             "(u.foo/2) foodiv, " .
             "CONCAT(u.bar, u.baz) barbaz, " .
@@ -370,7 +372,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "FROM user u " .
             "WHERE u.status = 'disabled' " .
             "ORDER BY u.username DESC";
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
     }
 
@@ -379,7 +381,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithAggregateFunctionInOrderByClause()
     {
-        $querySql = "SELECT " .
+        $querySql   = "SELECT " .
             "MAX(heading_id) aliased, " .
             "code " .
             "FROM operator_model_operator " .
@@ -391,7 +393,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "FROM operator_model_operator " .
             "GROUP BY code " .
             "ORDER BY MAX(heading_id) DESC";
-        $sql = $this->_platform->modifyLimitQuery($querySql, 1, 0);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 1, 0);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 1), $sql);
     }
 
@@ -400,7 +402,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable()
     {
-        $querySql = "SELECT DISTINCT id_0, name_1 "
+        $querySql   = "SELECT DISTINCT id_0, name_1 "
             . "FROM ("
             . "SELECT t1.id AS id_0, t2.name AS name_1 "
             . "FROM table_parent t1 "
@@ -415,7 +417,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
             . ") dctrn_result "
             . "ORDER BY id_0 ASC";
-        $sql = $this->_platform->modifyLimitQuery($querySql, 5);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 5), $sql);
     }
 
@@ -425,7 +427,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable()
     {
-        $querySql = "SELECT DISTINCT id_0, name_1 "
+        $querySql   = "SELECT DISTINCT id_0, name_1 "
             . "FROM ("
             . "SELECT t1.id AS id_0, t2.name AS name_1 "
             . "FROM table_parent t1 "
@@ -440,7 +442,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
             . ") dctrn_result "
             . "ORDER BY name_1 ASC";
-        $sql = $this->_platform->modifyLimitQuery($querySql, 5);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 5), $sql);
     }
 
@@ -449,7 +451,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables()
     {
-        $querySql = "SELECT DISTINCT id_0, name_1, foo_2 "
+        $querySql   = "SELECT DISTINCT id_0, name_1, foo_2 "
             . "FROM ("
             . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
             . "FROM table_parent t1 "
@@ -464,18 +466,18 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
             . ") dctrn_result "
             . "ORDER BY name_1 ASC, foo_2 DESC";
-        $sql = $this->_platform->modifyLimitQuery($querySql, 5);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 5), $sql);
     }
 
     public function testModifyLimitSubquerySimple()
     {
-        $querySql = "SELECT DISTINCT id_0 FROM "
+        $querySql   = "SELECT DISTINCT id_0 FROM "
             . "(SELECT k0_.id AS id_0, k0_.field AS field_1 "
             . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result";
         $alteredSql = "SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 "
             . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result";
-        $sql = $this->_platform->modifyLimitQuery($querySql, 20);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 20);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 20), $sql);
     }
 
@@ -516,7 +518,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $table = new \Doctrine\DBAL\Schema\Table("tbl");
         $table->addColumn("id", "integer");
-        $table->setPrimaryKey(Array("id"));
+        $table->setPrimaryKey(array("id"));
         $table->getIndex('primary')->addFlag('nonclustered');
 
         self::assertEquals(array('CREATE TABLE tbl (id INT NOT NULL, PRIMARY KEY NONCLUSTERED (id))'), $this->_platform->getCreateTableSQL($table));
@@ -574,7 +576,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testGetCreateSchemaSQL()
     {
         $schemaName = 'schema';
-        $sql = $this->_platform->getCreateSchemaSQL($schemaName);
+        $sql        = $this->_platform->getCreateSchemaSQL($schemaName);
         self::assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
     }
 
@@ -673,20 +675,20 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table->addColumn('comment_with_string_literal_quote_char', 'array', array('comment' => "O'Reilly"));
         $table->setPrimaryKey(array('id'));
 
-        $tableDiff = new TableDiff('mytable');
-        $tableDiff->fromTable = $table;
-        $tableDiff->addedColumns['added_comment_none'] = new Column('added_comment_none', Type::getType('integer'));
-        $tableDiff->addedColumns['added_comment_null'] = new Column('added_comment_null', Type::getType('integer'), array('comment' => null));
-        $tableDiff->addedColumns['added_comment_false'] = new Column('added_comment_false', Type::getType('integer'), array('comment' => false));
-        $tableDiff->addedColumns['added_comment_empty_string'] = new Column('added_comment_empty_string', Type::getType('integer'), array('comment' => ''));
-        $tableDiff->addedColumns['added_comment_integer_0'] = new Column('added_comment_integer_0', Type::getType('integer'), array('comment' => 0));
-        $tableDiff->addedColumns['added_comment_float_0'] = new Column('added_comment_float_0', Type::getType('integer'), array('comment' => 0.0));
-        $tableDiff->addedColumns['added_comment_string_0'] = new Column('added_comment_string_0', Type::getType('integer'), array('comment' => '0'));
-        $tableDiff->addedColumns['added_comment'] = new Column('added_comment', Type::getType('integer'), array('comment' => 'Doctrine'));
-        $tableDiff->addedColumns['`added_comment_quoted`'] = new Column('`added_comment_quoted`', Type::getType('integer'), array('comment' => 'rulez'));
-        $tableDiff->addedColumns['select'] = new Column('select', Type::getType('integer'), array('comment' => '666'));
-        $tableDiff->addedColumns['added_commented_type'] = new Column('added_commented_type', Type::getType('object'));
-        $tableDiff->addedColumns['added_commented_type_with_comment'] = new Column('added_commented_type_with_comment', Type::getType('array'), array('comment' => '666'));
+        $tableDiff                                                         = new TableDiff('mytable');
+        $tableDiff->fromTable                                              = $table;
+        $tableDiff->addedColumns['added_comment_none']                     = new Column('added_comment_none', Type::getType('integer'));
+        $tableDiff->addedColumns['added_comment_null']                     = new Column('added_comment_null', Type::getType('integer'), array('comment' => null));
+        $tableDiff->addedColumns['added_comment_false']                    = new Column('added_comment_false', Type::getType('integer'), array('comment' => false));
+        $tableDiff->addedColumns['added_comment_empty_string']             = new Column('added_comment_empty_string', Type::getType('integer'), array('comment' => ''));
+        $tableDiff->addedColumns['added_comment_integer_0']                = new Column('added_comment_integer_0', Type::getType('integer'), array('comment' => 0));
+        $tableDiff->addedColumns['added_comment_float_0']                  = new Column('added_comment_float_0', Type::getType('integer'), array('comment' => 0.0));
+        $tableDiff->addedColumns['added_comment_string_0']                 = new Column('added_comment_string_0', Type::getType('integer'), array('comment' => '0'));
+        $tableDiff->addedColumns['added_comment']                          = new Column('added_comment', Type::getType('integer'), array('comment' => 'Doctrine'));
+        $tableDiff->addedColumns['`added_comment_quoted`']                 = new Column('`added_comment_quoted`', Type::getType('integer'), array('comment' => 'rulez'));
+        $tableDiff->addedColumns['select']                                 = new Column('select', Type::getType('integer'), array('comment' => '666'));
+        $tableDiff->addedColumns['added_commented_type']                   = new Column('added_commented_type', Type::getType('object'));
+        $tableDiff->addedColumns['added_commented_type_with_comment']      = new Column('added_commented_type_with_comment', Type::getType('array'), array('comment' => '666'));
         $tableDiff->addedColumns['added_comment_with_string_literal_char'] = new Column('added_comment_with_string_literal_char', Type::getType('string'), array('comment' => "''"));
 
         $tableDiff->renamedColumns['comment_float_0'] = new Column('comment_double_0', Type::getType('decimal'), array('comment' => 'Double for real!'));
@@ -965,8 +967,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $table->addColumn('col_int', 'smallint', array('default' => 666));
         $table->addColumn('col_string', 'string', array('default' => 'foo'));
 
-        $tableDiff = new TableDiff($tableName);
-        $tableDiff->fromTable = $table;
+        $tableDiff                            = new TableDiff($tableName);
+        $tableDiff->fromTable                 = $table;
         $tableDiff->changedColumns['col_int'] = new ColumnDiff(
             'col_int',
             new Column('col_int', Type::getType('integer'), array('default' => 666)),
@@ -1349,14 +1351,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testModifyLimitQueryWithTopNSubQueryWithOrderBy()
     {
-        $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
+        $querySql   = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
         $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(static::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
 
-        $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
+        $querySql   = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
         $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
-        $sql = $this->_platform->modifyLimitQuery($querySql, 10);
+        $sql        = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals(sprintf(static::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
     }
 

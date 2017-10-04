@@ -13,7 +13,7 @@ class DBAL752Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $platform = $this->_conn->getDatabasePlatform()->getName();
 
-        if (!in_array($platform, array('sqlite'))) {
+        if ( ! in_array($platform, array('sqlite'))) {
             $this->markTestSkipped('Related to SQLite only');
         }
     }

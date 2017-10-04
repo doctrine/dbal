@@ -11,23 +11,23 @@ use Throwable;
 
 abstract class AbstractDriverTest extends DbalTestCase
 {
-    const EXCEPTION_CONNECTION = 'Doctrine\DBAL\Exception\ConnectionException';
-    const EXCEPTION_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\ConstraintViolationException';
-    const EXCEPTION_DATABASE_OBJECT_EXISTS = 'Doctrine\DBAL\Exception\DatabaseObjectExistsException';
-    const EXCEPTION_DATABASE_OBJECT_NOT_FOUND = 'Doctrine\DBAL\Exception\DatabaseObjectNotFoundException';
-    const EXCEPTION_DRIVER = 'Doctrine\DBAL\Exception\DriverException';
+    const EXCEPTION_CONNECTION                       = 'Doctrine\DBAL\Exception\ConnectionException';
+    const EXCEPTION_CONSTRAINT_VIOLATION             = 'Doctrine\DBAL\Exception\ConstraintViolationException';
+    const EXCEPTION_DATABASE_OBJECT_EXISTS           = 'Doctrine\DBAL\Exception\DatabaseObjectExistsException';
+    const EXCEPTION_DATABASE_OBJECT_NOT_FOUND        = 'Doctrine\DBAL\Exception\DatabaseObjectNotFoundException';
+    const EXCEPTION_DRIVER                           = 'Doctrine\DBAL\Exception\DriverException';
     const EXCEPTION_FOREIGN_KEY_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException';
-    const EXCEPTION_INVALID_FIELD_NAME = 'Doctrine\DBAL\Exception\InvalidFieldNameException';
-    const EXCEPTION_NON_UNIQUE_FIELD_NAME = 'Doctrine\DBAL\Exception\NonUniqueFieldNameException';
-    const EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\NotNullConstraintViolationException';
-    const EXCEPTION_READ_ONLY = 'Doctrine\DBAL\Exception\ReadOnlyException';
-    const EXCEPTION_SERVER = 'Doctrine\DBAL\Exception\ServerException';
-    const EXCEPTION_SYNTAX_ERROR = 'Doctrine\DBAL\Exception\SyntaxErrorException';
-    const EXCEPTION_TABLE_EXISTS = 'Doctrine\DBAL\Exception\TableExistsException';
-    const EXCEPTION_TABLE_NOT_FOUND = 'Doctrine\DBAL\Exception\TableNotFoundException';
-    const EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION = 'Doctrine\DBAL\Exception\UniqueConstraintViolationException';
-    const EXCEPTION_DEADLOCK = 'Doctrine\DBAL\Exception\DeadlockException';
-    const EXCEPTION_LOCK_WAIT_TIMEOUT = 'Doctrine\DBAL\Exception\LockWaitTimeoutException';
+    const EXCEPTION_INVALID_FIELD_NAME               = 'Doctrine\DBAL\Exception\InvalidFieldNameException';
+    const EXCEPTION_NON_UNIQUE_FIELD_NAME            = 'Doctrine\DBAL\Exception\NonUniqueFieldNameException';
+    const EXCEPTION_NOT_NULL_CONSTRAINT_VIOLATION    = 'Doctrine\DBAL\Exception\NotNullConstraintViolationException';
+    const EXCEPTION_READ_ONLY                        = 'Doctrine\DBAL\Exception\ReadOnlyException';
+    const EXCEPTION_SERVER                           = 'Doctrine\DBAL\Exception\ServerException';
+    const EXCEPTION_SYNTAX_ERROR                     = 'Doctrine\DBAL\Exception\SyntaxErrorException';
+    const EXCEPTION_TABLE_EXISTS                     = 'Doctrine\DBAL\Exception\TableExistsException';
+    const EXCEPTION_TABLE_NOT_FOUND                  = 'Doctrine\DBAL\Exception\TableNotFoundException';
+    const EXCEPTION_UNIQUE_CONSTRAINT_VIOLATION      = 'Doctrine\DBAL\Exception\UniqueConstraintViolationException';
+    const EXCEPTION_DEADLOCK                         = 'Doctrine\DBAL\Exception\DeadlockException';
+    const EXCEPTION_LOCK_WAIT_TIMEOUT                = 'Doctrine\DBAL\Exception\LockWaitTimeoutException';
 
     /**
      * The driver mock under test.

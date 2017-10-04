@@ -30,20 +30,20 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
  */
 class Connection extends \Doctrine\DBAL\Connection
 {
-    const PORTABILITY_ALL               = 255;
-    const PORTABILITY_NONE              = 0;
-    const PORTABILITY_RTRIM             = 1;
-    const PORTABILITY_EMPTY_TO_NULL     = 4;
-    const PORTABILITY_FIX_CASE          = 8;
+    const PORTABILITY_ALL           = 255;
+    const PORTABILITY_NONE          = 0;
+    const PORTABILITY_RTRIM         = 1;
+    const PORTABILITY_EMPTY_TO_NULL = 4;
+    const PORTABILITY_FIX_CASE      = 8;
 
-    const PORTABILITY_DB2               = 13;
-    const PORTABILITY_ORACLE            = 9;
-    const PORTABILITY_POSTGRESQL        = 13;
-    const PORTABILITY_SQLITE            = 13;
-    const PORTABILITY_OTHERVENDORS      = 12;
-    const PORTABILITY_DRIZZLE           = 13;
-    const PORTABILITY_SQLANYWHERE       = 13;
-    const PORTABILITY_SQLSRV            = 13;
+    const PORTABILITY_DB2          = 13;
+    const PORTABILITY_ORACLE       = 9;
+    const PORTABILITY_POSTGRESQL   = 13;
+    const PORTABILITY_SQLITE       = 13;
+    const PORTABILITY_OTHERVENDORS = 12;
+    const PORTABILITY_DRIZZLE      = 13;
+    const PORTABILITY_SQLANYWHERE  = 13;
+    const PORTABILITY_SQLSRV       = 13;
 
     /**
      * @var integer

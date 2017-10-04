@@ -13,11 +13,11 @@ abstract class AbstractTestCase extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        if (!isset($GLOBALS['db_type']) || strpos($GLOBALS['db_type'], "sqlsrv") === false) {
+        if ( ! isset($GLOBALS['db_type']) || strpos($GLOBALS['db_type'], "sqlsrv") === false) {
             $this->markTestSkipped('No driver or sqlserver driver specified.');
         }
 
-        $params = array(
+        $params     = array(
             'driver' => $GLOBALS['db_type'],
             'dbname' => $GLOBALS['db_name'],
             'user' => $GLOBALS['db_username'],

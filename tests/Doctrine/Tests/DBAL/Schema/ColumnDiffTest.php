@@ -14,7 +14,7 @@ class ColumnDiffTest extends \PHPUnit\Framework\TestCase
     public function testPreservesOldColumnNameQuotation()
     {
         $fromColumn = new Column('"foo"', Type::getType(Type::INTEGER));
-        $toColumn = new Column('bar', Type::getType(Type::INTEGER));
+        $toColumn   = new Column('bar', Type::getType(Type::INTEGER));
 
         $columnDiff = new ColumnDiff('"foo"', $toColumn, array());
         self::assertTrue($columnDiff->getOldColumnName()->isQuoted());

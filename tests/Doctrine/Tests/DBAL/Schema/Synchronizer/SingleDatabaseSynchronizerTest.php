@@ -30,7 +30,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->conn = DriverManager::getConnection(array(
+        $this->conn         = DriverManager::getConnection(array(
             'driver' => 'pdo_sqlite',
             'memory' => true,
         ));
@@ -40,7 +40,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit\Framework\TestCase
     public function testGetCreateSchema()
     {
         $schema = new Schema();
-        $table = $schema->createTable('test');
+        $table  = $schema->createTable('test');
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(array('id'));
 
@@ -51,7 +51,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit\Framework\TestCase
     public function testGetUpdateSchema()
     {
         $schema = new Schema();
-        $table = $schema->createTable('test');
+        $table  = $schema->createTable('test');
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(array('id'));
 
@@ -62,7 +62,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit\Framework\TestCase
     public function testGetDropSchema()
     {
         $schema = new Schema();
-        $table = $schema->createTable('test');
+        $table  = $schema->createTable('test');
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(array('id'));
 
@@ -75,7 +75,7 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit\Framework\TestCase
     public function testGetDropAllSchema()
     {
         $schema = new Schema();
-        $table = $schema->createTable('test');
+        $table  = $schema->createTable('test');
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(array('id'));
 
@@ -85,4 +85,3 @@ class SingleDatabaseSynchronizerTest extends \PHPUnit\Framework\TestCase
         self::assertEquals(array('DROP TABLE test'), $sql);
     }
 }
-

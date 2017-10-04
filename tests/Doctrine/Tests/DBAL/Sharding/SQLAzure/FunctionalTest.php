@@ -30,15 +30,14 @@ class FunctionalTest extends AbstractTestCase
         ));
 
         $query = "SELECT * FROM Products";
-        $data = $this->conn->fetchAll($query);
+        $data  = $this->conn->fetchAll($query);
         self::assertTrue(count($data) > 0);
 
         $query = "SELECT * FROM Customers";
-        $data = $this->conn->fetchAll($query);
+        $data  = $this->conn->fetchAll($query);
         self::assertTrue(count($data) > 0);
 
         $data = $this->sm->queryAll("SELECT * FROM Customers");
         self::assertTrue(count($data) > 0);
     }
 }
-

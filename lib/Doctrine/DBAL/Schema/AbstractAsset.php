@@ -61,12 +61,12 @@ abstract class AbstractAsset
     {
         if ($this->isIdentifierQuoted($name)) {
             $this->_quoted = true;
-            $name = $this->trimQuotes($name);
+            $name          = $this->trimQuotes($name);
         }
         if (strpos($name, ".") !== false) {
-            $parts = explode(".", $name);
+            $parts            = explode(".", $name);
             $this->_namespace = $parts[0];
-            $name = $parts[1];
+            $name             = $parts[1];
         }
         $this->_name = $name;
     }
@@ -195,7 +195,7 @@ abstract class AbstractAsset
     public function getQuotedName(AbstractPlatform $platform)
     {
         $keywords = $platform->getReservedKeywordsList();
-        $parts = explode(".", $this->getName());
+        $parts    = explode(".", $this->getName());
         foreach ($parts as $k => $v) {
             $parts[$k] = ($this->_quoted || $keywords->isKeyword($v)) ? $platform->quoteIdentifier($v) : $v;
         }
@@ -216,7 +216,7 @@ abstract class AbstractAsset
      *
      * @return string
      */
-    protected function _generateIdentifierName($columnNames, $prefix='', $maxSize=30)
+    protected function _generateIdentifierName($columnNames, $prefix = '', $maxSize = 30)
     {
         $hash = implode("", array_map(function ($column) {
             return dechex(crc32($column));

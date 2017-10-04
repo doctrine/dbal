@@ -72,7 +72,10 @@ class ReservedWordsCommand extends Command
         ->setDescription('Checks if the current database contains identifiers that are reserved.')
         ->setDefinition([
             new InputOption(
-                'list', 'l', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Keyword-List name.'
+                'list',
+                'l',
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                'Keyword-List name.'
             )
         ])
         ->setHelp(<<<EOT
@@ -140,20 +143,20 @@ EOT
 
         $keywords = [];
         foreach ($keywordLists as $keywordList) {
-            if (!isset($this->keywordListClasses[$keywordList])) {
+            if ( ! isset($this->keywordListClasses[$keywordList])) {
                 throw new \InvalidArgumentException(
-                    "There exists no keyword list with name '" . $keywordList . "'. ".
+                    "There exists no keyword list with name '" . $keywordList . "'. " .
                     "Known lists: " . implode(", ", array_keys($this->keywordListClasses))
                 );
             }
-            $class = $this->keywordListClasses[$keywordList];
+            $class      = $this->keywordListClasses[$keywordList];
             $keywords[] = new $class;
         }
 
         $output->write('Checking keyword violations for <comment>' . implode(", ", $keywordLists) . "</comment>...", true);
 
         /* @var $schema \Doctrine\DBAL\Schema\Schema */
-        $schema = $conn->getSchemaManager()->createSchema();
+        $schema  = $conn->getSchemaManager()->createSchema();
         $visitor = new ReservedKeywordsValidator($keywords);
         $schema->visit($visitor);
 

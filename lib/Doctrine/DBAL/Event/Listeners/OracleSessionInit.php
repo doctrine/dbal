@@ -75,7 +75,7 @@ class OracleSessionInit implements EventSubscriber
                     $vars[] = $option . " = '" . $value . "'";
                 }
             }
-            $sql = "ALTER SESSION SET ".implode(" ", $vars);
+            $sql = "ALTER SESSION SET " . implode(" ", $vars);
             $args->getConnection()->executeUpdate($sql);
         }
     }

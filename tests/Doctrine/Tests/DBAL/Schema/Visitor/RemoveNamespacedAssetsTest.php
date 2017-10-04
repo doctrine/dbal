@@ -74,4 +74,3 @@ class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
         self::assertEquals(1, count($sql), "Just one CREATE TABLE statement, no foreign key and table to foo.bar");
     }
 }
-

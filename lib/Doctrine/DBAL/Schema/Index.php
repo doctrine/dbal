@@ -71,9 +71,9 @@ class Index extends AbstractAsset implements Constraint
         $isUnique = $isUnique || $isPrimary;
 
         $this->_setName($indexName);
-        $this->_isUnique = $isUnique;
+        $this->_isUnique  = $isUnique;
         $this->_isPrimary = $isPrimary;
-        $this->options = $options;
+        $this->options    = $options;
 
         foreach ($columns as $column) {
             $this->_addColumn($column);
@@ -136,7 +136,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function isSimpleIndex()
     {
-        return !$this->_isPrimary && !$this->_isUnique;
+        return ! $this->_isPrimary && ! $this->_isUnique;
     }
 
     /**
@@ -354,5 +354,4 @@ class Index extends AbstractAsset implements Constraint
 
         return false;
     }
-
 }

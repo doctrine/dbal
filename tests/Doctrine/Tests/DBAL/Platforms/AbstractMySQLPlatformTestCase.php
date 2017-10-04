@@ -13,8 +13,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {
     public function testModifyLimitQueryWitoutLimit()
     {
-        $sql = $this->_platform->modifyLimitQuery('SELECT n FROM Foo', null , 10);
-        self::assertEquals('SELECT n FROM Foo LIMIT 18446744073709551615 OFFSET 10',$sql);
+        $sql = $this->_platform->modifyLimitQuery('SELECT n FROM Foo', null, 10);
+        self::assertEquals('SELECT n FROM Foo LIMIT 18446744073709551615 OFFSET 10', $sql);
     }
 
     public function testGenerateMixedCaseTableCreate()
@@ -90,13 +90,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         );
         self::assertEquals(
             'INT AUTO_INCREMENT',
-            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
-        ));
+            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true))
+        );
         self::assertEquals(
             'INT AUTO_INCREMENT',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true)
-        ));
+            )
+        );
     }
 
     public function testGeneratesTypeDeclarationForStrings()
@@ -105,7 +106,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
                 array('length' => 10, 'fixed' => true)
-        ));
+            )
+        );
         self::assertEquals(
             'VARCHAR(50)',
             $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
@@ -163,7 +165,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $oldTable->addColumn("bar", "integer");
         $oldTable->addColumn("baz", "string");
 
-        $c = new \Doctrine\DBAL\Schema\Comparator;
+        $c    = new \Doctrine\DBAL\Schema\Comparator;
         $diff = $c->diffTable($oldTable, $keyTable);
 
         $sql = $this->_platform->getAlterTableSQL($diff);
@@ -216,15 +218,15 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testChangeIndexWithForeignKeys()
     {
-        $index = new Index("idx", array("col"), false);
+        $index  = new Index("idx", array("col"), false);
         $unique = new Index("uniq", array("col"), true);
 
         $diff = new TableDiff("test", array(), array(), array(), array($unique), array(), array($index));
-        $sql = $this->_platform->getAlterTableSQL($diff);
+        $sql  = $this->_platform->getAlterTableSQL($diff);
         self::assertEquals(array("ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)"), $sql);
 
         $diff = new TableDiff("test", array(), array(), array(), array($index), array(), array($unique));
-        $sql = $this->_platform->getAlterTableSQL($diff);
+        $sql  = $this->_platform->getAlterTableSQL($diff);
         self::assertEquals(array("ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"), $sql);
     }
 
@@ -344,7 +346,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->setPrimaryKey(array('id'));
 
         $comparator = new Comparator();
-        $diffTable = clone $table;
+        $diffTable  = clone $table;
 
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('foo'));
@@ -371,7 +373,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->setPrimaryKey(array('id', 'foo'));
 
         $comparator = new Comparator();
-        $diffTable = clone $table;
+        $diffTable  = clone $table;
 
         $diffTable->dropPrimaryKey();
 
@@ -396,7 +398,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->setPrimaryKey(array('id', 'foo'));
 
         $comparator = new Comparator();
-        $diffTable = clone $table;
+        $diffTable  = clone $table;
 
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('id'));
@@ -423,7 +425,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->setPrimaryKey(array('id'));
 
         $comparator = new Comparator();
-        $diffTable = clone $table;
+        $diffTable  = clone $table;
 
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('id', 'foo'));
@@ -451,7 +453,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $oldTable = new Table("foo");
         $oldTable->addColumn("baz", "string");
 
-        $c = new \Doctrine\DBAL\Schema\Comparator;
+        $c    = new \Doctrine\DBAL\Schema\Comparator;
         $diff = $c->diffTable($oldTable, $keyTable);
 
         $sql = $this->_platform->getAlterTableSQL($diff);
@@ -463,7 +465,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testNamedPrimaryKey()
     {
-        $diff = new TableDiff('mytable');
+        $diff                              = new TableDiff('mytable');
         $diff->changedIndexes['foo_index'] = new Index('foo_index', array('foo'), true, true);
 
         $sql = $this->_platform->getAlterTableSQL($diff);
@@ -482,7 +484,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->setPrimaryKey(array('pkc1'));
 
         $comparator = new Comparator();
-        $diffTable = clone $table;
+        $diffTable  = clone $table;
         
         $diffTable->addColumn('pkc2', 'integer');
         $diffTable->dropPrimaryKey();
@@ -495,7 +497,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
-        );      
+        );
     }
 
     public function testInitializesDoctrineTypeMappings()
@@ -574,9 +576,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $changedForeignKeys = array(new ForeignKeyConstraint(array('fk_id'), 'bar', array('id'), 'fk_change'));
         $removedForeignKeys = array(new ForeignKeyConstraint(array('fk_id'), 'baz', array('id'), 'fk_remove'));
 
-        $tableDiff = new TableDiff('foreign_table');
-        $tableDiff->fromTable = $table;
-        $tableDiff->addedForeignKeys = $addedForeignKeys;
+        $tableDiff                     = new TableDiff('foreign_table');
+        $tableDiff->fromTable          = $table;
+        $tableDiff->addedForeignKeys   = $addedForeignKeys;
         $tableDiff->changedForeignKeys = $changedForeignKeys;
         $tableDiff->removedForeignKeys = $removedForeignKeys;
 
@@ -584,9 +586,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $table->addOption('engine', 'InnoDB');
 
-        $tableDiff = new TableDiff('foreign_table');
-        $tableDiff->fromTable = $table;
-        $tableDiff->addedForeignKeys = $addedForeignKeys;
+        $tableDiff                     = new TableDiff('foreign_table');
+        $tableDiff->fromTable          = $table;
+        $tableDiff->addedForeignKeys   = $addedForeignKeys;
         $tableDiff->changedForeignKeys = $changedForeignKeys;
         $tableDiff->removedForeignKeys = $removedForeignKeys;
 

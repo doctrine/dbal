@@ -55,8 +55,8 @@ class Sequence extends AbstractAsset
     {
         $this->_setName($name);
         $this->allocationSize = is_numeric($allocationSize) ? $allocationSize : 1;
-        $this->initialValue = is_numeric($initialValue) ? $initialValue : 1;
-        $this->cache = $cache;
+        $this->initialValue   = is_numeric($initialValue) ? $initialValue : 1;
+        $this->cache          = $cache;
     }
 
     /**

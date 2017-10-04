@@ -69,7 +69,7 @@ class IndexTest extends \PHPUnit\Framework\TestCase
     {
         $idx1 = $this->createIndex();
         $idx2 = $this->createIndex();
-        $pri = $this->createIndex(true, true);
+        $pri  = $this->createIndex(true, true);
         $uniq = $this->createIndex(true);
 
         self::assertTrue($idx1->isFullfilledBy($idx2));

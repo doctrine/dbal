@@ -7,14 +7,13 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class IntegerTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
+    protected $_platform,
         $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('integer');
+        $this->_type     = Type::getType('integer');
     }
 
     public function testIntegerConvertsToPHPValue()

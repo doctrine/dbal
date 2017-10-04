@@ -94,7 +94,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         $this->_foreignColumnNames = $foreignColumnNames
             ? array_combine($foreignColumnNames, array_map($identifierConstructorCallback, $foreignColumnNames))
             : [];
-        $this->_options = $options;
+        $this->_options            = $options;
     }
 
     /**

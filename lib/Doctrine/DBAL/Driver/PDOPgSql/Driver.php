@@ -46,7 +46,7 @@ class Driver extends AbstractPostgreSQLDriver
             );
 
             if (defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')
-                && (! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
+                && ( ! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
                     || true === $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES]
                 )
             ) {
@@ -58,7 +58,7 @@ class Driver extends AbstractPostgreSQLDriver
              * - passing client_encoding via the 'options' param breaks pgbouncer support
              */
             if (isset($params['charset'])) {
-              $pdo->query('SET NAMES \''.$params['charset'].'\'');
+                $pdo->query('SET NAMES \'' . $params['charset'] . '\'');
             }
 
             return $pdo;

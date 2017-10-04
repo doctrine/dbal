@@ -148,13 +148,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
         self::assertEquals(
             'NUMBER(10)',
-            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
-            ));
+            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true))
+        );
         self::assertEquals(
             'NUMBER(10)',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true)
-            ));
+            )
+        );
     }
 
     public function testGeneratesTypeDeclarationsForStrings()
@@ -163,7 +164,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
                 array('length' => 10, 'fixed' => true)
-            ));
+            )
+        );
         self::assertEquals(
             'VARCHAR2(50)',
             $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
@@ -294,11 +296,11 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function testGenerateTableWithAutoincrement()
     {
         $columnName = strtoupper('id' . uniqid());
-        $tableName = strtoupper('table' . uniqid());
-        $table = new \Doctrine\DBAL\Schema\Table($tableName);
-        $column = $table->addColumn($columnName, 'integer');
+        $tableName  = strtoupper('table' . uniqid());
+        $table      = new \Doctrine\DBAL\Schema\Table($tableName);
+        $column     = $table->addColumn($columnName, 'integer');
         $column->setAutoincrement(true);
-        $targets = array(
+        $targets    = array(
             "CREATE TABLE {$tableName} ({$columnName} NUMBER(10) NOT NULL)",
             "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '{$tableName}' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE {$tableName} ADD CONSTRAINT {$tableName}_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
             "CREATE SEQUENCE {$tableName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
@@ -306,11 +308,11 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         );
         $statements = $this->_platform->getCreateTableSQL($table);
         //strip all the whitespace from the statements
-        array_walk($statements, function(&$value){
-            $value = preg_replace('/\s+/', ' ',$value);
+        array_walk($statements, function (&$value) {
+            $value = preg_replace('/\s+/', ' ', $value);
         });
-        foreach($targets as $key => $sql){
-            self::assertArrayHasKey($key,$statements);
+        foreach ($targets as $key => $sql) {
+            self::assertArrayHasKey($key, $statements);
             self::assertEquals($sql, $statements[$key]);
         }
     }
@@ -343,7 +345,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function getBitAndComparisonExpressionSql($value1, $value2)
     {
-        return 'BITAND('.$value1 . ', ' . $value2 . ')';
+        return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
 
     public function getBitOrComparisonExpressionSql($value1, $value2)
@@ -390,22 +392,31 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testAlterTableNotNULL()
     {
-        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
-        $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'foo', new \Doctrine\DBAL\Schema\Column(
-                'foo', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'bla', 'notnull' => true)
+        $tableDiff                          = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff->changedColumns['foo']   = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'foo',
+            new \Doctrine\DBAL\Schema\Column(
+                'foo',
+                \Doctrine\DBAL\Types\Type::getType('string'),
+                array('default' => 'bla', 'notnull' => true)
             ),
             array('type')
         );
-        $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'bar', new \Doctrine\DBAL\Schema\Column(
-                'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'bla', 'notnull' => true)
+        $tableDiff->changedColumns['bar']   = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'bar',
+            new \Doctrine\DBAL\Schema\Column(
+                'baz',
+                \Doctrine\DBAL\Types\Type::getType('string'),
+                array('default' => 'bla', 'notnull' => true)
             ),
             array('type', 'notnull')
         );
         $tableDiff->changedColumns['metar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'metar', new \Doctrine\DBAL\Schema\Column(
-                'metar', \Doctrine\DBAL\Types\Type::getType('string'), array('length' => 2000, 'notnull' => false)
+            'metar',
+            new \Doctrine\DBAL\Schema\Column(
+                'metar',
+                \Doctrine\DBAL\Types\Type::getType('string'),
+                array('length' => 2000, 'notnull' => false)
             ),
             array('notnull')
         );

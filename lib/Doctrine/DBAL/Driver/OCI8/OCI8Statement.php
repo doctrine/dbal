@@ -98,10 +98,10 @@ class OCI8Statement implements IteratorAggregate, Statement
     public function __construct($dbh, $statement, OCI8Connection $conn)
     {
         list($statement, $paramMap) = self::convertPositionalToNamedPlaceholders($statement);
-        $this->_sth = oci_parse($dbh, $statement);
-        $this->_dbh = $dbh;
-        $this->_paramMap = $paramMap;
-        $this->_conn = $conn;
+        $this->_sth                 = oci_parse($dbh, $statement);
+        $this->_dbh                 = $dbh;
+        $this->_paramMap            = $paramMap;
+        $this->_conn                = $conn;
     }
 
     /**
@@ -126,12 +126,12 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public static function convertPositionalToNamedPlaceholders($statement)
     {
-        $fragmentOffset = $tokenOffset = 0;
-        $fragments = $paramMap = [];
+        $fragmentOffset          = $tokenOffset = 0;
+        $fragments               = $paramMap = [];
         $currentLiteralDelimiter = null;
 
         do {
-            if (!$currentLiteralDelimiter) {
+            if ( ! $currentLiteralDelimiter) {
                 $result = self::findPlaceholderOrOpeningQuote(
                     $statement,
                     $tokenOffset,
@@ -153,7 +153,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         $fragments[] = substr($statement, $fragmentOffset);
-        $statement = implode('', $fragments);
+        $statement   = implode('', $fragments);
 
         return [$statement, $paramMap];
     }
@@ -180,18 +180,18 @@ class OCI8Statement implements IteratorAggregate, Statement
     ) {
         $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
 
-        if (!$token) {
+        if ( ! $token) {
             return false;
         }
 
         if ($token === '?') {
-            $position = count($paramMap) + 1;
-            $param = ':param' . $position;
-            $fragments[] = substr($statement, $fragmentOffset, $tokenOffset - $fragmentOffset);
-            $fragments[] = $param;
+            $position            = count($paramMap) + 1;
+            $param               = ':param' . $position;
+            $fragments[]         = substr($statement, $fragmentOffset, $tokenOffset - $fragmentOffset);
+            $fragments[]         = $param;
             $paramMap[$position] = $param;
-            $tokenOffset += 1;
-            $fragmentOffset = $tokenOffset;
+            $tokenOffset        += 1;
+            $fragmentOffset      = $tokenOffset;
 
             return true;
         }
@@ -222,7 +222,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             '/' . preg_quote($currentLiteralDelimiter, '/') . '/'
         );
 
-        if (!$token) {
+        if ( ! $token) {
             return false;
         }
 
@@ -290,7 +290,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     public function closeCursor()
     {
         // not having the result means there's nothing to close
-        if (!$this->result) {
+        if ( ! $this->result) {
             return true;
         }
 
@@ -381,7 +381,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
-        if (!$this->result) {
+        if ( ! $this->result) {
             return false;
         }
 
@@ -391,7 +391,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             return oci_fetch_object($this->_sth);
         }
 
-        if (! isset(self::$fetchModeMap[$fetchMode])) {
+        if ( ! isset(self::$fetchModeMap[$fetchMode])) {
             throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
         }
 
@@ -434,12 +434,17 @@ class OCI8Statement implements IteratorAggregate, Statement
 
             // do not try fetching from the statement if it's not expected to contain result
             // in order to prevent exceptional situation
-            if (!$this->result) {
+            if ( ! $this->result) {
                 return [];
             }
 
-            oci_fetch_all($this->_sth, $result, 0, -1,
-                self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
+            oci_fetch_all(
+                $this->_sth,
+                $result,
+                0,
+                -1,
+                self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS
+            );
 
             if ($fetchMode == PDO::FETCH_COLUMN) {
                 $result = $result[0];
@@ -456,7 +461,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
-        if (!$this->result) {
+        if ( ! $this->result) {
             return false;
         }
 

@@ -82,9 +82,9 @@ class Statement implements \IteratorAggregate, DriverStatement
      */
     public function __construct($sql, Connection $conn)
     {
-        $this->sql = $sql;
-        $this->stmt = $conn->getWrappedConnection()->prepare($sql);
-        $this->conn = $conn;
+        $this->sql      = $sql;
+        $this->stmt     = $conn->getWrappedConnection()->prepare($sql);
+        $this->conn     = $conn;
         $this->platform = $conn->getDatabasePlatform();
     }
 
@@ -105,13 +105,13 @@ class Statement implements \IteratorAggregate, DriverStatement
     public function bindValue($name, $value, $type = null)
     {
         $this->params[$name] = $value;
-        $this->types[$name] = $type;
+        $this->types[$name]  = $type;
         if ($type !== null) {
             if (is_string($type)) {
                 $type = Type::getType($type);
             }
             if ($type instanceof Type) {
-                $value = $type->convertToDatabaseValue($value, $this->platform);
+                $value       = $type->convertToDatabaseValue($value, $this->platform);
                 $bindingType = $type->getBindingType();
             } else {
                 $bindingType = $type; // PDO::PARAM_* constants
@@ -139,7 +139,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     public function bindParam($name, &$var, $type = PDO::PARAM_STR, $length = null)
     {
         $this->params[$name] = $var;
-        $this->types[$name] = $type;
+        $this->types[$name]  = $type;
 
         return $this->stmt->bindParam($name, $var, $type, $length);
     }
@@ -182,7 +182,7 @@ class Statement implements \IteratorAggregate, DriverStatement
             $logger->stopQuery();
         }
         $this->params = [];
-        $this->types = [];
+        $this->types  = [];
 
         return $stmt;
     }

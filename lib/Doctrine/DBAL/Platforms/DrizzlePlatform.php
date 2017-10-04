@@ -213,13 +213,13 @@ class DrizzlePlatform extends AbstractPlatform
 
         // attach all primary keys
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $keyColumns = array_unique(array_values($options['primary']));
+            $keyColumns   = array_unique(array_values($options['primary']));
             $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
         $query = 'CREATE ';
 
-        if (!empty($options['temporary'])) {
+        if ( ! empty($options['temporary'])) {
             $query .= 'TEMPORARY ';
         }
 
@@ -417,7 +417,7 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getDropIndexSQL($index, $table=null)
+    public function getDropIndexSQL($index, $table = null)
     {
         if ($index instanceof Index) {
             $indexName = $index->getQuotedName($this);
@@ -429,7 +429,7 @@ class DrizzlePlatform extends AbstractPlatform
 
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } elseif (!is_string($table)) {
+        } elseif ( ! is_string($table)) {
             throw new \InvalidArgumentException('DrizzlePlatform::getDropIndexSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
@@ -483,7 +483,7 @@ class DrizzlePlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $columnSql = [];
+        $columnSql  = [];
         $queryParts = [];
 
         if ($diff->newName !== false) {
@@ -495,9 +495,9 @@ class DrizzlePlatform extends AbstractPlatform
                 continue;
             }
 
-            $columnArray = $column->toArray();
+            $columnArray            = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
+            $queryParts[]           = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
         foreach ($diff->removedColumns as $column) {
@@ -514,7 +514,7 @@ class DrizzlePlatform extends AbstractPlatform
             }
 
             /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
-            $column = $columnDiff->column;
+            $column      = $columnDiff->column;
             $columnArray = $column->toArray();
 
             // Do not generate column alteration clause if type is binary and only fixed property has changed.
@@ -528,7 +528,7 @@ class DrizzlePlatform extends AbstractPlatform
             }
 
             $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[] =  'CHANGE ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
+            $queryParts[]           =  'CHANGE ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
@@ -539,13 +539,13 @@ class DrizzlePlatform extends AbstractPlatform
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $columnArray = $column->toArray();
+            $columnArray            = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
-            $queryParts[] =  'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
+            $queryParts[]           =  'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
 
-        $sql = [];
+        $sql      = [];
         $tableSql = [];
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
@@ -569,7 +569,7 @@ class DrizzlePlatform extends AbstractPlatform
     {
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } elseif (!is_string($table)) {
+        } elseif ( ! is_string($table)) {
             throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
@@ -588,7 +588,7 @@ class DrizzlePlatform extends AbstractPlatform
                 }
             }
         } elseif (is_bool($item) || is_numeric($item)) {
-           $item = ($item) ? 'true' : 'false';
+            $item = ($item) ? 'true' : 'false';
         }
 
         return $item;
@@ -603,7 +603,7 @@ class DrizzlePlatform extends AbstractPlatform
             return 'LOCATE(' . $substr . ', ' . $str . ')';
         }
 
-        return 'LOCATE(' . $substr . ', ' . $str . ', '.$startPos.')';
+        return 'LOCATE(' . $substr . ', ' . $str . ', ' . $startPos . ')';
     }
 
     /**

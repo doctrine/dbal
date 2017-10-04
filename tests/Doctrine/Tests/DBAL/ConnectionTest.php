@@ -588,7 +588,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
             ->getMock();
 
         // artificially set the wrapped connection to non-null
-        $reflection = new \ReflectionObject($connection);
+        $reflection   = new \ReflectionObject($connection);
         $connProperty = $reflection->getProperty('_conn');
         $connProperty->setAccessible(true);
         $connProperty->setValue($connection, new \stdClass);
@@ -785,7 +785,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @group #2821
      */
-    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery(): void
+    public function testShouldNotPassPlatformInParamsToTheQueryCacheProfileInExecuteCacheQuery() : void
     {
         $resultCacheDriverMock = $this->createMock(Cache::class);
 
@@ -803,7 +803,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
             ->method('getResultCacheDriver')
             ->will($this->returnValue($resultCacheDriverMock));
 
-        $query  = 'SELECT 1';
+        $query = 'SELECT 1';
 
         $connectionParams = $this->params;
 
@@ -824,9 +824,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @group #2821
      */
-    public function testThrowsExceptionWhenInValidPlatformSpecified(): void
+    public function testThrowsExceptionWhenInValidPlatformSpecified() : void
     {
-        $connectionParams = $this->params;
+        $connectionParams             = $this->params;
         $connectionParams['platform'] = new \stdClass();
 
         /* @var $driver Driver */
@@ -845,7 +845,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         /** @var \Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock|\PHPUnit_Framework_MockObject_MockObject $driverMock */
         $driverMock = $this->createMock(VersionAwarePlatformDriverMock::class);
 
-        $connection = new Connection(array('dbname' => 'foo'), $driverMock);
+        $connection        = new Connection(array('dbname' => 'foo'), $driverMock);
         $originalException = new \Exception('Original exception');
         $fallbackException = new \Exception('Fallback exception');
 

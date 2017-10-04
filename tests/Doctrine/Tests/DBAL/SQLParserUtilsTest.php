@@ -56,7 +56,7 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT [d.ns:col_name] FROM my_table d WHERE [d.date] >= :param1', false, array(57 => 'param1')), // Ticket DBAL-552
             array('SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[:foo])', false, array(56 => 'foo')), // Ticket GH-2295
             array(
-<<<'SQLDATA'
+        <<<'SQLDATA'
 SELECT * FROM foo WHERE 
 bar = ':not_a_param1 ''":not_a_param2"'''
 OR bar=:a_param1

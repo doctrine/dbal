@@ -109,7 +109,7 @@ class MasterSlaveConnection extends Connection
      */
     public function __construct(array $params, Driver $driver, Configuration $config = null, EventManager $eventManager = null)
     {
-        if ( !isset($params['slaves']) || !isset($params['master'])) {
+        if ( ! isset($params['slaves']) || ! isset($params['master'])) {
             throw new \InvalidArgumentException('master or slaves configuration missing');
         }
         if (count($params['slaves']) == 0) {
@@ -151,7 +151,7 @@ class MasterSlaveConnection extends Connection
         // If we have a connection open, and this is not an explicit connection
         // change request, then abort right here, because we are already done.
         // This prevents writes to the slave in case of "keepSlave" option enabled.
-        if (isset($this->_conn) && $this->_conn && !$requestedConnectionChange) {
+        if (isset($this->_conn) && $this->_conn && ! $requestedConnectionChange) {
             return false;
         }
 
@@ -206,7 +206,7 @@ class MasterSlaveConnection extends Connection
 
         $connectionParams = $this->chooseConnectionConfiguration($connectionName, $params);
 
-        $user = isset($connectionParams['user']) ? $connectionParams['user'] : null;
+        $user     = isset($connectionParams['user']) ? $connectionParams['user'] : null;
         $password = isset($connectionParams['password']) ? $connectionParams['password'] : null;
 
         return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
@@ -287,7 +287,7 @@ class MasterSlaveConnection extends Connection
 
         parent::close();
 
-        $this->_conn = null;
+        $this->_conn       = null;
         $this->connections = ['master' => null, 'slave' => null];
     }
 

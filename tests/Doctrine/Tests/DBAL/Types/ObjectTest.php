@@ -7,14 +7,13 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class ObjectTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
+    protected $_platform,
         $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('object');
+        $this->_type     = Type::getType('object');
     }
 
     protected function tearDown()
@@ -34,7 +33,7 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
 
     public function testConversionFailure()
     {
-        error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
+        error_reporting((E_ALL | E_STRICT) - \E_NOTICE);
         $this->expectException('Doctrine\DBAL\Types\ConversionException');
         $this->_type->convertToPHPValue('abcdefg', $this->_platform);
     }

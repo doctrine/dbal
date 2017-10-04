@@ -24,11 +24,11 @@ class TableDiffTest extends \PHPUnit\Framework\TestCase
     public function testPrefersNameFromTableObject()
     {
         $platformMock = new MockPlatform();
-        $tableMock = $this->getMockBuilder('Doctrine\DBAL\Schema\Table')
+        $tableMock    = $this->getMockBuilder('Doctrine\DBAL\Schema\Table')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $tableDiff = new TableDiff('foo');
+        $tableDiff            = new TableDiff('foo');
         $tableDiff->fromTable = $tableMock;
 
         $tableMock->expects($this->once())

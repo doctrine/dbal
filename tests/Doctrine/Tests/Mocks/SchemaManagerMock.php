@@ -9,5 +9,7 @@ class SchemaManagerMock extends \Doctrine\DBAL\Schema\AbstractSchemaManager
         parent::__construct($conn);
     }
 
-    protected function _getPortableTableColumnDefinition($tableColumn) {}
+    protected function _getPortableTableColumnDefinition($tableColumn)
+    {
+    }
 }

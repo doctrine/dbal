@@ -45,7 +45,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         } catch (DBALException $exception) {
             $exception = $exception->getPrevious();
 
-            if (! $exception instanceof DriverException) {
+            if ( ! $exception instanceof DriverException) {
                 throw $exception;
             }
 
@@ -76,12 +76,12 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $dbType = strtok($tableColumn['type'], '(), ');
-        $fixed = null;
-        $length = (int) $tableColumn['length'];
+        $dbType  = strtok($tableColumn['type'], '(), ');
+        $fixed   = null;
+        $length  = (int) $tableColumn['length'];
         $default = $tableColumn['default'];
 
-        if (!isset($tableColumn['name'])) {
+        if ( ! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
@@ -117,7 +117,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 
         $options = [
-            'length'        => ($length == 0 || !in_array($type, ['text', 'string'])) ? null : $length,
+            'length'        => ($length == 0 || ! in_array($type, ['text', 'string'])) ? null : $length,
             'unsigned'      => false,
             'fixed'         => (bool) $fixed,
             'default'       => $default !== 'NULL' ? $default : null,
@@ -157,7 +157,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                     ]
                 ];
             } else {
-                $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][] = $tableForeignKey['ColumnName'];
+                $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][]   = $tableForeignKey['ColumnName'];
                 $foreignKeys[$tableForeignKey['ForeignKey']]['foreign_columns'][] = $tableForeignKey['ReferenceColumnName'];
             }
         }
@@ -168,12 +168,12 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
+    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['non_unique'] = (boolean) $tableIndex['non_unique'];
-            $tableIndex['primary'] = (boolean) $tableIndex['primary'];
-            $tableIndex['flags'] = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
+            $tableIndex['primary']    = (boolean) $tableIndex['primary'];
+            $tableIndex['flags']      = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
         }
 
         return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
@@ -284,7 +284,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             ON Tab.[ID] = Sysobjects.[Parent_Obj]
             INNER JOIN sys.default_constraints DefCons ON DefCons.[object_id] = Sysobjects.[ID]
             INNER JOIN SysColumns Col ON Col.[ColID] = DefCons.[parent_column_id] AND Col.[ID] = Tab.[ID]
-            WHERE Col.[Name] = " . $this->_conn->quote($column) ." AND Tab.[Name] = " . $this->_conn->quote($table) . "
+            WHERE Col.[Name] = " . $this->_conn->quote($column) . " AND Tab.[Name] = " . $this->_conn->quote($table) . "
             ORDER BY Col.[Name]";
     }
 

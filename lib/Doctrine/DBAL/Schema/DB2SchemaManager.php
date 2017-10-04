@@ -36,8 +36,8 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     public function listTableNames()
     {
-        $sql = $this->_platform->getListTablesSQL();
-        $sql .= " AND CREATOR = UPPER('".$this->_conn->getUsername()."')";
+        $sql  = $this->_platform->getListTablesSQL();
+        $sql .= " AND CREATOR = UPPER('" . $this->_conn->getUsername() . "')";
 
         $tables = $this->_conn->fetchAll($sql);
 
@@ -51,10 +51,10 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         $tableColumn = array_change_key_case($tableColumn, \CASE_LOWER);
 
-        $length = null;
-        $fixed = null;
-        $unsigned = false;
-        $scale = false;
+        $length    = null;
+        $fixed     = null;
+        $unsigned  = false;
+        $scale     = false;
         $precision = false;
 
         $default = null;
@@ -66,18 +66,18 @@ class DB2SchemaManager extends AbstractSchemaManager
         $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
 
         if (isset($tableColumn['comment'])) {
-            $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+            $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
             $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
         }
 
         switch (strtolower($tableColumn['typename'])) {
             case 'varchar':
                 $length = $tableColumn['length'];
-                $fixed = false;
+                $fixed  = false;
                 break;
             case 'character':
                 $length = $tableColumn['length'];
-                $fixed = true;
+                $fixed  = true;
                 break;
             case 'clob':
                 $length = $tableColumn['length'];
@@ -85,7 +85,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             case 'decimal':
             case 'double':
             case 'real':
-                $scale = $tableColumn['scale'];
+                $scale     = $tableColumn['scale'];
                 $precision = $tableColumn['length'];
                 break;
         }
@@ -106,7 +106,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         ];
 
         if ($scale !== null && $precision !== null) {
-            $options['scale'] = $scale;
+            $options['scale']     = $scale;
             $options['precision'] = $precision;
         }
 
@@ -120,7 +120,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     {
         $tableNames = [];
         foreach ($tables as $tableRow) {
-            $tableRow = array_change_key_case($tableRow, \CASE_LOWER);
+            $tableRow     = array_change_key_case($tableRow, \CASE_LOWER);
             $tableNames[] = $tableRow['name'];
         }
 
@@ -133,7 +133,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
         foreach ($tableIndexRows as &$tableIndexRow) {
-            $tableIndexRow = array_change_key_case($tableIndexRow, \CASE_LOWER);
+            $tableIndexRow            = array_change_key_case($tableIndexRow, \CASE_LOWER);
             $tableIndexRow['primary'] = (boolean) $tableIndexRow['primary'];
         }
 
@@ -164,7 +164,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         foreach ($tableForeignKeys as $tableForeignKey) {
             $tableForeignKey = array_change_key_case($tableForeignKey, \CASE_LOWER);
 
-            if (!isset($foreignKeys[$tableForeignKey['index_name']])) {
+            if ( ! isset($foreignKeys[$tableForeignKey['index_name']])) {
                 $foreignKeys[$tableForeignKey['index_name']] = [
                     'local_columns'   => [$tableForeignKey['local_column']],
                     'foreign_table'   => $tableForeignKey['foreign_table'],
@@ -176,7 +176,7 @@ class DB2SchemaManager extends AbstractSchemaManager
                     ]
                 ];
             } else {
-                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][] = $tableForeignKey['local_column'];
+                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][]   = $tableForeignKey['local_column'];
                 $foreignKeys[$tableForeignKey['index_name']]['foreign_columns'][] = $tableForeignKey['foreign_column'];
             }
         }
@@ -206,7 +206,7 @@ class DB2SchemaManager extends AbstractSchemaManager
         $view = array_change_key_case($view, \CASE_LOWER);
         // sadly this still segfaults on PDO_IBM, see http://pecl.php.net/bugs/bug.php?id=17199
         //$view['text'] = (is_resource($view['text']) ? stream_get_contents($view['text']) : $view['text']);
-        if (!is_resource($view['text'])) {
+        if ( ! is_resource($view['text'])) {
             $pos = strpos($view['text'], ' AS ');
             $sql = substr($view['text'], $pos+4);
         } else {

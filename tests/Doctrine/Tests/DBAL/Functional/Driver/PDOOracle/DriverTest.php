@@ -9,13 +9,13 @@ class DriverTest extends AbstractDriverTest
 {
     protected function setUp()
     {
-        if (! extension_loaded('PDO_OCI')) {
+        if ( ! extension_loaded('PDO_OCI')) {
             $this->markTestSkipped('PDO_OCI is not installed.');
         }
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
+        if ( ! $this->_conn->getDriver() instanceof Driver) {
             $this->markTestSkipped('PDO_OCI only test.');
         }
     }

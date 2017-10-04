@@ -30,7 +30,7 @@ class DBAL510Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $onlineTable = $this->_conn->getSchemaManager()->listTableDetails('dbal510tbl');
 
         $comparator = new Comparator();
-        $diff = $comparator->diffTable($onlineTable, $table);
+        $diff       = $comparator->diffTable($onlineTable, $table);
 
         self::assertFalse($diff);
     }

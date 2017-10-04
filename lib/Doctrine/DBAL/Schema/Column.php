@@ -102,7 +102,7 @@ class Column extends AbstractAsset
      * @param Type   $type
      * @param array  $options
      */
-    public function __construct($columnName, Type $type, array $options=[])
+    public function __construct($columnName, Type $type, array $options = [])
     {
         $this->_setName($columnName);
         $this->setType($type);
@@ -117,7 +117,7 @@ class Column extends AbstractAsset
     public function setOptions(array $options)
     {
         foreach ($options as $name => $value) {
-            $method = "set".$name;
+            $method = "set" . $name;
             if (method_exists($this, $method)) {
                 $this->$method($value);
             }
@@ -161,7 +161,7 @@ class Column extends AbstractAsset
      */
     public function setPrecision($precision)
     {
-        if (!is_numeric($precision)) {
+        if ( ! is_numeric($precision)) {
             $precision = 10; // defaults to 10 when no valid precision is given.
         }
 
@@ -177,7 +177,7 @@ class Column extends AbstractAsset
      */
     public function setScale($scale)
     {
-        if (!is_numeric($scale)) {
+        if ( ! is_numeric($scale)) {
             $scale = 0;
         }
 

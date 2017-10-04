@@ -75,7 +75,7 @@ class DropSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
             $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform')
         );
 
-        $this->expectException( 'Doctrine\DBAL\Schema\SchemaException' );
+        $this->expectException('Doctrine\DBAL\Schema\SchemaException');
         $collector->acceptForeignKey($this->getTableMock(), $this->getStubKeyConstraint(''));
     }
 }

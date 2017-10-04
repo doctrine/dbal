@@ -89,11 +89,11 @@ class PoolingShardConnection extends Connection
      */
     public function __construct(array $params, Driver $driver, Configuration $config = null, EventManager $eventManager = null)
     {
-        if ( !isset($params['global']) || !isset($params['shards'])) {
+        if ( ! isset($params['global']) || ! isset($params['shards'])) {
             throw new \InvalidArgumentException("Connection Parameters require 'global' and 'shards' configurations.");
         }
 
-        if ( !isset($params['shardChoser'])) {
+        if ( ! isset($params['shardChoser'])) {
             throw new \InvalidArgumentException("Missing Shard Choser configuration 'shardChoser'");
         }
 
@@ -112,7 +112,7 @@ class PoolingShardConnection extends Connection
                 throw new \InvalidArgumentException("Missing 'id' for one configured shard. Please specify a unique shard-id.");
             }
 
-            if ( !is_numeric($shard['id']) || $shard['id'] < 1) {
+            if ( ! is_numeric($shard['id']) || $shard['id'] < 1) {
                 throw new \InvalidArgumentException("Shard Id has to be a non-negative number.");
             }
 
@@ -128,7 +128,7 @@ class PoolingShardConnection extends Connection
 
     /**
      * Get active shard id.
-     * 
+     *
      * @return integer
      */
     public function getActiveShardId()
@@ -207,7 +207,7 @@ class PoolingShardConnection extends Connection
             throw new ShardingException("Cannot switch shard when transaction is active.");
         }
 
-        $this->activeShardId = (int)$shardId;
+        $this->activeShardId = (int) $shardId;
 
         if (isset($this->activeConnections[$this->activeShardId])) {
             $this->_conn = $this->activeConnections[$this->activeShardId];
@@ -240,7 +240,7 @@ class PoolingShardConnection extends Connection
 
         $connectionParams = $this->connections[$shardId];
 
-        $user = isset($connectionParams['user']) ? $connectionParams['user'] : null;
+        $user     = isset($connectionParams['user']) ? $connectionParams['user'] : null;
         $password = isset($connectionParams['password']) ? $connectionParams['password'] : null;
 
         return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);

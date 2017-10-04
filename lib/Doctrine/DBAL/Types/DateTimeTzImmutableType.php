@@ -68,7 +68,7 @@ class DateTimeTzImmutableType extends DateTimeTzType
 
         $dateTime = \DateTimeImmutable::createFromFormat($platform->getDateTimeTzFormatString(), $value);
 
-        if (! $dateTime) {
+        if ( ! $dateTime) {
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),

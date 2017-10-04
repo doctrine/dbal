@@ -28,10 +28,10 @@ class MultiTenantVisitorTest extends \PHPUnit\Framework\TestCase
     public function testMultiTenantPrimaryKey()
     {
         $platform = new SQLAzurePlatform();
-        $visitor = new MultiTenantVisitor();
+        $visitor  = new MultiTenantVisitor();
 
         $schema = new Schema();
-        $foo = $schema->createTable('foo');
+        $foo    = $schema->createTable('foo');
         $foo->addColumn('id', 'string');
         $foo->setPrimaryKey(array('id'));
         $schema->visit($visitor);
@@ -43,10 +43,10 @@ class MultiTenantVisitorTest extends \PHPUnit\Framework\TestCase
     public function testMultiTenantNonPrimaryKey()
     {
         $platform = new SQLAzurePlatform();
-        $visitor = new MultiTenantVisitor();
+        $visitor  = new MultiTenantVisitor();
 
         $schema = new Schema();
-        $foo = $schema->createTable('foo');
+        $foo    = $schema->createTable('foo');
         $foo->addColumn('id', 'string');
         $foo->addColumn('created', 'datetime');
         $foo->setPrimaryKey(array('id'));
@@ -62,4 +62,3 @@ class MultiTenantVisitorTest extends \PHPUnit\Framework\TestCase
         self::assertEquals(array('created', 'tenant_id'), $foo->getIndex('idx')->getColumns());
     }
 }
-

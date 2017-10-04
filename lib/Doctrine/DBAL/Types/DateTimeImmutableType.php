@@ -68,11 +68,11 @@ class DateTimeImmutableType extends DateTimeType
 
         $dateTime = \DateTimeImmutable::createFromFormat($platform->getDateTimeFormatString(), $value);
 
-        if (! $dateTime) {
+        if ( ! $dateTime) {
             $dateTime = \date_create_immutable($value);
         }
 
-        if (! $dateTime) {
+        if ( ! $dateTime) {
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),

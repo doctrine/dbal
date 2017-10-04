@@ -35,12 +35,12 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     {
         $dbType = strtolower($tableColumn['DATA_TYPE']);
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
+        $type                          = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type                          = $this->extractDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
         $tableColumn['COLUMN_COMMENT'] = $this->removeDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
 
         $options = [
-            'notnull' => !(bool) $tableColumn['IS_NULLABLE'],
+            'notnull' => ! (bool) $tableColumn['IS_NULLABLE'],
             'length' => (int) $tableColumn['CHARACTER_MAXIMUM_LENGTH'],
             'default' => isset($tableColumn['COLUMN_DEFAULT']) ? $tableColumn['COLUMN_DEFAULT'] : null,
             'autoincrement' => (bool) $tableColumn['IS_AUTO_INCREMENT'],
@@ -111,7 +111,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         $indexes = [];
         foreach ($tableIndexes as $k) {
             $k['primary'] = (boolean) $k['primary'];
-            $indexes[] = $k;
+            $indexes[]    = $k;
         }
 
         return parent::_getPortableTableIndexesList($indexes, $tableName);

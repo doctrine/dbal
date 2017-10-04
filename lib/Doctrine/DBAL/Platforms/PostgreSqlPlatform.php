@@ -115,10 +115,10 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ($startPos !== false) {
             $str = $this->getSubstringExpression($str, $startPos);
 
-            return 'CASE WHEN (POSITION('.$substr.' IN '.$str.') = 0) THEN 0 ELSE (POSITION('.$substr.' IN '.$str.') + '.($startPos-1).') END';
+            return 'CASE WHEN (POSITION(' . $substr . ' IN ' . $str . ') = 0) THEN 0 ELSE (POSITION(' . $substr . ' IN ' . $str . ') + ' . ($startPos-1) . ') END';
         }
 
-        return 'POSITION('.$substr.' IN '.$str.')';
+        return 'POSITION(' . $substr . ' IN ' . $str . ')';
     }
 
     /**
@@ -128,10 +128,10 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         if (self::DATE_INTERVAL_UNIT_QUARTER === $unit) {
             $interval *= 3;
-            $unit = self::DATE_INTERVAL_UNIT_MONTH;
+            $unit      = self::DATE_INTERVAL_UNIT_MONTH;
         }
 
-        return "(" . $date ." " . $operator . " (" . $interval . " || ' " . $unit . "')::interval)";
+        return "(" . $date . " " . $operator . " (" . $interval . " || ' " . $unit . "')::interval)";
     }
 
     /**
@@ -291,7 +291,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                   (
                       SELECT c.oid
                       FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
-                      WHERE " .$this->getTableWhereClause($table) ." AND n.oid = c.relnamespace
+                      WHERE " . $this->getTableWhereClause($table) . " AND n.oid = c.relnamespace
                   )
                   AND r.contype = 'f'";
     }
@@ -309,7 +309,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDropViewSQL($name)
     {
-        return 'DROP VIEW '. $name;
+        return 'DROP VIEW ' . $name;
     }
 
     /**
@@ -348,7 +348,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                  WHERE oid IN (
                     SELECT indexrelid
                     FROM pg_index si, pg_class sc, pg_namespace sn
-                    WHERE " . $this->getTableWhereClause($table, 'sc', 'sn')." AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
+                    WHERE " . $this->getTableWhereClause($table, 'sc', 'sn') . " AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
                  ) AND pg_index.indexrelid = oid";
     }
 
@@ -361,16 +361,16 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n')
     {
-        $whereClause = $namespaceAlias.".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
+        $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
         if (strpos($table, ".") !== false) {
             list($schema, $table) = explode(".", $table);
-            $schema = $this->quoteStringLiteral($schema);
+            $schema               = $this->quoteStringLiteral($schema);
         } else {
             $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') from pg_catalog.pg_settings where name = 'search_path'),','))";
         }
 
-        $table = new Identifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
+        $table        = new Identifier($table);
+        $table        = $this->quoteStringLiteral($table->getName());
         $whereClause .= "$classAlias.relname = " . $table . " AND $namespaceAlias.nspname = $schema";
 
         return $whereClause;
@@ -405,7 +405,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                         FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
                     ) AS comment
                     FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
-                    WHERE ".$this->getTableWhereClause($table, 'c', 'n') ."
+                    WHERE " . $this->getTableWhereClause($table, 'c', 'n') . "
                         AND a.attnum > 0
                         AND a.attrelid = c.oid
                         AND a.atttypid = t.oid
@@ -486,9 +486,9 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql = [];
+        $sql         = [];
         $commentsSQL = [];
-        $columnSql = [];
+        $columnSql   = [];
 
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
@@ -529,7 +529,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             }
 
             $oldColumnName = $columnDiff->getOldColumnName()->getQuotedName($this);
-            $column = $columnDiff->column;
+            $column        = $columnDiff->column;
 
             if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('precision') || $columnDiff->hasChanged('scale') || $columnDiff->hasChanged('fixed')) {
                 $type = $column->getType();
@@ -543,8 +543,8 @@ class PostgreSqlPlatform extends AbstractPlatform
                 $defaultClause = null === $column->getDefault()
                     ? ' DROP DEFAULT'
                     : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
-                $query = 'ALTER ' . $oldColumnName . $defaultClause;
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                $query         = 'ALTER ' . $oldColumnName . $defaultClause;
+                $sql[]         = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
             if ($columnDiff->hasChanged('notnull')) {
@@ -671,9 +671,9 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        $tableName = new Identifier($tableName);
+        $tableName  = new Identifier($tableName);
         $columnName = new Identifier($columnName);
-        $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
+        $comment    = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
         return "COMMENT ON COLUMN " . $tableName->getQuotedName($this) . "." . $columnName->getQuotedName($this) .
             " IS $comment";
@@ -753,7 +753,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $keyColumns = array_unique(array_values($options['primary']));
+            $keyColumns   = array_unique(array_values($options['primary']));
             $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
         }
 
@@ -799,7 +799,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             return $callback($value ? true : false);
         }
 
-        if (!is_string($value)) {
+        if ( ! is_string($value)) {
             return $callback(true);
         }
 
@@ -1072,7 +1072,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         $tableIdentifier = new Identifier($tableName);
-        $sql = 'TRUNCATE ' . $tableIdentifier->getQuotedName($this);
+        $sql             = 'TRUNCATE ' . $tableIdentifier->getQuotedName($this);
 
         if ($cascade) {
             $sql .= ' CASCADE';

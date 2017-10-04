@@ -101,9 +101,9 @@ class CreateSchemaSqlCollector extends AbstractVisitor
      */
     public function resetQueries()
     {
-        $this->createNamespaceQueries = [];
-        $this->createTableQueries = [];
-        $this->createSequenceQueries = [];
+        $this->createNamespaceQueries    = [];
+        $this->createTableQueries        = [];
+        $this->createSequenceQueries     = [];
         $this->createFkConstraintQueries = [];
     }
 

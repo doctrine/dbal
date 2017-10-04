@@ -48,7 +48,6 @@ abstract class AbstractSchemaSynchronizer implements SchemaSynchronizer
             try {
                 $this->conn->exec($s);
             } catch (\Exception $e) {
-
             }
         }
     }

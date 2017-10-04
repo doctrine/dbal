@@ -263,7 +263,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     {
         $oldColumnName = new Identifier($oldColumnName);
 
-        return 'RENAME ' . $oldColumnName->getQuotedName($this) .' TO ' . $column->getQuotedName($this);
+        return 'RENAME ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
     }
 
     /**
@@ -369,9 +369,9 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        $tableName = new Identifier($tableName);
+        $tableName  = new Identifier($tableName);
         $columnName = new Identifier($columnName);
-        $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
+        $comment    = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
         return "COMMENT ON COLUMN " . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
             " IS $comment";
@@ -419,7 +419,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getCreateIndexSQL(Index $index, $table)
     {
-        return parent::getCreateIndexSQL($index, $table). $this->getAdvancedIndexOptionsSQL($index);
+        return parent::getCreateIndexSQL($index, $table) . $this->getAdvancedIndexOptionsSQL($index);
     }
 
     /**
@@ -726,7 +726,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (strpos($table, '.') !== false) {
             list($user, $table) = explode('.', $table);
-            $user = $this->quoteStringLiteral($user);
+            $user               = $this->quoteStringLiteral($user);
         }
 
         return "SELECT    col.column_name,
@@ -758,8 +758,8 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (strpos($table, '.') !== false) {
             list($user, $table) = explode('.', $table);
-            $user = $this->quoteStringLiteral($user);
-            $table = $this->quoteStringLiteral($table);
+            $user               = $this->quoteStringLiteral($user);
+            $table              = $this->quoteStringLiteral($table);
         } else {
             $table = $this->quoteStringLiteral($table);
         }
@@ -780,8 +780,8 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (strpos($table, '.') !== false) {
             list($user, $table) = explode('.', $table);
-            $user = $this->quoteStringLiteral($user);
-            $table = $this->quoteStringLiteral($table);
+            $user               = $this->quoteStringLiteral($user);
+            $table              = $this->quoteStringLiteral($table);
         } else {
             $table = $this->quoteStringLiteral($table);
         }
@@ -866,8 +866,8 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if (strpos($table, '.') !== false) {
             list($user, $table) = explode('.', $table);
-            $user = $this->quoteStringLiteral($user);
-            $table = $this->quoteStringLiteral($table);
+            $user               = $this->quoteStringLiteral($user);
+            $table              = $this->quoteStringLiteral($table);
         } else {
             $table = $this->quoteStringLiteral($table);
         }
@@ -1226,7 +1226,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
-        $indexSql = [];
+        $indexSql      = [];
 
         if ( ! empty($options['uniqueConstraints'])) {
             foreach ((array) $options['uniqueConstraints'] as $name => $definition) {
@@ -1389,10 +1389,10 @@ class SQLAnywherePlatform extends AbstractPlatform
         }
 
         if ($constraint->isPrimary()) {
-            return $sql . 'PRIMARY KEY ' . $flags . '('. $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
+            return $sql . 'PRIMARY KEY ' . $flags . '(' . $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
         }
 
-        return $sql . 'UNIQUE ' . $flags . '('. $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
+        return $sql . 'UNIQUE ' . $flags . '(' . $this->getIndexFieldDeclarationListSQL($constraintColumns) . ')';
     }
 
     /**

@@ -12,7 +12,7 @@ class FloatTest extends \Doctrine\Tests\DbalTestCase
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('float');
+        $this->_type     = Type::getType('float');
     }
 
     public function testFloatConvertsToPHPValue()

@@ -95,7 +95,7 @@ class DB2Statement implements \IteratorAggregate, Statement
             $type = DB2_CHAR;
         }
 
-        if (!db2_bind_param($this->_stmt, $column, "variable", DB2_PARAM_IN, $type)) {
+        if ( ! db2_bind_param($this->_stmt, $column, "variable", DB2_PARAM_IN, $type)) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
 
@@ -113,7 +113,7 @@ class DB2Statement implements \IteratorAggregate, Statement
 
         $this->_bindParam = [];
 
-        if (!db2_free_result($this->_stmt)) {
+        if ( ! db2_free_result($this->_stmt)) {
             return false;
         }
 
@@ -210,7 +210,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
-        if (!$this->result) {
+        if ( ! $this->result) {
             return false;
         }
 
@@ -311,7 +311,8 @@ class DB2Statement implements \IteratorAggregate, Statement
         if ( ! is_string($destinationClass)) {
             if ( ! is_object($destinationClass)) {
                 throw new DB2Exception(sprintf(
-                    'Destination class has to be of type string or object, %s given.', gettype($destinationClass)
+                    'Destination class has to be of type string or object, %s given.',
+                    gettype($destinationClass)
                 ));
             }
         } else {
@@ -322,7 +323,7 @@ class DB2Statement implements \IteratorAggregate, Statement
         $sourceReflection           = new \ReflectionObject($sourceObject);
         $destinationClassReflection = new \ReflectionObject($destinationClass);
         /** @var \ReflectionProperty[] $destinationProperties */
-        $destinationProperties      = array_change_key_case($destinationClassReflection->getProperties(), \CASE_LOWER);
+        $destinationProperties = array_change_key_case($destinationClassReflection->getProperties(), \CASE_LOWER);
 
         foreach ($sourceReflection->getProperties() as $sourceProperty) {
             $sourceProperty->setAccessible(true);

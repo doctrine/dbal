@@ -129,7 +129,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
             case 'decimal':
             case 'float':
                 $precision = $tableColumn['length'];
-                $scale = $tableColumn['scale'];
+                $scale     = $tableColumn['scale'];
         }
 
         return new Column(
@@ -181,7 +181,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
         $foreignKeys = [];
 
         foreach ($tableForeignKeys as $tableForeignKey) {
-            if (!isset($foreignKeys[$tableForeignKey['index_name']])) {
+            if ( ! isset($foreignKeys[$tableForeignKey['index_name']])) {
                 $foreignKeys[$tableForeignKey['index_name']] = [
                     'local_columns'   => [$tableForeignKey['local_column']],
                     'foreign_table'   => $tableForeignKey['foreign_table'],
@@ -198,7 +198,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
                     ]
                 ];
             } else {
-                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][] = $tableForeignKey['local_column'];
+                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][]   = $tableForeignKey['local_column'];
                 $foreignKeys[$tableForeignKey['index_name']]['foreign_columns'][] = $tableForeignKey['foreign_column'];
             }
         }
@@ -213,7 +213,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     {
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['primary'] = (boolean) $tableIndex['primary'];
-            $tableIndex['flags'] = [];
+            $tableIndex['flags']   = [];
 
             if ($tableIndex['clustered']) {
                 $tableIndex['flags'][] = 'clustered';

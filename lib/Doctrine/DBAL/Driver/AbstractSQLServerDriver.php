@@ -59,7 +59,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
         $buildVersion = isset($versionParts['build']) ? $versionParts['build'] : 0;
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion . '.' . $buildVersion;
 
-        switch(true) {
+        switch (true) {
             case version_compare($version, '11.00.2100', '>='):
                 return new SQLServer2012Platform();
             case version_compare($version, '10.00.1600', '>='):

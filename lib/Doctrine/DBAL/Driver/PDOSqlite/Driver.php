@@ -47,7 +47,9 @@ class Driver extends AbstractSQLiteDriver
     {
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->_userDefinedFunctions = array_merge(
-                $this->_userDefinedFunctions, $driverOptions['userDefinedFunctions']);
+                $this->_userDefinedFunctions,
+                $driverOptions['userDefinedFunctions']
+            );
             unset($driverOptions['userDefinedFunctions']);
         }
 

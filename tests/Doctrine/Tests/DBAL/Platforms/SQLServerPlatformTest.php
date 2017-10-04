@@ -62,7 +62,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
     public function testGetDefaultValueDeclarationSQLForDateType() : void
     {
         $currentDateSql = $this->_platform->getCurrentDateSQL();
-        $field = [
+        $field          = [
             'type'    => Type::getType('date'),
             'default' => $currentDateSql,
         ];

@@ -7,14 +7,13 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class SmallIntTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
+    protected $_platform,
         $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('smallint');
+        $this->_type     = Type::getType('smallint');
     }
 
     public function testSmallIntConvertsToPHPValue()

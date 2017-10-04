@@ -53,7 +53,7 @@ interface Connection
      *
      * @return mixed
      */
-    function quote($input, $type=\PDO::PARAM_STR);
+    function quote($input, $type = \PDO::PARAM_STR);
 
     /**
      * Executes an SQL statement and return the number of affected rows.

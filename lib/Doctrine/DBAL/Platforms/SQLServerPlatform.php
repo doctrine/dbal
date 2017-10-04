@@ -190,16 +190,16 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
-        if (! $foreignKey instanceof ForeignKeyConstraint) {
+        if ( ! $foreignKey instanceof ForeignKeyConstraint) {
             $foreignKey = new Identifier($foreignKey);
         }
 
-        if (! $table instanceof Table) {
+        if ( ! $table instanceof Table) {
             $table = new Identifier($table);
         }
 
         $foreignKey = $foreignKey->getQuotedName($this);
-        $table = $table->getQuotedName($this);
+        $table      = $table->getQuotedName($this);
 
         return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
     }
@@ -211,11 +211,11 @@ class SQLServerPlatform extends AbstractPlatform
     {
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
-        } elseif (!is_string($index)) {
+        } elseif ( ! is_string($index)) {
             throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
         }
 
-        if (!isset($table)) {
+        if ( ! isset($table)) {
             return 'DROP INDEX ' . $index;
         }
 
@@ -257,13 +257,13 @@ class SQLServerPlatform extends AbstractPlatform
 
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
-        if (isset($options['uniqueConstraints']) && !empty($options['uniqueConstraints'])) {
+        if (isset($options['uniqueConstraints']) && ! empty($options['uniqueConstraints'])) {
             foreach ($options['uniqueConstraints'] as $name => $definition) {
                 $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $definition);
             }
         }
 
-        if (isset($options['primary']) && !empty($options['primary'])) {
+        if (isset($options['primary']) && ! empty($options['primary'])) {
             $flags = '';
             if (isset($options['primary_index']) && $options['primary_index']->hasFlag('nonclustered')) {
                 $flags = ' NONCLUSTERED';
@@ -274,14 +274,14 @@ class SQLServerPlatform extends AbstractPlatform
         $query = 'CREATE TABLE ' . $tableName . ' (' . $columnListSql;
 
         $check = $this->getCheckDeclarationSQL($columns);
-        if (!empty($check)) {
+        if ( ! empty($check)) {
             $query .= ', ' . $check;
         }
         $query .= ')';
 
         $sql[] = $query;
 
-        if (isset($options['indexes']) && !empty($options['indexes'])) {
+        if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $index) {
                 $sql[] = $this->getCreateIndexSQL($index, $tableName);
             }
@@ -384,7 +384,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $constraint = parent::getCreateIndexSQL($index, $table);
 
-        if ($index->isUnique() && !$index->isPrimary()) {
+        if ($index->isUnique() && ! $index->isPrimary()) {
             $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
         }
 
@@ -445,7 +445,7 @@ class SQLServerPlatform extends AbstractPlatform
                 continue;
             }
 
-            $columnDef = $column->toArray();
+            $columnDef    = $column->toArray();
             $queryParts[] = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
             if (isset($columnDef['default'])) {
@@ -479,11 +479,11 @@ class SQLServerPlatform extends AbstractPlatform
 
             $column     = $columnDiff->column;
             $comment    = $this->getColumnComment($column);
-            $hasComment = ! empty ($comment) || is_numeric($comment);
+            $hasComment = ! empty($comment) || is_numeric($comment);
 
             if ($columnDiff->fromColumn instanceof Column) {
                 $fromComment    = $this->getColumnComment($columnDiff->fromColumn);
-                $hasFromComment = ! empty ($fromComment) || is_numeric($fromComment);
+                $hasFromComment = ! empty($fromComment) || is_numeric($fromComment);
 
                 if ($hasFromComment && $hasComment && $fromComment != $comment) {
                     $commentsSql[] = $this->getAlterColumnCommentSQL(
@@ -601,7 +601,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function getAlterTableAddDefaultConstraintClause($tableName, Column $column)
     {
-        $columnDef = $column->toArray();
+        $columnDef         = $column->toArray();
         $columnDef['name'] = $column->getQuotedName($this);
 
         return 'ADD' . $this->getDefaultConstraintDeclarationSQL($tableName, $columnDef);
@@ -958,11 +958,11 @@ class SQLServerPlatform extends AbstractPlatform
     {
         if (strpos($table, ".") !== false) {
             list($schema, $table) = explode(".", $table);
-            $schema = $this->quoteStringLiteral($schema);
-            $table = $this->quoteStringLiteral($table);
+            $schema               = $this->quoteStringLiteral($schema);
+            $table                = $this->quoteStringLiteral($table);
         } else {
             $schema = "SCHEMA_NAME()";
-            $table = $this->quoteStringLiteral($table);
+            $table  = $this->quoteStringLiteral($table);
         }
 
         return "({$tableColumn} = {$table} AND {$schemaColumn} = {$schema})";
@@ -1079,7 +1079,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getSubstringExpression($value, $from, $length = null)
     {
-        if (!is_null($length)) {
+        if ( ! is_null($length)) {
             return 'SUBSTRING(' . $value . ', ' . $from . ', ' . $length . ')';
         }
 
@@ -1171,7 +1171,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
-        return (!empty($columnDef['autoincrement'])) ? ' IDENTITY' : '';
+        return ( ! empty($columnDef['autoincrement'])) ? ' IDENTITY' : '';
     }
 
     /**
@@ -1215,16 +1215,16 @@ class SQLServerPlatform extends AbstractPlatform
             return $query;
         }
 
-        $start   = $offset + 1;
-        $end     = $offset + $limit;
+        $start = $offset + 1;
+        $end   = $offset + $limit;
 
         // We'll find a SELECT or SELECT distinct and prepend TOP n to it
         // Even if the TOP n is very large, the use of a CTE will
         // allow the SQL Server query planner to optimize it so it doesn't
         // actually scan the entire range covered by the TOP clause.
-        $selectPattern = '/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/im';
+        $selectPattern  = '/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/im';
         $replacePattern = sprintf('$1%s $2', "TOP $end");
-        $query = preg_replace($selectPattern, $replacePattern, $query);
+        $query          = preg_replace($selectPattern, $replacePattern, $query);
 
         if (stristr($query, "ORDER BY")) {
             // Inner order by is not valid in SQL Server for our purposes
@@ -1254,7 +1254,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function scrubInnerOrderBy($query)
     {
-        $count = substr_count(strtoupper($query), 'ORDER BY');
+        $count  = substr_count(strtoupper($query), 'ORDER BY');
         $offset = 0;
 
         while ($count-- > 0) {
@@ -1263,8 +1263,8 @@ class SQLServerPlatform extends AbstractPlatform
                 break;
             }
 
-            $qLen = strlen($query);
-            $parenCount = 0;
+            $qLen            = strlen($query);
+            $parenCount      = 0;
             $currentPosition = $orderByPos;
 
             while ($parenCount >= 0 && $currentPosition < $qLen) {
@@ -1285,7 +1285,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             if ($currentPosition < $qLen - 1) {
-                $query = substr($query, 0, $orderByPos) . substr($query, $currentPosition - 1);
+                $query  = substr($query, 0, $orderByPos) . substr($query, $currentPosition - 1);
                 $offset = $orderByPos;
             }
         }
@@ -1303,7 +1303,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         // Grab query text on the same nesting level as the ORDER BY clause we're examining.
         $subQueryBuffer = '';
-        $parenCount = 0;
+        $parenCount     = 0;
 
         // If $parenCount goes negative, we've exited the subquery we're examining.
         // If $currentPosition goes negative, we've reached the beginning of the query.
@@ -1594,7 +1594,7 @@ class SQLServerPlatform extends AbstractPlatform
             $check = (isset($field['check']) && $field['check']) ?
                 ' ' . $field['check'] : '';
 
-            $typeDecl = $field['type']->getSQLDeclaration($field, $this);
+            $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
             $columnDef = $typeDecl . $collation . $notnull . $unique . $check;
         }
 

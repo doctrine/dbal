@@ -134,18 +134,24 @@ class TableDiff
      * @param \Doctrine\DBAL\Schema\Index[]      $removedIndexes
      * @param \Doctrine\DBAL\Schema\Table|null   $fromTable
      */
-    public function __construct($tableName, $addedColumns = [],
-        $changedColumns = [], $removedColumns = [], $addedIndexes = [],
-        $changedIndexes = [], $removedIndexes = [], Table $fromTable = null)
-    {
-        $this->name = $tableName;
-        $this->addedColumns = $addedColumns;
+    public function __construct(
+        $tableName,
+        $addedColumns = [],
+        $changedColumns = [],
+        $removedColumns = [],
+        $addedIndexes = [],
+        $changedIndexes = [],
+        $removedIndexes = [],
+        Table $fromTable = null
+    ) {
+        $this->name           = $tableName;
+        $this->addedColumns   = $addedColumns;
         $this->changedColumns = $changedColumns;
         $this->removedColumns = $removedColumns;
-        $this->addedIndexes = $addedIndexes;
+        $this->addedIndexes   = $addedIndexes;
         $this->changedIndexes = $changedIndexes;
         $this->removedIndexes = $removedIndexes;
-        $this->fromTable = $fromTable;
+        $this->fromTable      = $fromTable;
     }
 
     /**

@@ -35,14 +35,13 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         try {
             $this->_conn->getSchemaManager()->createTable($table);
-        } catch(\Exception $e) {
-
+        } catch (\Exception $e) {
         }
     }
 
     public static function dataIdempotentDataConversion()
     {
-        $obj = new \stdClass();
+        $obj      = new \stdClass();
         $obj->foo = "bar";
         $obj->bar = "baz";
 
@@ -73,13 +72,13 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testIdempotentDataConversion($type, $originalValue, $expectedPhpType)
     {
-        $columnName = "test_" . $type;
-        $typeInstance = Type::getType($type);
+        $columnName     = "test_" . $type;
+        $typeInstance   = Type::getType($type);
         $insertionValue = $typeInstance->convertToDatabaseValue($originalValue, $this->_conn->getDatabasePlatform());
 
         $this->_conn->insert('type_conversion', array('id' => ++self::$typeCounter, $columnName => $insertionValue));
 
-        $sql = "SELECT " . $columnName . " FROM type_conversion WHERE id = " . self::$typeCounter;
+        $sql           = "SELECT " . $columnName . " FROM type_conversion WHERE id = " . self::$typeCounter;
         $actualDbValue = $typeInstance->convertToPHPValue($this->_conn->fetchColumn($sql), $this->_conn->getDatabasePlatform());
 
         if ($originalValue instanceof \DateTime) {

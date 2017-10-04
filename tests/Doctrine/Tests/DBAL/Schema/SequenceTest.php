@@ -16,7 +16,7 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
         $table->addColumn("id", "integer", array("autoincrement" => true));
         $table->setPrimaryKey(array("id"));
 
-        $sequence = new Sequence("foo_id_seq");
+        $sequence  = new Sequence("foo_id_seq");
         $sequence2 = new Sequence("bar_id_seq");
         $sequence3 = new Sequence("other.foo_id_seq");
 
@@ -31,7 +31,7 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
         $table->addColumn('ID', 'integer', array('autoincrement' => true));
         $table->setPrimaryKey(array('ID'));
 
-        $sequence = new Sequence("foo_id_seq");
+        $sequence  = new Sequence("foo_id_seq");
         $sequence1 = new Sequence("foo_ID_seq");
         $sequence2 = new Sequence("bar_id_seq");
         $sequence3 = new Sequence("bar_ID_seq");
@@ -44,4 +44,3 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
         self::assertFalse($sequence4->isAutoIncrementsFor($table));
     }
 }
-

@@ -105,12 +105,12 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if (!$this->_conn->getSchemaManager()->tablesExist("ddc1372_foobar")) {
+        if ( ! $this->_conn->getSchemaManager()->tablesExist("ddc1372_foobar")) {
             try {
                 $table = new \Doctrine\DBAL\Schema\Table("ddc1372_foobar");
                 $table->addColumn('id', 'integer');
-                $table->addColumn('foo','string');
-                $table->addColumn('bar','string');
+                $table->addColumn('foo', 'string');
+                $table->addColumn('bar', 'string');
                 $table->setPrimaryKey(array('id'));
 
 
@@ -135,7 +135,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $this->_conn->insert('ddc1372_foobar', array(
                         'id'    => 6, 'foo'   => 2,  'bar'   => 2
                 ));
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->fail($e->getMessage());
             }
         }
@@ -148,7 +148,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
      * @param array $types
      * @param array $expected
      */
-    public function testTicket($query,$params,$types,$expected)
+    public function testTicket($query, $params, $types, $expected)
     {
         $stmt   = $this->_conn->executeQuery($query, $params, $types);
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -159,5 +159,4 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         self::assertEquals($result, $expected);
     }
-
 }

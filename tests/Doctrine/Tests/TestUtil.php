@@ -47,7 +47,8 @@ class TestUtil
         return $conn;
     }
 
-    private static function getConnectionParams() {
+    private static function getConnectionParams()
+    {
         if (self::hasRequiredConnectionParams()) {
             return self::getSpecifiedConnectionParams();
         }
@@ -74,18 +75,19 @@ class TestUtil
         );
     }
 
-    private static function getSpecifiedConnectionParams() {
+    private static function getSpecifiedConnectionParams()
+    {
         $realDbParams = self::getParamsForMainConnection();
-        $tmpDbParams = self::getParamsForTemporaryConnection();
+        $tmpDbParams  = self::getParamsForTemporaryConnection();
 
         $realConn = DriverManager::getConnection($realDbParams);
 
         // Connect to tmpdb in order to drop and create the real test db.
         $tmpConn = DriverManager::getConnection($tmpDbParams);
 
-        $platform  = $tmpConn->getDatabasePlatform();
+        $platform = $tmpConn->getDatabasePlatform();
 
-        if (! self::$initialized) {
+        if ( ! self::$initialized) {
             if ($platform->supportsCreateDropDatabase()) {
                 $dbname = $realConn->getDatabase();
                 $realConn->close();
@@ -97,7 +99,7 @@ class TestUtil
                 $sm = $realConn->getSchemaManager();
 
                 $schema = $sm->createSchema();
-                $stmts = $schema->toDropSql($realConn->getDatabasePlatform());
+                $stmts  = $schema->toDropSql($realConn->getDatabasePlatform());
 
                 foreach ($stmts as $stmt) {
                     $realConn->exec($stmt);
@@ -110,7 +112,8 @@ class TestUtil
         return $realDbParams;
     }
 
-    private static function getFallbackConnectionParams() {
+    private static function getFallbackConnectionParams()
+    {
         $params = array(
             'driver' => 'pdo_sqlite',
             'memory' => true
@@ -124,7 +127,8 @@ class TestUtil
         return $params;
     }
 
-    private static function addDbEventSubscribers(Connection $conn) {
+    private static function addDbEventSubscribers(Connection $conn)
+    {
         if (isset($GLOBALS['db_event_subscribers'])) {
             $evm = $conn->getEventManager();
             foreach (explode(",", $GLOBALS['db_event_subscribers']) as $subscriberClass) {

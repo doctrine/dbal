@@ -30,11 +30,11 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     private function getPortableConnection($portabilityMode = \Doctrine\DBAL\Portability\Connection::PORTABILITY_ALL, $case = \PDO::CASE_LOWER)
     {
-        if (!$this->portableConnection) {
-            $params = $this->_conn->getParams();
-            $params['wrapperClass'] = 'Doctrine\DBAL\Portability\Connection';
-            $params['portability'] = $portabilityMode;
-            $params['fetch_case'] = $case;
+        if ( ! $this->portableConnection) {
+            $params                   = $this->_conn->getParams();
+            $params['wrapperClass']   = 'Doctrine\DBAL\Portability\Connection';
+            $params['portability']    = $portabilityMode;
+            $params['fetch_case']     = $case;
             $this->portableConnection = DriverManager::getConnection($params, $this->_conn->getConfiguration(), $this->_conn->getEventManager());
 
             try {
@@ -50,8 +50,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
                 $this->portableConnection->insert('portability_table', array('Test_Int' => 1, 'Test_String' => 'foo', 'Test_Null' => ''));
                 $this->portableConnection->insert('portability_table', array('Test_Int' => 2, 'Test_String' => 'foo  ', 'Test_Null' => null));
-            } catch(\Exception $e) {
-
+            } catch (\Exception $e) {
             }
         }
 
@@ -91,18 +90,18 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $stmt = $conn->query('SELECT * FROM portability_table');
         foreach ($stmt as $row) {
-          $this->assertFetchResultRow($row);
+            $this->assertFetchResultRow($row);
         }
 
         $stmt = $conn->query('SELECT * FROM portability_table');
         while (($row = $stmt->fetch())) {
-          $this->assertFetchResultRow($row);
+            $this->assertFetchResultRow($row);
         }
 
         $stmt = $conn->prepare('SELECT * FROM portability_table');
         $stmt->execute();
         while (($row = $stmt->fetch())) {
-          $this->assertFetchResultRow($row);
+            $this->assertFetchResultRow($row);
         }
     }
 
@@ -126,7 +125,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testPortabilitySqlServer()
     {
         $portability = ConnectionPortability::PORTABILITY_SQLSRV;
-        $params = array(
+        $params      = array(
             'portability' => $portability
         );
 

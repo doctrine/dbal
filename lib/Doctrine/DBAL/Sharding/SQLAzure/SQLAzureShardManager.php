@@ -69,7 +69,7 @@ class SQLAzureShardManager implements ShardManager
     public function __construct(Connection $conn)
     {
         $this->conn = $conn;
-        $params = $conn->getParams();
+        $params     = $conn->getParams();
 
         if ( ! isset($params['sharding']['federationName'])) {
             throw ShardingException::missingDefaultFederationName();
@@ -83,8 +83,8 @@ class SQLAzureShardManager implements ShardManager
             throw ShardingException::missingDistributionType();
         }
 
-        $this->federationName = $params['sharding']['federationName'];
-        $this->distributionKey = $params['sharding']['distributionKey'];
+        $this->federationName   = $params['sharding']['federationName'];
+        $this->distributionKey  = $params['sharding']['distributionKey'];
         $this->distributionType = $params['sharding']['distributionType'];
         $this->filteringEnabled = (isset($params['sharding']['filteringEnabled'])) ? (bool) $params['sharding']['filteringEnabled'] : false;
     }
@@ -154,12 +154,12 @@ class SQLAzureShardManager implements ShardManager
             throw ShardingException::activeTransaction();
         }
 
-        if ($distributionValue === null || is_bool($distributionValue) || !is_scalar($distributionValue)) {
+        if ($distributionValue === null || is_bool($distributionValue) || ! is_scalar($distributionValue)) {
             throw ShardingException::noShardDistributionValue();
         }
 
         $platform = $this->conn->getDatabasePlatform();
-        $sql = sprintf(
+        $sql      = sprintf(
             "USE FEDERATION %s (%s = %s) WITH RESET, FILTERING = %s;",
             $platform->quoteIdentifier($this->federationName),
             $platform->quoteIdentifier($this->distributionKey),
@@ -201,11 +201,11 @@ class SQLAzureShardManager implements ShardManager
     public function queryAll($sql, array $params = [], array $types = [])
     {
         $shards = $this->getShards();
-        if (!$shards) {
+        if ( ! $shards) {
             throw new \RuntimeException("No shards found for " . $this->federationName);
         }
 
-        $result = [];
+        $result          = [];
         $oldDistribution = $this->getCurrentDistributionValue();
 
         foreach ($shards as $shard) {

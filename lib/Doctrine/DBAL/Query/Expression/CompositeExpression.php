@@ -37,7 +37,7 @@ class CompositeExpression implements \Countable
     /**
      * Constant that represents an OR composite expression.
      */
-    const TYPE_OR  = 'OR';
+    const TYPE_OR = 'OR';
 
     /**
      * The instance type of composite expression.

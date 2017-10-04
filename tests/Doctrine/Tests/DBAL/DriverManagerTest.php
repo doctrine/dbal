@@ -15,7 +15,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $options = array(
             'pdo' => 'test'
         );
-        $test = \Doctrine\DBAL\DriverManager::getConnection($options);
+        $test    = \Doctrine\DBAL\DriverManager::getConnection($options);
     }
 
     public function testValidPdoInstance()
@@ -23,7 +23,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $options = array(
             'pdo' => new \PDO('sqlite::memory:')
         );
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
+        $conn    = \Doctrine\DBAL\DriverManager::getConnection($options);
         self::assertEquals('sqlite', $conn->getDatabasePlatform()->getName());
     }
 
@@ -61,7 +61,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
     public function testCustomPlatform()
     {
         $mockPlatform = new \Doctrine\Tests\DBAL\Mocks\MockPlatform();
-        $options = array(
+        $options      = array(
             'pdo' => new \PDO('sqlite::memory:'),
             'platform' => $mockPlatform
         );

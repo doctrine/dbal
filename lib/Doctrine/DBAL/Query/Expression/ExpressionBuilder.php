@@ -282,7 +282,7 @@ class ExpressionBuilder
      */
     public function in($x, $y)
     {
-        return $this->comparison($x, 'IN', '('.implode(', ', (array) $y).')');
+        return $this->comparison($x, 'IN', '(' . implode(', ', (array) $y) . ')');
     }
 
     /**
@@ -295,7 +295,7 @@ class ExpressionBuilder
      */
     public function notIn($x, $y)
     {
-        return $this->comparison($x, 'NOT IN', '('.implode(', ', (array) $y).')');
+        return $this->comparison($x, 'NOT IN', '(' . implode(', ', (array) $y) . ')');
     }
 
     /**

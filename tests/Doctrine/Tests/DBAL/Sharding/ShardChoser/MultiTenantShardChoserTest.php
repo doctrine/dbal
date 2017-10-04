@@ -26,7 +26,7 @@ class MultiTenantShardChoserTest extends \PHPUnit\Framework\TestCase
     public function testPickShard()
     {
         $choser = new MultiTenantShardChoser();
-        $conn = $this->createConnectionMock();
+        $conn   = $this->createConnectionMock();
 
         self::assertEquals(1, $choser->pickShard(1, $conn));
         self::assertEquals(2, $choser->pickShard(2, $conn));
@@ -40,4 +40,3 @@ class MultiTenantShardChoserTest extends \PHPUnit\Framework\TestCase
             ->getMock();
     }
 }
-

@@ -91,11 +91,11 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      */
     public function __construct(Statement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
     {
-        $this->statement = $stmt;
+        $this->statement   = $stmt;
         $this->resultCache = $resultCache;
-        $this->cacheKey = $cacheKey;
-        $this->realKey = $realKey;
-        $this->lifetime = $lifetime;
+        $this->cacheKey    = $cacheKey;
+        $this->realKey     = $realKey;
+        $this->lifetime    = $lifetime;
     }
 
     /**
@@ -195,7 +195,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     public function fetchColumn($columnIndex = 0)
     {
         $row = $this->fetch(PDO::FETCH_NUM);
-        if (!isset($row[$columnIndex])) {
+        if ( ! isset($row[$columnIndex])) {
             // TODO: verify this is correct behavior
             return false;
         }

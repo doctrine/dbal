@@ -126,7 +126,7 @@ class Schema extends AbstractAsset
     protected function _addTable(Table $table)
     {
         $namespaceName = $table->getNamespaceName();
-        $tableName = $table->getFullQualifiedName($this->getName());
+        $tableName     = $table->getFullQualifiedName($this->getName());
 
         if (isset($this->_tables[$tableName])) {
             throw SchemaException::tableAlreadyExists($tableName);
@@ -150,7 +150,7 @@ class Schema extends AbstractAsset
     protected function _addSequence(Sequence $sequence)
     {
         $namespaceName = $sequence->getNamespaceName();
-        $seqName = $sequence->getFullQualifiedName($this->getName());
+        $seqName       = $sequence->getFullQualifiedName($this->getName());
 
         if (isset($this->_sequences[$seqName])) {
             throw SchemaException::sequenceAlreadyExists($seqName);
@@ -193,7 +193,7 @@ class Schema extends AbstractAsset
     public function getTable($tableName)
     {
         $tableName = $this->getFullQualifiedAssetName($tableName);
-        if (!isset($this->_tables[$tableName])) {
+        if ( ! isset($this->_tables[$tableName])) {
             throw SchemaException::tableDoesNotExist($tableName);
         }
 
@@ -292,7 +292,7 @@ class Schema extends AbstractAsset
     public function getSequence($sequenceName)
     {
         $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
-        if (!$this->hasSequence($sequenceName)) {
+        if ( ! $this->hasSequence($sequenceName)) {
             throw SchemaException::sequenceDoesNotExist($sequenceName);
         }
 
@@ -392,7 +392,7 @@ class Schema extends AbstractAsset
      *
      * @return \Doctrine\DBAL\Schema\Sequence
      */
-    public function createSequence($sequenceName, $allocationSize=1, $initialValue=1)
+    public function createSequence($sequenceName, $allocationSize = 1, $initialValue = 1)
     {
         $seq = new Sequence($sequenceName, $allocationSize, $initialValue);
         $this->_addSequence($seq);

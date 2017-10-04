@@ -11,7 +11,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ( !($this->_conn->getDriver() instanceof ExceptionConverterDriver)) {
+        if ( ! ($this->_conn->getDriver() instanceof ExceptionConverterDriver)) {
             $this->markTestSkipped('Driver does not support special exception handling.');
         }
     }
@@ -41,7 +41,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testTableExistsException()
     {
         $schemaManager = $this->_conn->getSchemaManager();
-        $table = new \Doctrine\DBAL\Schema\Table("alreadyexist_table");
+        $table         = new \Doctrine\DBAL\Schema\Table("alreadyexist_table");
         $table->addColumn('id', 'integer', array());
         $table->setPrimaryKey(array('id'));
 
@@ -156,7 +156,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $platform = $this->_conn->getDatabasePlatform();
 
-        if (!$platform->supportsForeignKeyConstraints()) {
+        if ( ! $platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped("Only fails on platforms with foreign key constraints.");
         }
 
@@ -278,7 +278,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped("Only fails this way on sqlite");
         }
 
-        $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection_'.$mode.'.db');
+        $filename = sprintf('%s/%s', sys_get_temp_dir(), 'doctrine_failed_connection_' . $mode . '.db');
 
         if (file_exists($filename)) {
             chmod($filename, 0200); // make the file writable again, so it can be removed on Windows
@@ -292,10 +292,10 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             'driver' => 'pdo_sqlite',
             'path'   => $filename,
         );
-        $conn = \Doctrine\DBAL\DriverManager::getConnection($params);
+        $conn   = \Doctrine\DBAL\DriverManager::getConnection($params);
 
         $schema = new \Doctrine\DBAL\Schema\Schema();
-        $table = $schema->createTable("no_connection");
+        $table  = $schema->createTable("no_connection");
         $table->addColumn('id', 'integer');
 
         $this->expectException($exceptionClass);
@@ -331,12 +331,12 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $defaultParams = $this->_conn->getParams();
-        $params = array_merge($defaultParams, $params);
+        $params        = array_merge($defaultParams, $params);
 
         $conn = \Doctrine\DBAL\DriverManager::getConnection($params);
 
         $schema = new \Doctrine\DBAL\Schema\Schema();
-        $table = $schema->createTable("no_connection");
+        $table  = $schema->createTable("no_connection");
         $table->addColumn('id', 'integer');
 
         $this->expectException(Exception\ConnectionException::class);

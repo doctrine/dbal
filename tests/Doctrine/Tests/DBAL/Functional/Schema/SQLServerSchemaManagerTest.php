@@ -37,7 +37,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testColumnCollation()
     {
-        $table = new \Doctrine\DBAL\Schema\Table($tableName = 'test_collation');
+        $table  = new \Doctrine\DBAL\Schema\Table($tableName = 'test_collation');
         $column = $table->addColumn($columnName = 'test', 'string');
 
         $this->_sm->dropAndCreateTable($table);
@@ -56,7 +56,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDefaultConstraints()
     {
         $platform = $this->_sm->getDatabasePlatform();
-        $table = new Table('sqlsrv_default_constraints');
+        $table    = new Table('sqlsrv_default_constraints');
         $table->addColumn('no_default', 'string');
         $table->addColumn('df_integer', 'integer', array('default' => 666));
         $table->addColumn('df_string_1', 'string', array('default' => 'foobar'));
@@ -79,7 +79,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame($platform->getCurrentDateSQL(), $columns['df_current_date']->getDefault());
         self::assertSame($platform->getCurrentTimeSQL(), $columns['df_current_time']->getDefault());
 
-        $diff = new TableDiff(
+        $diff                                = new TableDiff(
             'sqlsrv_default_constraints',
             array(
                 new Column('df_current_timestamp', Type::getType('datetime'), array('default' => 'CURRENT_TIMESTAMP'))
@@ -118,7 +118,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
             array(),
             $table
         );
-        $diff->newName = 'sqlsrv_default_constraints';
+        $diff->newName                       = 'sqlsrv_default_constraints';
         $diff->renamedColumns['df_string_4'] = new Column(
             'df_string_renamed',
             Type::getType('string'),
@@ -207,19 +207,19 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertNull($columns['commented_type']->getComment());
         self::assertEquals('Doctrine array type.', $columns['commented_type_with_comment']->getComment());
 
-        $tableDiff = new TableDiff('sqlsrv_column_comment');
-        $tableDiff->fromTable = $table;
-        $tableDiff->addedColumns['added_comment_none'] = new Column('added_comment_none', Type::getType('integer'));
-        $tableDiff->addedColumns['added_comment_null'] = new Column('added_comment_null', Type::getType('integer'), array('comment' => null));
-        $tableDiff->addedColumns['added_comment_false'] = new Column('added_comment_false', Type::getType('integer'), array('comment' => false));
-        $tableDiff->addedColumns['added_comment_empty_string'] = new Column('added_comment_empty_string', Type::getType('integer'), array('comment' => ''));
-        $tableDiff->addedColumns['added_comment_integer_0'] = new Column('added_comment_integer_0', Type::getType('integer'), array('comment' => 0));
-        $tableDiff->addedColumns['added_comment_float_0'] = new Column('added_comment_float_0', Type::getType('integer'), array('comment' => 0.0));
-        $tableDiff->addedColumns['added_comment_string_0'] = new Column('added_comment_string_0', Type::getType('integer'), array('comment' => '0'));
-        $tableDiff->addedColumns['added_comment'] = new Column('added_comment', Type::getType('integer'), array('comment' => 'Doctrine'));
-        $tableDiff->addedColumns['`added_comment_quoted`'] = new Column('`added_comment_quoted`', Type::getType('integer'), array('comment' => 'rulez'));
-        $tableDiff->addedColumns['select'] = new Column('select', Type::getType('integer'), array('comment' => '666'));
-        $tableDiff->addedColumns['added_commented_type'] = new Column('added_commented_type', Type::getType('object'));
+        $tableDiff                                                    = new TableDiff('sqlsrv_column_comment');
+        $tableDiff->fromTable                                         = $table;
+        $tableDiff->addedColumns['added_comment_none']                = new Column('added_comment_none', Type::getType('integer'));
+        $tableDiff->addedColumns['added_comment_null']                = new Column('added_comment_null', Type::getType('integer'), array('comment' => null));
+        $tableDiff->addedColumns['added_comment_false']               = new Column('added_comment_false', Type::getType('integer'), array('comment' => false));
+        $tableDiff->addedColumns['added_comment_empty_string']        = new Column('added_comment_empty_string', Type::getType('integer'), array('comment' => ''));
+        $tableDiff->addedColumns['added_comment_integer_0']           = new Column('added_comment_integer_0', Type::getType('integer'), array('comment' => 0));
+        $tableDiff->addedColumns['added_comment_float_0']             = new Column('added_comment_float_0', Type::getType('integer'), array('comment' => 0.0));
+        $tableDiff->addedColumns['added_comment_string_0']            = new Column('added_comment_string_0', Type::getType('integer'), array('comment' => '0'));
+        $tableDiff->addedColumns['added_comment']                     = new Column('added_comment', Type::getType('integer'), array('comment' => 'Doctrine'));
+        $tableDiff->addedColumns['`added_comment_quoted`']            = new Column('`added_comment_quoted`', Type::getType('integer'), array('comment' => 'rulez'));
+        $tableDiff->addedColumns['select']                            = new Column('select', Type::getType('integer'), array('comment' => '666'));
+        $tableDiff->addedColumns['added_commented_type']              = new Column('added_commented_type', Type::getType('object'));
         $tableDiff->addedColumns['added_commented_type_with_comment'] = new Column('added_commented_type_with_comment', Type::getType('array'), array('comment' => '666'));
 
         $tableDiff->renamedColumns['comment_float_0'] = new Column('comment_double_0', Type::getType('decimal'), array('comment' => 'Double for real!'));
@@ -355,7 +355,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertCount(1, $indexes);
 
         $firstIndex = current($indexes);
-        $columns = $firstIndex->getColumns();
+        $columns    = $firstIndex->getColumns();
         self::assertCount(2, $columns);
         self::assertEquals('colB', $columns[0]);
         self::assertEquals('colA', $columns[1]);
