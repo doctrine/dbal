@@ -45,7 +45,7 @@ interface SchemaDiffVisitor
      *
      * @param \Doctrine\DBAL\Schema\Sequence $sequence
      */
-     public function visitChangedSequence(Sequence $sequence);
+    public function visitChangedSequence(Sequence $sequence);
 
     /**
      * Visit a sequence that has been removed.
