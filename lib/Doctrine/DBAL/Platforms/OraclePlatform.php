@@ -886,24 +886,26 @@ END;';
     {
         if (isset($field['columnDefinition'])) {
             $columnDef = $this->getCustomTypeDeclarationSQL($field);
-        } else {
-            $default = $this->getDefaultValueDeclarationSQL($field);
 
-            $notnull = '';
-
-            if (isset($field['notnull'])) {
-                $notnull = $field['notnull'] ? ' NOT NULL' : ' NULL';
-            }
-
-            $unique = (isset($field['unique']) && $field['unique']) ?
-                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
-
-            $check = (isset($field['check']) && $field['check']) ?
-                ' ' . $field['check'] : '';
-
-            $typeDecl = $field['type']->getSQLDeclaration($field, $this);
-            $columnDef = $typeDecl . $default . $notnull . $unique . $check;
+            return $name . ' ' . $columnDef;
         }
+
+        $default = $this->getDefaultValueDeclarationSQL($field);
+
+        $notnull = '';
+
+        if (isset($field['notnull'])) {
+            $notnull = $field['notnull'] ? ' NOT NULL' : ' NULL';
+        }
+
+        $unique = (isset($field['unique']) && $field['unique']) ?
+            ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+
+        $check = (isset($field['check']) && $field['check']) ?
+            ' ' . $field['check'] : '';
+
+        $typeDecl = $field['type']->getSQLDeclaration($field, $this);
+        $columnDef = $typeDecl . $default . $notnull . $unique . $check;
 
         return $name . ' ' . $columnDef;
     }
