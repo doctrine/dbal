@@ -69,7 +69,7 @@ class DropSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
         return $constraint;
     }
 
-    public function testGivenForeignKeyWithZeroLength_acceptForeignKeyThrowsException()
+    public function testGivenForeignKeyWithZeroLengthAcceptForeignKeyThrowsException()
     {
         $collector = new DropSchemaSqlCollector(
             $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform')
