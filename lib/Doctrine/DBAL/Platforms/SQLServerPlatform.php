@@ -1582,21 +1582,23 @@ class SQLServerPlatform extends AbstractPlatform
     {
         if (isset($field['columnDefinition'])) {
             $columnDef = $this->getCustomTypeDeclarationSQL($field);
-        } else {
-            $collation = (isset($field['collation']) && $field['collation']) ?
-                ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
-            $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
-
-            $unique = (isset($field['unique']) && $field['unique']) ?
-                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
-
-            $check = (isset($field['check']) && $field['check']) ?
-                ' ' . $field['check'] : '';
-
-            $typeDecl = $field['type']->getSQLDeclaration($field, $this);
-            $columnDef = $typeDecl . $collation . $notnull . $unique . $check;
+            return $name . ' ' . $columnDef;
         }
+
+        $collation = (isset($field['collation']) && $field['collation']) ?
+            ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
+
+        $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
+
+        $unique = (isset($field['unique']) && $field['unique']) ?
+            ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+
+        $check = (isset($field['check']) && $field['check']) ?
+            ' ' . $field['check'] : '';
+
+        $typeDecl = $field['type']->getSQLDeclaration($field, $this);
+        $columnDef = $typeDecl . $collation . $notnull . $unique . $check;
 
         return $name . ' ' . $columnDef;
     }
