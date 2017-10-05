@@ -377,6 +377,33 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testModifiesLimitQueryWithOrderBy()
+    {
+        self::assertEquals(
+            'SELECT * FROM user ORDER BY id',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY id', null, null)
+        );
+
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM <= 10',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY id', 10, 0)
+        );
+
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM <= 10',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user', 10)
+        );
+
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM >= 6 AND db22.DC_ROWNUM <= 15',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 5)
+        );
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM >= 6 AND db22.DC_ROWNUM <= 5',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
+        );
+    }
+    
     public function testPrefersIdentityColumns()
     {
         self::assertTrue($this->_platform->prefersIdentityColumns());
