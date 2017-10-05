@@ -898,7 +898,7 @@ class DB2Platform extends AbstractPlatform
 
         // ORDER BY found in query string
         if (false !== $orderByPosition) {
-            $queryArray = preg_split('/[, ]/', $query);
+            $queryArray = preg_split('/[, ]/', substr($query, 0, $orderByPosition -1));
             $orderByArray = preg_split('/[, ]/', substr($query, $orderByPosition));
 
             foreach ($orderByArray as $orderIndex => $orderValue) {
