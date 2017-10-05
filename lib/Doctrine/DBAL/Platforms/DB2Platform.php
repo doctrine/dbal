@@ -912,7 +912,9 @@ class DB2Platform extends AbstractPlatform
                         $orderByArray[$orderIndex] = ',';
                         break;
                     default:
-                        $orderByArray[$orderIndex] = $queryArray[array_search($orderValue, $queryArray)+2];
+                        $orderByArray[$orderIndex] = array_search($orderValue, $queryArray) === false 
+                                                     ? $orderValue 
+                                                     : $queryArray[array_search($orderValue, $queryArray)+2];
                         break;
                 }
             }
