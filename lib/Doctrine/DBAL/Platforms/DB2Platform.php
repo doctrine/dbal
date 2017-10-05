@@ -894,10 +894,12 @@ class DB2Platform extends AbstractPlatform
         $orderByArray = [];
 
         //determine if 'ORDER BY' is part of the query
-        $orderByPosition = strrpos($query, 'ORDER BY');
+        $orderByFound = preg_match('/(\bORDER\b)(\s*)(\bBY\b)(?!.*\b\1\b)/i', $query, $orderByPositionArray, PREG_OFFSET_CAPTURE);
 
         // ORDER BY found in query string
-        if (false !== $orderByPosition) {
+        if (0 !== $orderByFound) {
+            $orderByPosition = $orderByPositionArray[0][1];
+
             $queryArray = preg_split('/[, ]/', substr($query, 0, $orderByPosition -1));
             $orderByArray = preg_split('/[, ]/', substr($query, $orderByPosition));
 
@@ -912,8 +914,8 @@ class DB2Platform extends AbstractPlatform
                         $orderByArray[$orderIndex] = ',';
                         break;
                     default:
-                        $orderByArray[$orderIndex] = array_search($orderValue, $queryArray) === false 
-                                                     ? $orderValue 
+                        $orderByArray[$orderIndex] = array_search($orderValue, $queryArray) === false
+                                                     ? $orderValue
                                                      : $queryArray[array_search($orderValue, $queryArray)+2];
                         break;
                 }
