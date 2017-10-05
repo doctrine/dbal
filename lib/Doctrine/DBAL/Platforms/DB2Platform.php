@@ -785,9 +785,37 @@ class DB2Platform extends AbstractPlatform
             return $query;
         }
 
-        // Todo OVER() needs ORDER BY data!
+        //preset empty array
+        $orderByArray = [];
+
+        //determine if 'ORDER BY' is part of the query
+        $orderByPosition = strrpos($query, 'ORDER BY');
+
+        // ORDER BY found in query string
+        if (false !== $orderByPosition) {
+            $queryArray = preg_split('/[, ]/', $query);
+            $orderByArray = preg_split('/[, ]/', substr($query, $orderByPosition));
+
+            foreach ($orderByArray as $orderIndex => $orderValue) {
+                switch (strtoupper($orderValue)) {
+                    case 'ORDER':
+                    case 'BY':
+                    case 'ASC':
+                    case 'DESC':
+                        break;
+                    case '':
+                        $orderByArray[$orderIndex] = ',';
+                        break;
+                    default:
+                        $orderByArray[$orderIndex] = $queryArray[array_search($orderValue, $queryArray)+2];
+                        break;
+                }
+            }
+        }
+
         return sprintf(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(%s) AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
+            implode(' ', $orderByArray),
             $query,
             implode(' AND ', $where)
         );
