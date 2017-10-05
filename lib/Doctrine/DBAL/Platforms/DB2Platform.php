@@ -785,34 +785,8 @@ class DB2Platform extends AbstractPlatform
             return $query;
         }
 
-        //preset empty array
-        $orderByArray = [];
-
-        //determine if 'ORDER BY' is part of the query
-        $orderByPosition = strrpos($query, 'ORDER BY');
-
-        // ORDER BY found in query string
-        if (false !== $orderByPosition) {
-            $queryArray = preg_split('/[, ]/', $query);
-            $orderByArray = preg_split('/[, ]/', substr($query, $orderByPosition));
-
-            foreach ($orderByArray as $orderIndex => $orderValue) {
-                switch (strtoupper($orderValue)) {
-                    case 'ORDER':
-                    case 'BY':
-                    case 'ASC':
-                    case 'DESC':
-                        break;
-                    case '':
-                        $orderByArray[$orderIndex] = ',';
-                        break;
-                    default:
-                        $orderByArray[$orderIndex] = $queryArray[array_search($orderValue, $queryArray)+2];
-                        break;
-                }
-            }
-        }
-
+        $orderByArray = $this->getOrderByForOver($query);
+        
         return sprintf(
             'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(%s) AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
             implode(' ', $orderByArray),
@@ -905,5 +879,45 @@ class DB2Platform extends AbstractPlatform
     protected function getReservedKeywordsClass()
     {
         return Keywords\DB2Keywords::class;
+    }
+    
+    /**
+     * Prepare ORDER BY string for OVER() if applicable
+     * 
+     * @param  string $query
+     * 
+     * @return array|string[]|mixed[]
+     */
+    private function getOrderByForOver($query)
+    {
+        //preset empty array
+        $orderByArray = [];
+
+        //determine if 'ORDER BY' is part of the query
+        $orderByPosition = strrpos($query, 'ORDER BY');
+
+        // ORDER BY found in query string
+        if (false !== $orderByPosition) {
+            $queryArray = preg_split('/[, ]/', $query);
+            $orderByArray = preg_split('/[, ]/', substr($query, $orderByPosition));
+
+            foreach ($orderByArray as $orderIndex => $orderValue) {
+                switch (strtoupper($orderValue)) {
+                    case 'ORDER':
+                    case 'BY':
+                    case 'ASC':
+                    case 'DESC':
+                        break;
+                    case '':
+                        $orderByArray[$orderIndex] = ',';
+                        break;
+                    default:
+                        $orderByArray[$orderIndex] = $queryArray[array_search($orderValue, $queryArray)+2];
+                        break;
+                }
+            }
+        }
+
+        return $orderByArray;
     }
 }
