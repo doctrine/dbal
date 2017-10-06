@@ -904,22 +904,15 @@ class DB2Platform extends AbstractPlatform
             $orderByPosition = $orderByPositionArray[0][1];
 
             $queryArray = preg_split('/[, ]/', substr($query, 0, $orderByPosition -1));
-            $orderByArray = explode(',', substr($query, $orderByPosition));
+            $orderByArray = explode(',', substr($query, $orderByPosition + strlen('ORDER BY')));
 
             foreach ($orderByArray as $orderIndex => $orderValue) {
                 $splitOrder = explode(' ', $orderValue);
 
                 foreach ($splitOrder as $splitIndex => $splitValue) {
                     switch (strtoupper($splitValue)) {
-                        case 'ORDER':
-                        case 'BY':
-                            $splitOrder[$splitIndex] = '';
-                            break;
                         case 'ASC':
                         case 'DESC':
-                            break;
-                        case '':
-                            unset($splitOrder[$splitIndex]);
                             break;
                         default:
                             $splitOrder[$splitIndex] = array_search($splitValue, $queryArray) === false
