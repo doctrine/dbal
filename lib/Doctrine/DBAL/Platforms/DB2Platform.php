@@ -785,11 +785,11 @@ class DB2Platform extends AbstractPlatform
             return $query;
         }
 
-        $orderByArray = $this->getOrderByForOver($query);
+        $orderBy = $this->getOrderByForOver($query);
         
         return sprintf(
             'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(%s) AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
-            implode(',', $orderByArray),
+            $orderBy,
             $query,
             implode(' AND ', $where)
         );
@@ -886,7 +886,7 @@ class DB2Platform extends AbstractPlatform
      * 
      * @param  string $query
      * 
-     * @return array|string[]|mixed[]
+     * @return string
      */
     private function getOrderByForOver($query)
     {
@@ -938,6 +938,6 @@ class DB2Platform extends AbstractPlatform
             $orderByArray[0] = 'ORDER BY ' . $orderByArray[0];
         }
 
-        return $orderByArray;
+        return implode(',', $oderByArray;
     }
 }
