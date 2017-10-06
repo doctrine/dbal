@@ -157,6 +157,10 @@ class TestUtil
             $connectionParams['unix_socket'] = $GLOBALS['tmpdb_unix_socket'];
         }
 
+        if (isset($GLOBALS['tmpdb_platform_options'])) {
+            $connectionParams['platform_options'] = json_decode($GLOBALS['tmpdb_platform_options'], true);
+        }
+
         return $connectionParams;
     }
 
@@ -177,6 +181,10 @@ class TestUtil
 
         if (isset($GLOBALS['db_unix_socket'])) {
             $connectionParams['unix_socket'] = $GLOBALS['db_unix_socket'];
+        }
+
+        if (isset($GLOBALS['db_platform_options'])) {
+            $connectionParams['platform_options'] = json_decode($GLOBALS['db_platform_options'], true);
         }
 
         return $connectionParams;
