@@ -785,6 +785,7 @@ class DB2Platform extends AbstractPlatform
             return $query;
         }
 
+        // retrieve ORDER BY string
         $orderBy = $this->getOrderByForOver($query);
         
         return sprintf(
