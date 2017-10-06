@@ -900,37 +900,39 @@ class DB2Platform extends AbstractPlatform
         //determine if 'ORDER BY' is part of the query
         $orderByFound = preg_match('/(\bORDER\b)(\s*)(\bBY\b)(?!.*\b\1\b)/i', $query, $orderByPositionArray, PREG_OFFSET_CAPTURE);
 
-        // ORDER BY found in query string
-        if (0 !== $orderByFound) {
-            $orderByPosition = $orderByPositionArray[0][1];
-
-            $queryArray = preg_split('/[, ]/', substr($query, 0, $orderByPosition -1));
-            $orderByArray = explode(',', substr($query, $orderByPosition + strlen('ORDER BY')));
-
-            foreach ($orderByArray as $orderIndex => $orderValue) {
-                $splitOrder = explode(' ', $orderValue);
-
-                foreach ($splitOrder as $splitIndex => $splitValue) {
-                    switch (strtoupper($splitValue)) {
-                        case 'ASC':
-                        case 'DESC':
-                            break;
-                        default:
-                            $splitOrder[$splitIndex] = array_search($splitValue, $queryArray) === false
-                                                       ? $splitValue
-                                                       : $queryArray[array_search($splitValue, $queryArray)+2];
-                            break;
-                    }
-                }
-                $orderByArray[$orderIndex] = array_filter($splitOrder);
-            }
-
-            foreach ($orderByArray as $orderIndex => $orderValue) {
-                $orderByArray[$orderIndex] = implode(' ', $orderValue);
-            }
-
-            $orderByArray[0] = 'ORDER BY ' . $orderByArray[0];
+        // early return if ORDER BY not found in query string
+        if (0 === $orderByFound) {
+            return '';
         }
+        
+        $orderByPosition = $orderByPositionArray[0][1];
+
+        $queryArray = preg_split('/[, ]/', substr($query, 0, $orderByPosition -1));
+        $orderByArray = explode(',', substr($query, $orderByPosition + strlen('ORDER BY')));
+
+        foreach ($orderByArray as $orderIndex => $orderValue) {
+            $splitOrder = explode(' ', $orderValue);
+
+            foreach ($splitOrder as $splitIndex => $splitValue) {
+                switch (strtoupper($splitValue)) {
+                    case 'ASC':
+                    case 'DESC':
+                        break;
+                    default:
+                        $splitOrder[$splitIndex] = array_search($splitValue, $queryArray) === false
+                                                   ? $splitValue
+                                                   : $queryArray[array_search($splitValue, $queryArray)+2];
+                        break;
+                }
+            }
+            $orderByArray[$orderIndex] = array_filter($splitOrder);
+        }
+
+        foreach ($orderByArray as $orderIndex => $orderValue) {
+            $orderByArray[$orderIndex] = implode(' ', $orderValue);
+        }
+
+        $orderByArray[0] = 'ORDER BY ' . $orderByArray[0];
 
         return implode(',', $oderByArray;
     }
