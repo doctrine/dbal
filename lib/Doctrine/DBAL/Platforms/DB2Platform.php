@@ -884,9 +884,9 @@ class DB2Platform extends AbstractPlatform
     
     /**
      * Prepare ORDER BY string for OVER() if applicable
-     * 
+     *
      * @param  string $query
-     * 
+     *
      * @return string
      */
     private function getOrderByForOver(string $query): string
@@ -898,20 +898,33 @@ class DB2Platform extends AbstractPlatform
         $query = preg_replace('/\s+/', ' ', $query);
 
         //determine if 'ORDER BY' is part of the query
-        $orderByFound = preg_match('/(\bORDER\b)(\s*)(\bBY\b)(?!.*\b\1\b)/i', $query, $orderByPositionArray, PREG_OFFSET_CAPTURE);
+        $orderByPosition = strripos($query, 'order by');
 
         // early return if ORDER BY not found in query string
-        if (0 === $orderByFound) {
+        if (false === $orderByPosition) {
             return '';
         }
-        
-        $orderByPosition = $orderByPositionArray[0][1];
 
-        $queryArray = preg_split('/[, ]/', substr($query, 0, $orderByPosition -1));
+        // build dictionary if available
+        // re-sequence values
+        $queryArray = array_values(
+                          // filter out 'AS'
+                          array_filter(
+                              // split selected columns
+                              preg_split(
+                                  '/[, ]/',
+                                  substr($query, 0, $orderByPosition -1))
+                              , function($element) {
+                                    // don't return 'AS'
+                                    return strtoupper($element) !== 'AS';
+                                }
+                          )
+        );
+
         $orderByArray = explode(',', substr($query, $orderByPosition + strlen('ORDER BY')));
 
         foreach ($orderByArray as $orderIndex => $orderValue) {
-            $splitOrder = explode(' ', $orderValue);
+            $splitOrder = array_filter(explode(' ', $orderValue));
 
             foreach ($splitOrder as $splitIndex => $splitValue) {
                 switch (strtoupper($splitValue)) {
@@ -919,12 +932,15 @@ class DB2Platform extends AbstractPlatform
                     case 'DESC':
                         break;
                     default:
-                        $splitOrder[$splitIndex] = array_search($splitValue, $queryArray) === false
+                        $arrayFound = array_search($splitValue, $queryArray);
+
+                        $splitOrder[$splitIndex] = $arrayFound === false
                                                    ? $splitValue
-                                                   : $queryArray[array_search($splitValue, $queryArray)+2];
+                                                   : $queryArray[$arrayFound + 1];
                         break;
                 }
             }
+
             $orderByArray[$orderIndex] = array_filter($splitOrder);
         }
 
