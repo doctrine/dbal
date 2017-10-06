@@ -889,7 +889,7 @@ class DB2Platform extends AbstractPlatform
      * 
      * @return string
      */
-    private function getOrderByForOver($query)
+    private function getOrderByForOver(string $query): string
     {
         //preset empty array
         $orderByArray = [];
