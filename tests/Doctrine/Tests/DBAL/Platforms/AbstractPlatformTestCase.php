@@ -1459,4 +1459,9 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
         );
     }
+
+    public function testSelectAliasColumn()
+    {
+        $this->assertSame('foo AS bar', $this->_platform->selectAliasColumn('foo', 'bar'));
+    }
 }
