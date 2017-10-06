@@ -934,6 +934,6 @@ class DB2Platform extends AbstractPlatform
 
         $orderByArray[0] = 'ORDER BY ' . $orderByArray[0];
 
-        return implode(',', $oderByArray;
+        return implode(',', $oderByArray);
     }
 }
