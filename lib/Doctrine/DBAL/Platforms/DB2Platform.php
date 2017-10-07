@@ -934,7 +934,9 @@ class DB2Platform extends AbstractPlatform
                     default:
                         $arrayFound = array_search($splitValue, $queryArray);
 
-                        $splitOrder[$splitIndex] = $arrayFound === false
+                        $splitOrder[$splitIndex] = $arrayFound === false ||
+                                                   $arrayFound >= count($queryArray) ||
+                                                   $queryArray[$arrayFound + 1] === ""
                                                    ? $splitValue
                                                    : $queryArray[$arrayFound + 1];
                         break;
