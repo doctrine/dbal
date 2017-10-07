@@ -387,14 +387,20 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
         // 10 row limit, no offset, order by id
         self::assertEquals(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM <= 10',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user ORDER BY id) db21) db22 WHERE db22.DC_ROWNUM <= 10',
             $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY id', 10)
         );
 
         // no limit, 10 rows offset, order by id
         self::assertEquals(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM <= 10',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user ORDER BY id) db21) db22 WHERE db22.DC_ROWNUM <= 10',
             $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY id', 0, 10)
+        );
+        
+        // select specific columns
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY USERID_3 ASC) AS DC_ROWNUM FROM (SELECT t0.manager AS MANAGER_1, t0.name AS NAME_2, t0.userId AS USERID_3, t0.email AS EMAIL_4 FROM user t0 ORDER BY t0.userId ASC) db21) db22 WHERE db22.DC_ROWNUM >= 11 AND db22.DC_ROWNUM <= 20',
+            $this->_platform->modifyLimitQuery('SELECT t0.manager AS MANAGER_1, t0.name AS NAME_2, t0.userId AS USERID_3, t0.email AS EMAIL_4 FROM user t0 ORDER BY t0.userId ASC', 10, 10)
         );
     }
     
