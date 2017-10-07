@@ -391,9 +391,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY id', 10)
         );
 
-        // no limit, 10 rows offset, order by id
+        // 0 limit, 10 rows offset, order by id
         self::assertEquals(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user ORDER BY id) db21) db22 WHERE db22.DC_ROWNUM <= 10',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user ORDER BY id) db21) db22 WHERE db22.DC_ROWNUM >= 11 AND db22.DC_ROWNUM <= 10',
             $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY id', 0, 10)
         );
         
