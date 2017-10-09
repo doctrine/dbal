@@ -1037,7 +1037,7 @@ END;';
      */
     public function getDateFormatString()
     {
-        return 'Y-m-d 00:00:00';
+        return 'Y-m-d';
     }
 
     /**
@@ -1045,7 +1045,7 @@ END;';
      */
     public function getTimeFormatString()
     {
-        return '1900-01-01 H:i:s';
+        return 'H:i:s';
     }
 
     /**
