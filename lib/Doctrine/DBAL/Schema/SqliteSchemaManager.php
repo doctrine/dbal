@@ -427,10 +427,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
     private function parseColumnCollationFromSQL($column, $sql)
     {
         if (preg_match(
-            '{(?:'.$this->escapeRegex($column).'|'.$this->escapeRegex($this->_platform->quoteSingleIdentifier($column)).')
+            '/(?:'.preg_quote($column).'|'.preg_quote($this->_platform->quoteSingleIdentifier($column)).')
                 [^,(]+(?:\([^()]+\)[^,]*)?
                 (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
-                COLLATE\s+["\']?([^\s,"\')]+)}isx', $sql, $match)) {
+                COLLATE\s+["\']?([^\s,"\')]+)/isx', $sql, $match)) {
             return $match[1];
         }
 
@@ -446,9 +446,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
     private function parseColumnCommentFromSQL($column, $sql)
     {
         if (preg_match(
-            '{[\s(,](?:'.$this->escapeRegex($this->_platform->quoteSingleIdentifier($column)).'|'.$this->escapeRegex($column).')
+            '/[\s(,](?:'.preg_quote($this->_platform->quoteSingleIdentifier($column)).'|'.preg_quote($column).')
             (?:\(.*?\)|[^,(])*?,?((?:\s*--[^\n]*\n?)+)
-            }isx', $sql, $match
+            /isx', $sql, $match
         )) {
             $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
 
@@ -456,10 +456,5 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         return false;
-    }
-
-    private function escapeRegex($str)
-    {
-        return str_replace(['#'], ['\#'], preg_quote($str));
     }
 }
