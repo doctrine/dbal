@@ -458,6 +458,11 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return false;
     }
     
+    /**
+     * @param string $str
+     * 
+     * @return string
+     */
     private function pregQuote($str)
     {
         return preg_quote($str, '#');
