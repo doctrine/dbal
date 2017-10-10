@@ -41,6 +41,12 @@ class SqliteSchemaManagerTest extends \PHPUnit_Framework_TestCase
             array(
                 'RTRIM', 'a"b', 'CREATE TABLE "a" ("a""b" text COLLATE RTRIM)'
             ),
+            array(
+                'utf-8', 'bar#', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar#" VARCHAR(255) COLLATE "utf-8" NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'
+            ),
+            array(
+                'utf-8', 'baz', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar#" INTEGER NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'
+            ),
         );
     }
 }
