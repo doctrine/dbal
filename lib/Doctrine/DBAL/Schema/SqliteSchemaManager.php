@@ -444,7 +444,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     private function parseColumnCollationFromSQL($column, $sql)
     {
         if (preg_match(
-            '/(?:'.$this->pregQuote($column).'|'.$this->pregQuote($this->_platform->quoteSingleIdentifier($column)).')
+            '/(?:' . $this->preg_quote($column, '#') . '|' . $this->preg_quote($this->_platform->quoteSingleIdentifier($column), '#') . ')
                 [^,(]+(?:\([^()]+\)[^,]*)?
                 (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
                 COLLATE\s+["\']?([^\s,"\')]+)/isx', $sql, $match)) {
@@ -463,7 +463,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     private function parseColumnCommentFromSQL($column, $sql)
     {
         if (preg_match(
-            '/[\s(,](?:'.$this->pregQuote($this->_platform->quoteSingleIdentifier($column)).'|'.$this->pregQuote($column).')
+            '/[\s(,](?:' . $this->preg_quote($this->_platform->quoteSingleIdentifier($column), '#') . '|' . $this->preg_quote($column, '#') . ')
             (?:\(.*?\)|[^,(])*?,?((?:\s*--[^\n]*\n?)+)
             /isx', $sql, $match
         )) {
@@ -473,15 +473,5 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         return false;
-    }
-    
-    /**
-     * @param string $str
-     * 
-     * @return string
-     */
-    private function pregQuote($str)
-    {
-        return preg_quote($str, '#');
     }
 }
