@@ -1072,7 +1072,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         $tableIdentifier = new Identifier($tableName);
-        $sql = 'TRUNCATE ' . $tableIdentifier->getQuotedName($this);
+        $sql = 'TRUNCATE ' . $tableIdentifier->getQuotedName($this) . ' RESTART IDENTITY';
 
         if ($cascade) {
             $sql .= ' CASCADE';
