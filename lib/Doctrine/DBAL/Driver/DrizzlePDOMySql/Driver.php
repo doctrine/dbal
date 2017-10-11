@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Driver\DrizzlePDOMySql;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DrizzlePlatform;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\DrizzleSchemaManager;
 
 /**
@@ -56,7 +57,7 @@ class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
     /**
      * {@inheritdoc}
      */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(): AbstractPlatform
     {
         return new DrizzlePlatform();
     }
@@ -64,7 +65,7 @@ class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn): AbstractSchemaManager
     {
         return new DrizzleSchemaManager($conn);
     }
