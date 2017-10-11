@@ -90,5 +90,4 @@ class MariaDb102PlatformTest extends AbstractMySQLPlatformTestCase
 
         self::assertFalse($comparator->diffTable($table, $diffTable));
     }
-
 }
