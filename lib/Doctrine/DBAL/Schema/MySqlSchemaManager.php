@@ -227,24 +227,26 @@ class MySqlSchemaManager extends AbstractSchemaManager
      * @param null|string $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
     private function getMariaDb1027ColumnDefault(MariaDb102Platform $platform, ?string $columnDefault) : ?string {
+
         if ($columnDefault === 'NULL' || $columnDefault === null) {
-            $defaultValue = null;
-        } elseif (strpos($columnDefault, "'") === 0) {
-            $defaultValue = stripslashes(
+            return null;
+        }
+        if (strpos($columnDefault, "'") === 0) {
+            return stripslashes(
                 str_replace("''", "'",
                     preg_replace('/^\'(.*)\'$/', '$1', $columnDefault)
                 )
             );
-        } elseif ($columnDefault === 'current_timestamp()') {
-            $defaultValue = $platform->getCurrentTimestampSQL();
-        } elseif ($columnDefault === 'curdate()') {
-            $defaultValue = $platform->getCurrentDateSQL();
-        } elseif ($columnDefault === 'curtime()') {
-            $defaultValue = $platform->getCurrentTimeSQL();
-        } else {
-            $defaultValue = $columnDefault;
         }
-        return $defaultValue;
+        switch($columnDefault) {
+            case 'current_timestamp()':
+                return $platform->getCurrentTimestampSQL();
+            case 'curdate()':
+                return $platform->getCurrentDateSQL();
+            case 'curtime()':
+                return $platform->getCurrentTimeSQL();
+        }
+        return $columnDefault;
     }
 
     /**
