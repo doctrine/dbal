@@ -472,6 +472,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_datetime', 'datetime', ['default' => $currentTimeStampSql]);
         $table->addColumn('col_datetime_null', 'datetime', ['notnull' => false, 'default' => null]);
         $table->addColumn('col_int', 'integer', ['default' => 1]);
+        $table->addColumn('col_neg_int', 'integer', ['default' => -1]);
         $table->addColumn('col_string', 'string', ['default' => 'A']);
         $table->addColumn('col_decimal', 'decimal', ['scale' => 3, 'precision' => 6, 'default' => -2.3]);
         $table->addColumn('col_date', 'date', ['default' => '2012-12-12']);
@@ -488,10 +489,11 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertInstanceOf(\DateTime::class, \DateTime::createFromFormat('Y-m-d H:i:s', $row['col_datetime']));
         self::assertNull($row['col_datetime_null']);
-        self::assertSame('1', $row['col_int']);
-        self::assertSame('A', $row['col_string']);
-        self::assertSame('-2.300', $row['col_decimal']);
         self::assertSame('2012-12-12', $row['col_date']);
+        self::assertSame('A', $row['col_string']);
+        self::assertEquals(1, $row['col_int']);
+        self::assertEquals(-1, $row['col_neg_int']);
+        self::assertEquals('-2.300', $row['col_decimal']);
         self::assertLessThan(5, $row['diff_seconds']);
     }
 

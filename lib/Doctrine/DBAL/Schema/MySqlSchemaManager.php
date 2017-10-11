@@ -198,8 +198,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
         ];
 
         if ($scale !== null && $precision !== null) {
-            $options['scale'] = $scale;
-            $options['precision'] = $precision;
+            $options['scale'] = (int) $scale;
+            $options['precision'] = (int) $precision;
         }
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
