@@ -466,7 +466,7 @@ class MySqlPlatform extends AbstractPlatform
      * MySQL (as of 5.7.19) does not support default values for Blob and Text
      * columns while MariaDB 10.2.1 does.
      */
-    protected function isDefaultValueSupportedForType(Type $field): bool
+    protected function isDefaultValueSupportedForType(Type $field) : bool
     {
         return !($field instanceof TextType || $field instanceof BlobType);
     }

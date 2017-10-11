@@ -34,7 +34,7 @@ final class MariaDb102Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    public function hasNativeJsonType(): bool
+    public function hasNativeJsonType() : bool
     {
         return true;
     }
@@ -43,7 +43,7 @@ final class MariaDb102Platform extends MySqlPlatform
      * {@inheritdoc}
      * @link https://mariadb.com/kb/en/library/json-data-type/
      */
-    public function getJsonTypeDeclarationSQL(array $field): string
+    public function getJsonTypeDeclarationSQL(array $field) : string
     {
         return 'JSON';
     }
@@ -51,7 +51,7 @@ final class MariaDb102Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getReservedKeywordsClass(): string
+    protected function getReservedKeywordsClass() : string
     {
         return Keywords\MariaDb102Keywords::class;
     }
@@ -59,7 +59,7 @@ final class MariaDb102Platform extends MySqlPlatform
     /**
      * {@inheritdoc}
      */
-    protected function initializeDoctrineTypeMappings(): void
+    protected function initializeDoctrineTypeMappings() : void
     {
         parent::initializeDoctrineTypeMappings();
 
@@ -72,7 +72,7 @@ final class MariaDb102Platform extends MySqlPlatform
      * Since MariaDB 10.2.1 blob and text columns can have a default value.
      * @link https://mariadb.com/kb/en/library/blob-and-text-data-types/
      */
-    protected function isDefaultValueSupportedForType(Type $field): bool
+    protected function isDefaultValueSupportedForType(Type $field) : bool
     {
         return true;
     }

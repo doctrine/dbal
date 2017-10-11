@@ -341,7 +341,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
      * @link https://dev.mysql.com/doc/refman/5.5/en/string-literals.html
      */
-    public function testColumnDefaultValuesDoubleQuoted(): void
+    public function testColumnDefaultValuesDoubleQuoted() : void
     {
         $table = new Table("test_column_default_values_double_quoted");
         $table->addColumn('string_nullable_quoted', 'string', ['notnull' => false, 'default' => 'NULL']);
@@ -369,7 +369,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * @link https://mariadb.com/kb/en/library/string-literals
      * @link https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
      */
-    public function testColumnEscapingDefaultValuesDoesNotTriggerSchemaChange(): void
+    public function testColumnEscapingDefaultValuesDoesNotTriggerSchemaChange() : void
     {
         $table = new Table("test_column_default_values_escaping");
         $table->addColumn('single_backslash', 'string', ['default' => 'F\Q\D\N']);
@@ -395,7 +395,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($diff, "Tables should be identical with values escape sequences.");
     }
 
-    public function testJsonColumnType(): void
+    public function testJsonColumnType() : void
     {
         $platform = $this->_sm->getDatabasePlatform();
         if (!$platform->hasNativeJsonType()) {
@@ -417,7 +417,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * Note: MariaDb 10.2 silently change "\'" into "''" when storing in
      * information schema, MariaDb102Platform should normalize the table details.
      */
-    public function testExistingTableWithQuotedDefaultsDoesNotTriggerChange(): void
+    public function testExistingTableWithQuotedDefaultsDoesNotTriggerChange() : void
     {
         $this->_conn->query('DROP TABLE IF EXISTS test_column_defaults_with_create');
         $sql = "
@@ -441,7 +441,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertFalse($diff);
     }
 
-    public function testColumnDefaultCurrentTimestamp(): void
+    public function testColumnDefaultCurrentTimestamp() : void
     {
         $platform = $this->_sm->getDatabasePlatform();
 
@@ -507,7 +507,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      * CURRENT_TIME as 'currtime()' and CURRENT_DATE as 'currdate()'.
      * This test also ensure proper aliasing to not trigger a table diff.
      */
-    public function testColumnDefaultValuesCurrentTimeAndDate(): void
+    public function testColumnDefaultValuesCurrentTimeAndDate() : void
     {
         if (!$this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
             $this->markTestSkipped('Only relevant for MariaDb102Platform.');
@@ -544,7 +544,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      *
      * @link https://mariadb.com/kb/en/library/blob-and-text-data-types
      */
-    public function testDoesPropagateDefaultValuesForBlobTextAndJson(): void
+    public function testDoesPropagateDefaultValuesForBlobTextAndJson() : void
     {
         if (!$this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
             $this->markTestSkipped('Only relevant for MariaDb102Platform.');

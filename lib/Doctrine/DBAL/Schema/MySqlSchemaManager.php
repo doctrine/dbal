@@ -226,7 +226,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
      *
      * @param null|string $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
-    private function getMariaDb1027ColumnDefault(MariaDb102Platform $platform, ?string $columnDefault): ?string {
+    private function getMariaDb1027ColumnDefault(MariaDb102Platform $platform, ?string $columnDefault) : ?string {
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             $defaultValue = null;
         } elseif (strpos($columnDefault, "'") === 0) {

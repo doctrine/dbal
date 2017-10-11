@@ -130,7 +130,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * @return AbstractPlatform|MariaDb102Platform|MySQL57Platform|MySqlPlatform
      * @throws DBALException
      */
-    public function createDatabasePlatformForVersion($version): AbstractPlatform
+    public function createDatabasePlatformForVersion($version) : AbstractPlatform
     {
         if (false !== stripos($version, 'mariadb')) {
             $versionNumber = $this->getMariaDbMysqlVersionNumber($version);
@@ -154,7 +154,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * @param string $versionString Version string returned by the driver, i.e. '5.7.10'
      * @throws DBALException
      */
-    private function getOracleMysqlVersionNumber(string $versionString): string
+    private function getOracleMysqlVersionNumber(string $versionString) : string
     {
         if (!preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $versionString, $versionParts)) {
             throw DBALException::invalidPlatformVersionSpecified(
@@ -180,7 +180,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * @param string $versionString Version string as returned by mariadb server, i.e. '5.5.5-Mariadb-10.0.8-xenial'
      * @throws DBALException
      */
-    private function getMariaDbMysqlVersionNumber(string $versionString): string
+    private function getMariaDbMysqlVersionNumber(string $versionString) : string
     {
         $version = str_replace('5.5.5-', '', $versionString);
 
@@ -197,7 +197,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn): ?string
+    public function getDatabase(\Doctrine\DBAL\Connection $conn) : ?string
     {
         $params = $conn->getParams();
 
@@ -212,7 +212,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * {@inheritdoc}
      * @return MySqlPlatform
      */
-    public function getDatabasePlatform(): AbstractPlatform
+    public function getDatabasePlatform() : AbstractPlatform
     {
         return new MySqlPlatform();
     }
@@ -221,7 +221,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * {@inheritdoc}
      * @return MySqlSchemaManager
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn): AbstractSchemaManager
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn) : AbstractSchemaManager
     {
         return new MySqlSchemaManager($conn);
     }

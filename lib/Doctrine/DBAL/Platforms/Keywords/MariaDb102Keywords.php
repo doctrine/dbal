@@ -28,7 +28,7 @@ final class MariaDb102Keywords extends MySQLKeywords
     /**
      * {@inheritdoc}
      */
-    public function getName(): string
+    public function getName() : string
     {
         return 'MariaDb102';
     }
@@ -36,7 +36,7 @@ final class MariaDb102Keywords extends MySQLKeywords
     /**
      * {@inheritdoc}
      */
-    protected function getKeywords(): array
+    protected function getKeywords() : array
     {
         return [
             'ACCESSIBLE',
