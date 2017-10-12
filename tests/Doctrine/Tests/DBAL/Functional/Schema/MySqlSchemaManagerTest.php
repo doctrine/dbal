@@ -422,19 +422,19 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_conn->query('DROP TABLE IF EXISTS test_column_defaults_with_create');
         $sql = "
             CREATE TABLE test_column_defaults_with_create (
-                col1 VARCHAR(255) NULL DEFAULT 'O''Connor\'\"',
-                col2 VARCHAR(255) NULL DEFAULT '''A'''
+                col1 VARCHAR(255) NULL DEFAULT 'O''Connor\'\"',              
+                col2 VARCHAR(255) NOT NULL DEFAULT 'O''Connor\'\"'                                
                 );
         ";
         $this->_conn->query($sql);
 
         $onlineTable = $this->_sm->listTableDetails("test_column_defaults_with_create");
         self::assertSame("O'Connor'\"", $onlineTable->getColumn('col1')->getDefault());
-        self::assertSame("'A'", $onlineTable->getColumn('col2')->getDefault());
+        self::assertSame("O'Connor'\"", $onlineTable->getColumn('col2')->getDefault());
 
         $table = new Table("test_column_defaults_no_diff");
         $table->addColumn('col1', 'string', ['notnull' => false, 'default' => "O'Connor'\""]);
-        $table->addColumn('col2', 'string', ['notnull' => false, 'default' => "'A'"]);
+        $table->addColumn('col2', 'string', ['notnull' => true, 'default' => "O'Connor'\""]);
 
         $comparator = new Comparator();
         $diff = $comparator->diffTable($table, $onlineTable);
