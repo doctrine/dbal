@@ -132,13 +132,12 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      */
     public function createDatabasePlatformForVersion($version)
     {
-        if (false !== stripos($version, 'mariadb')
-            && version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
+        $mariadb = false !== stripos($version, 'mariadb');
+        if ($mariadb && version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
             return new MariaDb1027Platform();
         }
 
-        if (false === stripos($version, 'mariadb')
-            && version_compare($this->getOracleMysqlVersionNumber($version), '5.7.9', '>=')) {
+        if (!$mariadb && version_compare($this->getOracleMysqlVersionNumber($version), '5.7.9', '>=')) {
             return new MySQL57Platform();
         }
 
@@ -195,7 +194,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn) : ?string
+    public function getDatabase(\Doctrine\DBAL\Connection $conn)
     {
         $params = $conn->getParams();
 
