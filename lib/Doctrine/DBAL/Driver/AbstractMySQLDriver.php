@@ -39,10 +39,6 @@ use Doctrine\DBAL\VersionAwarePlatformDriver;
  */
 abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
-
-    private const MYSQL_MARIADB_VERSION_REGEXP = '/^(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/';
-    private const MYSQL_ORACLE_VERSION_REGEXP = '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/';
-
     /**
      * {@inheritdoc}
      *
@@ -158,7 +154,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      */
     private function getOracleMysqlVersionNumber(string $versionString) : string
     {
-        if (!preg_match(self::MYSQL_ORACLE_VERSION_REGEXP, $versionString, $versionParts)) {
+        if (!preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $versionString, $versionParts)) {
             throw DBALException::invalidPlatformVersionSpecified(
                 $versionString,
                 '<major_version>.<minor_version>.<patch_version>'
@@ -186,7 +182,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     {
         $version = str_replace('5.5.5-', '', $versionString);
 
-        if (!preg_match(self::MYSQL_MARIADB_VERSION_REGEXP, strtolower($version), $versionParts)) {
+        if (!preg_match('/^(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/', strtolower($version), $versionParts)) {
             throw DBALException::invalidPlatformVersionSpecified(
                 $version,
                 '(mariadb-)?<major_version>.<minor_version>.<patch_version>'
