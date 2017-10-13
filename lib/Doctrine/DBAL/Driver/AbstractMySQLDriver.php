@@ -127,7 +127,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      *
-     * @return AbstractPlatform|MariaDb1027Platform|MySQL57Platform|MySqlPlatform
+     * @return AbstractPlatform
      * @throws DBALException
      */
     public function createDatabasePlatformForVersion($version)
