@@ -178,7 +178,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
 
         if ($this->_platform instanceof MariaDb102Platform) {
-            $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default'] ?? null);
+            $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default']);
         } else {
             $columnDefault = (isset($tableColumn['default'])) ? $tableColumn['default'] : null;
         }
