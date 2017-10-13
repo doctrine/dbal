@@ -2,19 +2,19 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\Platforms\MariaDb102Platform;
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
-class MariaDb102PlatformTest extends AbstractMySQLPlatformTestCase
+class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
 {
     /**
      * {@inheritdoc}
      */
     public function createPlatform()
     {
-        return new MariaDb102Platform();
+        return new MariaDb1027Platform();
     }
 
     public function testHasNativeJsonType()

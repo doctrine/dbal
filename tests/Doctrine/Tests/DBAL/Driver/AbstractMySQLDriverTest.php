@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MariaDb102Platform;
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
@@ -69,9 +69,9 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             array('10.1.2a-MariaDB-a1~lenny-log', MySqlPlatform::class),
             array('5.5.40-MariaDB-1~wheezy', MySqlPlatform::class),
             array('5.5.40-MariaDB-1~wheezy', MySqlPlatform::class),
-            array('5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDb102Platform::class),
-            array('10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb102Platform::class),
-            array('10.2.8-MariaDB-1~lenny-log', MariaDb102Platform::class)
+            array('5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class),
+            array('10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class),
+            array('10.2.8-MariaDB-1~lenny-log', MariaDb1027Platform::class)
         );
     }
 

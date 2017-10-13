@@ -29,7 +29,7 @@ use Doctrine\DBAL\Types\Type;
  * @author Vanvelthem Sébastien
  * @link   www.doctrine-project.org
  */
-final class MariaDb102Platform extends MySqlPlatform
+final class MariaDb1027Platform extends MySqlPlatform
 {
     /**
      * {@inheritdoc}

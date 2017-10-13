@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
-use Doctrine\DBAL\Platforms\MariaDb102Platform;
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
@@ -158,7 +158,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
     {
-        if ($this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
+        if ($this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
             $this->markTestSkipped('MariaDb102Platform supports default values for BLOB and TEXT columns and will propagate values');
         }
 
@@ -509,7 +509,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testColumnDefaultValuesCurrentTimeAndDate() : void
     {
-        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
+        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
             $this->markTestSkipped('Only relevant for MariaDb102Platform.');
         }
 
@@ -546,7 +546,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testDoesPropagateDefaultValuesForBlobTextAndJson() : void
     {
-        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb102Platform) {
+        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
             $this->markTestSkipped('Only relevant for MariaDb102Platform.');
         }
 
