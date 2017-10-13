@@ -37,6 +37,11 @@ class ReservedWordsCommand extends Command
         'sqlserver2005' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords',
         'sqlserver2008' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords',
         'sqlserver2012' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords',
+        'ase'           => 'Doctrine\DBAL\Platforms\Keywords\ASEKeywords',
+        'ase150'        => 'Doctrine\DBAL\Platforms\Keywords\ASE150Keywords',
+        'ase155'        => 'Doctrine\DBAL\Platforms\Keywords\ASE155Keywords',
+        'ase157'        => 'Doctrine\DBAL\Platforms\Keywords\ASE157Keywords',
+        'ase160'        => 'Doctrine\DBAL\Platforms\Keywords\ASE160Keywords',
         'sqlite'        => 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords',
         'pgsql'         => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords',
         'pgsql91'       => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords',
@@ -105,6 +110,11 @@ The following keyword lists are currently shipped with Doctrine:
     * sqlanywhere11
     * sqlanywhere12
     * sqlanywhere16
+    * ase (Not checked by default)
+    * ase150 (Not checked by default)
+    * ase155 (Not checked by default)
+    * ase157 (Not checked by default)
+    * ase160 (Not checked by default)
     * db2 (Not checked by default)
 EOT
         );
