@@ -12,22 +12,22 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
     /**
      * {@inheritdoc}
      */
-    public function createPlatform()
+    public function createPlatform() : MariaDb1027Platform
     {
         return new MariaDb1027Platform();
     }
 
-    public function testHasNativeJsonType()
+    public function testHasNativeJsonType() : void
     {
         self::assertTrue($this->_platform->hasNativeJsonType());
     }
 
-    public function testReturnsJsonTypeDeclarationSQL()
+    public function testReturnsJsonTypeDeclarationSQL() : void
     {
         self::assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL([]));
     }
 
-    public function testInitializesJsonTypeMapping()
+    public function testInitializesJsonTypeMapping() : void
     {
         self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('json'));
         self::assertSame(Type::JSON, $this->_platform->getDoctrineTypeMapping('json'));
@@ -39,7 +39,7 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
      *
      * @see AbstractMySQLPlatformTestCase::testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
      */
-    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
+    public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes() : void
     {
         $this->markTestSkipped('MariaDB102Platform support propagation of default values for BLOB and TEXT columns');
     }
@@ -47,7 +47,7 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
     /**
      * Since MariaDB 10.2, Text and Blob can have a default value.
      */
-    public function testPropagateDefaultValuesForTextAndBlobColumnTypes()
+    public function testPropagateDefaultValuesForTextAndBlobColumnTypes() : void
     {
         $table = new Table("text_blob_default_value");
 
@@ -69,7 +69,7 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
         self::assertFalse($comparator->diffTable($table, $diffTable));
     }
 
-    public function testPropagateDefaultValuesForJsonColumnType()
+    public function testPropagateDefaultValuesForJsonColumnType() : void
     {
         $table = new Table("text_json_default_value");
 

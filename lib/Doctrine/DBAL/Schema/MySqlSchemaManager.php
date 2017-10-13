@@ -180,7 +180,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         if ($this->_platform instanceof MariaDb1027Platform) {
             $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default']);
         } else {
-            $columnDefault = (isset($tableColumn['default'])) ? $tableColumn['default'] : null;
+            $columnDefault = $tableColumn['default'];
         }
 
         $options = [
@@ -237,7 +237,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             return null;
         }
-        if (strpos($columnDefault, "'") === 0) {
+        if ($columnDefault[0] === "'") {
             return stripslashes(
                 str_replace("''", "'",
                     preg_replace('/^\'(.*)\'$/', '$1', $columnDefault)

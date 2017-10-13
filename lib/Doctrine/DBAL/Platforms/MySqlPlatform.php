@@ -477,7 +477,7 @@ class MySqlPlatform extends AbstractPlatform
     public function getDefaultValueDeclarationSQL($field)
     {
         // Unset the default value if the given field type does not allow default values.
-        if (!$this->isDefaultValueSupportedForType($field['type'])) {
+        if (! $this->isDefaultValueSupportedForType($field['type'])) {
             $field['default'] = null;
         }
 
@@ -595,7 +595,7 @@ class MySqlPlatform extends AbstractPlatform
             // Don't propagate default value changes for unsupported column types.
             if ($columnDiff->hasChanged('default') &&
                 count($columnDiff->changedProperties) === 1 &&
-                !$this->isDefaultValueSupportedForType($columnArray['type'])
+                ! $this->isDefaultValueSupportedForType($columnArray['type'])
             ) {
                 continue;
             }
