@@ -1397,4 +1397,19 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         self::assertEquals($sequence2AllocationSize, $actualSequence2->getAllocationSize());
         self::assertEquals($sequence2InitialValue, $actualSequence2->getInitialValue());
     }
+
+    public function testEscapedDefaultValueMustBePreserved()
+    {
+        $value = "a\\0a\\'a\"a\na\ra\ta\\Za\\\\a" ;
+
+        $table = new Table('string_escaped_default_value');
+        $table->addColumn('def_string', 'string', array('default' => $value));
+        $this->_sm->dropAndCreateTable($table);
+
+        $onlineTable = $this->_sm->listTableDetails('string_escaped_default_value');
+        $this->assertSame($value, $onlineTable->getColumn('def_string')->getDefault());
+
+        $comparator = new Comparator();
+        $this->assertFalse($comparator->diffTable($table, $onlineTable));
+    }
 }
