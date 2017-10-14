@@ -80,7 +80,7 @@ use Doctrine\DBAL\Events;
  * @author Lars Strojny <lstrojny@php.net>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class MasterSlaveConnection extends Connection
+class MasterSlaveConnection extends Connection implements MasterSlaveConnectionInterface
 {
     /**
      * Master and slave connection (one of the randomly picked slaves).
@@ -127,9 +127,7 @@ class MasterSlaveConnection extends Connection
     }
 
     /**
-     * Checks if the connection is currently towards the master or not.
-     *
-     * @return boolean
+     * {@inheritdoc}
      */
     public function isConnectedToMaster()
     {
