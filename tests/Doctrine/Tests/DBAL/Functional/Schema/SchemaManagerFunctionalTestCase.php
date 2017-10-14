@@ -1400,7 +1400,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     public function testEscapedDefaultValueMustBePreserved()
     {
-        $value = "a\\0a\\'a\"a\na\ra\ta\\Za\\\\a" ;
+        $value = "a\\0b\\'c\"d\te\\Zf\\\\g";
 
         $table = new Table('string_escaped_default_value');
         $table->addColumn('def_string', 'string', array('default' => $value));
