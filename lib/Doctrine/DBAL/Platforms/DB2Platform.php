@@ -878,4 +878,20 @@ class DB2Platform extends AbstractPlatform
     {
         return Keywords\DB2Keywords::class;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGuidTypeDeclarationSQL(array $field)
+    {
+        return 'CHAR(13) FOR BIT DATA';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGuidExpression()
+    {
+        return 'GENERATE_UNIQUE()';
+    }
 }
