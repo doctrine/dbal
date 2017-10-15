@@ -179,12 +179,10 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      */
     private function getMariaDbMysqlVersionNumber(string $versionString) : string
     {
-        $version = str_replace('5.5.5-', '', $versionString);
-
-        if (!preg_match('/^(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/', strtolower($version), $versionParts)) {
+        if (!preg_match('/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i', $versionString, $versionParts)) {
             throw DBALException::invalidPlatformVersionSpecified(
-                $version,
-                '(mariadb-)?<major_version>.<minor_version>.<patch_version>'
+                $versionString,
+                '^(?:5\.5\.5-)?(mariadb-)?<major_version>.<minor_version>.<patch_version>'
             );
         }
 
