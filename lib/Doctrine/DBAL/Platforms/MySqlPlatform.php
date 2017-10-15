@@ -468,7 +468,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     protected function isDefaultValueSupportedForType(Type $field) : bool
     {
-        return !($field instanceof TextType || $field instanceof BlobType);
+        return ! $field instanceof TextType && ! $field instanceof BlobType;
     }
 
     /**
