@@ -473,7 +473,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
-    
+
     public function testAlterPrimaryKeyWithNewColumn()
     {
         $table = new Table("yolo");
@@ -483,7 +483,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
         $diffTable = clone $table;
-        
+
         $diffTable->addColumn('pkc2', 'integer');
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('pkc1', 'pkc2'));
@@ -495,7 +495,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
-        );      
+        );
     }
 
     public function testInitializesDoctrineTypeMappings()
@@ -911,11 +911,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testGetDefaultValueDeclarationSQLEscaped()
     {
         // string must be escaped
-        $field = array(
+        $field = [
             'type' => 'string',
             'default' => 'Foo\\Bar'
-        );
+        ];
 
-        self::assertEquals(" DEFAULT 'Foo\\\\Bar'", $this->_platform->getDefaultValueDeclarationSQL($field));
+        self::assertSame(" DEFAULT 'Foo\\\\Bar'", $this->_platform->getDefaultValueDeclarationSQL($field));
     }
 }

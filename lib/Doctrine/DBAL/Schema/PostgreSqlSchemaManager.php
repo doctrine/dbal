@@ -386,7 +386,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'text':
             case '_varchar':
             case 'varchar':
-            $tableColumn['default'] = $this->fixDefaultValueQuotes($tableColumn['default']);
+                $tableColumn['default'] = $this->fixDefaultValueQuotes($tableColumn['default']);
                 $fixed = false;
                 break;
             case 'interval':
