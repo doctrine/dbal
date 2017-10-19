@@ -927,7 +927,10 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
         }
     }
 
-The job of Doctrine-DBAL is to transform your type into an SQL declaration. You can modify the SQL declaration Doctrine will produce. At first, to enable this feature, you must override the canRequireSQLConversion method:
+The job of Doctrine-DBAL is to transform your type into an SQL
+declaration. You can modify the SQL declaration Doctrine will produce.
+At first, to enable this feature, you must override the
+``canRequireSQLConversion`` method:
 
 ::
 
@@ -937,7 +940,8 @@ The job of Doctrine-DBAL is to transform your type into an SQL declaration. You 
         return true;
     }
 
-Then you override the methods convertToPhpValueSQL and convertToDatabaseValueSQL :
+Then you override the ``convertToPhpValueSQL`` and
+``convertToDatabaseValueSQL`` methods :
 
 ::
 
@@ -965,5 +969,3 @@ hook it into the database platform:
 This would allow using a money type in the ORM for example and
 have Doctrine automatically convert it back and forth to the
 database.
-
-
