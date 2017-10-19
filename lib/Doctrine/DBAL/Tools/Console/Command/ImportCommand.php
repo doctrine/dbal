@@ -47,7 +47,9 @@ class ImportCommand extends Command
         ->setDescription('Import SQL file(s) directly to Database.')
         ->setDefinition([
             new InputArgument(
-                'file', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'File path(s) of SQL to be executed.'
+                'file',
+                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                'File path(s) of SQL to be executed.'
             )
         ])
         ->setHelp(<<<EOT
@@ -110,7 +112,7 @@ EOT
                 } else {
                     // Non-PDO Drivers (ie. OCI8 driver)
                     $stmt = $conn->prepare($sql);
-                    $rs = $stmt->execute();
+                    $rs   = $stmt->execute();
 
                     if ($rs) {
                         $output->writeln('OK!' . PHP_EOL);

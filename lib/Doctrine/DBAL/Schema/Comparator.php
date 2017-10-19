@@ -57,7 +57,7 @@ class Comparator
      */
     public function compare(Schema $fromSchema, Schema $toSchema)
     {
-        $diff = new SchemaDiff();
+        $diff             = new SchemaDiff();
         $diff->fromSchema = $fromSchema;
 
         $foreignKeysToTable = [];
@@ -98,7 +98,7 @@ class Comparator
             // also remember all foreign keys that point to a specific table
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $foreignTable = strtolower($foreignKey->getForeignTableName());
-                if (!isset($foreignKeysToTable[$foreignTable])) {
+                if ( ! isset($foreignKeysToTable[$foreignTable])) {
                     $foreignKeysToTable[$foreignTable] = [];
                 }
                 $foreignKeysToTable[$foreignTable][] = $foreignKey;
@@ -203,8 +203,8 @@ class Comparator
      */
     public function diffTable(Table $table1, Table $table2)
     {
-        $changes = 0;
-        $tableDifferences = new TableDiff($table1->getName());
+        $changes                     = 0;
+        $tableDifferences            = new TableDiff($table1->getName());
         $tableDifferences->fromTable = $table1;
 
         $table1Columns = $table1->getColumns();
@@ -212,7 +212,7 @@ class Comparator
 
         /* See if all the fields in table 1 exist in table 2 */
         foreach ($table2Columns as $columnName => $column) {
-            if ( !$table1->hasColumn($columnName)) {
+            if ( ! $table1->hasColumn($columnName)) {
                 $tableDifferences->addedColumns[$columnName] = $column;
                 $changes++;
             }
@@ -230,8 +230,8 @@ class Comparator
             $changedProperties = $this->diffColumn($column, $table2->getColumn($columnName));
 
             if ( ! empty($changedProperties)) {
-                $columnDiff = new ColumnDiff($column->getName(), $table2->getColumn($columnName), $changedProperties);
-                $columnDiff->fromColumn = $column;
+                $columnDiff                                           = new ColumnDiff($column->getName(), $table2->getColumn($columnName), $changedProperties);
+                $columnDiff->fromColumn                               = $column;
                 $tableDifferences->changedColumns[$column->getName()] = $columnDiff;
                 $changes++;
             }
@@ -255,7 +255,7 @@ class Comparator
         foreach ($table1Indexes as $indexName => $index) {
             // See if index is removed in table 2.
             if (($index->isPrimary() && ! $table2->hasPrimaryKey()) ||
-                ! $index->isPrimary() && ! $table2->hasIndex($indexName)
+            ! $index->isPrimary() && ! $table2->hasIndex($indexName)
             ) {
                 $tableDifferences->removedIndexes[$indexName] = $index;
                 $changes++;
@@ -274,7 +274,7 @@ class Comparator
         $this->detectIndexRenamings($tableDifferences);
 
         $fromFkeys = $table1->getForeignKeys();
-        $toFkeys = $table2->getForeignKeys();
+        $toFkeys   = $table2->getForeignKeys();
 
         foreach ($fromFkeys as $key1 => $constraint1) {
             foreach ($toFkeys as $key2 => $constraint2) {
@@ -327,8 +327,8 @@ class Comparator
         foreach ($renameCandidates as $candidateColumns) {
             if (count($candidateColumns) == 1) {
                 list($removedColumn, $addedColumn) = $candidateColumns[0];
-                $removedColumnName = strtolower($removedColumn->getName());
-                $addedColumnName = strtolower($addedColumn->getName());
+                $removedColumnName                 = strtolower($removedColumn->getName());
+                $addedColumnName                   = strtolower($addedColumn->getName());
 
                 if ( ! isset($tableDifferences->renamedColumns[$removedColumnName])) {
                     $tableDifferences->renamedColumns[$removedColumnName] = $addedColumn;
@@ -354,7 +354,7 @@ class Comparator
         // Gather possible rename candidates by comparing each added and removed index based on semantics.
         foreach ($tableDifferences->addedIndexes as $addedIndexName => $addedIndex) {
             foreach ($tableDifferences->removedIndexes as $removedIndex) {
-                if (! $this->diffIndex($addedIndex, $removedIndex)) {
+                if ( ! $this->diffIndex($addedIndex, $removedIndex)) {
                     $renameCandidates[$addedIndex->getName()][] = [$removedIndex, $addedIndex, $addedIndexName];
                 }
             }
@@ -369,9 +369,9 @@ class Comparator
                 list($removedIndex, $addedIndex) = $candidateIndexes[0];
 
                 $removedIndexName = strtolower($removedIndex->getName());
-                $addedIndexName = strtolower($addedIndex->getName());
+                $addedIndexName   = strtolower($addedIndex->getName());
 
-                if (! isset($tableDifferences->renamedIndexes[$removedIndexName])) {
+                if ( ! isset($tableDifferences->renamedIndexes[$removedIndexName])) {
                     $tableDifferences->renamedIndexes[$removedIndexName] = $addedIndex;
                     unset($tableDifferences->addedIndexes[$addedIndexName]);
                     unset($tableDifferences->removedIndexes[$removedIndexName]);
@@ -468,8 +468,8 @@ class Comparator
 
         // A null value and an empty string are actually equal for a comment so they should not trigger a change.
         if ($properties1['comment'] !== $properties2['comment'] &&
-            ! (null === $properties1['comment'] && '' === $properties2['comment']) &&
-            ! (null === $properties2['comment'] && '' === $properties1['comment'])
+        ! (null === $properties1['comment'] && '' === $properties2['comment']) &&
+        ! (null === $properties2['comment'] && '' === $properties1['comment'])
         ) {
             $changedProperties[] = 'comment';
         }

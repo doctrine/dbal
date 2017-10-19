@@ -97,8 +97,8 @@ class DropSchemaSqlCollector extends AbstractVisitor
     public function clearQueries()
     {
         $this->constraints = new \SplObjectStorage();
-        $this->sequences = new \SplObjectStorage();
-        $this->tables = new \SplObjectStorage();
+        $this->sequences   = new \SplObjectStorage();
+        $this->tables      = new \SplObjectStorage();
     }
 
     /**
@@ -110,7 +110,7 @@ class DropSchemaSqlCollector extends AbstractVisitor
 
         foreach ($this->constraints as $fkConstraint) {
             $localTable = $this->constraints[$fkConstraint];
-            $sql[] = $this->platform->getDropForeignKeySQL($fkConstraint, $localTable);
+            $sql[]      = $this->platform->getDropForeignKeySQL($fkConstraint, $localTable);
         }
 
         foreach ($this->sequences as $sequence) {

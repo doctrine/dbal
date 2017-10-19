@@ -29,15 +29,15 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
-        } catch(\Exception $e) {
-
+        } catch (\Exception $e) {
         }
         $this->_conn->exec($this->_conn->getDatabasePlatform()->getTruncateTableSQL('blob_table'));
     }
 
     public function testInsert()
     {
-        $ret = $this->_conn->insert('blob_table',
+        $ret = $this->_conn->insert(
+            'blob_table',
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
             array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
@@ -46,7 +46,8 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testSelect()
     {
-        $this->_conn->insert('blob_table',
+        $this->_conn->insert(
+            'blob_table',
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
             array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
@@ -56,12 +57,14 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testUpdate()
     {
-        $this->_conn->insert('blob_table',
+        $this->_conn->insert(
+            'blob_table',
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
             array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
 
-        $this->_conn->update('blob_table',
+        $this->_conn->update(
+            'blob_table',
             array('blobfield' => 'test2', 'binaryfield' => 'test2'),
             array('id' => 1),
             array(\PDO::PARAM_LOB, \PDO::PARAM_LOB, \PDO::PARAM_INT)

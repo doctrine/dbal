@@ -105,7 +105,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
         $buildVersion = isset($versionParts['build']) ? $versionParts['build'] : 0;
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion . '.' . $buildVersion;
 
-        switch(true) {
+        switch (true) {
             case version_compare($version, '16', '>='):
                 return new SQLAnywhere16Platform();
             case version_compare($version, '12', '>='):

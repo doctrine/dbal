@@ -88,7 +88,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     public function query()
     {
         $args = func_get_args();
-        $sql = $args[0];
+        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
@@ -98,13 +98,13 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type=\PDO::PARAM_STR)
+    public function quote($input, $type = \PDO::PARAM_STR)
     {
         $input = db2_escape_string($input);
         if ($type == \PDO::PARAM_INT) {
             return $input;
         } else {
-            return "'".$input."'";
+            return "'" . $input . "'";
         }
     }
 
@@ -143,7 +143,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function commit()
     {
-        if (!db2_commit($this->_conn)) {
+        if ( ! db2_commit($this->_conn)) {
             throw new DB2Exception(db2_conn_errormsg($this->_conn));
         }
         db2_autocommit($this->_conn, DB2_AUTOCOMMIT_ON);
@@ -154,7 +154,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function rollBack()
     {
-        if (!db2_rollback($this->_conn)) {
+        if ( ! db2_rollback($this->_conn)) {
             throw new DB2Exception(db2_conn_errormsg($this->_conn));
         }
         db2_autocommit($this->_conn, DB2_AUTOCOMMIT_ON);

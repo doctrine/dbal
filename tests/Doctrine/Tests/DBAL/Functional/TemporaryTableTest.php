@@ -12,8 +12,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         parent::setUp();
         try {
             $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTableSQL("nontemporary"));
-        } catch(\Exception $e) {
-
+        } catch (\Exception $e) {
         }
     }
 
@@ -23,7 +22,8 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
             try {
                 $tempTable = $this->_conn->getDatabasePlatform()->getTemporaryTableName("my_temporary");
                 $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
-            } catch(\Exception $e) { }
+            } catch (\Exception $e) {
+            }
         }
 
         parent::tearDown();
@@ -40,9 +40,9 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped("Test does not work on Oracle and SQL Anywhere.");
         }
 
-        $platform = $this->_conn->getDatabasePlatform();
+        $platform          = $this->_conn->getDatabasePlatform();
         $columnDefinitions = array("id" => array("type" => Type::getType("integer"), "notnull" => true));
-        $tempTable = $platform->getTemporaryTableName("my_temporary");
+        $tempTable         = $platform->getTemporaryTableName("my_temporary");
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
@@ -76,9 +76,9 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped("Test does not work on Oracle and SQL Anywhere.");
         }
 
-        $platform = $this->_conn->getDatabasePlatform();
+        $platform          = $this->_conn->getDatabasePlatform();
         $columnDefinitions = array("id" => array("type" => Type::getType("integer"), "notnull" => true));
-        $tempTable = $platform->getTemporaryTableName("my_temporary");
+        $tempTable         = $platform->getTemporaryTableName("my_temporary");
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
@@ -99,8 +99,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         try {
             $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
-        } catch(\Exception $e) {
-
+        } catch (\Exception $e) {
         }
 
         $rows = $this->_conn->fetchAll('SELECT * FROM nontemporary');

@@ -66,7 +66,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
 
-        set_error_handler(function () {});
+        set_error_handler(function () {
+        });
         try {
             if ( ! $this->_conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
                 throw new MysqliException($this->_conn->connect_error, $this->_conn->sqlstate ?? 'HY000', $this->_conn->connect_errno);
@@ -126,7 +127,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function query()
     {
         $args = func_get_args();
-        $sql = $args[0];
+        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
@@ -136,9 +137,9 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type=\PDO::PARAM_STR)
+    public function quote($input, $type = \PDO::PARAM_STR)
     {
-        return "'". $this->_conn->escape_string($input) ."'";
+        return "'" . $this->_conn->escape_string($input) . "'";
     }
 
     /**
@@ -228,12 +229,11 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         $exceptionMsg = "%s option '%s' with value '%s'";
 
         foreach ($driverOptions as $option => $value) {
-
             if ($option === static::OPTION_FLAGS) {
                 continue;
             }
 
-            if (!in_array($option, $supportedDriverOptions, true)) {
+            if ( ! in_array($option, $supportedDriverOptions, true)) {
                 throw new MysqliException(
                     sprintf($exceptionMsg, 'Unsupported', $option, $value)
                 );
@@ -272,16 +272,16 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     private function setSecureConnection(array $params)
     {
-        if (! isset($params['ssl_key']) &&
-            ! isset($params['ssl_cert']) &&
-            ! isset($params['ssl_ca']) &&
-            ! isset($params['ssl_capath']) &&
-            ! isset($params['ssl_cipher'])
+        if ( ! isset($params['ssl_key']) &&
+        ! isset($params['ssl_cert']) &&
+        ! isset($params['ssl_ca']) &&
+        ! isset($params['ssl_capath']) &&
+        ! isset($params['ssl_cipher'])
         ) {
             return;
         }
 
-        if (! isset($params['ssl_key']) || ! isset($params['ssl_cert'])) {
+        if ( ! isset($params['ssl_key']) || ! isset($params['ssl_cert'])) {
             $msg = '"ssl_key" and "ssl_cert" parameters are mandatory when using secure connection parameters.';
             throw new MysqliException($msg);
         }

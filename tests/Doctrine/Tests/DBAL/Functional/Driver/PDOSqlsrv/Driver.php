@@ -9,13 +9,13 @@ class DriverTest extends AbstractDriverTest
 {
     protected function setUp()
     {
-        if (! extension_loaded('pdo_sqlsrv')) {
+        if ( ! extension_loaded('pdo_sqlsrv')) {
             $this->markTestSkipped('pdo_sqlsrv is not installed.');
         }
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
+        if ( ! $this->_conn->getDriver() instanceof Driver) {
             $this->markTestSkipped('pdo_sqlsrv only test.');
         }
     }

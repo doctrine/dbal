@@ -10,7 +10,7 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if (!self::$tableCreated) {
+        if ( ! self::$tableCreated) {
             /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
             $table = new \Doctrine\DBAL\Schema\Table("modify_limit_table");
             $table->addColumn('test_int', 'integer');
@@ -89,7 +89,7 @@ class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->insert('modify_limit_table2', array('test_int' => 2));
 
         $sql = "SELECT modify_limit_table.test_int FROM modify_limit_table " .
-               "INNER JOIN modify_limit_table2 ON modify_limit_table.test_int = modify_limit_table2.test_int ".
+               "INNER JOIN modify_limit_table2 ON modify_limit_table.test_int = modify_limit_table2.test_int " .
                "GROUP BY modify_limit_table.test_int " .
                "ORDER BY modify_limit_table.test_int ASC";
         $this->assertLimitResult(array(1, 2), $sql, 10, 0);
@@ -157,10 +157,10 @@ SQL;
 
     public function assertLimitResult($expectedResults, $sql, $limit, $offset, $deterministic = true)
     {
-        $p = $this->_conn->getDatabasePlatform();
+        $p    = $this->_conn->getDatabasePlatform();
         $data = array();
         foreach ($this->_conn->fetchAll($p->modifyLimitQuery($sql, $limit, $offset)) as $row) {
-            $row = array_change_key_case($row, CASE_LOWER);
+            $row    = array_change_key_case($row, CASE_LOWER);
             $data[] = $row['test_int'];
         }
 

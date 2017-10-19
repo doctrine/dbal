@@ -7,14 +7,13 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    protected $_platform;
+    protected $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        if (!Type::hasType('vardatetime')) {
+        if ( ! Type::hasType('vardatetime')) {
             Type::addType('vardatetime', 'Doctrine\DBAL\Types\VarDateTimeType');
         }
         $this->_type = Type::getType('vardatetime');
@@ -25,7 +24,7 @@ class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
         $date = new \DateTime('1985-09-01 10:10:10');
 
         $expected = $date->format($this->_platform->getDateTimeTzFormatString());
-        $actual = $this->_type->convertToDatabaseValue($date, $this->_platform);
+        $actual   = $this->_type->convertToDatabaseValue($date, $this->_platform);
 
         self::assertEquals($expected, $actual);
     }

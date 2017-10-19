@@ -7,7 +7,7 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
     private $_fetchOneResult;
     private $_platformMock;
     private $_lastInsertId = 0;
-    private $_inserts = array();
+    private $_inserts      = array();
 
     public function __construct(array $params, $driver, $config = null, $eventManager = null)
     {
@@ -81,7 +81,7 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
 
     public function reset()
     {
-        $this->_inserts = array();
+        $this->_inserts      = array();
         $this->_lastInsertId = 0;
     }
 }

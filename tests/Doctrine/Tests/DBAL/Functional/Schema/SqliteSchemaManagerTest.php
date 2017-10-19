@@ -19,7 +19,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testCreateAndDropDatabase()
     {
-        $path = dirname(__FILE__).'/test_create_and_drop_sqlite_database.sqlite';
+        $path = dirname(__FILE__) . '/test_create_and_drop_sqlite_database.sqlite';
 
         $this->_sm->createDatabase($path);
         self::assertEquals(true, file_exists($path));
@@ -36,10 +36,10 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertFileExists('test_drop_database');
 
-        $params = $this->_conn->getParams();
+        $params           = $this->_conn->getParams();
         $params['dbname'] = 'test_drop_database';
 
-        $user = $params['user'] ?? null;
+        $user     = $params['user'] ?? null;
         $password = $params['password'] ?? null;
 
         $connection = $this->_conn->getDriver()->connect($params, $user, $password);
@@ -85,12 +85,27 @@ EOS
         );
 
         $expected = array(
-            new Schema\ForeignKeyConstraint(array('log'), 'log', array(null), 'FK_3',
-                array('onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false)),
-            new Schema\ForeignKeyConstraint(array('parent'), 'user', array('id'), '1',
-                array('onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false)),
-            new Schema\ForeignKeyConstraint(array('page'), 'page', array('key'), 'FK_1',
-                array('onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true)),
+            new Schema\ForeignKeyConstraint(
+                array('log'),
+                'log',
+                array(null),
+                'FK_3',
+                array('onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false)
+            ),
+            new Schema\ForeignKeyConstraint(
+                array('parent'),
+                'user',
+                array('id'),
+                '1',
+                array('onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false)
+            ),
+            new Schema\ForeignKeyConstraint(
+                array('page'),
+                'page',
+                array('key'),
+                'FK_1',
+                array('onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true)
+            ),
         );
 
         self::assertEquals($expected, $this->_sm->listTableForeignKeys('user'));
@@ -141,7 +156,7 @@ EOS
         }
 
         $version = \SQLite3::version();
-        if(version_compare($version['versionString'], '3.7.16', '<')) {
+        if (version_compare($version['versionString'], '3.7.16', '<')) {
             $this->markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
         }
         $this->_conn->exec(<<<EOS
@@ -204,8 +219,8 @@ SQL;
         $this->_sm->dropAndCreateTable($offlineTable);
 
         $onlineTable = $this->_sm->listTableDetails($tableName);
-        $comparator = new Schema\Comparator();
-        $diff = $comparator->diffTable($offlineTable, $onlineTable);
+        $comparator  = new Schema\Comparator();
+        $diff        = $comparator->diffTable($offlineTable, $onlineTable);
 
         if ($expectedComparatorDiff) {
             self::assertEmpty($this->_sm->getDatabasePlatform()->getAlterTableSQL($diff));

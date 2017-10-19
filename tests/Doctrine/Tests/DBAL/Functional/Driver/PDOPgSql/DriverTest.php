@@ -11,13 +11,13 @@ class DriverTest extends AbstractDriverTest
 {
     protected function setUp()
     {
-        if (! extension_loaded('pdo_pgsql')) {
+        if ( ! extension_loaded('pdo_pgsql')) {
             $this->markTestSkipped('pdo_pgsql is not installed.');
         }
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
+        if ( ! $this->_conn->getDriver() instanceof Driver) {
             $this->markTestSkipped('pdo_pgsql only test.');
         }
     }
@@ -27,8 +27,8 @@ class DriverTest extends AbstractDriverTest
      */
     public function testDatabaseParameters($databaseName, $defaultDatabaseName, $expectedDatabaseName)
     {
-        $params = $this->_conn->getParams();
-        $params['dbname'] = $databaseName;
+        $params                   = $this->_conn->getParams();
+        $params['dbname']         = $databaseName;
         $params['default_dbname'] = $defaultDatabaseName;
 
         $connection = new Connection(
@@ -46,8 +46,8 @@ class DriverTest extends AbstractDriverTest
 
     public function getDatabaseParameter()
     {
-        $params = TestUtil::getConnection()->getParams();
-        $realDatabaseName = isset($params['dbname']) ? $params['dbname'] : '';
+        $params            = TestUtil::getConnection()->getParams();
+        $realDatabaseName  = isset($params['dbname']) ? $params['dbname'] : '';
         $dummyDatabaseName = $realDatabaseName . 'a';
 
         return array(
@@ -64,18 +64,18 @@ class DriverTest extends AbstractDriverTest
      */
     public function testConnectsWithApplicationNameParameter()
     {
-        $parameters = $this->_conn->getParams();
+        $parameters                     = $this->_conn->getParams();
         $parameters['application_name'] = 'doctrine';
 
-        $user = isset($parameters['user']) ? $parameters['user'] : null;
+        $user     = isset($parameters['user']) ? $parameters['user'] : null;
         $password = isset($parameters['password']) ? $parameters['password'] : null;
 
         $connection = $this->driver->connect($parameters, $user, $password);
 
-        $hash = microtime(true); // required to identify the record in the results uniquely
-        $sql = sprintf('SELECT * FROM pg_stat_activity WHERE %d = %d', $hash, $hash);
+        $hash      = microtime(true); // required to identify the record in the results uniquely
+        $sql       = sprintf('SELECT * FROM pg_stat_activity WHERE %d = %d', $hash, $hash);
         $statement = $connection->query($sql);
-        $records = $statement->fetchAll();
+        $records   = $statement->fetchAll();
 
         foreach ($records as $record) {
             // The query column is named "current_query" on PostgreSQL < 9.2

@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\Mocks;
 
-
 class DriverMock implements \Doctrine\DBAL\Driver
 {
     private $_platformMock;
@@ -41,7 +40,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
      */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
-        if($this->_schemaManagerMock == null) {
+        if ($this->_schemaManagerMock == null) {
             return new SchemaManagerMock($conn);
         } else {
             return $this->_schemaManagerMock;

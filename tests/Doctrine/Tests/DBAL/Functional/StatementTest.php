@@ -41,7 +41,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testReuseStatementWithLongerResults()
     {
-        $sm = $this->_conn->getSchemaManager();
+        $sm    = $this->_conn->getSchemaManager();
         $table = new Table('stmt_longer_results');
         $table->addColumn('param', 'string');
         $table->addColumn('val', 'text');
@@ -78,7 +78,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         // but is still not enough to store a LONGBLOB of the max possible size
         $this->iniSet('memory_limit', '4G');
 
-        $sm = $this->_conn->getSchemaManager();
+        $sm    = $this->_conn->getSchemaManager();
         $table = new Table('stmt_long_blob');
         $table->addColumn('contents', 'blob', array(
             'length' => 0xFFFFFFFF,
@@ -100,7 +100,7 @@ sneNxmNb/POO1pRXc7vnF2nc13Rq0cFWiyXkuHmzxuOtzUYfC7fEmK/3mx4QZd5u4E7XJWz6+dey
 Za4tXHUiPyB8Vm781oaT+3fN6Y/eUFDfPkcNWetNxb+tlxEZsPqPdZMOzS4rxwJ8CDC+ABj1+Tu0
 d+N0hqezcjblboJ3Bj8ARJilHX4FAAA=
 EOF
-    );
+        );
 
         $this->_conn->insert('stmt_long_blob', array(
             'contents' => $contents,

@@ -11,14 +11,14 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
     public function testAddTable()
     {
         $tableName = "public.foo";
-        $table = new Table($tableName);
+        $table     = new Table($tableName);
 
         $schema = new Schema(array($table));
 
         self::assertTrue($schema->hasTable($tableName));
 
         $tables = $schema->getTables();
-        self::assertTrue( isset($tables[$tableName]) );
+        self::assertTrue(isset($tables[$tableName]));
         self::assertSame($table, $tables[$tableName]);
         self::assertSame($table, $schema->getTable($tableName));
         self::assertTrue($schema->hasTable($tableName));
@@ -50,8 +50,8 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
         $this->expectException("Doctrine\DBAL\Schema\SchemaException");
 
         $tableName = "foo";
-        $table = new Table($tableName);
-        $tables = array($table, $table);
+        $table     = new Table($tableName);
+        $tables    = array($table, $table);
 
         $schema = new Schema($tables);
     }
@@ -59,8 +59,8 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
     public function testRenameTable()
     {
         $tableName = "foo";
-        $table = new Table($tableName);
-        $schema = new Schema(array($table));
+        $table     = new Table($tableName);
+        $schema    = new Schema(array($table));
 
         self::assertTrue($schema->hasTable("foo"));
         $schema->renameTable("foo", "bar");
@@ -72,8 +72,8 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
     public function testDropTable()
     {
         $tableName = "foo";
-        $table = new Table($tableName);
-        $schema = new Schema(array($table));
+        $table     = new Table($tableName);
+        $schema    = new Schema(array($table));
 
         self::assertTrue($schema->hasTable("foo"));
 
@@ -132,7 +132,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateSequence()
     {
-        $schema = new Schema();
+        $schema   = new Schema();
         $sequence = $schema->createSequence('a_seq', 10, 20);
 
         self::assertEquals('a_seq', $sequence->getName());
@@ -171,7 +171,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
         $schemaConfig->setMaxIdentifierLength(5);
 
         $schema = new Schema(array(), array(), $schemaConfig);
-        $table = $schema->createTable("smalltable");
+        $table  = $schema->createTable("smalltable");
         $table->addColumn('long_id', 'integer');
         $table->addIndex(array('long_id'));
 
@@ -181,7 +181,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
 
     public function testDeepClone()
     {
-        $schema = new Schema();
+        $schema   = new Schema();
         $sequence = $schema->createSequence('baz');
 
         $tableA = $schema->createTable('foo');
@@ -348,7 +348,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
      */
     public function testVisitsVisitor()
     {
-        $schema = new Schema();
+        $schema  = new Schema();
         $visitor = $this->createMock('Doctrine\DBAL\Schema\Visitor\Visitor');
 
         $schema->createNamespace('foo');
@@ -394,7 +394,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
      */
     public function testVisitsNamespaceVisitor()
     {
-        $schema = new Schema();
+        $schema  = new Schema();
         $visitor = $this->createMock('Doctrine\DBAL\Schema\Visitor\AbstractVisitor');
 
         $schema->createNamespace('foo');

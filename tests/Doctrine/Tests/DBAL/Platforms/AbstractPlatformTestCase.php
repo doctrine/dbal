@@ -39,8 +39,8 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         }
 
         $c = $this->_platform->getIdentifierQuoteCharacter();
-        self::assertEquals($c."test".$c, $this->_platform->quoteIdentifier("test"));
-        self::assertEquals($c."test".$c.".".$c."test".$c, $this->_platform->quoteIdentifier("test.test"));
+        self::assertEquals($c . "test" . $c, $this->_platform->quoteIdentifier("test"));
+        self::assertEquals($c . "test" . $c . "." . $c . "test" . $c, $this->_platform->quoteIdentifier("test.test"));
         self::assertEquals(str_repeat($c, 4), $this->_platform->quoteIdentifier($c));
     }
 
@@ -54,8 +54,8 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         }
 
         $c = $this->_platform->getIdentifierQuoteCharacter();
-        self::assertEquals($c."test".$c, $this->_platform->quoteSingleIdentifier("test"));
-        self::assertEquals($c."test.test".$c, $this->_platform->quoteSingleIdentifier("test.test"));
+        self::assertEquals($c . "test" . $c, $this->_platform->quoteSingleIdentifier("test"));
+        self::assertEquals($c . "test.test" . $c, $this->_platform->quoteSingleIdentifier("test.test"));
         self::assertEquals(str_repeat($c, 4), $this->_platform->quoteSingleIdentifier($c));
     }
 
@@ -113,7 +113,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testRegistersCommentedDoctrineMappingTypeImplicitly()
     {
-        if (!Type::hasType('my_commented')) {
+        if ( ! Type::hasType('my_commented')) {
             Type::addType('my_commented', CommentedType::class);
         }
 
@@ -209,8 +209,8 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
     public function testGeneratesPartialIndexesSqlOnlyWhenSupportingPartialIndexes()
     {
-        $where = 'test IS NULL AND test2 IS NOT NULL';
-        $indexDef = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), false, false, array(), array('where' => $where));
+        $where       = 'test IS NULL AND test2 IS NOT NULL';
+        $indexDef    = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), false, false, array(), array('where' => $where));
         $uniqueIndex = new \Doctrine\DBAL\Schema\Index('name', array('test', 'test2'), true, false, array(), array('where' => $where));
 
         $expected = ' WHERE ' . $where;
@@ -218,11 +218,11 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $actuals = array();
 
         if ($this->supportsInlineIndexDeclaration()) {
-            $actuals []= $this->_platform->getIndexDeclarationSQL('name', $indexDef);
+            $actuals [] = $this->_platform->getIndexDeclarationSQL('name', $indexDef);
         }
 
-        $actuals []= $this->_platform->getUniqueConstraintDeclarationSQL('name', $uniqueIndex);
-        $actuals []= $this->_platform->getCreateIndexSQL($indexDef, 'table');
+        $actuals [] = $this->_platform->getUniqueConstraintDeclarationSQL('name', $uniqueIndex);
+        $actuals [] = $this->_platform->getCreateIndexSQL($indexDef, 'table');
 
         foreach ($actuals as $actual) {
             if ($this->_platform->supportsPartialIndexes()) {
@@ -249,11 +249,11 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $sql = $this->_platform->getCreateConstraintSQL($idx, 'test');
         self::assertEquals($this->getGenerateConstraintUniqueIndexSql(), $sql);
 
-        $pk = new \Doctrine\DBAL\Schema\Index('constraint_name', array('test'), true, true);
+        $pk  = new \Doctrine\DBAL\Schema\Index('constraint_name', array('test'), true, true);
         $sql = $this->_platform->getCreateConstraintSQL($pk, 'test');
         self::assertEquals($this->getGenerateConstraintPrimaryIndexSql(), $sql);
 
-        $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name'), 'foreign', array('id'), 'constraint_fk');
+        $fk  = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('fk_name'), 'foreign', array('id'), 'constraint_fk');
         $sql = $this->_platform->getCreateConstraintSQL($fk, 'test');
         self::assertEquals($this->getGenerateConstraintForeignKeySql($fk), $sql);
     }
@@ -287,7 +287,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         self::assertEquals($this->getBitAndComparisonExpressionSql(2, 4), $sql);
     }
 
-    protected  function getBitOrComparisonExpressionSql($value1, $value2)
+    protected function getBitOrComparisonExpressionSql($value1, $value2)
     {
         return '(' . $value1 . ' | ' . $value2 . ')';
     }
@@ -331,20 +331,26 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $table->addColumn('bloo', 'boolean');
         $table->setPrimaryKey(array('id'));
 
-        $tableDiff = new TableDiff('mytable');
-        $tableDiff->fromTable = $table;
-        $tableDiff->newName = 'userlist';
-        $tableDiff->addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('notnull' => false));
-        $tableDiff->removedColumns['foo'] = new \Doctrine\DBAL\Schema\Column('foo', \Doctrine\DBAL\Types\Type::getType('integer'));
-        $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'bar', new \Doctrine\DBAL\Schema\Column(
-                'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'def')
+        $tableDiff                         = new TableDiff('mytable');
+        $tableDiff->fromTable              = $table;
+        $tableDiff->newName                = 'userlist';
+        $tableDiff->addedColumns['quota']  = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('notnull' => false));
+        $tableDiff->removedColumns['foo']  = new \Doctrine\DBAL\Schema\Column('foo', \Doctrine\DBAL\Types\Type::getType('integer'));
+        $tableDiff->changedColumns['bar']  = new \Doctrine\DBAL\Schema\ColumnDiff(
+            'bar',
+            new \Doctrine\DBAL\Schema\Column(
+                'baz',
+                \Doctrine\DBAL\Types\Type::getType('string'),
+                array('default' => 'def')
             ),
             array('type', 'notnull', 'default')
         );
         $tableDiff->changedColumns['bloo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'bloo', new \Doctrine\DBAL\Schema\Column(
-                'bloo', \Doctrine\DBAL\Types\Type::getType('boolean'), array('default' => false)
+            'bloo',
+            new \Doctrine\DBAL\Schema\Column(
+                'bloo',
+                \Doctrine\DBAL\Types\Type::getType('boolean'),
+                array('default' => false)
             ),
             array('type', 'notnull', 'default')
         );
@@ -431,7 +437,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             ->method('onSchemaAlterTableRenameColumn');
 
         $eventManager = new EventManager();
-        $events = array(
+        $events       = array(
             Events::onSchemaAlterTable,
             Events::onSchemaAlterTableAddColumn,
             Events::onSchemaAlterTableRemoveColumn,
@@ -447,13 +453,16 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $table->addColumn('changed', 'integer');
         $table->addColumn('renamed', 'integer');
 
-        $tableDiff = new TableDiff('mytable');
-        $tableDiff->fromTable = $table;
-        $tableDiff->addedColumns['added'] = new \Doctrine\DBAL\Schema\Column('added', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $tableDiff                            = new TableDiff('mytable');
+        $tableDiff->fromTable                 = $table;
+        $tableDiff->addedColumns['added']     = new \Doctrine\DBAL\Schema\Column('added', \Doctrine\DBAL\Types\Type::getType('integer'), array());
         $tableDiff->removedColumns['removed'] = new \Doctrine\DBAL\Schema\Column('removed', \Doctrine\DBAL\Types\Type::getType('integer'), array());
         $tableDiff->changedColumns['changed'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'changed', new \Doctrine\DBAL\Schema\Column(
-                'changed2', \Doctrine\DBAL\Types\Type::getType('string'), array()
+            'changed',
+            new \Doctrine\DBAL\Schema\Column(
+                'changed2',
+                \Doctrine\DBAL\Types\Type::getType('string'),
+                array()
             ),
             array()
         );
@@ -479,17 +488,22 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testAlterTableColumnComments()
     {
-        $tableDiff = new TableDiff('mytable');
+        $tableDiff                        = new TableDiff('mytable');
         $tableDiff->addedColumns['quota'] = new \Doctrine\DBAL\Schema\Column('quota', \Doctrine\DBAL\Types\Type::getType('integer'), array('comment' => 'A comment'));
         $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'foo', new \Doctrine\DBAL\Schema\Column(
-                'foo', \Doctrine\DBAL\Types\Type::getType('string')
+            'foo',
+            new \Doctrine\DBAL\Schema\Column(
+                'foo',
+                \Doctrine\DBAL\Types\Type::getType('string')
             ),
             array('comment')
         );
         $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'bar', new \Doctrine\DBAL\Schema\Column(
-                'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('comment' => 'B comment')
+            'bar',
+            new \Doctrine\DBAL\Schema\Column(
+                'baz',
+                \Doctrine\DBAL\Types\Type::getType('string'),
+                array('comment' => 'B comment')
             ),
             array('comment')
         );
@@ -537,20 +551,18 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         // timestamps on datetime types should not be quoted
         foreach (array('datetime', 'datetimetz') as $type) {
-
             $field = array(
                 'type' => Type::getType($type),
                 'default' => $this->_platform->getCurrentTimestampSQL()
             );
 
             self::assertEquals(' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(), $this->_platform->getDefaultValueDeclarationSQL($field));
-
         }
     }
 
     public function testGetDefaultValueDeclarationSQLForIntegerTypes()
     {
-        foreach(array('bigint', 'integer', 'smallint') as $type) {
+        foreach (array('bigint', 'integer', 'smallint') as $type) {
             $field = array(
                 'type'    => Type::getType($type),
                 'default' => 1
@@ -566,7 +578,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     public function testGetDefaultValueDeclarationSQLForDateType() : void
     {
         $currentDateSql = $this->_platform->getCurrentDateSQL();
-        $field = [
+        $field          = [
             'type'    => Type::getType('date'),
             'default' => $currentDateSql,
         ];
@@ -708,7 +720,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         $index = new Index('select', array('foo'));
 
-        if (! $this->supportsInlineIndexDeclaration()) {
+        if ( ! $this->supportsInlineIndexDeclaration()) {
             $this->expectException('Doctrine\DBAL\DBALException');
         }
 
@@ -757,11 +769,13 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testAlterTableChangeQuotedColumn()
     {
-        $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
-        $tableDiff->fromTable = new \Doctrine\DBAL\Schema\Table('mytable');
+        $tableDiff                        = new \Doctrine\DBAL\Schema\TableDiff('mytable');
+        $tableDiff->fromTable             = new \Doctrine\DBAL\Schema\Table('mytable');
         $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'select', new \Doctrine\DBAL\Schema\Column(
-                'select', \Doctrine\DBAL\Types\Type::getType('string')
+            'select',
+            new \Doctrine\DBAL\Schema\Column(
+                'select',
+                \Doctrine\DBAL\Types\Type::getType('string')
             ),
             array('type')
         );
@@ -847,7 +861,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testAlterTableRenameIndex()
     {
-        $tableDiff = new TableDiff('mytable');
+        $tableDiff            = new TableDiff('mytable');
         $tableDiff->fromTable = new Table('mytable');
         $tableDiff->fromTable->addColumn('id', 'integer');
         $tableDiff->fromTable->setPrimaryKey(array('id'));
@@ -877,7 +891,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testQuotesAlterTableRenameIndex()
     {
-        $tableDiff = new TableDiff('table');
+        $tableDiff            = new TableDiff('table');
         $tableDiff->fromTable = new Table('table');
         $tableDiff->fromTable->addColumn('id', 'integer');
         $tableDiff->fromTable->setPrimaryKey(array('id'));
@@ -1002,7 +1016,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testAlterTableRenameIndexInSchema()
     {
-        $tableDiff = new TableDiff('myschema.mytable');
+        $tableDiff            = new TableDiff('myschema.mytable');
         $tableDiff->fromTable = new Table('myschema.mytable');
         $tableDiff->fromTable->addColumn('id', 'integer');
         $tableDiff->fromTable->setPrimaryKey(array('id'));
@@ -1032,7 +1046,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testQuotesAlterTableRenameIndexInSchema()
     {
-        $tableDiff = new TableDiff('`schema`.table');
+        $tableDiff            = new TableDiff('`schema`.table');
         $tableDiff->fromTable = new Table('`schema`.table');
         $tableDiff->fromTable->addColumn('id', 'integer');
         $tableDiff->fromTable->setPrimaryKey(array('id'));
@@ -1065,17 +1079,17 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testQuotesDropForeignKeySQL()
     {
-        if (! $this->_platform->supportsForeignKeyConstraints()) {
+        if ( ! $this->_platform->supportsForeignKeyConstraints()) {
             $this->markTestSkipped(
                 sprintf('%s does not support foreign key constraints.', get_class($this->_platform))
             );
         }
 
-        $tableName = 'table';
-        $table = new Table($tableName);
+        $tableName      = 'table';
+        $table          = new Table($tableName);
         $foreignKeyName = 'select';
-        $foreignKey = new ForeignKeyConstraint(array(), 'foo', array(), 'select');
-        $expectedSql = $this->getQuotesDropForeignKeySQL();
+        $foreignKey     = new ForeignKeyConstraint(array(), 'foo', array(), 'select');
+        $expectedSql    = $this->getQuotesDropForeignKeySQL();
 
         self::assertSame($expectedSql, $this->_platform->getDropForeignKeySQL($foreignKeyName, $tableName));
         self::assertSame($expectedSql, $this->_platform->getDropForeignKeySQL($foreignKey, $table));
@@ -1091,11 +1105,11 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testQuotesDropConstraintSQL()
     {
-        $tableName = 'table';
-        $table = new Table($tableName);
+        $tableName      = 'table';
+        $table          = new Table($tableName);
         $constraintName = 'select';
-        $constraint = new ForeignKeyConstraint(array(), 'foo', array(), 'select');
-        $expectedSql = $this->getQuotesDropConstraintSQL();
+        $constraint     = new ForeignKeyConstraint(array(), 'foo', array(), 'select');
+        $expectedSql    = $this->getQuotesDropConstraintSQL();
 
         self::assertSame($expectedSql, $this->_platform->getDropConstraintSQL($constraintName, $tableName));
         self::assertSame($expectedSql, $this->_platform->getDropConstraintSQL($constraint, $table));
@@ -1173,7 +1187,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testGeneratesInlineColumnCommentSQL($comment, $expectedSql)
     {
-        if (! $this->_platform->supportsInlineColumnComments()) {
+        if ( ! $this->_platform->supportsInlineColumnComments()) {
             $this->markTestSkipped(sprintf('%s does not support inline column comments.', get_class($this->_platform)));
         }
 
@@ -1288,8 +1302,8 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             array('notnull' => true, 'default' => 666, 'comment' => 'rename test')
         );
 
-        $tableDiff = new TableDiff('foo');
-        $tableDiff->fromTable = $table;
+        $tableDiff                        = new TableDiff('foo');
+        $tableDiff->fromTable             = $table;
         $tableDiff->renamedColumns['bar'] = new Column(
             'baz',
             Type::getType('integer'),
@@ -1319,21 +1333,21 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $table->addForeignKeyConstraint('fk_table', array('fk'), array('id'), array(), 'fk1');
         $table->addForeignKeyConstraint('fk_table', array('fk2'), array('id'), array(), 'fk2');
 
-        $tableDiff = new TableDiff('"foo"');
-        $tableDiff->fromTable = $table;
-        $tableDiff->newName = 'table';
-        $tableDiff->addedColumns['bloo'] = new Column('bloo', Type::getType('integer'));
+        $tableDiff                        = new TableDiff('"foo"');
+        $tableDiff->fromTable             = $table;
+        $tableDiff->newName               = 'table';
+        $tableDiff->addedColumns['bloo']  = new Column('bloo', Type::getType('integer'));
         $tableDiff->changedColumns['bar'] = new ColumnDiff(
             'bar',
             new Column('bar', Type::getType('integer'), array('notnull' => false)),
             array('notnull'),
             $table->getColumn('bar')
         );
-        $tableDiff->renamedColumns['id'] = new Column('war', Type::getType('integer'));
+        $tableDiff->renamedColumns['id']  = new Column('war', Type::getType('integer'));
         $tableDiff->removedColumns['baz'] = new Column('baz', Type::getType('integer'));
-        $tableDiff->addedForeignKeys[] = new ForeignKeyConstraint(array('fk3'), 'fk_table', array('id'), 'fk_add');
-        $tableDiff->changedForeignKeys[] = new ForeignKeyConstraint(array('fk2'), 'fk_table2', array('id'), 'fk2');
-        $tableDiff->removedForeignKeys[] = new ForeignKeyConstraint(array('fk'), 'fk_table', array('id'), 'fk1');
+        $tableDiff->addedForeignKeys[]    = new ForeignKeyConstraint(array('fk3'), 'fk_table', array('id'), 'fk_add');
+        $tableDiff->changedForeignKeys[]  = new ForeignKeyConstraint(array('fk2'), 'fk_table2', array('id'), 'fk2');
+        $tableDiff->removedForeignKeys[]  = new ForeignKeyConstraint(array('fk'), 'fk_table', array('id'), 'fk1');
 
         self::assertSame(
             $this->getQuotesTableIdentifiersInAlterTableSQL(),
@@ -1355,12 +1369,15 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $table = new Table('mytable');
         $table->addColumn('name', 'string', array('length' => 2));
 
-        $tableDiff = new TableDiff('mytable');
+        $tableDiff            = new TableDiff('mytable');
         $tableDiff->fromTable = $table;
 
         $tableDiff->changedColumns['name'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'name', new \Doctrine\DBAL\Schema\Column(
-                'name', \Doctrine\DBAL\Types\Type::getType('string'), array('fixed' => true, 'length' => 2)
+            'name',
+            new \Doctrine\DBAL\Schema\Column(
+                'name',
+                \Doctrine\DBAL\Types\Type::getType('string'),
+                array('fixed' => true, 'length' => 2)
             ),
             array('fixed')
         );
@@ -1395,8 +1412,8 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $primaryTable->addForeignKeyConstraint($foreignTable, array('foo'), array('id'), array(), 'fk_foo');
         $primaryTable->addForeignKeyConstraint($foreignTable, array('bar'), array('id'), array(), 'fk_bar');
 
-        $tableDiff = new TableDiff('mytable');
-        $tableDiff->fromTable = $primaryTable;
+        $tableDiff                            = new TableDiff('mytable');
+        $tableDiff->fromTable                 = $primaryTable;
         $tableDiff->renamedIndexes['idx_foo'] = new Index('idx_foo_renamed', array('foo'));
 
         self::assertSame(

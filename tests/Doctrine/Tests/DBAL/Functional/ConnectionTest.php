@@ -64,7 +64,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTransactionNestingBehaviorWithSavepoints()
     {
-        if (!$this->_conn->getDatabasePlatform()->supportsSavepoints()) {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform to support savepoints.');
         }
 
@@ -103,7 +103,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTransactionNestingBehaviorCantBeChangedInActiveTransaction()
     {
-        if (!$this->_conn->getDatabasePlatform()->supportsSavepoints()) {
+        if ( ! $this->_conn->getDatabasePlatform()->supportsSavepoints()) {
             $this->markTestSkipped('This test requires the platform to support savepoints.');
         }
 
@@ -193,7 +193,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testTransactionalWithException()
     {
         try {
-            $this->_conn->transactional(function($conn) {
+            $this->_conn->transactional(function ($conn) {
                 /* @var $conn \Doctrine\DBAL\Connection */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new \RuntimeException("Ooops!");
@@ -211,7 +211,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         try {
-            $this->_conn->transactional(function($conn) {
+            $this->_conn->transactional(function ($conn) {
                 /* @var $conn \Doctrine\DBAL\Connection */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new \Error("Ooops!");
@@ -224,7 +224,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTransactional()
     {
-        $res = $this->_conn->transactional(function($conn) {
+        $res = $this->_conn->transactional(function ($conn) {
             /* @var $conn \Doctrine\DBAL\Connection */
             $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
         });
@@ -234,7 +234,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTransactionalReturnValue()
     {
-        $res = $this->_conn->transactional(function() {
+        $res = $this->_conn->transactional(function () {
             return 42;
         });
 
@@ -287,7 +287,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('Platform does not support connecting without database name.');
         }
 
-        $params = $this->_conn->getParams();
+        $params           = $this->_conn->getParams();
         $params['dbname'] = 'foo_bar';
 
         $connection = DriverManager::getConnection(

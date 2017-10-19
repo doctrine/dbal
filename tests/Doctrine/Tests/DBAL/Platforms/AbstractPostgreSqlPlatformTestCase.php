@@ -51,7 +51,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testGeneratesForeignKeySqlForNonStandardOptions()
     {
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-                array('foreign_id'), 'my_table', array('id'), 'my_fk', array('onDelete' => 'CASCADE')
+            array('foreign_id'),
+            'my_table',
+            array('id'),
+            'my_fk',
+            array('onDelete' => 'CASCADE')
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE",
@@ -59,7 +63,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('match' => 'full')
+            array('foreign_id'),
+            'my_table',
+            array('id'),
+            'my_fk',
+            array('match' => 'full')
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full NOT DEFERRABLE INITIALLY IMMEDIATE",
@@ -67,7 +75,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferrable' => true)
+            array('foreign_id'),
+            'my_table',
+            array('id'),
+            'my_fk',
+            array('deferrable' => true)
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) DEFERRABLE INITIALLY IMMEDIATE",
@@ -75,7 +87,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferred' => true)
+            array('foreign_id'),
+            'my_table',
+            array('id'),
+            'my_fk',
+            array('deferred' => true)
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED",
@@ -83,7 +99,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('feferred' => true)
+            array('foreign_id'),
+            'my_table',
+            array('id'),
+            'my_fk',
+            array('feferred' => true)
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED",
@@ -91,7 +111,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferrable' => true, 'deferred' => true, 'match' => 'full')
+            array('foreign_id'),
+            'my_table',
+            array('id'),
+            'my_fk',
+            array('deferrable' => true, 'deferred' => true, 'match' => 'full')
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full DEFERRABLE INITIALLY DEFERRED",
@@ -137,7 +161,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     public function testGenerateTableWithAutoincrement()
     {
-        $table = new \Doctrine\DBAL\Schema\Table('autoinc_table');
+        $table  = new \Doctrine\DBAL\Schema\Table('autoinc_table');
         $column = $table->addColumn('id', 'integer');
         $column->setAutoincrement(true);
 
@@ -152,13 +176,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
         self::assertEquals(
             'SERIAL',
-            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
-        ));
+            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true))
+        );
         self::assertEquals(
             'SERIAL',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true)
-        ));
+            )
+        );
     }
 
     public function testGeneratesTypeDeclarationForStrings()
@@ -166,7 +191,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         self::assertEquals(
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
-                array('length' => 10, 'fixed' => true))
+                array('length' => 10, 'fixed' => true)
+            )
         );
         self::assertEquals(
             'VARCHAR(50)',
@@ -355,8 +381,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $preparedStatementValue,
         $integerValue,
         $booleanValue
-    )
-    {
+    ) {
         $platform = $this->createPlatform();
 
         self::assertSame($integerValue, $platform->convertBooleansToDatabaseValue($booleanValue));
@@ -401,7 +426,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testGetCreateSchemaSQL()
     {
         $schemaName = 'schema';
-        $sql = $this->_platform->getCreateSchemaSQL($schemaName);
+        $sql        = $this->_platform->getCreateSchemaSQL($schemaName);
         self::assertEquals('CREATE SCHEMA ' . $schemaName, $sql);
     }
 
@@ -414,30 +439,42 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $table->addColumn('dfoo3', 'decimal', array('precision' => 10, 'scale' => 6));
         $table->addColumn('dfoo4', 'decimal', array('precision' => 10, 'scale' => 6));
 
-        $tableDiff = new TableDiff('mytable');
+        $tableDiff            = new TableDiff('mytable');
         $tableDiff->fromTable = $table;
 
         $tableDiff->changedColumns['dloo1'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'dloo1', new \Doctrine\DBAL\Schema\Column(
-                'dloo1', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 16, 'scale' => 6)
+            'dloo1',
+            new \Doctrine\DBAL\Schema\Column(
+                'dloo1',
+                \Doctrine\DBAL\Types\Type::getType('decimal'),
+                array('precision' => 16, 'scale' => 6)
             ),
             array('precision')
         );
         $tableDiff->changedColumns['dloo2'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'dloo2', new \Doctrine\DBAL\Schema\Column(
-                'dloo2', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 10, 'scale' => 4)
+            'dloo2',
+            new \Doctrine\DBAL\Schema\Column(
+                'dloo2',
+                \Doctrine\DBAL\Types\Type::getType('decimal'),
+                array('precision' => 10, 'scale' => 4)
             ),
             array('scale')
         );
         $tableDiff->changedColumns['dloo3'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'dloo3', new \Doctrine\DBAL\Schema\Column(
-                'dloo3', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 10, 'scale' => 6)
+            'dloo3',
+            new \Doctrine\DBAL\Schema\Column(
+                'dloo3',
+                \Doctrine\DBAL\Types\Type::getType('decimal'),
+                array('precision' => 10, 'scale' => 6)
             ),
             array()
         );
         $tableDiff->changedColumns['dloo4'] = new \Doctrine\DBAL\Schema\ColumnDiff(
-            'dloo4', new \Doctrine\DBAL\Schema\Column(
-                'dloo4', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 16, 'scale' => 8)
+            'dloo4',
+            new \Doctrine\DBAL\Schema\Column(
+                'dloo4',
+                \Doctrine\DBAL\Types\Type::getType('decimal'),
+                array('precision' => 16, 'scale' => 8)
             ),
             array('precision', 'scale')
         );
@@ -467,7 +504,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $oldTable->addUnnamedForeignKeyConstraint('mytable', array('parent_id'), array('id'));
 
         $comparator = new \Doctrine\DBAL\Schema\Comparator();
-        $tableDiff = $comparator->diffTable($oldTable, $newTable);
+        $tableDiff  = $comparator->diffTable($oldTable, $newTable);
 
         $sql = $this->_platform->getAlterTableSQL($tableDiff);
 

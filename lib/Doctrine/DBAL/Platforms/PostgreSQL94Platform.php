@@ -35,7 +35,7 @@ class PostgreSQL94Platform extends PostgreSQL92Platform
      */
     public function getJsonTypeDeclarationSQL(array $field)
     {
-        if (!empty($field['jsonb'])) {
+        if ( ! empty($field['jsonb'])) {
             return 'JSONB';
         }
 

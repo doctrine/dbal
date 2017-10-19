@@ -13,7 +13,7 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->createTestTable('view_test_table');
 
         $name = "doctrine_test_view";
-        $sql = "SELECT * from DBA.view_test_table";
+        $sql  = "SELECT * from DBA.view_test_table";
 
         $view = new View($name, $sql);
 

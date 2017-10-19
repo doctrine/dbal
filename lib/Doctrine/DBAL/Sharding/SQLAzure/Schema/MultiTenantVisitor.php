@@ -80,7 +80,7 @@ class MultiTenantVisitor implements Visitor
      */
     public function __construct(array $excludedTables = [], $tenantColumnName = 'tenant_id', $distributionName = null)
     {
-        $this->excludedTables = $excludedTables;
+        $this->excludedTables   = $excludedTables;
         $this->tenantColumnName = $tenantColumnName;
         $this->distributionName = $distributionName ?: $tenantColumnName;
     }
@@ -95,12 +95,12 @@ class MultiTenantVisitor implements Visitor
         }
 
         $table->addColumn($this->tenantColumnName, $this->tenantColumnType, [
-            'default' => "federation_filtering_value('". $this->distributionName ."')",
+            'default' => "federation_filtering_value('" . $this->distributionName . "')",
         ]);
 
         $clusteredIndex = $this->getClusteredIndex($table);
 
-        $indexColumns = $clusteredIndex->getColumns();
+        $indexColumns   = $clusteredIndex->getColumns();
         $indexColumns[] = $this->tenantColumnName;
 
         if ($clusteredIndex->isPrimary()) {

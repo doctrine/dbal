@@ -1,6 +1,7 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional;
+
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use PDO;
 
@@ -28,7 +29,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->insert('caching', $row);
         }
 
-        $config = $this->_conn->getConfiguration();
+        $config                                = $this->_conn->getConfiguration();
         $config->setSQLLogger($this->sqlLogger = new \Doctrine\DBAL\Logging\DebugStack);
 
         $cache = new \Doctrine\Common\Cache\ArrayCache;
@@ -105,7 +106,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
         $data = $this->hydrateStmt($stmt, $fetchMode);
 
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
+        $stmt          = $this->_conn->executeQuery("SELECT * FROM caching ORDER BY test_int ASC", array(), array(), new QueryCacheProfile(10, "testcachekey"));
         $data_iterator = $this->hydrateStmtIterator($stmt, $fetchMode);
 
         self::assertEquals($data, $data_iterator);
@@ -177,8 +178,8 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $data = $this->hydrateStmt($stmt);
 
         $secondCache = new \Doctrine\Common\Cache\ArrayCache;
-        $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey", $secondCache));
-        $data = $this->hydrateStmt($stmt);
+        $stmt        = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey", $secondCache));
+        $data        = $this->hydrateStmt($stmt);
 
         self::assertEquals(2, count($this->sqlLogger->queries), "two hits");
         self::assertEquals(1, count($secondCache->fetch("emptycachekey")));

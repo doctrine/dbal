@@ -53,7 +53,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      */
     public function __construct($username, $password, $db, $charset = null, $sessionMode = OCI_DEFAULT, $persistent = false)
     {
-        if (!defined('OCI_NO_AUTO_COMMIT')) {
+        if ( ! defined('OCI_NO_AUTO_COMMIT')) {
             define('OCI_NO_AUTO_COMMIT', 0);
         }
 
@@ -109,7 +109,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     public function query()
     {
         $args = func_get_args();
-        $sql = $args[0];
+        $sql  = $args[0];
         //$fetchMode = $args[1];
         $stmt = $this->prepare($sql);
         $stmt->execute();
@@ -120,7 +120,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($value, $type=\PDO::PARAM_STR)
+    public function quote($value, $type = \PDO::PARAM_STR)
     {
         if (is_int($value) || is_float($value)) {
             return $value;
@@ -154,7 +154,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         $stmt   = $this->query($sql);
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        if ($result === false || !isset($result['CURRVAL'])) {
+        if ($result === false || ! isset($result['CURRVAL'])) {
             throw new OCI8Exception("lastInsertId failed: Query was executed but no result was returned.");
         }
 
@@ -186,7 +186,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      */
     public function commit()
     {
-        if (!oci_commit($this->dbh)) {
+        if ( ! oci_commit($this->dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;
@@ -199,7 +199,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      */
     public function rollBack()
     {
-        if (!oci_rollback($this->dbh)) {
+        if ( ! oci_rollback($this->dbh)) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
         $this->executeMode = OCI_COMMIT_ON_SUCCESS;

@@ -106,7 +106,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
 
-    protected  function getBitOrComparisonExpressionSql($value1, $value2)
+    protected function getBitOrComparisonExpressionSql($value1, $value2)
     {
         return 'BITOR(' . $value1 . ', ' . $value2 . ')';
     }
@@ -556,8 +556,8 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesAlterColumnSQL($changedProperty, Column $column, $expectedSQLClause = null)
     {
-        $tableDiff = new TableDiff('foo');
-        $tableDiff->fromTable = new Table('foo');
+        $tableDiff                        = new TableDiff('foo');
+        $tableDiff->fromTable             = new Table('foo');
         $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $column, array($changedProperty));
 
         $expectedSQL = array();

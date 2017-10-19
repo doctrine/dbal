@@ -11,7 +11,7 @@ class SchemaDiffTest extends \PHPUnit\Framework\TestCase
 {
     public function testSchemaDiffToSql()
     {
-        $diff = $this->createSchemaDiff();
+        $diff     = $this->createSchemaDiff();
         $platform = $this->createPlatform(true);
 
         $sql = $diff->toSql($platform);
@@ -23,7 +23,7 @@ class SchemaDiffTest extends \PHPUnit\Framework\TestCase
 
     public function testSchemaDiffToSaveSql()
     {
-        $diff = $this->createSchemaDiff();
+        $diff     = $this->createSchemaDiff();
         $platform = $this->createPlatform(false);
 
         $sql = $diff->toSaveSql($platform);
@@ -95,15 +95,15 @@ class SchemaDiffTest extends \PHPUnit\Framework\TestCase
 
     public function createSchemaDiff()
     {
-        $diff = new SchemaDiff();
-        $diff->newNamespaces['foo_ns'] = 'foo_ns';
+        $diff                              = new SchemaDiff();
+        $diff->newNamespaces['foo_ns']     = 'foo_ns';
         $diff->removedNamespaces['bar_ns'] = 'bar_ns';
         $diff->changedSequences['foo_seq'] = new Sequence('foo_seq');
-        $diff->newSequences['bar_seq'] = new Sequence('bar_seq');
+        $diff->newSequences['bar_seq']     = new Sequence('bar_seq');
         $diff->removedSequences['baz_seq'] = new Sequence('baz_seq');
-        $diff->newTables['foo_table'] = new Table('foo_table');
-        $diff->removedTables['bar_table'] = new Table('bar_table');
-        $diff->changedTables['baz_table'] = new TableDiff('baz_table');
+        $diff->newTables['foo_table']      = new Table('foo_table');
+        $diff->removedTables['bar_table']  = new Table('bar_table');
+        $diff->changedTables['baz_table']  = new TableDiff('baz_table');
         $diff->newTables['foo_table']->addColumn('foreign_id', 'integer');
         $diff->newTables['foo_table']->addForeignKeyConstraint('foreign_table', array('foreign_id'), array('id'));
         $fk = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(array('id'), 'foreign_table', array('id'));

@@ -54,7 +54,7 @@ class ObjectType extends Type
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        $val = unserialize($value);
+        $val   = unserialize($value);
         if ($val === false && $value !== 'b:0;') {
             throw ConversionException::conversionFailed($value, $this->getName());
         }

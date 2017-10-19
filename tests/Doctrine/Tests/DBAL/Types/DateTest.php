@@ -32,7 +32,7 @@ class DateTest extends BaseDateTypeTestCase
         self::assertEquals('00:00:00', $date->format('H:i:s'));
     }
 
-    public function testDateRests_SummerTimeAffection()
+    public function testDateRestsSummerTimeAffection()
     {
         date_default_timezone_set('Europe/Berlin');
 

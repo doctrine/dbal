@@ -21,12 +21,12 @@ class StatementIteratorTest extends \Doctrine\Tests\DbalTestCase
     public function testIterationCallsFetchOncePerStep()
     {
         $values = ['foo', '', 'bar', '0', 'baz', 0, 'qux', null, 'quz', false, 'impossible'];
-        $calls = 0;
+        $calls  = 0;
 
         $stmt = $this->createMock(Statement::class);
         $stmt->expects($this->exactly(10))
             ->method('fetch')
-            ->willReturnCallback(function() use ($values, &$calls) {
+            ->willReturnCallback(function () use ($values, &$calls) {
                 $value = $values[$calls];
                 $calls++;
                 return $value;

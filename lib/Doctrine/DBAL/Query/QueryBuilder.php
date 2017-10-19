@@ -246,7 +246,7 @@ class QueryBuilder
         }
 
         $this->state = self::STATE_CLEAN;
-        $this->sql = $sql;
+        $this->sql   = $sql;
 
         return $sql;
     }
@@ -301,7 +301,7 @@ class QueryBuilder
     public function setParameters(array $params, array $types = [])
     {
         $this->paramTypes = $types;
-        $this->params = $params;
+        $this->params     = $params;
 
         return $this;
     }
@@ -359,7 +359,7 @@ class QueryBuilder
      */
     public function setFirstResult($firstResult)
     {
-        $this->state = self::STATE_DIRTY;
+        $this->state       = self::STATE_DIRTY;
         $this->firstResult = $firstResult;
 
         return $this;
@@ -385,7 +385,7 @@ class QueryBuilder
      */
     public function setMaxResults($maxResults)
     {
-        $this->state = self::STATE_DIRTY;
+        $this->state      = self::STATE_DIRTY;
         $this->maxResults = $maxResults;
 
         return $this;
@@ -416,10 +416,10 @@ class QueryBuilder
      */
     public function add($sqlPartName, $sqlPart, $append = false)
     {
-        $isArray = is_array($sqlPart);
+        $isArray    = is_array($sqlPart);
         $isMultiple = is_array($this->sqlParts[$sqlPartName]);
 
-        if ($isMultiple && !$isArray) {
+        if ($isMultiple && ! $isArray) {
             $sqlPart = [$sqlPart];
         }
 
@@ -431,7 +431,7 @@ class QueryBuilder
                     $this->sqlParts[$sqlPartName][] = $part;
                 }
             } elseif ($isArray && is_array($sqlPart[key($sqlPart)])) {
-                $key = key($sqlPart);
+                $key                                  = key($sqlPart);
                 $this->sqlParts[$sqlPartName][$key][] = $sqlPart[$key];
             } elseif ($isMultiple) {
                 $this->sqlParts[$sqlPartName][] = $sqlPart;
@@ -744,7 +744,7 @@ class QueryBuilder
      */
     public function set($key, $value)
     {
-        return $this->add('set', $key .' = ' . $value, true);
+        return $this->add('set', $key . ' = ' . $value, true);
     }
 
     /**
@@ -802,7 +802,7 @@ class QueryBuilder
      */
     public function andWhere($where)
     {
-        $args = func_get_args();
+        $args  = func_get_args();
         $where = $this->getQueryPart('where');
 
         if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_AND) {
@@ -835,7 +835,7 @@ class QueryBuilder
      */
     public function orWhere($where)
     {
-        $args = func_get_args();
+        $args  = func_get_args();
         $where = $this->getQueryPart('where');
 
         if ($where instanceof CompositeExpression && $where->getType() === CompositeExpression::TYPE_OR) {
@@ -978,7 +978,7 @@ class QueryBuilder
      */
     public function andHaving($having)
     {
-        $args = func_get_args();
+        $args   = func_get_args();
         $having = $this->getQueryPart('having');
 
         if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_AND) {
@@ -1001,7 +1001,7 @@ class QueryBuilder
      */
     public function orHaving($having)
     {
-        $args = func_get_args();
+        $args   = func_get_args();
         $having = $this->getQueryPart('having');
 
         if ($having instanceof CompositeExpression && $having->getType() === CompositeExpression::TYPE_OR) {
@@ -1025,7 +1025,7 @@ class QueryBuilder
      */
     public function orderBy($sort, $order = null)
     {
-        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), false);
+        return $this->add('orderBy', $sort . ' ' . ( ! $order ? 'ASC' : $order), false);
     }
 
     /**
@@ -1038,7 +1038,7 @@ class QueryBuilder
      */
     public function addOrderBy($sort, $order = null)
     {
-        return $this->add('orderBy', $sort . ' ' . (! $order ? 'ASC' : $order), true);
+        return $this->add('orderBy', $sort . ' ' . ( ! $order ? 'ASC' : $order), true);
     }
 
     /**
@@ -1131,16 +1131,16 @@ class QueryBuilder
      */
     private function getFromClauses()
     {
-        $fromClauses = [];
+        $fromClauses  = [];
         $knownAliases = [];
 
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
             if ($from['alias'] === null) {
-                $tableSql = $from['table'];
+                $tableSql       = $from['table'];
                 $tableReference = $from['table'];
             } else {
-                $tableSql = $from['table'] . ' ' . $from['alias'];
+                $tableSql       = $from['table'] . ' ' . $from['alias'];
                 $tableReference = $from['alias'];
             }
 
@@ -1314,7 +1314,7 @@ class QueryBuilder
                 if (array_key_exists($join['joinAlias'], $knownAliases)) {
                     throw QueryException::nonUniqueAlias($join['joinAlias'], array_keys($knownAliases));
                 }
-                $sql .= ' ' . strtoupper($join['joinType'])
+                $sql                             .= ' ' . strtoupper($join['joinType'])
                     . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
                     . ' ON ' . ((string) $join['joinCondition']);
                 $knownAliases[$join['joinAlias']] = true;

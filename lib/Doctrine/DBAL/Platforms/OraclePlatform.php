@@ -86,10 +86,10 @@ class OraclePlatform extends AbstractPlatform
     public function getLocateExpression($str, $substr, $startPos = false)
     {
         if ($startPos == false) {
-            return 'INSTR('.$str.', '.$substr.')';
+            return 'INSTR(' . $str . ', ' . $substr . ')';
         }
 
-        return 'INSTR('.$str.', '.$substr.', '.$startPos.')';
+        return 'INSTR(' . $str . ', ' . $substr . ', ' . $startPos . ')';
     }
 
     /**
@@ -155,7 +155,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDateDiffExpression($date1, $date2)
     {
-        return "TRUNC(TO_NUMBER(SUBSTR((" . $date1 . "-" . $date2 . "), 1, INSTR(" . $date1 . "-" . $date2 .", ' '))))";
+        return "TRUNC(TO_NUMBER(SUBSTR((" . $date1 . "-" . $date2 . "), 1, INSTR(" . $date1 . "-" . $date2 . ", ' '))))";
     }
 
     /**
@@ -163,7 +163,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getBitAndComparisonExpression($value1, $value2)
     {
-        return 'BITAND('.$value1 . ', ' . $value2 . ')';
+        return 'BITAND(' . $value1 . ', ' . $value2 . ')';
     }
 
     /**
@@ -213,9 +213,9 @@ class OraclePlatform extends AbstractPlatform
     {
         if ($sequence->getCache() === 0) {
             return ' NOCACHE';
-        } else if ($sequence->getCache() === 1) {
+        } elseif ($sequence->getCache() === 1) {
             return ' NOCACHE';
-        } else if ($sequence->getCache() > 1) {
+        } elseif ($sequence->getCache() > 1) {
             return ' CACHE ' . $sequence->getCache();
         }
 
@@ -377,7 +377,7 @@ class OraclePlatform extends AbstractPlatform
         $database = $this->normalizeIdentifier($database);
         $database = $this->quoteStringLiteral($database->getName());
 
-        return "SELECT sequence_name, min_value, increment_by FROM sys.all_sequences ".
+        return "SELECT sequence_name, min_value, increment_by FROM sys.all_sequences " .
                "WHERE SEQUENCE_OWNER = " . $database;
     }
 
@@ -386,9 +386,9 @@ class OraclePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($table, array $columns, array $options = [])
     {
-        $indexes = isset($options['indexes']) ? $options['indexes'] : [];
+        $indexes            = isset($options['indexes']) ? $options['indexes'] : [];
         $options['indexes'] = [];
-        $sql = parent::_getCreateTableSQL($table, $columns, $options);
+        $sql                = parent::_getCreateTableSQL($table, $columns, $options);
 
         foreach ($columns as $name => $column) {
             if (isset($column['sequence'])) {
@@ -479,7 +479,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDropViewSQL($name)
     {
-        return 'DROP VIEW '. $name;
+        return 'DROP VIEW ' . $name;
     }
 
     /**
@@ -491,13 +491,13 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getCreateAutoincrementSql($name, $table, $start = 1)
     {
-        $tableIdentifier = $this->normalizeIdentifier($table);
-        $quotedTableName = $tableIdentifier->getQuotedName($this);
+        $tableIdentifier   = $this->normalizeIdentifier($table);
+        $quotedTableName   = $tableIdentifier->getQuotedName($this);
         $unquotedTableName = $tableIdentifier->getName();
 
         $nameIdentifier = $this->normalizeIdentifier($name);
-        $quotedName = $nameIdentifier->getQuotedName($this);
-        $unquotedName = $nameIdentifier->getName();
+        $quotedName     = $nameIdentifier->getQuotedName($this);
+        $unquotedName   = $nameIdentifier->getName();
 
         $sql = [];
 
@@ -510,7 +510,7 @@ class OraclePlatform extends AbstractPlatform
 BEGIN
   SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = \'' . $unquotedTableName . '\' AND CONSTRAINT_TYPE = \'P\';
   IF constraints_Count = 0 OR constraints_Count = \'\' THEN
-    EXECUTE IMMEDIATE \''.$this->getCreateConstraintSQL($idx, $quotedTableName).'\';
+    EXECUTE IMMEDIATE \'' . $this->getCreateConstraintSQL($idx, $quotedTableName) . '\';
   END IF;
 END;';
 
@@ -518,8 +518,8 @@ END;';
             $tableIdentifier->isQuoted() ? $quotedTableName : $unquotedTableName,
             $nameIdentifier->isQuoted() ? $quotedName : $unquotedName
         );
-        $sequence = new Sequence($sequenceName, $start);
-        $sql[] = $this->getCreateSequenceSQL($sequence);
+        $sequence     = new Sequence($sequenceName, $start);
+        $sql[]        = $this->getCreateSequenceSQL($sequence);
 
         $sql[] = 'CREATE TRIGGER ' . $autoincrementIdentifierName . '
    BEFORE INSERT
@@ -530,7 +530,7 @@ DECLARE
    last_InsertID NUMBER;
 BEGIN
    SELECT ' . $sequenceName . '.NEXTVAL INTO :NEW.' . $quotedName . ' FROM DUAL;
-   IF (:NEW.' . $quotedName . ' IS NULL OR :NEW.'.$quotedName.' = 0) THEN
+   IF (:NEW.' . $quotedName . ' IS NULL OR :NEW.' . $quotedName . ' = 0) THEN
       SELECT ' . $sequenceName . '.NEXTVAL INTO :NEW.' . $quotedName . ' FROM DUAL;
    ELSE
       SELECT NVL(Last_Number, 0) INTO last_Sequence
@@ -555,9 +555,9 @@ END;';
      */
     public function getDropAutoincrementSql($table)
     {
-        $table = $this->normalizeIdentifier($table);
+        $table                       = $this->normalizeIdentifier($table);
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($table);
-        $identitySequenceName = $this->getIdentitySequenceName(
+        $identitySequenceName        = $this->getIdentitySequenceName(
             $table->isQuoted() ? $table->getQuotedName($this) : $table->getName(),
             ''
         );
@@ -656,17 +656,17 @@ END;';
         $table = $this->normalizeIdentifier($table);
         $table = $this->quoteStringLiteral($table->getName());
 
-        $tabColumnsTableName = "user_tab_columns";
-        $colCommentsTableName = "user_col_comments";
-        $tabColumnsOwnerCondition = '';
+        $tabColumnsTableName       = "user_tab_columns";
+        $colCommentsTableName      = "user_col_comments";
+        $tabColumnsOwnerCondition  = '';
         $colCommentsOwnerCondition = '';
 
         if (null !== $database && '/' !== $database) {
-            $database = $this->normalizeIdentifier($database);
-            $database = $this->quoteStringLiteral($database->getName());
-            $tabColumnsTableName = "all_tab_columns";
-            $colCommentsTableName = "all_col_comments";
-            $tabColumnsOwnerCondition = "AND c.owner = " . $database;
+            $database                  = $this->normalizeIdentifier($database);
+            $database                  = $this->quoteStringLiteral($database->getName());
+            $tabColumnsTableName       = "all_tab_columns";
+            $colCommentsTableName      = "all_col_comments";
+            $tabColumnsOwnerCondition  = "AND c.owner = " . $database;
             $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
         }
 
@@ -699,16 +699,16 @@ END;';
      */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
-        if (! $foreignKey instanceof ForeignKeyConstraint) {
+        if ( ! $foreignKey instanceof ForeignKeyConstraint) {
             $foreignKey = new Identifier($foreignKey);
         }
 
-        if (! $table instanceof Table) {
+        if ( ! $table instanceof Table) {
             $table = new Identifier($table);
         }
 
         $foreignKey = $foreignKey->getQuotedName($this);
-        $table = $table->getQuotedName($this);
+        $table      = $table->getQuotedName($this);
 
         return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
     }
@@ -764,9 +764,9 @@ END;';
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql = [];
+        $sql         = [];
         $commentsSQL = [];
-        $columnSql = [];
+        $columnSql   = [];
 
         $fields = [];
 
@@ -844,7 +844,7 @@ END;';
             $oldColumnName = new Identifier($oldColumnName);
 
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) .
-                ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) .' TO ' . $column->getQuotedName($this);
+                ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
         }
 
         $fields = [];
@@ -857,7 +857,7 @@ END;';
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' DROP (' . implode(', ', $fields).')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' DROP (' . implode(', ', $fields) . ')';
         }
 
         $tableSql = [];
@@ -901,7 +901,7 @@ END;';
             $check = (isset($field['check']) && $field['check']) ?
                 ' ' . $field['check'] : '';
 
-            $typeDecl = $field['type']->getSQLDeclaration($field, $this);
+            $typeDecl  = $field['type']->getSQLDeclaration($field, $this);
             $columnDef = $typeDecl . $default . $notnull . $unique . $check;
         }
 
@@ -982,7 +982,7 @@ END;';
         }
 
         if (preg_match('/^\s*SELECT/i', $query)) {
-            if (!preg_match('/\sFROM\s/i', $query)) {
+            if ( ! preg_match('/\sFROM\s/i', $query)) {
                 $query .= " FROM dual";
             }
 

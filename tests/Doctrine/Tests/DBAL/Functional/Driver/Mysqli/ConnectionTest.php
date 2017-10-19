@@ -5,13 +5,13 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     protected function setUp()
     {
-        if (!extension_loaded('mysqli')) {
+        if ( ! extension_loaded('mysqli')) {
             $this->markTestSkipped('mysqli is not installed.');
         }
 
         parent::setUp();
 
-        if ( !($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver)) {
+        if ( ! ($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver)) {
             $this->markTestSkipped('MySQLi only test.');
         }
     }

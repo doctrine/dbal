@@ -21,7 +21,7 @@ class DateImmutableTypeTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->type = Type::getType('date_immutable');
+        $this->type     = Type::getType('date_immutable');
         $this->platform = $this->prophesize(AbstractPlatform::class);
     }
 

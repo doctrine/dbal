@@ -21,15 +21,14 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         try {
-            $schema = new \Doctrine\DBAL\Schema\Schema();
+            $schema  = new \Doctrine\DBAL\Schema\Schema();
             $visitor = new \Doctrine\DBAL\Id\TableGeneratorSchemaVisitor();
             $schema->visit($visitor);
 
             foreach ($schema->toSql($platform) as $sql) {
                 $this->_conn->exec($sql);
             }
-
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
         }
         $this->generator = new TableGenerator($this->_conn);
     }
@@ -56,4 +55,3 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
     }
 }
-

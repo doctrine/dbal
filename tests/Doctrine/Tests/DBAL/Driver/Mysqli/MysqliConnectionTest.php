@@ -35,7 +35,9 @@ class MysqliConnectionTest extends DbalTestCase
 
     public function testRestoresErrorHandlerOnException()
     {
-        $handler = function () { self::fail('Never expected this to be called'); };
+        $handler = function () {
+            self::fail('Never expected this to be called');
+        };
         $default_handler = set_error_handler($handler);
 
         try {
@@ -80,4 +82,3 @@ class MysqliConnectionTest extends DbalTestCase
         ];
     }
 }
-

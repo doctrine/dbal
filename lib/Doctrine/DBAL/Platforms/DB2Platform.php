@@ -195,12 +195,12 @@ class DB2Platform extends AbstractPlatform
         switch ($unit) {
             case self::DATE_INTERVAL_UNIT_WEEK:
                 $interval *= 7;
-                $unit = self::DATE_INTERVAL_UNIT_DAY;
+                $unit      = self::DATE_INTERVAL_UNIT_DAY;
                 break;
 
             case self::DATE_INTERVAL_UNIT_QUARTER:
                 $interval *= 3;
-                $unit = self::DATE_INTERVAL_UNIT_MONTH;
+                $unit      = self::DATE_INTERVAL_UNIT_MONTH;
                 break;
         }
 
@@ -390,7 +390,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getCreateViewSQL($name, $sql)
     {
-        return "CREATE VIEW ".$name." AS ".$sql;
+        return "CREATE VIEW " . $name . " AS " . $sql;
     }
 
     /**
@@ -398,7 +398,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getDropViewSQL($name)
     {
-        return "DROP VIEW ".$name;
+        return "DROP VIEW " . $name;
     }
 
     /**
@@ -406,7 +406,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getCreateDatabaseSQL($database)
     {
-        return "CREATE DATABASE ".$database;
+        return "CREATE DATABASE " . $database;
     }
 
     /**
@@ -498,8 +498,8 @@ class DB2Platform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql = [];
-        $columnSql = [];
+        $sql         = [];
+        $columnSql   = [];
         $commentsSQL = [];
 
         $queryParts = [];
@@ -682,7 +682,7 @@ class DB2Platform extends AbstractPlatform
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $sql = [];
+        $sql   = [];
         $table = $diff->getName($this)->getQuotedName($this);
 
         foreach ($diff->removedIndexes as $remKey => $remIndex) {
@@ -802,7 +802,7 @@ class DB2Platform extends AbstractPlatform
             return 'LOCATE(' . $substr . ', ' . $str . ')';
         }
 
-        return 'LOCATE(' . $substr . ', ' . $str . ', '.$startPos.')';
+        return 'LOCATE(' . $substr . ', ' . $str . ', ' . $startPos . ')';
     }
 
     /**

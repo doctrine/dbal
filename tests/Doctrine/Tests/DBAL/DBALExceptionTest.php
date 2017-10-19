@@ -14,7 +14,7 @@ class DBALExceptionTest extends DbalTestCase
     {
         /* @var $driver Driver */
         $driver = $this->createMock(Driver::class);
-        $e = DBALException::driverExceptionDuringQuery($driver, new \Exception, '', array('ABC', chr(128)));
+        $e      = DBALException::driverExceptionDuringQuery($driver, new \Exception, '', array('ABC', chr(128)));
         self::assertContains('with params ["ABC", "\x80"]', $e->getMessage());
     }
 
@@ -22,7 +22,7 @@ class DBALExceptionTest extends DbalTestCase
     {
         /* @var $driver Driver */
         $driver = $this->createMock(Driver::class);
-        $inner = new class extends \Exception implements InnerDriverException
+        $inner  = new class extends \Exception implements InnerDriverException
         {
             /**
              * {@inheritDoc}
@@ -39,13 +39,13 @@ class DBALExceptionTest extends DbalTestCase
             }
         };
         $ex = new DriverException('', $inner);
-        $e = DBALException::driverExceptionDuringQuery($driver, $ex, '');
+        $e  = DBALException::driverExceptionDuringQuery($driver, $ex, '');
         self::assertSame($ex, $e);
     }
 
     public function testDriverRequiredWithUrl()
     {
-        $url = 'mysql://localhost';
+        $url       = 'mysql://localhost';
         $exception = DBALException::driverRequired($url);
 
         self::assertInstanceOf(DBALException::class, $exception);
@@ -62,7 +62,7 @@ class DBALExceptionTest extends DbalTestCase
     /**
      * @group #2821
      */
-    public function testInvalidPlatformTypeObject(): void
+    public function testInvalidPlatformTypeObject() : void
     {
         $exception = DBALException::invalidPlatformType(new \stdClass());
 
@@ -75,7 +75,7 @@ class DBALExceptionTest extends DbalTestCase
     /**
      * @group #2821
      */
-    public function testInvalidPlatformTypeScalar(): void
+    public function testInvalidPlatformTypeScalar() : void
     {
         $exception = DBALException::invalidPlatformType('some string');
 

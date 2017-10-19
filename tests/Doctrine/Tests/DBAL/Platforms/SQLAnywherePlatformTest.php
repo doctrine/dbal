@@ -190,8 +190,8 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $table = new Table('mytable');
         $table->addColumn('foo', 'string', array('comment' => 'foo comment'));
 
-        $tableDiff = new TableDiff('mytable');
-        $tableDiff->fromTable = $table;
+        $tableDiff                        = new TableDiff('mytable');
+        $tableDiff->fromTable             = $table;
         $tableDiff->changedColumns['foo'] = new ColumnDiff(
             'foo',
             new Column('foo', Type::getType('string')),
@@ -211,7 +211,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testAppendsLockHint($lockMode, $lockHint)
     {
-        $fromClause = 'FROM users';
+        $fromClause     = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
 
         self::assertSame($expectedResult, $this->_platform->appendLockHint($fromClause, $lockMode));
@@ -238,8 +238,8 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function testFixesSchemaElementNames()
     {
         $maxIdentifierLength = $this->_platform->getMaxIdentifierLength();
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $schemaElementName = '';
+        $characters          = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $schemaElementName   = '';
 
         for ($i = 0; $i < $maxIdentifierLength + 100; $i++) {
             $schemaElementName .= $characters[mt_rand(0, strlen($characters) - 1)];

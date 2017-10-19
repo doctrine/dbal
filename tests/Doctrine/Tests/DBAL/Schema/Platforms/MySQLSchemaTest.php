@@ -19,7 +19,7 @@ class MySQLSchemaTest extends \PHPUnit\Framework\TestCase
     protected function setUp()
     {
         $this->comparator = new \Doctrine\DBAL\Schema\Comparator;
-        $this->platform = new \Doctrine\DBAL\Platforms\MySqlPlatform;
+        $this->platform   = new \Doctrine\DBAL\Platforms\MySqlPlatform;
     }
 
     public function testSwitchPrimaryKeyOrder()
@@ -33,13 +33,14 @@ class MySQLSchemaTest extends \PHPUnit\Framework\TestCase
         $tableNew->setPrimaryKey(array('bar_id', 'foo_id'));
 
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
-        $sql = $this->platform->getAlterTableSQL($diff);
+        $sql  = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals(
             array(
                 'ALTER TABLE test DROP PRIMARY KEY',
                 'ALTER TABLE test ADD PRIMARY KEY (bar_id, foo_id)'
-            ), $sql
+            ),
+            $sql
         );
     }
 
@@ -73,7 +74,7 @@ class MySQLSchemaTest extends \PHPUnit\Framework\TestCase
         $tableNew->setPrimaryKey(array('id'));
 
         $diff = $this->comparator->diffTable($tableOld, $tableNew);
-        $sql = $this->platform->getAlterTableSQL($diff);
+        $sql  = $this->platform->getAlterTableSQL($diff);
 
         self::assertEquals(
             array('ALTER TABLE test ADD PRIMARY KEY (id)'),

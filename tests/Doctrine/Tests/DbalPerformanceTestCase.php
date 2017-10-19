@@ -4,7 +4,7 @@ namespace Doctrine\Tests;
 
 /**
  * Base class for all DBAL performance tests.
- * 
+ *
  * Tests implemented in this class must call startTiming at the beginning
  * and stopTiming at the end of all tests. Tests that do not start or stop
  * timing will fail.

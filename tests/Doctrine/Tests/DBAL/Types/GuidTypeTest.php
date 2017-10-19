@@ -7,14 +7,13 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class GuidTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    protected $_platform;
+    protected $_type;
 
     protected function setUp()
     {
         $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('guid');
+        $this->_type     = Type::getType('guid');
     }
 
     public function testConvertToPHPValue()

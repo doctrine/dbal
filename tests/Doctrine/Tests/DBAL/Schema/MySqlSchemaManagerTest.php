@@ -16,10 +16,10 @@ class MySqlSchemaManagerTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $eventManager = new EventManager();
-        $driverMock = $this->createMock('Doctrine\DBAL\Driver');
-        $platform = $this->createMock('Doctrine\DBAL\Platforms\MySqlPlatform');
-        $this->conn = $this->getMockBuilder('Doctrine\DBAL\Connection')
+        $eventManager  = new EventManager();
+        $driverMock    = $this->createMock('Doctrine\DBAL\Driver');
+        $platform      = $this->createMock('Doctrine\DBAL\Platforms\MySqlPlatform');
+        $this->conn    = $this->getMockBuilder('Doctrine\DBAL\Connection')
             ->setMethods(array('fetchAll'))
             ->setConstructorArgs(array(array('platform' => $platform), $driverMock, new Configuration(), $eventManager))
             ->getMock();

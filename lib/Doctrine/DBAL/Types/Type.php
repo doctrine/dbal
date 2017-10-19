@@ -33,31 +33,31 @@ use Doctrine\DBAL\DBALException;
  */
 abstract class Type
 {
-    const TARRAY = 'array';
-    const SIMPLE_ARRAY = 'simple_array';
-    const JSON_ARRAY = 'json_array';
-    const JSON = 'json';
-    const BIGINT = 'bigint';
-    const BOOLEAN = 'boolean';
-    const DATETIME = 'datetime';
-    const DATETIME_IMMUTABLE = 'datetime_immutable';
-    const DATETIMETZ = 'datetimetz';
+    const TARRAY               = 'array';
+    const SIMPLE_ARRAY         = 'simple_array';
+    const JSON_ARRAY           = 'json_array';
+    const JSON                 = 'json';
+    const BIGINT               = 'bigint';
+    const BOOLEAN              = 'boolean';
+    const DATETIME             = 'datetime';
+    const DATETIME_IMMUTABLE   = 'datetime_immutable';
+    const DATETIMETZ           = 'datetimetz';
     const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
-    const DATE = 'date';
-    const DATE_IMMUTABLE = 'date_immutable';
-    const TIME = 'time';
-    const TIME_IMMUTABLE = 'time_immutable';
-    const DECIMAL = 'decimal';
-    const INTEGER = 'integer';
-    const OBJECT = 'object';
-    const SMALLINT = 'smallint';
-    const STRING = 'string';
-    const TEXT = 'text';
-    const BINARY = 'binary';
-    const BLOB = 'blob';
-    const FLOAT = 'float';
-    const GUID = 'guid';
-    const DATEINTERVAL = 'dateinterval';
+    const DATE                 = 'date';
+    const DATE_IMMUTABLE       = 'date_immutable';
+    const TIME                 = 'time';
+    const TIME_IMMUTABLE       = 'time_immutable';
+    const DECIMAL              = 'decimal';
+    const INTEGER              = 'integer';
+    const OBJECT               = 'object';
+    const SMALLINT             = 'smallint';
+    const STRING               = 'string';
+    const TEXT                 = 'text';
+    const BINARY               = 'binary';
+    const BLOB                 = 'blob';
+    const FLOAT                = 'float';
+    const GUID                 = 'guid';
+    const DATEINTERVAL         = 'dateinterval';
 
     /**
      * Map of already instantiated type objects. One instance per type (flyweight).

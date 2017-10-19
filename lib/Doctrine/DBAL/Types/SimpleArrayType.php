@@ -44,7 +44,7 @@ class SimpleArrayType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (!$value) {
+        if ( ! $value) {
             return null;
         }
 

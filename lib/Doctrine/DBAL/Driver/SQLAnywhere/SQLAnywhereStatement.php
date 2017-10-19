@@ -132,7 +132,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        if (!sasql_stmt_reset($this->stmt)) {
+        if ( ! sasql_stmt_reset($this->stmt)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
         }
 
@@ -316,7 +316,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         if ( ! is_string($destinationClass)) {
             if ( ! is_object($destinationClass)) {
                 throw new SQLAnywhereException(sprintf(
-                    'Destination class has to be of type string or object, %s given.', gettype($destinationClass)
+                    'Destination class has to be of type string or object, %s given.',
+                    gettype($destinationClass)
                 ));
             }
         } else {

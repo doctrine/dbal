@@ -11,7 +11,7 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         $this->expectException('Doctrine\DBAL\Sharding\ShardingException', 'SQLAzure requires a federation name to be set during sharding configuration.');
 
         $conn = $this->createConnection(array('sharding' => array('distributionKey' => 'abc', 'distributionType' => 'integer')));
-        $sm = new SQLAzureShardManager($conn);
+        $sm   = new SQLAzureShardManager($conn);
     }
 
     public function testNoDistributionKey()
@@ -19,7 +19,7 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         $this->expectException('Doctrine\DBAL\Sharding\ShardingException', 'SQLAzure requires a distribution key to be set during sharding configuration.');
 
         $conn = $this->createConnection(array('sharding' => array('federationName' => 'abc', 'distributionType' => 'integer')));
-        $sm = new SQLAzureShardManager($conn);
+        $sm   = new SQLAzureShardManager($conn);
     }
 
     public function testNoDistributionType()
@@ -27,7 +27,7 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         $this->expectException('Doctrine\DBAL\Sharding\ShardingException');
 
         $conn = $this->createConnection(array('sharding' => array('federationName' => 'abc', 'distributionKey' => 'foo')));
-        $sm = new SQLAzureShardManager($conn);
+        $sm   = new SQLAzureShardManager($conn);
     }
 
     public function testGetDefaultDistributionValue()
@@ -93,4 +93,3 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         return $conn;
     }
 }
-

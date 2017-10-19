@@ -63,7 +63,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
         foreach ($tableIndexes as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
@@ -120,14 +120,14 @@ class MySqlSchemaManager extends AbstractSchemaManager
             $tableColumn['name'] = '';
         }
 
-        $scale = null;
+        $scale     = null;
         $precision = null;
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
 
         // In cases where not connected to a database DESCRIBE $table does not return 'Comment'
         if (isset($tableColumn['comment'])) {
-            $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+            $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
             $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
         }
 
@@ -143,8 +143,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'decimal':
                 if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['type'], $match)) {
                     $precision = $match[1];
-                    $scale = $match[2];
-                    $length = null;
+                    $scale     = $match[2];
+                    $length    = null;
                 }
                 break;
             case 'tinytext':
@@ -193,7 +193,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         ];
 
         if ($scale !== null && $precision !== null) {
-            $options['scale'] = $scale;
+            $options['scale']     = $scale;
             $options['precision'] = $precision;
         }
 
@@ -214,11 +214,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            if (!isset($list[$value['constraint_name']])) {
-                if (!isset($value['delete_rule']) || $value['delete_rule'] == "RESTRICT") {
+            if ( ! isset($list[$value['constraint_name']])) {
+                if ( ! isset($value['delete_rule']) || $value['delete_rule'] == "RESTRICT") {
                     $value['delete_rule'] = null;
                 }
-                if (!isset($value['update_rule']) || $value['update_rule'] == "RESTRICT") {
+                if ( ! isset($value['update_rule']) || $value['update_rule'] == "RESTRICT") {
                     $value['update_rule'] = null;
                 }
 
@@ -231,15 +231,17 @@ class MySqlSchemaManager extends AbstractSchemaManager
                     'onUpdate' => $value['update_rule'],
                 ];
             }
-            $list[$value['constraint_name']]['local'][] = $value['column_name'];
+            $list[$value['constraint_name']]['local'][]   = $value['column_name'];
             $list[$value['constraint_name']]['foreign'][] = $value['referenced_column_name'];
         }
 
         $result = [];
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']), $constraint['foreignTable'],
-                array_values($constraint['foreign']), $constraint['name'],
+                array_values($constraint['local']),
+                $constraint['foreignTable'],
+                array_values($constraint['foreign']),
+                $constraint['name'],
                 [
                     'onDelete' => $constraint['onDelete'],
                     'onUpdate' => $constraint['onUpdate'],

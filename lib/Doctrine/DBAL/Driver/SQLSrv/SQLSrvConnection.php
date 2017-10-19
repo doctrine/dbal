@@ -91,7 +91,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function query()
     {
         $args = func_get_args();
-        $sql = $args[0];
+        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
@@ -102,7 +102,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      * {@inheritDoc}
      * @license New BSD, code from Zend Framework
      */
-    public function quote($value, $type=\PDO::PARAM_STR)
+    public function quote($value, $type = \PDO::PARAM_STR)
     {
         if (is_int($value)) {
             return $value;

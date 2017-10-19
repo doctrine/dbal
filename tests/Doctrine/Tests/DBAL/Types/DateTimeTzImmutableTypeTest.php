@@ -21,7 +21,7 @@ class DateTimeTzImmutableTypeTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->type = Type::getType('datetimetz_immutable');
+        $this->type     = Type::getType('datetimetz_immutable');
         $this->platform = $this->prophesize(AbstractPlatform::class);
     }
 

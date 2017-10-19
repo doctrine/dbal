@@ -36,7 +36,7 @@ interface SchemaSynchronizer
      *
      * @return array
      */
-    function getCreateSchema(Schema $createSchema);
+    public function getCreateSchema(Schema $createSchema);
 
     /**
      * Gets the SQL Statements to update given schema with the underlying db.
@@ -46,7 +46,7 @@ interface SchemaSynchronizer
      *
      * @return array
      */
-    function getUpdateSchema(Schema $toSchema, $noDrops = false);
+    public function getUpdateSchema(Schema $toSchema, $noDrops = false);
 
     /**
      * Gets the SQL Statements to drop the given schema from underlying db.
@@ -55,14 +55,14 @@ interface SchemaSynchronizer
      *
      * @return array
      */
-    function getDropSchema(Schema $dropSchema);
+    public function getDropSchema(Schema $dropSchema);
 
     /**
      * Gets the SQL statements to drop all schema assets from underlying db.
      *
      * @return array
      */
-    function getDropAllSchema();
+    public function getDropAllSchema();
 
     /**
      * Creates the Schema.
@@ -71,7 +71,7 @@ interface SchemaSynchronizer
      *
      * @return void
      */
-    function createSchema(Schema $createSchema);
+    public function createSchema(Schema $createSchema);
 
     /**
      * Updates the Schema to new schema version.
@@ -81,7 +81,7 @@ interface SchemaSynchronizer
      *
      * @return void
      */
-    function updateSchema(Schema $toSchema, $noDrops = false);
+    public function updateSchema(Schema $toSchema, $noDrops = false);
 
     /**
      * Drops the given database schema from the underlying db.
@@ -90,12 +90,12 @@ interface SchemaSynchronizer
      *
      * @return void
      */
-    function dropSchema(Schema $dropSchema);
+    public function dropSchema(Schema $dropSchema);
 
     /**
      * Drops all assets from the underlying db.
      *
      * @return void
      */
-    function dropAllSchema();
+    public function dropAllSchema();
 }

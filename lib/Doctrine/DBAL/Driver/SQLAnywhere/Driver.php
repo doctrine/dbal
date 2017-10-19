@@ -84,7 +84,7 @@ class Driver extends AbstractSQLAnywhereDriver
         $host = $host ?: 'localhost';
         $port = $port ?: 2638;
 
-        if (! empty($server)) {
+        if ( ! empty($server)) {
             $server = ';ServerName=' . $server;
         }
 

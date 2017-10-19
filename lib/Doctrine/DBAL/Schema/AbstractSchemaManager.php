@@ -88,7 +88,7 @@ abstract class AbstractSchemaManager
      */
     public function tryMethod()
     {
-        $args = func_get_args();
+        $args   = func_get_args();
         $method = $args[0];
         unset($args[0]);
         $args = array_values($args);
@@ -216,7 +216,7 @@ abstract class AbstractSchemaManager
     {
         $sql = $this->_platform->getListTablesSQL();
 
-        $tables = $this->_conn->fetchAll($sql);
+        $tables     = $this->_conn->fetchAll($sql);
         $tableNames = $this->_getPortableTablesList($tables);
 
         return $this->filterAssetNames($tableNames);
@@ -278,7 +278,7 @@ abstract class AbstractSchemaManager
      */
     public function listTableDetails($tableName)
     {
-        $columns = $this->listTableColumns($tableName);
+        $columns     = $this->listTableColumns($tableName);
         $foreignKeys = [];
         if ($this->_platform->supportsForeignKeyConstraints()) {
             $foreignKeys = $this->listTableForeignKeys($tableName);
@@ -296,8 +296,8 @@ abstract class AbstractSchemaManager
     public function listViews()
     {
         $database = $this->_conn->getDatabase();
-        $sql = $this->_platform->getListViewsSQL($database);
-        $views = $this->_conn->fetchAll($sql);
+        $sql      = $this->_platform->getListViewsSQL($database);
+        $views    = $this->_conn->fetchAll($sql);
 
         return $this->_getPortableViewsList($views);
     }
@@ -315,7 +315,7 @@ abstract class AbstractSchemaManager
         if (is_null($database)) {
             $database = $this->_conn->getDatabase();
         }
-        $sql = $this->_platform->getListTableForeignKeysSQL($table, $database);
+        $sql              = $this->_platform->getListTableForeignKeysSQL($table, $database);
         $tableForeignKeys = $this->_conn->fetchAll($sql);
 
         return $this->_getPortableTableForeignKeysList($tableForeignKeys);
@@ -638,7 +638,7 @@ abstract class AbstractSchemaManager
      */
     public function renameTable($name, $newName)
     {
-        $tableDiff = new TableDiff($name);
+        $tableDiff          = new TableDiff($name);
         $tableDiff->newName = $newName;
         $this->alterTable($tableDiff);
     }
@@ -805,7 +805,7 @@ abstract class AbstractSchemaManager
 
         $list = [];
         foreach ($tableColumns as $tableColumn) {
-            $column = null;
+            $column           = null;
             $defaultPrevented = false;
 
             if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaColumnDefinition)) {
@@ -813,7 +813,7 @@ abstract class AbstractSchemaManager
                 $eventManager->dispatchEvent(Events::onSchemaColumnDefinition, $eventArgs);
 
                 $defaultPrevented = $eventArgs->isDefaultPrevented();
-                $column = $eventArgs->getColumn();
+                $column           = $eventArgs->getColumn();
             }
 
             if ( ! $defaultPrevented) {
@@ -821,7 +821,7 @@ abstract class AbstractSchemaManager
             }
 
             if ($column) {
-                $name = strtolower($column->getQuotedName($this->_platform));
+                $name        = strtolower($column->getQuotedName($this->_platform));
                 $list[$name] = $column;
             }
         }
@@ -846,7 +846,7 @@ abstract class AbstractSchemaManager
      *
      * @return array
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
+    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
         $result = [];
         foreach ($tableIndexRows as $tableIndex) {
@@ -856,7 +856,7 @@ abstract class AbstractSchemaManager
             }
             $keyName = strtolower($keyName);
 
-            if (!isset($result[$keyName])) {
+            if ( ! isset($result[$keyName])) {
                 $result[$keyName] = [
                     'name' => $indexName,
                     'columns' => [$tableIndex['column_name']],
@@ -874,7 +874,7 @@ abstract class AbstractSchemaManager
 
         $indexes = [];
         foreach ($result as $indexKey => $data) {
-            $index = null;
+            $index            = null;
             $defaultPrevented = false;
 
             if (null !== $eventManager && $eventManager->hasListeners(Events::onSchemaIndexDefinition)) {
@@ -882,7 +882,7 @@ abstract class AbstractSchemaManager
                 $eventManager->dispatchEvent(Events::onSchemaIndexDefinition, $eventArgs);
 
                 $defaultPrevented = $eventArgs->isDefaultPrevented();
-                $index = $eventArgs->getIndex();
+                $index            = $eventArgs->getIndex();
             }
 
             if ( ! $defaultPrevented) {
@@ -961,7 +961,7 @@ abstract class AbstractSchemaManager
         $list = [];
         foreach ($views as $value) {
             if ($view = $this->_getPortableViewDefinition($value)) {
-                $viewName = strtolower($view->getQuotedName($this->_platform));
+                $viewName        = strtolower($view->getQuotedName($this->_platform));
                 $list[$viewName] = $view;
             }
         }
@@ -1108,6 +1108,6 @@ abstract class AbstractSchemaManager
      */
     public function removeDoctrineTypeFromComment($comment, $type)
     {
-        return str_replace('(DC2Type:'.$type.')', '', $comment);
+        return str_replace('(DC2Type:' . $type . ')', '', $comment);
     }
 }

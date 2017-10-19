@@ -17,14 +17,15 @@ class SQLServer2008PlatformTest extends AbstractSQLServerPlatformTestCase
         self::assertEquals(
             'DATETIMEOFFSET(6)',
             $this->_platform->getDateTimeTzTypeDeclarationSQL(
-                array())
+                array()
+            )
         );
     }
 
     public function testGetDefaultValueDeclarationSQLForDateType() : void
     {
         $currentDateSql = $this->_platform->getCurrentDateSQL();
-        $field = [
+        $field          = [
             'type'    => Type::getType('date'),
             'default' => $currentDateSql,
         ];

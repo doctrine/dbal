@@ -21,16 +21,16 @@ namespace Doctrine\DBAL\Schema;
 
 class SchemaException extends \Doctrine\DBAL\DBALException
 {
-    const TABLE_DOESNT_EXIST = 10;
-    const TABLE_ALREADY_EXISTS = 20;
-    const COLUMN_DOESNT_EXIST = 30;
-    const COLUMN_ALREADY_EXISTS = 40;
-    const INDEX_DOESNT_EXIST = 50;
-    const INDEX_ALREADY_EXISTS = 60;
-    const SEQUENCE_DOENST_EXIST = 70;
-    const SEQUENCE_ALREADY_EXISTS = 80;
-    const INDEX_INVALID_NAME = 90;
-    const FOREIGNKEY_DOESNT_EXIST = 100;
+    const TABLE_DOESNT_EXIST       = 10;
+    const TABLE_ALREADY_EXISTS     = 20;
+    const COLUMN_DOESNT_EXIST      = 30;
+    const COLUMN_ALREADY_EXISTS    = 40;
+    const INDEX_DOESNT_EXIST       = 50;
+    const INDEX_ALREADY_EXISTS     = 60;
+    const SEQUENCE_DOENST_EXIST    = 70;
+    const SEQUENCE_ALREADY_EXISTS  = 80;
+    const INDEX_INVALID_NAME       = 90;
+    const FOREIGNKEY_DOESNT_EXIST  = 100;
     const NAMESPACE_ALREADY_EXISTS = 110;
 
     /**
@@ -40,7 +40,7 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      */
     public static function tableDoesNotExist($tableName)
     {
-        return new self("There is no table with name '".$tableName."' in the schema.", self::TABLE_DOESNT_EXIST);
+        return new self("There is no table with name '" . $tableName . "' in the schema.", self::TABLE_DOESNT_EXIST);
     }
 
     /**
@@ -106,7 +106,7 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      */
     public static function tableAlreadyExists($tableName)
     {
-        return new self("The table with name '".$tableName."' already exists.", self::TABLE_ALREADY_EXISTS);
+        return new self("The table with name '" . $tableName . "' already exists.", self::TABLE_ALREADY_EXISTS);
     }
 
     /**
@@ -118,7 +118,8 @@ class SchemaException extends \Doctrine\DBAL\DBALException
     public static function columnAlreadyExists($tableName, $columnName)
     {
         return new self(
-            "The column '".$columnName."' on table '".$tableName."' already exists.", self::COLUMN_ALREADY_EXISTS
+            "The column '" . $columnName . "' on table '" . $tableName . "' already exists.",
+            self::COLUMN_ALREADY_EXISTS
         );
     }
 
@@ -129,7 +130,7 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      */
     public static function sequenceAlreadyExists($sequenceName)
     {
-        return new self("The sequence '".$sequenceName."' already exists.", self::SEQUENCE_ALREADY_EXISTS);
+        return new self("The sequence '" . $sequenceName . "' already exists.", self::SEQUENCE_ALREADY_EXISTS);
     }
 
     /**
@@ -139,7 +140,7 @@ class SchemaException extends \Doctrine\DBAL\DBALException
      */
     public static function sequenceDoesNotExist($sequenceName)
     {
-        return new self("There exists no sequence with the name '".$sequenceName."'.", self::SEQUENCE_DOENST_EXIST);
+        return new self("There exists no sequence with the name '" . $sequenceName . "'.", self::SEQUENCE_DOENST_EXIST);
     }
 
     /**
@@ -162,9 +163,9 @@ class SchemaException extends \Doctrine\DBAL\DBALException
     public static function namedForeignKeyRequired(Table $localTable, ForeignKeyConstraint $foreignKey)
     {
         return new self(
-            "The performed schema operation on ".$localTable->getName()." requires a named foreign key, ".
-            "but the given foreign key from (".implode(", ", $foreignKey->getColumns()).") onto foreign table ".
-            "'".$foreignKey->getForeignTableName()."' (".implode(", ", $foreignKey->getForeignColumns()).") is currently ".
+            "The performed schema operation on " . $localTable->getName() . " requires a named foreign key, " .
+            "but the given foreign key from (" . implode(", ", $foreignKey->getColumns()) . ") onto foreign table " .
+            "'" . $foreignKey->getForeignTableName() . "' (" . implode(", ", $foreignKey->getForeignColumns()) . ") is currently " .
             "unnamed."
         );
     }

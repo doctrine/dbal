@@ -16,7 +16,7 @@ class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
         $conn->expects($this->any())->method('getDatabasePlatform')->will($this->returnValue(new SqlitePlatform()));
 
         $manager = new SqliteSchemaManager($conn);
-        $ref = new \ReflectionMethod($manager, 'parseColumnCollationFromSQL');
+        $ref     = new \ReflectionMethod($manager, 'parseColumnCollationFromSQL');
         $ref->setAccessible(true);
 
         self::assertEquals($collation, $ref->invoke($manager, $column, $sql));

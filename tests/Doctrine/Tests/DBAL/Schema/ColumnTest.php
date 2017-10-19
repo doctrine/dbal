@@ -85,7 +85,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
         $string = Type::getType('string');
         $column = new Column("`bar`", $string, array());
 
-        $mysqlPlatform = new \Doctrine\DBAL\Platforms\MySqlPlatform();
+        $mysqlPlatform  = new \Doctrine\DBAL\Platforms\MySqlPlatform();
         $sqlitePlatform = new \Doctrine\DBAL\Platforms\SqlitePlatform();
 
         self::assertEquals('bar', $column->getName());
@@ -106,7 +106,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
      */
     public function testIsQuoted($columnName, $isQuoted)
     {
-        $type = Type::getType('string');
+        $type   = Type::getType('string');
         $column = new Column($columnName, $type);
 
         self::assertSame($isQuoted, $column->isQuoted());

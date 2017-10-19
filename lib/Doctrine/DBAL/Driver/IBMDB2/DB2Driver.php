@@ -44,8 +44,8 @@ class DB2Driver extends AbstractDB2Driver
                      ';DATABASE=' . $params['dbname'] .
                      ';HOSTNAME=' . $params['host'] .
                      ';PROTOCOL=' . $params['protocol'] .
-                     ';UID='      . $username .
-                     ';PWD='      . $password .';';
+                     ';UID=' . $username .
+                     ';PWD=' . $password . ';';
             if (isset($params['port'])) {
                 $params['dbname'] .= 'PORT=' . $params['port'];
             }

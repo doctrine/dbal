@@ -8,7 +8,7 @@ use PDO;
 
 class QueryCacheProfileTest extends DbalTestCase
 {
-    const LIFETIME = 3600;
+    const LIFETIME  = 3600;
     const CACHE_KEY = 'user_specified_cache_key';
 
     /** @var QueryCacheProfile */

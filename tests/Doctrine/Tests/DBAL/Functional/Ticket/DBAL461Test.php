@@ -12,7 +12,7 @@ class DBAL461Test extends \PHPUnit\Framework\TestCase
 {
     public function testIssue()
     {
-        $conn = $this->createMock('Doctrine\DBAL\Connection');
+        $conn     = $this->createMock('Doctrine\DBAL\Connection');
         $platform = $this->getMockForAbstractClass('Doctrine\DBAL\Platforms\AbstractPlatform');
         $platform->registerDoctrineTypeMapping('numeric', 'decimal');
 

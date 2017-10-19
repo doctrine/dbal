@@ -53,39 +53,39 @@ class DbalFunctionalTestCase extends DbalTestCase
             throw $t;
         }
 
-        if(isset($this->_sqlLoggerStack->queries) && count($this->_sqlLoggerStack->queries)) {
+        if (isset($this->_sqlLoggerStack->queries) && count($this->_sqlLoggerStack->queries)) {
             $queries = "";
-            $i = count($this->_sqlLoggerStack->queries);
+            $i       = count($this->_sqlLoggerStack->queries);
             foreach (array_reverse($this->_sqlLoggerStack->queries) as $query) {
-                $params = array_map(function($p) {
+                $params = array_map(function ($p) {
                     if (is_object($p)) {
                         return get_class($p);
                     } elseif (is_scalar($p)) {
-                        return "'".$p."'";
+                        return "'" . $p . "'";
                     } else {
                         return var_export($p, true);
                     }
                 }, $query['params'] ?: array());
-                $queries .= $i.". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
+                $queries .= $i . ". SQL: '" . $query['sql'] . "' Params: " . implode(", ", $params) . PHP_EOL;
                 $i--;
             }
 
-            $trace = $t->getTrace();
+            $trace    = $t->getTrace();
             $traceMsg = "";
-            foreach($trace as $part) {
-                if(isset($part['file'])) {
-                    if(strpos($part['file'], "PHPUnit/") !== false) {
+            foreach ($trace as $part) {
+                if (isset($part['file'])) {
+                    if (strpos($part['file'], "PHPUnit/") !== false) {
                         // Beginning with PHPUnit files we don't print the trace anymore.
                         break;
                     }
 
-                    $traceMsg .= $part['file'].":".$part['line'].PHP_EOL;
+                    $traceMsg .= $part['file'] . ":" . $part['line'] . PHP_EOL;
                 }
             }
 
-            $message = "[".get_class($t)."] ".$t->getMessage().PHP_EOL.PHP_EOL."With queries:".PHP_EOL.$queries.PHP_EOL."Trace:".PHP_EOL.$traceMsg;
+            $message = "[" . get_class($t) . "] " . $t->getMessage() . PHP_EOL . PHP_EOL . "With queries:" . PHP_EOL . $queries . PHP_EOL . "Trace:" . PHP_EOL . $traceMsg;
 
-            throw new \Exception($message, (int)$t->getCode(), $t);
+            throw new \Exception($message, (int) $t->getCode(), $t);
         }
         throw $t;
     }

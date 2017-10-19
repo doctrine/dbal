@@ -31,7 +31,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
      */
     public function testConnectsWithValidCharsetOption($charset)
     {
-        $params = $this->_conn->getParams();
+        $params            = $this->_conn->getParams();
         $params['charset'] = $charset;
 
         $connection = DriverManager::getConnection(

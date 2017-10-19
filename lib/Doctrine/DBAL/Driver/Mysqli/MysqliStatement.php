@@ -104,7 +104,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
 
         $paramCount = $this->_stmt->param_count;
         if (0 < $paramCount) {
-            $this->types = str_repeat('s', $paramCount);
+            $this->types         = str_repeat('s', $paramCount);
             $this->_bindedValues = array_fill(1, $paramCount, null);
         }
     }
@@ -125,7 +125,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         }
 
         $this->_bindedValues[$column] =& $variable;
-        $this->types[$column - 1] = $type;
+        $this->types[$column - 1]     = $type;
 
         return true;
     }
@@ -145,9 +145,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
             }
         }
 
-        $this->_values[$param] = $value;
+        $this->_values[$param]       = $value;
         $this->_bindedValues[$param] =& $this->_values[$param];
-        $this->types[$param - 1] = $type;
+        $this->types[$param - 1]     = $type;
 
         return true;
     }
@@ -163,7 +163,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
                     throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             } else {
-                if (!call_user_func_array([$this->_stmt, 'bind_param'], [$this->types] + $this->_bindedValues)) {
+                if ( ! call_user_func_array([$this->_stmt, 'bind_param'], [$this->types] + $this->_bindedValues)) {
                     throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
                 }
             }
@@ -212,7 +212,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 $refs[$key] =& $value;
             }
 
-            if (!call_user_func_array([$this->_stmt, 'bind_result'], $refs)) {
+            if ( ! call_user_func_array([$this->_stmt, 'bind_result'], $refs)) {
                 throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
             }
         }
@@ -231,8 +231,8 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     private function _bindValues($values)
     {
-        $params = [];
-        $types = str_repeat('s', count($values));
+        $params    = [];
+        $types     = str_repeat('s', count($values));
         $params[0] = $types;
 
         foreach ($values as &$v) {
@@ -268,7 +268,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
-        if (!$this->result) {
+        if ( ! $this->result) {
             return false;
         }
 
@@ -291,14 +291,14 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 return array_combine($this->_columnNames, $values);
 
             case PDO::FETCH_BOTH:
-                $ret = array_combine($this->_columnNames, $values);
+                $ret  = array_combine($this->_columnNames, $values);
                 $ret += $values;
 
                 return $ret;
 
             case PDO::FETCH_OBJ:
                 $assoc = array_combine($this->_columnNames, $values);
-                $ret = new \stdClass();
+                $ret   = new \stdClass();
 
                 foreach ($assoc as $column => $value) {
                     $ret->$column = $value;

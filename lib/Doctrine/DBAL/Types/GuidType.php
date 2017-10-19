@@ -50,6 +50,6 @@ class GuidType extends StringType
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {
-        return !$platform->hasNativeGuidType();
+        return ! $platform->hasNativeGuidType();
     }
 }

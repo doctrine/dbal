@@ -5,7 +5,7 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
-class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
+class DateIntervalTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
      * @var MockPlatform
@@ -33,7 +33,7 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
         $interval = new \DateInterval('P2Y1DT1H2M3S');
 
         $expected = 'P02Y00M01DT01H02M03S';
-        $actual = $this->type->convertToDatabaseValue($interval, $this->platform);
+        $actual   = $this->type->convertToDatabaseValue($interval, $this->platform);
 
         self::assertEquals($expected, $actual);
     }

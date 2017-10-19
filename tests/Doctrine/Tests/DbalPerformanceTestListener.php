@@ -17,12 +17,11 @@ class DbalPerformanceTestListener extends \PHPUnit\Framework\BaseTestListener
     public function endTest(\PHPUnit\Framework\Test $test, $time)
     {
         // This listener only applies to performance tests.
-        if ($test instanceof \Doctrine\Tests\DbalPerformanceTestCase)
-        {
+        if ($test instanceof \Doctrine\Tests\DbalPerformanceTestCase) {
             // we identify perf tests by class, method, and dataset
             $class = str_replace('Doctrine\Tests\DBAL\Performance\\', '', get_class($test));
 
-            if (!isset($this->timings[$class])) {
+            if ( ! isset($this->timings[$class])) {
                 $this->timings[$class] = [];
             }
 
@@ -39,13 +38,13 @@ class DbalPerformanceTestListener extends \PHPUnit\Framework\BaseTestListener
      */
     public function __destruct()
     {
-        if (!empty($this->timings)) {
+        if ( ! empty($this->timings)) {
             // Report timings.
             print("\nPerformance test results:\n\n");
 
-            foreach($this->timings as $class => $tests) {
+            foreach ($this->timings as $class => $tests) {
                 printf("%s:\n", $class);
-                foreach($tests as $test => $time) {
+                foreach ($tests as $test => $time) {
                     printf("\t%s: %.3f seconds\n", $test, $time);
                 }
             }

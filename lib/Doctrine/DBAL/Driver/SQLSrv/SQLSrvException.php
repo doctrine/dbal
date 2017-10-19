@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
-
 use Doctrine\DBAL\Driver\AbstractDriverException;
 
 class SQLSrvException extends AbstractDriverException
@@ -31,13 +30,13 @@ class SQLSrvException extends AbstractDriverException
      */
     public static function fromSqlSrvErrors()
     {
-        $errors = sqlsrv_errors(SQLSRV_ERR_ERRORS);
-        $message = "";
-        $sqlState = null;
+        $errors    = sqlsrv_errors(SQLSRV_ERR_ERRORS);
+        $message   = "";
+        $sqlState  = null;
         $errorCode = null;
 
         foreach ($errors as $error) {
-            $message .= "SQLSTATE [".$error['SQLSTATE'].", ".$error['code']."]: ". $error['message']."\n";
+            $message .= "SQLSTATE [" . $error['SQLSTATE'] . ", " . $error['code'] . "]: " . $error['message'] . "\n";
 
             if (null === $sqlState) {
                 $sqlState = $error['SQLSTATE'];

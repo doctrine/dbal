@@ -10,7 +10,7 @@ class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
         $schema = $this->createShopSchema();
 
         $synchronizer = new SQLAzureFederationsSynchronizer($this->conn, $this->sm);
-        $sql = $synchronizer->getCreateSchema($schema);
+        $sql          = $synchronizer->getCreateSchema($schema);
 
         self::assertEquals(array (
             "--Create Federation\nCREATE FEDERATION Orders_Federation (CustID INT  RANGE)",
@@ -46,4 +46,3 @@ class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
         self::assertEQuals(5, count($sql));
     }
 }
-

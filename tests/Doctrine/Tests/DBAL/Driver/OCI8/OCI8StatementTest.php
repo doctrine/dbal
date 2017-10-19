@@ -10,7 +10,7 @@ class OCI8StatementTest extends DbalTestCase
 {
     protected function setUp()
     {
-        if (!extension_loaded('oci8')) {
+        if ( ! extension_loaded('oci8')) {
             $this->markTestSkipped('oci8 is not installed.');
         }
 
@@ -53,7 +53,7 @@ class OCI8StatementTest extends DbalTestCase
             ->with(
                 $this->equalTo(3),
                 $this->equalTo($params[2])
-          );
+            );
 
         // can't pass to constructor since we don't have a real database handle,
         // but execute must check the connection for the executeMode

@@ -68,7 +68,7 @@ class TimeImmutableType extends TimeType
 
         $dateTime = \DateTimeImmutable::createFromFormat('!' . $platform->getTimeFormatString(), $value);
 
-        if (! $dateTime) {
+        if ( ! $dateTime) {
             throw ConversionException::conversionFailedFormat(
                 $value,
                 $this->getName(),

@@ -33,7 +33,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testPrepareWithBindValue()
     {
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql  = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
         self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
@@ -51,7 +51,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $paramInt = 1;
         $paramStr = 'foo';
 
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql  = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
         self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
@@ -69,7 +69,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $paramInt = 1;
         $paramStr = 'foo';
 
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql  = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
         self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
@@ -77,7 +77,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->bindParam(2, $paramStr);
         $stmt->execute();
 
-        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $rows    = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $rows[0] = array_change_key_case($rows[0], \CASE_LOWER);
         self::assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $rows[0]);
     }
@@ -90,7 +90,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $paramInt = 1;
         $paramStr = 'foo';
 
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql  = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
         self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
@@ -98,7 +98,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->bindParam(2, $paramStr);
         $stmt->execute();
 
-        $rows = $stmt->fetchAll(\PDO::FETCH_BOTH);
+        $rows    = $stmt->fetchAll(\PDO::FETCH_BOTH);
         $rows[0] = array_change_key_case($rows[0], \CASE_LOWER);
         self::assertEquals(array('test_int' => 1, 'test_string' => 'foo', 0 => 1, 1 => 'foo'), $rows[0]);
     }
@@ -108,7 +108,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $paramInt = 1;
         $paramStr = 'foo';
 
-        $sql = "SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql  = "SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
         self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
@@ -125,7 +125,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $paramInt = 1;
         $paramStr = 'foo';
 
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql  = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
         self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
@@ -144,11 +144,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testPrepareWithQuoted()
     {
-        $table = 'fetch_table';
+        $table    = 'fetch_table';
         $paramInt = 1;
         $paramStr = 'foo';
 
-        $sql = "SELECT test_int, test_string FROM " . $this->_conn->quoteIdentifier($table) . " ".
+        $sql  = "SELECT test_int, test_string FROM " . $this->_conn->quoteIdentifier($table) . " " .
                "WHERE test_int = " . $this->_conn->quote($paramInt) . " AND test_string = " . $this->_conn->quote($paramStr);
         $stmt = $this->_conn->prepare($sql);
         self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
@@ -159,7 +159,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $paramInt = 1;
         $paramStr = 'foo';
 
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql  = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
         self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
         $stmt->execute(array($paramInt, $paramStr));
@@ -172,7 +172,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testFetchAll()
     {
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql  = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $data = $this->_conn->fetchAll($sql, array(1, 'foo'));
 
         self::assertEquals(1, count($data));
@@ -191,9 +191,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchAllWithTypes()
     {
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $data = $this->_conn->fetchAll($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
+        $datetime       = new \DateTime($datetimeString);
+        $sql            = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $data           = $this->_conn->fetchAll($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
 
         self::assertEquals(1, count($data));
 
@@ -217,9 +217,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $data = $this->_conn->fetchAll($sql, array(1, $datetime));
+        $datetime       = new \DateTime($datetimeString);
+        $sql            = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $data           = $this->_conn->fetchAll($sql, array(1, $datetime));
     }
 
     public function testFetchBoth()
@@ -260,9 +260,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchAssocWithTypes()
     {
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchAssoc($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
+        $datetime       = new \DateTime($datetimeString);
+        $sql            = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $row            = $this->_conn->fetchAssoc($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
 
         self::assertTrue($row !== false);
 
@@ -283,9 +283,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchAssoc($sql, array(1, $datetime));
+        $datetime       = new \DateTime($datetimeString);
+        $sql            = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $row            = $this->_conn->fetchAssoc($sql, array(1, $datetime));
     }
 
     public function testFetchArray()
@@ -300,9 +300,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchArrayWithTypes()
     {
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchArray($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
+        $datetime       = new \DateTime($datetimeString);
+        $sql            = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $row            = $this->_conn->fetchArray($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
 
         self::assertTrue($row !== false);
 
@@ -323,19 +323,19 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchArray($sql, array(1, $datetime));
+        $datetime       = new \DateTime($datetimeString);
+        $sql            = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $row            = $this->_conn->fetchArray($sql, array(1, $datetime));
     }
 
     public function testFetchColumn()
     {
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql     = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $testInt = $this->_conn->fetchColumn($sql, array(1, 'foo'), 0);
 
         self::assertEquals(1, $testInt);
 
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql        = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $testString = $this->_conn->fetchColumn($sql, array(1, 'foo'), 1);
 
         self::assertEquals('foo', $testString);
@@ -344,9 +344,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testFetchColumnWithTypes()
     {
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $column = $this->_conn->fetchColumn($sql, array(1, $datetime), 1, array(PDO::PARAM_STR, Type::DATETIME));
+        $datetime       = new \DateTime($datetimeString);
+        $sql            = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $column         = $this->_conn->fetchColumn($sql, array(1, $datetime), 1, array(PDO::PARAM_STR, Type::DATETIME));
 
         self::assertTrue($column !== false);
 
@@ -364,9 +364,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $datetimeString = '2010-01-01 10:10:10';
-        $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $column = $this->_conn->fetchColumn($sql, array(1, $datetime), 1);
+        $datetime       = new \DateTime($datetimeString);
+        $sql            = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
+        $column         = $this->_conn->fetchColumn($sql, array(1, $datetime), 1);
     }
 
     /**
@@ -374,8 +374,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testExecuteQueryBindDateTimeType()
     {
-        $sql = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
-        $stmt = $this->_conn->executeQuery($sql,
+        $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
+        $stmt = $this->_conn->executeQuery(
+            $sql,
             array(1 => new \DateTime('2010-01-01 10:10:10')),
             array(1 => Type::DATETIME)
         );
@@ -390,8 +391,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $datetime = new \DateTime('2010-02-02 20:20:20');
 
-        $sql = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
-        $affectedRows = $this->_conn->executeUpdate($sql,
+        $sql          = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
+        $affectedRows = $this->_conn->executeUpdate(
+            $sql,
             array(1 => 50,              2 => 'foo',             3 => $datetime),
             array(1 => PDO::PARAM_INT,  2 => PDO::PARAM_STR,    3 => Type::DATETIME)
         );
@@ -409,7 +411,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testPrepareQueryBindValueDateTimeType()
     {
-        $sql = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
+        $sql  = 'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?';
         $stmt = $this->_conn->prepare($sql);
         $stmt->bindValue(1, new \DateTime('2010-01-01 10:10:10'), Type::DATETIME);
         $stmt->execute();
@@ -426,15 +428,21 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->insert('fetch_table', array('test_int' => $i, 'test_string' => 'foo' . $i, 'test_datetime' => '2010-01-01 10:10:10'));
         }
 
-        $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int IN (?)',
-            array(array(100, 101, 102, 103, 104)), array(Connection::PARAM_INT_ARRAY));
+        $stmt = $this->_conn->executeQuery(
+            'SELECT test_int FROM fetch_table WHERE test_int IN (?)',
+            array(array(100, 101, 102, 103, 104)),
+            array(Connection::PARAM_INT_ARRAY)
+        );
 
         $data = $stmt->fetchAll(PDO::FETCH_NUM);
         self::assertEquals(5, count($data));
         self::assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
 
-        $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_string IN (?)',
-            array(array('foo100', 'foo101', 'foo102', 'foo103', 'foo104')), array(Connection::PARAM_STR_ARRAY));
+        $stmt = $this->_conn->executeQuery(
+            'SELECT test_int FROM fetch_table WHERE test_string IN (?)',
+            array(array('foo100', 'foo101', 'foo102', 'foo103', 'foo104')),
+            array(Connection::PARAM_STR_ARRAY)
+        );
 
         $data = $stmt->fetchAll(PDO::FETCH_NUM);
         self::assertEquals(5, count($data));
@@ -503,32 +511,32 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testDateArithmetics()
     {
-        $p = $this->_conn->getDatabasePlatform();
-        $sql = 'SELECT ';
-        $sql .= $p->getDateDiffExpression('test_datetime', $p->getCurrentTimestampSQL()) .' AS diff, ';
-        $sql .= $p->getDateAddSecondsExpression('test_datetime', 1) .' AS add_seconds, ';
-        $sql .= $p->getDateSubSecondsExpression('test_datetime', 1) .' AS sub_seconds, ';
-        $sql .= $p->getDateAddMinutesExpression('test_datetime', 5) .' AS add_minutes, ';
-        $sql .= $p->getDateSubMinutesExpression('test_datetime', 5) .' AS sub_minutes, ';
-        $sql .= $p->getDateAddHourExpression('test_datetime', 3) .' AS add_hour, ';
-        $sql .= $p->getDateSubHourExpression('test_datetime', 3) .' AS sub_hour, ';
-        $sql .= $p->getDateAddDaysExpression('test_datetime', 10) .' AS add_days, ';
-        $sql .= $p->getDateSubDaysExpression('test_datetime', 10) .' AS sub_days, ';
-        $sql .= $p->getDateAddWeeksExpression('test_datetime', 1) .' AS add_weeks, ';
-        $sql .= $p->getDateSubWeeksExpression('test_datetime', 1) .' AS sub_weeks, ';
-        $sql .= $p->getDateAddMonthExpression('test_datetime', 2) .' AS add_month, ';
-        $sql .= $p->getDateSubMonthExpression('test_datetime', 2) .' AS sub_month, ';
-        $sql .= $p->getDateAddQuartersExpression('test_datetime', 3) .' AS add_quarters, ';
-        $sql .= $p->getDateSubQuartersExpression('test_datetime', 3) .' AS sub_quarters, ';
-        $sql .= $p->getDateAddYearsExpression('test_datetime', 6) .' AS add_years, ';
-        $sql .= $p->getDateSubYearsExpression('test_datetime', 6) .' AS sub_years ';
+        $p    = $this->_conn->getDatabasePlatform();
+        $sql  = 'SELECT ';
+        $sql .= $p->getDateDiffExpression('test_datetime', $p->getCurrentTimestampSQL()) . ' AS diff, ';
+        $sql .= $p->getDateAddSecondsExpression('test_datetime', 1) . ' AS add_seconds, ';
+        $sql .= $p->getDateSubSecondsExpression('test_datetime', 1) . ' AS sub_seconds, ';
+        $sql .= $p->getDateAddMinutesExpression('test_datetime', 5) . ' AS add_minutes, ';
+        $sql .= $p->getDateSubMinutesExpression('test_datetime', 5) . ' AS sub_minutes, ';
+        $sql .= $p->getDateAddHourExpression('test_datetime', 3) . ' AS add_hour, ';
+        $sql .= $p->getDateSubHourExpression('test_datetime', 3) . ' AS sub_hour, ';
+        $sql .= $p->getDateAddDaysExpression('test_datetime', 10) . ' AS add_days, ';
+        $sql .= $p->getDateSubDaysExpression('test_datetime', 10) . ' AS sub_days, ';
+        $sql .= $p->getDateAddWeeksExpression('test_datetime', 1) . ' AS add_weeks, ';
+        $sql .= $p->getDateSubWeeksExpression('test_datetime', 1) . ' AS sub_weeks, ';
+        $sql .= $p->getDateAddMonthExpression('test_datetime', 2) . ' AS add_month, ';
+        $sql .= $p->getDateSubMonthExpression('test_datetime', 2) . ' AS sub_month, ';
+        $sql .= $p->getDateAddQuartersExpression('test_datetime', 3) . ' AS add_quarters, ';
+        $sql .= $p->getDateSubQuartersExpression('test_datetime', 3) . ' AS sub_quarters, ';
+        $sql .= $p->getDateAddYearsExpression('test_datetime', 6) . ' AS add_years, ';
+        $sql .= $p->getDateSubYearsExpression('test_datetime', 6) . ' AS sub_years ';
         $sql .= 'FROM fetch_table';
 
         $row = $this->_conn->fetchAssoc($sql);
         $row = array_change_key_case($row, CASE_LOWER);
 
         $diff = (strtotime('2010-01-01') - strtotime(date('Y-m-d'))) / 3600 / 24;
-        self::assertEquals($diff, $row['diff'], "Date difference should be approx. ".$diff." days.", 1);
+        self::assertEquals($diff, $row['diff'], "Date difference should be approx. " . $diff . " days.", 1);
         self::assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])), "Adding second should end up on 2010-01-01 10:10:11");
         self::assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])), "Subtracting second should end up on 2010-01-01 10:10:09");
         self::assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])), "Adding minutes should end up on 2010-01-01 10:15:10");
@@ -551,16 +559,16 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $platform = $this->_conn->getDatabasePlatform();
 
-        $sql = 'SELECT ';
-        $sql .= $platform->getLocateExpression('test_string', "'oo'") .' AS locate1, ';
-        $sql .= $platform->getLocateExpression('test_string', "'foo'") .' AS locate2, ';
-        $sql .= $platform->getLocateExpression('test_string', "'bar'") .' AS locate3, ';
-        $sql .= $platform->getLocateExpression('test_string', 'test_string') .' AS locate4, ';
-        $sql .= $platform->getLocateExpression("'foo'", 'test_string') .' AS locate5, ';
-        $sql .= $platform->getLocateExpression("'barfoobaz'", 'test_string') .' AS locate6, ';
-        $sql .= $platform->getLocateExpression("'bar'", 'test_string') .' AS locate7, ';
-        $sql .= $platform->getLocateExpression('test_string', "'oo'", 2) .' AS locate8, ';
-        $sql .= $platform->getLocateExpression('test_string', "'oo'", 3) .' AS locate9 ';
+        $sql  = 'SELECT ';
+        $sql .= $platform->getLocateExpression('test_string', "'oo'") . ' AS locate1, ';
+        $sql .= $platform->getLocateExpression('test_string', "'foo'") . ' AS locate2, ';
+        $sql .= $platform->getLocateExpression('test_string', "'bar'") . ' AS locate3, ';
+        $sql .= $platform->getLocateExpression('test_string', 'test_string') . ' AS locate4, ';
+        $sql .= $platform->getLocateExpression("'foo'", 'test_string') . ' AS locate5, ';
+        $sql .= $platform->getLocateExpression("'barfoobaz'", 'test_string') . ' AS locate6, ';
+        $sql .= $platform->getLocateExpression("'bar'", 'test_string') . ' AS locate7, ';
+        $sql .= $platform->getLocateExpression('test_string', "'oo'", 2) . ' AS locate8, ';
+        $sql .= $platform->getLocateExpression('test_string', "'oo'", 3) . ' AS locate9 ';
         $sql .= 'FROM fetch_table';
 
         $row = $this->_conn->fetchAssoc($sql);
@@ -579,7 +587,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testQuoteSQLInjection()
     {
-        $sql = "SELECT * FROM fetch_table WHERE test_string = " . $this->_conn->quote("bar' OR '1'='1");
+        $sql  = "SELECT * FROM fetch_table WHERE test_string = " . $this->_conn->quote("bar' OR '1'='1");
         $rows = $this->_conn->fetchAll($sql);
 
         self::assertEquals(0, count($rows), "no result should be returned, otherwise SQL injection is possible");
@@ -606,15 +614,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             ));
         }
 
-        $sql[]  = 'SELECT ';
-        $sql[]  = 'test_int, ';
-        $sql[]  = 'test_string, ';
-        $sql[]  = $platform->getBitOrComparisonExpression('test_int', 2) . ' AS bit_or, ';
-        $sql[]  = $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and ';
-        $sql[]  = 'FROM fetch_table';
+        $sql[] = 'SELECT ';
+        $sql[] = 'test_int, ';
+        $sql[] = 'test_string, ';
+        $sql[] = $platform->getBitOrComparisonExpression('test_int', 2) . ' AS bit_or, ';
+        $sql[] = $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and ';
+        $sql[] = 'FROM fetch_table';
 
-        $stmt   = $this->_conn->executeQuery(implode(PHP_EOL, $sql));
-        $data   = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->_conn->executeQuery(implode(PHP_EOL, $sql));
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
         self::assertEquals(4, count($data));
@@ -643,7 +651,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->setFetchMode(\PDO::FETCH_NUM);
 
         $row = array_keys($stmt->fetch());
-        self::assertEquals(0, count( array_filter($row, function($v) { return ! is_numeric($v); })), "should be no non-numerical elements in the result.");
+        self::assertEquals(0, count(array_filter($row, function ($v) {
+            return ! is_numeric($v);
+        })), "should be no non-numerical elements in the result.");
     }
 
     /**
@@ -653,7 +663,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->setupFixture();
 
-        $sql = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
+        $sql  = 'SELECT test_int, test_string, test_datetime FROM fetch_table';
         $stmt = $this->_conn->prepare($sql);
 
         $stmt->execute();
@@ -685,17 +695,17 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->skipOci8AndMysqli();
         $this->setupFixture();
 
-        $sql    = "SELECT test_int, test_string, test_datetime FROM fetch_table";
-        $stmt   = $this->_conn->prepare($sql);
+        $sql  = "SELECT test_int, test_string, test_datetime FROM fetch_table";
+        $stmt = $this->_conn->prepare($sql);
         $stmt->execute();
 
         $results = $stmt->fetchAll(
             \PDO::FETCH_CLASS,
-            __NAMESPACE__.'\\MyFetchClass'
+            __NAMESPACE__ . '\\MyFetchClass'
         );
 
         self::assertEquals(1, count($results));
-        self::assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
+        self::assertInstanceOf(__NAMESPACE__ . '\\MyFetchClass', $results[0]);
 
         self::assertEquals(1, $results[0]->test_int);
         self::assertEquals('foo', $results[0]->test_string);
@@ -713,7 +723,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->insert('fetch_table', array('test_int' => 1, 'test_string' => 'foo'));
         $this->_conn->insert('fetch_table', array('test_int' => 10, 'test_string' => 'foo'));
 
-        $sql = "SELECT test_int FROM fetch_table";
+        $sql  = "SELECT test_int FROM fetch_table";
         $rows = $this->_conn->query($sql)->fetchAll(\PDO::FETCH_COLUMN);
 
         self::assertEquals(array(1, 10), $rows);
@@ -727,14 +737,14 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->skipOci8AndMysqli();
         $this->setupFixture();
 
-        $sql = "SELECT * FROM fetch_table";
+        $sql  = "SELECT * FROM fetch_table";
         $stmt = $this->_conn->query($sql);
         $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass');
 
         $results = $stmt->fetchAll();
 
         self::assertEquals(1, count($results));
-        self::assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
+        self::assertInstanceOf(__NAMESPACE__ . '\\MyFetchClass', $results[0]);
 
         self::assertEquals(1, $results[0]->test_int);
         self::assertEquals('foo', $results[0]->test_string);
@@ -749,7 +759,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->skipOci8AndMysqli();
         $this->setupFixture();
 
-        $sql = "SELECT * FROM fetch_table";
+        $sql  = "SELECT * FROM fetch_table";
         $stmt = $this->_conn->query($sql);
         $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass');
 
@@ -759,7 +769,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         self::assertEquals(1, count($results));
-        self::assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
+        self::assertInstanceOf(__NAMESPACE__ . '\\MyFetchClass', $results[0]);
 
         self::assertEquals(1, $results[0]->test_int);
         self::assertEquals('foo', $results[0]->test_string);
@@ -783,7 +793,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testSetFetchModeOnDbalStatement()
     {
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
+        $sql  = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->executeQuery($sql, array(1, "foo"));
         $stmt->setFetchMode(\PDO::FETCH_NUM);
 
@@ -799,7 +809,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testEmptyParameters()
     {
-        $sql = "SELECT * FROM fetch_table WHERE test_int IN (?)";
+        $sql  = "SELECT * FROM fetch_table WHERE test_int IN (?)";
         $stmt = $this->_conn->executeQuery($sql, array(array()), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
         $rows = $stmt->fetchAll();
 
@@ -859,7 +869,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     private function skipOci8AndMysqli()
     {
-        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] == "oci8")  {
+        if (isset($GLOBALS['db_type']) && $GLOBALS['db_type'] == "oci8") {
             $this->markTestSkipped("Not supported by OCI8");
         }
         if ('mysqli' == $this->_conn->getDriver()->getName()) {
@@ -870,5 +880,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
 class MyFetchClass
 {
-    public $test_int, $test_string, $test_datetime;
+    public $test_int;
+    public $test_string;
+    public $test_datetime;
 }

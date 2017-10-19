@@ -52,8 +52,8 @@ class QueryCacheProfile
      */
     public function __construct($lifetime = 0, $cacheKey = null, Cache $resultCache = null)
     {
-        $this->lifetime = $lifetime;
-        $this->cacheKey = $cacheKey;
+        $this->lifetime          = $lifetime;
+        $this->cacheKey          = $cacheKey;
         $this->resultCacheDriver = $resultCache;
     }
 

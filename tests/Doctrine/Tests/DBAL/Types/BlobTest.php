@@ -23,7 +23,7 @@ class BlobTest extends \Doctrine\Tests\DbalTestCase
     protected function setUp()
     {
         $this->platform = new MockPlatform();
-        $this->type = Type::getType('blob');
+        $this->type     = Type::getType('blob');
     }
 
     public function testBlobNullConvertsToPHPValue()

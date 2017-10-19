@@ -77,8 +77,8 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
      */
     public function getDropSchema(Schema $dropSchema)
     {
-        $visitor    = new DropSchemaSqlCollector($this->platform);
-        $sm         = $this->conn->getSchemaManager();
+        $visitor = new DropSchemaSqlCollector($this->platform);
+        $sm      = $this->conn->getSchemaManager();
 
         $fullSchema = $sm->createSchema();
 
@@ -136,7 +136,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
         $visitor = new DropSchemaSqlCollector($this->platform);
 
         /* @var $schema \Doctrine\DBAL\Schema\Schema */
-        $schema  = $sm->createSchema();
+        $schema = $sm->createSchema();
         $schema->visit($visitor);
 
         return $visitor->getQueries();

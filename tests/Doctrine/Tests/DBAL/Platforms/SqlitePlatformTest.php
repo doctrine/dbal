@@ -86,7 +86,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'INTEGER',
             $this->_platform->getTinyIntTypeDeclarationSQL(
-                array('autoincrement' => true, 'primary' => true))
+                array('autoincrement' => true, 'primary' => true)
+            )
         );
         self::assertEquals(
             'TINYINT',
@@ -119,7 +120,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'INTEGER',
             $this->_platform->getSmallIntTypeDeclarationSQL(
-                array('autoincrement' => true, 'primary' => true))
+                array('autoincrement' => true, 'primary' => true)
+            )
         );
         self::assertEquals(
             'SMALLINT',
@@ -152,7 +154,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'INTEGER',
             $this->_platform->getMediumIntTypeDeclarationSQL(
-                array('autoincrement' => true, 'primary' => true))
+                array('autoincrement' => true, 'primary' => true)
+            )
         );
         self::assertEquals(
             'MEDIUMINT',
@@ -181,7 +184,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'INTEGER',
             $this->_platform->getIntegerTypeDeclarationSQL(
-                array('autoincrement' => true, 'primary' => true))
+                array('autoincrement' => true, 'primary' => true)
+            )
         );
         self::assertEquals(
             'INTEGER',
@@ -214,7 +218,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'INTEGER',
             $this->_platform->getBigIntTypeDeclarationSQL(
-                array('autoincrement' => true, 'primary' => true))
+                array('autoincrement' => true, 'primary' => true)
+            )
         );
         self::assertEquals(
             'BIGINT',
@@ -231,7 +236,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
-                array('length' => 10, 'fixed' => true))
+                array('length' => 10, 'fixed' => true)
+            )
         );
         self::assertEquals(
             'VARCHAR(50)',
@@ -324,8 +330,8 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function testAlterTableAddColumns()
     {
-        $diff = new TableDiff('user');
-        $diff->addedColumns['foo'] = new Column('foo', Type::getType('string'));
+        $diff                        = new TableDiff('user');
+        $diff->addedColumns['foo']   = new Column('foo', Type::getType('string'));
         $diff->addedColumns['count'] = new Column('count', Type::getType('integer'), array('notnull' => false, 'default' => 1));
 
         $expected = array(
@@ -348,11 +354,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
 
     public function complexDiffProvider() : array
     {
-        $date = new TableDiff('user');
+        $date                       = new TableDiff('user');
         $date->addedColumns['time'] = new Column('time', Type::getType('date'), array('default' => 'CURRENT_DATE'));
 
 
-        $id = new TableDiff('user');
+        $id                     = new TableDiff('user');
         $id->addedColumns['id'] = new Column('id', Type::getType('integer'), array('autoincrement' => true));
 
         return [
@@ -402,11 +408,11 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $table->addForeignKeyConstraint('user', array('parent'), array('id'), array('deferrable' => true, 'deferred' => true));
         $table->addIndex(array('article', 'post'), 'index1');
 
-        $diff = new TableDiff('user');
-        $diff->fromTable = $table;
-        $diff->newName = 'client';
-        $diff->renamedColumns['id'] = new \Doctrine\DBAL\Schema\Column('key', \Doctrine\DBAL\Types\Type::getType('integer'), array());
-        $diff->renamedColumns['post'] = new \Doctrine\DBAL\Schema\Column('comment', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $diff                           = new TableDiff('user');
+        $diff->fromTable                = $table;
+        $diff->newName                  = 'client';
+        $diff->renamedColumns['id']     = new \Doctrine\DBAL\Schema\Column('key', \Doctrine\DBAL\Types\Type::getType('integer'), array());
+        $diff->renamedColumns['post']   = new \Doctrine\DBAL\Schema\Column('comment', \Doctrine\DBAL\Types\Type::getType('integer'), array());
         $diff->removedColumns['parent'] = new \Doctrine\DBAL\Schema\Column('comment', \Doctrine\DBAL\Types\Type::getType('integer'), array());
         $diff->removedIndexes['index1'] = $table->getIndex('index1');
 
