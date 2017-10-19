@@ -504,7 +504,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('CHAR(13) FOR BIT DATA', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
 
     /**
