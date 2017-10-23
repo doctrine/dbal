@@ -228,6 +228,17 @@ class Index extends AbstractAsset implements Constraint
                 return false;
             }
 
+            /**
+             * Index:
+             * unique(foo)
+             * must not be fulfilled with index:
+             * unique(foo, bar)
+             */
+            if (count($other->getColumns()) > count($this->getColumns())
+                && ($other->isUnique() && $this->isUnique())) {
+                return false;
+            }
+
             return true;
         }
 

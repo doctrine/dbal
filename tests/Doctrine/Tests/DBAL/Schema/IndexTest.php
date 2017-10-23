@@ -92,13 +92,21 @@ class IndexTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($another->isFullfilledBy($partial));
     }
 
-    public function testFulfilledWithCompositeIndexCoveringSingleColumnIndex()
+    public function testSingleColumnIndexIsFulfilledByCoveringCompositeIndex()
     {
         $implicitFkIndex = new Index('fk_foo', array('col1'), false, false, array(), array());
         $explictIndex = new Index('bar', array('col1', 'col2'), false, false, array(), array());
 
         self::assertTrue($implicitFkIndex->isFullfilledBy($explictIndex));
         self::assertFalse($explictIndex->isFullfilledBy($implicitFkIndex));
+    }
+
+    public function testUniqueIndexIsNotFulfilledByCoveringUniqueCompositeIndex()
+    {
+        $unique = new Index('foo', array('col1'), true, false, array(), array());
+        $coveringUnique = new Index('bar', array('col1', 'col2'), true, false, array(), array());
+
+        self::assertFalse($unique->isFullfilledBy($coveringUnique));
     }
 
     public function testOverrulesWithPartial()
