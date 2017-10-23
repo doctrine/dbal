@@ -396,7 +396,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @group DBAL-1063
      */
-    public function testAddForeignKeyAddsImplicitIndexIfIndexColumnsDoNotSpan()
+    public function testAddForeignKeyDoesNotAddImplicitIndexIfIndexColumnsSpan()
     {
         $table = new Table('foo');
         $table->addColumn('bar', 'integer');
@@ -411,13 +411,38 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
 
         $table->addForeignKeyConstraint($foreignTable, array('bar', 'baz'), array('foo', 'baz'));
 
+        self::assertCount(2, $table->getIndexes());
+        self::assertTrue($table->hasIndex('composite_idx'));
+        self::assertTrue($table->hasIndex('full_idx'));
+        self::assertSame(array('baz', 'bar'), $table->getIndex('composite_idx')->getColumns());
+        self::assertSame(array('bar', 'baz', 'bloo'), $table->getIndex('full_idx')->getColumns());
+    }
+
+    /**
+     * @group DBAL-1063
+     */
+    public function testAddForeignKeyAddsImplicitIndexIfIndexColumnsDoNotSpan()
+    {
+        $table = new Table('foo');
+        $table->addColumn('bar', 'integer');
+        $table->addColumn('baz', 'string');
+        $table->addColumn('bloo', 'string');
+        $table->addIndex(array('baz', 'bar'), 'composite_idx');
+        $table->addIndex(array('bar', 'baz', 'bloo'), 'full_idx');
+
+        $foreignTable = new Table('bar');
+        $foreignTable->addColumn('foo', 'integer');
+        $foreignTable->addColumn('baz', 'string');
+
+        $table->addForeignKeyConstraint($foreignTable, array('bar', 'bloo'), array('foo', 'baz'));
+
         self::assertCount(3, $table->getIndexes());
         self::assertTrue($table->hasIndex('composite_idx'));
         self::assertTrue($table->hasIndex('full_idx'));
-        self::assertTrue($table->hasIndex('idx_8c73652176ff8caa78240498'));
+        self::assertTrue($table->hasIndex('idx_8c73652176ff8caaceced971'));
         self::assertSame(array('baz', 'bar'), $table->getIndex('composite_idx')->getColumns());
         self::assertSame(array('bar', 'baz', 'bloo'), $table->getIndex('full_idx')->getColumns());
-        self::assertSame(array('bar', 'baz'), $table->getIndex('idx_8c73652176ff8caa78240498')->getColumns());
+        self::assertSame(array('bar', 'bloo'), $table->getIndex('idx_8c73652176ff8caaceced971')->getColumns());
     }
 
     /**

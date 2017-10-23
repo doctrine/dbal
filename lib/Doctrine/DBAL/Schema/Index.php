@@ -200,9 +200,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function isFullfilledBy(Index $other)
     {
-        // allow the other index to be equally large only. It being larger is an option
-        // but it creates a problem with scenarios of the kind PRIMARY KEY(foo,bar) UNIQUE(foo)
-        if (count($other->getColumns()) != count($this->getColumns())) {
+        if (count($other->getColumns()) < count($this->getColumns())) {
             return false;
         }
 
@@ -222,11 +220,8 @@ class Index extends AbstractAsset implements Constraint
                 return true;
             }
 
-            if ($other->isPrimary() != $this->isPrimary()) {
-                return false;
-            }
-
-            if ($other->isUnique() != $this->isUnique()) {
+            if ( ! $this->isUniqueIndexFulfilledBy($other))
+            {
                 return false;
             }
 
@@ -334,6 +329,23 @@ class Index extends AbstractAsset implements Constraint
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * Determines whether a Unique Index is fulfilled by another Index.
+     *
+     * @param Index $other
+     *
+     * @return bool
+     */
+    private function isUniqueIndexFulfilledBy(Index $other)
+    {
+        $isUniqueCovered = $this->isUnique()
+            && ($other->isUnique() || $other->isPrimary())
+            && (!$this->isPrimary() || ($this->isPrimary() && $other->isPrimary()))
+            && count($this->getColumns()) == count($other->getColumns());
+
+        return $isUniqueCovered;
     }
 
     /**

@@ -92,6 +92,57 @@ class IndexTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($another->isFullfilledBy($partial));
     }
 
+    public function testFulfilledWithCoveringCompositeIndex()
+    {
+        $coveredIndex = new Index('foo', array('col1', 'col2'), false, false, array(), array());
+        $compositeCoveringIndex = new Index('bar', array('col1', 'col2', 'col3'), false, false, array(), array());
+        $compositeNotCoveringIndex = new Index('baz', array('col1', 'col3', 'col2'), false, false, array(), array());
+
+        self::assertTrue(
+            $coveredIndex
+                ->isFullfilledBy($compositeCoveringIndex),
+            'The index should be covered by the composite index where all of its columns appear first, in the same order.'
+        );
+
+        self::assertFalse(
+            $coveredIndex
+                ->isFullfilledBy($compositeNotCoveringIndex),
+            'The index should be not covered by the composite index where of its columns appear in a different order.'
+        );
+    }
+
+    public function testUniquePartialNotFulfilledByUniqueComposite()
+    {
+        $uniquePartial = new Index('unique_idx_foo', array('col1', 'col2'), true, false, array(), array());
+        $uniqueComposite = new Index('unique_idx_bar', array('col1', 'col2', 'col3'), true, false, array(), array());
+
+        self::assertFalse($uniquePartial->isFullfilledBy($uniqueComposite));
+    }
+
+    public function testUniquePartialNotFulfilledByPrimaryComposite()
+    {
+        $uniquePartial = new Index('unique_idx_foo', array('col1', 'col2'), true, false, array(), array());
+        $primaryComposite = new Index('unique_idx_bar', array('col1', 'col2', 'col3'), false, true, array(), array());
+
+        self::assertFalse($uniquePartial->isFullfilledBy($primaryComposite));
+    }
+
+    public function testUniqueIndexFulfilledByPrimaryIndexWithSameColumns()
+    {
+        $uniqueComposite = new Index('unique_idx_foo', array('col1', 'col2'), true, false, array(), array());
+        $primaryComposite = new Index('primary', array('col1', 'col2'), false, true, array(), array());
+
+        self::assertTrue($uniqueComposite->isFullfilledBy($primaryComposite));
+    }
+
+    public function testUniqueIndexNotFulfilledByPrimaryIndexWithDifferentColumnOrder()
+    {
+        $uniqueComposite = new Index('unique_idx_foo', array('col1', 'col2'), true, false, array(), array());
+        $primaryComposite = new Index('primary', array('col2', 'col1'), false, true, array(), array());
+
+        self::assertFalse($uniqueComposite->isFullfilledBy($primaryComposite));
+    }
+
     public function testOverrulesWithPartial()
     {
         $without = new Index('without', array('col1', 'col2'), true, false, array(), array());
