@@ -92,6 +92,7 @@ class SQLParserUtils
 
         if ($isPositional) {
             ksort($params);
+            $types = self::fillMissingTypes($params, $types);
             ksort($types);
         }
 
@@ -239,5 +240,25 @@ class SQLParserUtils
         }
 
         throw SQLParserUtilsException::missingType($paramName);
+    }
+
+    /**
+     * @param array $params
+     * @param array $types
+     * @return array
+     */
+    private static function fillMissingTypes($params, $types)
+    {
+        if (count($types) === 0 || count($params) === count($types)) {
+            return $types;
+        }
+
+        foreach ($params as $paramKey => $param) {
+            if (!isset($types[$paramKey])) {
+                $types[$paramKey] = null;
+            }
+        }
+
+        return $types;
     }
 }

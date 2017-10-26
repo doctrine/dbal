@@ -158,7 +158,7 @@ SQLDATA
                 array(2 => \PDO::PARAM_STR, 1 => \PDO::PARAM_STR),
                 'SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?',
                 array(1 => 'bar', 0 => 1, 2 => 'baz'),
-                array(1 => \PDO::PARAM_STR, 2 => \PDO::PARAM_STR)
+                array(0 => null, 1 => \PDO::PARAM_STR, 2 => \PDO::PARAM_STR)
             ),
             // Positional: explicit keys for array params and array types
             array(
@@ -168,6 +168,15 @@ SQLDATA
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND bar IN (?, ?) AND baz = ?',
                 array(1, 2, 3, 'bar1', 'bar2', true),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_STR, \PDO::PARAM_BOOL)
+            ),
+            // Positional: non-explicit keys for array params and explicit keys for array types
+            array(
+                "SELECT * FROM Foo WHERE ? IN (?)",
+                array('foo', array('foo', 'bar')),
+                array(1 => Connection::PARAM_STR_ARRAY),
+                "SELECT * FROM Foo WHERE ? IN (?, ?)",
+                array('foo', 'foo', 'bar'),
+                array(null, \PDO::PARAM_STR, \PDO::PARAM_STR)
             ),
             // Positional starts from 1: One non-list before and one after list-needle
             array(
