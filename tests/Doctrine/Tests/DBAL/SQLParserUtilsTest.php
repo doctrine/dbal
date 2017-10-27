@@ -196,7 +196,6 @@ SQLDATA
                 array(1),
                 array(\PDO::PARAM_INT)
             ),
-
              //  Named parameters : Very simple with param int and string
             array(
                 "SELECT * FROM Foo WHERE foo = :foo AND bar = :bar",
@@ -303,7 +302,7 @@ SQLDATA
                 array('foo' => Connection::PARAM_INT_ARRAY, 'baz' => 'string'),
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ? OR baz = ?',
                 array(1, 2, 'bar', 'baz'),
-                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR, 'string')
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, null, 'string')
             ),
             array(
                 "SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar",
@@ -311,7 +310,7 @@ SQLDATA
                 array('foo' => Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ?',
                 array(1, 2, 'bar'),
-                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, null)
             ),
             // Params/types with colons
             array(
@@ -320,7 +319,7 @@ SQLDATA
                 array(':foo' => \PDO::PARAM_INT),
                 'SELECT * FROM Foo WHERE foo = ? OR bar = ?',
                 array('foo', 'bar'),
-                array(\PDO::PARAM_INT, \PDO::PARAM_STR)
+                array(\PDO::PARAM_INT, null)
             ),
             array(
                 "SELECT * FROM Foo WHERE foo = :foo OR bar = :bar",
@@ -336,7 +335,7 @@ SQLDATA
                 array('foo' => Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ?',
                 array(1, 2, 'bar'),
-                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, null)
             ),
             array(
                 "SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar",
@@ -344,7 +343,15 @@ SQLDATA
                 array(':foo' => Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ?',
                 array(1, 2, 'bar'),
-                array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
+                array(\PDO::PARAM_INT, \PDO::PARAM_INT, null)
+            ),
+            array(
+                "SELECT * FROM Foo WHERE :foo IN (:bar)",
+                array('foo' => 1, 'bar' => array(1, 2)),
+                array('bar' => Connection::PARAM_INT_ARRAY),
+                "SELECT * FROM Foo WHERE ? IN (?, ?)",
+                array(1, 1, 2),
+                array(null, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
             // DBAL-522 - null valued parameters are not considered
             array(
