@@ -22,9 +22,13 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
         self::assertTrue($this->_platform->hasNativeJsonType());
     }
 
+    /**
+     * From MariaDB 10.2.7, JSON type is an alias to LONGTEXT
+     * @link https://mariadb.com/kb/en/library/json-data-type/
+     */
     public function testReturnsJsonTypeDeclarationSQL() : void
     {
-        self::assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL([]));
+        self::assertSame('LONGTEXT', $this->_platform->getJsonTypeDeclarationSQL([]));
     }
 
     public function testInitializesJsonTypeMapping() : void
@@ -51,18 +55,18 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
     {
         $table = new Table("text_blob_default_value");
 
-        $table->addColumn('def_text', 'text', array('default' => "d''ef"));
-        $table->addColumn('def_blob', 'blob', array('default' => 'def'));
+        $table->addColumn('def_text', Type::TEXT, ['default' => "hello"]);
+        $table->addColumn('def_blob', Type::BLOB, ['default' => 'world']);
 
         self::assertSame(
-            ["CREATE TABLE text_blob_default_value (def_text LONGTEXT DEFAULT 'd''''ef' NOT NULL, def_blob LONGBLOB DEFAULT 'def' NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB"],
+            ["CREATE TABLE text_blob_default_value (def_text LONGTEXT DEFAULT 'hello' NOT NULL, def_blob LONGBLOB DEFAULT 'world' NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB"],
             $this->_platform->getCreateTableSQL($table)
         );
 
         $diffTable = clone $table;
 
-        $diffTable->changeColumn('def_text', ['default' => "d''ef"]);
-        $diffTable->changeColumn('def_blob', ['default' => 'def']);
+        $diffTable->changeColumn('def_text', ['default' => "hello"]);
+        $diffTable->changeColumn('def_blob', ['default' => 'world']);
 
         $comparator = new Comparator();
 
@@ -73,12 +77,14 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
     {
         $table = new Table("text_json_default_value");
 
-        $json = json_encode(['prop1' => "O'Connor", 'prop2' => 10]);
+        $json = json_encode(['prop1' => "Hello", 'prop2' => 10]);
 
-        $table->addColumn('def_json', 'text', ['default' => $json]);
+        $table->addColumn('def_json', Type::TEXT, ['default' => $json]);
+
+        $jsonType = $this->createPlatform()->getJsonTypeDeclarationSQL($table->getColumn('def_json')->toArray());
 
         self::assertSame(
-            ["CREATE TABLE text_json_default_value (def_json LONGTEXT DEFAULT '{\"prop1\":\"O''Connor\",\"prop2\":10}' NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB"],
+            ["CREATE TABLE text_json_default_value (def_json $jsonType DEFAULT '{\"prop1\":\"Hello\",\"prop2\":10}' NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB"],
             $this->_platform->getCreateTableSQL($table)
         );
 

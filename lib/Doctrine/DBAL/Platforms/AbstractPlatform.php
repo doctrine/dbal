@@ -2281,7 +2281,7 @@ abstract class AbstractPlatform
         $default = $field['default'];
 
         if ( ! isset($field['type'])) {
-            return ' DEFAULT ' . $this->quoteStringLiteral($default);
+            return " DEFAULT '" . $default . "'";
         }
 
         $type = $field['type'];
@@ -2306,7 +2306,7 @@ abstract class AbstractPlatform
             return " DEFAULT '" . $this->convertBooleans($default) . "'";
         }
 
-        return ' DEFAULT ' . $this->quoteStringLiteral($default);
+        return " DEFAULT '" . $default . "'";
     }
 
     /**

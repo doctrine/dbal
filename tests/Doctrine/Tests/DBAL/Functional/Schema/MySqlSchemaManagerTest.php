@@ -333,68 +333,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['col_unsigned']->getUnsigned());
     }
 
-    /**
-     * As of MariaDB 10.2.7, nullable default values literals are always single quoted in
-     * information_schema. Non-nullable defaults behaviour is not affected.
-     * This test ensure accidental removal of double single encoded defaults for MariaDB >= 10.2.7.
-     *
-     * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
-     * @link https://dev.mysql.com/doc/refman/5.5/en/string-literals.html
-     */
-    public function testColumnDefaultValuesDoubleQuoted() : void
-    {
-        $table = new Table("test_column_default_values_double_quoted");
-        $table->addColumn('string_nullable_quoted', 'string', ['notnull' => false, 'default' => 'NULL']);
-        $table->addColumn('string_nullable_double_quoted', 'string', ['notnull' => false, 'default' => "'NULL'"]);
-
-        $table->addColumn('string_notnull_quoted', 'string', ['notnull' => true, 'default' => 'NULL']);
-        $table->addColumn('string_notnull_double_quoted', 'string', ['notnull' => true, 'default' => "\\'NULL\\'"]);
-
-        $this->_sm->dropAndCreateTable($table);
-
-        $onlineTable = $this->_sm->listTableDetails("test_column_default_values_double_quoted");
-        self::assertSame('NULL', $onlineTable->getColumn('string_nullable_quoted')->getDefault());
-
-        self::assertSame("'NULL'", $onlineTable->getColumn('string_nullable_double_quoted')->getDefault());
-        self::assertSame("NULL", $onlineTable->getColumn('string_notnull_quoted')->getDefault());
-        self::assertSame("\\'NULL\\'", $onlineTable->getColumn('string_notnull_double_quoted')->getDefault());
-
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, "Tables should be identical with double quoted literals.");
-    }
-
-    /**
-     * @link https://mariadb.com/kb/en/library/string-literals
-     * @link https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
-     */
-    public function testColumnEscapingDefaultValuesDoesNotTriggerSchemaChange() : void
-    {
-        $table = new Table("test_column_default_values_escaping");
-        $table->addColumn('single_backslash', 'string', ['default' => 'F\Q\D\N']);
-        $table->addColumn('double_backslash', 'string', ['default' => 'F\\Q\\D\\N']);
-        $table->addColumn('triple_backslash', 'string', ['default' => 'a\\\z']);
-        $table->addColumn('repeated_single_quotes', 'string', ['default' => "a''z"]);
-        $table->addColumn('backslash_double_quote', 'string', ['default' => 'a\"z']);
-        $table->addColumn('backslash_newline', 'string', ['default' => 'a\nz']);
-
-        $this->_sm->dropAndCreateTable($table);
-
-        $onlineTable = $this->_sm->listTableDetails("test_column_default_values_escaping");
-        self::assertSame('F\Q\D\N', $onlineTable->getColumn('single_backslash')->getDefault());
-        self::assertSame('F\\Q\\D\\N', $onlineTable->getColumn('double_backslash')->getDefault());
-        self::assertSame('a\\\z', $onlineTable->getColumn('triple_backslash')->getDefault());
-        self::assertSame("a''z", $onlineTable->getColumn('repeated_single_quotes')->getDefault());
-        self::assertSame('a\"z', $onlineTable->getColumn('backslash_double_quote')->getDefault());
-        self::assertSame('a\nz', $onlineTable->getColumn('backslash_newline')->getDefault());
-
-        $comparator = new Comparator();
-
-        $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff, "Tables should be identical with values escape sequences.");
-    }
-
     public function testJsonColumnType() : void
     {
         $platform = $this->_sm->getDatabasePlatform();
@@ -409,36 +347,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $columns = $this->_sm->listTableColumns('test_mysql_json');
 
         self::assertSame(TYPE::JSON, $columns['col_json']->getType()->getName());
-    }
-
-    /**
-     * Ensure that a table created outside doctrine and containing
-     * quoted default values does not trigger a table diff change. I
-     * Note: MariaDb 10.2 silently change "\'" into "''" when storing in
-     * information schema, MariaDb102Platform should normalize the table details.
-     */
-    public function testExistingTableWithQuotedDefaultsDoesNotTriggerChange() : void
-    {
-        $this->_conn->query('DROP TABLE IF EXISTS test_column_defaults_with_create');
-        $sql = "
-            CREATE TABLE test_column_defaults_with_create (
-                col1 VARCHAR(255) NULL DEFAULT 'O''Connor\'\"',              
-                col2 VARCHAR(255) NOT NULL DEFAULT 'O''Connor\'\"'                                
-                );
-        ";
-        $this->_conn->query($sql);
-
-        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_with_create");
-        self::assertSame("O'Connor'\"", $onlineTable->getColumn('col1')->getDefault());
-        self::assertSame("O'Connor'\"", $onlineTable->getColumn('col2')->getDefault());
-
-        $table = new Table("test_column_defaults_no_diff");
-        $table->addColumn('col1', 'string', ['notnull' => false, 'default' => "O'Connor'\""]);
-        $table->addColumn('col2', 'string', ['notnull' => true, 'default' => "O'Connor'\""]);
-
-        $comparator = new Comparator();
-        $diff = $comparator->diffTable($table, $onlineTable);
-        self::assertFalse($diff);
     }
 
     public function testColumnDefaultCurrentTimestamp() : void
@@ -552,20 +460,20 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = new Table("text_blob_default_value");
 
-        $json = json_encode(['prop1' => "O'Connor", 'prop2' => 10]);
+        $json = json_encode(['prop1' => "Hello", 'prop2' => 10]);
 
-        $table->addColumn('def_text', 'text', ['default' => "O'Connor"]);
+        $table->addColumn('def_text', 'text', ['default' => "Hello"]);
         $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
-        $table->addColumn('def_blob', 'blob', ['default' => '\F\Q\D\N']);
+        $table->addColumn('def_blob', 'blob', ['default' => 'World']);
         $table->addColumn('def_json', 'json', ['default' => $json]);
 
         $this->_sm->dropAndCreateTable($table);
 
         $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
 
-        self::assertSame("O'Connor", $onlineTable->getColumn('def_text')->getDefault());
+        self::assertSame("Hello", $onlineTable->getColumn('def_text')->getDefault());
         self::assertSame('def', $onlineTable->getColumn('def_text_null')->getDefault());
-        self::assertSame('\F\Q\D\N', $onlineTable->getColumn('def_blob')->getDefault());
+        self::assertSame('World', $onlineTable->getColumn('def_blob')->getDefault());
         self::assertSame($json, $onlineTable->getColumn('def_json')->getDefault());
 
         $comparator = new Comparator();
