@@ -279,8 +279,10 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $result = [];
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
-                array_values($constraint['local']), $constraint['foreignTable'],
-                array_values($constraint['foreign']), $constraint['name'],
+                array_values($constraint['local']),
+                $constraint['foreignTable'],
+                array_values($constraint['foreign']),
+                $constraint['name'],
                 [
                     'onDelete' => $constraint['onDelete'],
                     'onUpdate' => $constraint['onUpdate'],
