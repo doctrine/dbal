@@ -64,7 +64,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
         foreach ($tableIndexes as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
@@ -121,14 +121,14 @@ class MySqlSchemaManager extends AbstractSchemaManager
             $tableColumn['name'] = '';
         }
 
-        $scale = null;
+        $scale     = null;
         $precision = null;
 
         $type = $this->_platform->getDoctrineTypeMapping($dbType);
 
         // In cases where not connected to a database DESCRIBE $table does not return 'Comment'
         if (isset($tableColumn['comment'])) {
-            $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+            $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
             $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
         }
 
@@ -144,8 +144,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'decimal':
                 if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['type'], $match)) {
                     $precision = $match[1];
-                    $scale = $match[2];
-                    $length = null;
+                    $scale     = $match[2];
+                    $length    = null;
                 }
                 break;
             case 'tinytext':
@@ -198,7 +198,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         ];
 
         if ($scale !== null && $precision !== null) {
-            $options['scale'] = (int) $scale;
+            $options['scale']     = (int) $scale;
             $options['precision'] = (int) $precision;
         }
 
@@ -211,7 +211,6 @@ class MySqlSchemaManager extends AbstractSchemaManager
         return $column;
     }
 
-
     /**
      * Return Doctrine/Mysql-compatible column default values for MariaDB 10.2.7+ servers.
      *
@@ -219,7 +218,6 @@ class MySqlSchemaManager extends AbstractSchemaManager
      *   to distinguish them from expressions (see MDEV-10134).
      * - CURRENT_TIMESTAMP, CURRENT_TIME, CURRENT_DATE are stored in information_schema
      *   as current_timestamp(), currdate(), currtime()
-     * - Literal escaping is normalized in information schema (store "''" instead of "\'")
      * - Note: Quoted 'NULL' is not enforced by Maria, it is technically possible to have
      *   null instead (see https://jira.mariadb.org/browse/MDEV-14053)
      *
@@ -229,19 +227,16 @@ class MySqlSchemaManager extends AbstractSchemaManager
      *
      * @param null|string $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
-    private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault) : ?string {
+    private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault) : ?string
+    {
 
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             return null;
         }
         if ($columnDefault[0] === "'") {
-            return stripslashes(
-                str_replace("''", "'",
-                    preg_replace('/^\'(.*)\'$/', '$1', $columnDefault)
-                )
-            );
+            return stripslashes(preg_replace('/^\'(.*)\'$/', '$1', $columnDefault));
         }
-        switch($columnDefault) {
+        switch ($columnDefault) {
             case 'current_timestamp()':
                 return $platform->getCurrentTimestampSQL();
             case 'curdate()':
@@ -260,11 +255,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            if (!isset($list[$value['constraint_name']])) {
-                if (!isset($value['delete_rule']) || $value['delete_rule'] === "RESTRICT") {
+            if ( ! isset($list[$value['constraint_name']])) {
+                if ( ! isset($value['delete_rule']) || $value['delete_rule'] === "RESTRICT") {
                     $value['delete_rule'] = null;
                 }
-                if (!isset($value['update_rule']) || $value['update_rule'] === "RESTRICT") {
+                if ( ! isset($value['update_rule']) || $value['update_rule'] === "RESTRICT") {
                     $value['update_rule'] = null;
                 }
 
@@ -277,7 +272,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
                     'onUpdate' => $value['update_rule'],
                 ];
             }
-            $list[$value['constraint_name']]['local'][] = $value['column_name'];
+            $list[$value['constraint_name']]['local'][]   = $value['column_name'];
             $list[$value['constraint_name']]['foreign'][] = $value['referenced_column_name'];
         }
 
