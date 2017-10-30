@@ -66,15 +66,4 @@ final class MariaDb1027Platform extends MySqlPlatform
 
         $this->doctrineTypeMapping['json'] = Type::JSON;
     }
-
-    /**
-     * @inheritdoc
-     *
-     * Since MariaDB 10.2.1 blob and text columns can have a default value.
-     * @link https://mariadb.com/kb/en/library/blob-and-text-data-types/
-     */
-    protected function isDefaultValueSupportedForType(Type $field) : bool
-    {
-        return true;
-    }
 }

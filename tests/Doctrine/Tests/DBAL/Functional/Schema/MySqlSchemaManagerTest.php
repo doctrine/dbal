@@ -446,38 +446,4 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diff = $comparator->diffTable($table, $onlineTable);
         self::assertFalse($diff, "Tables should be identical with column defauts time and date.");
     }
-
-    /**
-     * Since MariaDB 10.2.1, Blob and text columns can have a default value
-     *
-     * @link https://mariadb.com/kb/en/library/blob-and-text-data-types
-     */
-    public function testDoesPropagateDefaultValuesForBlobTextAndJson() : void
-    {
-        if (!$this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
-            $this->markTestSkipped('Only relevant for MariaDb102Platform.');
-        }
-
-        $table = new Table("text_blob_default_value");
-
-        $json = json_encode(['prop1' => "Hello", 'prop2' => 10]);
-
-        $table->addColumn('def_text', 'text', ['default' => "Hello"]);
-        $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
-        $table->addColumn('def_blob', 'blob', ['default' => 'World']);
-        $table->addColumn('def_json', 'json', ['default' => $json]);
-
-        $this->_sm->dropAndCreateTable($table);
-
-        $onlineTable = $this->_sm->listTableDetails("text_blob_default_value");
-
-        self::assertSame("Hello", $onlineTable->getColumn('def_text')->getDefault());
-        self::assertSame('def', $onlineTable->getColumn('def_text_null')->getDefault());
-        self::assertSame('World', $onlineTable->getColumn('def_blob')->getDefault());
-        self::assertSame($json, $onlineTable->getColumn('def_json')->getDefault());
-
-        $comparator = new Comparator();
-
-        self::assertFalse($comparator->diffTable($table, $onlineTable));
-    }
 }

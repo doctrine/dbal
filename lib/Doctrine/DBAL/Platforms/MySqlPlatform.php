@@ -582,7 +582,7 @@ class MySqlPlatform extends AbstractPlatform
             // Don't propagate default value changes for unsupported column types.
             if ($columnDiff->hasChanged('default') &&
                 count($columnDiff->changedProperties) === 1 &&
-                ! $this->isDefaultValueSupportedForType($columnArray['type'])
+                ($columnArray['type'] instanceof TextType || $columnArray['type'] instanceof BlobType)
             ) {
                 continue;
             }
