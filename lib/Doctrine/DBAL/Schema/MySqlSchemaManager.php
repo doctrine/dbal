@@ -216,15 +216,12 @@ class MySqlSchemaManager extends AbstractSchemaManager
      * Return Doctrine/Mysql-compatible column default values for MariaDB 10.2.7+ servers.
      *
      * - Since MariaDb 10.2.7 column defaults stored in information_schema are now quoted
-     *   to distinguish them from expressions (see MDEV-10134 for a what is an expression).
+     *   to distinguish them from expressions (see MDEV-10134).
      * - CURRENT_TIMESTAMP, CURRENT_TIME, CURRENT_DATE are stored in information_schema
      *   as current_timestamp(), currdate(), currtime()
      * - Literal escaping is normalized in information schema (store "''" instead of "\'")
-     * - Note: columnDefault should only be null when column is not_nullable otherwise
-     *   a string 'NULL' should be given. Unfortunately, it's not 100% correct in case of
-     *   upgrade from previous versions: see https://jira.mariadb.org/browse/MDEV-14053.
-     *   Otherwise we could simplify the condition === 'NULL' || === null by adding the parameter
-     *   is_nullable.
+     * - Note: Quoted 'NULL' is not enforced by Maria, it is technically possible to have
+     *   null instead (see https://jira.mariadb.org/browse/MDEV-14053)
      *
      * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
      * @link https://jira.mariadb.org/browse/MDEV-13132
