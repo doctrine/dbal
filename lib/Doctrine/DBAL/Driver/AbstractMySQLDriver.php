@@ -26,7 +26,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 
@@ -207,7 +206,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * {@inheritdoc}
      * @return MySqlPlatform
      */
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabasePlatform()
     {
         return new MySqlPlatform();
     }
@@ -216,7 +215,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * {@inheritdoc}
      * @return MySqlSchemaManager
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn) : AbstractSchemaManager
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
         return new MySqlSchemaManager($conn);
     }

@@ -49,15 +49,16 @@ class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
     /**
      * {@inheritdoc}
      */
-    public function createDatabasePlatformForVersion($version) : AbstractPlatform
+    public function createDatabasePlatformForVersion($version)
     {
         return $this->getDatabasePlatform();
     }
 
     /**
      * {@inheritdoc}
+     * @return DrizzlePlatform
      */
-    public function getDatabasePlatform() : AbstractPlatform
+    public function getDatabasePlatform()
     {
         return new DrizzlePlatform();
     }
@@ -65,7 +66,7 @@ class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn) : AbstractSchemaManager
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
         return new DrizzleSchemaManager($conn);
     }
