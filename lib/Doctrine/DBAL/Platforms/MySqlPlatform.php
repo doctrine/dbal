@@ -468,6 +468,7 @@ class MySqlPlatform extends AbstractPlatform
         if ($field['type'] instanceof TextType || $field['type'] instanceof BlobType) {
             $field['default'] = null;
         }
+
         return parent::getDefaultValueDeclarationSQL($field);
     }
 
