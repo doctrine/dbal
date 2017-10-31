@@ -356,6 +356,14 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
+    protected function _getPortableDatabaseDefinition($database)
+    {
+        return $database['name'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function _getPortableViewDefinition($view)
     {
         return new View($view['name'], $view['sql']);

@@ -7,16 +7,6 @@ use Doctrine\DBAL\Types\Type;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-    /**
-     * SQLITE does not support databases.
-     *
-     * @expectedException \Doctrine\DBAL\DBALException
-     */
-    public function testListDatabases()
-    {
-        $this->_sm->listDatabases();
-    }
-
     public function testCreateAndDropDatabase()
     {
         $path = dirname(__FILE__).'/test_create_and_drop_sqlite_database.sqlite';

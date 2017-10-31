@@ -524,6 +524,14 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getListDatabasesSQL()
+    {
+        return 'PRAGMA database_list';
+    }
+
+    /**
      * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction().
      *
      * @param integer|float $value
