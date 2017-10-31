@@ -19,9 +19,7 @@
 
 namespace Doctrine\DBAL\Driver\DrizzlePDOMySql;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\DrizzlePlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\DrizzleSchemaManager;
 
 /**
@@ -56,7 +54,6 @@ class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
 
     /**
      * {@inheritdoc}
-     * @return DrizzlePlatform
      */
     public function getDatabasePlatform()
     {
