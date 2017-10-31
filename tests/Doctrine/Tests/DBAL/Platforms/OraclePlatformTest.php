@@ -739,42 +739,30 @@ EOD;
         return array(
             array(
                 null,
-                "SELECT   c.*,
-                         (
-                             SELECT d.comments
-                             FROM   user_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME 
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
-                         ) AS comments
-                FROM     user_tab_columns c
-                WHERE    c.table_name = 'test' 
-                ORDER BY c.column_id"
+                "          SELECT c.*,
+                 d.comments AS comments
+            FROM all_tab_columns c
+       LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
+           WHERE c.owner = (SELECT SYS_CONTEXT('userenv', 'current_schema') FROM DUAL) AND c.table_name = 'test'
+        ORDER BY c.table_name, c.column_id"
             ),
             array(
                 '/',
-                "SELECT   c.*,
-                         (
-                             SELECT d.comments
-                             FROM   user_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME 
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
-                         ) AS comments
-                FROM     user_tab_columns c
-                WHERE    c.table_name = 'test' 
-                ORDER BY c.column_id"
+                "          SELECT c.*,
+                 d.comments AS comments
+            FROM all_tab_columns c
+       LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
+           WHERE c.owner = (SELECT SYS_CONTEXT('userenv', 'current_schema') FROM DUAL) AND c.table_name = 'test'
+        ORDER BY c.table_name, c.column_id"
             ),
             array(
                 'scott',
-                "SELECT   c.*,
-                         (
-                             SELECT d.comments
-                             FROM   all_col_comments d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME AND d.OWNER = c.OWNER
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
-                         ) AS comments
-                FROM     all_tab_columns c
-                WHERE    c.table_name = 'test' AND c.owner = 'SCOTT'
-                ORDER BY c.column_id"
+                "          SELECT c.*,
+                 d.comments AS comments
+            FROM all_tab_columns c
+       LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
+           WHERE c.owner = 'SCOTT' AND c.table_name = 'test'
+        ORDER BY c.table_name, c.column_id"
             ),
         );
     }

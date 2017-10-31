@@ -411,16 +411,28 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * Returns the list of all the indexes in the database.
+     * Returns the SQL for a list of indexes in the database.
      *
      * @param string $database
+     * @param string $table
      *
      * @return string
      */
-    public function getListAllIndexesSQL(string $database): string
+    public function getListIndexesSQL(?string $database, ?string $table): string
     {
-        $databaseIdentifier = $this->normalizeIdentifier($database);
-        $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        if ($database !== NULL && $database !== '/') {
+            $databaseIdentifier = $this->normalizeIdentifier($database);
+            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        }
+        else {
+            $quotedDatabaseIdentifier = "(SELECT SYS_CONTEXT('userenv', 'current_schema') FROM DUAL)";
+        }
+        $tableCondition = NULL;
+        if ($table !== NULL) {
+            $tableIdentifier = $this->normalizeIdentifier($table);
+            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
+            $tableCondition = "AND ind_col.table_name = $quotedTableIdentifier";
+        }
         return <<<SQL
           SELECT ind_col.table_name as table_name,
                  ind_col.index_name AS name,
@@ -432,7 +444,7 @@ class OraclePlatform extends AbstractPlatform
             FROM all_ind_columns ind_col
        LEFT JOIN all_indexes ind ON ind.owner = ind_col.index_owner AND ind.index_name = ind_col.index_name
        LEFT JOIN all_constraints con ON  con.owner = ind_col.index_owner AND con.index_name = ind_col.index_name
-           WHERE ind_col.index_owner = $quotedDatabaseIdentifier
+           WHERE ind_col.index_owner = $quotedDatabaseIdentifier $tableCondition
         ORDER BY ind_col.table_name, ind_col.index_name, ind_col.column_position
 SQL;
     }
@@ -445,36 +457,7 @@ SQL;
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        return "SELECT uind_col.index_name AS name,
-                       (
-                           SELECT uind.index_type
-                           FROM   user_indexes uind
-                           WHERE  uind.index_name = uind_col.index_name
-                       ) AS type,
-                       decode(
-                           (
-                               SELECT uind.uniqueness
-                               FROM   user_indexes uind
-                               WHERE  uind.index_name = uind_col.index_name
-                           ),
-                           'NONUNIQUE',
-                           0,
-                           'UNIQUE',
-                           1
-                       ) AS is_unique,
-                       uind_col.column_name AS column_name,
-                       uind_col.column_position AS column_pos,
-                       (
-                           SELECT ucon.constraint_type
-                           FROM   user_constraints ucon
-                           WHERE  ucon.index_name = uind_col.index_name
-                       ) AS is_primary
-             FROM      user_ind_columns uind_col
-             WHERE     uind_col.table_name = " . $table . "
-             ORDER BY  uind_col.column_position ASC";
+        return $this->getListIndexesSQL($currentDatabase, $table);
     }
 
     /**
@@ -633,16 +616,28 @@ END;';
     }
 
     /**
-     * Returns the list of all the foreign keys in the database.
+     * Returns the SQL for a list of foreign keys in the database.
      *
      * @param string $database
+     * @param string $table
      *
      * @return string
      */
-    public function getListAllForeignKeysSQL(string $database): string
+    public function getListForeignKeysSQL(?string $database, ?string $table): string
     {
-        $databaseIdentifier = $this->normalizeIdentifier($database);
-        $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        if ($database !== NULL && $database !== '/') {
+            $databaseIdentifier = $this->normalizeIdentifier($database);
+            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        }
+        else {
+            $quotedDatabaseIdentifier = "(SELECT SYS_CONTEXT('userenv', 'current_schema') FROM DUAL)";
+        }
+        $tableCondition = NULL;
+        if ($table !== NULL) {
+            $tableIdentifier = $this->normalizeIdentifier($table);
+            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
+            $tableCondition = "AND cols.table_name = $quotedTableIdentifier";
+        }
         return <<<SQL
           SELECT cols.table_name,
                  alc.constraint_name,
@@ -654,7 +649,7 @@ END;';
             FROM all_cons_columns cols
        LEFT JOIN all_constraints alc ON alc.owner = cols.owner AND alc.constraint_name = cols.constraint_name
        LEFT JOIN all_cons_columns r_cols ON r_cols.owner = alc.r_owner AND r_cols.constraint_name = alc.r_constraint_name AND r_cols.position = cols.position
-           WHERE cols.owner = $quotedDatabaseIdentifier AND alc.constraint_type = 'R'
+           WHERE cols.owner = $quotedDatabaseIdentifier AND alc.constraint_type = 'R' $tableCondition
         ORDER BY cols.table_name, cols.constraint_name, cols.position
 SQL;
     }
@@ -664,31 +659,7 @@ SQL;
      */
     public function getListTableForeignKeysSQL($table)
     {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        return "SELECT alc.constraint_name,
-          alc.DELETE_RULE,
-          cols.column_name \"local_column\",
-          cols.position,
-          (
-              SELECT r_cols.table_name
-              FROM   user_cons_columns r_cols
-              WHERE  alc.r_constraint_name = r_cols.constraint_name
-              AND    r_cols.position = cols.position
-          ) AS \"references_table\",
-          (
-              SELECT r_cols.column_name
-              FROM   user_cons_columns r_cols
-              WHERE  alc.r_constraint_name = r_cols.constraint_name
-              AND    r_cols.position = cols.position
-          ) AS \"foreign_column\"
-     FROM user_cons_columns cols
-     JOIN user_constraints alc
-       ON alc.constraint_name = cols.constraint_name
-      AND alc.constraint_type = 'R'
-      AND alc.table_name = " . $table . "
-    ORDER BY cols.constraint_name ASC, cols.position ASC";
+        return $this->getListForeignKeysSQL(null, $table);
     }
 
     /**
@@ -703,22 +674,34 @@ SQL;
     }
 
     /**
-     * Returns the list of all the columns of all the tables in the database.
+     * Returns the SQL for a list of columns in the database.
      *
      * @param string $database
+     * @param string $table
      *
      * @return string
      */
-    public function getListAllColumnsSQL(string $database): string
+    public function getListColumnsSQL(?string $database, ?string $table): string
     {
-        $databaseIdentifier = $this->normalizeIdentifier($database);
-        $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        if ($database !== NULL && $database !== '/') {
+            $databaseIdentifier = $this->normalizeIdentifier($database);
+            $quotedDatabaseIdentifier = $this->quoteStringLiteral($databaseIdentifier->getName());
+        }
+        else {
+            $quotedDatabaseIdentifier = "(SELECT SYS_CONTEXT('userenv', 'current_schema') FROM DUAL)";
+        }
+        $tableCondition = NULL;
+        if ($table !== NULL) {
+            $tableIdentifier = $this->normalizeIdentifier($table);
+            $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
+            $tableCondition = "AND c.table_name = $quotedTableIdentifier";
+        }
         return <<<SQL
           SELECT c.*,
                  d.comments AS comments
             FROM all_tab_columns c
        LEFT JOIN all_col_comments d ON d.OWNER = c.OWNER AND d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME
-           WHERE c.owner = $quotedDatabaseIdentifier
+           WHERE c.owner = $quotedDatabaseIdentifier $tableCondition
         ORDER BY c.table_name, c.column_id
 SQL;
     }
@@ -728,33 +711,7 @@ SQL;
      */
     public function getListTableColumnsSQL($table, $database = null)
     {
-        $table = $this->normalizeIdentifier($table);
-        $table = $this->quoteStringLiteral($table->getName());
-
-        $tabColumnsTableName = "user_tab_columns";
-        $colCommentsTableName = "user_col_comments";
-        $tabColumnsOwnerCondition = '';
-        $colCommentsOwnerCondition = '';
-
-        if (null !== $database && '/' !== $database) {
-            $database = $this->normalizeIdentifier($database);
-            $database = $this->quoteStringLiteral($database->getName());
-            $tabColumnsTableName = "all_tab_columns";
-            $colCommentsTableName = "all_col_comments";
-            $tabColumnsOwnerCondition = "AND c.owner = " . $database;
-            $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
-        }
-
-        return "SELECT   c.*,
-                         (
-                             SELECT d.comments
-                             FROM   $colCommentsTableName d
-                             WHERE  d.TABLE_NAME = c.TABLE_NAME " . $colCommentsOwnerCondition . "
-                             AND    d.COLUMN_NAME = c.COLUMN_NAME
-                         ) AS comments
-                FROM     $tabColumnsTableName c
-                WHERE    c.table_name = " . $table . " $tabColumnsOwnerCondition
-                ORDER BY c.column_id";
+        return $this->getListColumnsSQL($database, $table);
     }
 
     /**
