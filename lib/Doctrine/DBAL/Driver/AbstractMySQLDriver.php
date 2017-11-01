@@ -126,7 +126,6 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      *
-     * @return AbstractPlatform
      * @throws DBALException
      */
     public function createDatabasePlatformForVersion($version)
