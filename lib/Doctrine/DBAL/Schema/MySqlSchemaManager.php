@@ -219,22 +219,20 @@ class MySqlSchemaManager extends AbstractSchemaManager
      * - CURRENT_TIMESTAMP, CURRENT_TIME, CURRENT_DATE are stored in information_schema
      *   as current_timestamp(), currdate(), currtime()
      * - Note: Quoted 'NULL' is not enforced by Maria, it is technically possible to have
-     *   null instead (see https://jira.mariadb.org/browse/MDEV-14053)
+     *   null in some circumstances (see https://jira.mariadb.org/browse/MDEV-14053)
      *
      * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
      * @link https://jira.mariadb.org/browse/MDEV-13132
-     * @link https://jira.mariadb.org/browse/MDEV-14053
      *
      * @param null|string $columnDefault default value as stored in information_schema for MariaDB >= 10.2.7
      */
     private function getMariaDb1027ColumnDefault(MariaDb1027Platform $platform, ?string $columnDefault) : ?string
     {
-
         if ($columnDefault === 'NULL' || $columnDefault === null) {
             return null;
         }
         if ($columnDefault[0] === "'") {
-            return stripslashes(preg_replace('/^\'(.*)\'$/', '$1', $columnDefault));
+            return preg_replace('/^\'(.*)\'$/', '$1', $columnDefault);
         }
         switch ($columnDefault) {
             case 'current_timestamp()':
