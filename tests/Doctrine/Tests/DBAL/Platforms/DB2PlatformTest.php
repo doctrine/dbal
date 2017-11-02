@@ -285,6 +285,12 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
         self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('timestamp'));
         self::assertSame('datetime', $this->_platform->getDoctrineTypeMapping('timestamp'));
+
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('int4range'));
+        self::assertSame('integer', $this->_platform->getDoctrineTypeMapping('int4range'));
+
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('int8range'));
+        self::assertSame('bigint', $this->_platform->getDoctrineTypeMapping('int8range'));
     }
 
     public function getIsCommentedDoctrineType()
