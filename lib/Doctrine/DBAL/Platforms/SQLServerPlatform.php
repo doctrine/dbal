@@ -1382,7 +1382,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getDateFormatString()
     {
-        return 'Y-m-d H:i:s.000';
+        return 'Y-m-d';
     }
 
     /**
@@ -1390,7 +1390,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getTimeFormatString()
     {
-        return 'Y-m-d H:i:s.000';
+        return 'H:i:s.000';
     }
 
     /**
