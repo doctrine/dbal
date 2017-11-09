@@ -46,7 +46,7 @@ class TimeImmutableType extends TimeType
             return $value;
         }
 
-        if ($value instanceof \DateTimeImmutable) {
+        if ($value instanceof \DateTimeInterface) {
             return $value->format($platform->getTimeFormatString());
         }
 
@@ -62,7 +62,7 @@ class TimeImmutableType extends TimeType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTimeImmutable) {
+        if ($value === null || $value instanceof \DateTimeInterface) {
             return $value;
         }
 
