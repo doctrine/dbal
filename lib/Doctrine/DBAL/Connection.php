@@ -118,14 +118,14 @@ class Connection implements DriverConnection
      *
      * @var boolean
      */
-    private $_isConnected = false;
+    protected $_isConnected = false;
 
     /**
      * The current auto-commit mode of this connection.
      *
      * @var boolean
      */
-    private $autoCommit = true;
+    protected $autoCommit = true;
 
     /**
      * The transaction nesting level.
@@ -153,7 +153,7 @@ class Connection implements DriverConnection
      *
      * @var array
      */
-    private $_params = [];
+    protected $_params = [];
 
     /**
      * The DatabasePlatform object that provides information about the
