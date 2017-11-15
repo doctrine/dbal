@@ -218,8 +218,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
      *   to distinguish them from expressions (see MDEV-10134).
      * - CURRENT_TIMESTAMP, CURRENT_TIME, CURRENT_DATE are stored in information_schema
      *   as current_timestamp(), currdate(), currtime()
-     * - Note: Quoted 'NULL' is not enforced by Maria, it is technically possible to have
+     * - Quoted 'NULL' is not enforced by Maria, it is technically possible to have
      *   null in some circumstances (see https://jira.mariadb.org/browse/MDEV-14053)
+     * - \' is always stored as '' in information_schema (normalized)
      *
      * @link https://mariadb.com/kb/en/library/information-schema-columns-table/
      * @link https://jira.mariadb.org/browse/MDEV-13132
@@ -232,7 +233,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
             return null;
         }
         if ($columnDefault[0] === "'") {
-            return preg_replace('/^\'(.*)\'$/', '$1', $columnDefault);
+            return stripslashes(
+                str_replace("''", "'",
+                    preg_replace('/^\'(.*)\'$/', '$1', $columnDefault)
+                )
+            );
         }
         switch ($columnDefault) {
             case 'current_timestamp()':

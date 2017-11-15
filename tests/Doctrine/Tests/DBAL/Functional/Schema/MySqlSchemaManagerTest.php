@@ -446,4 +446,25 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diff = $comparator->diffTable($table, $onlineTable);
         self::assertFalse($diff, "Tables should be identical with column defauts time and date.");
     }
+
+    /**
+     * Ensure default values (un-)escaping is properly done by mysql platforms.
+     * The test is voluntarily relying on schema introspection due to current
+     * doctrine limitations. Once #2850 is landed, this test can be removed.
+     */
+    public function testEnsureDefaultsAreUnescapedFromSchemaIntrospection() : void
+    {
+        $platform = $this->_sm->getDatabasePlatform();
+        $this->_conn->query('DROP TABLE IF EXISTS test_column_defaults_with_create');
+
+        $default = "a\\0b\\'c\"d\te\\Zf\\\\g''h";
+        $sql = "CREATE TABLE test_column_defaults_with_create(
+                  col1 VARCHAR(255) NULL DEFAULT {$platform->quoteStringLiteral($default)} 
+               )";
+
+        $this->_conn->query($sql);
+
+        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_with_create");
+        self::assertSame($default, $onlineTable->getColumn('col1')->getDefault());
+    }
 }
