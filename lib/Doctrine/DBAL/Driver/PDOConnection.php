@@ -85,22 +85,8 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function query($sql, ...$args)
     {
-        $argsCount = count($args);
-
         try {
-            if ($argsCount == 3) {
-                return parent::query($sql, $args[0], $args[1], $args[2]);
-            }
-
-            if ($argsCount == 2) {
-                return parent::query($sql, $args[0], $args[1]);
-            }
-
-            if ($argsCount == 1) {
-                return parent::query($sql, $args[0]);
-            }
-
-            return parent::query($sql);
+            return parent::query($sql, ...$args);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
