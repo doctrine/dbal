@@ -137,11 +137,11 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query($sql, ...$args)
     {
         $this->connect();
 
-        $stmt = $this->_conn->query(...func_get_args());
+        $stmt = $this->_conn->query($sql, ...$args);
         $stmt = new Statement($stmt, $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 

@@ -41,9 +41,12 @@ interface Connection
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
+     * @param string $sql
+     * @param array $args
+     *
      * @return \Doctrine\DBAL\Driver\Statement
      */
-    function query();
+    function query($sql, ...$args);
 
     /**
      * Quotes a string for use in a query.
