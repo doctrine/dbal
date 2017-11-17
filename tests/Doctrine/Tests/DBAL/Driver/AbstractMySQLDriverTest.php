@@ -54,7 +54,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
         return new MySqlSchemaManager($connection);
     }
 
-    protected function getDatabasePlatformsForVersions(): array
+    protected function getDatabasePlatformsForVersions() : array
     {
         return [
             ['5.6.9', MySqlPlatform::class],
