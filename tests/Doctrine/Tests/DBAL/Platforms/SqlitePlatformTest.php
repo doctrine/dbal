@@ -759,4 +759,30 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertSame("DATE(rentalBeginsOn,'+' || duration || ' DAY')", $this->_platform->getDateAddDaysExpression('rentalBeginsOn', 'duration'));
     }
+
+    public function testSupportsColumnCollation() : void
+    {
+        self::assertTrue($this->_platform->supportsColumnCollation());
+    }
+
+    public function testColumnCollationDeclarationSQL() : void
+    {
+        self::assertSame(
+            'COLLATE NOCASE',
+            $this->_platform->getColumnCollationDeclarationSQL('NOCASE')
+        );
+    }
+
+    public function testGetCreateTableSQLWithColumnCollation() : void
+    {
+        $table = new Table('foo');
+        $table->addColumn('no_collation', 'string');
+        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'NOCASE');
+
+        self::assertSame(
+            ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE NOCASE)'],
+            $this->_platform->getCreateTableSQL($table),
+            'Column "no_collation" will use the default collation (BINARY) and "column_collation" overwrites the collation on this column'
+        );
+    }
 }
