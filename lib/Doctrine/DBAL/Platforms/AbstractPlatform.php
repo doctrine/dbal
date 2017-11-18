@@ -2274,28 +2274,39 @@ abstract class AbstractPlatform
      */
     public function getDefaultValueDeclarationSQL($field)
     {
-        $default = empty($field['notnull']) ? ' DEFAULT NULL' : '';
-
-        if (isset($field['default'])) {
-            $default = " DEFAULT '".$field['default']."'";
-            if (isset($field['type'])) {
-                $type = $field['type'];
-                if ($type instanceof Types\PhpIntegerMappingType) {
-                    $default = " DEFAULT ".$field['default'];
-                } elseif ($type instanceof Types\PhpDateTimeMappingType
-                    && $field['default'] == $this->getCurrentTimestampSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimestampSQL();
-                } elseif ($type instanceof Types\TimeType && $field['default'] == $this->getCurrentTimeSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimeSQL();
-                } elseif ($type instanceof Types\DateType && $field['default'] == $this->getCurrentDateSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentDateSQL();
-                } elseif ($type instanceof Types\BooleanType) {
-                    $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
-                }
-            }
+        if ( ! isset($field['default'])) {
+            return empty($field['notnull']) ? ' DEFAULT NULL' : '';
         }
 
-        return $default;
+        $default = $field['default'];
+
+        if ( ! isset($field['type'])) {
+            return " DEFAULT '" . $default . "'";
+        }
+
+        $type = $field['type'];
+
+        if ($type instanceof Types\PhpIntegerMappingType) {
+            return " DEFAULT " . $default;
+        }
+
+        if ($type instanceof Types\PhpDateTimeMappingType && $default === $this->getCurrentTimestampSQL()) {
+            return " DEFAULT " . $this->getCurrentTimestampSQL();
+        }
+
+        if ($type instanceof Types\TimeType && $default === $this->getCurrentTimeSQL()) {
+            return " DEFAULT " . $this->getCurrentTimeSQL();
+        }
+
+        if ($type instanceof Types\DateType && $default === $this->getCurrentDateSQL()) {
+            return " DEFAULT " . $this->getCurrentDateSQL();
+        }
+
+        if ($type instanceof Types\BooleanType) {
+            return " DEFAULT '" . $this->convertBooleans($default) . "'";
+        }
+
+        return " DEFAULT '" . $default . "'";
     }
 
     /**
