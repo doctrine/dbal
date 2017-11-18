@@ -1554,15 +1554,17 @@ class SQLServerPlatform extends AbstractPlatform
             return " DEFAULT '" . $field['default'] . "'";
         }
 
-        if (in_array((string) $field['type'], array('Integer', 'BigInt', 'SmallInt'))) {
+        $type = (string) $field['type'];
+
+        if (in_array($type, ['Integer', 'BigInt', 'SmallInt'], true)) {
             return " DEFAULT " . $field['default'];
         }
 
-        if (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getCurrentTimestampSQL()) {
+        if (in_array($type, ['DateTime', 'DateTimeTz', 'DateTimeImmutable', 'DateTimeTzImmutable'], true) && $field['default'] === $this->getCurrentTimestampSQL()) {
             return " DEFAULT " . $this->getCurrentTimestampSQL();
         }
 
-        if ((string) $field['type'] == 'Boolean') {
+        if ($type === 'Boolean') {
             return " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
         }
 

@@ -533,18 +533,22 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $this->assertEquals(" DEFAULT 'non_timestamp'", $this->_platform->getDefaultValueDeclarationSQL($field));
     }
 
-    public function testGetDefaultValueDeclarationSQLDateTime()
+    /**
+     * @group 2859
+     */
+    public function testGetDefaultValueDeclarationSQLDateTime() : void
     {
         // timestamps on datetime types should not be quoted
-        foreach (array('datetime', 'datetimetz') as $type) {
+        foreach (['datetime', 'datetimetz', 'datetime_immutable', 'datetimetz_immutable'] as $type) {
+            $field = [
+                'type'    => Type::getType($type),
+                'default' => $this->_platform->getCurrentTimestampSQL(),
+            ];
 
-            $field = array(
-                'type' => Type::getType($type),
-                'default' => $this->_platform->getCurrentTimestampSQL()
+            self::assertSame(
+                ' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(),
+                $this->_platform->getDefaultValueDeclarationSQL($field)
             );
-
-            $this->assertEquals(' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(), $this->_platform->getDefaultValueDeclarationSQL($field));
-
         }
     }
 
@@ -558,6 +562,25 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
             $this->assertEquals(
                 ' DEFAULT 1',
+                $this->_platform->getDefaultValueDeclarationSQL($field)
+            );
+        }
+    }
+
+    /**
+     * @group 2859
+     */
+    public function testGetDefaultValueDeclarationSQLForDateType() : void
+    {
+        $currentDateSql = $this->_platform->getCurrentDateSQL();
+        foreach (['date', 'date_immutable'] as $type) {
+            $field = [
+                'type'    => Type::getType($type),
+                'default' => $currentDateSql,
+            ];
+
+            self::assertSame(
+                ' DEFAULT ' . $currentDateSql,
                 $this->_platform->getDefaultValueDeclarationSQL($field)
             );
         }

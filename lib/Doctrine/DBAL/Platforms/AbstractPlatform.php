@@ -2274,26 +2274,39 @@ abstract class AbstractPlatform
      */
     public function getDefaultValueDeclarationSQL($field)
     {
-        $default = empty($field['notnull']) ? ' DEFAULT NULL' : '';
-
-        if (isset($field['default'])) {
-            $default = " DEFAULT '".$field['default']."'";
-            if (isset($field['type'])) {
-                if (in_array((string) $field['type'], array("Integer", "BigInt", "SmallInt"))) {
-                    $default = " DEFAULT ".$field['default'];
-                } elseif (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getCurrentTimestampSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimestampSQL();
-                } elseif ((string) $field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimeSQL();
-                } elseif ((string) $field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentDateSQL();
-                } elseif ((string) $field['type'] == 'Boolean') {
-                    $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
-                }
-            }
+        if ( ! isset($field['default'])) {
+            return empty($field['notnull']) ? ' DEFAULT NULL' : '';
         }
 
-        return $default;
+        $default = $field['default'];
+
+        if ( ! isset($field['type'])) {
+            return " DEFAULT '" . $default . "'";
+        }
+
+        $type = (string) $field['type'];
+
+        if (in_array($type, ["Integer", "BigInt", "SmallInt"], true)) {
+            return " DEFAULT " . $default;
+        }
+
+        if (in_array($type, ['DateTime', 'DateTimeTz', 'DateTimeImmutable', 'DateTimeTzImmutable'], true) && $default === $this->getCurrentTimestampSQL()) {
+            return " DEFAULT " . $this->getCurrentTimestampSQL();
+        }
+
+        if (in_array($type, ['Time', 'TimeImmutable'], true) && $default === $this->getCurrentTimeSQL()) {
+            return " DEFAULT " . $this->getCurrentTimeSQL();
+        }
+
+        if (in_array($type, ['Date', 'DateImmutable'], true) && $default === $this->getCurrentDateSQL()) {
+            return " DEFAULT " . $this->getCurrentDateSQL();
+        }
+
+        if ($type === 'Boolean') {
+            return " DEFAULT '" . $this->convertBooleans($default) . "'";
+        }
+
+        return " DEFAULT '" . $default . "'";
     }
 
     /**
