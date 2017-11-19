@@ -110,28 +110,28 @@ abstract class AbstractDriverTest extends DbalTestCase
 
         $data = $this->getDatabasePlatformsForVersions();
 
-        if (empty($data)) {
-            $this->fail(
-                sprintf(
-                    'No test data found for test %s. You have to return test data from %s.',
-                    get_class($this) . '::' . __FUNCTION__,
-                    get_class($this) . '::getDatabasePlatformsForVersions'
-                )
-            );
-        }
+        self::assertNotEmpty(
+            $data,
+            sprintf(
+                'No test data found for test %s. You have to return test data from %s.',
+                get_class($this) . '::' . __FUNCTION__,
+                get_class($this) . '::getDatabasePlatformsForVersions'
+            )
+        );
 
         foreach ($data as $item) {
-            self::assertSame($item[1], get_class($this->driver->createDatabasePlatformForVersion($item[0])),
+            $generatedVersion = get_class($this->driver->createDatabasePlatformForVersion($item[0]));
+
+            self::assertSame(
+                $item[1],
+                $generatedVersion,
                 sprintf(
-                    "Expected platform for version %s should be '%s' %s",
+                    'Expected platform for version "%s" should be "%s", "%s" given',
                     $item[0],
                     $item[1],
-                    ($this->driver instanceof VersionAwarePlatformDriver
-                        ? 'expected: ' . get_class($this->driver->createDatabasePlatformForVersion($item[0]))
-                        : 'see:' . $item[0]
-                    )
-
-                ));
+                    $generatedVersion
+                )
+            );
         }
     }
 
