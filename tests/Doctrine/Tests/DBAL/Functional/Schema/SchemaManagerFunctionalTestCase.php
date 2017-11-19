@@ -1307,4 +1307,30 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         self::assertFalse($tableDiff);
     }
+
+    /**
+     * @dataProvider commentsProvider
+     *
+     * @group 2596
+     */
+    public function testExtractDoctrineTypeFromComment(string $comment, string $expected, string $currentType) : void
+    {
+        $result = $this->_sm->extractDoctrineTypeFromComment($comment, $currentType);
+
+        self::assertSame($expected, $result);
+    }
+
+    public function commentsProvider() : array
+    {
+        $currentType = 'current type';
+
+        return [
+            'invalid custom type comments'      => ['should.return.current.type', $currentType, $currentType],
+            'valid doctrine type'               => ['(DC2Type:guid)', 'guid', $currentType],
+            'valid with dots'                   => ['(DC2Type:type.should.return)', 'type.should.return', $currentType],
+            'valid with namespace'              => ['(DC2Type:Namespace\Class)', 'Namespace\Class', $currentType],
+            'valid with extra closing bracket'  => ['(DC2Type:should.stop)).before)', 'should.stop', $currentType],
+            'valid with extra opening brackets' => ['(DC2Type:should((.stop)).before)', 'should((.stop', $currentType],
+        ];
+    }
 }
