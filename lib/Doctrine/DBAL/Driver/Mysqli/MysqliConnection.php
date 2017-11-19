@@ -281,14 +281,9 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
             return;
         }
 
-        if (! isset($params['ssl_key']) || ! isset($params['ssl_cert'])) {
-            $msg = '"ssl_key" and "ssl_cert" parameters are mandatory when using secure connection parameters.';
-            throw new MysqliException($msg);
-        }
-
         $this->_conn->ssl_set(
-            $params['ssl_key'],
-            $params['ssl_cert'],
+            $params['ssl_key']    ?? null,
+            $params['ssl_cert']   ?? null,
             $params['ssl_ca']     ?? null,
             $params['ssl_capath'] ?? null,
             $params['ssl_cipher'] ?? null
