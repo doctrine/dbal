@@ -26,7 +26,9 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\IntegerType;
 
 /**
  * PostgreSqlPlatform.
@@ -1185,5 +1187,23 @@ class PostgreSqlPlatform extends AbstractPlatform
         $str = str_replace('\\', '\\\\', $str); // PostgreSQL requires backslashes to be escaped aswell.
 
         return parent::quoteStringLiteral($str);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultValueDeclarationSQL($field)
+    {
+        if ($this->isSerialField($field)) {
+            return '';
+        }
+
+        return parent::getDefaultValueDeclarationSQL($field);
+    }
+
+    private function isSerialField(array $field) : bool
+    {
+        return $field['autoincrement'] ?? false === true && isset($field['type'])
+            && ($field['type'] instanceof IntegerType || $field['type'] instanceof BigIntType);
     }
 }

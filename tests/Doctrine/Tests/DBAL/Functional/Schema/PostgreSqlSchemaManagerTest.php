@@ -419,6 +419,50 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->assertEquals(-1.1, $columns['col_decimal']->getDefault());
         $this->assertEquals('(-1)', $columns['col_string']->getDefault());
     }
+
+    public static function serialTypes() : array
+    {
+        return [
+            ['integer'],
+            ['bigint'],
+        ];
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValue(string $type) : void
+    {
+        $tableName = "test_serial_type_$type";
+
+        $table = new Schema\Table($tableName);
+        $table->addColumn('id', $type, ['autoincrement' => true, 'notnull' => false]);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        self::assertNull($columns['id']->getDefault());
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValueEvenWhenDefaultIsSet(string $type) : void
+    {
+        $tableName = "test_serial_type_with_default_$type";
+
+        $table = new Schema\Table($tableName);
+        $table->addColumn('id', $type, ['autoincrement' => true, 'notnull' => false, 'default' => 1]);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        self::assertNull($columns['id']->getDefault());
+    }
 }
 
 class MoneyType extends Type
