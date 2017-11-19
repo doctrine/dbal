@@ -526,7 +526,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         // non-timestamp value will get single quotes
         $field = array(
-            'type' => 'string',
+            'type' => Type::getType('string'),
             'default' => 'non_timestamp'
         );
 

@@ -2,11 +2,13 @@
 
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\Tests\Types\MySqlPointType;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
@@ -14,8 +16,8 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         parent::setUp();
 
-        if (!Type::hasType('point')) {
-            Type::addType('point', 'Doctrine\Tests\Types\MySqlPointType');
+        if ( ! Type::hasType('point')) {
+            Type::addType('point', MySqlPointType::class);
         }
     }
 
@@ -155,11 +157,17 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
     {
+        if ($this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
+            $this->markTestSkipped(
+                'MariaDb102Platform supports default values for BLOB and TEXT columns and will propagate values'
+            );
+        }
+
         $table = new Table("text_blob_default_value");
-        $table->addColumn('def_text', 'text', array('default' => 'def'));
-        $table->addColumn('def_text_null', 'text', array('notnull' => false, 'default' => 'def'));
-        $table->addColumn('def_blob', 'blob', array('default' => 'def'));
-        $table->addColumn('def_blob_null', 'blob', array('notnull' => false, 'default' => 'def'));
+        $table->addColumn('def_text', 'text', ['default' => 'def']);
+        $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
+        $table->addColumn('def_blob', 'blob', ['default' => 'def']);
+        $table->addColumn('def_blob_null', 'blob', ['notnull' => false, 'default' => 'def']);
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -324,5 +332,149 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertArrayHasKey('col_unsigned', $columns);
         self::assertFalse($columns['col']->getUnsigned());
         self::assertTrue($columns['col_unsigned']->getUnsigned());
+    }
+
+    public function testJsonColumnType() : void
+    {
+        $table = new Table('test_mysql_json');
+        $table->addColumn('col_json', 'json');
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns('test_mysql_json');
+
+        self::assertSame(TYPE::JSON, $columns['col_json']->getType()->getName());
+    }
+
+    public function testColumnDefaultCurrentTimestamp() : void
+    {
+        $platform = $this->_sm->getDatabasePlatform();
+
+        $table = new Table("test_column_defaults_current_timestamp");
+
+        $currentTimeStampSql = $platform->getCurrentTimestampSQL();
+
+        $table->addColumn('col_datetime', 'datetime', ['notnull' => true, 'default' => $currentTimeStampSql]);
+        $table->addColumn('col_datetime_nullable', 'datetime', ['default' => $currentTimeStampSql]);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_current_timestamp");
+        self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime')->getDefault());
+        self::assertSame($currentTimeStampSql, $onlineTable->getColumn('col_datetime_nullable')->getDefault());
+
+        $comparator = new Comparator();
+
+        $diff = $comparator->diffTable($table, $onlineTable);
+        self::assertFalse($diff, "Tables should be identical with column defaults.");
+    }
+
+    public function testColumnDefaultsAreValid()
+    {
+        $table = new Table("test_column_defaults_are_valid");
+
+        $currentTimeStampSql = $this->_sm->getDatabasePlatform()->getCurrentTimestampSQL();
+        $table->addColumn('col_datetime', 'datetime', ['default' => $currentTimeStampSql]);
+        $table->addColumn('col_datetime_null', 'datetime', ['notnull' => false, 'default' => null]);
+        $table->addColumn('col_int', 'integer', ['default' => 1]);
+        $table->addColumn('col_neg_int', 'integer', ['default' => -1]);
+        $table->addColumn('col_string', 'string', ['default' => 'A']);
+        $table->addColumn('col_decimal', 'decimal', ['scale' => 3, 'precision' => 6, 'default' => -2.3]);
+        $table->addColumn('col_date', 'date', ['default' => '2012-12-12']);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $this->_conn->executeUpdate(
+            "INSERT INTO test_column_defaults_are_valid () VALUES()"
+        );
+
+        $row = $this->_conn->fetchAssoc(
+            'SELECT *, DATEDIFF(CURRENT_TIMESTAMP(), col_datetime) as diff_seconds FROM test_column_defaults_are_valid'
+        );
+
+        self::assertInstanceOf(\DateTime::class, \DateTime::createFromFormat('Y-m-d H:i:s', $row['col_datetime']));
+        self::assertNull($row['col_datetime_null']);
+        self::assertSame('2012-12-12', $row['col_date']);
+        self::assertSame('A', $row['col_string']);
+        self::assertEquals(1, $row['col_int']);
+        self::assertEquals(-1, $row['col_neg_int']);
+        self::assertEquals('-2.300', $row['col_decimal']);
+        self::assertLessThan(5, $row['diff_seconds']);
+    }
+
+    /**
+     * MariaDB 10.2+ does support CURRENT_TIME and CURRENT_DATE as
+     * column default values for time and date columns.
+     * (Not supported on Mysql as of 5.7.19)
+     *
+     * Note that MariaDB 10.2+, when storing default in information_schema,
+     * silently change CURRENT_TIMESTAMP as 'current_timestamp()',
+     * CURRENT_TIME as 'currtime()' and CURRENT_DATE as 'currdate()'.
+     * This test also ensure proper aliasing to not trigger a table diff.
+     */
+    public function testColumnDefaultValuesCurrentTimeAndDate() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform() instanceof MariaDb1027Platform) {
+            $this->markTestSkipped('Only relevant for MariaDb102Platform.');
+        }
+
+        $platform = $this->_sm->getDatabasePlatform();
+
+        $table = new Table("test_column_defaults_current_time_and_date");
+
+        $currentTimestampSql = $platform->getCurrentTimestampSQL();
+        $currentTimeSql      = $platform->getCurrentTimeSQL();
+        $currentDateSql      = $platform->getCurrentDateSQL();
+
+        $table->addColumn('col_datetime', 'datetime', ['default' => $currentTimestampSql]);
+        $table->addColumn('col_date', 'date', ['default' => $currentDateSql]);
+        $table->addColumn('col_time', 'time', ['default' => $currentTimeSql]);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_current_time_and_date");
+
+        self::assertSame($currentTimestampSql, $onlineTable->getColumn('col_datetime')->getDefault());
+        self::assertSame($currentDateSql, $onlineTable->getColumn('col_date')->getDefault());
+        self::assertSame($currentTimeSql, $onlineTable->getColumn('col_time')->getDefault());
+
+        $comparator = new Comparator();
+
+        $diff = $comparator->diffTable($table, $onlineTable);
+        self::assertFalse($diff, "Tables should be identical with column defauts time and date.");
+    }
+
+    /**
+     * Ensure default values (un-)escaping is properly done by mysql platforms.
+     * The test is voluntarily relying on schema introspection due to current
+     * doctrine limitations. Once #2850 is landed, this test can be removed.
+     * @see https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
+     */
+    public function testEnsureDefaultsAreUnescapedFromSchemaIntrospection() : void
+    {
+        $platform = $this->_sm->getDatabasePlatform();
+        $this->_conn->query('DROP TABLE IF EXISTS test_column_defaults_with_create');
+
+        $escapeSequences = [
+            "\\0",          // An ASCII NUL (X'00') character
+            "\\'", "''",    // Single quote
+            '\\"', '""',    // Double quote
+            '\\b',          // A backspace character
+            '\\n',          // A new-line character
+            '\\r',          // A carriage return character
+            '\\t',          // A tab character
+            '\\Z',          // ASCII 26 (Control+Z)
+            '\\\\',         // A backslash (\) character
+            '\\%',          // A percent (%) character
+            '\\_',          // An underscore (_) character
+        ];
+
+        $default = implode('+', $escapeSequences);
+
+        $sql = "CREATE TABLE test_column_defaults_with_create(
+                    col1 VARCHAR(255) NULL DEFAULT {$platform->quoteStringLiteral($default)} 
+                )";
+        $this->_conn->query($sql);
+        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_with_create");
+        self::assertSame($default, $onlineTable->getColumn('col1')->getDefault());
     }
 }

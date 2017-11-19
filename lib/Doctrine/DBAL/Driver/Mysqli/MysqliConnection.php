@@ -94,9 +94,18 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
     /**
      * {@inheritdoc}
+     *
+     * The server version detection includes a special case for MariaDB
+     * to support '5.5.5-' prefixed versions introduced in Maria 10+
+     * @link https://jira.mariadb.org/browse/MDEV-4088
      */
     public function getServerVersion()
     {
+        $serverInfos = $this->_conn->get_server_info();
+        if (false !== stripos($serverInfos, 'mariadb')) {
+            return $serverInfos;
+        }
+
         $majorVersion = floor($this->_conn->server_version / 10000);
         $minorVersion = floor(($this->_conn->server_version - $majorVersion * 10000) / 100);
         $patchVersion = floor($this->_conn->server_version - $majorVersion * 10000 - $minorVersion * 100);

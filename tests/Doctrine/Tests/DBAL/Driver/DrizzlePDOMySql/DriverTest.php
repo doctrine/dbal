@@ -35,12 +35,12 @@ class DriverTest extends PDOMySQLDriverTest
         return new DrizzleSchemaManager($connection);
     }
 
-    protected function getDatabasePlatformsForVersions()
+    protected function getDatabasePlatformsForVersions() : array
     {
-        return array(
-            array('foo', 'Doctrine\DBAL\Platforms\DrizzlePlatform'),
-            array('bar', 'Doctrine\DBAL\Platforms\DrizzlePlatform'),
-            array('baz', 'Doctrine\DBAL\Platforms\DrizzlePlatform'),
-        );
+        return [
+            ['foo', 'Doctrine\DBAL\Platforms\DrizzlePlatform'],
+            ['bar', 'Doctrine\DBAL\Platforms\DrizzlePlatform'],
+            ['baz', 'Doctrine\DBAL\Platforms\DrizzlePlatform'],
+        ];
     }
 }

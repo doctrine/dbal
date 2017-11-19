@@ -21,7 +21,7 @@ before_install:
   - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
 
 before_script:
-  - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == "mariadb" ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
+  - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
 
 install:
   - travis_retry composer -n install
@@ -102,6 +102,38 @@ jobs:
       env: DB=mariadb MARIADB_VERSION=10.1
       addons:
         mariadb: 10.1
+
+    - stage: Test
+      php: 7.1
+      env: DB=mariadb MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: nightly
+      env: DB=mariadb MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+
+    - stage: Test
+      php: 7.1
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: nightly
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
 
     - stage: Test
       php: 7.1
