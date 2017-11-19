@@ -224,7 +224,13 @@ class MasterSlaveConnection extends Connection
             return $params['master'];
         }
 
-        return $params['slaves'][array_rand($params['slaves'])];
+        $config = $params['slaves'][array_rand($params['slaves'])];
+
+        if ( ! isset($config['charset']) && isset($params['master']['charset'])) {
+            $config['charset'] = $params['master']['charset'];
+        }
+
+        return $config;
     }
 
     /**
@@ -364,7 +370,7 @@ class MasterSlaveConnection extends Connection
         if ($logger) {
             $logger->startQuery($args[0]);
         }
-        
+
         $statement = $this->_conn->query(...$args);
 
         if ($logger) {
