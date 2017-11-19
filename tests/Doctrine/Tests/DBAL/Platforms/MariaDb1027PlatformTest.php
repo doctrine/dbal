@@ -19,7 +19,7 @@ class MariaDb1027PlatformTest extends AbstractMySQLPlatformTestCase
 
     public function testHasNativeJsonType() : void
     {
-        self::assertTrue($this->_platform->hasNativeJsonType());
+        self::assertFalse($this->_platform->hasNativeJsonType());
     }
 
     /**

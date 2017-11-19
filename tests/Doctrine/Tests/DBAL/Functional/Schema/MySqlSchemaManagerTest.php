@@ -12,12 +12,11 @@ use Doctrine\Tests\Types\MySqlPointType;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
-
     protected function setUp()
     {
         parent::setUp();
 
-        if (!Type::hasType('point')) {
+        if ( ! Type::hasType('point')) {
             Type::addType('point', MySqlPointType::class);
         }
     }
@@ -337,11 +336,6 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testJsonColumnType() : void
     {
-        $platform = $this->_sm->getDatabasePlatform();
-        if ( ! $platform->hasNativeJsonType()) {
-            $this->markTestSkipped("Requires native JSON type");
-        }
-
         $table = new Table('test_mysql_json');
         $table->addColumn('col_json', 'json');
         $this->_sm->dropAndCreateTable($table);

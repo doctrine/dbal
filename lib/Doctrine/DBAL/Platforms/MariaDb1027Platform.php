@@ -36,7 +36,7 @@ final class MariaDb1027Platform extends MySqlPlatform
      */
     public function hasNativeJsonType() : bool
     {
-        return true;
+        return false;
     }
 
     /**
