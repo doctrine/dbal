@@ -5,6 +5,9 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -462,6 +465,42 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $columns = $this->_sm->listTableColumns($tableName);
 
         self::assertNull($columns['id']->getDefault());
+    }
+
+    /**
+     * @group 2916
+     *
+     * @dataProvider autoIncrementTypeMigrations
+     */
+    public function testAlterTableAutoIncrementIntToBigInt(string $from, string $to, string $expected) : void
+    {
+        $tableFrom = new Table('autoinc_type_modification');
+        $column = $tableFrom->addColumn('id', $from);
+        $column->setAutoincrement(true);
+        $this->_sm->dropAndCreateTable($tableFrom);
+        $tableFrom = $this->_sm->listTableDetails('autoinc_type_modification');
+        self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
+
+        $tableTo = new Table('autoinc_type_modification');
+        $column = $tableTo->addColumn('id', $to);
+        $column->setAutoincrement(true);
+
+        $c = new Comparator();
+        $diff = $c->diffTable($tableFrom, $tableTo);
+        self::assertInstanceOf(TableDiff::class, $diff, "There should be a difference and not false being returned from the table comparison");
+        self::assertSame(['ALTER TABLE autoinc_type_modification ALTER id TYPE ' . $expected], $this->_conn->getDatabasePlatform()->getAlterTableSQL($diff));
+
+        $this->_sm->alterTable($diff);
+        $tableFinal = $this->_sm->listTableDetails('autoinc_type_modification');
+        self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
+    }
+
+    public function autoIncrementTypeMigrations() : array
+    {
+        return [
+            'int->bigint' => ['integer', 'bigint', 'BIGINT'],
+            'bigint->int' => ['bigint', 'integer', 'INT'],
+        ];
     }
 }
 
