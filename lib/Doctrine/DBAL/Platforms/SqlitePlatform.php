@@ -291,9 +291,9 @@ class SqlitePlatform extends AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
-        // sqlite autoincrement is implicit for integer PKs, but not when the field is unsigned
+        // sqlite autoincrement is only possible for the primary key
         if ( ! empty($columnDef['autoincrement'])) {
-            return '';
+            return ' PRIMARY KEY AUTOINCREMENT';
         }
 
         return ! empty($columnDef['unsigned']) ? ' UNSIGNED' : '';
@@ -329,7 +329,10 @@ class SqlitePlatform extends AbstractPlatform
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
             $keyColumns = array_unique(array_values($options['primary']));
-            $queryFields.= ', PRIMARY KEY('.implode(', ', $keyColumns).')';
+            // the primary key is already defined in the column definition for auto increment fields
+            if (count($keyColumns) > 1 || !$columns[$keyColumns[0]]['autoincrement']) {
+                $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+            }
         }
 
         if (isset($options['foreignKeys'])) {
