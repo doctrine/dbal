@@ -264,7 +264,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
             $comment = $this->parseColumnCommentFromSQL($columnName, $createSql);
 
-            if (false !== $comment) {
+            if ($comment !== null) {
                 $type = $this->extractDoctrineTypeFromComment($comment, null);
 
                 if (null !== $type) {
@@ -435,38 +435,29 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $tableDiff;
     }
 
-    /**
-     * @param string $column
-     * @param string $sql
-     *
-     * @return string|false
-     */
-    private function parseColumnCollationFromSQL($column, $sql)
+    private function parseColumnCollationFromSQL(string $column, string $sql) : ?string
     {
         $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
                  . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
 
-        if (preg_match($pattern, $sql, $match) === 1) {
-            return $match[1];
+        if (preg_match($pattern, $sql, $match) !== 1) {
+            return null;
         }
 
-        return false;
+        return $match[1];
     }
 
-    /**
-     * @return string|false
-     */
-    private function parseColumnCommentFromSQL($column, $sql)
+    private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
     {
         $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
                  . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}ix';
 
-        if (preg_match($pattern, $sql, $match) === 1) {
-            $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
-
-            return '' === $comment ? false : $comment;
+        if (preg_match($pattern, $sql, $match) !== 1) {
+            return null;
         }
 
-        return false;
+        $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
+
+        return '' === $comment ? null : $comment;
     }
 }
