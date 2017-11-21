@@ -264,7 +264,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
             $comment = $this->parseColumnCommentFromSQL($columnName, $createSql);
 
-            if (false !== $comment) {
+            if ($comment !== null) {
                 $type = $this->extractDoctrineTypeFromComment($comment, null);
 
                 if (null !== $type) {
@@ -435,43 +435,29 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $tableDiff;
     }
 
-    /**
-     * @param string $column
-     * @param string $sql
-     *
-     * @return string|false
-     */
-    private function parseColumnCollationFromSQL($column, $sql)
+    private function parseColumnCollationFromSQL(string $column, string $sql) : ?string
     {
-        if (preg_match(
-            '{(?:'.preg_quote($column).'|'.preg_quote($this->_platform->quoteSingleIdentifier($column)).')
-                [^,(]+(?:\([^()]+\)[^,]*)?
-                (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
-                COLLATE\s+["\']?([^\s,"\')]+)}isx', $sql, $match)) {
-            return $match[1];
+        $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
+                 . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
+
+        if (preg_match($pattern, $sql, $match) !== 1) {
+            return null;
         }
 
-        return false;
+        return $match[1];
     }
 
-    /**
-     * @param string $column
-     * @param string $sql
-     *
-     * @return string|false
-     */
-    private function parseColumnCommentFromSQL($column, $sql)
+    private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
     {
-        if (preg_match(
-            '{[\s(,](?:'.preg_quote($this->_platform->quoteSingleIdentifier($column)).'|'.preg_quote($column).')
-            (?:\(.*?\)|[^,(])*?,?((?:\s*--[^\n]*\n?)+)
-            }isx', $sql, $match
-        )) {
-            $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
+        $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
+                 . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}ix';
 
-            return '' === $comment ? false : $comment;
+        if (preg_match($pattern, $sql, $match) !== 1) {
+            return null;
         }
 
-        return false;
+        $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
+
+        return '' === $comment ? null : $comment;
     }
 }
