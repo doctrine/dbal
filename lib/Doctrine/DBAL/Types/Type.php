@@ -292,6 +292,7 @@ abstract class Type
      * does nothing. This method can additionally be used for optimization purposes.
      *
      * @return boolean
+     * @deprecated implement WellKnownTextConverter instead
      */
     public function canRequireSQLConversion()
     {
@@ -305,6 +306,7 @@ abstract class Type
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
      * @return string
+     * @deprecated implement WellKnownTextConverter::convertFromWellKnownTextSQL instead
      */
     public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform)
     {
@@ -318,6 +320,7 @@ abstract class Type
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
      * @return string
+     * @deprecated implement WellKnownTextConverter::convertToWellKnownTextSQL instead
      */
     public function convertToPHPValueSQL($sqlExpr, $platform)
     {
