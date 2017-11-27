@@ -22,9 +22,9 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $path = dirname(__FILE__).'/test_create_and_drop_sqlite_database.sqlite';
 
         $this->_sm->createDatabase($path);
-        self::assertEquals(true, file_exists($path));
+        self::assertFileExists($path);
         $this->_sm->dropDatabase($path);
-        self::assertEquals(false, file_exists($path));
+        self::assertFileNotExists($path);
     }
 
     /**
