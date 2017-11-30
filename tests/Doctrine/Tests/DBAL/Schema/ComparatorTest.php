@@ -1276,4 +1276,54 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertCount(1, $actual->changedTables['table2']->addedForeignKeys, "FK to table3 should be added.");
         self::assertEquals("table3", $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
     }
+
+    /**
+     * @group DBAL-2930
+     */
+    public function testDiffLengthStringColumn()
+    {
+        $oldSchema = new Schema();
+
+        $tableFoo = $oldSchema->createTable('foo');
+        $tableFoo->addColumn('string_col', 'string', array('length' => 255));
+
+        $newSchema = new Schema();
+        $table = $newSchema->createTable('foo');
+        $table->addColumn('string_col', 'string', array('length' => 1000));
+
+        $expected = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+        $tableDiff = $expected->changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->fromTable = $tableFoo;
+        $columnDiff = $tableDiff->changedColumns['string_col'] = new ColumnDiff('string_col', $table->getColumn('string_col'));
+        $columnDiff->fromColumn = $tableFoo->getColumn('string_col');
+        $columnDiff->changedProperties = array('length');
+
+        self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
+    }
+
+    /**
+     * @group DBAL-2930
+     */
+    public function testDiffLengthTextColumn()
+    {
+        $oldSchema = new Schema();
+
+        $tableFoo = $oldSchema->createTable('foo');
+        $tableFoo->addColumn('text_col', 'text', array('length' => 1000));
+
+        $newSchema = new Schema();
+        $table = $newSchema->createTable('foo');
+        $table->addColumn('text_col', 'text', array('length' => 16777215));
+
+        $expected = new SchemaDiff();
+        $expected->fromSchema = $oldSchema;
+        $tableDiff = $expected->changedTables['foo'] = new TableDiff('foo');
+        $tableDiff->fromTable = $tableFoo;
+        $columnDiff = $tableDiff->changedColumns['text_col'] = new ColumnDiff('text_col', $table->getColumn('text_col'));
+        $columnDiff->fromColumn = $tableFoo->getColumn('text_col');
+        $columnDiff->changedProperties = array('length');
+
+        self::assertEquals($expected, Comparator::compareSchemas($oldSchema, $newSchema));
+    }
 }
