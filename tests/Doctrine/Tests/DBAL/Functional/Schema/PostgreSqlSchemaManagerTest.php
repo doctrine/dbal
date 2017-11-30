@@ -502,6 +502,34 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             'bigint->int' => ['bigint', 'integer', 'INT'],
         ];
     }
+
+    /**
+     * @group 2925
+     */
+    public function testAlterTableChangePrimaryKey() : void
+    {
+        $tableFrom = new Table('primary_key_userid');
+        $column = $tableFrom->addColumn('user_id', 'integer');
+        $column->setAutoincrement(true);
+        $tableFrom->setPrimaryKey(['user_id']);
+        $this->_sm->dropAndCreateTable($tableFrom);
+
+        $tableFrom = $this->_sm->listTableDetails('primary_key_userid');
+        self::assertTrue($tableFrom->getColumn('user_id')->getAutoincrement());
+
+        $tableTo = new Table('primary_key_id');
+        $column = $tableTo->addColumn('id', 'integer');
+        $column->setAutoincrement(true);
+        $tableTo->setPrimaryKey(['id']);
+
+        $c = new Comparator();
+        $diff = $c->diffTable($tableFrom, $tableTo);
+        self::assertInstanceOf(TableDiff::class, $diff, "There should be a difference and not false being returned from the table comparison");
+
+        $this->_sm->alterTable($diff);
+        $tableFinal = $this->_sm->listTableDetails('autoinc_type_modification');
+        self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
+    }
 }
 
 class MoneyType extends Type
