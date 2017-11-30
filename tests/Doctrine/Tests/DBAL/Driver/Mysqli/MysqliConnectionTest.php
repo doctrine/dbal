@@ -30,37 +30,25 @@ class MysqliConnectionTest extends DbalTestCase
 
     public function testDoesNotRequireQueryForServerVersion()
     {
-        $this->assertFalse($this->connectionMock->requiresQueryForServerVersion());
+        self::assertFalse($this->connectionMock->requiresQueryForServerVersion());
     }
 
-    /**
-     * @dataProvider secureMissingParamsProvider
-     */
-    public function testThrowsExceptionWhenMissingMandatorySecureParams(array $secureParams)
+    public function testRestoresErrorHandlerOnException()
     {
-        $this->expectException(MysqliException::class);
-        $msg = '"ssl_key" and "ssl_cert" parameters are mandatory when using secure connection parameters.';
-        $this->expectExceptionMessage($msg);
+        $handler = function () { self::fail('Never expected this to be called'); };
+        $default_handler = set_error_handler($handler);
 
-        new MysqliConnection($secureParams, 'xxx', 'xxx');
+        try {
+            new MysqliConnection(['host' => '255.255.255.255'], 'user', 'pass');
+            self::fail('An exception was supposed to be raised');
+        } catch (MysqliException $e) {
+            self::assertSame('Network is unreachable', $e->getMessage());
+        }
+
+        self::assertSame($handler, set_error_handler($default_handler), 'Restoring error handler failed.');
+        restore_error_handler();
+        restore_error_handler();
     }
 
-    public function secureMissingParamsProvider()
-    {
-        return [
-            [
-                ['ssl_cert' => 'cert.pem']
-            ],
-            [
-                ['ssl_key' => 'key.pem']
-            ],
-            [
-                ['ssl_key' => 'key.pem', 'ssl_ca' => 'ca.pem', 'ssl_capath' => 'xxx', 'ssl_cipher' => 'xxx']
-            ],
-            [
-                ['ssl_ca' => 'ca.pem', 'ssl_capath' => 'xxx', 'ssl_cipher' => 'xxx']
-            ]
-        ];
-    }
 }
 

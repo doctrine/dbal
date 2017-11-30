@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 
@@ -34,7 +36,7 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             ->method('query')
             ->will($this->returnValue($statement));
 
-        $this->assertSame($database, $this->driver->getDatabase($connection));
+        self::assertSame($database, $this->driver->getDatabase($connection));
     }
 
     protected function createDriver()
@@ -52,18 +54,24 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
         return new MySqlSchemaManager($connection);
     }
 
-    protected function getDatabasePlatformsForVersions()
+    protected function getDatabasePlatformsForVersions() : array
     {
-        return array(
-            array('5.6.9', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
-            array('5.7', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('5.7.0', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('5.7.1', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('6', 'Doctrine\DBAL\Platforms\MySQL57Platform'),
-            array('10.0.15-MariaDB-1~wheezy', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
-            array('10.1.2a-MariaDB-a1~lenny-log', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
-            array('5.5.40-MariaDB-1~wheezy', 'Doctrine\DBAL\Platforms\MySqlPlatform'),
-        );
+        return [
+            ['5.6.9', MySqlPlatform::class],
+            ['5.7', MySQL57Platform::class],
+            ['5.7.0', MySqlPlatform::class],
+            ['5.7.8', MySqlPlatform::class],
+            ['5.7.9', MySQL57Platform::class],
+            ['5.7.10', MySQL57Platform::class],
+            ['6', MySQL57Platform::class],
+            ['10.0.15-MariaDB-1~wheezy', MySqlPlatform::class],
+            ['5.5.5-10.1.25-MariaDB', MySqlPlatform::class],
+            ['10.1.2a-MariaDB-a1~lenny-log', MySqlPlatform::class],
+            ['5.5.40-MariaDB-1~wheezy', MySqlPlatform::class],
+            ['5.5.5-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
+            ['10.2.8-MariaDB-10.2.8+maria~xenial-log', MariaDb1027Platform::class],
+            ['10.2.8-MariaDB-1~lenny-log', MariaDb1027Platform::class]
+        ];
     }
 
     protected function getExceptionConversionData()

@@ -19,9 +19,9 @@
 
 namespace Doctrine\DBAL\Sharding\SQLAzure;
 
-use Doctrine\DBAL\Sharding\ShardManager;
-use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Sharding\ShardingException;
+use Doctrine\DBAL\Sharding\ShardManager;
 use Doctrine\DBAL\Types\Type;
 
 /**
@@ -57,7 +57,7 @@ class SQLAzureShardManager implements ShardManager
     private $conn;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $currentDistributionValue;
 
@@ -198,14 +198,14 @@ class SQLAzureShardManager implements ShardManager
      /**
       * {@inheritDoc}
       */
-    public function queryAll($sql, array $params = array(), array $types = array())
+    public function queryAll($sql, array $params = [], array $types = [])
     {
         $shards = $this->getShards();
         if (!$shards) {
             throw new \RuntimeException("No shards found for " . $this->federationName);
         }
 
-        $result = array();
+        $result = [];
         $oldDistribution = $this->getCurrentDistributionValue();
 
         foreach ($shards as $shard) {

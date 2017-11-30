@@ -6,7 +6,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 
-class MySqlSchemaManagerTest extends \PHPUnit_Framework_TestCase
+class MySqlSchemaManagerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      *
@@ -30,11 +30,11 @@ class MySqlSchemaManagerTest extends \PHPUnit_Framework_TestCase
     {
         $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue($this->getFKDefinition()));
         $fkeys = $this->manager->listTableForeignKeys('dummy');
-        $this->assertEquals(1, count($fkeys), "Table has to have one foreign key.");
+        self::assertEquals(1, count($fkeys), "Table has to have one foreign key.");
 
-        $this->assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $fkeys[0]);
-        $this->assertEquals(array('column_1', 'column_2', 'column_3'), array_map('strtolower', $fkeys[0]->getLocalColumns()));
-        $this->assertEquals(array('column_1', 'column_2', 'column_3'), array_map('strtolower', $fkeys[0]->getForeignColumns()));
+        self::assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $fkeys[0]);
+        self::assertEquals(array('column_1', 'column_2', 'column_3'), array_map('strtolower', $fkeys[0]->getLocalColumns()));
+        self::assertEquals(array('column_1', 'column_2', 'column_3'), array_map('strtolower', $fkeys[0]->getForeignColumns()));
     }
 
     public function getFKDefinition()

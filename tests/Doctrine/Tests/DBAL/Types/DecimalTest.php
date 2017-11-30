@@ -19,11 +19,11 @@ class DecimalTest extends \Doctrine\Tests\DbalTestCase
 
     public function testDecimalConvertsToPHPValue()
     {
-        $this->assertInternalType('string', $this->_type->convertToPHPValue('5.5', $this->_platform));
+        self::assertInternalType('string', $this->_type->convertToPHPValue('5.5', $this->_platform));
     }
 
     public function testDecimalNullConvertsToPHPValue()
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
     }
 }

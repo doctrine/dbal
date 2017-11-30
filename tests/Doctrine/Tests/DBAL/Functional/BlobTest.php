@@ -41,12 +41,12 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
             array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
-        $this->assertEquals(1, $ret);
+        self::assertEquals(1, $ret);
     }
 
     public function testSelect()
     {
-        $ret = $this->_conn->insert('blob_table',
+        $this->_conn->insert('blob_table',
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
             array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
@@ -56,7 +56,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testUpdate()
     {
-        $ret = $this->_conn->insert('blob_table',
+        $this->_conn->insert('blob_table',
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
             array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
         );
@@ -75,25 +75,25 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $rows = $this->_conn->fetchAll('SELECT * FROM blob_table');
 
-        $this->assertEquals(1, count($rows));
+        self::assertEquals(1, count($rows));
         $row = array_change_key_case($rows[0], CASE_LOWER);
 
         $blobValue = Type::getType('binary')->convertToPHPValue($row['binaryfield'], $this->_conn->getDatabasePlatform());
 
-        $this->assertInternalType('resource', $blobValue);
-        $this->assertEquals($text, stream_get_contents($blobValue));
+        self::assertInternalType('resource', $blobValue);
+        self::assertEquals($text, stream_get_contents($blobValue));
     }
 
     private function assertBlobContains($text)
     {
         $rows = $this->_conn->fetchAll('SELECT * FROM blob_table');
 
-        $this->assertEquals(1, count($rows));
+        self::assertEquals(1, count($rows));
         $row = array_change_key_case($rows[0], CASE_LOWER);
 
         $blobValue = Type::getType('blob')->convertToPHPValue($row['blobfield'], $this->_conn->getDatabasePlatform());
 
-        $this->assertInternalType('resource', $blobValue);
-        $this->assertEquals($text, stream_get_contents($blobValue));
+        self::assertInternalType('resource', $blobValue);
+        self::assertEquals($text, stream_get_contents($blobValue));
     }
 }

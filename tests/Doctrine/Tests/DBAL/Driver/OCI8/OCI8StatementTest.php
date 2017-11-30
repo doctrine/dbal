@@ -2,7 +2,11 @@
 
 namespace Doctrine\Tests\DBAL;
 
-class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
+use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
+use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
+use Doctrine\Tests\DbalTestCase;
+
+class OCI8StatementTest extends DbalTestCase
 {
     protected function setUp()
     {
@@ -81,4 +85,31 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    /**
+     * @dataProvider nonTerminatedLiteralProvider
+     */
+    public function testConvertNonTerminatedLiteral($sql, $message)
+    {
+        $this->expectException(OCI8Exception::class);
+        $this->expectExceptionMessageRegExp($message);
+        OCI8Statement::convertPositionalToNamedPlaceholders($sql);
+    }
+
+    public static function nonTerminatedLiteralProvider()
+    {
+        return array(
+            'no-matching-quote' => array(
+                "SELECT 'literal FROM DUAL",
+                '/offset 7/',
+            ),
+            'no-matching-double-quote' => array(
+                'SELECT 1 "COL1 FROM DUAL',
+                '/offset 9/',
+            ),
+            'incorrect-escaping-syntax' => array(
+                "SELECT 'quoted \\'string' FROM DUAL",
+                '/offset 23/',
+            ),
+        );
+    }
 }

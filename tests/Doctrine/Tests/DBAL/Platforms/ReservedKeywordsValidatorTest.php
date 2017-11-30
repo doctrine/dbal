@@ -24,7 +24,7 @@ class ReservedKeywordsValidatorTest extends \Doctrine\Tests\DbalTestCase
         $table = new Table("TABLE");
         $this->validator->acceptTable($table);
 
-        $this->assertEquals(
+        self::assertEquals(
             array('Table TABLE keyword violations: MySQL'),
             $this->validator->getViolations()
         );
@@ -37,7 +37,7 @@ class ReservedKeywordsValidatorTest extends \Doctrine\Tests\DbalTestCase
 
         $this->validator->acceptColumn($table, $column);
 
-        $this->assertEquals(
+        self::assertEquals(
             array('Table TABLE column table keyword violations: MySQL'),
             $this->validator->getViolations()
         );

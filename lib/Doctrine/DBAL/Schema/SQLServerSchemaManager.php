@@ -116,8 +116,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 
-        $options = array(
-            'length'        => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
+        $options = [
+            'length'        => ($length == 0 || !in_array($type, ['text', 'string'])) ? null : $length,
             'unsigned'      => false,
             'fixed'         => (bool) $fixed,
             'default'       => $default !== 'NULL' ? $default : null,
@@ -126,7 +126,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             'precision'     => $tableColumn['precision'],
             'autoincrement' => (bool) $tableColumn['autoincrement'],
             'comment'       => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
-        );
+        ];
 
         $column = new Column($tableColumn['name'], Type::getType($type), $options);
 
@@ -142,20 +142,20 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
-        $foreignKeys = array();
+        $foreignKeys = [];
 
         foreach ($tableForeignKeys as $tableForeignKey) {
             if ( ! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
-                $foreignKeys[$tableForeignKey['ForeignKey']] = array(
-                    'local_columns' => array($tableForeignKey['ColumnName']),
+                $foreignKeys[$tableForeignKey['ForeignKey']] = [
+                    'local_columns' => [$tableForeignKey['ColumnName']],
                     'foreign_table' => $tableForeignKey['ReferenceTableName'],
-                    'foreign_columns' => array($tableForeignKey['ReferenceColumnName']),
+                    'foreign_columns' => [$tableForeignKey['ReferenceColumnName']],
                     'name' => $tableForeignKey['ForeignKey'],
-                    'options' => array(
+                    'options' => [
                         'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
                         'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc'])
-                    )
-                );
+                    ]
+                ];
             } else {
                 $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][] = $tableForeignKey['ColumnName'];
                 $foreignKeys[$tableForeignKey['ForeignKey']]['foreign_columns'][] = $tableForeignKey['ReferenceColumnName'];
@@ -173,7 +173,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['non_unique'] = (boolean) $tableIndex['non_unique'];
             $tableIndex['primary'] = (boolean) $tableIndex['primary'];
-            $tableIndex['flags'] = $tableIndex['flags'] ? array($tableIndex['flags']) : null;
+            $tableIndex['flags'] = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
         }
 
         return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
@@ -237,13 +237,13 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             $tableIndexes = $this->_conn->fetchAll($sql);
         } catch (\PDOException $e) {
             if ($e->getCode() == "IMSSP") {
-                return array();
+                return [];
             } else {
                 throw $e;
             }
         } catch (DBALException $e) {
             if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
-                return array();
+                return [];
             } else {
                 throw $e;
             }

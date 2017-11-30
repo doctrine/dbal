@@ -29,7 +29,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @var Identifier[]
      */
-    protected $_columns = array();
+    protected $_columns = [];
 
     /**
      * @var boolean
@@ -47,7 +47,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @var array
      */
-    protected $_flags = array();
+    protected $_flags = [];
 
     /**
      * Platform specific options
@@ -56,7 +56,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @var array
      */
-    private $options = array();
+    private $options = [];
 
     /**
      * @param string   $indexName
@@ -66,7 +66,7 @@ class Index extends AbstractAsset implements Constraint
      * @param string[] $flags
      * @param array    $options
      */
-    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = array(), array $options = array())
+    public function __construct($indexName, array $columns, $isUnique = false, $isPrimary = false, array $flags = [], array $options = [])
     {
         $isUnique = $isUnique || $isPrimary;
 
@@ -112,7 +112,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getQuotedColumns(AbstractPlatform $platform)
     {
-        $columns = array();
+        $columns = [];
 
         foreach ($this->_columns as $column) {
             $columns[] = $column->getQuotedName($platform);
@@ -126,7 +126,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getUnquotedColumns()
     {
-        return array_map(array($this, 'trimQuotes'), $this->getColumns());
+        return array_map([$this, 'trimQuotes'], $this->getColumns());
     }
 
     /**

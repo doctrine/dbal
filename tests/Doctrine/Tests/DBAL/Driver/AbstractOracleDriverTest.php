@@ -22,7 +22,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
             ->method('getParams')
             ->will($this->returnValue($params));
 
-        $this->assertSame($params['user'], $this->driver->getDatabase($connection));
+        self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }
 
     public function testReturnsDatabaseNameWithConnectDescriptor()
@@ -41,7 +41,7 @@ class AbstractOracleDriverTest extends AbstractDriverTest
             ->method('getParams')
             ->will($this->returnValue($params));
 
-        $this->assertSame($params['user'], $this->driver->getDatabase($connection));
+        self::assertSame($params['user'], $this->driver->getDatabase($connection));
     }
 
     protected function createDriver()

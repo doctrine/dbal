@@ -9,7 +9,7 @@ class DriverTest extends AbstractOracleDriverTest
 {
     public function testReturnsName()
     {
-        $this->assertSame('oci8', $this->driver->getName());
+        self::assertSame('oci8', $this->driver->getName());
     }
 
     protected function createDriver()

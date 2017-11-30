@@ -26,7 +26,10 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * PostgreSqlPlatform.
@@ -47,24 +50,24 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * @var array PostgreSQL booleans literals
      */
-    private $booleanLiterals = array(
-        'true' => array(
+    private $booleanLiterals = [
+        'true' => [
             't',
             'true',
             'y',
             'yes',
             'on',
             '1'
-        ),
-        'false' => array(
+        ],
+        'false' => [
             'f',
             'false',
             'n',
             'no',
             'off',
             '0'
-        )
-    );
+        ]
+    ];
 
     /**
      * PostgreSQL has different behavior with some drivers
@@ -486,9 +489,9 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql = array();
-        $commentsSQL = array();
-        $columnSql = array();
+        $sql = [];
+        $commentsSQL = [];
+        $columnSql = [];
 
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
@@ -534,12 +537,16 @@ class PostgreSqlPlatform extends AbstractPlatform
             if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('precision') || $columnDiff->hasChanged('scale') || $columnDiff->hasChanged('fixed')) {
                 $type = $column->getType();
 
+                // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
+                $columnDefinition = $column->toArray();
+                $columnDefinition['autoincrement'] = false;
+
                 // here was a server version check before, but DBAL API does not support this anymore.
-                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($column->toArray(), $this);
+                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
-            if ($columnDiff->hasChanged('default') || $columnDiff->hasChanged('type')) {
+            if ($columnDiff->hasChanged('default') || $this->typeChangeBreaksDefaultValue($columnDiff)) {
                 $defaultClause = null === $column->getDefault()
                     ? ' DROP DEFAULT'
                     : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
@@ -593,7 +600,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                 ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
         }
 
-        $tableSql = array();
+        $tableSql = [];
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             $sql = array_merge($sql, $commentsSQL);
@@ -643,14 +650,14 @@ class PostgreSqlPlatform extends AbstractPlatform
                 return false;
             }
 
-            return count(array_diff($columnDiff->changedProperties, array('type', 'length', 'fixed'))) === 0;
+            return count(array_diff($columnDiff->changedProperties, ['type', 'length', 'fixed'])) === 0;
         }
 
         if ($columnDiff->hasChanged('type')) {
             return false;
         }
 
-        return count(array_diff($columnDiff->changedProperties, array('length', 'fixed'))) === 0;
+        return count(array_diff($columnDiff->changedProperties, ['length', 'fixed'])) === 0;
     }
 
     /**
@@ -663,7 +670,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             $oldIndexName = $schema . '.' . $oldIndexName;
         }
 
-        return array('ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this));
+        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
     }
 
     /**
@@ -748,7 +755,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
@@ -1094,7 +1101,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     protected function initializeDoctrineTypeMappings()
     {
-        $this->doctrineTypeMapping = array(
+        $this->doctrineTypeMapping = [
             'smallint'      => 'smallint',
             'int2'          => 'smallint',
             'serial'        => 'integer',
@@ -1134,7 +1141,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'year'          => 'date',
             'uuid'          => 'guid',
             'bytea'         => 'blob',
-        );
+        ];
     }
 
     /**
@@ -1166,7 +1173,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords';
+        return Keywords\PostgreSQLKeywords::class;
     }
 
     /**
@@ -1185,5 +1192,48 @@ class PostgreSqlPlatform extends AbstractPlatform
         $str = str_replace('\\', '\\\\', $str); // PostgreSQL requires backslashes to be escaped aswell.
 
         return parent::quoteStringLiteral($str);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultValueDeclarationSQL($field)
+    {
+        if ($this->isSerialField($field)) {
+            return '';
+        }
+
+        return parent::getDefaultValueDeclarationSQL($field);
+    }
+
+    private function isSerialField(array $field) : bool
+    {
+        return $field['autoincrement'] ?? false === true && isset($field['type'])
+            && $this->isNumericType($field['type']);
+    }
+
+    /**
+     * Check whether the type of a column is changed in a way that invalidates the default value for the column
+     *
+     * @param ColumnDiff $columnDiff
+     * @return bool
+     */
+    private function typeChangeBreaksDefaultValue(ColumnDiff $columnDiff) : bool
+    {
+        if (! $columnDiff->fromColumn) {
+            return $columnDiff->hasChanged('type');
+        }
+
+        $oldTypeIsNumeric = $this->isNumericType($columnDiff->fromColumn->getType());
+        $newTypeIsNumeric = $this->isNumericType($columnDiff->column->getType());
+
+        // default should not be changed when switching between numeric types and the default comes from a sequence
+        return $columnDiff->hasChanged('type')
+            && ! ($oldTypeIsNumeric && $newTypeIsNumeric && $columnDiff->column->getAutoincrement());
+    }
+
+    private function isNumericType(Type $type) : bool
+    {
+        return $type instanceof IntegerType || $type instanceof BigIntType;
     }
 }

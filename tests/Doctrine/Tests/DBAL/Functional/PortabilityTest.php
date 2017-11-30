@@ -108,7 +108,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertFetchResultRows($rows)
     {
-        $this->assertEquals(2, count($rows));
+        self::assertEquals(2, count($rows));
         foreach ($rows as $row) {
             $this->assertFetchResultRow($row);
         }
@@ -116,11 +116,11 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertFetchResultRow($row)
     {
-        $this->assertTrue(in_array($row['test_int'], array(1, 2)), "Primary key test_int should either be 1 or 2.");
-        $this->assertArrayHasKey('test_string', $row, "Case should be lowered.");
-        $this->assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
-        $this->assertNull($row['test_null']);
-        $this->assertArrayNotHasKey(0, $row, "PDO::FETCH_ASSOC should not return numerical keys.");
+        self::assertTrue(in_array($row['test_int'], array(1, 2)), "Primary key test_int should either be 1 or 2.");
+        self::assertArrayHasKey('test_string', $row, "Case should be lowered.");
+        self::assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
+        self::assertNull($row['test_null']);
+        self::assertArrayNotHasKey(0, $row, "PDO::FETCH_ASSOC should not return numerical keys.");
     }
 
     public function testPortabilitySqlServer()
@@ -142,7 +142,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $connection->connect($params);
 
-        $this->assertEquals($portability, $connection->getPortability());
+        self::assertEquals($portability, $connection->getPortability());
     }
 
     /**
@@ -154,7 +154,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $conn->query('SELECT ' . $field . ' FROM portability_table');
 
         $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        $this->assertEquals($expected, $column);
+        self::assertEquals($expected, $column);
     }
 
     public static function fetchAllColumnProvider()
@@ -177,6 +177,6 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $conn->query('SELECT Test_Null FROM portability_table');
 
         $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        $this->assertSame(array(null, null), $column);
+        self::assertSame(array(null, null), $column);
     }
 }

@@ -36,7 +36,7 @@ class Driver extends AbstractSQLAnywhereDriver
      *
      * @throws \Doctrine\DBAL\DBALException if there was a problem establishing the connection.
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         try {
             return new SQLAnywhereConnection(
@@ -79,7 +79,7 @@ class Driver extends AbstractSQLAnywhereDriver
      *
      * @return string
      */
-    private function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = array())
+    private function buildDsn($host, $port, $server, $dbname, $username = null, $password = null, array $driverOptions = [])
     {
         $host = $host ?: 'localhost';
         $port = $port ?: 2638;

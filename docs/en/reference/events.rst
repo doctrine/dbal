@@ -44,7 +44,7 @@ Schema Events
 
 There are multiple events in Doctrine DBAL that are triggered on schema changes
 of the database. It is possible to add your own event listener to be able to run
-your own code before changes to the database are commited. An instance of
+your own code before changes to the database are committed. An instance of
 ``Doctrine\Common\EventManager`` can also be added to :doc:`platforms`.
 
 A event listener class can contain one or more methods to schema events. These

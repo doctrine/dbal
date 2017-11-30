@@ -75,6 +75,6 @@ class MysqlSessionInit implements EventSubscriber
      */
     public function getSubscribedEvents()
     {
-        return array(Events::postConnect);
+        return [Events::postConnect];
     }
 }

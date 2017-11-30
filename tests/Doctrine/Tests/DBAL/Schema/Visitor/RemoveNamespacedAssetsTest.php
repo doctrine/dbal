@@ -7,7 +7,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\SchemaConfig;
 use Doctrine\DBAL\Schema\Visitor\RemoveNamespacedAssets;
 
-class RemoveNamespacedAssetsTest extends \PHPUnit_Framework_TestCase
+class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @group DBAL-204
@@ -25,7 +25,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit_Framework_TestCase
         $schema->visit(new RemoveNamespacedAssets());
 
         $tables = $schema->getTables();
-        $this->assertEquals(array("test.test", "test.baz"), array_keys($tables), "Only 2 tables should be present, both in 'test' namespace.");
+        self::assertEquals(array("test.test", "test.baz"), array_keys($tables), "Only 2 tables should be present, both in 'test' namespace.");
     }
 
     /**
@@ -48,7 +48,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit_Framework_TestCase
         $schema->visit(new RemoveNamespacedAssets());
 
         $sql = $schema->toSql(new MySqlPlatform());
-        $this->assertEquals(1, count($sql), "Just one CREATE TABLE statement, no foreign key and table to foo.bar");
+        self::assertEquals(1, count($sql), "Just one CREATE TABLE statement, no foreign key and table to foo.bar");
     }
 
     /**
@@ -71,7 +71,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit_Framework_TestCase
         $schema->visit(new RemoveNamespacedAssets());
 
         $sql = $schema->toSql(new MySqlPlatform());
-        $this->assertEquals(1, count($sql), "Just one CREATE TABLE statement, no foreign key and table to foo.bar");
+        self::assertEquals(1, count($sql), "Just one CREATE TABLE statement, no foreign key and table to foo.bar");
     }
 }
 

@@ -14,7 +14,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testModifyLimitQueryWitoutLimit()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT n FROM Foo', null , 10);
-        $this->assertEquals('SELECT n FROM Foo LIMIT 18446744073709551615 OFFSET 10',$sql);
+        self::assertEquals('SELECT n FROM Foo LIMIT 18446744073709551615 OFFSET 10',$sql);
     }
 
     public function testGenerateMixedCaseTableCreate()
@@ -23,7 +23,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn("Bar", "integer");
 
         $sql = $this->_platform->getCreateTableSQL($table);
-        $this->assertEquals('CREATE TABLE Foo (Bar INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB', array_shift($sql));
+        self::assertEquals('CREATE TABLE Foo (Bar INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB', array_shift($sql));
     }
 
     public function getGenerateTableSql()
@@ -47,27 +47,27 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGeneratesSqlSnippets()
     {
-        $this->assertEquals('RLIKE', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
-        $this->assertEquals('`', $this->_platform->getIdentifierQuoteCharacter(), 'Quote character is not correct');
-        $this->assertEquals('CONCAT(column1, column2, column3)', $this->_platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation function is not correct');
+        self::assertEquals('RLIKE', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
+        self::assertEquals('`', $this->_platform->getIdentifierQuoteCharacter(), 'Quote character is not correct');
+        self::assertEquals('CONCAT(column1, column2, column3)', $this->_platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation function is not correct');
     }
 
     public function testGeneratesTransactionsCommands()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED),
             ''
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE',
             $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
         );
@@ -76,23 +76,23 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGeneratesDDLSnippets()
     {
-        $this->assertEquals('SHOW DATABASES', $this->_platform->getListDatabasesSQL());
-        $this->assertEquals('CREATE DATABASE foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
-        $this->assertEquals('DROP DATABASE foobar', $this->_platform->getDropDatabaseSQL('foobar'));
-        $this->assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
+        self::assertEquals('SHOW DATABASES', $this->_platform->getListDatabasesSQL());
+        self::assertEquals('CREATE DATABASE foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals('DROP DATABASE foobar', $this->_platform->getDropDatabaseSQL('foobar'));
+        self::assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
     }
 
     public function testGeneratesTypeDeclarationForIntegers()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'INT',
             $this->_platform->getIntegerTypeDeclarationSQL(array())
         );
-        $this->assertEquals(
+        self::assertEquals(
             'INT AUTO_INCREMENT',
             $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
         ));
-        $this->assertEquals(
+        self::assertEquals(
             'INT AUTO_INCREMENT',
             $this->_platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true)
@@ -101,17 +101,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGeneratesTypeDeclarationForStrings()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
                 array('length' => 10, 'fixed' => true)
         ));
-        $this->assertEquals(
+        self::assertEquals(
             'VARCHAR(50)',
             $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
             'Variable string declaration is not correct'
         );
-        $this->assertEquals(
+        self::assertEquals(
             'VARCHAR(255)',
             $this->_platform->getVarcharTypeDeclarationSQL(array()),
             'Long string declaration is not correct'
@@ -120,17 +120,17 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testPrefersIdentityColumns()
     {
-        $this->assertTrue($this->_platform->prefersIdentityColumns());
+        self::assertTrue($this->_platform->prefersIdentityColumns());
     }
 
     public function testSupportsIdentityColumns()
     {
-        $this->assertTrue($this->_platform->supportsIdentityColumns());
+        self::assertTrue($this->_platform->supportsIdentityColumns());
     }
 
     public function testDoesSupportSavePoints()
     {
-        $this->assertTrue($this->_platform->supportsSavepoints());
+        self::assertTrue($this->_platform->supportsSavepoints());
     }
 
     public function getGenerateIndexSql()
@@ -168,7 +168,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $sql = $this->_platform->getAlterTableSQL($diff);
 
-        $this->assertEquals(array(
+        self::assertEquals(array(
             "ALTER TABLE foo ADD PRIMARY KEY (bar)",
             "CREATE UNIQUE INDEX UNIQ_8C73652178240498 ON foo (baz)",
         ), $sql);
@@ -177,13 +177,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testModifyLimitQuery()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
-        $this->assertEquals('SELECT * FROM user LIMIT 10 OFFSET 0', $sql);
+        self::assertEquals('SELECT * FROM user LIMIT 10 OFFSET 0', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
     {
         $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
-        $this->assertEquals('SELECT * FROM user LIMIT 10', $sql);
+        self::assertEquals('SELECT * FROM user LIMIT 10', $sql);
     }
 
     /**
@@ -191,9 +191,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testGetDateTimeTypeDeclarationSql()
     {
-        $this->assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => false)));
-        $this->assertEquals("TIMESTAMP", $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => true)));
-        $this->assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array()));
+        self::assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => false)));
+        self::assertEquals("TIMESTAMP", $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => true)));
+        self::assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array()));
     }
 
     public function getCreateTableColumnCommentsSQL()
@@ -221,11 +221,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $diff = new TableDiff("test", array(), array(), array(), array($unique), array(), array($index));
         $sql = $this->_platform->getAlterTableSQL($diff);
-        $this->assertEquals(array("ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)"), $sql);
+        self::assertEquals(array("ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)"), $sql);
 
         $diff = new TableDiff("test", array(), array(), array(), array($index), array(), array($unique));
         $sql = $this->_platform->getAlterTableSQL($diff);
-        $this->assertEquals(array("ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"), $sql);
+        self::assertEquals(array("ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"), $sql);
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
@@ -270,7 +270,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $index->addFlag('fulltext');
 
         $sql = $this->_platform->getCreateTableSQL($table);
-        $this->assertEquals(array('CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (text)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
+        self::assertEquals(array('CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (text)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
     }
 
     public function testCreateTableWithSpatialIndex()
@@ -284,31 +284,31 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $index->addFlag('spatial');
 
         $sql = $this->_platform->getCreateTableSQL($table);
-        $this->assertEquals(array('CREATE TABLE spatial_table (point LONGTEXT NOT NULL, SPATIAL INDEX spatial_text (point)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
+        self::assertEquals(array('CREATE TABLE spatial_table (point LONGTEXT NOT NULL, SPATIAL INDEX spatial_text (point)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
     }
 
     public function testClobTypeDeclarationSQL()
     {
-        $this->assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 1)));
-        $this->assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 255)));
-        $this->assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 256)));
-        $this->assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 65535)));
-        $this->assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 65536)));
-        $this->assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 16777215)));
-        $this->assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 16777216)));
-        $this->assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL(array()));
+        self::assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 1)));
+        self::assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 255)));
+        self::assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 256)));
+        self::assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 65535)));
+        self::assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 65536)));
+        self::assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 16777215)));
+        self::assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 16777216)));
+        self::assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL(array()));
     }
 
     public function testBlobTypeDeclarationSQL()
     {
-        $this->assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 1)));
-        $this->assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 255)));
-        $this->assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 256)));
-        $this->assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 65535)));
-        $this->assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 65536)));
-        $this->assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777215)));
-        $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777216)));
-        $this->assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array()));
+        self::assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 1)));
+        self::assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 255)));
+        self::assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 256)));
+        self::assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 65535)));
+        self::assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 65536)));
+        self::assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777215)));
+        self::assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777216)));
+        self::assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array()));
     }
 
     /**
@@ -327,7 +327,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropIndex('idx_id');
         $diffTable->setPrimaryKey(array('id'));
 
-        $this->assertEquals(
+        self::assertEquals(
             array('DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
@@ -349,7 +349,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('foo'));
 
-        $this->assertEquals(
+        self::assertEquals(
             array(
                 'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
                 'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
@@ -375,7 +375,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $diffTable->dropPrimaryKey();
 
-        $this->assertEquals(
+        self::assertEquals(
             array(
                 'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
                 'ALTER TABLE drop_primary_key DROP PRIMARY KEY'
@@ -401,7 +401,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('id'));
 
-        $this->assertSame(
+        self::assertSame(
             array(
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
@@ -428,7 +428,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('id', 'foo'));
 
-        $this->assertSame(
+        self::assertSame(
             array(
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
@@ -456,7 +456,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $sql = $this->_platform->getAlterTableSQL($diff);
 
-        $this->assertEquals(array(
+        self::assertEquals(array(
             "ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)",
         ), $sql);
     }
@@ -468,19 +468,43 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $sql = $this->_platform->getAlterTableSQL($diff);
 
-        $this->assertEquals(array(
+        self::assertEquals(array(
             "ALTER TABLE mytable DROP PRIMARY KEY",
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
+    
+    public function testAlterPrimaryKeyWithNewColumn()
+    {
+        $table = new Table("yolo");
+        $table->addColumn('pkc1', 'integer');
+        $table->addColumn('col_a', 'integer');
+        $table->setPrimaryKey(array('pkc1'));
+
+        $comparator = new Comparator();
+        $diffTable = clone $table;
+        
+        $diffTable->addColumn('pkc2', 'integer');
+        $diffTable->dropPrimaryKey();
+        $diffTable->setPrimaryKey(array('pkc1', 'pkc2'));
+
+        self::assertSame(
+            array(
+                'ALTER TABLE yolo DROP PRIMARY KEY',
+                'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
+                'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
+            ),
+            $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
+        );      
+    }
 
     public function testInitializesDoctrineTypeMappings()
     {
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
-        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('binary'));
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('binary'));
+        self::assertSame('binary', $this->_platform->getDoctrineTypeMapping('binary'));
 
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('varbinary'));
-        $this->assertSame('binary', $this->_platform->getDoctrineTypeMapping('varbinary'));
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('varbinary'));
+        self::assertSame('binary', $this->_platform->getDoctrineTypeMapping('varbinary'));
     }
 
     protected function getBinaryMaxLength()
@@ -490,19 +514,19 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        $this->assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        $this->assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        $this->assertSame('VARBINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65535)));
-        $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65536)));
-        $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777215)));
-        $this->assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777216)));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        self::assertSame('VARBINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65535)));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65536)));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777215)));
+        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777216)));
 
-        $this->assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        $this->assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        $this->assertSame('BINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65535)));
-        $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65536)));
-        $this->assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777215)));
-        $this->assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777216)));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        self::assertSame('BINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65535)));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65536)));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777215)));
+        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777216)));
     }
 
     public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines()
@@ -514,7 +538,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->setPrimaryKey(array('id'));
         $table->addOption('engine', 'MyISAM');
 
-        $this->assertSame(
+        self::assertSame(
             array('CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'),
             $this->_platform->getCreateTableSQL(
                 $table,
@@ -525,7 +549,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table = clone $table;
         $table->addOption('engine', 'InnoDB');
 
-        $this->assertSame(
+        self::assertSame(
             array(
                 'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB',
                 'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D0 FOREIGN KEY (fk_id) REFERENCES foreign_table (id)'
@@ -556,7 +580,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $tableDiff->changedForeignKeys = $changedForeignKeys;
         $tableDiff->removedForeignKeys = $removedForeignKeys;
 
-        $this->assertEmpty($this->_platform->getAlterTableSQL($tableDiff));
+        self::assertEmpty($this->_platform->getAlterTableSQL($tableDiff));
 
         $table->addOption('engine', 'InnoDB');
 
@@ -566,7 +590,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $tableDiff->changedForeignKeys = $changedForeignKeys;
         $tableDiff->removedForeignKeys = $removedForeignKeys;
 
-        $this->assertSame(
+        self::assertSame(
             array(
                 'ALTER TABLE foreign_table DROP FOREIGN KEY fk_remove',
                 'ALTER TABLE foreign_table DROP FOREIGN KEY fk_change',
@@ -643,7 +667,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addColumn('def_blob', 'blob', array('default' => 'def'));
         $table->addColumn('def_blob_null', 'blob', array('notnull' => false, 'default' => 'def'));
 
-        $this->assertSame(
+        self::assertSame(
             array('CREATE TABLE text_blob_default_value (def_text LONGTEXT NOT NULL, def_text_null LONGTEXT DEFAULT NULL, def_blob LONGBLOB NOT NULL, def_blob_null LONGBLOB DEFAULT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'),
             $this->_platform->getCreateTableSQL($table)
         );
@@ -656,7 +680,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
 
-        $this->assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable)));
+        self::assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable)));
     }
 
     /**
@@ -699,7 +723,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        $this->assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
     }
 
     /**
@@ -821,7 +845,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\", 'foo_db'), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\", 'foo_db'), '', true);
     }
 
     /**
@@ -829,7 +853,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testQuotesDatabaseNameInListTableIndexesSQL()
     {
-        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL('foo_table', "Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL('foo_table', "Foo'Bar\\"), '', true);
     }
 
     /**
@@ -837,7 +861,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testQuotesDatabaseNameInListViewsSQL()
     {
-        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListViewsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListViewsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -845,7 +869,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -853,7 +877,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testQuotesDatabaseNameInListTableForeignKeysSQL()
     {
-        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL('foo_table', "Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL('foo_table', "Foo'Bar\\"), '', true);
     }
 
     /**
@@ -861,7 +885,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
-        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -869,18 +893,18 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testQuotesDatabaseNameInListTableColumnsSQL()
     {
-        $this->assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
     }
 
     public function testListTableForeignKeysSQLEvaluatesDatabase()
     {
         $sql = $this->_platform->getListTableForeignKeysSQL('foo');
 
-        $this->assertContains('DATABASE()', $sql);
+        self::assertContains('DATABASE()', $sql);
 
         $sql = $this->_platform->getListTableForeignKeysSQL('foo', 'bar');
 
-        $this->assertContains('bar', $sql);
-        $this->assertNotContains('DATABASE()', $sql);
+        self::assertContains('bar', $sql);
+        self::assertNotContains('DATABASE()', $sql);
     }
 }

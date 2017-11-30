@@ -19,13 +19,13 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Types\BinaryType;
 
 /**
@@ -47,7 +47,7 @@ class OraclePlatform extends AbstractPlatform
      *
      * @throws DBALException
      */
-    static public function assertValidIdentifier($identifier)
+    public static function assertValidIdentifier($identifier)
     {
         if ( ! preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier)) {
             throw new DBALException("Invalid Oracle identifier");
@@ -384,10 +384,10 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($table, array $columns, array $options = array())
+    protected function _getCreateTableSQL($table, array $columns, array $options = [])
     {
-        $indexes = isset($options['indexes']) ? $options['indexes'] : array();
-        $options['indexes'] = array();
+        $indexes = isset($options['indexes']) ? $options['indexes'] : [];
+        $options['indexes'] = [];
         $sql = parent::_getCreateTableSQL($table, $columns, $options);
 
         foreach ($columns as $name => $column) {
@@ -443,7 +443,7 @@ class OraclePlatform extends AbstractPlatform
                        (
                            SELECT ucon.constraint_type
                            FROM   user_constraints ucon
-                           WHERE  ucon.constraint_name = uind_col.index_name
+                           WHERE  ucon.index_name = uind_col.index_name
                        ) AS is_primary
              FROM      user_ind_columns uind_col
              WHERE     uind_col.table_name = " . $table . "
@@ -499,11 +499,11 @@ class OraclePlatform extends AbstractPlatform
         $quotedName = $nameIdentifier->getQuotedName($this);
         $unquotedName = $nameIdentifier->getName();
 
-        $sql = array();
+        $sql = [];
 
         $autoincrementIdentifierName = $this->getAutoincrementIdentifierName($tableIdentifier);
 
-        $idx = new Index($autoincrementIdentifierName, array($quotedName), true, true);
+        $idx = new Index($autoincrementIdentifierName, [$quotedName], true, true);
 
         $sql[] = 'DECLARE
   constraints_Count NUMBER;
@@ -562,11 +562,11 @@ END;';
             ''
         );
 
-        return array(
+        return [
             'DROP TRIGGER ' . $autoincrementIdentifierName,
             $this->getDropSequenceSQL($identitySequenceName),
             $this->getDropConstraintSQL($autoincrementIdentifierName, $table->getQuotedName($this)),
-        );
+        ];
     }
 
     /**
@@ -764,11 +764,11 @@ END;';
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql = array();
-        $commentsSQL = array();
-        $columnSql = array();
+        $sql = [];
+        $commentsSQL = [];
+        $columnSql = [];
 
-        $fields = array();
+        $fields = [];
 
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
@@ -789,7 +789,7 @@ END;';
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ADD (' . implode(', ', $fields) . ')';
         }
 
-        $fields = array();
+        $fields = [];
         foreach ($diff->changedColumns as $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
@@ -847,7 +847,7 @@ END;';
                 ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) .' TO ' . $column->getQuotedName($this);
         }
 
-        $fields = array();
+        $fields = [];
         foreach ($diff->removedColumns as $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
@@ -860,7 +860,7 @@ END;';
             $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' DROP (' . implode(', ', $fields).')';
         }
 
-        $tableSql = array();
+        $tableSql = [];
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             $sql = array_merge($sql, $commentsSQL);
@@ -918,7 +918,7 @@ END;';
             $oldIndexName = $schema . '.' . $oldIndexName;
         }
 
-        return array('ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this));
+        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
     }
 
     /**
@@ -986,7 +986,7 @@ END;';
                 $query .= " FROM dual";
             }
 
-            $columns = array('a.*');
+            $columns = ['a.*'];
 
             if ($offset > 0) {
                 $columns[] = 'ROWNUM AS doctrine_rownum';
@@ -1116,7 +1116,7 @@ END;';
      */
     protected function initializeDoctrineTypeMappings()
     {
-        $this->doctrineTypeMapping = array(
+        $this->doctrineTypeMapping = [
             'integer'           => 'integer',
             'number'            => 'integer',
             'pls_integer'       => 'boolean',
@@ -1140,7 +1140,7 @@ END;';
             'rowid'             => 'string',
             'urowid'            => 'string',
             'blob'              => 'blob',
-        );
+        ];
     }
 
     /**
@@ -1156,7 +1156,7 @@ END;';
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords';
+        return Keywords\OracleKeywords::class;
     }
 
     /**

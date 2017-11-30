@@ -25,33 +25,33 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
 
     public function testSupportsSequences()
     {
-        $this->assertTrue($this->_platform->supportsSequences());
+        self::assertTrue($this->_platform->supportsSequences());
     }
 
     public function testGeneratesSequenceSqlCommands()
     {
         $sequence = new Sequence('myseq', 20, 1);
-        $this->assertEquals(
+        self::assertEquals(
             'CREATE SEQUENCE myseq INCREMENT BY 20 START WITH 1 MINVALUE 1',
             $this->_platform->getCreateSequenceSQL($sequence)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'ALTER SEQUENCE myseq INCREMENT BY 20',
             $this->_platform->getAlterSequenceSQL($sequence)
         );
-        $this->assertEquals(
+        self::assertEquals(
             'DROP SEQUENCE myseq',
             $this->_platform->getDropSequenceSQL('myseq')
         );
-        $this->assertEquals(
+        self::assertEquals(
             'DROP SEQUENCE myseq',
             $this->_platform->getDropSequenceSQL($sequence)
         );
-        $this->assertEquals(
+        self::assertEquals(
             "SELECT myseq.NEXTVAL",
             $this->_platform->getSequenceNextValSQL('myseq')
         );
-        $this->assertEquals(
+        self::assertEquals(
             'SELECT sequence_name, increment_by, start_with, min_value FROM SYS.SYSSEQUENCE',
             $this->_platform->getListSequencesSQL(null)
         );
@@ -59,7 +59,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
 
     public function testGeneratesDateTimeTzColumnTypeDeclarationSQL()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'TIMESTAMP WITH TIME ZONE',
             $this->_platform->getDateTimeTzTypeDeclarationSQL(array(
                 'length' => 10,
@@ -72,18 +72,18 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
 
     public function testHasCorrectDateTimeTzFormatString()
     {
-        $this->assertEquals('Y-m-d H:i:s.uP', $this->_platform->getDateTimeTzFormatString());
+        self::assertEquals('Y-m-d H:i:s.uP', $this->_platform->getDateTimeTzFormatString());
     }
 
     public function testInitializesDateTimeTzTypeMapping()
     {
-        $this->assertTrue($this->_platform->hasDoctrineTypeMappingFor('timestamp with time zone'));
-        $this->assertEquals('datetime', $this->_platform->getDoctrineTypeMapping('timestamp with time zone'));
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('timestamp with time zone'));
+        self::assertEquals('datetime', $this->_platform->getDoctrineTypeMapping('timestamp with time zone'));
     }
 
     public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL()
     {
-        $this->assertEquals(
+        self::assertEquals(
             'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b) WITH NULLS NOT DISTINCT FOR OLAP WORKLOAD',
             $this->_platform->getCreateIndexSQL(
                 new Index(
@@ -96,7 +96,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
                 'footable'
             )
         );
-        $this->assertEquals(
+        self::assertEquals(
             'CREATE VIRTUAL CLUSTERED INDEX fooindex ON footable (a, b) FOR OLAP WORKLOAD',
             $this->_platform->getCreateIndexSQL(
                 new Index(
@@ -111,7 +111,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
         );
 
         // WITH NULLS NOT DISTINCT clause not available on primary indexes.
-        $this->assertEquals(
+        self::assertEquals(
             'ALTER TABLE footable ADD PRIMARY KEY (a, b)',
             $this->_platform->getCreateIndexSQL(
                 new Index(
@@ -126,7 +126,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
         );
 
         // WITH NULLS NOT DISTINCT clause not available on non-unique indexes.
-        $this->assertEquals(
+        self::assertEquals(
             'CREATE INDEX fooindex ON footable (a, b)',
             $this->_platform->getCreateIndexSQL(
                 new Index(

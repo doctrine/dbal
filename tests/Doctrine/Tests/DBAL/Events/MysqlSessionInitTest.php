@@ -26,6 +26,6 @@ class MysqlSessionInitTest extends DbalTestCase
     public function testGetSubscribedEvents()
     {
         $listener = new MysqlSessionInit();
-        $this->assertEquals(array(Events::postConnect), $listener->getSubscribedEvents());
+        self::assertEquals(array(Events::postConnect), $listener->getSubscribedEvents());
     }
 }

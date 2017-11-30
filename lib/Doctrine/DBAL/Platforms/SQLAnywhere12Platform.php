@@ -121,7 +121,7 @@ class SQLAnywhere12Platform extends SQLAnywhere11Platform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords';
+        return Keywords\SQLAnywhere12Keywords::class;
     }
 
     /**

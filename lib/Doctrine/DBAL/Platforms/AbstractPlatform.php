@@ -19,29 +19,29 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Identifier;
-use Doctrine\DBAL\Types;
-use Doctrine\DBAL\Schema\Constraint;
-use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs;
+use Doctrine\DBAL\Event\SchemaCreateTableEventArgs;
+use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
+use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Constraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Identifier;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Events;
-use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Event\SchemaCreateTableEventArgs;
-use Doctrine\DBAL\Event\SchemaCreateTableColumnEventArgs;
-use Doctrine\DBAL\Event\SchemaDropTableEventArgs;
-use Doctrine\DBAL\Event\SchemaAlterTableEventArgs;
-use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
-use Doctrine\DBAL\Event\SchemaAlterTableRemoveColumnEventArgs;
-use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
-use Doctrine\DBAL\Event\SchemaAlterTableRenameColumnEventArgs;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -457,7 +457,7 @@ abstract class AbstractPlatform
      */
     protected function initializeCommentedDoctrineTypes()
     {
-        $this->doctrineTypeComments = array();
+        $this->doctrineTypeComments = [];
 
         foreach (Type::getTypesMap() as $typeName => $className) {
             $type = Type::getType($typeName);
@@ -607,7 +607,7 @@ abstract class AbstractPlatform
      */
     public function getWildcards()
     {
-        return array('%', '_');
+        return ['%', '_'];
     }
 
     /**
@@ -1518,9 +1518,9 @@ abstract class AbstractPlatform
 
         $tableName = $table->getQuotedName($this);
         $options = $table->getOptions();
-        $options['uniqueConstraints'] = array();
-        $options['indexes'] = array();
-        $options['primary'] = array();
+        $options['uniqueConstraints'] = [];
+        $options['indexes'] = [];
+        $options['primary'] = [];
 
         if (($createFlags&self::CREATE_INDEXES) > 0) {
             foreach ($table->getIndexes() as $index) {
@@ -1534,8 +1534,8 @@ abstract class AbstractPlatform
             }
         }
 
-        $columnSql = array();
-        $columns = array();
+        $columnSql = [];
+        $columns = [];
 
         foreach ($table->getColumns() as $column) {
             /* @var \Doctrine\DBAL\Schema\Column $column */
@@ -1556,7 +1556,7 @@ abstract class AbstractPlatform
             $columnData['version'] = $column->hasPlatformOption("version") ? $column->getPlatformOption('version') : false;
             $columnData['comment'] = $this->getColumnComment($column);
 
-            if (strtolower($columnData['type']) == "string" && $columnData['length'] === null) {
+            if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
                 $columnData['length'] = 255;
             }
 
@@ -1568,7 +1568,7 @@ abstract class AbstractPlatform
         }
 
         if (($createFlags&self::CREATE_FOREIGNKEYS) > 0) {
-            $options['foreignKeys'] = array();
+            $options['foreignKeys'] = [];
             foreach ($table->getForeignKeys() as $fkConstraint) {
                 $options['foreignKeys'][] = $fkConstraint;
             }
@@ -1641,7 +1641,7 @@ abstract class AbstractPlatform
      *
      * @return array
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
@@ -1860,7 +1860,7 @@ abstract class AbstractPlatform
     public function quoteIdentifier($str)
     {
         if (strpos($str, ".") !== false) {
-            $parts = array_map(array($this, "quoteSingleIdentifier"), explode(".", $str));
+            $parts = array_map([$this, "quoteSingleIdentifier"], explode(".", $str));
 
             return implode(".", $parts);
         }
@@ -2051,7 +2051,7 @@ abstract class AbstractPlatform
     {
         $tableName = $diff->getName($this)->getQuotedName($this);
 
-        $sql = array();
+        $sql = [];
         if ($this->supportsForeignKeyConstraints()) {
             foreach ($diff->removedForeignKeys as $foreignKey) {
                 $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
@@ -2082,7 +2082,7 @@ abstract class AbstractPlatform
             ? $diff->getNewName()->getQuotedName($this)
             : $diff->getName($this)->getQuotedName($this);
 
-        $sql = array();
+        $sql = [];
 
         if ($this->supportsForeignKeyConstraints()) {
             foreach ($diff->addedForeignKeys as $foreignKey) {
@@ -2124,10 +2124,10 @@ abstract class AbstractPlatform
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
-        return array(
+        return [
             $this->getDropIndexSQL($oldIndexName, $tableName),
             $this->getCreateIndexSQL($index, $tableName)
-        );
+        ];
     }
 
     /**
@@ -2173,7 +2173,7 @@ abstract class AbstractPlatform
      */
     public function getColumnDeclarationListSQL(array $fields)
     {
-        $queryFields = array();
+        $queryFields = [];
 
         foreach ($fields as $fieldName => $field) {
             $queryFields[] = $this->getColumnDeclarationSQL($fieldName, $field);
@@ -2238,10 +2238,10 @@ abstract class AbstractPlatform
 
             $typeDecl = $field['type']->getSQLDeclaration($field, $this);
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
-        }
 
-        if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
-            $columnDef .= ' ' . $this->getInlineColumnCommentSQL($field['comment']);
+            if ($this->supportsInlineColumnComments() && isset($field['comment']) && $field['comment'] !== '') {
+                $columnDef .= ' ' . $this->getInlineColumnCommentSQL($field['comment']);
+            }
         }
 
         return $name . ' ' . $columnDef;
@@ -2274,26 +2274,39 @@ abstract class AbstractPlatform
      */
     public function getDefaultValueDeclarationSQL($field)
     {
-        $default = empty($field['notnull']) ? ' DEFAULT NULL' : '';
-
-        if (isset($field['default'])) {
-            $default = " DEFAULT '".$field['default']."'";
-            if (isset($field['type'])) {
-                if (in_array((string) $field['type'], array("Integer", "BigInt", "SmallInt"))) {
-                    $default = " DEFAULT ".$field['default'];
-                } elseif (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getCurrentTimestampSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimestampSQL();
-                } elseif ((string) $field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentTimeSQL();
-                } elseif ((string) $field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
-                    $default = " DEFAULT ".$this->getCurrentDateSQL();
-                } elseif ((string) $field['type'] == 'Boolean') {
-                    $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
-                }
-            }
+        if ( ! isset($field['default'])) {
+            return empty($field['notnull']) ? ' DEFAULT NULL' : '';
         }
 
-        return $default;
+        $default = $field['default'];
+
+        if ( ! isset($field['type'])) {
+            return " DEFAULT '" . $default . "'";
+        }
+
+        $type = $field['type'];
+
+        if ($type instanceof Types\PhpIntegerMappingType) {
+            return ' DEFAULT ' . $default;
+        }
+
+        if ($type instanceof Types\PhpDateTimeMappingType && $default === $this->getCurrentTimestampSQL()) {
+            return ' DEFAULT ' . $this->getCurrentTimestampSQL();
+        }
+
+        if ($type instanceof Types\TimeType && $default === $this->getCurrentTimeSQL()) {
+            return ' DEFAULT ' . $this->getCurrentTimeSQL();
+        }
+
+        if ($type instanceof Types\DateType && $default === $this->getCurrentDateSQL()) {
+            return ' DEFAULT ' . $this->getCurrentDateSQL();
+        }
+
+        if ($type instanceof Types\BooleanType) {
+            return " DEFAULT '" . $this->convertBooleans($default) . "'";
+        }
+
+        return " DEFAULT '" . $default . "'";
     }
 
     /**
@@ -2306,7 +2319,7 @@ abstract class AbstractPlatform
      */
     public function getCheckDeclarationSQL(array $definition)
     {
-        $constraints = array();
+        $constraints = [];
         foreach ($definition as $field => $def) {
             if (is_string($def)) {
                 $constraints[] = 'CHECK (' . $def . ')';
@@ -2398,7 +2411,7 @@ abstract class AbstractPlatform
      */
     public function getIndexFieldDeclarationListSQL(array $fields)
     {
-        $ret = array();
+        $ret = [];
 
         foreach ($fields as $field => $definition) {
             if (is_array($definition)) {

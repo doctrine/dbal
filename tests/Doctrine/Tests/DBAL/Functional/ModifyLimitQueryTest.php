@@ -168,9 +168,9 @@ SQL;
          * Do not assert the order of results when results are non-deterministic
          */
         if ($deterministic) {
-            $this->assertEquals($expectedResults, $data);
+            self::assertEquals($expectedResults, $data);
         } else {
-            $this->assertCount(count($expectedResults), $data);
+            self::assertCount(count($expectedResults), $data);
         }
     }
 }

@@ -22,11 +22,12 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
-use Doctrine\DBAL\Schema\Identifier;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types;
 
 /**
  * The SQLServerPlatform provides the behavior, features and SQL dialect of the
@@ -231,10 +232,10 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
-        $defaultConstraintsSql = array();
-        $commentsSql           = array();
+        $defaultConstraintsSql = [];
+        $commentsSql           = [];
 
         // @todo does other code breaks because of this?
         // force primary keys to be not null
@@ -419,7 +420,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function _appendUniqueConstraintDefinition($sql, Index $index)
     {
-        $fields = array();
+        $fields = [];
 
         foreach ($index->getQuotedColumns($this) as $field) {
             $fields[] = $field . ' IS NOT NULL';
@@ -433,10 +434,10 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $queryParts  = array();
-        $sql         = array();
-        $columnSql   = array();
-        $commentsSql = array();
+        $queryParts  = [];
+        $sql         = [];
+        $columnSql   = [];
+        $commentsSql = [];
 
         /** @var \Doctrine\DBAL\Schema\Column $column */
         foreach ($diff->addedColumns as $column) {
@@ -548,7 +549,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
         }
 
-        $tableSql = array();
+        $tableSql = [];
 
         if ($this->onSchemaAlterTable($diff, $tableSql)) {
             return array_merge($tableSql, $columnSql);
@@ -725,14 +726,14 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
-        return array(
+        return [
             sprintf(
                 "EXEC sp_RENAME N'%s.%s', N'%s', N'INDEX'",
                 $tableName,
                 $oldIndexName,
                 $index->getQuotedName($this)
             )
-        );
+        ];
     }
 
     /**
@@ -1413,7 +1414,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function initializeDoctrineTypeMappings()
     {
-        $this->doctrineTypeMapping = array(
+        $this->doctrineTypeMapping = [
             'bigint' => 'bigint',
             'numeric' => 'decimal',
             'bit' => 'boolean',
@@ -1439,7 +1440,7 @@ class SQLServerPlatform extends AbstractPlatform
             'varbinary' => 'binary',
             'image' => 'blob',
             'uniqueidentifier' => 'guid',
-        );
+        ];
     }
 
     /**
@@ -1512,7 +1513,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords';
+        return Keywords\SQLServerKeywords::class;
     }
 
     /**
@@ -1554,15 +1555,17 @@ class SQLServerPlatform extends AbstractPlatform
             return " DEFAULT '" . $field['default'] . "'";
         }
 
-        if (in_array((string) $field['type'], array('Integer', 'BigInt', 'SmallInt'))) {
+        $type = $field['type'];
+
+        if ($type instanceof Types\PhpIntegerMappingType) {
             return " DEFAULT " . $field['default'];
         }
 
-        if (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getCurrentTimestampSQL()) {
+        if ($type instanceof Types\PhpDateTimeMappingType && $field['default'] === $this->getCurrentTimestampSQL()) {
             return " DEFAULT " . $this->getCurrentTimestampSQL();
         }
 
-        if ((string) $field['type'] == 'Boolean') {
+        if ($type instanceof Types\BooleanType) {
             return " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
         }
 

@@ -38,7 +38,7 @@ class PDOConnectionTest extends DbalFunctionalTestCase
 
     public function testDoesNotRequireQueryForServerVersion()
     {
-        $this->assertFalse($this->driverConnection->requiresQueryForServerVersion());
+        self::assertFalse($this->driverConnection->requiresQueryForServerVersion());
     }
 
     /**

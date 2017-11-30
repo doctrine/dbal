@@ -22,7 +22,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
         $fromClause     = 'FROM users';
         $expectedResult = $fromClause . $lockHint;
 
-        $this->assertSame($expectedResult, $this->_platform->appendLockHint($fromClause, $lockMode));
+        self::assertSame($expectedResult, $this->_platform->appendLockHint($fromClause, $lockMode));
     }
 
     /**
@@ -31,7 +31,7 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
      */
     public function testScrubInnerOrderBy($query, $limit, $offset, $expectedResult)
     {
-        $this->assertSame($expectedResult, $this->_platform->modifyLimitQuery($query, $limit, $offset));
+        self::assertSame($expectedResult, $this->_platform->modifyLimitQuery($query, $limit, $offset));
     }
 
     public function getLockHints()
@@ -57,5 +57,4 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
             array('SELECT id_0, MIN(sclr_2) AS dctrn_minrownum FROM (SELECT c0_.id AS id_0, c0_.title AS title_1, ROW_NUMBER() OVER(ORDER BY c0_.title ASC) AS sclr_2 FROM TestTable c0_) dctrn_result GROUP BY id_0 ORDER BY dctrn_minrownum ASC', 30, null, 'WITH dctrn_cte AS (SELECT TOP 30 id_0, MIN(sclr_2) AS dctrn_minrownum FROM (SELECT c0_.id AS id_0, c0_.title AS title_1, ROW_NUMBER() OVER(ORDER BY c0_.title ASC) AS sclr_2 FROM TestTable c0_) dctrn_result GROUP BY id_0 ORDER BY dctrn_minrownum ASC) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum BETWEEN 1 AND 30 ORDER BY doctrine_rownum ASC'),
         );
     }
-
 }

@@ -44,7 +44,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * @author Jonathan Wage <jonwage@gmail.com>
  * @author Roman Borschel <roman@code-factory.org>
  */
-class DateTimeTzType extends Type
+class DateTimeTzType extends Type implements PhpDateTimeMappingType
 {
     /**
      * {@inheritdoc}
@@ -71,7 +71,7 @@ class DateTimeTzType extends Type
             return $value;
         }
 
-        if ($value instanceof \DateTime) {
+        if ($value instanceof \DateTimeInterface) {
             return $value->format($platform->getDateTimeTzFormatString());
         }
 
@@ -83,7 +83,7 @@ class DateTimeTzType extends Type
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === null || $value instanceof \DateTime) {
+        if ($value === null || $value instanceof \DateTimeInterface) {
             return $value;
         }
 

@@ -23,6 +23,6 @@ class SQLAnywhere11PlatformTest extends SQLAnywherePlatformTest
 
     public function testGeneratesRegularExpressionSQLSnippet()
     {
-        $this->assertEquals('REGEXP', $this->_platform->getRegexpExpression());
+        self::assertEquals('REGEXP', $this->_platform->getRegexpExpression());
     }
 }

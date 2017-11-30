@@ -107,7 +107,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
         if ($this->emptied && $this->data !== null) {
             $data = $this->resultCache->fetch($this->cacheKey);
             if ( ! $data) {
-                $data = array();
+                $data = [];
             }
             $data[$this->realKey] = $this->data;
 
@@ -147,10 +147,10 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         if ($this->data === null) {
-            $this->data = array();
+            $this->data = [];
         }
 
         $row = $this->statement->fetch(PDO::FETCH_ASSOC);
@@ -179,9 +179,9 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
-        $rows = array();
+        $rows = [];
         while ($row = $this->fetch($fetchMode)) {
             $rows[] = $row;
         }
