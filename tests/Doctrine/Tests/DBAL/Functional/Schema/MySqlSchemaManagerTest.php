@@ -454,21 +454,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $platform = $this->_sm->getDatabasePlatform();
         $this->_conn->query('DROP TABLE IF EXISTS test_column_defaults_with_create');
 
-        $escapeSequences = [
-            "\\0",          // An ASCII NUL (X'00') character
-            "\\'", "''",    // Single quote
-            '\\"', '""',    // Double quote
-            '\\b',          // A backspace character
-            '\\n',          // A new-line character
-            '\\r',          // A carriage return character
-            '\\t',          // A tab character
-            '\\Z',          // ASCII 26 (Control+Z)
-            '\\\\',         // A backslash (\) character
-            '\\%',          // A percent (%) character
-            '\\_',          // An underscore (_) character
-        ];
-
-        $default = implode('+', $escapeSequences);
+        $default = implode('+', $this->getEscapedLiterals());
 
         $sql = "CREATE TABLE test_column_defaults_with_create(
                     col1 VARCHAR(255) NULL DEFAULT {$platform->quoteStringLiteral($default)} 
@@ -476,5 +462,24 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_conn->query($sql);
         $onlineTable = $this->_sm->listTableDetails("test_column_defaults_with_create");
         self::assertSame($default, $onlineTable->getColumn('col1')->getDefault());
+    }
+
+    protected function getEscapedLiterals() : array
+    {
+        return [
+            "\\0", // An ASCII NUL (X'00') character
+            "\\'", // Single quote
+            "''",  // Single quote
+            '\\"', // Double quote
+            '""',  // Double quote
+            '\\b', // A backspace character
+            '\\n', // A new-line character
+            '\\r', // A carriage return character
+            '\\t', // A tab character
+            '\\Z', // ASCII 26 (Control+Z)
+            '\\\\', // A backslash (\) character
+            '\\%', // A percent (%) character
+            '\\_', // An underscore (_) character
+        ];
     }
 }

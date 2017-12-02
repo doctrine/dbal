@@ -1398,18 +1398,38 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         self::assertEquals($sequence2InitialValue, $actualSequence2->getInitialValue());
     }
 
-    public function testEscapedDefaultValueMustBePreserved()
+    /**
+     * Returns literals that are platform specific escaped.
+     *
+     * @return array
+     */
+    protected function getEscapedLiterals() : array
     {
-        $value = "a\\0b\\'c\"d\te\\Zf\\\\g''h";
+        return [
+            "\\'", // A single quote
+            '\\"', // A double quote
+            '\\n', // A new-line character
+            '\\r', // A carriage return character
+        ];
+    }
+
+    public function testEscapedDefaultValueMustBePreserved() : void
+    {
+        $value = implode('+', $this->getEscapedLiterals());
 
         $table = new Table('string_escaped_default_value');
         $table->addColumn('def_string', 'string', array('default' => $value));
+        $table->addColumn('def_foo', 'string');
         $this->_sm->dropAndCreateTable($table);
 
         $onlineTable = $this->_sm->listTableDetails('string_escaped_default_value');
-        $this->assertSame($value, $onlineTable->getColumn('def_string')->getDefault());
+        self::assertSame($value, $onlineTable->getColumn('def_string')->getDefault(), 'should be able introspect the value of default');
 
         $comparator = new Comparator();
-        $this->assertFalse($comparator->diffTable($table, $onlineTable));
+        self::assertFalse($comparator->diffTable($table, $onlineTable), 'introspected schema should have no differences');
+
+        $this->_conn->insert('string_escaped_default_value', array('def_foo' => 'foo'));
+        $row = $this->_conn->fetchAssoc('SELECT def_string FROM string_escaped_default_value');
+        self::assertSame($value, $row['def_string'], 'inserted default value should be the configured default value');
     }
 }

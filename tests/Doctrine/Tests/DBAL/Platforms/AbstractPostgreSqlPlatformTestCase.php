@@ -977,7 +977,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
     }
 
-    public function testGetDefaultValueDeclarationSQLEscaped()
+    public function testGetDefaultValueDeclarationSQLEscaped() : void
     {
         // string must be escaped
         $field = [
@@ -985,6 +985,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             'default' => 'Foo\\Bar'
         ];
 
-        self::assertSame(" DEFAULT 'Foo\\\\Bar'", $this->_platform->getDefaultValueDeclarationSQL($field));
+        self::assertSame(" DEFAULT 'Foo\\Bar'", $this->_platform->getDefaultValueDeclarationSQL($field));
     }
 }
