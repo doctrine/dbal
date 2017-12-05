@@ -2078,6 +2078,11 @@ abstract class AbstractPlatform
             $sql[] = $this->getDropIndexSQL($index, $tableName);
         }
         foreach ($diff->changedIndexes as $index) {
+            if ($index->isPrimary()) {
+                $sql[] = $this->getDropPrimaryKeySQL($tableName);
+                continue;
+            }
+
             $sql[] = $this->getDropIndexSQL($index, $tableName);
         }
 
@@ -3604,5 +3609,15 @@ abstract class AbstractPlatform
     protected function getLikeWildcardCharacters() : string
     {
         return '%_';
+    }
+
+    /**
+     * @param string $table
+     *
+     * @return string
+     */
+    protected function getDropPrimaryKeySQL(string $table): string
+    {
+        return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
     }
 }

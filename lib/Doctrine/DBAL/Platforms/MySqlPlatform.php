@@ -976,16 +976,6 @@ class MySqlPlatform extends AbstractPlatform
     }
 
     /**
-     * @param string $table
-     *
-     * @return string
-     */
-    protected function getDropPrimaryKeySQL($table)
-    {
-        return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function getSetTransactionIsolationSQL($level)

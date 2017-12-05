@@ -445,14 +445,6 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function getDropPrimaryKeySQL($table)
-    {
-        return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
         if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] == true) {

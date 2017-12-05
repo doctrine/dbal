@@ -755,6 +755,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    protected function getDropPrimaryKeySQL(string $table): string
+    {
+        return $this->getDropConstraintSQL("{$table}_pkey", $table);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
