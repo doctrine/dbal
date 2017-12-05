@@ -17,6 +17,14 @@ class DBALExceptionTest extends DbalTestCase
         $e = DBALException::driverExceptionDuringQuery($driver, new \Exception, '', array('ABC', chr(128)));
         self::assertContains('with params ["ABC", "\x80"]', $e->getMessage());
     }
+    
+    public function testDriverExceptionDuringQueryAcceptsResource()
+    {
+        /* @var $driver Driver */
+        $driver = $this->createMock(Driver::class);
+        $e = \Doctrine\DBAL\DBALException::driverExceptionDuringQuery($driver, new \Exception, "INSERT INTO file (`content`) VALUES (?)", [1 => tmpfile()]);
+        self::assertContains('Resource', $e->getMessage());
+    }
 
     public function testAvoidOverWrappingOnDriverException()
     {
