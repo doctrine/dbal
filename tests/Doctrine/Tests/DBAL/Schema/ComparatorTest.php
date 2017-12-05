@@ -451,7 +451,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         $c = new Comparator();
         $diffSchema = $c->compare($schema1, $schema2);
 
-        self::assertEquals(1, count($diffSchema->removedSequences));
+        self::assertCount(1, $diffSchema->removedSequences);
         self::assertSame($seq, $diffSchema->removedSequences[0]);
     }
 
@@ -465,7 +465,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         $c = new Comparator();
         $diffSchema = $c->compare($schema1, $schema2);
 
-        self::assertEquals(1, count($diffSchema->newSequences));
+        self::assertCount(1, $diffSchema->newSequences);
         self::assertSame($seq, $diffSchema->newSequences[0]);
     }
 
@@ -485,7 +485,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         $tableDiff = $c->diffTable($table1, $table2);
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        self::assertEquals(1, count($tableDiff->addedForeignKeys));
+        self::assertCount(1, $tableDiff->addedForeignKeys);
     }
 
     public function testTableRemoveForeignKey()
@@ -504,7 +504,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         $tableDiff = $c->diffTable($table2, $table1);
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        self::assertEquals(1, count($tableDiff->removedForeignKeys));
+        self::assertCount(1, $tableDiff->removedForeignKeys);
     }
 
     public function testTableUpdateForeignKey()
@@ -524,7 +524,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         $tableDiff = $c->diffTable($table1, $table2);
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        self::assertEquals(1, count($tableDiff->changedForeignKeys));
+        self::assertCount(1, $tableDiff->changedForeignKeys);
     }
 
     public function testMovedForeignKeyForeignTable()
@@ -547,7 +547,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         $tableDiff = $c->diffTable($table1, $table2);
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
-        self::assertEquals(1, count($tableDiff->changedForeignKeys));
+        self::assertCount(1, $tableDiff->changedForeignKeys);
     }
 
     public function testTablesCaseInsensitive()
@@ -673,8 +673,8 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         $c = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertEquals(0, count($tableDiff->addedColumns));
-        self::assertEquals(0, count($tableDiff->removedColumns));
+        self::assertCount(0, $tableDiff->addedColumns);
+        self::assertCount(0, $tableDiff->removedColumns);
         self::assertArrayHasKey('foo', $tableDiff->renamedColumns);
         self::assertEquals('bar', $tableDiff->renamedColumns['foo']->getName());
     }
@@ -698,12 +698,12 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         $c = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertEquals(1, count($tableDiff->addedColumns), "'baz' should be added, not created through renaming!");
+        self::assertCount(1, $tableDiff->addedColumns, "'baz' should be added, not created through renaming!");
         self::assertArrayHasKey('baz', $tableDiff->addedColumns, "'baz' should be added, not created through renaming!");
-        self::assertEquals(2, count($tableDiff->removedColumns), "'foo' and 'bar' should both be dropped, an ambiguity exists which one could be renamed to 'baz'.");
+        self::assertCount(2, $tableDiff->removedColumns, "'foo' and 'bar' should both be dropped, an ambiguity exists which one could be renamed to 'baz'.");
         self::assertArrayHasKey('foo', $tableDiff->removedColumns, "'foo' should be removed.");
         self::assertArrayHasKey('bar', $tableDiff->removedColumns, "'bar' should be removed.");
-        self::assertEquals(0, count($tableDiff->renamedColumns), "no renamings should take place.");
+        self::assertCount(0, $tableDiff->renamedColumns, "no renamings should take place.");
     }
 
     /**
@@ -801,7 +801,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
         self::assertEquals(array('twitterid', 'displayname'), array_keys($tableDiff->renamedColumns));
         self::assertEquals(array('logged_in_at'), array_keys($tableDiff->addedColumns));
-        self::assertEquals(0, count($tableDiff->removedColumns));
+        self::assertCount(0, $tableDiff->removedColumns);
     }
 
 
@@ -1073,9 +1073,9 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
      */
     public function assertSchemaTableChangeCount($diff, $newTableCount=0, $changeTableCount=0, $removeTableCount=0)
     {
-        self::assertEquals($newTableCount, count($diff->newTables));
-        self::assertEquals($changeTableCount, count($diff->changedTables));
-        self::assertEquals($removeTableCount, count($diff->removedTables));
+        self::assertCount($newTableCount, $diff->newTables);
+        self::assertCount($changeTableCount, $diff->changedTables);
+        self::assertCount($removeTableCount, $diff->removedTables);
     }
 
     /**
@@ -1086,9 +1086,9 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
      */
     public function assertSchemaSequenceChangeCount($diff, $newSequenceCount=0, $changeSequenceCount=0, $removeSequenceCount=0)
     {
-        self::assertEquals($newSequenceCount, count($diff->newSequences), "Expected number of new sequences is wrong.");
-        self::assertEquals($changeSequenceCount, count($diff->changedSequences), "Expected number of changed sequences is wrong.");
-        self::assertEquals($removeSequenceCount, count($diff->removedSequences), "Expected number of removed sequences is wrong.");
+        self::assertCount($newSequenceCount, $diff->newSequences, "Expected number of new sequences is wrong.");
+        self::assertCount($changeSequenceCount, $diff->changedSequences, "Expected number of changed sequences is wrong.");
+        self::assertCount($removeSequenceCount, $diff->removedSequences, "Expected number of removed sequences is wrong.");
     }
 
     public function testDiffColumnPlatformOptions()

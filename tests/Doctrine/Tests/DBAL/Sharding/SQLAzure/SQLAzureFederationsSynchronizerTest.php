@@ -43,7 +43,6 @@ class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
         $synchronizer->createSchema($schema);
         $sql = $synchronizer->getDropSchema($schema);
 
-        self::assertEQuals(5, count($sql));
+        self::assertCount(5, $sql);
     }
 }
-

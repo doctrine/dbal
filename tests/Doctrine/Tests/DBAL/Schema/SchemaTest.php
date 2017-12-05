@@ -18,7 +18,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($schema->hasTable($tableName));
 
         $tables = $schema->getTables();
-        self::assertTrue( isset($tables[$tableName]) );
+        self::assertArrayHasKey($tableName, $tables);
         self::assertSame($table, $tables[$tableName]);
         self::assertSame($table, $schema->getTable($tableName));
         self::assertTrue($schema->hasTable($tableName));

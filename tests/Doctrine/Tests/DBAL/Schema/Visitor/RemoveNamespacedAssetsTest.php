@@ -48,7 +48,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
         $schema->visit(new RemoveNamespacedAssets());
 
         $sql = $schema->toSql(new MySqlPlatform());
-        self::assertEquals(1, count($sql), "Just one CREATE TABLE statement, no foreign key and table to foo.bar");
+        self::assertCount(1, $sql, "Just one CREATE TABLE statement, no foreign key and table to foo.bar");
     }
 
     /**
@@ -71,7 +71,6 @@ class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
         $schema->visit(new RemoveNamespacedAssets());
 
         $sql = $schema->toSql(new MySqlPlatform());
-        self::assertEquals(1, count($sql), "Just one CREATE TABLE statement, no foreign key and table to foo.bar");
+        self::assertCount(1, $sql, "Just one CREATE TABLE statement, no foreign key and table to foo.bar");
     }
 }
-

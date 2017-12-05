@@ -117,10 +117,10 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->insertRows();
 
         self::assertEquals(1, $this->_conn->delete('write_table', array('test_int' => 2)));
-        self::assertEquals(1, count($this->_conn->fetchAll('SELECT * FROM write_table')));
+        self::assertCount(1, $this->_conn->fetchAll('SELECT * FROM write_table'));
 
         self::assertEquals(1, $this->_conn->delete('write_table', array('test_int' => 1)));
-        self::assertEquals(0, count($this->_conn->fetchAll('SELECT * FROM write_table')));
+        self::assertCount(0, $this->_conn->fetchAll('SELECT * FROM write_table'));
     }
 
     public function testUpdate()
@@ -142,7 +142,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $num = $this->_conn->lastInsertId();
 
         self::assertNotNull($num, "LastInsertId() should not be null.");
-        self::assertTrue($num > 0, "LastInsertId() should be non-negative number.");
+        self::assertGreaterThan(0, $num, "LastInsertId() should be non-negative number.");
     }
 
     public function testLastInsertIdSequence()
@@ -158,16 +158,16 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $sequences = $this->_conn->getSchemaManager()->listSequences();
-        self::assertEquals(1, count(array_filter($sequences, function($sequence) {
+        self::assertCount(1, array_filter($sequences, function($sequence) {
             return strtolower($sequence->getName()) === 'write_table_id_seq';
-        })));
+        }));
 
         $stmt = $this->_conn->query($this->_conn->getDatabasePlatform()->getSequenceNextValSQL('write_table_id_seq'));
         $nextSequenceVal = $stmt->fetchColumn();
 
         $lastInsertId = $this->_conn->lastInsertId('write_table_id_seq');
 
-        self::assertTrue($lastInsertId > 0);
+        self::assertGreaterThan(0, $lastInsertId);
         self::assertEquals($nextSequenceVal, $lastInsertId);
     }
 
@@ -281,7 +281,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $secondId = $this->_conn->lastInsertId($seqName);
 
-        self::assertTrue($secondId > $firstId);
+        self::assertGreaterThan($firstId, $secondId);
 
     }
 

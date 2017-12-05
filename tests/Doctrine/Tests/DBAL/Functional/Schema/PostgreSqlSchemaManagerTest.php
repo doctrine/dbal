@@ -42,7 +42,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $names = $this->_sm->getSchemaNames();
 
         self::assertInternalType('array', $names);
-        self::assertTrue(count($names) > 0);
+        self::assertNotEmpty($names);
         self::assertContains('public', $names, 'The public schema should be found.');
     }
 
@@ -164,7 +164,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(array('id'), $nestedSchemaTable->getPrimaryKey()->getColumns());
 
         $relatedFks = $nestedSchemaTable->getForeignKeys();
-        self::assertEquals(1, count($relatedFks));
+        self::assertCount(1, $relatedFks);
         $relatedFk = array_pop($relatedFks);
         self::assertEquals("nested.schemarelated", $relatedFk->getForeignTableName());
     }
@@ -206,11 +206,11 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_#');
         $names = $this->_sm->listTableNames();
-        self::assertEquals(2, count($names));
+        self::assertCount(2, $names);
 
         $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_test#');
         $names = $this->_sm->listTableNames();
-        self::assertEquals(1, count($names));
+        self::assertCount(1, $names);
     }
 
     public function testListForeignKeys()
