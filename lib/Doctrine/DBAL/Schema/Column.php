@@ -120,7 +120,7 @@ class Column extends AbstractAsset
         foreach ($options as $name => $value) {
             $method = "set".$name;
             if ( ! method_exists($this, $method)) {
-                // next major: use InvalidArgumentException::fromUnsupportedOption()
+                // next major: throw an exception
                 @trigger_error(sprintf(
                     'The "%s" option is not supported,'.
                     ' setting it is deprecated and will cause an exception in 3.0',
