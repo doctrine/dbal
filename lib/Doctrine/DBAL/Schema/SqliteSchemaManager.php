@@ -118,7 +118,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
         if ( ! empty($tableForeignKeys)) {
             $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
-            $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
+            $createSql = $createSql[0]['sql'] ?? '';
 
             if (preg_match_all('#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?

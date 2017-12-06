@@ -47,7 +47,7 @@ class DriverTest extends AbstractDriverTest
     public function getDatabaseParameter()
     {
         $params = TestUtil::getConnection()->getParams();
-        $realDatabaseName = isset($params['dbname']) ? $params['dbname'] : '';
+        $realDatabaseName = $params['dbname'] ?? '';
         $dummyDatabaseName = $realDatabaseName . 'a';
 
         return array(
@@ -67,8 +67,8 @@ class DriverTest extends AbstractDriverTest
         $parameters = $this->_conn->getParams();
         $parameters['application_name'] = 'doctrine';
 
-        $user = isset($parameters['user']) ? $parameters['user'] : null;
-        $password = isset($parameters['password']) ? $parameters['password'] : null;
+        $user = $parameters['user'] ?? null;
+        $password = $parameters['password'] ?? null;
 
         $connection = $this->driver->connect($parameters, $user, $password);
 

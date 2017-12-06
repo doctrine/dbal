@@ -150,6 +150,6 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 
         }
 
-        return isset($params['dbname']) ? $params['dbname'] : '';
+        return $params['dbname'] ?? '';
     }
 }

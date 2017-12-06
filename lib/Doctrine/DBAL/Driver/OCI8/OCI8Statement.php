@@ -264,7 +264,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function bindParam($column, &$variable, $type = null, $length = null)
     {
-        $column = isset($this->_paramMap[$column]) ? $this->_paramMap[$column] : $column;
+        $column = $this->_paramMap[$column] ?? $column;
 
         if ($type == \PDO::PARAM_LOB) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
@@ -466,7 +466,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
+        return $row[$columnIndex] ?? null;
     }
 
     /**

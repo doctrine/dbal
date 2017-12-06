@@ -264,7 +264,7 @@ class Connection implements DriverConnection
      */
     public function getHost()
     {
-        return isset($this->_params['host']) ? $this->_params['host'] : null;
+        return $this->_params['host'] ?? null;
     }
 
     /**
@@ -274,7 +274,7 @@ class Connection implements DriverConnection
      */
     public function getPort()
     {
-        return isset($this->_params['port']) ? $this->_params['port'] : null;
+        return $this->_params['port'] ?? null;
     }
 
     /**
@@ -284,7 +284,7 @@ class Connection implements DriverConnection
      */
     public function getUsername()
     {
-        return isset($this->_params['user']) ? $this->_params['user'] : null;
+        return $this->_params['user'] ?? null;
     }
 
     /**
@@ -294,7 +294,7 @@ class Connection implements DriverConnection
      */
     public function getPassword()
     {
-        return isset($this->_params['password']) ? $this->_params['password'] : null;
+        return $this->_params['password'] ?? null;
     }
 
     /**
@@ -365,11 +365,9 @@ class Connection implements DriverConnection
             return false;
         }
 
-        $driverOptions = isset($this->_params['driverOptions']) ?
-            $this->_params['driverOptions'] : [];
-        $user = isset($this->_params['user']) ? $this->_params['user'] : null;
-        $password = isset($this->_params['password']) ?
-            $this->_params['password'] : null;
+        $driverOptions = $this->_params['driverOptions'] ?? [];
+        $user = $this->_params['user'] ?? null;
+        $password = $this->_params['password'] ?? null;
 
         $this->_conn = $this->_driver->connect($this->_params, $user, $password, $driverOptions);
         $this->_isConnected = true;
