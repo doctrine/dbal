@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Types\Type;
 
 /**
