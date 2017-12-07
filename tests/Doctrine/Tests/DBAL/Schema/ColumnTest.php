@@ -58,7 +58,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @group legacy
-     * @expectedDeprecation The "unknown_option" option is not supported, setting it is deprecated and will cause an exception in 3.0
+     * @expectedDeprecation The "unknown_option" option is not supported, setting it is deprecated and will cause an error in 3.0
      */
     public function testSettingUnknownOptionIsStillSupported() : void
     {

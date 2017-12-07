@@ -122,7 +122,7 @@ class Column extends AbstractAsset
                 // next major: throw an exception
                 @trigger_error(sprintf(
                     'The "%s" option is not supported,'.
-                    ' setting it is deprecated and will cause an exception in 3.0',
+                    ' setting it is deprecated and will cause an error in 3.0',
                     $name
                 ), E_USER_DEPRECATED);
 
