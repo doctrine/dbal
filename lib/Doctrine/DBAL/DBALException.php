@@ -190,6 +190,10 @@ class DBALException extends \Exception
     private static function formatParameters(array $params)
     {
         return '[' . implode(', ', array_map(function ($param) {
+            if (is_resource($param)) {
+                return (string) $param;
+            }
+            
             $json = @json_encode($param);
 
             if (! is_string($json) || $json == 'null' && is_string($param)) {
