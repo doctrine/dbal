@@ -386,7 +386,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'text':
             case '_varchar':
             case 'varchar':
-                $tableColumn['default'] = $this->fixDefaultValueQuotes($tableColumn['default']);
+                $tableColumn['default'] = $this->unescapeDefaultValue($tableColumn['default']);
                 $fixed = false;
                 break;
             case 'interval':
@@ -477,7 +477,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * @return null|string
      */
-    private function fixDefaultValueQuotes(?string $default): ?string
+    private function unescapeDefaultValue(?string $default): ?string
     {
         if ($default === null) {
             return $default;
