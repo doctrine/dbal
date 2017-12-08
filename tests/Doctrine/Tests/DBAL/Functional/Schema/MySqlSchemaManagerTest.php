@@ -444,27 +444,13 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     }
 
     /**
-     * Ensure default values (un-)escaping is properly done by mysql platforms.
-     * The test is voluntarily relying on schema introspection due to current
-     * doctrine limitations. Once #2850 is landed, this test can be removed.
+     * Returns literals that are platform specific escaped.
+     *
      * @see https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
+     *
+     * @return array
      */
-    public function testEnsureDefaultsAreUnescapedFromSchemaIntrospection() : void
-    {
-        $platform = $this->_sm->getDatabasePlatform();
-        $this->_conn->query('DROP TABLE IF EXISTS test_column_defaults_with_create');
-
-        $default = implode('+', $this->getEscapedLiterals());
-
-        $sql = "CREATE TABLE test_column_defaults_with_create(
-                    col1 VARCHAR(255) NULL DEFAULT {$platform->quoteStringLiteral($default)} 
-                )";
-        $this->_conn->query($sql);
-        $onlineTable = $this->_sm->listTableDetails("test_column_defaults_with_create");
-        self::assertSame($default, $onlineTable->getColumn('col1')->getDefault());
-    }
-
-    protected function getEscapedLiterals() : array
+    protected function getEscapedLiterals(): array
     {
         return [
             "\\0", // An ASCII NUL (X'00') character
