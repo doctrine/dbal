@@ -121,8 +121,8 @@ class Column extends AbstractAsset
             if ( ! method_exists($this, $method)) {
                 // next major: throw an exception
                 @trigger_error(sprintf(
-                    'The "%s" option is not supported,'.
-                    ' setting it is deprecated and will cause an error in 3.0',
+                    'The "%s" column option is not supported,'.
+                    ' setting it is deprecated and will cause an error in Doctrine 3.0',
                     $name
                 ), E_USER_DEPRECATED);
 
