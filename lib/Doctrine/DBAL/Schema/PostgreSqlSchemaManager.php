@@ -483,7 +483,6 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             return $default;
         }
 
-        $default = str_replace("\\\\", "\\", $default);
         $default = str_replace("''", "'", $default);
 
         return $default;

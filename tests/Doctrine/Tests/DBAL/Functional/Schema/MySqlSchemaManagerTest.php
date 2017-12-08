@@ -442,30 +442,4 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diff = $comparator->diffTable($table, $onlineTable);
         self::assertFalse($diff, "Tables should be identical with column defauts time and date.");
     }
-
-    /**
-     * Returns literals that are platform specific escaped.
-     *
-     * @see https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
-     *
-     * @return array
-     */
-    protected function getEscapedLiterals(): array
-    {
-        return [
-            "\\0", // An ASCII NUL (X'00') character
-            "\\'", // Single quote
-            "''",  // Single quote
-            '\\"', // Double quote
-            '""',  // Double quote
-            '\\b', // A backspace character
-            '\\n', // A new-line character
-            '\\r', // A carriage return character
-            '\\t', // A tab character
-            '\\Z', // ASCII 26 (Control+Z)
-            '\\\\', // A backslash (\) character
-            '\\%', // A percent (%) character
-            '\\_', // An underscore (_) character
-        ];
-    }
 }

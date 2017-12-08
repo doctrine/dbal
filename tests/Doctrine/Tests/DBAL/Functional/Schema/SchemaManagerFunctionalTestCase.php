@@ -1399,24 +1399,41 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     }
 
     /**
-     * Returns literals that are platform specific escaped.
+     * Returns potential escaped literals from all platforms combined.
+     *
+     * @see https://dev.mysql.com/doc/refman/5.7/en/string-literals.html
+     * @see http://www.sqlite.org/lang_expr.html
+     * @see https://www.postgresql.org/docs/9.6/static/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE
      *
      * @return array
      */
-    protected function getEscapedLiterals() : array
+    public function getEscapedLiterals(): array
     {
         return [
-            "\\'", // A single quote
-            '\\"', // A double quote
-            '\\n', // A new-line character
-            '\\r', // A carriage return character
+            'An ASCII NUL (X\'00\')' => ["\\0"],
+            'Single quote, C-style' => ["\\'"],
+            'Single quote, doubled-style' => ["''"],
+            'Double quote, C-style' => ['\\"'],
+            'Double quote, double-style' => ['""'],
+            'Backspace' => ['\\b'],
+            'New-line' => ['\\n'],
+            'Carriage return' => ['\\r'],
+            'Tab' => ['\\t'],
+            'ASCII 26 (Control+Z)' => ['\\Z'],
+            'Backslash (\)' => ['\\\\'],
+            'Percent (%)' => ['\\%'],
+            'Underscore (_)' => ['\\_'],
         ];
     }
 
-    public function testEscapedDefaultValueMustBePreserved() : void
+    /**
+     * @dataProvider getEscapedLiterals
+     *
+     * @param string $value
+     */
+    public function testEscapedDefaultValueMustBePreserved(string $value) : void
     {
-        $value = implode('+', $this->getEscapedLiterals());
-
+        $value = 'foo' . $value . 'bar';
         $table = new Table('string_escaped_default_value');
         $table->addColumn('def_string', 'string', array('default' => $value));
         $table->addColumn('def_foo', 'string');
