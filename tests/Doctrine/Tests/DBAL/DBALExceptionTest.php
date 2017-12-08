@@ -22,7 +22,7 @@ class DBALExceptionTest extends DbalTestCase
     {
         /* @var $driver Driver */
         $driver = $this->createMock(Driver::class);
-        $e = \Doctrine\DBAL\DBALException::driverExceptionDuringQuery($driver, new \Exception, "INSERT INTO file (`content`) VALUES (?)", [1 => tmpfile()]);
+        $e = \Doctrine\DBAL\DBALException::driverExceptionDuringQuery($driver, new \Exception, "INSERT INTO file (`content`) VALUES (?)", [1 => fopen(__FILE__, 'r')]);
         self::assertContains('Resource', $e->getMessage());
     }
 
