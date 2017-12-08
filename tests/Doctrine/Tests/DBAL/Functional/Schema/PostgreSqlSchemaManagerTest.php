@@ -308,7 +308,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $offlineTable = new Schema\Table('user');
         $offlineTable->addColumn('id', 'integer');
-        $offlineTable->addColumn('username', 'string', array('unique' => true));
+        $offlineTable->addColumn('username', 'string');
         $offlineTable->addColumn('fk', 'integer');
         $offlineTable->setPrimaryKey(array('id'));
         $offlineTable->addForeignKeyConstraint($offlineTable, array('fk'), array('id'));
