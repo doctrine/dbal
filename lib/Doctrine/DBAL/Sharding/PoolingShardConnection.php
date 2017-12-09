@@ -128,7 +128,7 @@ class PoolingShardConnection extends Connection
 
     /**
      * Get active shard id.
-     * 
+     *
      * @return integer
      */
     public function getActiveShardId()
@@ -236,12 +236,12 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
-        $driverOptions = isset($params['driverOptions']) ? $params['driverOptions'] : [];
+        $driverOptions = $params['driverOptions'] ?? [];
 
         $connectionParams = $this->connections[$shardId];
 
-        $user = isset($connectionParams['user']) ? $connectionParams['user'] : null;
-        $password = isset($connectionParams['password']) ? $connectionParams['password'] : null;
+        $user = $connectionParams['user'] ?? null;
+        $password = $connectionParams['password'] ?? null;
 
         return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
     }
