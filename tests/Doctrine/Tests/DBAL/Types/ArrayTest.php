@@ -25,15 +25,17 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
 
     public function testArrayConvertsToDatabaseValue()
     {
-        self::assertTrue(
-            is_string($this->_type->convertToDatabaseValue(array(), $this->_platform))
+        self::assertInternalType(
+            'string',
+            $this->_type->convertToDatabaseValue(array(), $this->_platform)
         );
     }
 
     public function testArrayConvertsToPHPValue()
     {
-        self::assertTrue(
-            is_array($this->_type->convertToPHPValue(serialize(array()), $this->_platform))
+        self::assertInternalType(
+            'array',
+            $this->_type->convertToPHPValue(serialize(array()), $this->_platform)
         );
     }
 

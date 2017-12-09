@@ -39,7 +39,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         self::assertInstanceOf('Doctrine\DBAL\Schema\Column', $table->getColumn("foo"));
         self::assertInstanceOf('Doctrine\DBAL\Schema\Column', $table->getColumn("bar"));
 
-        self::assertEquals(2, count($table->getColumns()));
+        self::assertCount(2, $table->getColumns());
     }
 
     public function testColumnsCaseInsensitive()
@@ -197,7 +197,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $tableA = new Table("foo", array(), array(), array($constraint));
         $constraints = $tableA->getForeignKeys();
 
-        self::assertEquals(1, count($constraints));
+        self::assertCount(1, $constraints);
         self::assertSame($constraint, array_shift($constraints));
     }
 
@@ -308,7 +308,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->addForeignKeyConstraint($foreignTable, array("id"), array("id"), array("foo" => "bar"));
 
         $constraints = $table->getForeignKeys();
-        self::assertEquals(1, count($constraints));
+        self::assertCount(1, $constraints);
         $constraint = current($constraints);
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $constraint);
@@ -350,7 +350,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->addColumn('baz', 'integer', array());
         $table->addIndex(array('baz'));
 
-        self::assertEquals(1, count($table->getIndexes()));
+        self::assertCount(1, $table->getIndexes());
     }
 
     /**
@@ -367,7 +367,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->addForeignKeyConstraint($foreignTable, array("id"), array("id"), array("foo" => "bar"));
 
         $indexes = $table->getIndexes();
-        self::assertEquals(1, count($indexes));
+        self::assertCount(1, $indexes);
         $index = current($indexes);
 
         self::assertTrue($table->hasIndex($index->getName()));
@@ -431,11 +431,11 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->addIndex(array('baz'));
 
         $indexes = $table->getIndexes();
-        self::assertEquals(1, count($indexes));
+        self::assertCount(1, $indexes);
         $index = current($indexes);
 
         $table->addUniqueIndex(array('baz'));
-        self::assertEquals(2, count($table->getIndexes()));
+        self::assertCount(2, $table->getIndexes());
         self::assertTrue($table->hasIndex($index->getName()));
     }
 
@@ -487,7 +487,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->setPrimaryKey(array('baz'));
 
         $indexes = $table->getIndexes();
-        self::assertEquals(2, count($indexes), "Table should only contain both the primary key table index and the unique one, even though it was overruled.");
+        self::assertCount(2, $indexes, "Table should only contain both the primary key table index and the unique one, even though it was overruled.");
 
         self::assertTrue($table->hasPrimaryKey());
         self::assertTrue($table->hasIndex('idx_unique'));

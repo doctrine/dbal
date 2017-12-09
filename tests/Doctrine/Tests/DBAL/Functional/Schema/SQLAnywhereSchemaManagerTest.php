@@ -21,7 +21,7 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $views = $this->_sm->listViews();
 
-        self::assertEquals(1, count($views), "Database has to have one view.");
+        self::assertCount(1, $views, "Database has to have one view.");
         self::assertInstanceOf('Doctrine\DBAL\Schema\View', $views[$name]);
         self::assertEquals($name, $views[$name]->getName());
         self::assertEquals($sql, $views[$name]->getSql());

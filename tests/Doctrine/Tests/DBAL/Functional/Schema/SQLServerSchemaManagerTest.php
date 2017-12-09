@@ -32,7 +32,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->alterTable($diff);
 
         $columns = $this->_sm->listTableColumns('sqlsrv_drop_column');
-        self::assertEquals(1, count($columns));
+        self::assertCount(1, $columns);
     }
 
     public function testColumnCollation()
@@ -193,7 +193,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->createTable($table);
 
         $columns = $this->_sm->listTableColumns("sqlsrv_column_comment");
-        self::assertEquals(12, count($columns));
+        self::assertCount(12, $columns);
         self::assertNull($columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
         self::assertNull($columns['comment_false']->getComment());
@@ -309,7 +309,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->alterTable($tableDiff);
 
         $columns = $this->_sm->listTableColumns("sqlsrv_column_comment");
-        self::assertEquals(23, count($columns));
+        self::assertCount(23, $columns);
         self::assertEquals('primary', $columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
         self::assertEquals('false', $columns['comment_false']->getComment());

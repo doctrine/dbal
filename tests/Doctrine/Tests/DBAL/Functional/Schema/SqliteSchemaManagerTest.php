@@ -155,7 +155,7 @@ EOS
 
         $tableIndexes = $this->_sm->listTableIndexes('non_default_pk_order');
 
-         self::assertEquals(1, count($tableIndexes));
+         self::assertCount(1, $tableIndexes);
 
         self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
         self::assertEquals(array('other_id', 'id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));

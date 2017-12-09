@@ -75,7 +75,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $rows = $this->_conn->fetchAll('SELECT * FROM blob_table');
 
-        self::assertEquals(1, count($rows));
+        self::assertCount(1, $rows);
         $row = array_change_key_case($rows[0], CASE_LOWER);
 
         $blobValue = Type::getType('binary')->convertToPHPValue($row['binaryfield'], $this->_conn->getDatabasePlatform());
@@ -88,7 +88,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $rows = $this->_conn->fetchAll('SELECT * FROM blob_table');
 
-        self::assertEquals(1, count($rows));
+        self::assertCount(1, $rows);
         $row = array_change_key_case($rows[0], CASE_LOWER);
 
         $blobValue = Type::getType('blob')->convertToPHPValue($row['blobfield'], $this->_conn->getDatabasePlatform());
