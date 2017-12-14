@@ -32,9 +32,9 @@ class Connection extends \Doctrine\DBAL\Driver\PDOConnection
         if (\PDO::PARAM_BOOL === $type) {
             if ($value) {
                 return 'true';
-            } else {
-                return 'false';
             }
+
+            return 'false';
         }
 
         return parent::quote($value, $type);

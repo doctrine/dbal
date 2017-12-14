@@ -62,9 +62,9 @@ class DbalFunctionalTestCase extends DbalTestCase
                         return get_class($p);
                     } elseif (is_scalar($p)) {
                         return "'".$p."'";
-                    } else {
-                        return var_export($p, true);
                     }
+
+                    return var_export($p, true);
                 }, $query['params'] ?: array());
                 $queries .= $i.". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
                 $i--;

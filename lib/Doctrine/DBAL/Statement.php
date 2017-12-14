@@ -118,9 +118,9 @@ class Statement implements \IteratorAggregate, DriverStatement
             }
 
             return $this->stmt->bindValue($name, $value, $bindingType);
-        } else {
-            return $this->stmt->bindValue($name, $value);
         }
+
+        return $this->stmt->bindValue($name, $value);
     }
 
     /**
