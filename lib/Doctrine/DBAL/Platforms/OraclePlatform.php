@@ -445,8 +445,7 @@ class OraclePlatform extends AbstractPlatform
             $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
             $tableCondition = " AND ind_col.table_name = $quotedTableIdentifier";
         }
-        return
-<<<SQL
+        return <<<SQL
           SELECT ind_col.table_name as table_name,
                  ind_col.index_name AS name,
                  ind.index_type AS type,
@@ -657,8 +656,7 @@ END;';
             $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
             $tableCondition = " AND cols.table_name = $quotedTableIdentifier";
         }
-        return
-<<<SQL
+        return <<<SQL
           SELECT cols.table_name,
                  alc.constraint_name,
                  alc.DELETE_RULE,
@@ -722,8 +720,7 @@ SQL;
             $quotedTableIdentifier = $this->quoteStringLiteral($tableIdentifier->getName());
             $tableCondition = " AND c.table_name = $quotedTableIdentifier";
         }
-        return
-<<<SQL
+        return <<<SQL
           SELECT c.*,
                  d.comments AS comments
             FROM all_tab_columns c
