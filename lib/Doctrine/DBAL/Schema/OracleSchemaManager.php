@@ -34,6 +34,13 @@ use Doctrine\DBAL\Types\Type;
 class OracleSchemaManager extends AbstractSchemaManager
 {
     /**
+     * Holds instance of the database platform used for this schema manager.
+     *
+     * @var \Doctrine\DBAL\Platforms\OraclePlatform
+     */
+    protected $_platform;
+
+    /**
      * {@inheritdoc}
      */
     public function listTables()
@@ -43,31 +50,31 @@ class OracleSchemaManager extends AbstractSchemaManager
         $tableNames = $this->listTableNames();
 
         // Get all column definitions in one database call.
-        $columnsByTable = $this->getAssetRecordsByTable($this->_platform->getListColumnsSQL($currentDatabase, null));
+        $columnsByTable = $this->getAssetRecordsByTable($this->_platform->getListAllColumnsSQL($currentDatabase));
 
         // Get all foreign keys definitions in one database call.
-        $foreignKeysByTable = $this->getAssetRecordsByTable($this->_platform->getListForeignKeysSQL($currentDatabase, null));
+        $foreignKeysByTable = $this->getAssetRecordsByTable($this->_platform->getListAllForeignKeysSQL($currentDatabase));
 
         // Get all indexes definitions in one database call.
-        $indexesByTable = $this->getAssetRecordsByTable($this->_platform->getListIndexesSQL($currentDatabase, null));
+        $indexesByTable = $this->getAssetRecordsByTable($this->_platform->getListAllIndexesSQL($currentDatabase));
 
         $tables = [];
-        foreach ($tableNames as $tableName) {
-            $unquotedTableName = trim($tableName, '"');
+        foreach ($tableNames as $quotedTableName) {
+            $tableName = trim($quotedTableName, $this->_platform->getIdentifierQuoteCharacter());
 
-            $columns = $this->_getPortableTableColumnList($tableName, null, $columnsByTable[$unquotedTableName]);
+            $columns = $this->_getPortableTableColumnList($quotedTableName, null, $columnsByTable[$tableName]);
 
             $foreignKeys = [];
-            if (isset($foreignKeysByTable[$unquotedTableName])) {
-                $foreignKeys = $this->_getPortableTableForeignKeysList($foreignKeysByTable[$unquotedTableName]);
+            if (isset($foreignKeysByTable[$tableName])) {
+                $foreignKeys = $this->_getPortableTableForeignKeysList($foreignKeysByTable[$tableName]);
             }
 
             $indexes = [];
-            if (isset($indexesByTable[$unquotedTableName])) {
-                $indexes = $this->_getPortableTableIndexesList($indexesByTable[$unquotedTableName], $tableName);
+            if (isset($indexesByTable[$tableName])) {
+                $indexes = $this->_getPortableTableIndexesList($indexesByTable[$tableName], $quotedTableName);
             }
 
-            $tables[] = new Table($tableName, $columns, $indexes, $foreignKeys, false, []);
+            $tables[] = new Table($quotedTableName, $columns, $indexes, $foreignKeys, false, []);
         }
 
         return $tables;
