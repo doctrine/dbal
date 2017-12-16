@@ -103,9 +103,9 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         $input = db2_escape_string($input);
         if ($type == \PDO::PARAM_INT) {
             return $input;
-        } else {
-            return "'".$input."'";
         }
+
+        return "'".$input."'";
     }
 
     /**

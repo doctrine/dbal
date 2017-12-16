@@ -194,9 +194,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         if ($table['schema_name'] == $firstSchema) {
             return $table['table_name'];
-        } else {
-            return $table['schema_name'] . "." . $table['table_name'];
         }
+
+        return $table['schema_name'] . "." . $table['table_name'];
     }
 
     /**

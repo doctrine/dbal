@@ -204,9 +204,9 @@ class QueryBuilder
     {
         if ($this->type == self::SELECT) {
             return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
-        } else {
-            return $this->connection->executeUpdate($this->getSQL(), $this->params, $this->paramTypes);
         }
+
+        return $this->connection->executeUpdate($this->getSQL(), $this->params, $this->paramTypes);
     }
 
     /**
