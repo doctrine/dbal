@@ -196,7 +196,7 @@ final class DriverManager
         // check existence of mandatory parameters
 
         // driver
-        if ( ! isset($params['driver']) && ! isset($params['driverClass'])) {
+        if ( ! isset($params['driver'], $params['driverClass'])) {
             throw DBALException::driverRequired();
         }
 
@@ -418,7 +418,7 @@ final class DriverManager
 
         // If a schemeless connection URL is given, we require a default driver or default custom driver
         // as connection parameter.
-        if (! isset($params['driverClass']) && ! isset($params['driver'])) {
+        if (! isset($params['driverClass'], $params['driver'])) {
             throw DBALException::driverRequired($params['url']);
         }
 

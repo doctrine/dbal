@@ -162,7 +162,7 @@ class SQLParserUtils
             $paramLen = strlen($paramName) + 1;
             $value    = static::extractParam($paramName, $params, true);
 
-            if ( ! isset($arrayPositions[$paramName]) && ! isset($arrayPositions[':' . $paramName])) {
+            if ( ! isset($arrayPositions[$paramName], $arrayPositions[':' . $paramName])) {
                 $pos         += $queryOffset;
                 $queryOffset -= ($paramLen - 1);
                 $paramsOrd[]  = $value;
