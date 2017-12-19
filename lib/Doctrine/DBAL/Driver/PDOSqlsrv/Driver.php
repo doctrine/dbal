@@ -56,7 +56,7 @@ class Driver extends AbstractSQLServerDriver
             $dsn .= $params['host'];
         }
 
-        if (isset($params['port']) && !empty($params['port'])) {
+        if (isset($params['port'])) {
             $dsn .= ',' . $params['port'];
         }
 

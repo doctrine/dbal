@@ -78,11 +78,11 @@ class Driver extends AbstractPostgreSQLDriver
     {
         $dsn = 'pgsql:';
 
-        if (isset($params['host']) && $params['host'] != '') {
+        if (isset($params['host'])) {
             $dsn .= 'host=' . $params['host'] . ';';
         }
 
-        if (isset($params['port']) && $params['port'] != '') {
+        if (isset($params['port'])) {
             $dsn .= 'port=' . $params['port'] . ';';
         }
 

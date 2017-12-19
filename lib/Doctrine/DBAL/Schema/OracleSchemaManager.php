@@ -235,7 +235,7 @@ class OracleSchemaManager extends AbstractSchemaManager
             'length'     => $length,
             'precision'  => $precision,
             'scale'      => $scale,
-            'comment'    => isset($tableColumn['comments']) && '' !== $tableColumn['comments']
+            'comment'    => isset($tableColumn['comments'])
                 ? $tableColumn['comments']
                 : null,
         ];
