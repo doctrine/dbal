@@ -281,12 +281,12 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     private function setSecureConnection(array $params)
     {
-        if (! isset($params['ssl_key']) &&
-            ! isset($params['ssl_cert']) &&
-            ! isset($params['ssl_ca']) &&
-            ! isset($params['ssl_capath']) &&
-            ! isset($params['ssl_cipher'])
-        ) {
+        if (! isset($params['ssl_key'],
+                $params['ssl_cert'],
+                $params['ssl_ca'],
+                $params['ssl_capath'],
+                $params['ssl_cipher']
+        )) {
             return;
         }
 
