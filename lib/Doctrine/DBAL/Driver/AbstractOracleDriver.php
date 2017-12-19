@@ -136,7 +136,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
                 $service = 'SERVICE_NAME=' . $serviceName;
             }
 
-            if (isset($params['instancename']) && ! empty($params['instancename'])) {
+            if (isset($params['instancename'])) {
                 $instance = '(INSTANCE_NAME = ' . $params['instancename'] . ')';
             }
 

@@ -99,7 +99,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             'notnull'       => (bool) ($tableColumn['nulls'] == 'N'),
             'scale'         => null,
             'precision'     => null,
-            'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
+            'comment'       => isset($tableColumn['comment'])
                 ? $tableColumn['comment']
                 : null,
             'platformOptions' => [],
