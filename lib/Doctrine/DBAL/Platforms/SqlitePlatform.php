@@ -818,9 +818,11 @@ class SqlitePlatform extends AbstractPlatform
 
             $columnName = strtolower($columnName);
             if (isset($columns[$columnName])) {
-                unset($columns[$columnName]);
-                unset($oldColumnNames[$columnName]);
-                unset($newColumnNames[$columnName]);
+                unset(
+                    $columns[$columnName],
+                    $oldColumnNames[$columnName],
+                    $newColumnNames[$columnName]
+                );
             }
         }
 

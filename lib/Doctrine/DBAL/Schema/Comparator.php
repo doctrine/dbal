@@ -279,14 +279,12 @@ class Comparator
         foreach ($fromFkeys as $key1 => $constraint1) {
             foreach ($toFkeys as $key2 => $constraint2) {
                 if ($this->diffForeignKey($constraint1, $constraint2) === false) {
-                    unset($fromFkeys[$key1]);
-                    unset($toFkeys[$key2]);
+                    unset($fromFkeys[$key1], $toFkeys[$key2]);
                 } else {
                     if (strtolower($constraint1->getName()) == strtolower($constraint2->getName())) {
                         $tableDifferences->changedForeignKeys[] = $constraint2;
                         $changes++;
-                        unset($fromFkeys[$key1]);
-                        unset($toFkeys[$key2]);
+                        unset($fromFkeys[$key1], $toFkeys[$key2]);
                     }
                 }
             }
@@ -332,8 +330,10 @@ class Comparator
 
                 if ( ! isset($tableDifferences->renamedColumns[$removedColumnName])) {
                     $tableDifferences->renamedColumns[$removedColumnName] = $addedColumn;
-                    unset($tableDifferences->addedColumns[$addedColumnName]);
-                    unset($tableDifferences->removedColumns[$removedColumnName]);
+                    unset(
+                        $tableDifferences->addedColumns[$addedColumnName],
+                        $tableDifferences->removedColumns[$removedColumnName]
+                    );
                 }
             }
         }
@@ -373,8 +373,10 @@ class Comparator
 
                 if (! isset($tableDifferences->renamedIndexes[$removedIndexName])) {
                     $tableDifferences->renamedIndexes[$removedIndexName] = $addedIndex;
-                    unset($tableDifferences->addedIndexes[$addedIndexName]);
-                    unset($tableDifferences->removedIndexes[$removedIndexName]);
+                    unset(
+                        $tableDifferences->addedIndexes[$addedIndexName],
+                        $tableDifferences->removedIndexes[$removedIndexName]
+                    );
                 }
             }
         }

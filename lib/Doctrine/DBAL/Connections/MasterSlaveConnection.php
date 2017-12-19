@@ -288,8 +288,7 @@ class MasterSlaveConnection extends Connection
      */
     public function close()
     {
-        unset($this->connections['master']);
-        unset($this->connections['slave']);
+        unset($this->connections['master'], $this->connections['slave']);
 
         parent::close();
 
