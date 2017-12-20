@@ -636,9 +636,16 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         $tableB->addNamedForeignKeyConstraint('bar_constraint', 'bar', array('id'), array('id'));
 
         $c = new Comparator();
-        $tableDiff = $c->diffTable($tableA, $tableB);
+        $tableDiff = new TableDiff('foo');
+        $tableDiff->fromTable = $tableA;
+        $foreignKey = new ForeignKeyConstraint(['id'], 'bar', ['id'], 'bar_constraint');
+        $foreignKey->setLocalTable($tableB);
+        $tableDiff->renamedForeignKeys['foo_constraint'] = $foreignKey;
 
-        self::assertFalse($tableDiff);
+        self::assertEquals(
+            $tableDiff,
+            $c->diffTable($tableA, $tableB)
+        );
     }
 
     public function testCompareForeignKey_RestrictNoAction_AreTheSame()
