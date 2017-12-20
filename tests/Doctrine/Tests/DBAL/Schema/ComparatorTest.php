@@ -527,6 +527,26 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertCount(1, $tableDiff->changedForeignKeys);
     }
 
+    public function testTableRenamedForeignKey(): void
+    {
+        $tableForeign = new Table("bar");
+        $tableForeign->addColumn('id', 'integer');
+
+        $table1 = new Table("foo");
+        $table1->addColumn('fk', 'integer');
+        $table1->addForeignKeyConstraint($tableForeign, ['fk'], ['id'], [], 'fk_name1');
+
+        $table2 = new Table("foo");
+        $table2->addColumn('fk', 'integer');
+        $table2->addForeignKeyConstraint($tableForeign, ['fk'], ['id'], [], 'fk_name2');
+
+        $c = new Comparator();
+        $tableDiff = $c->diffTable($table1, $table2);
+
+        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
+        self::assertCount(1, $tableDiff->renamedForeignKeys);
+    }
+
     public function testMovedForeignKeyForeignTable()
     {
         $tableForeign = new Table("bar");
