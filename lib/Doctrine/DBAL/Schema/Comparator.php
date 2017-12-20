@@ -279,6 +279,10 @@ class Comparator
         foreach ($fromFkeys as $key1 => $constraint1) {
             foreach ($toFkeys as $key2 => $constraint2) {
                 if ($this->diffForeignKey($constraint1, $constraint2) === false) {
+                    if (strcasecmp($constraint1->getName(), $constraint2->getName()) !== 0) {
+                        $tableDifferences->renamedForeignKeys[$constraint1->getName()] = $constraint2;
+                        $changes++;
+                    }
                     unset($fromFkeys[$key1], $toFkeys[$key2]);
                 } else {
                     if (strtolower($constraint1->getName()) == strtolower($constraint2->getName())) {

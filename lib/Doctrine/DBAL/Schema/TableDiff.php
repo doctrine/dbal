@@ -118,6 +118,13 @@ class TableDiff
     public $removedForeignKeys = [];
 
     /**
+     * All changed foreign keys
+     *
+     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     */
+    public $renamedForeignKeys = [];
+
+    /**
      * @var \Doctrine\DBAL\Schema\Table
      */
     public $fromTable;
