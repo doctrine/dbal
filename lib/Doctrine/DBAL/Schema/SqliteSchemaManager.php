@@ -443,11 +443,19 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     private function parseColumnCollationFromSQL($column, $sql)
     {
-        if (preg_match(
-            '/(?:' . addcslashes(preg_quote($column, '/'), '#') . '|' . addcslashes(preg_quote($this->_platform->quoteSingleIdentifier($column), '/'), '#') . ')
+        if (PHP_VERSION_ID < 70300) {
+            $regex = '{(?:'.addcslashes(preg_quote($column, '/'), '#').'|'.addcslashes(preg_quote($this->_platform->quoteSingleIdentifier($column), '/'), '#').')
                 [^,(]+(?:\([^()]+\)[^,]*)?
                 (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
-                COLLATE\s+["\']?([^\s,"\')]+)/isx', $sql, $match)) {
+                COLLATE\s+["\']?([^\s,"\')]+)}isx';
+        } else {
+            $regex = '{(?:'.preg_quote($column).'|'.preg_quote($this->_platform->quoteSingleIdentifier($column)).')
+                [^,(]+(?:\([^()]+\)[^,]*)?
+                (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
+                COLLATE\s+["\']?([^\s,"\')]+)}isx';
+        }
+        
+        if (preg_match($regex, $sql, $match)) {
             return $match[1];
         }
 
@@ -462,11 +470,17 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     private function parseColumnCommentFromSQL($column, $sql)
     {
-        if (preg_match(
-            '/[\s(,](?:' . addcslashes(preg_quote($this->_platform->quoteSingleIdentifier($column), '/'), '#') . '|' . addcslashes(preg_quote($column, '/'), '#') . ')
-            (?:\(.*?\)|[^,(])*?,?((?:\s*--[^\n]*\n?)+)
-            /isx', $sql, $match
-        )) {
+        if (PHP_VERSION_ID < 70300) {
+            $regex = '{[\s(,](?:'.addcslashes(preg_quote($this->_platform->quoteSingleIdentifier($column), '/'), '#').'|'.addcslashes(preg_quote($column, '/'), '#').')
+                (?:\(.*?\)|[^,(])*?,?((?:\s*--[^\n]*\n?)+)
+                }isx';
+        } else {
+            $regex = '{[\s(,](?:'.preg_quote($this->_platform->quoteSingleIdentifier($column)).'|'.preg_quote($column).')
+                (?:\(.*?\)|[^,(])*?,?((?:\s*--[^\n]*\n?)+)
+                }isx';
+        }
+        
+        if (preg_match($regex, $sql, $match)) {
             $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
 
             return '' === $comment ? false : $comment;
