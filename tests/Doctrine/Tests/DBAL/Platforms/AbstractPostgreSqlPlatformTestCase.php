@@ -634,6 +634,17 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     /**
      * @group DBAL-234
      */
+    protected function getAlterTableRenameForeignKeySQL(): array
+    {
+        return [
+            'ALTER TABLE mytable DROP CONSTRAINT fk1',
+            'ALTER TABLE mytable ADD CONSTRAINT fk2 FOREIGN KEY (fk) REFERENCES fk_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE',
+        ];
+    }
+
+    /**
+     * @group DBAL-234
+     */
     protected function getAlterTableRenameIndexSQL()
     {
         return array(

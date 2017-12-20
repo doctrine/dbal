@@ -854,6 +854,35 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     /**
      * @group DBAL-234
      */
+    public function testAlterTableRenameForeignKey(): void
+    {
+        $tableDiff = new TableDiff('mytable');
+        $tableDiff->fromTable = new Table('mytable');
+        $tableDiff->fromTable->addColumn('fk', 'integer');
+        $tableDiff->renamedForeignKeys = array(
+            'fk1' => new ForeignKeyConstraint(array('fk'), 'fk_table', array('id'), 'fk2')
+        );
+
+        self::assertSame(
+            $this->getAlterTableRenameForeignKeySQL(),
+            $this->_platform->getAlterTableSQL($tableDiff)
+        );
+    }
+
+    /**
+     * @group DBAL-234
+     */
+    protected function getAlterTableRenameForeignKeySQL(): array
+    {
+        return [
+            'ALTER TABLE mytable DROP FOREIGN KEY fk1',
+            'ALTER TABLE mytable ADD CONSTRAINT fk2 FOREIGN KEY (fk) REFERENCES fk_table (id)',
+        ];
+    }
+
+    /**
+     * @group DBAL-234
+     */
     public function testAlterTableRenameIndex()
     {
         $tableDiff = new TableDiff('mytable');

@@ -491,6 +491,20 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     /**
      * @group DBAL-234
      */
+    protected function getAlterTableRenameForeignKeySQL(): array
+    {
+        return [
+            'CREATE TEMPORARY TABLE __temp__mytable AS SELECT fk FROM mytable',
+            'DROP TABLE mytable',
+            'CREATE TABLE mytable (fk INTEGER NOT NULL, CONSTRAINT fk2 FOREIGN KEY (fk) REFERENCES fk_table (id) NOT DEFERRABLE INITIALLY IMMEDIATE)',
+            'INSERT INTO mytable (fk) SELECT fk FROM __temp__mytable',
+            'DROP TABLE __temp__mytable',
+        ];
+    }
+
+    /**
+     * @group DBAL-234
+     */
     protected function getAlterTableRenameIndexSQL()
     {
         return array(
