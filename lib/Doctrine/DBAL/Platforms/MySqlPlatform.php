@@ -678,6 +678,7 @@ class MySqlPlatform extends AbstractPlatform
             $diff->addedForeignKeys   = [];
             $diff->changedForeignKeys = [];
             $diff->removedForeignKeys = [];
+            $diff->renamedForeignKeys = [];
         }
 
         $sql = array_merge(
