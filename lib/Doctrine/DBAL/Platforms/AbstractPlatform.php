@@ -2092,6 +2092,14 @@ abstract class AbstractPlatform
             foreach ($diff->changedForeignKeys as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
+
+            foreach ($diff->renamedForeignKeys as $oldForeignKeyName =>$foreignKey) {
+                $oldForeignKeyName = new Identifier($oldForeignKeyName);
+                $sql               = array_merge(
+                    $sql,
+                    $this->getRenameForeignKeySQL($oldForeignKeyName->getQuotedName($this), $foreignKey, $tableName)
+                );
+            }
         }
 
         foreach ($diff->addedIndexes as $index) {
@@ -2127,6 +2135,23 @@ abstract class AbstractPlatform
         return [
             $this->getDropIndexSQL($oldIndexName, $tableName),
             $this->getCreateIndexSQL($index, $tableName)
+        ];
+    }
+
+    /**
+     * Returns the SQL for renaming a foreign key on a table.
+     *
+     * @param string                                     $oldForeignKeyName The name of the foreign key to rename from.
+     * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $foreignKey        The definition of the index to rename to.
+     * @param string                                     $tableName         The table to rename the given index on.
+     *
+     * @return array The sequence of SQL statements for renaming the given index.
+     */
+    protected function getRenameForeignKeySQL(string $oldForeignKeyName, ForeignKeyConstraint $foreignKey, string $tableName): array
+    {
+        return [
+            $this->getDropForeignKeySQL($oldForeignKeyName, $tableName),
+            $this->getCreateForeignKeySQL($foreignKey, $tableName)
         ];
     }
 
