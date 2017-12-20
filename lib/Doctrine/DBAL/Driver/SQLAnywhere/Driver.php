@@ -41,15 +41,15 @@ class Driver extends AbstractSQLAnywhereDriver
         try {
             return new SQLAnywhereConnection(
                 $this->buildDsn(
-                    isset($params['host']) ? $params['host'] : null,
-                    isset($params['port']) ? $params['port'] : null,
-                    isset($params['server']) ? $params['server'] : null,
-                    isset($params['dbname']) ? $params['dbname'] : null,
+                    $params['host'] ?? null,
+                    $params['port'] ?? null,
+                    $params['server'] ?? null,
+                    $params['dbname'] ?? null,
                     $username,
                     $password,
                     $driverOptions
                 ),
-                isset($params['persistent']) ? $params['persistent'] : false
+                $params['persistent'] ?? false
             );
         } catch (SQLAnywhereException $e) {
             throw DBALException::driverException($this, $e);

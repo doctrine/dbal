@@ -698,8 +698,7 @@ class DB2Platform extends AbstractPlatform
 
                     $sql[] = $this->getCreateIndexSQL($addIndex, $table);
 
-                    unset($diff->removedIndexes[$remKey]);
-                    unset($diff->addedIndexes[$addKey]);
+                    unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
 
                     break;
                 }

@@ -758,8 +758,8 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->andWhere('u.id = 1');
 
-        self::assertFalse($qb->getQueryParts() === $qb_clone->getQueryParts());
-        self::assertFalse($qb->getParameters() === $qb_clone->getParameters());
+        self::assertNotSame($qb->getQueryParts(), $qb_clone->getQueryParts());
+        self::assertNotSame($qb->getParameters(), $qb_clone->getParameters());
     }
 
     public function testSimpleSelectWithoutTableAlias()

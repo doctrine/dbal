@@ -122,9 +122,9 @@ class Table extends AbstractAsset
     {
         if ($this->_schemaConfig instanceof SchemaConfig) {
             return $this->_schemaConfig->getMaxIdentifierLength();
-        } else {
-            return 63;
         }
+
+        return 63;
     }
 
     /**

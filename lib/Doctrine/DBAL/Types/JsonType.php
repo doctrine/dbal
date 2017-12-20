@@ -90,12 +90,7 @@ class JsonType extends Type
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {
-        /*
-         * should be switched back to the platform detection at 3.0, when
-         * JsonArrayType will be dropped
-         */
-        //return ! $platform->hasNativeJsonType();
-        return true;
+        return ! $platform->hasNativeJsonType();
     }
 
     /**

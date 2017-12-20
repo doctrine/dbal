@@ -108,7 +108,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertFetchResultRows($rows)
     {
-        self::assertEquals(2, count($rows));
+        self::assertCount(2, $rows);
         foreach ($rows as $row) {
             $this->assertFetchResultRow($row);
         }
@@ -116,7 +116,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertFetchResultRow($row)
     {
-        self::assertTrue(in_array($row['test_int'], array(1, 2)), "Primary key test_int should either be 1 or 2.");
+        self::assertContains($row['test_int'], array(1, 2), "Primary key test_int should either be 1 or 2.");
         self::assertArrayHasKey('test_string', $row, "Case should be lowered.");
         self::assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
         self::assertNull($row['test_null']);

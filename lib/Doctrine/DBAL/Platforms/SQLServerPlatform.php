@@ -1561,8 +1561,7 @@ class SQLServerPlatform extends AbstractPlatform
             return " DEFAULT " . $field['default'];
         }
 
-        if ($type instanceof Types\PhpDateTimeMappingType
-            && $field['default'] == $this->getCurrentTimestampSQL()) {
+        if ($type instanceof Types\PhpDateTimeMappingType && $field['default'] === $this->getCurrentTimestampSQL()) {
             return " DEFAULT " . $this->getCurrentTimestampSQL();
         }
 

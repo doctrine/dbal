@@ -127,7 +127,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $data[] = $row;
         }
 
-        self::assertEquals(2, count($this->sqlLogger->queries));
+        self::assertCount(2, $this->sqlLogger->queries);
     }
 
     public function testDontFinishNoCache()
@@ -141,7 +141,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $data = $this->hydrateStmt($stmt, \PDO::FETCH_NUM);
 
-        self::assertEquals(2, count($this->sqlLogger->queries));
+        self::assertCount(2, $this->sqlLogger->queries);
     }
 
     public function assertCacheNonCacheSelectSameFetchModeAreEqual($expectedResult, $fetchMode)
@@ -157,7 +157,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertEquals(2, $stmt->columnCount());
         $data = $this->hydrateStmt($stmt, $fetchMode);
         self::assertEquals($expectedResult, $data);
-        self::assertEquals(1, count($this->sqlLogger->queries), "just one dbal hit");
+        self::assertCount(1, $this->sqlLogger->queries, "just one dbal hit");
     }
 
     public function testEmptyResultCache()
@@ -168,7 +168,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey"));
         $data = $this->hydrateStmt($stmt);
 
-        self::assertEquals(1, count($this->sqlLogger->queries), "just one dbal hit");
+        self::assertCount(1, $this->sqlLogger->queries, "just one dbal hit");
     }
 
     public function testChangeCacheImpl()
@@ -180,8 +180,8 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $this->_conn->executeQuery("SELECT * FROM caching WHERE test_int > 500", array(), array(), new QueryCacheProfile(10, "emptycachekey", $secondCache));
         $data = $this->hydrateStmt($stmt);
 
-        self::assertEquals(2, count($this->sqlLogger->queries), "two hits");
-        self::assertEquals(1, count($secondCache->fetch("emptycachekey")));
+        self::assertCount(2, $this->sqlLogger->queries, "two hits");
+        self::assertCount(1, $secondCache->fetch("emptycachekey"));
     }
 
     private function hydrateStmt($stmt, $fetchMode = \PDO::FETCH_ASSOC)

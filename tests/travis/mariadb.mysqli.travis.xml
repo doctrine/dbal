@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="../../vendor/phpunit/phpunit/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.8/phpunit.xsd"
+         backupGlobals="false"
          colors="true"
-         verbose="true"
-         beStrictAboutOutputDuringTests="true"
-         beStrictAboutTodoAnnotatedTests="true"
-         failOnRisky="true"
+         bootstrap="../../vendor/autoload.php"
 >
     <php>
         <ini name="error_reporting" value="-1" />
@@ -30,10 +28,6 @@
         </testsuite>
     </testsuites>
 
-    <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
-    </listeners>
-
     <groups>
         <exclude>
             <group>performance</group>
@@ -41,3 +35,4 @@
         </exclude>
     </groups>
 </phpunit>
+

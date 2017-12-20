@@ -16,7 +16,7 @@ class IndexTest extends \PHPUnit\Framework\TestCase
         $idx = $this->createIndex();
         self::assertEquals("foo", $idx->getName());
         $columns = $idx->getColumns();
-        self::assertEquals(2, count($columns));
+        self::assertCount(2, $columns);
         self::assertEquals(array("bar", "baz"), $columns);
         self::assertFalse($idx->isUnique());
         self::assertFalse($idx->isPrimary());

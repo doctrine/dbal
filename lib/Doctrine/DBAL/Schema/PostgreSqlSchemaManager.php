@@ -194,9 +194,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         if ($table['schema_name'] == $firstSchema) {
             return $table['table_name'];
-        } else {
-            return $table['schema_name'] . "." . $table['table_name'];
         }
+
+        return $table['schema_name'] . "." . $table['table_name'];
     }
 
     /**
@@ -427,7 +427,6 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             'length'        => $length,
             'notnull'       => (bool) $tableColumn['isnotnull'],
             'default'       => $tableColumn['default'],
-            'primary'       => (bool) ($tableColumn['pri'] == 't'),
             'precision'     => $precision,
             'scale'         => $scale,
             'fixed'         => $fixed,

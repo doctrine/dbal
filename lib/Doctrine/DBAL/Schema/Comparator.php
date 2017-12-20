@@ -279,14 +279,12 @@ class Comparator
         foreach ($fromFkeys as $key1 => $constraint1) {
             foreach ($toFkeys as $key2 => $constraint2) {
                 if ($this->diffForeignKey($constraint1, $constraint2) === false) {
-                    unset($fromFkeys[$key1]);
-                    unset($toFkeys[$key2]);
+                    unset($fromFkeys[$key1], $toFkeys[$key2]);
                 } else {
                     if (strtolower($constraint1->getName()) == strtolower($constraint2->getName())) {
                         $tableDifferences->changedForeignKeys[] = $constraint2;
                         $changes++;
-                        unset($fromFkeys[$key1]);
-                        unset($toFkeys[$key2]);
+                        unset($fromFkeys[$key1], $toFkeys[$key2]);
                     }
                 }
             }
@@ -332,8 +330,10 @@ class Comparator
 
                 if ( ! isset($tableDifferences->renamedColumns[$removedColumnName])) {
                     $tableDifferences->renamedColumns[$removedColumnName] = $addedColumn;
-                    unset($tableDifferences->addedColumns[$addedColumnName]);
-                    unset($tableDifferences->removedColumns[$removedColumnName]);
+                    unset(
+                        $tableDifferences->addedColumns[$addedColumnName],
+                        $tableDifferences->removedColumns[$removedColumnName]
+                    );
                 }
             }
         }
@@ -373,8 +373,10 @@ class Comparator
 
                 if (! isset($tableDifferences->renamedIndexes[$removedIndexName])) {
                     $tableDifferences->renamedIndexes[$removedIndexName] = $addedIndex;
-                    unset($tableDifferences->addedIndexes[$addedIndexName]);
-                    unset($tableDifferences->removedIndexes[$removedIndexName]);
+                    unset(
+                        $tableDifferences->addedIndexes[$addedIndexName],
+                        $tableDifferences->removedIndexes[$removedIndexName]
+                    );
                 }
             }
         }
@@ -433,6 +435,13 @@ class Comparator
             if ($properties1[$property] != $properties2[$property]) {
                 $changedProperties[] = $property;
             }
+        }
+
+        // This is a very nasty hack to make comparator work with the legacy json_array type, which should be killed in v3
+        if ($this->isALegacyJsonComparison($properties1['type'], $properties2['type'])) {
+            array_shift($changedProperties);
+
+            $changedProperties[] = 'comment';
         }
 
         if ($properties1['default'] != $properties2['default'] ||
@@ -495,6 +504,21 @@ class Comparator
         }
 
         return array_unique($changedProperties);
+    }
+
+    /**
+     * TODO: kill with fire on v3.0
+     *
+     * @deprecated
+     */
+    private function isALegacyJsonComparison(Types\Type $one, Types\Type $other) : bool
+    {
+        if ( ! $one instanceof Types\JsonType || ! $other instanceof Types\JsonType) {
+            return false;
+        }
+
+        return ( ! $one instanceof Types\JsonArrayType && $other instanceof Types\JsonArrayType)
+            || ( ! $other instanceof Types\JsonArrayType && $one instanceof Types\JsonArrayType);
     }
 
     /**

@@ -13,11 +13,11 @@ class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
     {
         $expr = new CompositeExpression(CompositeExpression::TYPE_OR, array('u.group_id = 1'));
 
-        self::assertEquals(1, count($expr));
+        self::assertCount(1, $expr);
 
         $expr->add('u.group_id = 2');
 
-        self::assertEquals(2, count($expr));
+        self::assertCount(2, $expr);
     }
 
     public function testAdd()

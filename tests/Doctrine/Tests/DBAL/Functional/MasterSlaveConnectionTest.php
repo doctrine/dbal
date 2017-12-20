@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Connections\MasterSlaveConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Tests\DbalFunctionalTestCase;
 
@@ -38,15 +39,52 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $this->_conn->insert('master_slave_table', array('test_int' => 1));
     }
 
-    public function createMasterSlaveConnection($keepSlave = false)
+    private function createMasterSlaveConnection(bool $keepSlave = false) : MasterSlaveConnection
+    {
+        return DriverManager::getConnection($this->createMasterSlaveConnectionParams($keepSlave));
+    }
+
+    private function createMasterSlaveConnectionParams(bool $keepSlave = false) : array
     {
         $params = $this->_conn->getParams();
         $params['master']       = $params;
         $params['slaves']       = array($params, $params);
         $params['keepSlave']    = $keepSlave;
-        $params['wrapperClass'] = 'Doctrine\DBAL\Connections\MasterSlaveConnection';
+        $params['wrapperClass'] = MasterSlaveConnection::class;
 
-        return DriverManager::getConnection($params);
+        return $params;
+    }
+
+    public function testInheritCharsetFromMaster() : void
+    {
+        $charsets = [
+            'utf8',
+            'latin1'
+        ];
+
+        foreach ($charsets as $charset) {
+            $params = $this->createMasterSlaveConnectionParams();
+            $params['master']['charset'] = $charset;
+
+            foreach ($params['slaves'] as $index => $slaveParams) {
+                if (isset($slaveParams['charset'])) {
+                    unset($params['slaves'][$index]['charset']);
+                }
+            }
+
+            /** @var MasterSlaveConnection $conn */
+            $conn = DriverManager::getConnection($params);
+            $conn->connect('slave');
+
+            self::assertFalse($conn->isConnectedToMaster());
+
+            $clientCharset = $conn->fetchColumn('select @@character_set_client as c');
+
+            self::assertSame(
+                $charset,
+                substr(strtolower($clientCharset), 0, strlen($charset))
+            );
+        }
     }
 
     public function testMasterOnConnect()

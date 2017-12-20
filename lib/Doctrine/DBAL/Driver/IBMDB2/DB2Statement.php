@@ -227,7 +227,7 @@ class DB2Statement implements \IteratorAggregate, Statement
                 if (func_num_args() >= 2) {
                     $args      = func_get_args();
                     $className = $args[1];
-                    $ctorArgs  = isset($args[2]) ? $args[2] : [];
+                    $ctorArgs  = $args[2] ?? [];
                 }
 
                 $result = db2_fetch_object($this->_stmt);
