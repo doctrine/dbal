@@ -46,6 +46,7 @@ class QueryBuilder
     const DELETE = 1;
     const UPDATE = 2;
     const INSERT = 3;
+    const REPLACE = 3;
 
     /*
      * The builder states.
@@ -64,6 +65,7 @@ class QueryBuilder
      * @var array The array of SQL parts collected.
      */
     private $sqlParts = [
+        'into'    => [],
         'select'  => [],
         'from'    => [],
         'join'    => [],
@@ -220,6 +222,7 @@ class QueryBuilder
      * </code>
      *
      * @return string The SQL query string.
+     * @throws QueryException
      */
     public function getSQL()
     {
@@ -464,7 +467,8 @@ class QueryBuilder
      */
     public function select($select = null)
     {
-        $this->type = self::SELECT;
+        if($this->type !== self::INSERT )
+            $this->type = self::SELECT;
 
         if (empty($select)) {
             return $this;
@@ -492,7 +496,8 @@ class QueryBuilder
      */
     public function addSelect($select = null)
     {
-        $this->type = self::SELECT;
+        if($this->type !== self::INSERT )
+            $this->type = self::SELECT;
 
         if (empty($select)) {
             return $this;
@@ -578,6 +583,22 @@ class QueryBuilder
      *         );
      * </code>
      *
+     * alternative:
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->insert('users')
+     *         ->values(
+     *             array(
+     *                 'name' => null,
+     *                 'password' => null
+     *             )
+     *         )
+     *         ->select('u2.name', 'u2.password')
+     *         ->from('users', 'u2')
+     *         ->where('u2.id = ?')
+     * </code>
+     *
      * @param string $insert The table into which the rows should be inserted.
      *
      * @return $this This QueryBuilder instance.
@@ -590,7 +611,7 @@ class QueryBuilder
             return $this;
         }
 
-        return $this->add('from', [
+        return $this->add('into', [
             'table' => $insert
         ]);
     }
@@ -1180,12 +1201,22 @@ class QueryBuilder
      * Converts this instance into an INSERT string in SQL.
      *
      * @return string
+     * @throws QueryException
      */
     private function getSQLForInsert()
     {
-        return 'INSERT INTO ' . $this->sqlParts['from']['table'] .
-        ' (' . implode(', ', array_keys($this->sqlParts['values'])) . ')' .
-        ' VALUES(' . implode(', ', $this->sqlParts['values']) . ')';
+        $statement = 'INSERT INTO ' . $this->sqlParts['into']['table'];
+        if( !empty($this->sqlParts['values']) && count( array_keys($this->sqlParts['values']) ) > 0 ) {
+            $statement .= ' (' . implode(', ', array_keys($this->sqlParts['values'])) . ')';
+        }
+
+        if( !empty($this->sqlParts['select'] ) ) {
+            $statement .= ' (' . $this->getSQLForSelect() . ') ';
+        }
+        else {
+            $statement .= ' VALUES(' . implode(', ', $this->sqlParts['values']) . ')';
+        }
+        return $statement;
     }
 
     /**

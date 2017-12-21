@@ -476,6 +476,38 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         self::assertEquals('INSERT INTO users (foo, bar) VALUES(?, ?)', (string) $qb);
     }
 
+    public function testInsertSelect()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert('users')
+            ->select('u2.name', 'u2.password')
+            ->from('users', 'u2')
+            ->where('u2.id = ?');
+
+        self::assertEquals(QueryBuilder::INSERT, $qb->getType());
+        self::assertEquals('INSERT INTO users (SELECT u2.name, u2.password FROM users WHERE u2.id = ?)', (string) $qb);
+    }
+
+    public function testInsertValuesSelect()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->insert('users')
+            ->values(
+                array(
+                    'name' => null,
+                    'password' => null
+                )
+            )
+            ->select('u2.name', 'u2.password')
+            ->from('users', 'u2')
+            ->where('u2.id = ?');
+
+        self::assertEquals(QueryBuilder::INSERT, $qb->getType());
+        self::assertEquals('INSERT INTO users (name, password) (SELECT u2.name, u2.password FROM users WHERE u2.id = ?)', (string) $qb);
+    }
+
+
+
     public function testInsertReplaceValues()
     {
         $qb = new QueryBuilder($this->conn);
