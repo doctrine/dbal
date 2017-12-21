@@ -592,7 +592,7 @@ class QueryBuilder
      *         ->where('u2.id = ?')
      * </code>
      *
-     * with filed definition:
+     * with field definition:
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
