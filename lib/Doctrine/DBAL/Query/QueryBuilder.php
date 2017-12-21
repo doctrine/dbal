@@ -46,7 +46,6 @@ class QueryBuilder
     const DELETE = 1;
     const UPDATE = 2;
     const INSERT = 3;
-    const REPLACE = 3;
 
     /*
      * The builder states.
@@ -583,7 +582,17 @@ class QueryBuilder
      *         );
      * </code>
      *
-     * alternative:
+     * alternative with select
+     *
+     * <code>
+     *     $qb = $conn->createQueryBuilder()
+     *         ->insert('users')
+     *         ->select('u2.name', 'u2.password')
+     *         ->from('users', 'u2')
+     *         ->where('u2.id = ?')
+     * </code>
+     *
+     * with filed definition:
      *
      * <code>
      *     $qb = $conn->createQueryBuilder()
