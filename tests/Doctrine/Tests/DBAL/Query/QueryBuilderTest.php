@@ -485,7 +485,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->where('u2.id = ?');
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
-        self::assertEquals('INSERT INTO users (SELECT u2.name, u2.password FROM users WHERE u2.id = ?)', (string) $qb);
+        self::assertEquals('INSERT INTO users (SELECT u2.name, u2.password FROM users u2 WHERE u2.id = ?)', (string) $qb);
     }
 
     public function testInsertValuesSelect()
@@ -503,7 +503,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->where('u2.id = ?');
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
-        self::assertEquals('INSERT INTO users (name, password) (SELECT u2.name, u2.password FROM users WHERE u2.id = ?)', (string) $qb);
+        self::assertEquals('INSERT INTO users (name, password) (SELECT u2.name, u2.password FROM users u2 WHERE u2.id = ?)', (string) $qb);
     }
 
 
