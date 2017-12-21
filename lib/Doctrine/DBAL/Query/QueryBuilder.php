@@ -1220,7 +1220,7 @@ class QueryBuilder
         }
 
         if( !empty($this->sqlParts['select'] ) ) {
-            $statement .= ' (' . $this->getSQLForSelect() . ') ';
+            $statement .= ' (' . $this->getSQLForSelect() . ')';
         }
         else {
             $statement .= ' VALUES(' . implode(', ', $this->sqlParts['values']) . ')';
