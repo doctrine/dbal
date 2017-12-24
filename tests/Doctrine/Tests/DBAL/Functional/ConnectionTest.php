@@ -206,10 +206,6 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTransactionalWithThrowable()
     {
-        if (version_compare(PHP_VERSION, '7.0', '<')) {
-            $this->markTestSkipped('Only for PHP 7.0 and above.');
-        }
-
         try {
             $this->_conn->transactional(function($conn) {
                 /* @var $conn \Doctrine\DBAL\Connection */
