@@ -245,6 +245,37 @@ jobs:
       addons:
         postgresql: "9.6"
 
+    - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=10
+      sudo: required
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+      before_script:
+        - bash ./tests/travis/install-postgres-10.sh
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=10
+      sudo: required
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+      before_script:
+        - bash ./tests/travis/install-postgres-10.sh
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=10
+      sudo: required
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+      before_script:
+        - bash ./tests/travis/install-postgres-10.sh
+
     - stage: Coverage
       php: 7.1
       env: DB=sqlite
