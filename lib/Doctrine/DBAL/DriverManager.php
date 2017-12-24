@@ -244,16 +244,7 @@ final class DriverManager
 
         // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
         $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $params['url']);
-
-        // PHP < 5.4.8 doesn't parse schemeless urls properly.
-        // See: https://php.net/parse-url#refsect1-function.parse-url-changelog
-        if (PHP_VERSION_ID < 50408 && strpos($url, '//') === 0) {
-            $url = parse_url('fake:' . $url);
-
-            unset($url['scheme']);
-        } else {
-            $url = parse_url($url);
-        }
+        $url = parse_url($url);
 
         if ($url === false) {
             throw new DBALException('Malformed parameter "url".');
