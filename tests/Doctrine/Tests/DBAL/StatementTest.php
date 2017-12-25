@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Logging\SQLLogger;
 
@@ -62,12 +63,12 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound()
     {
-        $name = 'foo';
-        $var = 'bar';
-        $type = \PDO::PARAM_STR;
-        $values = array($name => $var);
-        $types = array($name => $type);
-        $sql = '';
+        $name   = 'foo';
+        $var    = 'bar';
+        $type   = ParameterType::STRING;
+        $values = [$name => $var];
+        $types  = [$name => $type];
+        $sql    = '';
 
         $logger = $this->createMock('\Doctrine\DBAL\Logging\SQLLogger');
         $logger->expects($this->once())
@@ -106,11 +107,11 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testExecuteCallsStartQueryWithTheParametersBoundViaBindParam()
     {
-        $name = 'foo';
-        $var = 'bar';
+        $name   = 'foo';
+        $var    = 'bar';
         $values = [$name => $var];
-        $types = [$name => \PDO::PARAM_STR];
-        $sql = '';
+        $types  = [$name => ParameterType::STRING];
+        $sql    = '';
 
         $logger = $this->createMock(SQLLogger::class);
         $logger->expects(self::once())

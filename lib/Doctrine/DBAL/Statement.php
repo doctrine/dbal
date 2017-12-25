@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL;
 
-use PDO;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
 
@@ -102,7 +101,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return bool TRUE on success, FALSE on failure.
      */
-    public function bindValue($name, $value, $type = null)
+    public function bindValue($name, $value, $type = ParameterType::STRING)
     {
         $this->params[$name] = $value;
         $this->types[$name] = $type;
@@ -114,7 +113,7 @@ class Statement implements \IteratorAggregate, DriverStatement
                 $value = $type->convertToDatabaseValue($value, $this->platform);
                 $bindingType = $type->getBindingType();
             } else {
-                $bindingType = $type; // PDO::PARAM_* constants
+                $bindingType = $type;
             }
 
             return $this->stmt->bindValue($name, $value, $bindingType);
@@ -136,7 +135,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return bool TRUE on success, FALSE on failure.
      */
-    public function bindParam($name, &$var, $type = PDO::PARAM_STR, $length = null)
+    public function bindParam($name, &$var, $type = ParameterType::STRING, $length = null)
     {
         $this->params[$name] = $var;
         $this->types[$name] = $type;

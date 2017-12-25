@@ -151,7 +151,7 @@ the ``Connection#quote`` method:
 
     <?php
     // Parameter quoting
-    $sql = "SELECT * FROM users WHERE name = " . $connection->quote($_GET['username'], \PDO::PARAM_STR);
+    $sql = "SELECT * FROM users WHERE name = " . $connection->quote($_GET['username']);
 
 This method is only available for SQL, not for DQL. For DQL you are always encouraged to use prepared
 statements not only for security, but also for caching reasons.
