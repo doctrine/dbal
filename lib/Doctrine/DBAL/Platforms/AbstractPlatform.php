@@ -2223,18 +2223,18 @@ abstract class AbstractPlatform
             $default = $this->getDefaultValueDeclarationSQL($field);
 
             $charset = (isset($field['charset']) && $field['charset']) ?
-                    ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
+                ' ' . $this->getColumnCharsetDeclarationSQL($field['charset']) : '';
 
             $collation = (isset($field['collation']) && $field['collation']) ?
-                    ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
+                ' ' . $this->getColumnCollationDeclarationSQL($field['collation']) : '';
 
             $notnull = (isset($field['notnull']) && $field['notnull']) ? ' NOT NULL' : '';
 
             $unique = (isset($field['unique']) && $field['unique']) ?
-                    ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
 
             $check = (isset($field['check']) && $field['check']) ?
-                    ' ' . $field['check'] : '';
+                ' ' . $field['check'] : '';
 
             $typeDecl = $field['type']->getSQLDeclaration($field, $this);
             $columnDef = $typeDecl . $charset . $default . $notnull . $unique . $check . $collation;
@@ -2358,8 +2358,8 @@ abstract class AbstractPlatform
         }
 
         return 'CONSTRAINT ' . $name->getQuotedName($this) . ' UNIQUE ('
-             . $this->getIndexFieldDeclarationListSQL($columns)
-             . ')' . $this->getPartialIndexSQL($index);
+            . $this->getIndexFieldDeclarationListSQL($columns)
+            . ')' . $this->getPartialIndexSQL($index);
     }
 
     /**
@@ -2546,9 +2546,9 @@ abstract class AbstractPlatform
         }
 
         $sql .= implode(', ', $foreignKey->getQuotedLocalColumns($this))
-              . ') REFERENCES '
-              . $foreignKey->getQuotedForeignTableName($this) . ' ('
-              . implode(', ', $foreignKey->getQuotedForeignColumns($this)) . ')';
+            . ') REFERENCES '
+            . $foreignKey->getQuotedForeignTableName($this) . ' ('
+            . implode(', ', $foreignKey->getQuotedForeignColumns($this)) . ')';
 
         return $sql;
     }

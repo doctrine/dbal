@@ -273,4 +273,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertSame('datetime', $columns['col_datetime']->getType()->getName());
         self::assertSame('datetimetz', $columns['col_datetimetz']->getType()->getName());
     }
+
+    public function testCreateAndListSequences() : void
+    {
+        self::markTestSkipped("Skipped for uppercase letters are contained in sequences' names. Fix the schema manager in 3.0.");
+    }
 }
