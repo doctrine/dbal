@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\ParameterType;
+
 /**
  * Statement interface.
  * Drivers must implement this interface.
@@ -31,8 +33,7 @@ interface Statement extends ResultStatement
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    function bindValue($param, $value, $type = null);
-
+    public function bindValue($param, $value, $type = ParameterType::STRING);
 
     /**
      * Binds a PHP variable to a corresponding named (not supported by mysqli driver, see comment below) or question
@@ -60,7 +61,7 @@ interface Statement extends ResultStatement
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    function bindParam($column, &$variable, $type = null, $length = null);
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null);
 
     /**
      * Fetches the SQLSTATE associated with the last operation on the statement handle.
@@ -69,7 +70,7 @@ interface Statement extends ResultStatement
      *
      * @return string The error code string.
      */
-    function errorCode();
+    public function errorCode();
 
     /**
      * Fetches extended error information associated with the last operation on the statement handle.
@@ -78,7 +79,7 @@ interface Statement extends ResultStatement
      *
      * @return array The error info array.
      */
-    function errorInfo();
+    public function errorInfo();
 
     /**
      * Executes a prepared statement
@@ -95,7 +96,7 @@ interface Statement extends ResultStatement
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    function execute($params = null);
+    public function execute($params = null);
 
     /**
      * Returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
@@ -108,5 +109,5 @@ interface Statement extends ResultStatement
      *
      * @return integer The number of rows.
      */
-    function rowCount();
+    public function rowCount();
 }

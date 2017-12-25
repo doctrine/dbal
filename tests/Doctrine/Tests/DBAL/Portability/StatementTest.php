@@ -2,6 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Portability;
 
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
 
@@ -39,7 +41,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     {
         $column   = 'mycolumn';
         $variable = 'myvalue';
-        $type     = \PDO::PARAM_STR;
+        $type     = ParameterType::STRING;
         $length   = 666;
 
         $this->wrappedStmt->expects($this->once())
@@ -54,7 +56,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     {
         $param = 'myparam';
         $value = 'myvalue';
-        $type  = \PDO::PARAM_STR;
+        $type  = ParameterType::STRING;
 
         $this->wrappedStmt->expects($this->once())
             ->method('bindValue')
@@ -123,7 +125,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testSetFetchMode()
     {
-        $fetchMode = \PDO::FETCH_CLASS;
+        $fetchMode = FetchMode::CUSTOM_OBJECT;
         $arg1      = 'MyClass';
         $arg2      = array(1, 2);
 
@@ -132,7 +134,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->with($fetchMode, $arg1, $arg2)
             ->will($this->returnValue(true));
 
-        self::assertAttributeSame(\PDO::FETCH_BOTH, 'defaultFetchMode', $this->stmt);
+        self::assertAttributeSame(FetchMode::MIXED, 'defaultFetchMode', $this->stmt);
         self::assertTrue($this->stmt->setFetchMode($fetchMode, $arg1, $arg2));
         self::assertAttributeSame($fetchMode, 'defaultFetchMode', $this->stmt);
     }

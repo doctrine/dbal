@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\ParameterType;
 
 class DB2Connection implements Connection, ServerInfoAwareConnection
 {
@@ -81,10 +82,11 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type=\PDO::PARAM_STR)
+    public function quote($input, $type = ParameterType::STRING)
     {
         $input = db2_escape_string($input);
-        if ($type == \PDO::PARAM_INT) {
+
+        if ($type == ParameterType::INTEGER) {
             return $input;
         }
 

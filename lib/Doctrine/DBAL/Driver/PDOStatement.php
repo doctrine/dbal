@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\ParameterType;
+
 /**
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
@@ -44,7 +46,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = \PDO::PARAM_STR)
+    public function bindValue($param, $value, $type = ParameterType::STRING)
     {
         try {
             return parent::bindValue($param, $value, $type);
@@ -56,7 +58,7 @@ class PDOStatement extends \PDOStatement implements Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = \PDO::PARAM_STR, $length = null, $driverOptions = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
         try {
             return parent::bindParam($column, $variable, $type, $length, $driverOptions);

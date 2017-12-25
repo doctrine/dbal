@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
@@ -57,7 +59,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute();
         self::assertArraySubset(array(
             array('param1', 'X'),
-        ), $stmt->fetchAll(\PDO::FETCH_NUM));
+        ), $stmt->fetchAll(FetchMode::NUMERIC));
 
         $row2 = array(
             'param' => 'param2',
@@ -69,7 +71,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertArraySubset(array(
             array('param1', 'X'),
             array('param2', 'A bit longer value'),
-        ), $stmt->fetchAll(\PDO::FETCH_NUM));
+        ), $stmt->fetchAll(FetchMode::NUMERIC));
     }
 
     public function testFetchLongBlob()
@@ -104,7 +106,7 @@ EOF
 
         $this->_conn->insert('stmt_long_blob', array(
             'contents' => $contents,
-        ), array(\PDO::PARAM_LOB));
+        ), array(ParameterType::LARGE_OBJECT));
 
         $stmt = $this->_conn->prepare('SELECT contents FROM stmt_long_blob');
         $stmt->execute();

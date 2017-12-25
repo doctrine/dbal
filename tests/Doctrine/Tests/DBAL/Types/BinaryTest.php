@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
@@ -28,7 +29,7 @@ class BinaryTest extends \Doctrine\Tests\DbalTestCase
 
     public function testReturnsBindingType()
     {
-        self::assertSame(\PDO::PARAM_LOB, $this->type->getBindingType());
+        self::assertSame(ParameterType::LARGE_OBJECT, $this->type->getBindingType());
     }
 
     public function testReturnsName()

@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Query;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Connection;
 
@@ -247,7 +248,7 @@ class QueryBuilder
      *
      * @param string|integer      $key   The parameter position or name.
      * @param mixed               $value The parameter value.
-     * @param string|integer|null $type  One of the PDO::PARAM_* constants.
+     * @param string|integer|null $type  One of the {@link \Doctrine\DBAL\ParameterType} constants.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1239,7 +1240,7 @@ class QueryBuilder
      *
      * @return string the placeholder name used.
      */
-    public function createNamedParameter($value, $type = \PDO::PARAM_STR, $placeHolder = null)
+    public function createNamedParameter($value, $type = ParameterType::STRING, $placeHolder = null)
     {
         if ($placeHolder === null) {
             $this->boundCounter++;
@@ -1263,8 +1264,8 @@ class QueryBuilder
      *  $qb = $conn->createQueryBuilder();
      *  $qb->select('u.*')
      *     ->from('users', 'u')
-     *     ->where('u.username = ' . $qb->createPositionalParameter('Foo', PDO::PARAM_STR))
-     *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', PDO::PARAM_STR))
+     *     ->where('u.username = ' . $qb->createPositionalParameter('Foo', ParameterType::STRING))
+     *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', ParameterType::STRING))
      * </code>
      *
      * @param mixed   $value
@@ -1272,7 +1273,7 @@ class QueryBuilder
      *
      * @return string
      */
-    public function createPositionalParameter($value, $type = \PDO::PARAM_STR)
+    public function createPositionalParameter($value, $type = ParameterType::STRING)
     {
         $this->boundCounter++;
         $this->setParameter($this->boundCounter, $value, $type);

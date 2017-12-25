@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\ParameterType;
 use PDO;
 
 /**
@@ -52,7 +53,11 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testBooleanConversionBoolParamRealPrepares()
     {
-        $this->_conn->executeUpdate('INSERT INTO dbal630 (bool_col) VALUES(?)', array('false'), array(PDO::PARAM_BOOL));
+        $this->_conn->executeUpdate(
+            'INSERT INTO dbal630 (bool_col) VALUES(?)',
+            array('false'),
+            array(ParameterType::BOOLEAN)
+        );
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
         self::assertNotEmpty($id);
 
@@ -68,7 +73,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $platform = $this->_conn->getDatabasePlatform();
 
         $stmt = $this->_conn->prepare('INSERT INTO dbal630 (bool_col) VALUES(?)');
-        $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue('false'), PDO::PARAM_BOOL);
+        $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue('false'), ParameterType::BOOLEAN);
         $stmt->execute();
 
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
@@ -116,7 +121,11 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $platform = $this->_conn->getDatabasePlatform();
 
         $stmt = $this->_conn->prepare('INSERT INTO dbal630_allow_nulls (bool_col) VALUES(?)');
-        $stmt->bindValue(1, $platform->convertBooleansToDatabaseValue($statementValue), PDO::PARAM_BOOL);
+        $stmt->bindValue(
+            1,
+            $platform->convertBooleansToDatabaseValue($statementValue),
+            ParameterType::BOOLEAN
+        );
         $stmt->execute();
 
         $id = $this->_conn->lastInsertId('dbal630_allow_nulls_id_seq');

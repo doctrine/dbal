@@ -2,10 +2,11 @@
 
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
-use Doctrine\DBAL\Driver\StatementIterator;
-use IteratorAggregate;
-use PDO;
 use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\StatementIterator;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
+use IteratorAggregate;
 
 /**
  * SAP SQL Anywhere implementation of the Statement interface.
@@ -22,19 +23,19 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     private $conn;
 
     /**
-     * @var string Name of the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
+     * @var string Name of the default class to instantiate when fetching class instances.
      */
     private $defaultFetchClass = '\stdClass';
 
     /**
-     * @var string Constructor arguments for the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
+     * @var string Constructor arguments for the default class to instantiate when fetching class instances.
      */
     private $defaultFetchClassCtorArgs = [];
 
     /**
      * @var int Default fetch mode to use.
      */
-    private $defaultFetchMode = PDO::FETCH_BOTH;
+    private $defaultFetchMode = FetchMode::MIXED;
 
     /**
      * @var resource The result set resource to fetch.
@@ -75,20 +76,23 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function bindParam($column, &$variable, $type = null, $length = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
         switch ($type) {
-            case PDO::PARAM_INT:
-            case PDO::PARAM_BOOL:
+            case ParameterType::INTEGER:
+            case ParameterType::BOOLEAN:
                 $type = 'i';
                 break;
-            case PDO::PARAM_LOB:
+
+            case ParameterType::LARGE_OBJECT:
                 $type = 'b';
                 break;
-            case PDO::PARAM_NULL:
-            case PDO::PARAM_STR:
+
+            case ParameterType::NULL:
+            case ParameterType::STRING:
                 $type = 's';
                 break;
+
             default:
                 throw new SQLAnywhereException('Unknown type: ' . $type);
         }
@@ -103,7 +107,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = null)
+    public function bindValue($param, $value, $type = ParameterType::STRING)
     {
         return $this->bindParam($param, $value, $type);
     }
@@ -186,11 +190,13 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
         switch ($fetchMode) {
-            case PDO::FETCH_ASSOC:
+            case FetchMode::ASSOCIATIVE:
                 return sasql_fetch_assoc($this->result);
-            case PDO::FETCH_BOTH:
+
+            case FetchMode::MIXED:
                 return sasql_fetch_array($this->result, SASQL_BOTH);
-            case PDO::FETCH_CLASS:
+
+            case FetchMode::CUSTOM_OBJECT:
                 $className = $this->defaultFetchClass;
                 $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
@@ -207,10 +213,13 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 }
 
                 return $result;
-            case PDO::FETCH_NUM:
+
+            case FetchMode::NUMERIC:
                 return sasql_fetch_row($this->result);
-            case PDO::FETCH_OBJ:
+
+            case FetchMode::STANDARD_OBJECT:
                 return sasql_fetch_object($this->result);
+
             default:
                 throw new SQLAnywhereException('Fetch mode is not supported: ' . $fetchMode);
         }
@@ -224,16 +233,18 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         $rows = [];
 
         switch ($fetchMode) {
-            case PDO::FETCH_CLASS:
+            case FetchMode::CUSTOM_OBJECT:
                 while ($row = call_user_func_array([$this, 'fetch'], func_get_args())) {
                     $rows[] = $row;
                 }
                 break;
-            case PDO::FETCH_COLUMN:
+
+            case FetchMode::COLUMN:
                 while ($row = $this->fetchColumn()) {
                     $rows[] = $row;
                 }
                 break;
+
             default:
                 while ($row = $this->fetch($fetchMode)) {
                     $rows[] = $row;
@@ -248,7 +259,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(PDO::FETCH_NUM);
+        $row = $this->fetch(FetchMode::NUMERIC);
 
         if (false === $row) {
             return false;

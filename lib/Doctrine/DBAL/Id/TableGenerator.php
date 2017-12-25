@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Id;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 
 /**
  * Table ID Generator for those poor languages that are missing sequences.
@@ -107,7 +108,7 @@ class TableGenerator
                    "WHERE sequence_name = ? " . $platform->getWriteLockSQL();
             $stmt = $this->conn->executeQuery($sql, [$sequenceName]);
 
-            if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            if ($row = $stmt->fetch(FetchMode::ASSOCIATIVE)) {
                 $row = array_change_key_case($row, CASE_LOWER);
 
                 $value = $row['sequence_value'];

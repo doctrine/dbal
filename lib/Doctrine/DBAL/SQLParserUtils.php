@@ -122,7 +122,9 @@ class SQLParserUtils
                 $types = array_merge(
                     array_slice($types, 0, $needle),
                     $count ?
-                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) : // array needles are at PDO::PARAM_* + 100
+                        // array needles are at {@link \Doctrine\DBAL\ParameterType} constants
+                        // + {@link Doctrine\DBAL\Connection::ARRAY_PARAM_OFFSET}
+                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) :
                         [],
                     array_slice($types, $needle + 1)
                 );
@@ -149,7 +151,7 @@ class SQLParserUtils
                 $pos         += $queryOffset;
                 $queryOffset -= ($paramLen - 1);
                 $paramsOrd[]  = $value;
-                $typesOrd[]   = static::extractParam($paramName, $types, false, \PDO::PARAM_STR);
+                $typesOrd[]   = static::extractParam($paramName, $types, false, ParameterType::STRING);
                 $query        = substr($query, 0, $pos) . '?' . substr($query, ($pos + $paramLen));
 
                 continue;
