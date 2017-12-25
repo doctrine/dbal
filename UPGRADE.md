@@ -1,5 +1,37 @@
 # Upgrade to 3.0
 
+## BC BREAK: the PDO symbols are no longer part of the DBAL API
+
+1. The support of `PDO::PARAM_*`, `PDO::FETCH_*`, `PDO::CASE_*` and `PDO::PARAM_INPUT_OUTPUT` constants in the DBAL API is removed.
+2. `\Doctrine\DBAL\Driver\PDOStatement` does not extend `\PDOStatement` anymore.
+
+Before:
+
+    use Doctrine\DBAL\Portability\Connection;
+
+    $params = array(
+        'wrapperClass' => Connection::class,
+        'fetch_case' => PDO::CASE_LOWER,
+    );
+
+    $stmt->bindValue(1, 1, PDO::PARAM_INT);
+    $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+After:
+
+    use Doctrine\DBAL\ColumnCase;
+    use Doctrine\DBAL\FetchMode;
+    use Doctrine\DBAL\ParameterType;
+    use Doctrine\DBAL\Portability\Connection;
+
+    $params = array(
+        'wrapperClass' => Connection::class,
+        'fetch_case' => ColumnCase::LOWER,
+    );
+
+    $stmt->bindValue(1, 1, ParameterType::INTEGER);
+    $stmt->fetchAll(FetchMode::COLUMN);
+
 ## BC BREAK: Removed dbal:import CLI command
 
 The `dbal:import` CLI command has been removed since it only worked with PDO-based drivers by relying on a non-documented behavior of the extension, and it was impossible to make it work with other drivers.
