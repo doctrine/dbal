@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
@@ -55,6 +56,6 @@ class BlobType extends Type
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_LOB;
+        return ParameterType::LARGE_OBJECT;
     }
 }

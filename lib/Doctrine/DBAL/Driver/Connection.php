@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\ParameterType;
+
 /**
  * Connection interface.
  * Driver connections must implement this interface.
@@ -36,7 +38,7 @@ interface Connection
      *
      * @return mixed
      */
-    public function quote($input, $type = \PDO::PARAM_STR);
+    public function quote($input, $type = ParameterType::STRING);
 
     /**
      * Executes an SQL statement and return the number of affected rows.

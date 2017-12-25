@@ -4,8 +4,9 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use PDO;
 
 /**
  * The OCI8 implementation of the Statement interface.
@@ -39,16 +40,16 @@ class OCI8Statement implements IteratorAggregate, Statement
      * @var array
      */
     protected static $fetchModeMap = [
-        PDO::FETCH_BOTH => OCI_BOTH,
-        PDO::FETCH_ASSOC => OCI_ASSOC,
-        PDO::FETCH_NUM => OCI_NUM,
-        PDO::FETCH_COLUMN => OCI_NUM,
+        FetchMode::MIXED => OCI_BOTH,
+        FetchMode::ASSOCIATIVE => OCI_ASSOC,
+        FetchMode::NUMERIC => OCI_NUM,
+        FetchMode::COLUMN => OCI_NUM,
     ];
 
     /**
      * @var integer
      */
-    protected $_defaultFetchMode = PDO::FETCH_BOTH;
+    protected $_defaultFetchMode = FetchMode::MIXED;
 
     /**
      * @var array
@@ -237,7 +238,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = null)
+    public function bindValue($param, $value, $type = ParameterType::STRING)
     {
         return $this->bindParam($param, $value, $type, null);
     }
@@ -245,11 +246,11 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null, $length = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
         $column = $this->_paramMap[$column] ?? $column;
 
-        if ($type == \PDO::PARAM_LOB) {
+        if ($type == ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
             $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
@@ -370,11 +371,11 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
-        if ($fetchMode === PDO::FETCH_COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN) {
             return $this->fetchColumn();
         }
 
-        if (PDO::FETCH_OBJ == $fetchMode) {
+        if ($fetchMode === FetchMode::STANDARD_OBJECT) {
             return oci_fetch_object($this->_sth);
         }
 
@@ -397,7 +398,7 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         $result = [];
 
-        if (PDO::FETCH_OBJ == $fetchMode) {
+        if ($fetchMode == FetchMode::STANDARD_OBJECT) {
             while ($row = $this->fetch($fetchMode)) {
                 $result[] = $row;
             }
@@ -415,7 +416,8 @@ class OCI8Statement implements IteratorAggregate, Statement
             }
         } else {
             $fetchStructure = OCI_FETCHSTATEMENT_BY_ROW;
-            if ($fetchMode == PDO::FETCH_COLUMN) {
+
+            if ($fetchMode == FetchMode::COLUMN) {
                 $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
             }
 
@@ -428,7 +430,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             oci_fetch_all($this->_sth, $result, 0, -1,
                 self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
 
-            if ($fetchMode == PDO::FETCH_COLUMN) {
+            if ($fetchMode == FetchMode::COLUMN) {
                 $result = $result[0];
             }
         }

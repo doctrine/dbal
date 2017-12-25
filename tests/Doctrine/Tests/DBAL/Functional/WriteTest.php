@@ -1,8 +1,9 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional;
+
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
-use PDO;
 
 class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
@@ -31,7 +32,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testExecuteUpdateFirstTypeIsNull()
     {
         $sql = "INSERT INTO write_table (test_string, test_int) VALUES (?, ?)";
-        $this->_conn->executeUpdate($sql, array("text", 1111), array(null, PDO::PARAM_INT));
+        $this->_conn->executeUpdate($sql, array("text", 1111), array(null, ParameterType::INTEGER));
 
         $sql = "SELECT * FROM write_table WHERE test_string = ? AND test_int = ?";
         self::assertTrue((bool)$this->_conn->fetchColumn($sql, array("text", 1111)));
@@ -48,7 +49,11 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testExecuteUpdateWithTypes()
     {
         $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
-        $affected = $this->_conn->executeUpdate($sql, array(1, 'foo'), array(\PDO::PARAM_INT, \PDO::PARAM_STR));
+        $affected = $this->_conn->executeUpdate(
+            $sql,
+            array(1, 'foo'),
+            array(ParameterType::INTEGER, ParameterType::STRING)
+        );
 
         self::assertEquals(1, $affected, "executeUpdate() should return the number of affected rows!");
     }
@@ -70,8 +75,8 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
         $stmt = $this->_conn->prepare($sql);
 
-        $stmt->bindValue(1, 1, \PDO::PARAM_INT);
-        $stmt->bindValue(2, "foo", \PDO::PARAM_STR);
+        $stmt->bindValue(1, 1, ParameterType::INTEGER);
+        $stmt->bindValue(2, "foo", ParameterType::STRING);
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());

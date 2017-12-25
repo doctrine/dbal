@@ -4,7 +4,6 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use PDO;
 use Closure;
 use Exception;
 use Doctrine\DBAL\Types\Type;
@@ -170,7 +169,7 @@ class Connection implements DriverConnection
     /**
      * @var integer
      */
-    protected $defaultFetchMode = PDO::FETCH_ASSOC;
+    protected $defaultFetchMode = FetchMode::ASSOCIATIVE;
 
     /**
      * Initializes a new instance of the Connection class.
@@ -538,7 +537,7 @@ class Connection implements DriverConnection
      */
     public function fetchAssoc($statement, array $params = [], array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetch(PDO::FETCH_ASSOC);
+        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::ASSOCIATIVE);
     }
 
     /**
@@ -553,7 +552,7 @@ class Connection implements DriverConnection
      */
     public function fetchArray($statement, array $params = [], array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetch(PDO::FETCH_NUM);
+        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::NUMERIC);
     }
 
     /**
@@ -783,7 +782,7 @@ class Connection implements DriverConnection
         $typeValues = [];
 
         foreach ($columnList as $columnIndex => $columnName) {
-            $typeValues[] = $types[$columnName] ?? \PDO::PARAM_STR;
+            $typeValues[] = $types[$columnName] ?? ParameterType::STRING;
         }
 
         return $typeValues;
@@ -1567,7 +1566,7 @@ class Connection implements DriverConnection
             $value = $type->convertToDatabaseValue($value, $this->getDatabasePlatform());
             $bindingType = $type->getBindingType();
         } else {
-            $bindingType = $type; // PDO::PARAM_* constants
+            $bindingType = $type;
         }
 
         return [$value, $bindingType];

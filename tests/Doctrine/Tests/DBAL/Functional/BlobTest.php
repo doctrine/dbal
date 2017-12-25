@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
-use PDO;
 
 /**
  * @group DBAL-6
@@ -39,7 +39,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $ret = $this->_conn->insert('blob_table',
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
-            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
+            array(ParameterType::INTEGER, ParameterType::STRING, ParameterType::LARGE_OBJECT, ParameterType::LARGE_OBJECT)
         );
         self::assertEquals(1, $ret);
     }
@@ -48,7 +48,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->_conn->insert('blob_table',
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
-            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
+            array(ParameterType::INTEGER, ParameterType::STRING, ParameterType::LARGE_OBJECT, ParameterType::LARGE_OBJECT)
         );
 
         $this->assertBlobContains('test');
@@ -58,13 +58,13 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->_conn->insert('blob_table',
             array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
-            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
+            array(ParameterType::INTEGER, ParameterType::STRING, ParameterType::LARGE_OBJECT, ParameterType::LARGE_OBJECT)
         );
 
         $this->_conn->update('blob_table',
             array('blobfield' => 'test2', 'binaryfield' => 'test2'),
             array('id' => 1),
-            array(\PDO::PARAM_LOB, \PDO::PARAM_LOB, \PDO::PARAM_INT)
+            array(ParameterType::LARGE_OBJECT, ParameterType::LARGE_OBJECT, ParameterType::INTEGER)
         );
 
         $this->assertBlobContains('test2');

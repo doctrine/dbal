@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -152,7 +153,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
         // fetch primary
         $stmt = $this->_conn->executeQuery("PRAGMA TABLE_INFO ('$tableName')");
-        $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         usort($indexArray, function($a, $b) {
             if ($a['pk'] == $b['pk']) {
@@ -183,7 +184,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 $idx['non_unique'] = $tableIndex['unique']?false:true;
 
                 $stmt = $this->_conn->executeQuery("PRAGMA INDEX_INFO ('{$keyName}')");
-                $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
                 foreach ($indexArray as $indexColumnRow) {
                     $idx['column_name'] = $indexColumnRow['name'];
