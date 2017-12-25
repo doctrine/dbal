@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
@@ -28,13 +29,17 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
      * @param   integer     $case
      * @return  Connection
      */
-    private function getPortableConnection($portabilityMode = \Doctrine\DBAL\Portability\Connection::PORTABILITY_ALL, $case = \PDO::CASE_LOWER)
-    {
+    private function getPortableConnection(
+        $portabilityMode = ConnectionPortability::PORTABILITY_ALL,
+        $case = ColumnCase::LOWER
+    ) {
         if (!$this->portableConnection) {
             $params = $this->_conn->getParams();
-            $params['wrapperClass'] = 'Doctrine\DBAL\Portability\Connection';
-            $params['portability'] = $portabilityMode;
-            $params['fetch_case'] = $case;
+
+            $params['wrapperClass'] = ConnectionPortability::class;
+            $params['portability']  = $portabilityMode;
+            $params['fetch_case']   = $case;
+
             $this->portableConnection = DriverManager::getConnection($params, $this->_conn->getConfiguration(), $this->_conn->getEventManager());
 
             try {
