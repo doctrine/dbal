@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -1359,5 +1360,41 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             'valid with extra closing bracket'  => ['(DC2Type:should.stop)).before)', 'should.stop', $currentType],
             'valid with extra opening brackets' => ['(DC2Type:should((.stop)).before)', 'should((.stop', $currentType],
         ];
+    }
+
+    public function testCreateAndListSequences() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->supportsSequences()) {
+            self::markTestSkipped('This test is only supported on platforms that support sequences.');
+        }
+
+        $sequence1Name           = 'sequence_1';
+        $sequence1AllocationSize = 1;
+        $sequence1InitialValue   = 2;
+        $sequence2Name           = 'sequence_2';
+        $sequence2AllocationSize = 3;
+        $sequence2InitialValue   = 4;
+        $sequence1               = new Sequence($sequence1Name, $sequence1AllocationSize, $sequence1InitialValue);
+        $sequence2               = new Sequence($sequence2Name, $sequence2AllocationSize, $sequence2InitialValue);
+
+        $this->_sm->createSequence($sequence1);
+        $this->_sm->createSequence($sequence2);
+
+        /** @var Sequence[] $actualSequences */
+        $actualSequences = [];
+        foreach ($this->_sm->listSequences() as $sequence) {
+            $actualSequences[$sequence->getName()] = $sequence;
+        }
+
+        $actualSequence1 = $actualSequences[$sequence1Name];
+        $actualSequence2 = $actualSequences[$sequence2Name];
+
+        self::assertSame($sequence1Name, $actualSequence1->getName());
+        self::assertEquals($sequence1AllocationSize, $actualSequence1->getAllocationSize());
+        self::assertEquals($sequence1InitialValue, $actualSequence1->getInitialValue());
+
+        self::assertSame($sequence2Name, $actualSequence2->getName());
+        self::assertEquals($sequence2AllocationSize, $actualSequence2->getAllocationSize());
+        self::assertEquals($sequence2InitialValue, $actualSequence2->getInitialValue());
     }
 }
