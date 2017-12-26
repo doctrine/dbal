@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -297,5 +298,34 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertSame($params, $connection->getParams());
 
         $connection->close();
+    }
+
+    /**
+     * @dataProvider executeQueryWithDateTimeParametersProvider
+     */
+    public function testExecuteQueryWithDateTimeParameters($query, $parameters, $types)
+    {
+        self::assertTrue($this->_conn->executeQuery($query, $parameters, $types)->execute());
+    }
+
+    public function executeQueryWithDateTimeParametersProvider()
+    {
+        return [
+            [
+                'SELECT ?',
+                [[new \DateTime('today'), new \DateTime('tomorrow')]],
+                [Connection::PARAM_STR_ARRAY],
+            ],
+            [
+                'SELECT ?, ?',
+                [new \DateTime('today'), new \DateTime('tomorrow')],
+                [Type::DATETIME, Type::DATETIME],
+            ],
+            [
+                'SELECT ?, ?',
+                [new \DateTime('today'), new \DateTime('tomorrow')],
+                [\PDO::PARAM_STR, \PDO::PARAM_STR],
+            ],
+        ];
     }
 }
