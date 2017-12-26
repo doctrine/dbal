@@ -1581,7 +1581,11 @@ class Connection implements DriverConnection
     {
         if (is_string($type)) {
             $type = Type::getType($type);
+        } elseif (PDO::PARAM_STR === $type && $value instanceof \DateTime) {
+            // change the given PDO type to DBAL in case it's a \DateTime object
+            $type = Type::getType(Type::DATETIME);
         }
+
         if ($type instanceof Type) {
             $value = $type->convertToDatabaseValue($value, $this->getDatabasePlatform());
             $bindingType = $type->getBindingType();
