@@ -36,14 +36,14 @@ interface Connection
      *
      * @return \Doctrine\DBAL\Driver\Statement
      */
-    function prepare($prepareString);
+    public function prepare($prepareString);
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
      * @return \Doctrine\DBAL\Driver\Statement
      */
-    function query();
+    public function query();
 
     /**
      * Quotes a string for use in a query.
@@ -53,7 +53,7 @@ interface Connection
      *
      * @return mixed
      */
-    function quote($input, $type=\PDO::PARAM_STR);
+    public function quote($input, $type = \PDO::PARAM_STR);
 
     /**
      * Executes an SQL statement and return the number of affected rows.
@@ -62,7 +62,7 @@ interface Connection
      *
      * @return int
      */
-    function exec($statement);
+    public function exec($statement);
 
     /**
      * Returns the ID of the last inserted row or sequence value.
@@ -71,40 +71,40 @@ interface Connection
      *
      * @return string
      */
-    function lastInsertId($name = null);
+    public function lastInsertId($name = null);
 
     /**
      * Initiates a transaction.
      *
      * @return bool TRUE on success or FALSE on failure.
      */
-    function beginTransaction();
+    public function beginTransaction();
 
     /**
      * Commits a transaction.
      *
      * @return bool TRUE on success or FALSE on failure.
      */
-    function commit();
+    public function commit();
 
     /**
      * Rolls back the current transaction, as initiated by beginTransaction().
      *
      * @return bool TRUE on success or FALSE on failure.
      */
-    function rollBack();
+    public function rollBack();
 
     /**
      * Returns the error code associated with the last operation on the database handle.
      *
      * @return string|null The error code, or null if no operation has been run on the database handle.
      */
-    function errorCode();
+    public function errorCode();
 
     /**
      * Returns extended error information associated with the last operation on the database handle.
      *
      * @return array
      */
-    function errorInfo();
+    public function errorInfo();
 }
