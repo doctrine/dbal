@@ -115,10 +115,6 @@ EOF
                 $this->_conn->getDatabasePlatform()
             );
 
-        if ($this->_conn->getDriver()->getName() === 'pdo_sqlsrv') {
-            $this->markTestSkipped('Skipping on pdo_sqlsrv due to https://github.com/Microsoft/msphpsql/issues/270');
-        }
-
         self::assertSame($contents, stream_get_contents($stream));
     }
 
