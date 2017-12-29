@@ -3611,12 +3611,7 @@ abstract class AbstractPlatform
         return '%_';
     }
 
-    /**
-     * @param string $table
-     *
-     * @return string
-     */
-    protected function getDropPrimaryKeySQL(string $table): string
+    protected function getDropPrimaryKeySQL(string $table) : string
     {
         return 'ALTER TABLE ' . $table . ' DROP PRIMARY KEY';
     }

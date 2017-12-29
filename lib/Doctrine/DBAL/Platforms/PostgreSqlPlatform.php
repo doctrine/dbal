@@ -752,10 +752,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return $this->getDropConstraintSQL($foreignKey, $table);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function getDropPrimaryKeySQL(string $table): string
+    protected function getDropPrimaryKeySQL(string $table) : string
     {
         return $this->getDropConstraintSQL("{$table}_pkey", $table);
     }
