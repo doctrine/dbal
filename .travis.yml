@@ -276,6 +276,20 @@ jobs:
       before_script:
         - bash ./tests/travis/install-postgres-10.sh
 
+    - stage: Test
+      php: 7.1
+      env: DB=sqlite DEPENDENCIES=low
+      install:
+        - travis_retry composer update --prefer-dist --prefer-lowest
+
+    - stage: Test
+      if: type = cron
+      php: 7.2
+      env: DB=sqlite DEPENDENCIES=dev
+      install:
+        - composer config minimum-stability dev
+        - travis_retry composer update --prefer-dist
+
     - stage: Coverage
       php: 7.1
       env: DB=sqlite
