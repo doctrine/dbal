@@ -442,7 +442,6 @@ class SqliteSchemaManager extends AbstractSchemaManager
             // See bug: https://bugs.php.net/bug.php?id=75355
             $pattern = '{(?:\W' . addcslashes(preg_quote($column), '#') . '\W|\W' . addcslashes(preg_quote($this->_platform->quoteSingleIdentifier($column)), '#')
                      . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
-
         } else {
             $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
                      . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
