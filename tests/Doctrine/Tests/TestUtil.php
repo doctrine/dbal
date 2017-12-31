@@ -4,6 +4,7 @@ namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use PHPUnit\Framework\Assert;
 
 /**
  * TestUtil is a class with static utility methods used during tests.
@@ -110,7 +111,12 @@ class TestUtil
         return $realDbParams;
     }
 
-    private static function getFallbackConnectionParams() {
+    private static function getFallbackConnectionParams()
+    {
+        if ( ! extension_loaded('pdo_sqlite')) {
+            Assert::markTestSkipped('PDO SQLite extension is not loaded');
+        }
+
         $params = array(
             'driver' => 'pdo_sqlite',
             'memory' => true
