@@ -1407,43 +1407,55 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      *
      * @return array
      */
-    public function getEscapedLiterals(): array
+    private function getEscapedLiterals(): array
     {
         return [
-            'An ASCII NUL (X\'00\')' => ["\\0"],
-            'Single quote, C-style' => ["\\'"],
-            'Single quote, doubled-style' => ["''"],
-            'Double quote, C-style' => ['\\"'],
-            'Double quote, double-style' => ['""'],
-            'Backspace' => ['\\b'],
-            'New-line' => ['\\n'],
-            'Carriage return' => ['\\r'],
-            'Tab' => ['\\t'],
-            'ASCII 26 (Control+Z)' => ['\\Z'],
-            'Backslash (\)' => ['\\\\'],
-            'Percent (%)' => ['\\%'],
-            'Underscore (_)' => ['\\_'],
+            ['An ASCII NUL (X\'00\')', "foo\\0bar"],
+            ['Single quote, C-style', "foo\\'bar"],
+            ['Single quote, doubled-style', "foo''bar"],
+            ['Double quote, C-style', 'foo\\"bar'],
+            ['Double quote, double-style', 'foo""bar'],
+            ['Backspace', 'foo\\bbar'],
+            ['New-line', 'foo\\nbar'],
+            ['Carriage return', 'foo\\rbar'],
+            ['Tab', 'foo\\tbar'],
+            ['ASCII 26 (Control+Z)', 'foo\\Zbar'],
+            ['Backslash (\)', 'foo\\\\bar'],
+            ['Percent (%)', 'foo\\%bar'],
+            ['Underscore (_)', 'foo\\_bar'],
         ];
     }
 
-    /**
-     * @dataProvider getEscapedLiterals
-     *
-     * @param string $value
-     */
-    public function testEscapedDefaultValueMustBePreserved(string $value) : void
+    private function createTableForDefaultValues(): void
     {
-        $value = 'foo' . $value . 'bar';
         $table = new Table('string_escaped_default_value');
-        $table->addColumn('def_string', 'string', array('default' => $value));
+        foreach ($this->getEscapedLiterals() as $i => $literal) {
+            $table->addColumn('field' . $i, 'string', ['default' => $literal[1]]);
+        }
+
         $table->addColumn('def_foo', 'string');
         $this->_sm->dropAndCreateTable($table);
+    }
+
+    public function testEscapedDefaultValueCanBeIntrospected(): void
+    {
+        $this->createTableForDefaultValues();
 
         $onlineTable = $this->_sm->listTableDetails('string_escaped_default_value');
-        self::assertSame($value, $onlineTable->getColumn('def_string')->getDefault(), 'should be able introspect the value of default');
+        foreach ($this->getEscapedLiterals() as $i => $literal) {
+            self::assertSame($literal[1], $onlineTable->getColumn('field' . $i)->getDefault(), 'should be able introspect the value of default for: ' . $literal[0]);
+        }
+    }
 
-        $this->_conn->insert('string_escaped_default_value', array('def_foo' => 'foo'));
-        $row = $this->_conn->fetchAssoc('SELECT def_string FROM string_escaped_default_value');
-        self::assertSame($value, $row['def_string'], 'inserted default value should be the configured default value');
+    public function testEscapedDefaultValueCanBeInserted(): void
+    {
+        $this->createTableForDefaultValues();
+
+        $this->_conn->insert('string_escaped_default_value', ['def_foo' => 'foo']);
+        $row = $this->_conn->fetchAssoc('SELECT * FROM string_escaped_default_value');
+        foreach ($this->getEscapedLiterals() as $i => $literal) {
+            self::assertSame($literal[1], $row['field' . $i], 'inserted default value should be the configured default value for: ' . $literal[0]);
+
+        }
     }
 }
