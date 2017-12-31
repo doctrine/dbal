@@ -5,6 +5,9 @@ namespace Doctrine\Tests\DBAL\Sharding;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Sharding\ShardChoser\MultiTenantShardChoser;
 
+/**
+ * @requires extension pdo_sqlite
+ */
 class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
 {
     public function testConnect()

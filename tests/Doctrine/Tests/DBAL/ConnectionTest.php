@@ -20,6 +20,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Tests\Mocks\DriverMock;
 use Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock;
 
+/**
+ * @requires extension pdo_mysql
+ */
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
@@ -157,6 +160,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
+     * @requires extension pdo_sqlite
      * @expectedException \Doctrine\DBAL\DBALException
      * @dataProvider getQueryMethods
      */

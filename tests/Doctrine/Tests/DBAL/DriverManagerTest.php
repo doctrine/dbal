@@ -3,11 +3,11 @@
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\Tests\Mocks\PDOMock;
 
 class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
+     * @requires extension pdo_sqlite
      * @expectedException \Doctrine\DBAL\DBALException
      */
     public function testInvalidPdoInstance()
@@ -18,6 +18,9 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $test = \Doctrine\DBAL\DriverManager::getConnection($options);
     }
 
+    /**
+     * @requires extension pdo_sqlite
+     */
     public function testValidPdoInstance()
     {
         $options = array(
@@ -29,6 +32,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 
     /**
      * @group DBAL-32
+     * @requires extension pdo_sqlite
      */
     public function testPdoInstanceSetErrorMode()
     {
@@ -58,6 +62,9 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         $conn = \Doctrine\DBAL\DriverManager::getConnection(array('driver' => 'invalid_driver'));
     }
 
+    /**
+     * @requires extension pdo_sqlite
+     */
     public function testCustomPlatform()
     {
         $mockPlatform = new \Doctrine\Tests\DBAL\Mocks\MockPlatform();
@@ -70,6 +77,9 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         self::assertSame($mockPlatform, $conn->getDatabasePlatform());
     }
 
+    /**
+     * @requires extension pdo_sqlite
+     */
     public function testCustomWrapper()
     {
         $wrapperClass = 'Doctrine\Tests\Mocks\ConnectionMock';
@@ -83,6 +93,9 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         self::assertInstanceOf($wrapperClass, $conn);
     }
 
+    /**
+     * @requires extension pdo_sqlite
+     */
     public function testInvalidWrapperClass()
     {
         $this->expectException(DBALException::class);
@@ -125,6 +138,18 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
             'url' => $url,
         );
 
+        if (isset($options['pdo'])) {
+            if ( ! extension_loaded('pdo')) {
+                $this->markTestSkipped('PDO is not installed');
+            }
+
+            $options['pdo'] = $this->createMock(\PDO::class);
+        }
+
+        $options = is_array($url) ? $url : array(
+            'url' => $url,
+        );
+
         if ($expected === false) {
             $this->expectException(DBALException::class);
         }
@@ -143,8 +168,6 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
 
     public function databaseUrls()
     {
-        $pdoMock = $this->createMock(PDOMock::class);
-
         return array(
             'simple URL' => array(
                 'mysql://foo:bar@localhost/baz',
@@ -217,7 +240,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
                 false,
             ),
             'URL without scheme but default PDO driver' => array(
-                array('url' => '//foo:bar@localhost/baz', 'pdo' => $pdoMock),
+                array('url' => '//foo:bar@localhost/baz', 'pdo' => true),
                 false,
             ),
             'URL without scheme but default driver' => array(
@@ -229,7 +252,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
             ),
             'URL without scheme but default PDO driver and default driver' => array(
-                array('url' => '//foo:bar@localhost/baz', 'pdo' => $pdoMock, 'driver' => 'pdo_mysql'),
+                array('url' => '//foo:bar@localhost/baz', 'pdo' => true, 'driver' => 'pdo_mysql'),
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
             ),
             'URL without scheme but driver and custom driver' => array(
@@ -237,7 +260,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
             ),
             'URL with default PDO driver' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'pdo' => $pdoMock),
+                array('url' => 'mysql://foo:bar@localhost/baz', 'pdo' => true),
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
             ),
             'URL with default driver' => array(
@@ -249,7 +272,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
             ),
             'URL with default PDO driver and default driver' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'pdo' => $pdoMock, 'driver' => 'sqlite'),
+                array('url' => 'mysql://foo:bar@localhost/baz', 'pdo' => true, 'driver' => 'sqlite'),
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
             ),
             'URL with default driver and default custom driver' => array(
@@ -257,7 +280,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
             ),
             'URL with default PDO driver and default driver and default custom driver' => array(
-                array('url' => 'mysql://foo:bar@localhost/baz', 'pdo' => $pdoMock, 'driver' => 'sqlite', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
+                array('url' => 'mysql://foo:bar@localhost/baz', 'pdo' => true, 'driver' => 'sqlite', 'driverClass' => 'Doctrine\Tests\Mocks\DriverMock'),
                 array('user' => 'foo', 'password' => 'bar', 'host' => 'localhost', 'dbname' => 'baz', 'driver' => 'Doctrine\DBAL\Driver\PDOMySQL\Driver'),
             ),
         );

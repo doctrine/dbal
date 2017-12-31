@@ -6,6 +6,9 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 
+/**
+ * @requires extension pdo_sqlite
+ */
 class SingleDatabaseSynchronizerTest extends \PHPUnit\Framework\TestCase
 {
     private $conn;
