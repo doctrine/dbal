@@ -976,15 +976,4 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             true
         );
     }
-
-    public function testGetDefaultValueDeclarationSQLEscaped() : void
-    {
-        // string must be escaped
-        $field = [
-            'type' => 'string',
-            'default' => 'Foo\\Bar'
-        ];
-
-        self::assertSame(" DEFAULT 'Foo\\Bar'", $this->_platform->getDefaultValueDeclarationSQL($field));
-    }
 }

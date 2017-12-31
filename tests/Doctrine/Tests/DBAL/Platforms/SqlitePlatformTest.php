@@ -748,15 +748,4 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
-
-    public function testGetDefaultValueDeclarationSQLEscaped()
-    {
-        // string must be escaped
-        $field = [
-            'type' => 'string',
-            'default' => "Foo\\Bar'Baz"
-        ];
-
-        self::assertSame(" DEFAULT 'Foo\\Bar''Baz'", $this->_platform->getDefaultValueDeclarationSQL($field));
-    }
 }
