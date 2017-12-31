@@ -131,7 +131,10 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertArrayNotHasKey(0, $row, "The row should not contain numerical keys.");
     }
 
-    public function testPortabilitySqlServer()
+    /**
+     * @requires extension pdo
+     */
+    public function testPortabilityPdoSqlServer()
     {
         $portability = ConnectionPortability::PORTABILITY_SQLSRV;
         $params = array(
