@@ -1442,9 +1442,6 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $onlineTable = $this->_sm->listTableDetails('string_escaped_default_value');
         self::assertSame($value, $onlineTable->getColumn('def_string')->getDefault(), 'should be able introspect the value of default');
 
-        $comparator = new Comparator();
-        self::assertFalse($comparator->diffTable($table, $onlineTable), 'introspected schema should have no differences');
-
         $this->_conn->insert('string_escaped_default_value', array('def_foo' => 'foo'));
         $row = $this->_conn->fetchAssoc('SELECT def_string FROM string_escaped_default_value');
         self::assertSame($value, $row['def_string'], 'inserted default value should be the configured default value');
