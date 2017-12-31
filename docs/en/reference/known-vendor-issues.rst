@@ -35,7 +35,6 @@ passing the date to the constructor of ``DateTime``.
 This is why Doctrine always wants to create the time related types
 without microseconds:
 
-
 -  DateTime to ``TIMESTAMP(0) WITHOUT TIME ZONE``
 -  DateTimeTz to ``TIMESTAMP(0) WITH TIME ZONE``
 -  Time to ``TIME(0) WITHOUT TIME ZONE``

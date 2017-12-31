@@ -20,7 +20,6 @@ instance.
 
 Doctrine ships with one implementation for the "PostConnect" event:
 
-
 -  ``Doctrine\DBAL\Event\Listeners\OracleSessionInit`` allows to
    specify any number of Oracle Session related enviroment variables
    that are set right after the connection is established.
@@ -35,9 +34,8 @@ instance passed to the Connection factory:
     $evm->addEventSubscriber(new OracleSessionInit(array(
         'NLS_TIME_FORMAT' => 'HH24:MI:SS',
     )));
-    
-    $conn = DriverManager::getConnection($connectionParams, null, $evm);
 
+    $conn = DriverManager::getConnection($connectionParams, null, $evm);
 
 Schema Events
 -------------
@@ -92,7 +90,6 @@ for event listeners.
 
 It allows you to access the ``Doctrine\DBAL\Schema\Table`` instance and its columns, the used Platform and
 provides a way to add additional SQL statements.
-
 
 OnSchemaCreateTableColumn Event
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

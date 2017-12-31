@@ -45,7 +45,6 @@ object is closed:
     $data = $stmt->fetchAll();
     $stmt->closeCursor(); // at this point the result is cached
 
-
 .. warning::
 
     When using the cache layer not all fetch modes are supported. See the code of the `ResultCacheStatement <https://github.com/doctrine/dbal/blob/master/lib/Doctrine/DBAL/Cache/ResultCacheStatement.php>`_ for details.
