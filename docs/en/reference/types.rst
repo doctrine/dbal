@@ -872,7 +872,6 @@ method to add new database types or overwrite existing ones.
     Database vendors that allow to define custom types like PostgreSql
     can help to overcome this issue.
 
-
 Custom Mapping Types
 --------------------
 
@@ -955,7 +954,6 @@ Then you override the ``convertToPhpValueSQL`` and
     {
         return 'MyFunction('.$sqlExpr.')';
     }
-
 
 Now we have to register this type with the Doctrine Type system and
 hook it into the database platform:

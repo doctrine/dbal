@@ -117,13 +117,11 @@ database name::
     ``charset`` connection parameter next to ``url``, to provide a
     default value in case the URL doesn't contain a charset value.
 
-
 Driver
 ~~~~~~
 
 The driver specifies the actual implementations of the DBAL
 interfaces to use. It can be configured in one of three ways:
-
 
 -  ``driver``: The built-in driver implementation to use. The
    following drivers are currently available:
@@ -172,10 +170,8 @@ options recognized by each built-in driver.
     When using an existing PDO instance through the ``pdo``
     option, specifying connection details is obviously not necessary.
 
-
 pdo\_sqlite
 ^^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -189,7 +185,6 @@ pdo\_sqlite
 
 pdo\_mysql
 ^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -223,7 +218,6 @@ or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restarting the dri
 mysqli
 ^^^^^^
 
-
 -  ``user`` (string): Username to use when connecting to the
    database.
 -  ``password`` (string): Password to use when connecting to the
@@ -244,7 +238,6 @@ mysqli
 
 pdo\_pgsql
 ^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -268,11 +261,11 @@ pdo\_pgsql
    See http://www.postgresql.org/docs/9.0/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
 -  ``sslcert`` (string): specifies the file name of the client SSL certificate.
    See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT`
--  ``sslkey`` (string): specifies the location for the secret key used for the 
+-  ``sslkey`` (string): specifies the location for the secret key used for the
    client certificate.
    See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY`
--  ``sslcrl`` (string): specifies the file name of the SSL certificate 
-   revocation list (CRL). 
+-  ``sslcrl`` (string): specifies the file name of the SSL certificate
+   revocation list (CRL).
    See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
@@ -284,7 +277,6 @@ and ``'false'`` as strings you can change to integers by using:
 
 pdo\_oci / oci8
 ^^^^^^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -318,7 +310,6 @@ pdo\_oci / oci8
 pdo\_sqlsrv / sqlsrv
 ^^^^^^^^^^^^^^^^^^^^
 
-
 -  ``user`` (string): Username to use when connecting to the
    database.
 -  ``password`` (string): Password to use when connecting to the
@@ -329,7 +320,6 @@ pdo\_sqlsrv / sqlsrv
 
 sqlanywhere
 ^^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
