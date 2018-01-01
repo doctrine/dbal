@@ -57,14 +57,14 @@ class Connection implements DriverConnection
      *
      * @var integer
      */
-    const PARAM_INT_ARRAY = 101;
+    const PARAM_INT_ARRAY = ParameterType::INTEGER + self::ARRAY_PARAM_OFFSET;
 
     /**
      * Represents an array of strings to be expanded by Doctrine SQL parsing.
      *
      * @var integer
      */
-    const PARAM_STR_ARRAY = 102;
+    const PARAM_STR_ARRAY = ParameterType::STRING + self::ARRAY_PARAM_OFFSET;
 
     /**
      * Offset by which PARAM_* constants are detected as arrays of the param type.
