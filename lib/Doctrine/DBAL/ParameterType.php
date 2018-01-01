@@ -12,35 +12,35 @@ final class ParameterType
      *
      * @see \PDO::PARAM_NULL
      */
-    public const NULL = \PDO::PARAM_NULL;
+    public const NULL = 0;
 
     /**
      * Represents the SQL INTEGER data type.
      *
      * @see \PDO::PARAM_INT
      */
-    public const INTEGER = \PDO::PARAM_INT;
+    public const INTEGER = 1;
 
     /**
      * Represents the SQL CHAR, VARCHAR, or other string data type.
      *
      * @see \PDO::PARAM_STR
      */
-    public const STRING = \PDO::PARAM_STR;
+    public const STRING = 2;
 
     /**
      * Represents the SQL large object data type.
      *
      * @see \PDO::PARAM_LOB
      */
-    public const LARGE_OBJECT = \PDO::PARAM_LOB;
+    public const LARGE_OBJECT = 3;
 
     /**
      * Represents a boolean data type.
      *
      * @see \PDO::PARAM_BOOL
      */
-    public const BOOLEAN = \PDO::PARAM_BOOL;
+    public const BOOLEAN = 5;
 
     /**
      * Represents a binary string data type.
