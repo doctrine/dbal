@@ -22,7 +22,6 @@
     ],
     "require": {
         "php": "^7.2",
-        "ext-pdo": "*",
         "doctrine/cache": "^1.0",
         "doctrine/event-manager": "^1.0"
     },
