@@ -4,14 +4,12 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use InvalidArgumentException;
 use PDO;
-use const E_USER_DEPRECATED;
 use function array_slice;
 use function assert;
 use function func_get_args;
 use function is_array;
-use function sprintf;
-use function trigger_error;
 
 /**
  * The PDO implementation of the Statement interface.
@@ -193,13 +191,7 @@ class PDOStatement extends \PDOStatement implements Statement
     private function convertParamType(int $type) : int
     {
         if (! isset(self::PARAM_TYPE_MAP[$type])) {
-            // TODO: next major: throw an exception
-            @trigger_error(sprintf(
-                'Using a PDO parameter type (%d given) is deprecated and will cause an error in Doctrine DBAL 3.0',
-                $type
-            ), E_USER_DEPRECATED);
-
-            return $type;
+            throw new InvalidArgumentException('Invalid parameter type: ' . $type);
         }
 
         return self::PARAM_TYPE_MAP[$type];
@@ -213,14 +205,7 @@ class PDOStatement extends \PDOStatement implements Statement
     private function convertFetchMode(int $fetchMode) : int
     {
         if (! isset(self::FETCH_MODE_MAP[$fetchMode])) {
-            // TODO: next major: throw an exception
-            @trigger_error(sprintf(
-                'Using a PDO fetch mode or their combination (%d given)' .
-                ' is deprecated and will cause an error in Doctrine DBAL 3.0',
-                $fetchMode
-            ), E_USER_DEPRECATED);
-
-            return $fetchMode;
+            throw new InvalidArgumentException('Invalid fetch mode: ' . $fetchMode);
         }
 
         return self::FETCH_MODE_MAP[$fetchMode];
