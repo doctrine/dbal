@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1d397d6d064efda6d4150edce78e283a",
+    "content-hash": "d5705798689e9256a49be3e0afb8bc93",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -3067,8 +3067,8 @@
             "authors": [
                 {
                     "name": "Arne Blankerts",
-                    "role": "Developer",
-                    "email": "arne@blankerts.de"
+                    "email": "arne@blankerts.de",
+                    "role": "Developer"
                 }
             ],
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
@@ -3132,8 +3132,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.2",
-        "ext-pdo": "*"
+        "php": "^7.2"
     },
     "platform-dev": []
 }
