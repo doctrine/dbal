@@ -384,11 +384,12 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 $length = null;
                 break;
             case 'text':
+            case '_varchar':
+            case 'varchar':
+                $tableColumn['default'] = $this->unescapeDefaultValue($tableColumn['default']);
                 $fixed = false;
                 break;
-            case 'varchar':
             case 'interval':
-            case '_varchar':
                 $fixed = false;
                 break;
             case 'char':
@@ -467,5 +468,23 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
 
         return $defaultValue;
+    }
+
+    /**
+     * Un-escape a default value as given by PostgreSQL
+     *
+     * @param null|string $default
+     *
+     * @return null|string
+     */
+    private function unescapeDefaultValue(?string $default) : ?string
+    {
+        if ($default === null) {
+            return $default;
+        }
+
+        $default = str_replace("''", "'", $default);
+
+        return $default;
     }
 }
