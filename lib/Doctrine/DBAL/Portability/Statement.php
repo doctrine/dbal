@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use PDO;
 use function array_change_key_case;
 use function assert;
 use function is_string;
@@ -112,11 +111,11 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg1 = null, $arg2 = null)
+    public function setFetchMode($fetchMode, ...$args)
     {
         $this->defaultFetchMode = $fetchMode;
 
-        return $this->stmt->setFetchMode($fetchMode, $arg1, $arg2);
+        return $this->stmt->setFetchMode($fetchMode, ...$args);
     }
 
     /**
@@ -130,11 +129,11 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, ...$args)
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
-        $row = $this->stmt->fetch($fetchMode);
+        $row = $this->stmt->fetch($fetchMode, ...$args);
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
         $fixCase    = $this->case !== null
@@ -149,15 +148,11 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, ...$args)
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
-        if ($fetchArgument) {
-            $rows = $this->stmt->fetchAll($fetchMode, $fetchArgument);
-        } else {
-            $rows = $this->stmt->fetchAll($fetchMode);
-        }
+        $rows = $this->stmt->fetchAll($fetchMode, ...$args);
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
         $fixCase    = $this->case !== null
