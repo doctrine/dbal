@@ -477,7 +477,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      *
      * @return null|string
      */
-    private function unescapeDefaultValue(?string $default): ?string
+    private function unescapeDefaultValue(?string $default) : ?string
     {
         if ($default === null) {
             return $default;
