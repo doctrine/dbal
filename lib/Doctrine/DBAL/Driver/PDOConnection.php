@@ -4,7 +4,6 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\ParameterType;
 use PDO;
-use function count;
 use function func_get_args;
 
 /**
@@ -25,7 +24,6 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     {
         try {
             parent::__construct($dsn, $user, $password, $options);
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class, []]);
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
@@ -58,7 +56,9 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function prepare($prepareString, $driverOptions = [])
     {
         try {
-            return parent::prepare($prepareString, $driverOptions);
+            return $this->createStatement(
+                parent::prepare($prepareString, $driverOptions)
+            );
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -69,23 +69,12 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function query()
     {
-        $args      = func_get_args();
-        $argsCount = count($args);
+        $args = func_get_args();
 
         try {
-            if ($argsCount === 4) {
-                return parent::query($args[0], $args[1], $args[2], $args[3]);
-            }
-
-            if ($argsCount === 3) {
-                return parent::query($args[0], $args[1], $args[2]);
-            }
-
-            if ($argsCount === 2) {
-                return parent::query($args[0], $args[1]);
-            }
-
-            return parent::query($args[0]);
+            return $this->createStatement(
+                parent::query(...$args)
+            );
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -117,5 +106,13 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function requiresQueryForServerVersion()
     {
         return false;
+    }
+
+    /**
+     * Creates a wrapped statement
+     */
+    private function createStatement(\PDOStatement $stmt) : PDOStatement
+    {
+        return new PDOStatement($stmt);
     }
 }

@@ -7,7 +7,6 @@ use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
-use PDO;
 use function array_merge;
 use function array_values;
 use function count;
@@ -59,9 +58,9 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, ...$args)
     {
-        if ($arg2 !== null || $arg3 !== null) {
+        if (count($args) > 0) {
             throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode()');
         }
 
@@ -83,7 +82,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, ...$args)
     {
         if (! isset($this->data[$this->num])) {
             return false;
@@ -114,10 +113,10 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, ...$args)
     {
         $rows = [];
-        while ($row = $this->fetch($fetchMode)) {
+        while ($row = $this->fetch($fetchMode, ...$args)) {
             $rows[] = $row;
         }
 
