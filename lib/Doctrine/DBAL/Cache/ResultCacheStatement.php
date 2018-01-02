@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
-use PDO;
 use function array_merge;
 use function array_values;
 use function assert;
@@ -105,7 +104,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, ...$args)
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -125,7 +124,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, ...$args)
     {
         if ($this->data === null) {
             $this->data = [];
@@ -165,9 +164,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, ...$args)
     {
-        $this->data    = $this->statement->fetchAll($fetchMode, $fetchArgument, $ctorArgs);
+        $this->data    = $this->statement->fetchAll($fetchMode, ...$args);
         $this->emptied = true;
 
         return $this->data;
