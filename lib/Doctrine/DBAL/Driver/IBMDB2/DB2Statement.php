@@ -7,7 +7,6 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use PDO;
 use ReflectionClass;
 use ReflectionObject;
 use ReflectionProperty;
@@ -19,6 +18,7 @@ use const DB2_LONG;
 use const DB2_PARAM_FILE;
 use const DB2_PARAM_IN;
 use function array_change_key_case;
+use function count;
 use function db2_bind_param;
 use function db2_execute;
 use function db2_fetch_array;
@@ -32,8 +32,6 @@ use function db2_stmt_error;
 use function db2_stmt_errormsg;
 use function error_get_last;
 use function fclose;
-use function func_get_args;
-use function func_num_args;
 use function fwrite;
 use function gettype;
 use function is_object;
@@ -241,11 +239,17 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, ...$args)
     {
-        $this->defaultFetchMode          = $fetchMode;
-        $this->defaultFetchClass         = $arg2 ?: $this->defaultFetchClass;
-        $this->defaultFetchClassCtorArgs = $arg3 ? (array) $arg3 : $this->defaultFetchClassCtorArgs;
+        $this->defaultFetchMode = $fetchMode;
+
+        if (isset($args[0])) {
+            $this->defaultFetchClass = $args[0];
+        }
+
+        if (isset($args[1])) {
+            $this->defaultFetchClassCtorArgs = (array) $args[2];
+        }
 
         return true;
     }
@@ -261,7 +265,7 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -284,10 +288,9 @@ class DB2Statement implements IteratorAggregate, Statement
                 $className = $this->defaultFetchClass;
                 $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
-                if (func_num_args() >= 2) {
-                    $args      = func_get_args();
-                    $className = $args[1];
-                    $ctorArgs  = $args[2] ?? [];
+                if (count($args) > 0) {
+                    $className = $args[0];
+                    $ctorArgs  = $args[1] ?? [];
                 }
 
                 $result = db2_fetch_object($this->stmt);
@@ -312,13 +315,13 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, ...$args)
     {
         $rows = [];
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while (($row = $this->fetch(...func_get_args())) !== false) {
+                while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
                     $rows[] = $row;
                 }
                 break;

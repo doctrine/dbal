@@ -6,7 +6,6 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use IteratorAggregate;
-use PDO;
 use Throwable;
 use function is_array;
 use function is_string;
@@ -213,15 +212,9 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, ...$args)
     {
-        if ($arg2 === null) {
-            return $this->stmt->setFetchMode($fetchMode);
-        } elseif ($arg3 === null) {
-            return $this->stmt->setFetchMode($fetchMode, $arg2);
-        }
-
-        return $this->stmt->setFetchMode($fetchMode, $arg2, $arg3);
+        return $this->stmt->setFetchMode($fetchMode, ...$args);
     }
 
     /**
@@ -237,21 +230,17 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, ...$args)
     {
-        return $this->stmt->fetch($fetchMode);
+        return $this->stmt->fetch($fetchMode, ...$args);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, ...$args)
     {
-        if ($fetchArgument) {
-            return $this->stmt->fetchAll($fetchMode, $fetchArgument);
-        }
-
-        return $this->stmt->fetchAll($fetchMode);
+        return $this->stmt->fetchAll($fetchMode, ...$args);
     }
 
     /**
