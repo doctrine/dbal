@@ -7,7 +7,6 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
-use PDO;
 use const SQLSRV_ENC_BINARY;
 use const SQLSRV_ERR_ERRORS;
 use const SQLSRV_FETCH_ASSOC;
@@ -16,7 +15,6 @@ use const SQLSRV_FETCH_NUMERIC;
 use const SQLSRV_PARAM_IN;
 use function array_key_exists;
 use function count;
-use function func_get_args;
 use function in_array;
 use function is_int;
 use function is_numeric;
@@ -311,11 +309,17 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode, ...$args)
     {
-        $this->defaultFetchMode          = $fetchMode;
-        $this->defaultFetchClass         = $arg2 ?: $this->defaultFetchClass;
-        $this->defaultFetchClassCtorArgs = $arg3 ? (array) $arg3 : $this->defaultFetchClassCtorArgs;
+        $this->defaultFetchMode = $fetchMode;
+
+        if (isset($args[0])) {
+            $this->defaultFetchClass = $args[0];
+        }
+
+        if (isset($args[1])) {
+            $this->defaultFetchClassCtorArgs = (array) $args[2];
+        }
 
         return true;
     }
@@ -333,7 +337,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @throws SQLSrvException
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -341,7 +345,6 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $args      = func_get_args();
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
         if ($fetchMode === FetchMode::COLUMN) {
@@ -356,9 +359,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             $className = $this->defaultFetchClass;
             $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
-            if (count($args) >= 2) {
-                $className = $args[1];
-                $ctorArgs  = $args[2] ?? [];
+            if (count($args) > 0) {
+                $className = $args[0];
+                $ctorArgs  = $args[1] ?? [];
             }
 
             return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
@@ -370,13 +373,13 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
+    public function fetchAll($fetchMode = null, ...$args)
     {
         $rows = [];
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while (($row = $this->fetch(...func_get_args())) !== false) {
+                while (($row = $this->fetch($fetchMode, $args)) !== false) {
                     $rows[] = $row;
                 }
                 break;
