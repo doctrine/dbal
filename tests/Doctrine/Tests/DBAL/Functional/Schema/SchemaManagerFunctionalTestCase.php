@@ -1407,7 +1407,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      *
      * @return array
      */
-    private function getEscapedLiterals(): array
+    private function getEscapedLiterals() : array
     {
         return [
             ['An ASCII NUL (X\'00\')', "foo\\0bar"],
@@ -1426,7 +1426,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         ];
     }
 
-    private function createTableForDefaultValues(): void
+    private function createTableForDefaultValues() : void
     {
         $table = new Table('string_escaped_default_value');
         foreach ($this->getEscapedLiterals() as $i => $literal) {
@@ -1437,7 +1437,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm->dropAndCreateTable($table);
     }
 
-    public function testEscapedDefaultValueCanBeIntrospected(): void
+    public function testEscapedDefaultValueCanBeIntrospected() : void
     {
         $this->createTableForDefaultValues();
 
@@ -1447,7 +1447,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         }
     }
 
-    public function testEscapedDefaultValueCanBeInserted(): void
+    public function testEscapedDefaultValueCanBeInserted() : void
     {
         $this->createTableForDefaultValues();
 
@@ -1455,7 +1455,6 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $row = $this->_conn->fetchAssoc('SELECT * FROM string_escaped_default_value');
         foreach ($this->getEscapedLiterals() as $i => $literal) {
             self::assertSame($literal[1], $row['field' . $i], 'inserted default value should be the configured default value for: ' . $literal[0]);
-
         }
     }
 }
