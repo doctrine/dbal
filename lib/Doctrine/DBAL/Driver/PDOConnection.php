@@ -25,7 +25,6 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     {
         try {
             parent::__construct($dsn, (string) $user, (string) $password, (array) $options);
-            $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, [PDOStatement::class, []]);
             $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
@@ -58,7 +57,9 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function prepare($prepareString, $driverOptions = [])
     {
         try {
-            return parent::prepare($prepareString, $driverOptions);
+            return $this->createStatement(
+                parent::prepare($prepareString, $driverOptions)
+            );
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -75,7 +76,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
             $stmt = parent::query(...$args);
             assert($stmt instanceof \PDOStatement);
 
-            return $stmt;
+            return $this->createStatement($stmt);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -111,5 +112,13 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function requiresQueryForServerVersion()
     {
         return false;
+    }
+
+    /**
+     * Creates a wrapped statement
+     */
+    private function createStatement(\PDOStatement $stmt) : PDOStatement
+    {
+        return new PDOStatement($stmt);
     }
 }
