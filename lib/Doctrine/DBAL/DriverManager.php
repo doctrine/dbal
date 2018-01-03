@@ -152,11 +152,8 @@ final class DriverManager
         } else {
             self::_checkParams($params);
         }
-        if (isset($params['driverClass'])) {
-            $className = $params['driverClass'];
-        } else {
-            $className = self::$_driverMap[$params['driver']];
-        }
+
+        $className = $params['driverClass'] ?? $className = self::$_driverMap[$params['driver']];
 
         $driver = new $className();
 
@@ -398,11 +395,9 @@ final class DriverManager
 
             // The requested driver from the URL scheme takes precedence
             // over the default driver from the connection parameters (if any).
-            $params['driver'] = isset(self::$driverSchemeAliases[$driver])
-                // use alias like "postgres", else we just let checkParams decide later
-                // if the driver exists (for literal "pdo-pgsql" etc)
-                ? self::$driverSchemeAliases[$driver]
-                : $driver;
+            $params['driver'] = self::$driverSchemeAliases[$driver] ?? $driver;
+            // use alias like "postgres", else we just let checkParams decide later
+            // if the driver exists (for literal "pdo-pgsql" etc)
 
             return $params;
         }

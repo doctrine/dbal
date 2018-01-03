@@ -325,7 +325,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
             if (count($args) >= 2) {
                 $className = $args[1];
-                $ctorArgs  = isset($args[2]) ? $args[2] : [];
+                $ctorArgs  = $args[2] ?? [];
             }
 
             return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?: false;
@@ -372,7 +372,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
+        return $row[$columnIndex] ?? null;
     }
 
     /**

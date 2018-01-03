@@ -800,9 +800,7 @@ class Connection implements DriverConnection
         $typeValues = [];
 
         foreach ($columnList as $columnIndex => $columnName) {
-            $typeValues[] = isset($types[$columnName])
-                ? $types[$columnName]
-                : \PDO::PARAM_STR;
+            $typeValues[] = $types[$columnName] ?? \PDO::PARAM_STR;
         }
 
         return $typeValues;

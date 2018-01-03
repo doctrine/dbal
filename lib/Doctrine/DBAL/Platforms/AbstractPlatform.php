@@ -263,7 +263,7 @@ abstract class AbstractPlatform
             $field['length'] = $this->getVarcharDefaultLength();
         }
 
-        $fixed = (isset($field['fixed'])) ? $field['fixed'] : false;
+        $fixed = $field['fixed'] ?? false;
 
         if ($field['length'] > $this->getVarcharMaxLength()) {
             return $this->getClobTypeDeclarationSQL($field);
@@ -285,7 +285,7 @@ abstract class AbstractPlatform
             $field['length'] = $this->getBinaryDefaultLength();
         }
 
-        $fixed = isset($field['fixed']) ? $field['fixed'] : false;
+        $fixed = $field['fixed'] ?? false;
 
         if ($field['length'] > $this->getBinaryMaxLength()) {
             return $this->getBlobTypeDeclarationSQL($field);
