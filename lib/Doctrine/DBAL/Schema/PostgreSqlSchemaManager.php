@@ -21,7 +21,6 @@ use function preg_match;
 use function preg_replace;
 use function sprintf;
 use function str_replace;
-use function stripos;
 use function strlen;
 use function strpos;
 use function strtolower;
@@ -330,11 +329,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $autoincrement           = true;
         }
 
-        if (preg_match("/^['(](.*)[')]::.*$/", $tableColumn['default'], $matches)) {
+        if (preg_match("/^['(](.*)[')]::/", $tableColumn['default'], $matches)) {
             $tableColumn['default'] = $matches[1];
-        }
-
-        if (stripos($tableColumn['default'], 'NULL') === 0) {
+        } elseif (preg_match('/^NULL::/', $tableColumn['default'])) {
             $tableColumn['default'] = null;
         }
 

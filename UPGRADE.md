@@ -1,8 +1,8 @@
 # Upgrade to 2.10
 
-## MINOR BC BREAK: escaped default values
+## MINOR BC BREAK: Default values are no longer handled as SQL expressions
 
-Default values will be automatically escaped. So default values must now be specified non-escaped.
+They are converted to SQL literals (e.g. escaped). Clients must now specify default values in their initial form, not in the form of an SQL literal (e.g. escaped).
 
 Before:
 

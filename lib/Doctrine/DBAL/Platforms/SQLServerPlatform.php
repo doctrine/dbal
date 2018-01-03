@@ -1629,7 +1629,7 @@ SQL
             return " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
         }
 
-        return " DEFAULT '" . $field['default'] . "'";
+        return ' DEFAULT ' . $this->quoteStringLiteral($field['default']);
     }
 
     /**

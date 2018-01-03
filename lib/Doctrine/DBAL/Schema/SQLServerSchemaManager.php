@@ -16,7 +16,6 @@ use function sprintf;
 use function str_replace;
 use function strpos;
 use function strtok;
-use function trim;
 
 /**
  * SQL Server Schema Manager.
@@ -107,7 +106,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             'length'        => $length === 0 || ! in_array($type, ['text', 'string']) ? null : $length,
             'unsigned'      => false,
             'fixed'         => (bool) $fixed,
-            'default'       => $default !== 'NULL' ? $default : null,
+            'default'       => $default,
             'notnull'       => (bool) $tableColumn['notnull'],
             'scale'         => $tableColumn['scale'],
             'precision'     => $tableColumn['precision'],
@@ -124,10 +123,18 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         return $column;
     }
 
-    private function parseDefaultExpression(string $value) : string
+    private function parseDefaultExpression(string $value) : ?string
     {
-        while (preg_match('/^\((.*)\)$/', $value, $matches)) {
-            $value = trim($matches[1], "'");
+        while (preg_match('/^\((.*)\)$/s', $value, $matches)) {
+            $value = $matches[1];
+        }
+
+        if ($value === 'NULL') {
+            return null;
+        }
+
+        if (preg_match('/^\'(.*)\'$/s', $value, $matches)) {
+            $value = str_replace("''", "'", $matches[1]);
         }
 
         if ($value === 'getdate()') {
