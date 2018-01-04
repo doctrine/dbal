@@ -306,6 +306,11 @@ jobs:
       if: type = pull_request
       php: 7.2
       script:
+        - |
+          if [ $TRAVIS_BRANCH != "master" ]; then
+            git remote set-branches --add origin $TRAVIS_BRANCH;
+            git fetch origin $TRAVIS_BRANCH;
+          fi
         - git merge-base origin/$TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_SHA || git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge --unshallow
         - wget https://github.com/diff-sniffer/git/releases/download/0.1.0/git-phpcs.phar
         - php git-phpcs.phar origin/$TRAVIS_BRANCH...$TRAVIS_PULL_REQUEST_SHA
