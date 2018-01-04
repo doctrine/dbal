@@ -1236,12 +1236,4 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         return $type instanceof IntegerType || $type instanceof BigIntType;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function quoteDefaultStringLiteral(string $str) : string
-    {
-        return parent::quoteStringLiteral($str);
-    }
 }

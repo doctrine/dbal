@@ -2306,7 +2306,7 @@ abstract class AbstractPlatform
             return " DEFAULT '" . $this->convertBooleans($default) . "'";
         }
 
-        return " DEFAULT " . $this->quoteDefaultStringLiteral($default);
+        return " DEFAULT '" . $default . "'";
     }
 
     /**
@@ -3569,17 +3569,5 @@ abstract class AbstractPlatform
     public function getStringLiteralQuoteCharacter()
     {
         return "'";
-    }
-
-    /**
-     * Quote a literal string for usage as DEFAULT value.
-     *
-     * @param string $str
-     *
-     * @return string
-     */
-    protected function quoteDefaultStringLiteral(string $str) : string
-    {
-        return $this->quoteStringLiteral($str);
     }
 }

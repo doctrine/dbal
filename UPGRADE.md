@@ -1,17 +1,3 @@
-# Upgrade to UNRELEASED
-
-## MINOR BC BREAK: escaped default values
-
-Default values will be automatically escaped. So default values must now be specified non-escaped.
-
-Before:
-
-    $column->setDefault('Foo\\\\Bar\\\\Baz');
-
-After:
-
-    $column->setDefault('Foo\\Bar\\Baz');
-
 # Upgrade to 2.6
 
 ## MINOR BC BREAK: `fetch()` and `fetchAll()` method signatures in `Doctrine\DBAL\Driver\ResultStatement`

@@ -308,9 +308,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $default = null;
         }
         if ($default !== null) {
-            // SQLite returns strings wrapped in single quotes and escaped, so we need to strip them
-            $default = preg_replace("/^'(.*)'$/s", '\1', $default);
-            $default = str_replace("''", "'", $default);
+            // SQLite returns strings wrapped in single quotes, so we need to strip them
+            $default = preg_replace("/^'(.*)'$/", '\1', $default);
         }
         $notnull = (bool) $tableColumn['notnull'];
 
