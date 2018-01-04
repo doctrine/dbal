@@ -292,8 +292,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $tableColumn['length'] = $length;
         }
 
-        $dbType = strtolower($tableColumn['type']);
-        $length = $tableColumn['length'] ?? null;
+        $dbType   = strtolower($tableColumn['type']);
+        $length   = $tableColumn['length'] ?? null;
         $unsigned = false;
 
         if (strpos($dbType, ' unsigned') !== false) {
