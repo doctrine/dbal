@@ -8,7 +8,6 @@ cache:
         - $HOME/.composer/cache
 
 php:
-  - 7.1
   - 7.2
   - nightly
 
@@ -36,12 +35,6 @@ jobs:
 
   include:
     - stage: Test
-      php: 7.1
-      env: DB=mysql MYSQL_VERSION=5.7
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
-    - stage: Test
       php: 7.2
       env: DB=mysql MYSQL_VERSION=5.7
       sudo: required
@@ -54,12 +47,6 @@ jobs:
       before_script:
         - bash ./tests/travis/install-mysql-5.7.sh
 
-    - stage: Test
-      php: 7.1
-      env: DB=mysqli MYSQL_VERSION=5.7
-      sudo: required
-      before_script:
-        - bash ./tests/travis/install-mysql-5.7.sh
     - stage: Test
       php: 7.2
       env: DB=mysqli MYSQL_VERSION=5.7
@@ -74,11 +61,6 @@ jobs:
         - bash ./tests/travis/install-mysql-5.7.sh
 
     - stage: Test
-      php: 7.1
-      env: DB=mariadb MARIADB_VERSION=10.0
-      addons:
-        mariadb: 10.0
-    - stage: Test
       php: 7.2
       env: DB=mariadb MARIADB_VERSION=10.0
       addons:
@@ -89,11 +71,6 @@ jobs:
       addons:
         mariadb: 10.0
 
-    - stage: Test
-      php: 7.1
-      env: DB=mariadb MARIADB_VERSION=10.1
-      addons:
-        mariadb: 10.1
     - stage: Test
       php: 7.2
       env: DB=mariadb MARIADB_VERSION=10.1
@@ -106,11 +83,6 @@ jobs:
         mariadb: 10.1
 
     - stage: Test
-      php: 7.1
-      env: DB=mariadb MARIADB_VERSION=10.2
-      addons:
-        mariadb: 10.2
-    - stage: Test
       php: 7.2
       env: DB=mariadb MARIADB_VERSION=10.2
       addons:
@@ -122,11 +94,6 @@ jobs:
         mariadb: 10.2
 
     - stage: Test
-      php: 7.1
-      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
-      addons:
-        mariadb: 10.2
-    - stage: Test
       php: 7.2
       env: DB=mariadb.mysqli MARIADB_VERSION=10.2
       addons:
@@ -137,13 +104,6 @@ jobs:
       addons:
         mariadb: 10.2
 
-    - stage: Test
-      php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.2
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.2"
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.2
@@ -160,13 +120,6 @@ jobs:
         postgresql: "9.2"
 
     - stage: Test
-      php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.3
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.3"
-    - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.3
       services:
@@ -181,13 +134,6 @@ jobs:
       addons:
         postgresql: "9.3"
 
-    - stage: Test
-      php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.4
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.4"
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.4
@@ -204,13 +150,6 @@ jobs:
         postgresql: "9.4"
 
     - stage: Test
-      php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.5
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.5"
-    - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.5
       services:
@@ -226,13 +165,6 @@ jobs:
         postgresql: "9.5"
 
     - stage: Test
-      php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=9.6
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.6"
-    - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.6
       services:
@@ -247,16 +179,6 @@ jobs:
       addons:
         postgresql: "9.6"
 
-    - stage: Test
-      php: 7.1
-      env: DB=pgsql POSTGRESQL_VERSION=10.0
-      sudo: required
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.6"
-      before_script:
-        - bash ./tests/travis/install-postgres-10.sh
     - stage: Test
       php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=10.0
@@ -278,14 +200,6 @@ jobs:
       before_script:
         - bash ./tests/travis/install-postgres-10.sh
 
-    - stage: Test
-      env: DB=sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
-        - bash ./tests/travis/install-mssql.sh
     - stage: Test
       php: 7.2
       env: DB=sqlsrv
@@ -297,15 +211,6 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
 
     - stage: Test
-      php: 7.1
-      env: DB=pdo_sqlsrv
-      sudo: required
-      services:
-        - docker
-      before_script:
-        - bash ./tests/travis/install-mssql-$DB.sh
-        - bash ./tests/travis/install-mssql.sh
-    - stage: Test
       php: 7.2
       env: DB=pdo_sqlsrv
       sudo: required
@@ -316,7 +221,7 @@ jobs:
         - bash ./tests/travis/install-mssql.sh
 
     - stage: Test
-      php: 7.1
+      php: 7.2
       env: DB=sqlite DEPENDENCIES=low
       install:
         - travis_retry composer update --prefer-dist --prefer-lowest
@@ -330,7 +235,7 @@ jobs:
         - travis_retry composer update --prefer-dist
 
     - stage: Coverage
-      php: 7.1
+      php: 7.2
       env: DB=sqlite
       before_script:
         - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{.disabled,}
