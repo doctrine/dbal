@@ -1,5 +1,9 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed Doctrine\DBAL\Version
+
+The Doctrine\DBAL\Version class is no longer available: please refrain from checking the DBAL version at runtime.
+
 ## BC BREAK: the PDO symbols are no longer part of the DBAL API
 
 1. The support of `PDO::PARAM_*`, `PDO::FETCH_*`, `PDO::CASE_*` and `PDO::PARAM_INPUT_OUTPUT` constants in the DBAL API is removed.
