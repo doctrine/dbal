@@ -1,3 +1,9 @@
+# Upgrade to 3.0
+
+## BC BREAK: Removed Doctrine\DBAL\Version
+
+The Doctrine\DBAL\Version class is no longer available: please refrain from checking the DBAL version at runtime.
+
 # Upgrade to 2.6
 
 ## MINOR BC BREAK: `fetch()` and `fetchAll()` method signatures in `Doctrine\DBAL\Driver\ResultStatement`
