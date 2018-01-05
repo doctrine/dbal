@@ -7,7 +7,7 @@ use Doctrine\DBAL\Tools\Console\Command\ImportCommand;
 use Doctrine\DBAL\Tools\Console\Command\ReservedWordsCommand;
 use Doctrine\DBAL\Tools\Console\Command\RunSqlCommand;
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
-use Doctrine\DBAL\Version;
+use PackageVersions\Versions;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\HelperSet;
 
@@ -40,7 +40,7 @@ class ConsoleRunner
      */
     public static function run(HelperSet $helperSet, $commands = [])
     {
-        $cli = new Application('Doctrine Command Line Interface', Version::VERSION);
+        $cli = new Application('Doctrine Command Line Interface', Versions::getVersion('doctrine/dbal'));
 
         $cli->setCatchExceptions(true);
         $cli->setHelperSet($helperSet);
