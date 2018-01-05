@@ -31,6 +31,7 @@ script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 jobs:
   allow_failures:
     - php: nightly
+    - stage: Coding standard
 
   include:
     - stage: Test
@@ -304,7 +305,7 @@ jobs:
 
     - stage: Pull request coding standard
       if: type = pull_request
-      php: 7.2
+      php: 7.1
       script:
         - |
           if [ $TRAVIS_BRANCH != "master" ]; then
@@ -317,6 +318,6 @@ jobs:
 
     - stage: Coding standard
       if: NOT type = pull_request
-      php: nightly
+      php: 7.1
       script:
         - ./vendor/bin/phpcs

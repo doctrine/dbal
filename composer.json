@@ -17,10 +17,9 @@
         "doctrine/common": "^2.7.1"
     },
     "require-dev": {
-        "doctrine/coding-standard": "^1.0",
+        "doctrine/coding-standard": "~2.0.0",
         "phpunit/phpunit": "^6.3",
         "phpunit/phpunit-mock-objects": "!=3.2.4,!=3.2.5",
-        "squizlabs/php_codesniffer": "^3.0",
         "symfony/console": "^2.0.5||^3.0",
         "symfony/phpunit-bridge": "^3.3"
     },
