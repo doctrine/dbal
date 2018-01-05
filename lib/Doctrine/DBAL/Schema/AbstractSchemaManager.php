@@ -862,7 +862,7 @@ abstract class AbstractSchemaManager
                     'columns' => [$tableIndex['column_name']],
                     'unique' => $tableIndex['non_unique'] ? false : true,
                     'primary' => $tableIndex['primary'],
-                    'flags' => isset($tableIndex['flags']) ? $tableIndex['flags'] : [],
+                    'flags' => $tableIndex['flags'] ?? [],
                     'options' => isset($tableIndex['where']) ? ['where' => $tableIndex['where']] : [],
                 ];
             } else {

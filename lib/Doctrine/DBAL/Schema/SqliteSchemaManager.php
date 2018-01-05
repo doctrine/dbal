@@ -253,7 +253,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
         // inspect column collation and comments
         $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
-        $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
+        $createSql = $createSql[0]['sql'] ?? '';
 
         foreach ($list as $columnName => $column) {
             $type = $column->getType();
@@ -292,8 +292,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $tableColumn['length'] = $length;
         }
 
-        $dbType = strtolower($tableColumn['type']);
-        $length = isset($tableColumn['length']) ? $tableColumn['length'] : null;
+        $dbType   = strtolower($tableColumn['type']);
+        $length   = $tableColumn['length'] ?? null;
         $unsigned = false;
 
         if (strpos($dbType, ' unsigned') !== false) {

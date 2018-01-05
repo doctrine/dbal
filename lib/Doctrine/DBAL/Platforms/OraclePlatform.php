@@ -386,9 +386,9 @@ class OraclePlatform extends AbstractPlatform
      */
     protected function _getCreateTableSQL($table, array $columns, array $options = [])
     {
-        $indexes = isset($options['indexes']) ? $options['indexes'] : [];
+        $indexes            = $options['indexes'] ?? [];
         $options['indexes'] = [];
-        $sql = parent::_getCreateTableSQL($table, $columns, $options);
+        $sql                = parent::_getCreateTableSQL($table, $columns, $options);
 
         foreach ($columns as $name => $column) {
             if (isset($column['sequence'])) {

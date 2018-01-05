@@ -134,9 +134,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     {
         $params = $conn->getParams();
 
-        return (isset($params['dbname']))
-            ? $params['dbname']
-            : $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
+        return $params['dbname'] ?? $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
     }
 
     /**

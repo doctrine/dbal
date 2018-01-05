@@ -214,7 +214,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
                 if (func_num_args() >= 2) {
                     $args      = func_get_args();
                     $className = $args[1];
-                    $ctorArgs  = isset($args[2]) ? $args[2] : [];
+                    $ctorArgs  = $args[2] ?? [];
                 }
 
                 $result = sasql_fetch_object($this->result);
@@ -271,7 +271,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
+        return $row[$columnIndex] ?? null;
     }
 
     /**

@@ -109,11 +109,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $dbType = strtolower($tableColumn['type']);
         $dbType = strtok($dbType, '(), ');
-        if (isset($tableColumn['length'])) {
-            $length = $tableColumn['length'];
-        } else {
-            $length = strtok('(), ');
-        }
+        $length = $tableColumn['length'] ?? strtok('(), ');
 
         $fixed = null;
 

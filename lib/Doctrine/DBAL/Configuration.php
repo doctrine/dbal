@@ -109,11 +109,7 @@ class Configuration
      */
     public function getFilterSchemaAssetsExpression()
     {
-        if (isset($this->_attributes['filterSchemaAssetsExpression'])) {
-            return $this->_attributes['filterSchemaAssetsExpression'];
-        }
-
-        return null;
+        return $this->_attributes['filterSchemaAssetsExpression'] ?? null;
     }
 
     /**
@@ -141,10 +137,6 @@ class Configuration
      */
     public function getAutoCommit()
     {
-        if (isset($this->_attributes['autoCommit'])) {
-            return $this->_attributes['autoCommit'];
-        }
-
-        return true;
+        return $this->_attributes['autoCommit'] ?? true;
     }
 }

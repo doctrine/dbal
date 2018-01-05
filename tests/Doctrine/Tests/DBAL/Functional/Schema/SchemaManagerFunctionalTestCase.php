@@ -873,10 +873,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     protected function createTestTable($name = 'test_table', $data = array())
     {
-        $options = array();
-        if (isset($data['options'])) {
-            $options = $data['options'];
-        }
+        $options = $data['options'] ?? [];
 
         $table = $this->getTestTable($name, $options);
 
