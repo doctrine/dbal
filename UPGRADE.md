@@ -1,4 +1,8 @@
-# Upgrade to DEVELOP
+# Upgrade to 3.0 (DEVELOP)
+
+## BC BREAK: Removed Doctrine\DBAL\Version
+
+The Doctrine\DBAL\Version class is no longer available: please refrain from checking the DBAL version at runtime.
 
 ## BC BREAK: the PDO symbols are no longer part of the DBAL API
 
