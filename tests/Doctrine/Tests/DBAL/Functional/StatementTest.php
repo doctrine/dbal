@@ -282,4 +282,13 @@ EOF
             ),
         );
     }
+
+    public function testFetchInColumnMode() : void
+    {
+        $platform = $this->_conn->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL();
+        $result   = $this->_conn->executeQuery($query)->fetch(\PDO::FETCH_COLUMN);
+
+        self::assertEquals(1, $result);
+    }
 }

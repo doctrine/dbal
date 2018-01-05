@@ -387,6 +387,10 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
+        if ($fetchMode === PDO::FETCH_COLUMN) {
+            return $this->fetchColumn();
+        }
+
         if (PDO::FETCH_OBJ == $fetchMode) {
             return oci_fetch_object($this->_sth);
         }
