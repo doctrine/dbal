@@ -14,7 +14,8 @@
     "require": {
         "php": "^7.2",
         "doctrine/cache": "^1.0",
-        "doctrine/event-manager": "^1.0"
+        "doctrine/event-manager": "^1.0",
+        "ocramius/package-versions": "^1.2"
     },
     "require-dev": {
         "doctrine/coding-standard": "^4.0",
