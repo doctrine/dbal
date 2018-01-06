@@ -19,7 +19,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         return array(
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
-            'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)'
+            'ALTER TABLE test ADD CONSTRAINT UNIQ_D87F7E0C8C73652176FF8CAA UNIQUE  (foo, bar)'
         );
     }
 
