@@ -1254,4 +1254,54 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         return $type instanceof IntegerType || $type instanceof BigIntType;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDropIndexSQL($index, $table = null)
+    {
+        $isUnique = false;
+        if ($index instanceof Index) {
+            $isUnique = $index->isUnique();
+            $index = $index->getQuotedName($this);
+        } elseif (!is_string($index)) {
+            throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
+        }
+
+        if ($isUnique && $table) {
+            return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $index;
+        } else {
+            return 'DROP INDEX ' . $index;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreateIndexSQL(Index $index, $table)
+    {
+        if ($table instanceof Table) {
+            $table = $table->getQuotedName($this);
+        }
+        $name = $index->getQuotedName($this);
+        $columns = $index->getQuotedColumns($this);
+
+        if (count($columns) == 0) {
+            throw new \InvalidArgumentException("Incomplete definition. 'columns' required.");
+        }
+
+        if ($index->isPrimary()) {
+            return $this->getCreatePrimaryKeySQL($index, $table);
+        }
+
+        if ($index->isUnique()) {
+            $query = 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $name . ' '  . $this->getCreateIndexSQLFlags($index);
+        } else {
+            $query = 'CREATE ' . $this->getCreateIndexSQLFlags($index) . 'INDEX ' . $name . ' ON ' . $table;
+        }
+
+        $query .= ' (' . $this->getIndexFieldDeclarationListSQL($columns) . ')' . $this->getPartialIndexSQL($index);
+
+        return $query;
+    }
 }
