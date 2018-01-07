@@ -203,6 +203,9 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
         switch ($fetchMode) {
+            case PDO::FETCH_COLUMN:
+                return $this->fetchColumn();
+
             case PDO::FETCH_ASSOC:
                 return sasql_fetch_assoc($this->result);
             case PDO::FETCH_BOTH:

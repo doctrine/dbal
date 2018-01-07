@@ -216,6 +216,9 @@ class DB2Statement implements \IteratorAggregate, Statement
 
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
         switch ($fetchMode) {
+            case \PDO::FETCH_COLUMN:
+                return $this->fetchColumn();
+
             case \PDO::FETCH_BOTH:
                 return db2_fetch_both($this->_stmt);
             case \PDO::FETCH_ASSOC:

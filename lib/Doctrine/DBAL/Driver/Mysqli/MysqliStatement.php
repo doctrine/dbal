@@ -272,6 +272,12 @@ class MysqliStatement implements \IteratorAggregate, Statement
             return false;
         }
 
+        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+
+        if ($fetchMode === PDO::FETCH_COLUMN) {
+            return $this->fetchColumn();
+        }
+
         $values = $this->_fetch();
         if (null === $values) {
             return false;
@@ -280,8 +286,6 @@ class MysqliStatement implements \IteratorAggregate, Statement
         if (false === $values) {
             throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
-
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
         switch ($fetchMode) {
             case PDO::FETCH_NUM:

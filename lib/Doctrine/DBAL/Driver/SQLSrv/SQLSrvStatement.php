@@ -315,6 +315,10 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         $args      = func_get_args();
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
+        if ($fetchMode === PDO::FETCH_COLUMN) {
+            return $this->fetchColumn();
+        }
+
         if (isset(self::$fetchMap[$fetchMode])) {
             return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?: false;
         }
