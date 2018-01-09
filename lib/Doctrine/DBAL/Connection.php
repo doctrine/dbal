@@ -751,6 +751,66 @@ class Connection implements DriverConnection
     }
 
     /**
+     * Executes an SQL UPDATE statement on a row, or an insert if it doesn't exist.
+     *
+     * Table expression and columns are not escaped and are not safe for user-input.
+     *
+     * @param string $tableExpression  The expression of the table to update quoted or unquoted.
+     * @param array  $data       An associative array containing column-value pairs.
+     * @param array  $identifier The update criteria. An associative array containing column-value pairs.
+     * @param array  $types      Types of the merged $data and $identifier arrays in that order.
+     *
+     * @return integer The number of affected rows.
+     *
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function upsert($tableExpression, array $data, array $identifier, array $types = array())
+    {
+        $qb = $this->createQueryBuilder()
+            ->select($this->getDatabasePlatform()->getCountExpression('*'))
+            ->from($tableExpression);
+
+        list($_, $conditionValues, $conditions) = $this->gatherConditions($identifier);
+
+        foreach ($conditions as $condition) {
+            $qb->andWhere($condition);
+        }
+
+        foreach ($conditionValues as $index => $value) {
+            $qb->setParameter($index, $value);
+        }
+
+        $this->startTransaction();
+        try {
+            $exists = (int) $qb->execute()->fetch(PDO::FETCH_COLUMN);
+
+            if ($exists === 1) {
+                $out = $this->update($tableExpression, $data, $identifier, $types);
+            } elseif ($exists === 0) {
+                $out = $this->insert($tableExpression, $data + $identifier, $types);
+            } else {
+                // RFC: Do we want to refuse upserts that update more than row
+                // at a time? Logically this should only happen if the user's
+                // conditions are not unique, but that's likely to be a bug in
+                // the users code since we're in an upsert as opposed to an
+                // update.
+                //
+                // Remove this branch and turn the `elseif ($exists === 0)` into
+                // `else` if we're ok with upserts updating multiple columns.
+
+                $out = 0;
+            }
+
+            $this->commit();
+        } catch (Exception $e) {
+            $this->rollBack();
+            throw $e;
+        }
+
+        return $out;
+    }
+
+    /**
      * Inserts a table row with specified data.
      *
      * Table expression and columns are not escaped and are not safe for user-input.
