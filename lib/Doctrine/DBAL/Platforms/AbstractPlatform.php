@@ -481,7 +481,7 @@ abstract class AbstractPlatform
             $this->initializeCommentedDoctrineTypes();
         }
 
-        return in_array($doctrineType->getName(), $this->doctrineTypeComments);
+        return in_array($doctrineType->getName(), $this->doctrineTypeComments, true);
     }
 
     /**
@@ -1560,7 +1560,7 @@ abstract class AbstractPlatform
                 $columnData['length'] = 255;
             }
 
-            if (in_array($column->getName(), $options['primary'])) {
+            if (in_array($column->getName(), $options['primary'], true)) {
                 $columnData['primary'] = true;
             }
 
