@@ -87,18 +87,19 @@ interface ResultStatement extends \Traversable
     /**
      * Returns an array containing all of the result set rows.
      *
-     * @param int|null $fetchMode     Controls how the next row will be returned to the caller.
-     *                                The value must be one of the \PDO::FETCH_* constants,
-     *                                defaulting to \PDO::FETCH_BOTH.
-     * @param int|null $fetchArgument This argument has a different meaning depending on the value of the $fetchMode parameter:
-     *                                * \PDO::FETCH_COLUMN: Returns the indicated 0-indexed column.
-     *                                * \PDO::FETCH_CLASS: Returns instances of the specified class, mapping the columns of each
-     *                                  row to named properties in the class.
-     *                                * \PDO::FETCH_FUNC: Returns the results of calling the specified function, using each row's
-     *                                  columns as parameters in the call.
-     * @param array|null $ctorArgs    Controls how the next row will be returned to the caller.
-     *                                The value must be one of the \PDO::FETCH_* constants,
-     *                                defaulting to \PDO::FETCH_BOTH.
+     * @param int|null $fetchMode                     Controls how the next row will be returned to the caller.
+     *                                                The value must be one of the \PDO::FETCH_* constants,
+     *                                                defaulting to \PDO::FETCH_BOTH.
+     * @param int|string|callable|null $fetchArgument This argument has a different meaning depending on the value of
+     *                                                the $fetchMode parameter:
+     *                                                * \PDO::FETCH_COLUMN: Returns the indicated 0-indexed column.
+     *                                                * \PDO::FETCH_CLASS: Returns instances of the specified class,
+     *                                                  mapping the columns of each row to named properties in the
+     *                                                  class.
+     *                                                * \PDO::FETCH_FUNC: Returns the results of calling the specified
+     *                                                  function, using each row's columns as parameters in the call.
+     * @param array|null $ctorArgs                    Arguments of custom class constructor when the fetch_style
+     *                                                parameter is \PDO::FETCH_CLASS.
      *
      * @return array
      *
