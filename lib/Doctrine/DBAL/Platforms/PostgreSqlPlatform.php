@@ -1258,6 +1258,33 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
+    {
+        $tableName = $diff->getName($this)->getQuotedName($this);
+
+        $sql = [];
+        if ($this->supportsForeignKeyConstraints()) {
+            foreach ($diff->removedForeignKeys as $foreignKey) {
+                $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
+            }
+            foreach ($diff->changedForeignKeys as $foreignKey) {
+                $sql[] = $this->getDropForeignKeySQL($foreignKey, $tableName);
+            }
+        }
+
+        foreach ($diff->removedIndexes as $index) {
+            $sql = array_merge($sql, $this->getDropIndexSQL($index, $tableName));
+        }
+        foreach ($diff->changedIndexes as $index) {
+            $sql = array_merge($sql, $this->getDropIndexSQL($index, $tableName));
+        }
+
+        return $sql;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDropIndexSQL($index, $table = null)
     {
         $isUnique = false;
@@ -1269,9 +1296,12 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         if ($isUnique && $table) {
-            return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $index;
+            return [
+                sprintf('ALTER TABLE %s DROP CONSTRAINT IF EXISTS %s', $table, $index),
+                'DROP INDEX IF EXISTS ' . $index
+            ];
         } else {
-            return 'DROP INDEX ' . $index;
+            return [ 'DROP INDEX ' . $index ];
         }
     }
 
