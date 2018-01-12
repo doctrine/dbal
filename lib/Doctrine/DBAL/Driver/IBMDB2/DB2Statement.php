@@ -172,7 +172,7 @@ class DB2Statement implements \IteratorAggregate, Statement
             }
         }
 
-        $retval = @db2_execute($this->_stmt, $params);
+        $retval = db2_execute($this->_stmt, $params);
 
         if ($retval === false) {
             throw new DB2Exception(db2_stmt_errormsg());
