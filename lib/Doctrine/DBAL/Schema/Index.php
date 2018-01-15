@@ -226,7 +226,7 @@ class Index extends AbstractAsset implements Constraint
                 return false;
             }
 
-            return $other->isUnique() == $this->isUnique();
+            return $other->isUnique() === $this->isUnique();
         }
 
         return false;

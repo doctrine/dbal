@@ -184,7 +184,7 @@ class Comparator
             return true;
         }
 
-        return $sequence1->getInitialValue() != $sequence2->getInitialValue();
+        return $sequence1->getInitialValue() !== $sequence2->getInitialValue();
     }
 
     /**
@@ -402,7 +402,7 @@ class Comparator
             return true;
         }
 
-        return $key1->onDelete() != $key2->onDelete();
+        return $key1->onDelete() !== $key2->onDelete();
     }
 
     /**
