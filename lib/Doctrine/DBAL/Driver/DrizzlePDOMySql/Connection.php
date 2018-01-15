@@ -30,11 +30,7 @@ class Connection extends \Doctrine\DBAL\Driver\PDOConnection
     public function quote($value, $type = \PDO::PARAM_STR)
     {
         if (\PDO::PARAM_BOOL === $type) {
-            if ($value) {
-                return 'true';
-            }
-
-            return 'false';
+            return $value ? 'true' : 'false';
         }
 
         return parent::quote($value, $type);
