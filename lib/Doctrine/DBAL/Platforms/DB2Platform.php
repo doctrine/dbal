@@ -894,9 +894,6 @@ class DB2Platform extends AbstractPlatform
         //preset empty array
         $orderByArray = [];
 
-        // remove extra white space
-        $query = preg_replace('/\s+/', ' ', $query);
-
         //determine if 'ORDER BY' is part of the query
         $orderByPosition = strripos($query, 'order by');
 
@@ -915,8 +912,8 @@ class DB2Platform extends AbstractPlatform
                                   '/[, ]/',
                                   substr($query, 0, $orderByPosition -1))
                               , function($element) {
-                                    // don't return 'AS'
-                                    return strtoupper($element) !== 'AS';
+                                    // don't return 'AS' and empty elements
+                                    return (strtoupper($element) !== 'AS' && trim($element !== ''));
                                 }
                           )
         );
@@ -929,16 +926,19 @@ class DB2Platform extends AbstractPlatform
             foreach ($splitOrder as $splitIndex => $splitValue) {
                 switch (strtoupper($splitValue)) {
                     case 'ASC':
+                        // no break
                     case 'DESC':
                         break;
                     default:
                         $arrayFound = array_search($splitValue, $queryArray);
 
+                        $arrayPosition = substr(trim($splitValue), 0, 6) === 'dctrn_' ? 0 : 1;
+
                         $splitOrder[$splitIndex] = $arrayFound === false ||
                                                    $arrayFound >= count($queryArray) ||
-                                                   $queryArray[$arrayFound + 1] === ""
+                                                   $queryArray[$arrayFound + $arrayPosition] === ""
                                                    ? $splitValue
-                                                   : $queryArray[$arrayFound + 1];
+                                                   : $queryArray[$arrayFound + $arrayPosition];
                         break;
                 }
             }
