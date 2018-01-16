@@ -1394,4 +1394,31 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         self::assertEquals($sequence2AllocationSize, $actualSequence2->getAllocationSize());
         self::assertEquals($sequence2InitialValue, $actualSequence2->getInitialValue());
     }
+
+    /**
+     * @group 2925
+     */
+    public function testAlterTableChangePrimaryKey() : void
+    {
+        $tableFrom = new Table('primary_key_userid');
+        $column    = $tableFrom->addColumn('user_id', 'integer');
+        $column->setAutoincrement(true);
+        $tableFrom->setPrimaryKey(['user_id']);
+        $this->_sm->dropAndCreateTable($tableFrom);
+
+        $tableFrom = $this->_sm->listTableDetails('primary_key_userid');
+        self::assertTrue($tableFrom->getColumn('user_id')->getAutoincrement());
+
+        $tableTo = new Table('primary_key_id');
+        $column  = $tableTo->addColumn('id', 'integer');
+        $column->setAutoincrement(true);
+        $tableTo->setPrimaryKey(['id']);
+
+        $c    = new Comparator();
+        $diff = $c->diffTable($tableFrom, $tableTo);
+
+        $this->_sm->alterTable($diff);
+        $tableFinal = $this->_sm->listTableDetails('autoinc_type_modification');
+        self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
+    }
 }
