@@ -92,7 +92,10 @@ class SQLParserUtils
 
         if ($isPositional) {
             ksort($params);
+            $types = self::fillMissingPositionalTypes($params, $types);
             ksort($types);
+        } else {
+            $types = self::fillMissingNamedTypes($params, $types);
         }
 
         foreach ($types as $name => $type) {
@@ -109,7 +112,7 @@ class SQLParserUtils
             $arrayPositions[$name] = false;
         }
 
-        if (( ! $arrayPositions && $isPositional)) {
+        if (empty($arrayPositions) && $isPositional) {
             return [$query, $params, $types];
         }
 
@@ -239,5 +242,52 @@ class SQLParserUtils
         }
 
         throw SQLParserUtilsException::missingType($paramName);
+    }
+
+    /**
+     * @param array $params
+     * @param array $types
+     * @return array
+     */
+    private static function fillMissingPositionalTypes($params, $types)
+    {
+        if (count($types) === 0 || count($params) === count($types)) {
+            return $types;
+        }
+
+        foreach ($params as $paramKey => $param) {
+            if (!isset($types[$paramKey])) {
+                $types[$paramKey] = null;
+            }
+        }
+
+        return $types;
+    }
+
+    /**
+     * @param array $params
+     * @param array $types
+     * @return array
+     */
+    private static function fillMissingNamedTypes($params, $types)
+    {
+        if (count($types) === 0 || count($params) === count($types)) {
+            return $types;
+        }
+
+        $normalizer = function ($key) {
+            return $key[0] === ':' ? substr($key, 1) : $key;
+        };
+
+        $normalizedParamsKeys = array_map($normalizer, array_keys($params));
+        $normalizedTypesKeys = array_map($normalizer, array_keys($types));
+
+        foreach ($normalizedParamsKeys as $paramKey) {
+            if (!in_array($paramKey, $normalizedTypesKeys, true)) {
+                $types[$paramKey] = null;
+            }
+        }
+
+        return $types;
     }
 }
