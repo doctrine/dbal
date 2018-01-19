@@ -891,9 +891,6 @@ class DB2Platform extends AbstractPlatform
      */
     private function getOrderByForOver(string $query): string
     {
-        //preset empty array
-        $orderByArray = [];
-
         //determine if 'ORDER BY' is part of the query
         $orderByPosition = strripos($query, 'order by');
 
@@ -913,7 +910,11 @@ class DB2Platform extends AbstractPlatform
                                   substr($query, 0, $orderByPosition -1))
                               , function($element) {
                                     // don't return 'AS' and empty elements
-                                    return (strtoupper($element) !== 'AS' && trim($element !== ''));
+                                    return (
+                                        strtoupper($element) !== 'AS'
+                                        && trim($element !== '')
+                                        && $element !== false
+                                    );
                                 }
                           )
         );
