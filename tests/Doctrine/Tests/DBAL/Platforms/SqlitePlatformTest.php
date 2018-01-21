@@ -749,4 +749,14 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertContains("'Foo''Bar\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
+
+    public function testDateAddStaticNumberOfDays()
+    {
+        self::assertSame("DATE(rentalBeginsOn,'+12 DAY')", $this->_platform->getDateAddDaysExpression('rentalBeginsOn', 12));
+    }
+
+    public function testDateAddNumberOfDaysFromColumn()
+    {
+        self::assertSame("DATE(rentalBeginsOn,'+' || duration || ' DAY')", $this->_platform->getDateAddDaysExpression('rentalBeginsOn', 'duration'));
+    }
 }
