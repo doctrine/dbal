@@ -149,7 +149,7 @@ class SqlitePlatform extends AbstractPlatform
                         break;
                 }
 
-                return "DATE(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
+                return "DATE(" . $date . ",'" . $operator ."' || " . $interval . " || ' " . $unit . "')";
         }
     }
 
