@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\TableDiff;
  */
 class SQLAnywherePlatform extends AbstractPlatform
 {
+    public const NAME = 'sqlanywhere';
     /**
      * @var integer
      */
@@ -963,9 +964,9 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return 'sqlanywhere';
+        return self::NAME;
     }
 
     /**

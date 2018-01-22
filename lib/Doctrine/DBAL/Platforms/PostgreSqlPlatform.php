@@ -25,6 +25,8 @@ use Doctrine\DBAL\Types\Type;
  */
 class PostgreSqlPlatform extends AbstractPlatform
 {
+    public const NAME = 'postgresql';
+
     /**
      * @var bool
      */
@@ -1025,9 +1027,9 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return 'postgresql';
+        return self::NAME;
     }
 
     /**

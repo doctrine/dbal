@@ -29,6 +29,7 @@ class MySqlPlatform extends AbstractPlatform
     const LENGTH_LIMIT_TINYBLOB   = 255;
     const LENGTH_LIMIT_BLOB       = 65535;
     const LENGTH_LIMIT_MEDIUMBLOB = 16777215;
+    public const NAME             = 'mysql';
 
     /**
      * Adds MySQL-specific LIMIT clause to the query
@@ -979,9 +980,9 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return 'mysql';
+        return self::NAME;
     }
 
     /**

@@ -24,6 +24,8 @@ use Doctrine\DBAL\Types;
  */
 class SQLServerPlatform extends AbstractPlatform
 {
+    public const NAME = 'mssql';
+
     /**
      * {@inheritdoc}
      */
@@ -1375,9 +1377,9 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return 'mssql';
+        return self::NAME;
     }
 
     /**

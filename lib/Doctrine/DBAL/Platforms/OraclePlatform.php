@@ -21,6 +21,8 @@ use Doctrine\DBAL\Types\BinaryType;
  */
 class OraclePlatform extends AbstractPlatform
 {
+    public const NAME = 'oracle';
+
     /**
      * Assertion for Oracle identifiers.
      *
@@ -950,9 +952,9 @@ END;';
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return 'oracle';
+        return self::NAME;
     }
 
     /**
