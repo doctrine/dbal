@@ -64,6 +64,15 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     private $stmt;
 
     /**
+     * Holds references to bound parameter values.
+     *
+     * This is a new requirement for PHP7's oci8 extension that prevents bound values from being garbage collected.
+     *
+     * @var array
+     */
+    private $boundValues = [];
+
+    /**
      * Constructor.
      *
      * Prepares given statement for given connection.
@@ -109,6 +118,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
             default:
                 throw new SQLAnywhereException('Unknown type: ' . $type);
         }
+
+        $this->boundValues[$column] =& $variable;
 
         if ( ! sasql_stmt_bind_param_ex($this->stmt, $column - 1, $variable, $type, $variable === null)) {
             throw SQLAnywhereException::fromSQLAnywhereError($this->conn, $this->stmt);
