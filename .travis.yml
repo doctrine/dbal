@@ -314,7 +314,7 @@ jobs:
 
     - stage: Pull request coding standard
       if: type = pull_request
-      php: 7.1
+      php: 7.2
       install: travis_retry composer install --prefer-dist
       script:
         - |
@@ -328,7 +328,7 @@ jobs:
 
     - stage: Coding standard
       if: NOT type = pull_request
-      php: 7.1
+      php: 7.2
       install: travis_retry composer install --prefer-dist
       script:
         - ./vendor/bin/phpcs
