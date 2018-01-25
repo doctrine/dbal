@@ -324,7 +324,7 @@ jobs:
       script: vendor/bin/phpstan analyse
 
     - stage: Coding standard
-      php: 7.1
+      php: 7.2
       install: travis_retry composer install --prefer-dist
       script:
         - ./vendor/bin/phpcs
