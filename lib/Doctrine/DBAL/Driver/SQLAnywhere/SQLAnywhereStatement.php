@@ -68,7 +68,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * This is a new requirement for PHP7's oci8 extension that prevents bound values from being garbage collected.
      *
-     * @var array
+     * @var mixed[]
      */
     private $boundValues = [];
 
