@@ -15,12 +15,14 @@ use Doctrine\DBAL\Types\BinaryType;
  */
 class DrizzlePlatform extends AbstractPlatform
 {
+    public const NAME = 'drizzle';
+
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return 'drizzle';
+        return self::NAME;
     }
 
     /**

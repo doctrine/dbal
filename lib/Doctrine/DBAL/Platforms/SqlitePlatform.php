@@ -24,6 +24,8 @@ use Doctrine\DBAL\Types;
  */
 class SqlitePlatform extends AbstractPlatform
 {
+    public const NAME = 'sqlite';
+
     /**
      * {@inheritDoc}
      */
@@ -492,9 +494,9 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return 'sqlite';
+        return self::NAME;
     }
 
     /**

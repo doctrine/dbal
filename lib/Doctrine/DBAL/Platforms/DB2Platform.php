@@ -12,6 +12,8 @@ use Doctrine\DBAL\Types\Type;
 
 class DB2Platform extends AbstractPlatform
 {
+    public const NAME = 'db2';
+
     /**
      * {@inheritdoc}
      */
@@ -104,9 +106,9 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
-        return 'db2';
+        return self::NAME;
     }
 
     /**
