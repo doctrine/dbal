@@ -186,6 +186,27 @@ EOF
         self::assertEquals(2, $stmt->fetchColumn());
     }
 
+    /**
+     * Issue #2991
+     * PHP7 gets problems on call by references
+     * The GC removes the values before stmt->execute
+     */
+    public function testBindParamsWithMemoryCorruption()
+    {
+        $sql = 'INSERT INTO stmt_test(id, name) VALUES (?, ?)';
+
+        $col1 = 0;
+        $col2 = '20';
+
+        $stmt = $this->_conn->prepare($sql);
+
+        $paramCount = 1;
+        $stmt->bindValue($paramCount++, $col1, 'integer');
+        $stmt->bindValue($paramCount++, $col2, 'string');
+
+        self::assertTrue($stmt->execute(), 'Insert-Statement failed');
+    }
+
     public function testReuseStatementWithReboundParam()
     {
         $this->_conn->insert('stmt_test', array('id' => 1));
