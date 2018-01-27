@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\TransactionIsolationLevel;
 
 class MySqlPlatformTest extends AbstractMySQLPlatformTestCase
 {
@@ -15,7 +15,7 @@ class MySqlPlatformTest extends AbstractMySQLPlatformTestCase
     public function testHasCorrectDefaultTransactionIsolationLevel()
     {
         self::assertEquals(
-            Connection::TRANSACTION_REPEATABLE_READ,
+            TransactionIsolationLevel::REPEATABLE_READ,
             $this->_platform->getDefaultTransactionIsolationLevel()
         );
     }

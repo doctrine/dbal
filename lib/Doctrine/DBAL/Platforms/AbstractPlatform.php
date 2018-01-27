@@ -20,7 +20,6 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Event\SchemaAlterTableAddColumnEventArgs;
 use Doctrine\DBAL\Event\SchemaAlterTableChangeColumnEventArgs;
@@ -40,6 +39,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
 
@@ -70,64 +70,64 @@ abstract class AbstractPlatform
     const CREATE_FOREIGNKEYS = 2;
 
     /**
-     * @var string
+     * @deprecated Use DateIntervalUnit::INTERVAL_UNIT_SECOND.
      */
-    const DATE_INTERVAL_UNIT_SECOND = 'SECOND';
+    public const DATE_INTERVAL_UNIT_SECOND = DateIntervalUnit::SECOND;
 
     /**
-     * @var string
+     * @deprecated Use DateIntervalUnit::MINUTE.
      */
-    const DATE_INTERVAL_UNIT_MINUTE = 'MINUTE';
+    public const DATE_INTERVAL_UNIT_MINUTE = DateIntervalUnit::MINUTE;
 
     /**
-     * @var string
+     * @deprecated Use DateIntervalUnit::HOUR.
      */
-    const DATE_INTERVAL_UNIT_HOUR = 'HOUR';
+    public const DATE_INTERVAL_UNIT_HOUR = DateIntervalUnit::HOUR;
 
     /**
-     * @var string
+     * @deprecated Use DateIntervalUnit::DAY.
      */
-    const DATE_INTERVAL_UNIT_DAY = 'DAY';
+    public const DATE_INTERVAL_UNIT_DAY = DateIntervalUnit::DAY;
 
     /**
-     * @var string
+     * @deprecated Use DateIntervalUnit::WEEK.
      */
-    const DATE_INTERVAL_UNIT_WEEK = 'WEEK';
+    public const DATE_INTERVAL_UNIT_WEEK = DateIntervalUnit::WEEK;
 
     /**
-     * @var string
+     * @deprecated Use DateIntervalUnit::MONTH.
      */
-    const DATE_INTERVAL_UNIT_MONTH = 'MONTH';
+    public const DATE_INTERVAL_UNIT_MONTH = DateIntervalUnit::MONTH;
 
     /**
-     * @var string
+     * @deprecated Use DateIntervalUnit::QUARTER.
      */
-    const DATE_INTERVAL_UNIT_QUARTER = 'QUARTER';
+    public const DATE_INTERVAL_UNIT_QUARTER = DateIntervalUnit::QUARTER;
 
     /**
-     * @var string
+     * @deprecated Use DateIntervalUnit::QUARTER.
      */
-    const DATE_INTERVAL_UNIT_YEAR = 'YEAR';
+    public const DATE_INTERVAL_UNIT_YEAR = DateIntervalUnit::YEAR;
 
     /**
-     * @var integer
+     * @deprecated Use TrimMode::UNSPECIFIED.
      */
-    const TRIM_UNSPECIFIED = 0;
+    public const TRIM_UNSPECIFIED = TrimMode::UNSPECIFIED;
 
     /**
-     * @var integer
+     * @deprecated Use TrimMode::LEADING.
      */
-    const TRIM_LEADING = 1;
+    public const TRIM_LEADING = TrimMode::LEADING;
 
     /**
-     * @var integer
+     * @deprecated Use TrimMode::TRAILING.
      */
-    const TRIM_TRAILING = 2;
+    public const TRIM_TRAILING = TrimMode::TRAILING;
 
     /**
-     * @var integer
+     * @deprecated Use TrimMode::BOTH.
      */
-    const TRIM_BOTH = 3;
+    public const TRIM_BOTH = TrimMode::BOTH;
 
     /**
      * @var array|null
@@ -764,36 +764,34 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL snippet to trim a string.
-     *
-     * @param string         $str  The expression to apply the trim to.
-     * @param integer        $pos  The position of the trim (leading/trailing/both).
-     * @param string|boolean $char The char to trim, has to be quoted already. Defaults to space.
-     *
+     * @param string      $str  The expression to apply the trim to.
+     * @param int         $mode The position of the trim (leading/trailing/both).
+     * @param string|bool $char The char to trim, has to be quoted already. Defaults to space.
      * @return string
      */
-    public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $mode = TrimMode::UNSPECIFIED, $char = false)
     {
         $expression = '';
 
-        switch ($pos) {
-            case self::TRIM_LEADING:
+        switch ($mode) {
+            case TrimMode::LEADING:
                 $expression = 'LEADING ';
                 break;
 
-            case self::TRIM_TRAILING:
+            case TrimMode::TRAILING:
                 $expression = 'TRAILING ';
                 break;
 
-            case self::TRIM_BOTH:
+            case TrimMode::BOTH:
                 $expression = 'BOTH ';
                 break;
         }
 
-        if (false !== $char) {
+        if ($char !== false) {
             $expression .= $char . ' ';
         }
 
-        if ($pos || false !== $char) {
+        if ($mode || $char !== false) {
             $expression .= 'FROM ';
         }
 
@@ -1049,7 +1047,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddSecondsExpression($date, $seconds)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $seconds, self::DATE_INTERVAL_UNIT_SECOND);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $seconds, DateIntervalUnit::SECOND);
     }
 
     /**
@@ -1064,7 +1062,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubSecondsExpression($date, $seconds)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $seconds, self::DATE_INTERVAL_UNIT_SECOND);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $seconds, DateIntervalUnit::SECOND);
     }
 
     /**
@@ -1079,7 +1077,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddMinutesExpression($date, $minutes)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $minutes, self::DATE_INTERVAL_UNIT_MINUTE);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $minutes, DateIntervalUnit::MINUTE);
     }
 
     /**
@@ -1094,7 +1092,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubMinutesExpression($date, $minutes)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $minutes, self::DATE_INTERVAL_UNIT_MINUTE);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $minutes, DateIntervalUnit::MINUTE);
     }
 
     /**
@@ -1109,7 +1107,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddHourExpression($date, $hours)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $hours, self::DATE_INTERVAL_UNIT_HOUR);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $hours, DateIntervalUnit::HOUR);
     }
 
     /**
@@ -1124,7 +1122,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $hours, self::DATE_INTERVAL_UNIT_HOUR);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $hours, DateIntervalUnit::HOUR);
     }
 
     /**
@@ -1139,7 +1137,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddDaysExpression($date, $days)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $days, self::DATE_INTERVAL_UNIT_DAY);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $days, DateIntervalUnit::DAY);
     }
 
     /**
@@ -1154,7 +1152,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubDaysExpression($date, $days)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $days, self::DATE_INTERVAL_UNIT_DAY);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $days, DateIntervalUnit::DAY);
     }
 
     /**
@@ -1169,7 +1167,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddWeeksExpression($date, $weeks)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $weeks, self::DATE_INTERVAL_UNIT_WEEK);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $weeks, DateIntervalUnit::WEEK);
     }
 
     /**
@@ -1184,7 +1182,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubWeeksExpression($date, $weeks)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $weeks, self::DATE_INTERVAL_UNIT_WEEK);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $weeks, DateIntervalUnit::WEEK);
     }
 
     /**
@@ -1199,7 +1197,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddMonthExpression($date, $months)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $months, self::DATE_INTERVAL_UNIT_MONTH);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $months, DateIntervalUnit::MONTH);
     }
 
     /**
@@ -1214,7 +1212,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubMonthExpression($date, $months)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $months, self::DATE_INTERVAL_UNIT_MONTH);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $months, DateIntervalUnit::MONTH);
     }
 
     /**
@@ -1229,7 +1227,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddQuartersExpression($date, $quarters)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $quarters, self::DATE_INTERVAL_UNIT_QUARTER);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $quarters, DateIntervalUnit::QUARTER);
     }
 
     /**
@@ -1244,7 +1242,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubQuartersExpression($date, $quarters)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $quarters, self::DATE_INTERVAL_UNIT_QUARTER);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $quarters, DateIntervalUnit::QUARTER);
     }
 
     /**
@@ -1259,7 +1257,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddYearsExpression($date, $years)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $years, self::DATE_INTERVAL_UNIT_YEAR);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $years, DateIntervalUnit::YEAR);
     }
 
     /**
@@ -1274,7 +1272,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubYearsExpression($date, $years)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $years, self::DATE_INTERVAL_UNIT_YEAR);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $years, DateIntervalUnit::YEAR);
     }
 
     /**
@@ -2715,13 +2713,13 @@ abstract class AbstractPlatform
     protected function _getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
-            case Connection::TRANSACTION_READ_UNCOMMITTED:
+            case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return 'READ UNCOMMITTED';
-            case Connection::TRANSACTION_READ_COMMITTED:
+            case TransactionIsolationLevel::READ_COMMITTED:
                 return 'READ COMMITTED';
-            case Connection::TRANSACTION_REPEATABLE_READ:
+            case TransactionIsolationLevel::REPEATABLE_READ:
                 return 'REPEATABLE READ';
-            case Connection::TRANSACTION_SERIALIZABLE:
+            case TransactionIsolationLevel::SERIALIZABLE:
                 return 'SERIALIZABLE';
             default:
                 throw new \InvalidArgumentException('Invalid isolation level:' . $level);
@@ -3004,14 +3002,12 @@ abstract class AbstractPlatform
 
     /**
      * Gets the default transaction isolation level of the platform.
-     *
      * @return integer The default isolation level.
-     *
-     * @see Doctrine\DBAL\Connection\TRANSACTION_* constants.
+     * @see TransactionIsolationLevel
      */
     public function getDefaultTransactionIsolationLevel()
     {
-        return Connection::TRANSACTION_READ_COMMITTED;
+        return TransactionIsolationLevel::READ_COMMITTED;
     }
 
     /* supports*() methods */
