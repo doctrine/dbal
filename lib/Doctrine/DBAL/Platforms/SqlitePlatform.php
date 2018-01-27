@@ -80,16 +80,16 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
     {
         $trimChar = ($char != false) ? (', ' . $char) : '';
 
         switch ($pos) {
-            case self::TRIM_LEADING:
+            case TrimMode::LEADING:
                 $trimFn = 'LTRIM';
                 break;
 
-            case self::TRIM_TRAILING:
+            case TrimMode::TRAILING:
                 $trimFn = 'RTRIM';
                 break;
 

@@ -110,24 +110,24 @@ abstract class AbstractPlatform
     const DATE_INTERVAL_UNIT_YEAR = 'YEAR';
 
     /**
-     * @var integer
+     * @deprecated Use TrimMode::UNSPECIFIED.
      */
-    const TRIM_UNSPECIFIED = 0;
+    public const TRIM_UNSPECIFIED = TrimMode::UNSPECIFIED;
 
     /**
-     * @var integer
+     * @deprecated Use TrimMode::LEADING.
      */
-    const TRIM_LEADING = 1;
+    public const TRIM_LEADING = TrimMode::LEADING;
 
     /**
-     * @var integer
+     * @deprecated Use TrimMode::TRAILING.
      */
-    const TRIM_TRAILING = 2;
+    public const TRIM_TRAILING = TrimMode::TRAILING;
 
     /**
-     * @var integer
+     * @deprecated Use TrimMode::BOTH.
      */
-    const TRIM_BOTH = 3;
+    public const TRIM_BOTH = TrimMode::BOTH;
 
     /**
      * @var array|null
@@ -764,36 +764,34 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL snippet to trim a string.
-     *
-     * @param string         $str  The expression to apply the trim to.
-     * @param integer        $pos  The position of the trim (leading/trailing/both).
-     * @param string|boolean $char The char to trim, has to be quoted already. Defaults to space.
-     *
+     * @param string      $str  The expression to apply the trim to.
+     * @param int         $mode The position of the trim (leading/trailing/both).
+     * @param string|bool $char The char to trim, has to be quoted already. Defaults to space.
      * @return string
      */
-    public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $mode = TrimMode::UNSPECIFIED, $char = false)
     {
         $expression = '';
 
-        switch ($pos) {
-            case self::TRIM_LEADING:
+        switch ($mode) {
+            case TrimMode::LEADING:
                 $expression = 'LEADING ';
                 break;
 
-            case self::TRIM_TRAILING:
+            case TrimMode::TRAILING:
                 $expression = 'TRAILING ';
                 break;
 
-            case self::TRIM_BOTH:
+            case TrimMode::BOTH:
                 $expression = 'BOTH ';
                 break;
         }
 
-        if (false !== $char) {
+        if ($char !== false) {
             $expression .= $char . ' ';
         }
 
-        if ($pos || false !== $char) {
+        if ($mode || $char !== false) {
             $expression .= 'FROM ';
         }
 

@@ -1,5 +1,9 @@
 # Upgrade to 2.7
 
+## Doctrine\DBAL\Platforms\AbstractPlatform::TRIM_* constants deprecated
+
+``Doctrine\DBAL\Platforms\AbstractPlatform::TRIM_*`` constants were moved into ``Doctrine\DBAL\Platforms\TrimMode`` class without the ``TRIM_`` prefix.
+
 ## Doctrine\DBAL\Connection::TRANSACTION_* constants deprecated
 
 ``Doctrine\DBAL\Connection::TRANSACTION_*`` were moved into ``Doctrine\DBAL\TransactionIsolationLevel`` class without the ``TRANSACTION_`` prefix. 
