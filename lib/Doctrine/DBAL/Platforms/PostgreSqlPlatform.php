@@ -129,9 +129,9 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
-        if (self::DATE_INTERVAL_UNIT_QUARTER === $unit) {
+        if ($unit === DateIntervalUnit::QUARTER) {
             $interval *= 3;
-            $unit = self::DATE_INTERVAL_UNIT_MONTH;
+            $unit      = DateIntervalUnit::MONTH;
         }
 
         return "(" . $date ." " . $operator . " (" . $interval . " || ' " . $unit . "')::interval)";

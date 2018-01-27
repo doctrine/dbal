@@ -107,15 +107,15 @@ class OraclePlatform extends AbstractPlatform
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
         switch ($unit) {
-            case self::DATE_INTERVAL_UNIT_MONTH:
-            case self::DATE_INTERVAL_UNIT_QUARTER:
-            case self::DATE_INTERVAL_UNIT_YEAR:
+            case DateIntervalUnit::MONTH:
+            case DateIntervalUnit::QUARTER:
+            case DateIntervalUnit::YEAR:
                 switch ($unit) {
-                    case self::DATE_INTERVAL_UNIT_QUARTER:
+                    case DateIntervalUnit::QUARTER:
                         $interval *= 3;
                         break;
 
-                    case self::DATE_INTERVAL_UNIT_YEAR:
+                    case DateIntervalUnit::YEAR:
                         $interval *= 12;
                         break;
                 }
@@ -126,19 +126,19 @@ class OraclePlatform extends AbstractPlatform
                 $calculationClause = '';
 
                 switch ($unit) {
-                    case self::DATE_INTERVAL_UNIT_SECOND:
+                    case DateIntervalUnit::SECOND:
                         $calculationClause = '/24/60/60';
                         break;
 
-                    case self::DATE_INTERVAL_UNIT_MINUTE:
+                    case DateIntervalUnit::MINUTE:
                         $calculationClause = '/24/60';
                         break;
 
-                    case self::DATE_INTERVAL_UNIT_HOUR:
+                    case DateIntervalUnit::HOUR:
                         $calculationClause = '/24';
                         break;
 
-                    case self::DATE_INTERVAL_UNIT_WEEK:
+                    case DateIntervalUnit::WEEK:
                         $calculationClause = '*7';
                         break;
                 }
