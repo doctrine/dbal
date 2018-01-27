@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
+use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -550,11 +551,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('GLOBAL TEMPORARY', $this->_platform->getTemporaryTableSQL());
         self::assertEquals(
             'LTRIM(column)',
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_LEADING)
+            $this->_platform->getTrimExpression('column', TrimMode::LEADING)
         );
         self::assertEquals(
             'RTRIM(column)',
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_TRAILING)
+            $this->_platform->getTrimExpression('column', TrimMode::TRAILING)
         );
         self::assertEquals(
             'TRIM(column)',
@@ -562,15 +563,15 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
         self::assertEquals(
             'TRIM(column)',
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED)
+            $this->_platform->getTrimExpression('column', TrimMode::UNSPECIFIED)
         );
         self::assertEquals(
             "SUBSTR(column, PATINDEX('%[^' + c + ']%', column))",
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_LEADING, 'c')
+            $this->_platform->getTrimExpression('column', TrimMode::LEADING, 'c')
         );
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(column), PATINDEX('%[^' + c + ']%', REVERSE(column))))",
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_TRAILING, 'c')
+            $this->_platform->getTrimExpression('column', TrimMode::TRAILING, 'c')
         );
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
@@ -580,7 +581,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
             "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED, 'c')
+            $this->_platform->getTrimExpression('column', TrimMode::UNSPECIFIED, 'c')
         );
     }
 
