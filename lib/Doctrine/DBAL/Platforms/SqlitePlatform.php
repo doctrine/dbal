@@ -132,21 +132,21 @@ class SqlitePlatform extends AbstractPlatform
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
         switch ($unit) {
-            case self::DATE_INTERVAL_UNIT_SECOND:
-            case self::DATE_INTERVAL_UNIT_MINUTE:
-            case self::DATE_INTERVAL_UNIT_HOUR:
+            case DateIntervalUnit::SECOND:
+            case DateIntervalUnit::MINUTE:
+            case DateIntervalUnit::HOUR:
                 return "DATETIME(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
 
             default:
                 switch ($unit) {
-                    case self::DATE_INTERVAL_UNIT_WEEK:
+                    case DateIntervalUnit::WEEK:
                         $interval *= 7;
-                        $unit = self::DATE_INTERVAL_UNIT_DAY;
+                        $unit      = DateIntervalUnit::DAY;
                         break;
 
-                    case self::DATE_INTERVAL_UNIT_QUARTER:
+                    case DateIntervalUnit::QUARTER:
                         $interval *= 3;
-                        $unit = self::DATE_INTERVAL_UNIT_MONTH;
+                        $unit      = DateIntervalUnit::MONTH;
                         break;
                 }
 
