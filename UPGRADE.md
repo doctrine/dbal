@@ -1,3 +1,9 @@
+# Upgrade to 2.7
+
+## Doctrine\DBAL\Connection::TRANSACTION_* constants deprecated
+
+``Doctrine\DBAL\Connection::TRANSACTION_*`` were moved into ``Doctrine\DBAL\TransactionIsolationLevel`` class without the ``TRANSACTION_`` prefix. 
+
 # Upgrade to 2.6
 
 ## MINOR BC BREAK: `fetch()` and `fetchAll()` method signatures in `Doctrine\DBAL\Driver\ResultStatement`
