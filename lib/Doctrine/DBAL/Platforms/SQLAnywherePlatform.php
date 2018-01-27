@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
@@ -30,6 +29,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 
 /**
  * The SQLAnywherePlatform provides the behavior, features and SQL dialect of the
@@ -533,7 +533,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getDefaultTransactionIsolationLevel()
     {
-        return Connection::TRANSACTION_READ_UNCOMMITTED;
+        return TransactionIsolationLevel::READ_UNCOMMITTED;
     }
 
     /**
@@ -1275,13 +1275,13 @@ class SQLAnywherePlatform extends AbstractPlatform
     protected function _getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
-            case Connection::TRANSACTION_READ_UNCOMMITTED:
+            case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return 0;
-            case Connection::TRANSACTION_READ_COMMITTED:
+            case TransactionIsolationLevel::READ_COMMITTED:
                 return 1;
-            case Connection::TRANSACTION_REPEATABLE_READ:
+            case TransactionIsolationLevel::REPEATABLE_READ:
                 return 2;
-            case Connection::TRANSACTION_SERIALIZABLE:
+            case TransactionIsolationLevel::SERIALIZABLE:
                 return 3;
             default:
                 throw new \InvalidArgumentException('Invalid isolation level:' . $level);

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
 class SqlitePlatformTest extends AbstractPlatformTestCase
@@ -40,19 +41,19 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'PRAGMA read_uncommitted = 0',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
         );
         self::assertEquals(
             'PRAGMA read_uncommitted = 1',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
         );
         self::assertEquals(
             'PRAGMA read_uncommitted = 1',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
         );
         self::assertEquals(
             'PRAGMA read_uncommitted = 1',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
         );
     }
 

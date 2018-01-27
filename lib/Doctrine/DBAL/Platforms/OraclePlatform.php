@@ -26,6 +26,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BinaryType;
 
 /**
@@ -244,12 +245,12 @@ class OraclePlatform extends AbstractPlatform
     protected function _getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
-            case \Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED:
+            case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return 'READ UNCOMMITTED';
-            case \Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED:
+            case TransactionIsolationLevel::READ_COMMITTED:
                 return 'READ COMMITTED';
-            case \Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ:
-            case \Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE:
+            case TransactionIsolationLevel::REPEATABLE_READ:
+            case TransactionIsolationLevel::SERIALIZABLE:
                 return 'SERIALIZABLE';
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
