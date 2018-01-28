@@ -60,7 +60,7 @@ Using the following code block in your initialization will:
         //...
         'wrapperClass' => PortableConnection::class,
         'portability'  => PortableConnection::PORTABILITY_ALL,
-        'fetch_case'   => PortableConnection::LOWER,
+        'fetch_case'   => ColumnCase::LOWER,
     );
 
 This sort of portability handling is pretty expensive because all the result
