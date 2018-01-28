@@ -65,7 +65,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     static private $_typeMap = [
         ParameterType::INTEGER => DB2_LONG,
-        ParameterType::STRING => DB2_CHAR,
+        ParameterType::STRING  => DB2_CHAR,
     ];
 
     /**

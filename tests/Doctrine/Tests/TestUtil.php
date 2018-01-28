@@ -113,7 +113,7 @@ class TestUtil
 
     private static function getFallbackConnectionParams()
     {
-        if ( ! extension_loaded('pdo_sqlite')) {
+        if (! extension_loaded('pdo_sqlite')) {
             Assert::markTestSkipped('PDO SQLite extension is not loaded');
         }
 

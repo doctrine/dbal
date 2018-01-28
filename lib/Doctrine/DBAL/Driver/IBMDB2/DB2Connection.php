@@ -103,7 +103,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     {
         $input = db2_escape_string($input);
 
-        if ($type == ParameterType::INTEGER) {
+        if ($type === ParameterType::INTEGER) {
             return $input;
         }
 

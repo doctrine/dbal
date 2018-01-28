@@ -139,7 +139,7 @@ class DriverManagerTest extends \Doctrine\Tests\DbalTestCase
         );
 
         if (isset($options['pdo'])) {
-            if ( ! extension_loaded('pdo')) {
+            if (! extension_loaded('pdo')) {
                 $this->markTestSkipped('PDO is not installed');
             }
 

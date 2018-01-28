@@ -74,9 +74,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      * @var array
      */
     private static $fetchMap = [
-        FetchMode::MIXED => SQLSRV_FETCH_BOTH,
+        FetchMode::MIXED       => SQLSRV_FETCH_BOTH,
         FetchMode::ASSOCIATIVE => SQLSRV_FETCH_ASSOC,
-        FetchMode::NUMERIC => SQLSRV_FETCH_NUMERIC,
+        FetchMode::NUMERIC     => SQLSRV_FETCH_NUMERIC,
     ];
 
     /**

@@ -209,11 +209,10 @@ class PDOStatement extends \PDOStatement implements Statement
      * Converts DBAL parameter type to PDO parameter type
      *
      * @param int $type Parameter type
-     * @return int
      */
     private function convertParamType(int $type) : int
     {
-        if ( ! isset(self::PARAM_TYPE_MAP[$type])) {
+        if (! isset(self::PARAM_TYPE_MAP[$type])) {
             throw new \InvalidArgumentException('Invalid parameter type: ' . $type);
         }
 
@@ -224,7 +223,6 @@ class PDOStatement extends \PDOStatement implements Statement
      * Converts DBAL fetch mode to PDO fetch mode
      *
      * @param int|null $fetchMode Fetch mode
-     * @return int|null
      */
     private function convertFetchMode(?int $fetchMode) : ?int
     {
@@ -232,7 +230,7 @@ class PDOStatement extends \PDOStatement implements Statement
             return null;
         }
 
-        if ( ! isset(self::FETCH_MODE_MAP[$fetchMode])) {
+        if (! isset(self::FETCH_MODE_MAP[$fetchMode])) {
             throw new \InvalidArgumentException('Invalid fetch mode: ' . $fetchMode);
         }
 

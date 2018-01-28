@@ -57,10 +57,10 @@ class OCI8Statement implements IteratorAggregate, Statement
      * @var array
      */
     protected static $fetchModeMap = [
-        FetchMode::MIXED => OCI_BOTH,
+        FetchMode::MIXED       => OCI_BOTH,
         FetchMode::ASSOCIATIVE => OCI_ASSOC,
-        FetchMode::NUMERIC => OCI_NUM,
-        FetchMode::COLUMN => OCI_NUM,
+        FetchMode::NUMERIC     => OCI_NUM,
+        FetchMode::COLUMN      => OCI_NUM,
     ];
 
     /**
@@ -267,7 +267,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     {
         $column = $this->_paramMap[$column] ?? $column;
 
-        if ($type == ParameterType::LARGE_OBJECT) {
+        if ($type === ParameterType::LARGE_OBJECT) {
             $lob = oci_new_descriptor($this->_dbh, OCI_D_LOB);
             $lob->writeTemporary($variable, OCI_TEMP_BLOB);
 
@@ -415,7 +415,7 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         $result = [];
 
-        if ($fetchMode == FetchMode::STANDARD_OBJECT) {
+        if ($fetchMode === FetchMode::STANDARD_OBJECT) {
             while ($row = $this->fetch($fetchMode)) {
                 $result[] = $row;
             }
@@ -434,7 +434,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         } else {
             $fetchStructure = OCI_FETCHSTATEMENT_BY_ROW;
 
-            if ($fetchMode == FetchMode::COLUMN) {
+            if ($fetchMode === FetchMode::COLUMN) {
                 $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
             }
 
@@ -447,7 +447,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             oci_fetch_all($this->_sth, $result, 0, -1,
                 self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
 
-            if ($fetchMode == FetchMode::COLUMN) {
+            if ($fetchMode === FetchMode::COLUMN) {
                 $result = $result[0];
             }
         }

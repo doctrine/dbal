@@ -160,19 +160,19 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
 
             $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 
-            if ($fetchMode == FetchMode::ASSOCIATIVE) {
+            if ($fetchMode === FetchMode::ASSOCIATIVE) {
                 return $row;
             }
 
-            if ($fetchMode == FetchMode::NUMERIC) {
+            if ($fetchMode === FetchMode::NUMERIC) {
                 return array_values($row);
             }
 
-            if ($fetchMode == FetchMode::MIXED) {
+            if ($fetchMode === FetchMode::MIXED) {
                 return array_merge($row, array_values($row));
             }
 
-            if ($fetchMode == FetchMode::COLUMN) {
+            if ($fetchMode === FetchMode::COLUMN) {
                 return reset($row);
             }
 

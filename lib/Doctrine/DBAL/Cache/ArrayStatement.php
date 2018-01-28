@@ -100,7 +100,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
      */
     public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
-        if ( ! isset($this->data[$this->num])) {
+        if (! isset($this->data[$this->num])) {
             return false;
         }
 

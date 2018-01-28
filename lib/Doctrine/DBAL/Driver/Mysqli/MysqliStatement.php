@@ -33,11 +33,13 @@ class MysqliStatement implements \IteratorAggregate, Statement
      * @var array
      */
     protected static $_paramTypeMap = [
-        ParameterType::STRING => 's',
-        ParameterType::BOOLEAN => 'i',
-        ParameterType::NULL => 's',
-        ParameterType::INTEGER => 'i',
-        ParameterType::LARGE_OBJECT => 's' // TODO Support LOB bigger then max package size.
+        ParameterType::STRING       => 's',
+        ParameterType::BOOLEAN      => 'i',
+        ParameterType::NULL         => 's',
+        ParameterType::INTEGER      => 'i',
+
+        // TODO Support LOB bigger then max package size
+        ParameterType::LARGE_OBJECT => 's',
     ];
 
     /**
