@@ -5,7 +5,7 @@ namespace Doctrine\DBAL;
 /**
  * Contains statement fetch modes.
  */
-class FetchMode
+final class FetchMode
 {
     /**
      * Specifies that the fetch method shall return each row as an array indexed
@@ -63,7 +63,7 @@ class FetchMode
     /**
      * This class cannot be instantiated.
      */
-    final private function __construct()
+    private function __construct()
     {
     }
 }

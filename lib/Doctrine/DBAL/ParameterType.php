@@ -5,7 +5,7 @@ namespace Doctrine\DBAL;
 /**
  * Contains statement parameter types.
  */
-class ParameterType
+final class ParameterType
 {
     /**
      * Represents the SQL NULL data type.
@@ -45,7 +45,7 @@ class ParameterType
     /**
      * This class cannot be instantiated.
      */
-    final private function __construct()
+    private function __construct()
     {
     }
 }

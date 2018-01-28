@@ -5,7 +5,7 @@ namespace Doctrine\DBAL;
 /**
  * Contains portable column case conversions.
  */
-class ColumnCase
+final class ColumnCase
 {
     /**
      * Convert column names to upper case.
@@ -24,7 +24,7 @@ class ColumnCase
     /**
      * This class cannot be instantiated.
      */
-    final private function __construct()
+    private function __construct()
     {
     }
 }
