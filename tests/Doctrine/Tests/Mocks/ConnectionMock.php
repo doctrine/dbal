@@ -20,7 +20,7 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
     private $_lastInsertId = 0;
 
     /**
-     * @var array
+     * @var string[][]
      */
     private $_inserts = array();
 

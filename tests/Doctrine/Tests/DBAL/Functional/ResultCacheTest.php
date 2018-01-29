@@ -11,7 +11,7 @@ use Doctrine\DBAL\FetchMode;
 class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     /**
-     * @var Type
+     * @var int[][]|string[][]
      */
     private $expectedResult = array(array('test_int' => 100, 'test_string' => 'foo'), array('test_int' => 200, 'test_string' => 'bar'), array('test_int' => 300, 'test_string' => 'baz'));
 
