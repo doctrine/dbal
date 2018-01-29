@@ -733,7 +733,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     abstract protected function getQuotesReservedKeywordInIndexDeclarationSQL();
 
     /**
-     * @return boolean
+     * @return bool
      */
     protected function supportsInlineIndexDeclaration()
     {

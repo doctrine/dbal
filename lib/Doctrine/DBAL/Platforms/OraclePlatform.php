@@ -483,9 +483,9 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * @param string  $name
-     * @param string  $table
-     * @param integer $start
+     * @param string $name
+     * @param string $table
+     * @param int    $start
      *
      * @return array
      */

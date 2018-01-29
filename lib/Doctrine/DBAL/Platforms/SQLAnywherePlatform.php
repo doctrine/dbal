@@ -42,19 +42,19 @@ use Doctrine\DBAL\Schema\TableDiff;
 class SQLAnywherePlatform extends AbstractPlatform
 {
     /**
-     * @var integer
+     * @var int
      */
     const FOREIGN_KEY_MATCH_SIMPLE = 1;
     /**
-     * @var integer
+     * @var int
      */
     const FOREIGN_KEY_MATCH_FULL = 2;
     /**
-     * @var integer
+     * @var int
      */
     const FOREIGN_KEY_MATCH_SIMPLE_UNIQUE = 129;
     /**
-     * @var integer
+     * @var int
      */
     const FOREIGN_KEY_MATCH_FULL_UNIQUE = 130;
 
@@ -628,7 +628,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * Returns foreign key MATCH clause for given type.
      *
-     * @param integer $type The foreign key match type
+     * @param int $type The foreign key match type
      *
      * @return string
      *

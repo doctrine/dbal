@@ -95,7 +95,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * The fetch style.
      *
-     * @param integer
+     * @param int
      */
     private $defaultFetchMode = PDO::FETCH_BOTH;
 

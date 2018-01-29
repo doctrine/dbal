@@ -70,7 +70,7 @@ class PoolingShardConnection extends Connection
     private $activeConnections;
 
     /**
-     * @var integer
+     * @var int
      */
     private $activeShardId;
 
@@ -129,7 +129,7 @@ class PoolingShardConnection extends Connection
     /**
      * Get active shard id.
      *
-     * @return integer
+     * @return int
      */
     public function getActiveShardId()
     {
@@ -189,7 +189,7 @@ class PoolingShardConnection extends Connection
      *
      * @param mixed $shardId
      *
-     * @return boolean
+     * @return bool
      *
      * @throws \Doctrine\DBAL\Sharding\ShardingException
      */
@@ -249,7 +249,7 @@ class PoolingShardConnection extends Connection
     /**
      * @param string|null $shardId
      *
-     * @return boolean
+     * @return bool
      */
     public function isConnected($shardId = null)
     {

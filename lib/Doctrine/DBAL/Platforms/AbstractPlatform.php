@@ -60,12 +60,12 @@ use Doctrine\DBAL\Types\Type;
 abstract class AbstractPlatform
 {
     /**
-     * @var integer
+     * @var int
      */
     const CREATE_INDEXES = 1;
 
     /**
-     * @var integer
+     * @var int
      */
     const CREATE_FOREIGNKEYS = 2;
 
@@ -110,22 +110,22 @@ abstract class AbstractPlatform
     const DATE_INTERVAL_UNIT_YEAR = 'YEAR';
 
     /**
-     * @var integer
+     * @var int
      */
     const TRIM_UNSPECIFIED = 0;
 
     /**
-     * @var integer
+     * @var int
      */
     const TRIM_LEADING = 1;
 
     /**
-     * @var integer
+     * @var int
      */
     const TRIM_TRAILING = 2;
 
     /**
-     * @var integer
+     * @var int
      */
     const TRIM_BOTH = 3;
 
@@ -328,8 +328,8 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param integer $length
-     * @param boolean $fixed
+     * @param int  $length
+     * @param bool $fixed
      *
      * @return string
      *
@@ -343,8 +343,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
      *
-     * @param integer $length The length of the column.
-     * @param boolean $fixed  Whether the column length is fixed.
+     * @param int  $length The length of the column.
+     * @param bool $fixed  Whether the column length is fixed.
      *
      * @return string
      *
@@ -437,7 +437,7 @@ abstract class AbstractPlatform
      *
      * @param string $dbType
      *
-     * @return boolean
+     * @return bool
      */
     public function hasDoctrineTypeMappingFor($dbType)
     {
@@ -473,7 +473,7 @@ abstract class AbstractPlatform
      *
      * @param \Doctrine\DBAL\Types\Type $doctrineType
      *
-     * @return boolean
+     * @return bool
      */
     public function isCommentedDoctrineType(Type $doctrineType)
     {
@@ -563,7 +563,7 @@ abstract class AbstractPlatform
     /**
      * Gets the maximum length of a varchar field.
      *
-     * @return integer
+     * @return int
      */
     public function getVarcharMaxLength()
     {
@@ -573,7 +573,7 @@ abstract class AbstractPlatform
     /**
      * Gets the default length of a varchar field.
      *
-     * @return integer
+     * @return int
      */
     public function getVarcharDefaultLength()
     {
@@ -583,7 +583,7 @@ abstract class AbstractPlatform
     /**
      * Gets the maximum length of a binary field.
      *
-     * @return integer
+     * @return int
      */
     public function getBinaryMaxLength()
     {
@@ -593,7 +593,7 @@ abstract class AbstractPlatform
     /**
      * Gets the default length of a binary field.
      *
-     * @return integer
+     * @return int
      */
     public function getBinaryDefaultLength()
     {
@@ -739,8 +739,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to round a numeric field to the number of decimals specified.
      *
-     * @param string  $column
-     * @param integer $decimals
+     * @param string $column
+     * @param int    $decimals
      *
      * @return string
      */
@@ -766,7 +766,7 @@ abstract class AbstractPlatform
      * Returns the SQL snippet to trim a string.
      *
      * @param string         $str  The expression to apply the trim to.
-     * @param integer        $pos  The position of the trim (leading/trailing/both).
+     * @param int            $pos  The position of the trim (leading/trailing/both).
      * @param string|boolean $char The char to trim, has to be quoted already. Defaults to space.
      *
      * @return string
@@ -853,9 +853,9 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to get the position of the first occurrence of substring $substr in string $str.
      *
-     * @param string          $str      Literal string.
-     * @param string          $substr   Literal string to find.
-     * @param integer|boolean $startPos Position to start at, beginning of string by default.
+     * @param string   $str      Literal string.
+     * @param string   $substr   Literal string to find.
+     * @param int|bool $startPos Position to start at, beginning of string by default.
      *
      * @return string
      *
@@ -883,9 +883,9 @@ abstract class AbstractPlatform
      *
      * SQLite only supports the 2 parameter variant of this function.
      *
-     * @param string       $value  An sql string literal or column name/alias.
-     * @param integer      $from   Where to start the substring portion.
-     * @param integer|null $length The substring portion length.
+     * @param string   $value  An sql string literal or column name/alias.
+     * @param int      $from   Where to start the substring portion.
+     * @param int|null $length The substring portion length.
      *
      * @return string
      */
@@ -1040,8 +1040,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given seconds to a date.
      *
-     * @param string  $date
-     * @param integer $seconds
+     * @param string $date
+     * @param int    $seconds
      *
      * @return string
      *
@@ -1055,8 +1055,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given seconds from a date.
      *
-     * @param string  $date
-     * @param integer $seconds
+     * @param string $date
+     * @param int    $seconds
      *
      * @return string
      *
@@ -1070,8 +1070,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given minutes to a date.
      *
-     * @param string  $date
-     * @param integer $minutes
+     * @param string $date
+     * @param int    $minutes
      *
      * @return string
      *
@@ -1085,8 +1085,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given minutes from a date.
      *
-     * @param string  $date
-     * @param integer $minutes
+     * @param string $date
+     * @param int    $minutes
      *
      * @return string
      *
@@ -1100,8 +1100,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given hours to a date.
      *
-     * @param string  $date
-     * @param integer $hours
+     * @param string $date
+     * @param int    $hours
      *
      * @return string
      *
@@ -1115,8 +1115,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given hours to a date.
      *
-     * @param string  $date
-     * @param integer $hours
+     * @param string $date
+     * @param int    $hours
      *
      * @return string
      *
@@ -1130,8 +1130,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given days to a date.
      *
-     * @param string  $date
-     * @param integer $days
+     * @param string $date
+     * @param int    $days
      *
      * @return string
      *
@@ -1145,8 +1145,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given days to a date.
      *
-     * @param string  $date
-     * @param integer $days
+     * @param string $date
+     * @param int    $days
      *
      * @return string
      *
@@ -1160,8 +1160,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given weeks to a date.
      *
-     * @param string  $date
-     * @param integer $weeks
+     * @param string $date
+     * @param int    $weeks
      *
      * @return string
      *
@@ -1175,8 +1175,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given weeks from a date.
      *
-     * @param string  $date
-     * @param integer $weeks
+     * @param string $date
+     * @param int    $weeks
      *
      * @return string
      *
@@ -1190,8 +1190,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given months to a date.
      *
-     * @param string  $date
-     * @param integer $months
+     * @param string $date
+     * @param int    $months
      *
      * @return string
      *
@@ -1205,8 +1205,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given months to a date.
      *
-     * @param string  $date
-     * @param integer $months
+     * @param string $date
+     * @param int    $months
      *
      * @return string
      *
@@ -1220,8 +1220,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given quarters to a date.
      *
-     * @param string  $date
-     * @param integer $quarters
+     * @param string $date
+     * @param int    $quarters
      *
      * @return string
      *
@@ -1235,8 +1235,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given quarters from a date.
      *
-     * @param string  $date
-     * @param integer $quarters
+     * @param string $date
+     * @param int    $quarters
      *
      * @return string
      *
@@ -1250,8 +1250,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to add the number of given years to a date.
      *
-     * @param string  $date
-     * @param integer $years
+     * @param string $date
+     * @param int    $years
      *
      * @return string
      *
@@ -1265,8 +1265,8 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to subtract the number of given years from a date.
      *
-     * @param string  $date
-     * @param integer $years
+     * @param string $date
+     * @param int    $years
      *
      * @return string
      *
@@ -1280,11 +1280,11 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL for a date arithmetic expression.
      *
-     * @param string  $date     The column or literal representing a date to perform the arithmetic operation on.
-     * @param string  $operator The arithmetic operator (+ or -).
-     * @param integer $interval The interval that shall be calculated into the date.
-     * @param string  $unit     The unit of the interval that shall be calculated into the date.
-     *                          One of the DATE_INTERVAL_UNIT_* constants.
+     * @param string $date     The column or literal representing a date to perform the arithmetic operation on.
+     * @param string $operator The arithmetic operator (+ or -).
+     * @param int    $interval The interval that shall be calculated into the date.
+     * @param string $unit     The unit of the interval that shall be calculated into the date.
+     *                         One of the DATE_INTERVAL_UNIT_* constants.
      *
      * @return string
      *
@@ -1334,9 +1334,9 @@ abstract class AbstractPlatform
     /**
      * Honors that some SQL vendors such as MsSql use table hints for locking instead of the ANSI SQL FOR UPDATE specification.
      *
-     * @param string       $fromClause The FROM clause to append the hint for the given lock mode to.
-     * @param integer|null $lockMode   One of the Doctrine\DBAL\LockMode::* constants. If null is given, nothing will
-     *                                 be appended to the FROM clause.
+     * @param string   $fromClause The FROM clause to append the hint for the given lock mode to.
+     * @param int|null $lockMode   One of the Doctrine\DBAL\LockMode::* constants. If null is given, nothing will
+     *                             be appended to the FROM clause.
      *
      * @return string
      */
@@ -1498,8 +1498,8 @@ abstract class AbstractPlatform
      * Returns the SQL statement(s) to create a table with the specified name, columns and constraints
      * on this platform.
      *
-     * @param \Doctrine\DBAL\Schema\Table   $table
-     * @param integer                       $createFlags
+     * @param \Doctrine\DBAL\Schema\Table $table
+     * @param int                         $createFlags
      *
      * @return array The sequence of SQL statements.
      *
@@ -1922,7 +1922,7 @@ abstract class AbstractPlatform
      * @param \Doctrine\DBAL\Schema\TableDiff $diff
      * @param array                           $columnSql
      *
-     * @return boolean
+     * @return bool
      */
     protected function onSchemaAlterTableAddColumn(Column $column, TableDiff $diff, &$columnSql)
     {
@@ -1947,7 +1947,7 @@ abstract class AbstractPlatform
      * @param \Doctrine\DBAL\Schema\TableDiff $diff
      * @param array                           $columnSql
      *
-     * @return boolean
+     * @return bool
      */
     protected function onSchemaAlterTableRemoveColumn(Column $column, TableDiff $diff, &$columnSql)
     {
@@ -1972,7 +1972,7 @@ abstract class AbstractPlatform
      * @param \Doctrine\DBAL\Schema\TableDiff  $diff
      * @param array                            $columnSql
      *
-     * @return boolean
+     * @return bool
      */
     protected function onSchemaAlterTableChangeColumn(ColumnDiff $columnDiff, TableDiff $diff, &$columnSql)
     {
@@ -1998,7 +1998,7 @@ abstract class AbstractPlatform
      * @param \Doctrine\DBAL\Schema\TableDiff $diff
      * @param array                           $columnSql
      *
-     * @return boolean
+     * @return bool
      */
     protected function onSchemaAlterTableRenameColumn($oldColumnName, Column $column, TableDiff $diff, &$columnSql)
     {
@@ -2022,7 +2022,7 @@ abstract class AbstractPlatform
      * @param \Doctrine\DBAL\Schema\TableDiff $diff
      * @param array                           $sql
      *
-     * @return boolean
+     * @return bool
      */
     protected function onSchemaAlterTable(TableDiff $diff, &$sql)
     {
@@ -2597,7 +2597,7 @@ abstract class AbstractPlatform
      * Whether the platform prefers sequences for ID generation.
      * Subclasses should override this method to return TRUE if they prefer sequences.
      *
-     * @return boolean
+     * @return bool
      */
     public function prefersSequences()
     {
@@ -2608,7 +2608,7 @@ abstract class AbstractPlatform
      * Whether the platform prefers identity columns (eg. autoincrement) for ID generation.
      * Subclasses should override this method to return TRUE if they prefer identity columns.
      *
-     * @return boolean
+     * @return bool
      */
     public function prefersIdentityColumns()
     {
@@ -2706,7 +2706,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL for a given transaction isolation level Connection constant.
      *
-     * @param integer $level
+     * @param int $level
      *
      * @return string
      *
@@ -2923,7 +2923,7 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to set the transaction isolation level.
      *
-     * @param integer $level
+     * @param int $level
      *
      * @return string
      *
@@ -3005,7 +3005,7 @@ abstract class AbstractPlatform
     /**
      * Gets the default transaction isolation level of the platform.
      *
-     * @return integer The default isolation level.
+     * @return int The default isolation level.
      *
      * @see Doctrine\DBAL\Connection\TRANSACTION_* constants.
      */
@@ -3019,7 +3019,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports sequences.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsSequences()
     {
@@ -3032,7 +3032,7 @@ abstract class AbstractPlatform
      * Identity columns are columns that receive an auto-generated value from the
      * database on insert of a row.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsIdentityColumns()
     {
@@ -3046,7 +3046,7 @@ abstract class AbstractPlatform
      * but support sequences can emulate identity columns by using
      * sequences.
      *
-     * @return boolean
+     * @return bool
      */
     public function usesSequenceEmulatedIdentityColumns()
     {
@@ -3073,7 +3073,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports indexes.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsIndexes()
     {
@@ -3083,7 +3083,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports partial indexes.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsPartialIndexes()
     {
@@ -3093,7 +3093,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports altering tables.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsAlterTable()
     {
@@ -3103,7 +3103,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports transactions.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsTransactions()
     {
@@ -3113,7 +3113,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports savepoints.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsSavepoints()
     {
@@ -3123,7 +3123,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports releasing savepoints.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsReleaseSavepoints()
     {
@@ -3133,7 +3133,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports primary key constraints.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsPrimaryConstraints()
     {
@@ -3143,7 +3143,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports foreign key constraints.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsForeignKeyConstraints()
     {
@@ -3153,7 +3153,7 @@ abstract class AbstractPlatform
     /**
      * Whether this platform supports onUpdate in foreign key constraints.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsForeignKeyOnUpdate()
     {
@@ -3163,7 +3163,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports database schemas.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsSchemas()
     {
@@ -3177,7 +3177,7 @@ abstract class AbstractPlatform
      * filter a schema for the namespaced elements in {@link
      * AbstractManager#createSchema}.
      *
-     * @return boolean
+     * @return bool
      */
     public function canEmulateSchemas()
     {
@@ -3201,7 +3201,7 @@ abstract class AbstractPlatform
      *
      * Some databases don't allow to create and drop databases at all or only with certain tools.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsCreateDropDatabase()
     {
@@ -3211,7 +3211,7 @@ abstract class AbstractPlatform
     /**
      * Whether the platform supports getting the affected rows of a recent update/delete type query.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsGettingAffectedRows()
     {
@@ -3221,7 +3221,7 @@ abstract class AbstractPlatform
     /**
      * Whether this platform support to add inline column comments as postfix.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsInlineColumnComments()
     {
@@ -3231,7 +3231,7 @@ abstract class AbstractPlatform
     /**
      * Whether this platform support the proprietary syntax "COMMENT ON asset".
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsCommentOnStatement()
     {
@@ -3241,7 +3241,7 @@ abstract class AbstractPlatform
     /**
      * Does this platform have native guid type.
      *
-     * @return boolean
+     * @return bool
      */
     public function hasNativeGuidType()
     {
@@ -3251,7 +3251,7 @@ abstract class AbstractPlatform
     /**
      * Does this platform have native JSON type.
      *
-     * @return boolean
+     * @return bool
      */
     public function hasNativeJsonType()
     {
@@ -3270,7 +3270,7 @@ abstract class AbstractPlatform
     /**
      * Whether this platform supports views.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsViews()
     {
@@ -3280,7 +3280,7 @@ abstract class AbstractPlatform
     /**
      * Does this platform support column collation?
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsColumnCollation()
     {
@@ -3334,9 +3334,9 @@ abstract class AbstractPlatform
     /**
      * Adds an driver-specific LIMIT clause to the query.
      *
-     * @param string       $query
-     * @param integer|null $limit
-     * @param integer|null $offset
+     * @param string   $query
+     * @param int|null $limit
+     * @param int|null $offset
      *
      * @return string
      *
@@ -3365,9 +3365,9 @@ abstract class AbstractPlatform
     /**
      * Adds an driver-specific LIMIT clause to the query.
      *
-     * @param string       $query
-     * @param integer|null $limit
-     * @param integer|null $offset
+     * @param string   $query
+     * @param int|null $limit
+     * @param int|null $offset
      *
      * @return string
      */
@@ -3387,7 +3387,7 @@ abstract class AbstractPlatform
     /**
      * Whether the database platform support offsets in modify limit clauses.
      *
-     * @return boolean
+     * @return bool
      */
     public function supportsLimitOffset()
     {
@@ -3422,7 +3422,7 @@ abstract class AbstractPlatform
     /**
      * Maximum length of any given database identifier, like tables or column names.
      *
-     * @return integer
+     * @return int
      */
     public function getMaxIdentifierLength()
     {
@@ -3448,8 +3448,8 @@ abstract class AbstractPlatform
      * Cascade is not supported on many platforms but would optionally cascade the truncate by
      * following the foreign keys.
      *
-     * @param string  $tableName
-     * @param boolean $cascade
+     * @param string $tableName
+     * @param bool   $cascade
      *
      * @return string
      */

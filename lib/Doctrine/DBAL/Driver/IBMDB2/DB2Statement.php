@@ -45,7 +45,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     private $defaultFetchClassCtorArgs = [];
 
     /**
-     * @var integer
+     * @var int
      */
     private $_defaultFetchMode = \PDO::FETCH_BOTH;
 

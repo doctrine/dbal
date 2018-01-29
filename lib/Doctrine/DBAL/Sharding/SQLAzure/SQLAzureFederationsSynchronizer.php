@@ -191,7 +191,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
 
     /**
      * @param \Doctrine\DBAL\Schema\Schema $schema
-     * @param boolean                      $isFederation
+     * @param bool                         $isFederation
      *
      * @return \Doctrine\DBAL\Schema\Schema
      *

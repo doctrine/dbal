@@ -24,8 +24,8 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
     }
 
     /**
-     * @param   integer     $portabilityMode
-     * @param   integer     $case
+     * @param int $portabilityMode
+     * @param int $case
      * @return  Connection
      */
     private function getPortableConnection($portabilityMode = \Doctrine\DBAL\Portability\Connection::PORTABILITY_ALL, $case = \PDO::CASE_LOWER)

@@ -99,7 +99,7 @@ class TableGenerator
      *
      * @param string $sequenceName
      *
-     * @return integer
+     * @return int
      *
      * @throws \Doctrine\DBAL\DBALException
      */

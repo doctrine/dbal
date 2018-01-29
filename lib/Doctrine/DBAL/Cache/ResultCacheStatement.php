@@ -56,7 +56,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     private $realKey;
 
     /**
-     * @var integer
+     * @var int
      */
     private $lifetime;
 
@@ -68,7 +68,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * Did we reach the end of the statement?
      *
-     * @var boolean
+     * @var bool
      */
     private $emptied = false;
 
@@ -78,7 +78,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     private $data;
 
     /**
-     * @var integer
+     * @var int
      */
     private $defaultFetchMode = PDO::FETCH_BOTH;
 
@@ -87,7 +87,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      * @param \Doctrine\Common\Cache\Cache    $resultCache
      * @param string                          $cacheKey
      * @param string                          $realKey
-     * @param integer                         $lifetime
+     * @param int                             $lifetime
      */
     public function __construct(Statement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
     {
@@ -209,7 +209,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      * this behaviour is not guaranteed for all databases and should not be
      * relied on for portable applications.
      *
-     * @return integer The number of rows.
+     * @return int The number of rows.
      */
     public function rowCount()
     {

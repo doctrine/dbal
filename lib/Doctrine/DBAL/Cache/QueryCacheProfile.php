@@ -36,7 +36,7 @@ class QueryCacheProfile
     private $resultCacheDriver;
 
     /**
-     * @var integer
+     * @var int
      */
     private $lifetime = 0;
 
@@ -46,7 +46,7 @@ class QueryCacheProfile
     private $cacheKey;
 
     /**
-     * @param integer                           $lifetime
+     * @param int                               $lifetime
      * @param string|null                       $cacheKey
      * @param \Doctrine\Common\Cache\Cache|null $resultCache
      */
@@ -66,7 +66,7 @@ class QueryCacheProfile
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getLifetime()
     {
@@ -135,7 +135,7 @@ class QueryCacheProfile
     }
 
     /**
-     * @param integer $lifetime
+     * @param int $lifetime
      *
      * @return \Doctrine\DBAL\Cache\QueryCacheProfile
      */

@@ -31,7 +31,7 @@ class PDOException extends \PDOException implements DriverException
     /**
      * The driver specific error code.
      *
-     * @var integer|string|null
+     * @var int|string|null
      */
     private $errorCode;
 

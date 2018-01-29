@@ -46,12 +46,12 @@ class Connection extends \Doctrine\DBAL\Connection
     const PORTABILITY_SQLSRV            = 13;
 
     /**
-     * @var integer
+     * @var int
      */
     private $portability = self::PORTABILITY_NONE;
 
     /**
-     * @var integer
+     * @var int
      */
     private $case;
 
@@ -97,7 +97,7 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getPortability()
     {
@@ -105,7 +105,7 @@ class Connection extends \Doctrine\DBAL\Connection
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getFetchCase()
     {

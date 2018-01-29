@@ -63,7 +63,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     ];
 
     /**
-     * @var integer
+     * @var int
      */
     protected $_defaultFetchMode = PDO::FETCH_BOTH;
 
@@ -161,13 +161,13 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * Finds next placeholder or opening quote.
      *
-     * @param string $statement The SQL statement to parse
-     * @param string $tokenOffset The offset to start searching from
-     * @param int $fragmentOffset The offset to build the next fragment from
-     * @param string[] $fragments Fragments of the original statement not containing placeholders
-     * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
-     *                                             or NULL if not currently in a literal
-     * @param array<int, string> $paramMap Mapping of the original parameter positions to their named replacements
+     * @param string             $statement               The SQL statement to parse
+     * @param string             $tokenOffset             The offset to start searching from
+     * @param int                $fragmentOffset          The offset to build the next fragment from
+     * @param string[]           $fragments               Fragments of the original statement not containing placeholders
+     * @param string|null        $currentLiteralDelimiter The delimiter of the current string literal
+     *                                                    or NULL if not currently in a literal
+     * @param array<int, string> $paramMap                Mapping of the original parameter positions to their named replacements
      * @return bool Whether the token was found
      */
     private static function findPlaceholderOrOpeningQuote(
@@ -205,8 +205,8 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * Finds closing quote
      *
-     * @param string $statement The SQL statement to parse
-     * @param string $tokenOffset The offset to start searching from
+     * @param string      $statement               The SQL statement to parse
+     * @param string      $tokenOffset             The offset to start searching from
      * @param string|null $currentLiteralDelimiter The delimiter of the current string literal
      *                                             or NULL if not currently in a literal
      * @return bool Whether the token was found
@@ -237,8 +237,8 @@ class OCI8Statement implements IteratorAggregate, Statement
      * where the token was found.
      *
      * @param string $statement The SQL statement to parse
-     * @param string $offset The offset to start searching from
-     * @param string $regex The regex containing token pattern
+     * @param string $offset    The offset to start searching from
+     * @param string $regex     The regex containing token pattern
      * @return string|null Token or NULL if not found
      */
     private static function findToken($statement, &$offset, $regex)

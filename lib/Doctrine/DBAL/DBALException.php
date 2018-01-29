@@ -132,10 +132,10 @@ class DBALException extends \Exception
     }
 
     /**
-     * @param \Doctrine\DBAL\Driver     $driver
-     * @param \Exception $driverEx
-     * @param string     $sql
-     * @param array      $params
+     * @param \Doctrine\DBAL\Driver $driver
+     * @param \Exception            $driverEx
+     * @param string                $sql
+     * @param array                 $params
      *
      * @return \Doctrine\DBAL\DBALException
      */
@@ -151,8 +151,8 @@ class DBALException extends \Exception
     }
 
     /**
-     * @param \Doctrine\DBAL\Driver     $driver
-     * @param \Exception $driverEx
+     * @param \Doctrine\DBAL\Driver $driver
+     * @param \Exception            $driverEx
      *
      * @return \Doctrine\DBAL\DBALException
      */
@@ -162,8 +162,8 @@ class DBALException extends \Exception
     }
 
     /**
-     * @param \Doctrine\DBAL\Driver     $driver
-     * @param \Exception $driverEx
+     * @param \Doctrine\DBAL\Driver $driver
+     * @param \Exception            $driverEx
      *
      * @return \Doctrine\DBAL\DBALException
      */

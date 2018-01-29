@@ -39,13 +39,13 @@ interface Statement extends ResultStatement
      * As mentioned above, the named parameters are not natively supported by the mysqli driver, use executeQuery(),
      * fetchAll(), fetchArray(), fetchColumn(), fetchAssoc() methods to have the named parameter emulated by doctrine.
      *
-     * @param mixed   $param Parameter identifier. For a prepared statement using named placeholders,
-     *                       this will be a parameter name of the form :name. For a prepared statement
-     *                       using question mark placeholders, this will be the 1-indexed position of the parameter.
-     * @param mixed   $value The value to bind to the parameter.
-     * @param integer $type  Explicit data type for the parameter using the PDO::PARAM_* constants.
+     * @param mixed $param Parameter identifier. For a prepared statement using named placeholders,
+     *                     this will be a parameter name of the form :name. For a prepared statement
+     *                     using question mark placeholders, this will be the 1-indexed position of the parameter.
+     * @param mixed $value The value to bind to the parameter.
+     * @param int   $type  Explicit data type for the parameter using the PDO::PARAM_* constants.
      *
-     * @return boolean TRUE on success or FALSE on failure.
+     * @return bool TRUE on success or FALSE on failure.
      */
     function bindValue($param, $value, $type = null);
 
@@ -64,17 +64,17 @@ interface Statement extends ResultStatement
      * of stored procedures that return data as output parameters, and some also as input/output
      * parameters that both send in data and are updated to receive it.
      *
-     * @param mixed        $column   Parameter identifier. For a prepared statement using named placeholders,
-     *                               this will be a parameter name of the form :name. For a prepared statement using
-     *                               question mark placeholders, this will be the 1-indexed position of the parameter.
-     * @param mixed        $variable Name of the PHP variable to bind to the SQL statement parameter.
-     * @param integer|null $type     Explicit data type for the parameter using the PDO::PARAM_* constants. To return
-     *                               an INOUT parameter from a stored procedure, use the bitwise OR operator to set the
-     *                               PDO::PARAM_INPUT_OUTPUT bits for the data_type parameter.
-     * @param integer|null $length   You must specify maxlength when using an OUT bind
-     *                               so that PHP allocates enough memory to hold the returned value.
+     * @param mixed    $column   Parameter identifier. For a prepared statement using named placeholders,
+     *                           this will be a parameter name of the form :name. For a prepared statement using
+     *                           question mark placeholders, this will be the 1-indexed position of the parameter.
+     * @param mixed    $variable Name of the PHP variable to bind to the SQL statement parameter.
+     * @param int|null $type     Explicit data type for the parameter using the PDO::PARAM_* constants. To return
+     *                           an INOUT parameter from a stored procedure, use the bitwise OR operator to set the
+     *                           PDO::PARAM_INPUT_OUTPUT bits for the data_type parameter.
+     * @param int|null $length   You must specify maxlength when using an OUT bind
+     *                           so that PHP allocates enough memory to hold the returned value.
      *
-     * @return boolean TRUE on success or FALSE on failure.
+     * @return bool TRUE on success or FALSE on failure.
      */
     function bindParam($column, &$variable, $type = null, $length = null);
 
@@ -109,7 +109,7 @@ interface Statement extends ResultStatement
      * @param array|null $params An array of values with as many elements as there are
      *                           bound parameters in the SQL statement being executed.
      *
-     * @return boolean TRUE on success or FALSE on failure.
+     * @return bool TRUE on success or FALSE on failure.
      */
     function execute($params = null);
 
@@ -122,7 +122,7 @@ interface Statement extends ResultStatement
      * this behaviour is not guaranteed for all databases and should not be
      * relied on for portable applications.
      *
-     * @return integer The number of rows.
+     * @return int The number of rows.
      */
     function rowCount();
 }

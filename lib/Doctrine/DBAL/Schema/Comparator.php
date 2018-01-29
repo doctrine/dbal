@@ -159,7 +159,7 @@ class Comparator
      * @param \Doctrine\DBAL\Schema\Schema   $schema
      * @param \Doctrine\DBAL\Schema\Sequence $sequence
      *
-     * @return boolean
+     * @return bool
      */
     private function isAutoIncrementSequenceInSchema($schema, $sequence)
     {
@@ -176,7 +176,7 @@ class Comparator
      * @param \Doctrine\DBAL\Schema\Sequence $sequence1
      * @param \Doctrine\DBAL\Schema\Sequence $sequence2
      *
-     * @return boolean
+     * @return bool
      */
     public function diffSequence(Sequence $sequence1, Sequence $sequence2)
     {
@@ -199,7 +199,7 @@ class Comparator
      * @param \Doctrine\DBAL\Schema\Table $table1
      * @param \Doctrine\DBAL\Schema\Table $table2
      *
-     * @return boolean|\Doctrine\DBAL\Schema\TableDiff
+     * @return bool|\Doctrine\DBAL\Schema\TableDiff
      */
     public function diffTable(Table $table1, Table $table2)
     {
@@ -386,7 +386,7 @@ class Comparator
      * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $key1
      * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint $key2
      *
-     * @return boolean
+     * @return bool
      */
     public function diffForeignKey(ForeignKeyConstraint $key1, ForeignKeyConstraint $key2)
     {
@@ -530,7 +530,7 @@ class Comparator
      * @param \Doctrine\DBAL\Schema\Index $index1
      * @param \Doctrine\DBAL\Schema\Index $index2
      *
-     * @return boolean
+     * @return bool
      */
     public function diffIndex(Index $index1, Index $index2)
     {

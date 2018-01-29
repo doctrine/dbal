@@ -99,35 +99,35 @@ class QueryBuilder
     /**
      * The type of query this is. Can be select, update or delete.
      *
-     * @var integer
+     * @var int
      */
     private $type = self::SELECT;
 
     /**
      * The state of the query object. Can be dirty or clean.
      *
-     * @var integer
+     * @var int
      */
     private $state = self::STATE_CLEAN;
 
     /**
      * The index of the first result to retrieve.
      *
-     * @var integer
+     * @var int
      */
     private $firstResult = null;
 
     /**
      * The maximum number of results to retrieve.
      *
-     * @var integer
+     * @var int
      */
     private $maxResults = null;
 
     /**
      * The counter of bound parameters used with {@see bindValue).
      *
-     * @var integer
+     * @var int
      */
     private $boundCounter = 0;
 
@@ -165,7 +165,7 @@ class QueryBuilder
     /**
      * Gets the type of the currently built query.
      *
-     * @return integer
+     * @return int
      */
     public function getType()
     {
@@ -185,7 +185,7 @@ class QueryBuilder
     /**
      * Gets the state of this query builder instance.
      *
-     * @return integer Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
+     * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
      */
     public function getState()
     {
@@ -353,7 +353,7 @@ class QueryBuilder
     /**
      * Sets the position of the first result to retrieve (the "offset").
      *
-     * @param integer $firstResult The first result to return.
+     * @param int $firstResult The first result to return.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -369,7 +369,7 @@ class QueryBuilder
      * Gets the position of the first result the query object was set to retrieve (the "offset").
      * Returns NULL if {@link setFirstResult} was not applied to this QueryBuilder.
      *
-     * @return integer The position of the first result.
+     * @return int The position of the first result.
      */
     public function getFirstResult()
     {
@@ -379,7 +379,7 @@ class QueryBuilder
     /**
      * Sets the maximum number of results to retrieve (the "limit").
      *
-     * @param integer $maxResults The maximum number of results to retrieve.
+     * @param int $maxResults The maximum number of results to retrieve.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -395,7 +395,7 @@ class QueryBuilder
      * Gets the maximum number of results the query object was set to retrieve (the "limit").
      * Returns NULL if {@link setMaxResults} was not applied to this query builder.
      *
-     * @return integer The maximum number of results.
+     * @return int The maximum number of results.
      */
     public function getMaxResults()
     {
@@ -408,9 +408,9 @@ class QueryBuilder
      * The available parts are: 'select', 'from', 'set', 'where',
      * 'groupBy', 'having' and 'orderBy'.
      *
-     * @param string  $sqlPartName
-     * @param string  $sqlPart
-     * @param boolean $append
+     * @param string $sqlPartName
+     * @param string $sqlPart
+     * @param bool   $append
      *
      * @return $this This QueryBuilder instance.
      */
@@ -1284,8 +1284,8 @@ class QueryBuilder
      *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', PDO::PARAM_STR))
      * </code>
      *
-     * @param mixed   $value
-     * @param integer $type
+     * @param mixed $value
+     * @param int   $type
      *
      * @return string
      */

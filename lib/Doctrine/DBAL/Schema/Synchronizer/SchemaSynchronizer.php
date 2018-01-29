@@ -42,7 +42,7 @@ interface SchemaSynchronizer
      * Gets the SQL Statements to update given schema with the underlying db.
      *
      * @param \Doctrine\DBAL\Schema\Schema $toSchema
-     * @param boolean                      $noDrops
+     * @param bool                         $noDrops
      *
      * @return array
      */
@@ -77,7 +77,7 @@ interface SchemaSynchronizer
      * Updates the Schema to new schema version.
      *
      * @param \Doctrine\DBAL\Schema\Schema $toSchema
-     * @param boolean                      $noDrops
+     * @param bool                         $noDrops
      *
      * @return void
      */

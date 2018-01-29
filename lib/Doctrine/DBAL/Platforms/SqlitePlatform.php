@@ -526,7 +526,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction().
      *
-     * @param integer|float $value
+     * @param int|float $value
      *
      * @return float
      */
@@ -538,10 +538,10 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * User-defined function for Sqlite that implements MOD(a, b).
      *
-     * @param integer $a
-     * @param integer $b
+     * @param int $a
+     * @param int $b
      *
-     * @return integer
+     * @return int
      */
     public static function udfMod($a, $b)
     {
@@ -549,11 +549,11 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * @param string  $str
-     * @param string  $substr
-     * @param integer $offset
+     * @param string $str
+     * @param string $substr
+     * @param int    $offset
      *
-     * @return integer
+     * @return int
      */
     public static function udfLocate($str, $substr, $offset = 0)
     {
