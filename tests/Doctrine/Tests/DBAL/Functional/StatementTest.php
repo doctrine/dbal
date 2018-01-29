@@ -187,7 +187,7 @@ EOF
     }
 
     /**
-     * Issue #2991
+     * @group DBAL-2991
      * PHP7 gets problems on call by references
      * The GC removes the values before stmt->execute
      */
