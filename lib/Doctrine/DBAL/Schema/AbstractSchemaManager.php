@@ -1058,9 +1058,13 @@ abstract class AbstractSchemaManager
         }
 
         $params = $this->_conn->getParams();
-        if (isset($params['defaultTableOptions'])) {
-            $schemaConfig->setDefaultTableOptions($params['defaultTableOptions']);
+        if (! isset($params['defaultTableOptions'])) {
+            $params['defaultTableOptions'] = [];
         }
+        if (! isset($params['defaultTableOptions']['charset']) && isset($params['charset'])) {
+            $params['defaultTableOptions']['charset'] = $params['charset'];
+        }
+        $schemaConfig->setDefaultTableOptions($params['defaultTableOptions']);
 
         return $schemaConfig;
     }
