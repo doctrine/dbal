@@ -22,7 +22,7 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
 
     public function testReturnsJsonTypeDeclarationSQL()
     {
-        self::assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL(array()));
+        self::assertSame('JSON', $this->_platform->getJsonTypeDeclarationSQL([]));
     }
 
     public function testInitializesJsonTypeMapping()
@@ -36,9 +36,9 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -46,10 +46,10 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'ALTER TABLE `table` RENAME INDEX `create` TO `select`',
             'ALTER TABLE `table` RENAME INDEX `foo` TO `bar`',
-        );
+        ];
     }
 
     /**
@@ -57,9 +57,9 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'ALTER TABLE myschema.mytable RENAME INDEX idx_foo TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -67,10 +67,10 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'ALTER TABLE `schema`.`table` RENAME INDEX `create` TO `select`',
             'ALTER TABLE `schema`.`table` RENAME INDEX `foo` TO `bar`',
-        );
+        ];
     }
 
     /**
@@ -78,8 +78,8 @@ class MySQL57PlatformTest extends AbstractMySQLPlatformTestCase
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable RENAME INDEX idx_foo TO idx_foo_renamed',
-        );
+        ];
     }
 }

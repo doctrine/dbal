@@ -97,7 +97,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testErrorInfo()
     {
-        $errorInfo = array('666', 'Evil error.');
+        $errorInfo = ['666', 'Evil error.'];
 
         $this->wrappedStmt->expects($this->once())
             ->method('errorInfo')
@@ -108,10 +108,10 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testExecute()
     {
-        $params = array(
+        $params = [
             'foo',
             'bar'
-        );
+        ];
 
         $this->wrappedStmt->expects($this->once())
             ->method('execute')
@@ -125,7 +125,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     {
         $fetchMode = \PDO::FETCH_CLASS;
         $arg1      = 'MyClass';
-        $arg2      = array(1, 2);
+        $arg2      = [1, 2];
 
         $this->wrappedStmt->expects($this->once())
             ->method('setFetchMode')
@@ -139,10 +139,10 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testGetIterator()
     {
-        $data = array(
+        $data = [
             'foo' => 'bar',
             'bar' => 'foo'
-        );
+        ];
 
         $this->wrappedStmt->expects($this->once())
             ->method('fetchAll')

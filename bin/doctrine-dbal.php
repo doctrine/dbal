@@ -20,10 +20,10 @@
 use Symfony\Component\Console\Helper\HelperSet;
 use Doctrine\DBAL\Tools\Console\ConsoleRunner;
 
-$files       = array(__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php');
+$files       = [__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php'];
 $loader      = null;
 $cwd         = getcwd();
-$directories = array($cwd, $cwd . DIRECTORY_SEPARATOR . 'config');
+$directories = [$cwd, $cwd . DIRECTORY_SEPARATOR . 'config'];
 $configFile  = null;
 
 foreach ($files as $file) {
@@ -58,7 +58,7 @@ if ( ! is_readable($configFile)) {
     exit(1);
 }
 
-$commands  = array();
+$commands  = [];
 $helperSet = require $configFile;
 
 if ( ! $helperSet instanceof HelperSet) {

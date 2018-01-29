@@ -30,7 +30,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->createTable($tableOld);
         $tableFetched = $this->_sm->listTableDetails("switch_primary_key_columns");
         $tableNew = clone $tableFetched;
-        $tableNew->setPrimaryKey(array('bar_id', 'foo_id'));
+        $tableNew->setPrimaryKey(['bar_id', 'foo_id']);
 
         $comparator = new Comparator;
         $this->_sm->alterTable($comparator->diffTable($tableFetched, $tableNew));
@@ -53,9 +53,9 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('attribute', 'string');
         $table->addColumn('localized_value', 'string');
         $table->addColumn('original_value', 'string');
-        $table->setPrimaryKey(array('id'));
-        $table->addUniqueIndex(array('route', 'locale', 'attribute'));
-        $table->addIndex(array('localized_value')); // this is much more selective than the unique index
+        $table->setPrimaryKey(['id']);
+        $table->addUniqueIndex(['route', 'locale', 'attribute']);
+        $table->addIndex(['localized_value']); // this is much more selective than the unique index
 
         $this->_sm->createTable($table);
         $tableFetched = $this->_sm->listTableDetails("diffbug_routing_translations");
@@ -70,7 +70,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('fulltext_index');
         $table->addColumn('text', 'text');
-        $table->addIndex(array('text'), 'f_index');
+        $table->addIndex(['text'], 'f_index');
         $table->addOption('engine', 'MyISAM');
 
         $index = $table->getIndex('f_index');
@@ -87,7 +87,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('spatial_index');
         $table->addColumn('point', 'point');
-        $table->addIndex(array('point'), 's_index');
+        $table->addIndex(['point'], 's_index');
         $table->addOption('engine', 'MyISAM');
 
         $index = $table->getIndex('s_index');
@@ -108,7 +108,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table('alter_table_add_pk');
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
-        $table->addIndex(array('id'), 'idx_id');
+        $table->addIndex(['id'], 'idx_id');
 
         $this->_sm->createTable($table);
 
@@ -116,7 +116,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable  = clone $table;
 
         $diffTable->dropIndex('idx_id');
-        $diffTable->setPrimaryKey(array('id'));
+        $diffTable->setPrimaryKey(['id']);
 
         $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
 
@@ -132,9 +132,9 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDropPrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("drop_primary_key");
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
-        $table->setPrimaryKey(array('id', 'foo'));
+        $table->setPrimaryKey(['id', 'foo']);
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -221,14 +221,14 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $tableName = 'lob_type_columns';
         $table = new Table($tableName);
 
-        $table->addColumn('col_tinytext', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT));
-        $table->addColumn('col_text', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TEXT));
-        $table->addColumn('col_mediumtext', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT));
+        $table->addColumn('col_tinytext', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYTEXT]);
+        $table->addColumn('col_text', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TEXT]);
+        $table->addColumn('col_mediumtext', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMTEXT]);
         $table->addColumn('col_longtext', 'text');
 
-        $table->addColumn('col_tinyblob', 'text', array('length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB));
-        $table->addColumn('col_blob', 'blob', array('length' => MySqlPlatform::LENGTH_LIMIT_BLOB));
-        $table->addColumn('col_mediumblob', 'blob', array('length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB));
+        $table->addColumn('col_tinyblob', 'text', ['length' => MySqlPlatform::LENGTH_LIMIT_TINYBLOB]);
+        $table->addColumn('col_blob', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_BLOB]);
+        $table->addColumn('col_mediumblob', 'blob', ['length' => MySqlPlatform::LENGTH_LIMIT_MEDIUMBLOB]);
         $table->addColumn('col_longblob', 'blob');
 
         $this->_sm->dropAndCreateTable($table);
@@ -301,7 +301,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table($tableName);
 
         $table->addColumn('col', 'decimal');
-        $table->addColumn('col_unsigned', 'decimal', array('unsigned' => true));
+        $table->addColumn('col_unsigned', 'decimal', ['unsigned' => true]);
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -322,7 +322,7 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = new Table($tableName);
 
         $table->addColumn('col', 'float');
-        $table->addColumn('col_unsigned', 'float', array('unsigned' => true));
+        $table->addColumn('col_unsigned', 'float', ['unsigned' => true]);
 
         $this->_sm->dropAndCreateTable($table);
 

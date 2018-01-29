@@ -9,11 +9,11 @@ class SchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
     public function testCreateSchema()
     {
         $platformMock = $this->getMockBuilder('Doctrine\DBAL\Platforms\MySqlPlatform')
-            ->setMethods(array('getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'))
+            ->setMethods(['getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'])
             ->getMock();
         $platformMock->expects($this->exactly(2))
                      ->method('getCreateTableSql')
-                     ->will($this->returnValue(array("foo")));
+                     ->will($this->returnValue(["foo"]));
         $platformMock->expects($this->exactly(1))
                      ->method('getCreateSequenceSql')
                      ->will($this->returnValue("bar"));
@@ -25,13 +25,13 @@ class SchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 
         $sql = $schema->toSql($platformMock);
 
-        self::assertEquals(array("foo", "foo", "bar", "baz"), $sql);
+        self::assertEquals(["foo", "foo", "bar", "baz"], $sql);
     }
 
     public function testDropSchema()
     {
         $platformMock = $this->getMockBuilder('Doctrine\DBAL\Platforms\MySqlPlatform')
-            ->setMethods(array('getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'))
+            ->setMethods(['getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'])
             ->getMock();
         $platformMock->expects($this->exactly(2))
                      ->method('getDropTableSql')
@@ -47,7 +47,7 @@ class SchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 
         $sql = $schema->toDropSql($platformMock);
 
-        self::assertEquals(array("fk", "seq", "tbl", "tbl"), $sql);
+        self::assertEquals(["fk", "seq", "tbl", "tbl"], $sql);
     }
 
     /**
@@ -58,16 +58,16 @@ class SchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
         $schema = new Schema();
         $tableA = $schema->createTable("foo");
         $tableA->addColumn("id", 'integer');
-        $tableA->addColumn("bar", 'string', array('length' => 255));
-        $tableA->setPrimaryKey(array("id"));
+        $tableA->addColumn("bar", 'string', ['length' => 255]);
+        $tableA->setPrimaryKey(["id"]);
 
         $schema->createSequence("foo_seq");
 
         $tableB = $schema->createTable("bar");
         $tableB->addColumn("id", 'integer');
-        $tableB->setPrimaryKey(array("id"));
+        $tableB->setPrimaryKey(["id"]);
 
-        $tableA->addForeignKeyConstraint($tableB, array("bar"), array("id"));
+        $tableA->addForeignKeyConstraint($tableB, ["bar"], ["id"]);
 
         return $schema;
     }

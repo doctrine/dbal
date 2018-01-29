@@ -20,7 +20,7 @@ class DBAL202Test extends \Doctrine\Tests\DbalFunctionalTestCase
         } else {
             $table = new \Doctrine\DBAL\Schema\Table('DBAL202');
             $table->addColumn('id', 'integer');
-            $table->setPrimaryKey(array('id'));
+            $table->setPrimaryKey(['id']);
 
             $this->_conn->getSchemaManager()->createTable($table);
         }

@@ -50,13 +50,13 @@ class DriverTest extends AbstractDriverTest
         $realDatabaseName = $params['dbname'] ?? '';
         $dummyDatabaseName = $realDatabaseName . 'a';
 
-        return array(
+        return [
             // dbname, default_dbname, expected
-            array($realDatabaseName, null, $realDatabaseName),
-            array($realDatabaseName, $dummyDatabaseName, $realDatabaseName),
-            array(null, $realDatabaseName, $realDatabaseName),
-            array(null, null, $this->getDatabaseNameForConnectionWithoutDatabaseNameParameter()),
-        );
+            [$realDatabaseName, null, $realDatabaseName],
+            [$realDatabaseName, $dummyDatabaseName, $realDatabaseName],
+            [null, $realDatabaseName, $realDatabaseName],
+            [null, null, $this->getDatabaseNameForConnectionWithoutDatabaseNameParameter()],
+        ];
     }
 
     /**

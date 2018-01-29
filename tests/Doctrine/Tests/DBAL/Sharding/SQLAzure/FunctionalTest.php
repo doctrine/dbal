@@ -15,19 +15,19 @@ class FunctionalTest extends AbstractTestCase
 
         $this->sm->selectShard(0);
 
-        $this->conn->insert("Products", array(
+        $this->conn->insert("Products", [
             "ProductID" => 1,
             "SupplierID" => 2,
             "ProductName" => "Test",
             "Price" => 10.45
-        ));
+        ]);
 
-        $this->conn->insert("Customers", array(
+        $this->conn->insert("Customers", [
             "CustomerID" => 1,
             "CompanyName" => "Foo",
             "FirstName" => "Benjamin",
             "LastName" => "E.",
-        ));
+        ]);
 
         $query = "SELECT * FROM Products";
         $data = $this->conn->fetchAll($query);

@@ -16,7 +16,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
     {
         $config = new SchemaConfig;
         $config->setName("test");
-        $schema = new Schema(array(), array(), $config);
+        $schema = new Schema([], [], $config);
 
         $schema->createTable("test.test");
         $schema->createTable("foo.bar");
@@ -25,7 +25,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
         $schema->visit(new RemoveNamespacedAssets());
 
         $tables = $schema->getTables();
-        self::assertEquals(array("test.test", "test.baz"), array_keys($tables), "Only 2 tables should be present, both in 'test' namespace.");
+        self::assertEquals(["test.test", "test.baz"], array_keys($tables), "Only 2 tables should be present, both in 'test' namespace.");
     }
 
     /**
@@ -35,7 +35,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
     {
         $config = new SchemaConfig;
         $config->setName("test");
-        $schema = new Schema(array(), array(), $config);
+        $schema = new Schema([], [], $config);
 
         $fooTable = $schema->createTable("foo.bar");
         $fooTable->addColumn('id', 'integer');
@@ -43,7 +43,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
         $testTable = $schema->createTable("test.test");
         $testTable->addColumn('id', 'integer');
 
-        $testTable->addForeignKeyConstraint("foo.bar", array("id"), array("id"));
+        $testTable->addForeignKeyConstraint("foo.bar", ["id"], ["id"]);
 
         $schema->visit(new RemoveNamespacedAssets());
 
@@ -58,7 +58,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
     {
         $config = new SchemaConfig;
         $config->setName("test");
-        $schema = new Schema(array(), array(), $config);
+        $schema = new Schema([], [], $config);
 
         $testTable = $schema->createTable("test.test");
         $testTable->addColumn('id', 'integer');
@@ -66,7 +66,7 @@ class RemoveNamespacedAssetsTest extends \PHPUnit\Framework\TestCase
         $fooTable = $schema->createTable("foo.bar");
         $fooTable->addColumn('id', 'integer');
 
-        $testTable->addForeignKeyConstraint("foo.bar", array("id"), array("id"));
+        $testTable->addForeignKeyConstraint("foo.bar", ["id"], ["id"]);
 
         $schema->visit(new RemoveNamespacedAssets());
 

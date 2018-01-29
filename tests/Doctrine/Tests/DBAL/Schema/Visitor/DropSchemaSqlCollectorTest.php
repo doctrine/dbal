@@ -18,7 +18,7 @@ class DropSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
         $keyConstraintTwo = $this->getStubKeyConstraint('second');
 
         $platform = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
-            ->setMethods(array('getDropForeignKeySQL'))
+            ->setMethods(['getDropForeignKeySQL'])
             ->getMockForAbstractClass();
 
         $collector = new DropSchemaSqlCollector($platform);
@@ -60,11 +60,11 @@ class DropSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 
         $constraint->expects($this->any())
             ->method('getForeignColumns')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         $constraint->expects($this->any())
             ->method('getColumns')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         return $constraint;
     }

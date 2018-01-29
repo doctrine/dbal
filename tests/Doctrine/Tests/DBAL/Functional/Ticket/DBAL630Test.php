@@ -18,7 +18,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $platform = $this->_conn->getDatabasePlatform()->getName();
 
-        if (!in_array($platform, array('postgresql'))) {
+        if (!in_array($platform, ['postgresql'])) {
             $this->markTestSkipped('Currently restricted to PostgreSQL');
         }
 
@@ -45,18 +45,18 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
         self::assertNotEmpty($id);
 
-        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', array($id));
+        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', [$id]);
 
         self::assertFalse($row['bool_col']);
     }
 
     public function testBooleanConversionBoolParamRealPrepares()
     {
-        $this->_conn->executeUpdate('INSERT INTO dbal630 (bool_col) VALUES(?)', array('false'), array(PDO::PARAM_BOOL));
+        $this->_conn->executeUpdate('INSERT INTO dbal630 (bool_col) VALUES(?)', ['false'], [PDO::PARAM_BOOL]);
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
         self::assertNotEmpty($id);
 
-        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', array($id));
+        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', [$id]);
 
         self::assertFalse($row['bool_col']);
     }
@@ -75,7 +75,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         self::assertNotEmpty($id);
 
-        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', array($id));
+        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630 WHERE id = ?', [$id]);
 
         self::assertFalse($row['bool_col']);
     }
@@ -99,7 +99,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         self::assertNotEmpty($id);
 
-        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', array($id));
+        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', [$id]);
 
         self::assertSame($databaseConvertedValue, $row['bool_col']);
     }
@@ -123,7 +123,7 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
         self::assertNotEmpty($id);
 
-        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', array($id));
+        $row = $this->_conn->fetchAssoc('SELECT bool_col FROM dbal630_allow_nulls WHERE id = ?', [$id]);
 
         self::assertSame($databaseConvertedValue, $row['bool_col']);
     }
@@ -134,12 +134,12 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function booleanTypeConversionUsingBooleanTypeProvider()
     {
-        return array(
+        return [
             // statement value, database converted value result
-            array(true, true),
-            array(false, false),
-            array(null, false)
-        );
+            [true, true],
+            [false, false],
+            [null, false]
+        ];
     }
 
     /**
@@ -148,11 +148,11 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function booleanTypeConversionWithoutPdoTypeProvider()
     {
-        return array(
+        return [
             // statement value, database converted value result
-            array(true, true),
-            array(false, false),
-            array(null, null)
-        );
+            [true, true],
+            [false, false],
+            [null, null]
+        ];
     }
 }

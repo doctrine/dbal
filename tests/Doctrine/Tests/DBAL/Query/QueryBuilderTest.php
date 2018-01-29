@@ -177,7 +177,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $expr = $qb->expr();
 
         $qb->select('u.*', 'p.*')
-           ->groupBy(array())
+           ->groupBy([])
            ->from('users', 'u');
 
         self::assertEquals('SELECT u.*, p.* FROM users u', (string) $qb);
@@ -189,7 +189,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $expr = $qb->expr();
 
         $qb->select('u.*', 'p.*')
-           ->addGroupBy(array())
+           ->addGroupBy([])
            ->from('users', 'u');
 
         self::assertEquals('SELECT u.*, p.* FROM users u', (string) $qb);
@@ -466,10 +466,10 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb = new QueryBuilder($this->conn);
         $qb->insert('users')
             ->values(
-                array(
+                [
                     'foo' => '?',
                     'bar' => '?'
-                )
+                ]
             );
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
@@ -481,16 +481,16 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb = new QueryBuilder($this->conn);
         $qb->insert('users')
             ->values(
-                array(
+                [
                     'foo' => '?',
                     'bar' => '?'
-                )
+                ]
             )
             ->values(
-                array(
+                [
                     'bar' => '?',
                     'foo' => '?'
-                )
+                ]
             );
 
         self::assertEquals(QueryBuilder::INSERT, $qb->getType());
@@ -514,9 +514,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb = new QueryBuilder($this->conn);
         $qb->insert('users')
             ->values(
-                array(
+                [
                     'foo' => '?'
-                )
+                ]
             )
             ->setValue('bar', '?');
 
@@ -591,7 +591,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb->select('u.*')->from('users', 'u')->where('u.name = ?')->orderBy('u.name');
 
         self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string)$qb);
-        $qb->resetQueryParts(array('where', 'orderBy'));
+        $qb->resetQueryParts(['where', 'orderBy']);
         self::assertEquals('SELECT u.* FROM users u', (string)$qb);
     }
 
@@ -861,19 +861,19 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('*')->from('users');
 
-        self::assertSame(array(), $qb->getParameterTypes());
+        self::assertSame([], $qb->getParameterTypes());
 
         $qb->where('name = :name');
         $qb->setParameter('name', 'foo');
 
-        self::assertSame(array(), $qb->getParameterTypes());
+        self::assertSame([], $qb->getParameterTypes());
 
         $qb->setParameter('name', 'foo', \PDO::PARAM_STR);
 
         $qb->where('is_active = :isActive');
         $qb->setParameter('isActive', true, \PDO::PARAM_BOOL);
 
-        self::assertSame(array('name' => \PDO::PARAM_STR, 'isActive' => \PDO::PARAM_BOOL), $qb->getParameterTypes());
+        self::assertSame(['name' => \PDO::PARAM_STR, 'isActive' => \PDO::PARAM_BOOL], $qb->getParameterTypes());
     }
 
     /**

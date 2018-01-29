@@ -25,7 +25,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateAlterTableSql()
     {
-        return array(
+        return [
             "ALTER TABLE mytable ALTER COLUMN baz SET DATA TYPE VARCHAR(255)",
             "ALTER TABLE mytable ALTER COLUMN baz SET NOT NULL",
             "ALTER TABLE mytable ALTER COLUMN baz SET DEFAULT 'def'",
@@ -37,7 +37,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             "DROP COLUMN foo",
             "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
             'RENAME TABLE mytable TO userlist',
-        );
+        ];
     }
 
     public function getGenerateForeignKeySql()
@@ -57,10 +57,10 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
-        return array(
+        return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
             'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)'
-        );
+        ];
     }
 
     public function getGenerateUniqueIndexSql()
@@ -70,35 +70,35 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     protected function getQuotedColumnInForeignKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL)',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES "foreign" ("create", bar, "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar")',
-        );
+        ];
     }
 
     protected function getQuotedColumnInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL)',
             'CREATE INDEX IDX_22660D028FD6E0FB ON "quoted" ("create")'
-        );
+        ];
     }
 
     protected function getQuotedNameInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
             'CREATE INDEX "key" ON test (column1)',
-        );
+        ];
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY("create"))'
-        );
+        ];
     }
 
     protected function getBitAndComparisonExpressionSql($value1, $value2)
@@ -113,30 +113,30 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function getCreateTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))",
             "COMMENT ON COLUMN test.id IS 'This is a comment'",
-        );
+        ];
     }
 
     public function getAlterTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "ALTER TABLE mytable " .
             "ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT",
             "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS ''",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
-        );
+        ];
     }
 
     public function getCreateTableColumnTypeCommentsSQL()
     {
-        return array(
+        return [
             'CREATE TABLE test (id INTEGER NOT NULL, "data" CLOB(1M) NOT NULL, PRIMARY KEY(id))',
             'COMMENT ON COLUMN test."data" IS \'(DC2Type:array)\'',
-        );
+        ];
     }
 
     public function testHasCorrectPlatformName()
@@ -148,17 +148,17 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'string', array('length' => 50));
-        $table->setPrimaryKey(array('id'));
-        $table->addIndex(array('name'));
-        $table->addIndex(array('id', 'name'), 'composite_idx');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->setPrimaryKey(['id']);
+        $table->addIndex(['name']);
+        $table->addIndex(['id', 'name'], 'composite_idx');
 
         self::assertEquals(
-            array(
+            [
                 'CREATE TABLE test (id INTEGER NOT NULL, name VARCHAR(50) NOT NULL, PRIMARY KEY(id))',
                 'CREATE INDEX IDX_D87F7E0C5E237E06 ON test (name)',
                 'CREATE INDEX composite_idx ON test (id, name)'
-            ),
+            ],
             $this->_platform->getCreateTableSQL($table)
         );
     }
@@ -169,22 +169,22 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         $table->addColumn('id', 'integer');
         $table->addColumn('fk_1', 'integer');
         $table->addColumn('fk_2', 'integer');
-        $table->setPrimaryKey(array('id'));
-        $table->addForeignKeyConstraint('foreign_table', array('fk_1', 'fk_2'), array('pk_1', 'pk_2'));
+        $table->setPrimaryKey(['id']);
+        $table->addForeignKeyConstraint('foreign_table', ['fk_1', 'fk_2'], ['pk_1', 'pk_2']);
         $table->addForeignKeyConstraint(
             'foreign_table2',
-            array('fk_1', 'fk_2'),
-            array('pk_1', 'pk_2'),
-            array(),
+            ['fk_1', 'fk_2'],
+            ['pk_1', 'pk_2'],
+            [],
             'named_fk'
         );
 
         self::assertEquals(
-            array(
+            [
                 'CREATE TABLE test (id INTEGER NOT NULL, fk_1 INTEGER NOT NULL, fk_2 INTEGER NOT NULL)',
                 'ALTER TABLE test ADD CONSTRAINT FK_D87F7E0C177612A38E7F4319 FOREIGN KEY (fk_1, fk_2) REFERENCES foreign_table (pk_1, pk_2)',
                 'ALTER TABLE test ADD CONSTRAINT named_fk FOREIGN KEY (fk_1, fk_2) REFERENCES foreign_table2 (pk_1, pk_2)',
-            ),
+            ],
             $this->_platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS)
         );
     }
@@ -193,52 +193,52 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
-        $table->addColumn('check_max', 'integer', array('platformOptions' => array('max' => 10)));
-        $table->addColumn('check_min', 'integer', array('platformOptions' => array('min' => 10)));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('check_max', 'integer', ['platformOptions' => ['max' => 10]]);
+        $table->addColumn('check_min', 'integer', ['platformOptions' => ['min' => 10]]);
+        $table->setPrimaryKey(['id']);
 
         self::assertEquals(
-            array(
+            [
                 'CREATE TABLE test (id INTEGER NOT NULL, check_max INTEGER NOT NULL, check_min INTEGER NOT NULL, PRIMARY KEY(id), CHECK (check_max <= 10), CHECK (check_min >= 10))'
-            ),
+            ],
             $this->_platform->getCreateTableSQL($table)
         );
     }
 
     public function testGeneratesColumnTypesDeclarationSQL()
     {
-        $fullColumnDef = array(
+        $fullColumnDef = [
             'length' => 10,
             'fixed' => true,
             'unsigned' => true,
             'autoincrement' => true
-        );
+        ];
 
-        self::assertEquals('VARCHAR(255)', $this->_platform->getVarcharTypeDeclarationSQL(array()));
-        self::assertEquals('VARCHAR(10)', $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 10)));
-        self::assertEquals('CHAR(255)', $this->_platform->getVarcharTypeDeclarationSQL(array('fixed' => true)));
+        self::assertEquals('VARCHAR(255)', $this->_platform->getVarcharTypeDeclarationSQL([]));
+        self::assertEquals('VARCHAR(10)', $this->_platform->getVarcharTypeDeclarationSQL(['length' => 10]));
+        self::assertEquals('CHAR(255)', $this->_platform->getVarcharTypeDeclarationSQL(['fixed' => true]));
         self::assertEquals('CHAR(10)', $this->_platform->getVarcharTypeDeclarationSQL($fullColumnDef));
 
-        self::assertEquals('SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL(array()));
-        self::assertEquals('SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL(array(
+        self::assertEquals('SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL([]));
+        self::assertEquals('SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL([
             'unsigned' => true
-        )));
+        ]));
         self::assertEquals('SMALLINT GENERATED BY DEFAULT AS IDENTITY', $this->_platform->getSmallIntTypeDeclarationSQL($fullColumnDef));
-        self::assertEquals('INTEGER', $this->_platform->getIntegerTypeDeclarationSQL(array()));
-        self::assertEquals('INTEGER', $this->_platform->getIntegerTypeDeclarationSQL(array(
+        self::assertEquals('INTEGER', $this->_platform->getIntegerTypeDeclarationSQL([]));
+        self::assertEquals('INTEGER', $this->_platform->getIntegerTypeDeclarationSQL([
             'unsigned' => true
-        )));
+        ]));
         self::assertEquals('INTEGER GENERATED BY DEFAULT AS IDENTITY', $this->_platform->getIntegerTypeDeclarationSQL($fullColumnDef));
-        self::assertEquals('BIGINT', $this->_platform->getBigIntTypeDeclarationSQL(array()));
-        self::assertEquals('BIGINT', $this->_platform->getBigIntTypeDeclarationSQL(array(
+        self::assertEquals('BIGINT', $this->_platform->getBigIntTypeDeclarationSQL([]));
+        self::assertEquals('BIGINT', $this->_platform->getBigIntTypeDeclarationSQL([
             'unsigned' => true
-        )));
+        ]));
         self::assertEquals('BIGINT GENERATED BY DEFAULT AS IDENTITY', $this->_platform->getBigIntTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('BLOB(1M)', $this->_platform->getBlobTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('SMALLINT', $this->_platform->getBooleanTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('CLOB(1M)', $this->_platform->getClobTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('DATE', $this->_platform->getDateTypeDeclarationSQL($fullColumnDef));
-        self::assertEquals('TIMESTAMP(0) WITH DEFAULT', $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => true)));
+        self::assertEquals('TIMESTAMP(0) WITH DEFAULT', $this->_platform->getDateTimeTypeDeclarationSQL(['version' => true]));
         self::assertEquals('TIMESTAMP(0)', $this->_platform->getDateTimeTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('TIME', $this->_platform->getTimeTypeDeclarationSQL($fullColumnDef));
     }
@@ -291,7 +291,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         $data = parent::getIsCommentedDoctrineType();
 
-        $data[Type::BOOLEAN] = array(Type::getType(Type::BOOLEAN), true);
+        $data[Type::BOOLEAN] = [Type::getType(Type::BOOLEAN), true];
 
         return $data;
     }
@@ -314,7 +314,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'ALTER TABLE foo ADD PRIMARY KEY (a, b)',
             $this->_platform->getCreatePrimaryKeySQL(
-                new Index('any_pk_name', array('a', 'b'), true, true),
+                new Index('any_pk_name', ['a', 'b'], true, true),
                 'foo'
             )
         );
@@ -419,15 +419,15 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('VARBINARY(32704)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32704)));
-        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32705)));
+        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARBINARY(32704)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32704]));
+        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32705]));
 
-        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('BINARY(32704)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32704)));
-        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32705)));
+        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+        self::assertSame('BINARY(32704)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32704]));
+        self::assertSame('BLOB(1M)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32705]));
     }
 
     /**
@@ -435,9 +435,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'RENAME INDEX idx_foo TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -445,10 +445,10 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'RENAME INDEX "create" TO "select"',
             'RENAME INDEX "foo" TO "bar"',
-        );
+        ];
     }
 
     /**
@@ -456,7 +456,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable ' .
             'RENAME COLUMN unquoted1 TO unquoted ' .
             'RENAME COLUMN unquoted2 TO "where" ' .
@@ -467,7 +467,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             'RENAME COLUMN quoted1 TO quoted ' .
             'RENAME COLUMN quoted2 TO "and" ' .
             'RENAME COLUMN quoted3 TO "baz"'
-        );
+        ];
     }
 
     /**
@@ -483,9 +483,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'RENAME INDEX myschema.idx_foo TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -493,10 +493,10 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'RENAME INDEX "schema"."create" TO "select"',
             'RENAME INDEX "schema"."foo" TO "bar"',
-        );
+        ];
     }
 
     /**
@@ -504,7 +504,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL([]));
     }
 
     /**
@@ -512,9 +512,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     public function getAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             'ALTER TABLE foo RENAME COLUMN bar TO baz',
-        );
+        ];
     }
 
     /**
@@ -522,7 +522,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotesTableIdentifiersInAlterTableSQL()
     {
-        return array(
+        return [
             'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
             'ALTER TABLE "foo" DROP FOREIGN KEY fk2',
             'ALTER TABLE "foo" ' .
@@ -534,7 +534,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             'RENAME TABLE "foo" TO "table"',
             'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
             'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        );
+        ];
     }
 
     /**
@@ -542,11 +542,11 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getCommentOnColumnSQL()
     {
-        return array(
+        return [
             'COMMENT ON COLUMN foo.bar IS \'comment\'',
             'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
             'COMMENT ON COLUMN "select"."from" IS \'comment\'',
-        );
+        ];
     }
 
     /**
@@ -558,9 +558,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     {
         $tableDiff = new TableDiff('foo');
         $tableDiff->fromTable = new Table('foo');
-        $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $column, array($changedProperty));
+        $tableDiff->changedColumns['bar'] = new ColumnDiff('bar', $column, [$changedProperty]);
 
-        $expectedSQL = array();
+        $expectedSQL = [];
 
         if (null !== $expectedSQLClause) {
             $expectedSQL[] = 'ALTER TABLE foo ALTER COLUMN bar ' . $expectedSQLClause;
@@ -576,63 +576,63 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     public function getGeneratesAlterColumnSQL()
     {
-        return array(
-            array(
+        return [
+            [
                 'columnDefinition',
-                new Column('bar', Type::getType('decimal'), array('columnDefinition' => 'MONEY NOT NULL')),
+                new Column('bar', Type::getType('decimal'), ['columnDefinition' => 'MONEY NOT NULL']),
                 'MONEY NOT NULL'
-            ),
-            array(
+            ],
+            [
                 'type',
                 new Column('bar', Type::getType('integer')),
                 'SET DATA TYPE INTEGER'
-            ),
-            array(
+            ],
+            [
                 'length',
-                new Column('bar', Type::getType('string'), array('length' => 100)),
+                new Column('bar', Type::getType('string'), ['length' => 100]),
                 'SET DATA TYPE VARCHAR(100)'
-            ),
-            array(
+            ],
+            [
                 'precision',
-                new Column('bar', Type::getType('decimal'), array('precision' => 10, 'scale' => 2)),
+                new Column('bar', Type::getType('decimal'), ['precision' => 10, 'scale' => 2]),
                 'SET DATA TYPE NUMERIC(10, 2)'
-            ),
-            array(
+            ],
+            [
                 'scale',
-                new Column('bar', Type::getType('decimal'), array('precision' => 5, 'scale' => 4)),
+                new Column('bar', Type::getType('decimal'), ['precision' => 5, 'scale' => 4]),
                 'SET DATA TYPE NUMERIC(5, 4)'
-            ),
-            array(
+            ],
+            [
                 'fixed',
-                new Column('bar', Type::getType('string'), array('length' => 20, 'fixed' => true)),
+                new Column('bar', Type::getType('string'), ['length' => 20, 'fixed' => true]),
                 'SET DATA TYPE CHAR(20)'
-            ),
-            array(
+            ],
+            [
                 'notnull',
-                new Column('bar', Type::getType('string'), array('notnull' => true)),
+                new Column('bar', Type::getType('string'), ['notnull' => true]),
                 'SET NOT NULL'
-            ),
-            array(
+            ],
+            [
                 'notnull',
-                new Column('bar', Type::getType('string'), array('notnull' => false)),
+                new Column('bar', Type::getType('string'), ['notnull' => false]),
                 'DROP NOT NULL'
-            ),
-            array(
+            ],
+            [
                 'default',
-                new Column('bar', Type::getType('string'), array('default' => 'foo')),
+                new Column('bar', Type::getType('string'), ['default' => 'foo']),
                 "SET DEFAULT 'foo'"
-            ),
-            array(
+            ],
+            [
                 'default',
-                new Column('bar', Type::getType('integer'), array('autoincrement' => true, 'default' => 666)),
+                new Column('bar', Type::getType('integer'), ['autoincrement' => true, 'default' => 666]),
                 null
-            ),
-            array(
+            ],
+            [
                 'default',
                 new Column('bar', Type::getType('string')),
                 "DROP DEFAULT"
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -680,10 +680,10 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getAlterStringToFixedStringSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable ALTER COLUMN name SET DATA TYPE CHAR(2)',
             'CALL SYSPROC.ADMIN_CMD (\'REORG TABLE mytable\')',
-        );
+        ];
     }
 
     /**
@@ -691,9 +691,9 @@ class DB2PlatformTest extends AbstractPlatformTestCase
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
     {
-        return array(
+        return [
             'RENAME INDEX idx_foo TO idx_foo_renamed',
-        );
+        ];
     }
 
     /**

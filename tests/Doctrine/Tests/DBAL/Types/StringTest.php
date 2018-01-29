@@ -19,7 +19,7 @@ class StringTest extends \Doctrine\Tests\DbalTestCase
 
     public function testReturnsSqlDeclarationFromPlatformVarchar()
     {
-        self::assertEquals("DUMMYVARCHAR()", $this->_type->getSqlDeclaration(array(), $this->_platform));
+        self::assertEquals("DUMMYVARCHAR()", $this->_type->getSqlDeclaration([], $this->_platform));
     }
 
     public function testReturnsDefaultLengthFromPlatformVarchar()

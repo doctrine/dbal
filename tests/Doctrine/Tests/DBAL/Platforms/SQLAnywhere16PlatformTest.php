@@ -19,10 +19,10 @@ class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     true,
                     false,
-                    array('with_nulls_distinct')
+                    ['with_nulls_distinct']
                 ),
                 'footable'
             )
@@ -34,10 +34,10 @@ class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     false,
                     true,
-                    array('with_nulls_distinct')
+                    ['with_nulls_distinct']
                 ),
                 'footable'
             )
@@ -49,10 +49,10 @@ class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     false,
                     false,
-                    array('with_nulls_distinct')
+                    ['with_nulls_distinct']
                 ),
                 'footable'
             )
@@ -68,10 +68,10 @@ class SQLAnywhere16PlatformTest extends SQLAnywhere12PlatformTest
         $this->_platform->getCreateIndexSQL(
             new Index(
                 'fooindex',
-                array('a', 'b'),
+                ['a', 'b'],
                 false,
                 false,
-                array('with_nulls_distinct', 'with_nulls_not_distinct')
+                ['with_nulls_distinct', 'with_nulls_not_distinct']
             ),
             'footable'
         );

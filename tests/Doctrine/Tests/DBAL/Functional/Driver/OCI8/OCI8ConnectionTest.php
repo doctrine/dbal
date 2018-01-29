@@ -37,7 +37,7 @@ class OCI8ConnectionTest extends DbalFunctionalTestCase
         $schemaManager = $this->_conn->getSchemaManager();
 
         $table = new Table('DBAL2595');
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
 
         $schemaManager->dropAndCreateTable($table);

@@ -13,10 +13,10 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         try {
             /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
             $table = new \Doctrine\DBAL\Schema\Table("write_table");
-            $table->addColumn('id', 'integer', array('autoincrement' => true));
+            $table->addColumn('id', 'integer', ['autoincrement' => true]);
             $table->addColumn('test_int', 'integer');
-            $table->addColumn('test_string', 'string', array('notnull' => false));
-            $table->setPrimaryKey(array('id'));
+            $table->addColumn('test_string', 'string', ['notnull' => false]);
+            $table->setPrimaryKey(['id']);
 
             $this->_conn->getSchemaManager()->createTable($table);
         } catch(\Exception $e) {
@@ -31,10 +31,10 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testExecuteUpdateFirstTypeIsNull()
     {
         $sql = "INSERT INTO write_table (test_string, test_int) VALUES (?, ?)";
-        $this->_conn->executeUpdate($sql, array("text", 1111), array(null, PDO::PARAM_INT));
+        $this->_conn->executeUpdate($sql, ["text", 1111], [null, PDO::PARAM_INT]);
 
         $sql = "SELECT * FROM write_table WHERE test_string = ? AND test_int = ?";
-        self::assertTrue((bool)$this->_conn->fetchColumn($sql, array("text", 1111)));
+        self::assertTrue((bool)$this->_conn->fetchColumn($sql, ["text", 1111]));
     }
 
     public function testExecuteUpdate()
@@ -48,7 +48,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testExecuteUpdateWithTypes()
     {
         $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
-        $affected = $this->_conn->executeUpdate($sql, array(1, 'foo'), array(\PDO::PARAM_INT, \PDO::PARAM_STR));
+        $affected = $this->_conn->executeUpdate($sql, [1, 'foo'], [\PDO::PARAM_INT, \PDO::PARAM_STR]);
 
         self::assertEquals(1, $affected, "executeUpdate() should return the number of affected rows!");
     }
@@ -103,8 +103,8 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function insertRows()
     {
-        self::assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo')));
-        self::assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 2, 'test_string' => 'bar')));
+        self::assertEquals(1, $this->_conn->insert('write_table', ['test_int' => 1, 'test_string' => 'foo']));
+        self::assertEquals(1, $this->_conn->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
     }
 
     public function testInsert()
@@ -116,10 +116,10 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->insertRows();
 
-        self::assertEquals(1, $this->_conn->delete('write_table', array('test_int' => 2)));
+        self::assertEquals(1, $this->_conn->delete('write_table', ['test_int' => 2]));
         self::assertCount(1, $this->_conn->fetchAll('SELECT * FROM write_table'));
 
-        self::assertEquals(1, $this->_conn->delete('write_table', array('test_int' => 1)));
+        self::assertEquals(1, $this->_conn->delete('write_table', ['test_int' => 1]));
         self::assertCount(0, $this->_conn->fetchAll('SELECT * FROM write_table'));
     }
 
@@ -127,9 +127,9 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->insertRows();
 
-        self::assertEquals(1, $this->_conn->update('write_table', array('test_string' => 'bar'), array('test_string' => 'foo')));
-        self::assertEquals(2, $this->_conn->update('write_table', array('test_string' => 'baz'), array('test_string' => 'bar')));
-        self::assertEquals(0, $this->_conn->update('write_table', array('test_string' => 'baz'), array('test_string' => 'bar')));
+        self::assertEquals(1, $this->_conn->update('write_table', ['test_string' => 'bar'], ['test_string' => 'foo']));
+        self::assertEquals(2, $this->_conn->update('write_table', ['test_string' => 'baz'], ['test_string' => 'bar']));
+        self::assertEquals(0, $this->_conn->update('write_table', ['test_string' => 'baz'], ['test_string' => 'bar']));
     }
 
     public function testLastInsertId()
@@ -138,7 +138,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped('Test only works on platforms with identity columns.');
         }
 
-        self::assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 2, 'test_string' => 'bar')));
+        self::assertEquals(1, $this->_conn->insert('write_table', ['test_int' => 2, 'test_string' => 'bar']));
         $num = $this->_conn->lastInsertId();
 
         self::assertNotNull($num, "LastInsertId() should not be null.");
@@ -190,8 +190,8 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->_conn->insert(
             'write_table',
-            array('test_int' => '30', 'test_string' => $testString),
-            array('test_string' => 'datetime', 'test_int' => 'integer')
+            ['test_int' => '30', 'test_string' => $testString],
+            ['test_string' => 'datetime', 'test_int' => 'integer']
         );
 
         $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
@@ -208,17 +208,17 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $this->_conn->insert(
             'write_table',
-            array('test_int' => '30', 'test_string' => $testString),
-            array('test_string' => 'datetime', 'test_int' => 'integer')
+            ['test_int' => '30', 'test_string' => $testString],
+            ['test_string' => 'datetime', 'test_int' => 'integer']
         );
 
         $testString = new \DateTime('2013-04-15 10:10:10');
 
         $this->_conn->update(
             'write_table',
-            array('test_string' => $testString),
-            array('test_int' => '30'),
-            array('test_string' => 'datetime', 'test_int' => 'integer')
+            ['test_string' => $testString],
+            ['test_int' => '30'],
+            ['test_string' => 'datetime', 'test_int' => 'integer']
         );
 
         $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
@@ -234,11 +234,11 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $val = new \DateTime('2013-04-14 10:10:10');
         $this->_conn->insert(
             'write_table',
-            array('test_int' => '30', 'test_string' => $val),
-            array('test_string' => 'datetime', 'test_int' => 'integer')
+            ['test_int' => '30', 'test_string' => $val],
+            ['test_string' => 'datetime', 'test_int' => 'integer']
         );
 
-        $this->_conn->delete('write_table', array('test_int' => 30, 'test_string' => $val), array('test_string' => 'datetime', 'test_int' => 'integer'));
+        $this->_conn->delete('write_table', ['test_int' => 30, 'test_string' => $val], ['test_string' => 'datetime', 'test_int' => 'integer']);
 
         $data = $this->_conn->fetchColumn('SELECT test_string FROM write_table WHERE test_int = 30');
 
@@ -256,8 +256,8 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $table = new \Doctrine\DBAL\Schema\Table('test_empty_identity');
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->setPrimaryKey(['id']);
 
         try {
             $this->_conn->getSchemaManager()->dropTable($table->getQuotedName($platform));

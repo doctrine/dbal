@@ -20,7 +20,7 @@ class DBAL461Test extends \PHPUnit\Framework\TestCase
 
         $reflectionMethod = new \ReflectionMethod($schemaManager, '_getPortableTableColumnDefinition');
         $reflectionMethod->setAccessible(true);
-        $column = $reflectionMethod->invoke($schemaManager, array(
+        $column = $reflectionMethod->invoke($schemaManager, [
             'type' => 'numeric(18,0)',
             'length' => null,
             'default' => null,
@@ -30,7 +30,7 @@ class DBAL461Test extends \PHPUnit\Framework\TestCase
             'autoincrement' => false,
             'collation' => 'foo',
             'comment' => null,
-        ));
+        ]);
 
         $this->assertInstanceOf(DecimalType::class, $column->getType());
     }

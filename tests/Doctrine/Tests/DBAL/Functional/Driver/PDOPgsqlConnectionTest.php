@@ -48,9 +48,9 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
      */
     public function getValidCharsets()
     {
-        return array(
-           array("UTF8"),
-           array("LATIN1")
-        );
+        return [
+           ["UTF8"],
+           ["LATIN1"]
+        ];
     }
 }

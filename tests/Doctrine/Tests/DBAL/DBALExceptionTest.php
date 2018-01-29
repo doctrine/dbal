@@ -14,7 +14,7 @@ class DBALExceptionTest extends DbalTestCase
     {
         /* @var $driver Driver */
         $driver = $this->createMock(Driver::class);
-        $e = DBALException::driverExceptionDuringQuery($driver, new \Exception, '', array('ABC', chr(128)));
+        $e = DBALException::driverExceptionDuringQuery($driver, new \Exception, '', ['ABC', chr(128)]);
         self::assertContains('with params ["ABC", "\x80"]', $e->getMessage());
     }
     

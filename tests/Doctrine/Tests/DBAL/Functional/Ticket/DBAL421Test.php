@@ -12,7 +12,7 @@ class DBAL421Test extends \Doctrine\Tests\DbalFunctionalTestCase
         parent::setUp();
 
         $platform = $this->_conn->getDatabasePlatform()->getName();
-        if (!in_array($platform, array('mysql', 'sqlite'))) {
+        if (!in_array($platform, ['mysql', 'sqlite'])) {
             $this->markTestSkipped('Currently restricted to MySQL and SQLite.');
         }
     }
@@ -31,7 +31,7 @@ class DBAL421Test extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testGuidShouldBeRandom()
     {
         $statement = $this->_conn->prepare($this->getSelectGuidSql());
-        $guids = array();
+        $guids = [];
 
         for ($i = 0; $i < 99; $i++) {
             $statement->execute();

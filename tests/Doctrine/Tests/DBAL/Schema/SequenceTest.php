@@ -13,8 +13,8 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
     public function testIsAutoincrementFor()
     {
         $table = new Table("foo");
-        $table->addColumn("id", "integer", array("autoincrement" => true));
-        $table->setPrimaryKey(array("id"));
+        $table->addColumn("id", "integer", ["autoincrement" => true]);
+        $table->setPrimaryKey(["id"]);
 
         $sequence = new Sequence("foo_id_seq");
         $sequence2 = new Sequence("bar_id_seq");
@@ -28,8 +28,8 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
     public function testIsAutoincrementForCaseInsensitive()
     {
         $table = new Table('foo');
-        $table->addColumn('ID', 'integer', array('autoincrement' => true));
-        $table->setPrimaryKey(array('ID'));
+        $table->addColumn('ID', 'integer', ['autoincrement' => true]);
+        $table->setPrimaryKey(['ID']);
 
         $sequence = new Sequence("foo_id_seq");
         $sequence1 = new Sequence("foo_ID_seq");

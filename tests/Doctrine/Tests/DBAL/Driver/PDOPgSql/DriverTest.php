@@ -22,10 +22,10 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
         $connection = $this->createDriver()->connect(
-            array(
+            [
                 'host' => $GLOBALS['db_host'],
                 'port' => $GLOBALS['db_port']
-            ),
+            ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password']
         );
@@ -48,13 +48,13 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
         $connection = $this->createDriver()->connect(
-            array(
+            [
                 'host' => $GLOBALS['db_host'],
                 'port' => $GLOBALS['db_port']
-            ),
+            ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
-            array(PDO::PGSQL_ATTR_DISABLE_PREPARES => false)
+            [PDO::PGSQL_ATTR_DISABLE_PREPARES => false]
         );
 
         self::assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
@@ -75,13 +75,13 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         $this->skipWhenNotUsingPhp56AndPdoPgsql();
 
         $connection = $this->createDriver()->connect(
-            array(
+            [
                 'host' => $GLOBALS['db_host'],
                 'port' => $GLOBALS['db_port']
-            ),
+            ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
-            array(PDO::PGSQL_ATTR_DISABLE_PREPARES => true)
+            [PDO::PGSQL_ATTR_DISABLE_PREPARES => true]
         );
 
         self::assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);

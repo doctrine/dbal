@@ -11,7 +11,7 @@ class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
 {
     public function testCount()
     {
-        $expr = new CompositeExpression(CompositeExpression::TYPE_OR, array('u.group_id = 1'));
+        $expr = new CompositeExpression(CompositeExpression::TYPE_OR, ['u.group_id = 1']);
 
         self::assertCount(1, $expr);
 
@@ -22,15 +22,15 @@ class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
 
     public function testAdd()
     {
-        $expr = new CompositeExpression(CompositeExpression::TYPE_OR, array('u.group_id = 1'));
+        $expr = new CompositeExpression(CompositeExpression::TYPE_OR, ['u.group_id = 1']);
 
         self::assertCount(1, $expr);
 
-        $expr->add(new CompositeExpression(CompositeExpression::TYPE_AND, array()));
+        $expr->add(new CompositeExpression(CompositeExpression::TYPE_AND, []));
 
         self::assertCount(1, $expr);
 
-        $expr->add(new CompositeExpression(CompositeExpression::TYPE_OR, array('u.user_id = 1')));
+        $expr->add(new CompositeExpression(CompositeExpression::TYPE_OR, ['u.user_id = 1']));
 
         self::assertCount(2, $expr);
 
@@ -55,49 +55,49 @@ class CompositeExpressionTest extends \Doctrine\Tests\DbalTestCase
 
     public function provideDataForConvertToString()
     {
-        return array(
-            array(
+        return [
+            [
                 CompositeExpression::TYPE_AND,
-                array('u.user = 1'),
+                ['u.user = 1'],
                 'u.user = 1'
-            ),
-            array(
+            ],
+            [
                 CompositeExpression::TYPE_AND,
-                array('u.user = 1', 'u.group_id = 1'),
+                ['u.user = 1', 'u.group_id = 1'],
                 '(u.user = 1) AND (u.group_id = 1)'
-            ),
-            array(
+            ],
+            [
                 CompositeExpression::TYPE_OR,
-                array('u.user = 1'),
+                ['u.user = 1'],
                 'u.user = 1'
-            ),
-            array(
+            ],
+            [
                 CompositeExpression::TYPE_OR,
-                array('u.group_id = 1', 'u.group_id = 2'),
+                ['u.group_id = 1', 'u.group_id = 2'],
                 '(u.group_id = 1) OR (u.group_id = 2)'
-            ),
-            array(
+            ],
+            [
                 CompositeExpression::TYPE_AND,
-                array(
+                [
                     'u.user = 1',
                     new CompositeExpression(
                         CompositeExpression::TYPE_OR,
-                        array('u.group_id = 1', 'u.group_id = 2')
+                        ['u.group_id = 1', 'u.group_id = 2']
                     )
-                ),
+                ],
                 '(u.user = 1) AND ((u.group_id = 1) OR (u.group_id = 2))'
-            ),
-            array(
+            ],
+            [
                 CompositeExpression::TYPE_OR,
-                array(
+                [
                     'u.group_id = 1',
                     new CompositeExpression(
                         CompositeExpression::TYPE_AND,
-                        array('u.user = 1', 'u.group_id = 2')
+                        ['u.user = 1', 'u.group_id = 2']
                     )
-                ),
+                ],
                 '(u.group_id = 1) OR ((u.user = 1) AND (u.group_id = 2))'
-            ),
-        );
+            ],
+        ];
     }
 }
