@@ -19,15 +19,15 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testPrimaryConstraintViolationException()
     {
         $table = new \Doctrine\DBAL\Schema\Table("duplicatekey_table");
-        $table->addColumn('id', 'integer', array());
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('id', 'integer', []);
+        $table->setPrimaryKey(['id']);
 
         $this->_conn->getSchemaManager()->createTable($table);
 
-        $this->_conn->insert("duplicatekey_table", array('id' => 1));
+        $this->_conn->insert("duplicatekey_table", ['id' => 1]);
 
         $this->expectException(Exception\UniqueConstraintViolationException::class);
-        $this->_conn->insert("duplicatekey_table", array('id' => 1));
+        $this->_conn->insert("duplicatekey_table", ['id' => 1]);
     }
 
     public function testTableNotFoundException()
@@ -42,8 +42,8 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $schemaManager = $this->_conn->getSchemaManager();
         $table = new \Doctrine\DBAL\Schema\Table("alreadyexist_table");
-        $table->addColumn('id', 'integer', array());
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('id', 'integer', []);
+        $table->setPrimaryKey(['id']);
 
         $this->expectException(Exception\TableExistsException::class);
         $schemaManager->createTable($table);
@@ -59,8 +59,8 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
-            $this->_conn->insert("constraint_error_table", array('id' => 1));
-            $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+            $this->_conn->insert("constraint_error_table", ['id' => 1]);
+            $this->_conn->insert("owning_table", ['id' => 1, 'constraint_id' => 1]);
         } catch (\Exception $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -70,7 +70,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
-            $this->_conn->insert('owning_table', array('id' => 2, 'constraint_id' => 2));
+            $this->_conn->insert('owning_table', ['id' => 2, 'constraint_id' => 2]);
         } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -93,8 +93,8 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
-            $this->_conn->insert("constraint_error_table", array('id' => 1));
-            $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+            $this->_conn->insert("constraint_error_table", ['id' => 1]);
+            $this->_conn->insert("owning_table", ['id' => 1, 'constraint_id' => 1]);
         } catch (\Exception $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -104,7 +104,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
-            $this->_conn->update('constraint_error_table', array('id' => 2), array('id' => 1));
+            $this->_conn->update('constraint_error_table', ['id' => 2], ['id' => 1]);
         } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -127,8 +127,8 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
-            $this->_conn->insert("constraint_error_table", array('id' => 1));
-            $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+            $this->_conn->insert("constraint_error_table", ['id' => 1]);
+            $this->_conn->insert("owning_table", ['id' => 1, 'constraint_id' => 1]);
         } catch (\Exception $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -138,7 +138,7 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->expectException(Exception\ForeignKeyConstraintViolationException::class);
 
         try {
-            $this->_conn->delete('constraint_error_table', array('id' => 1));
+            $this->_conn->delete('constraint_error_table', ['id' => 1]);
         } catch (Exception\ForeignKeyConstraintViolationException $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -163,8 +163,8 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->setUpForeignKeyConstraintViolationExceptionTest();
 
         try {
-            $this->_conn->insert("constraint_error_table", array('id' => 1));
-            $this->_conn->insert("owning_table", array('id' => 1, 'constraint_id' => 1));
+            $this->_conn->insert("constraint_error_table", ['id' => 1]);
+            $this->_conn->insert("owning_table", ['id' => 1, 'constraint_id' => 1]);
         } catch (\Exception $exception) {
             $this->tearDownForeignKeyConstraintViolationExceptionTest();
 
@@ -193,16 +193,16 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $schema = new \Doctrine\DBAL\Schema\Schema();
 
         $table = $schema->createTable("notnull_table");
-        $table->addColumn('id', 'integer', array());
-        $table->addColumn('value', 'integer', array('notnull' => true));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('id', 'integer', []);
+        $table->addColumn('value', 'integer', ['notnull' => true]);
+        $table->setPrimaryKey(['id']);
 
         foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
             $this->_conn->exec($sql);
         }
 
         $this->expectException(Exception\NotNullConstraintViolationException::class);
-        $this->_conn->insert("notnull_table", array('id' => 1, 'value' => null));
+        $this->_conn->insert("notnull_table", ['id' => 1, 'value' => null]);
     }
 
     public function testInvalidFieldNameException()
@@ -210,14 +210,14 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $schema = new \Doctrine\DBAL\Schema\Schema();
 
         $table = $schema->createTable("bad_fieldname_table");
-        $table->addColumn('id', 'integer', array());
+        $table->addColumn('id', 'integer', []);
 
         foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
             $this->_conn->exec($sql);
         }
 
         $this->expectException(Exception\InvalidFieldNameException::class);
-        $this->_conn->insert("bad_fieldname_table", array('name' => 5));
+        $this->_conn->insert("bad_fieldname_table", ['name' => 5]);
     }
 
     public function testNonUniqueFieldNameException()
@@ -245,22 +245,22 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $table = $schema->createTable("unique_field_table");
         $table->addColumn('id', 'integer');
-        $table->addUniqueIndex(array('id'));
+        $table->addUniqueIndex(['id']);
 
         foreach ($schema->toSql($this->_conn->getDatabasePlatform()) as $sql) {
             $this->_conn->exec($sql);
         }
 
-        $this->_conn->insert("unique_field_table", array('id' => 5));
+        $this->_conn->insert("unique_field_table", ['id' => 5]);
         $this->expectException(Exception\UniqueConstraintViolationException::class);
-        $this->_conn->insert("unique_field_table", array('id' => 5));
+        $this->_conn->insert("unique_field_table", ['id' => 5]);
     }
 
     public function testSyntaxErrorException()
     {
         $table = new \Doctrine\DBAL\Schema\Table("syntax_error_table");
-        $table->addColumn('id', 'integer', array());
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('id', 'integer', []);
+        $table->setPrimaryKey(['id']);
 
         $this->_conn->getSchemaManager()->createTable($table);
 
@@ -288,10 +288,10 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         touch($filename);
         chmod($filename, $mode);
 
-        $params = array(
+        $params = [
             'driver' => 'pdo_sqlite',
             'path'   => $filename,
-        );
+        ];
         $conn = \Doctrine\DBAL\DriverManager::getConnection($params);
 
         $schema = new \Doctrine\DBAL\Schema\Schema();
@@ -306,11 +306,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function getSqLiteOpenConnection()
     {
-        return array(
+        return [
             // mode 0 is considered read-only on Windows
-            array(0000, defined('PHP_WINDOWS_VERSION_BUILD') ? Exception\ReadOnlyException::class : Exception\ConnectionException::class),
-            array(0444, Exception\ReadOnlyException::class),
-        );
+            [0000, defined('PHP_WINDOWS_VERSION_BUILD') ? Exception\ReadOnlyException::class : Exception\ConnectionException::class],
+            [0444, Exception\ReadOnlyException::class],
+        ];
     }
 
     /**
@@ -348,11 +348,11 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function getConnectionParams()
     {
-        return array(
-            array(array('user' => 'not_existing')),
-            array(array('password' => 'really_not')),
-            array(array('host' => 'localnope')),
-        );
+        return [
+            [['user' => 'not_existing']],
+            [['password' => 'really_not']],
+            [['host' => 'localnope']],
+        ];
     }
 
     private function setUpForeignKeyConstraintViolationExceptionTest()
@@ -360,14 +360,14 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $schemaManager = $this->_conn->getSchemaManager();
 
         $table = new Table("constraint_error_table");
-        $table->addColumn('id', 'integer', array());
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('id', 'integer', []);
+        $table->setPrimaryKey(['id']);
 
         $owningTable = new Table("owning_table");
-        $owningTable->addColumn('id', 'integer', array());
-        $owningTable->addColumn('constraint_id', 'integer', array());
-        $owningTable->setPrimaryKey(array('id'));
-        $owningTable->addForeignKeyConstraint($table, array('constraint_id'), array('id'));
+        $owningTable->addColumn('id', 'integer', []);
+        $owningTable->addColumn('constraint_id', 'integer', []);
+        $owningTable->setPrimaryKey(['id']);
+        $owningTable->addForeignKeyConstraint($table, ['constraint_id'], ['id']);
 
         $schemaManager->createTable($table);
         $schemaManager->createTable($owningTable);

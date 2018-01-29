@@ -17,15 +17,15 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
-        return array(
+        return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
             'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)'
-        );
+        ];
     }
 
     public function getGenerateAlterTableSql()
     {
-        return array(
+        return [
             'ALTER TABLE mytable ADD quota INT DEFAULT NULL',
             'ALTER TABLE mytable DROP foo',
             'ALTER TABLE mytable ALTER bar TYPE VARCHAR(255)',
@@ -35,7 +35,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             "ALTER TABLE mytable ALTER bloo SET DEFAULT 'false'",
             'ALTER TABLE mytable ALTER bloo SET NOT NULL',
             'ALTER TABLE mytable RENAME TO userlist',
-        );
+        ];
     }
 
     public function getGenerateIndexSql()
@@ -51,7 +51,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testGeneratesForeignKeySqlForNonStandardOptions()
     {
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-                array('foreign_id'), 'my_table', array('id'), 'my_fk', array('onDelete' => 'CASCADE')
+                ['foreign_id'], 'my_table', ['id'], 'my_fk', ['onDelete' => 'CASCADE']
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE",
@@ -59,7 +59,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('match' => 'full')
+            ['foreign_id'], 'my_table', ['id'], 'my_fk', ['match' => 'full']
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full NOT DEFERRABLE INITIALLY IMMEDIATE",
@@ -67,7 +67,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferrable' => true)
+            ['foreign_id'], 'my_table', ['id'], 'my_fk', ['deferrable' => true]
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) DEFERRABLE INITIALLY IMMEDIATE",
@@ -75,7 +75,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferred' => true)
+            ['foreign_id'], 'my_table', ['id'], 'my_fk', ['deferred' => true]
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED",
@@ -83,7 +83,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('feferred' => true)
+            ['foreign_id'], 'my_table', ['id'], 'my_fk', ['feferred' => true]
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED",
@@ -91,7 +91,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         );
 
         $foreignKey = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-            array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferrable' => true, 'deferred' => true, 'match' => 'full')
+            ['foreign_id'], 'my_table', ['id'], 'my_fk', ['deferrable' => true, 'deferred' => true, 'match' => 'full']
         );
         self::assertEquals(
             "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full DEFERRABLE INITIALLY DEFERRED",
@@ -141,7 +141,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $column = $table->addColumn('id', 'integer');
         $column->setAutoincrement(true);
 
-        self::assertEquals(array('CREATE TABLE autoinc_table (id SERIAL NOT NULL)'), $this->_platform->getCreateTableSQL($table));
+        self::assertEquals(['CREATE TABLE autoinc_table (id SERIAL NOT NULL)'], $this->_platform->getCreateTableSQL($table));
     }
 
     public static function serialTypes() : array
@@ -205,16 +205,16 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         self::assertEquals(
             'INT',
-            $this->_platform->getIntegerTypeDeclarationSQL(array())
+            $this->_platform->getIntegerTypeDeclarationSQL([])
         );
         self::assertEquals(
             'SERIAL',
-            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
+            $this->_platform->getIntegerTypeDeclarationSQL(['autoincrement' => true]
         ));
         self::assertEquals(
             'SERIAL',
             $this->_platform->getIntegerTypeDeclarationSQL(
-                array('autoincrement' => true, 'primary' => true)
+                ['autoincrement' => true, 'primary' => true]
         ));
     }
 
@@ -223,16 +223,16 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         self::assertEquals(
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
-                array('length' => 10, 'fixed' => true))
+                ['length' => 10, 'fixed' => true])
         );
         self::assertEquals(
             'VARCHAR(50)',
-            $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
+            $this->_platform->getVarcharTypeDeclarationSQL(['length' => 50]),
             'Variable string declaration is not correct'
         );
         self::assertEquals(
             'VARCHAR(255)',
-            $this->_platform->getVarcharTypeDeclarationSQL(array()),
+            $this->_platform->getVarcharTypeDeclarationSQL([]),
             'Long string declaration is not correct'
         );
     }
@@ -306,61 +306,61 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     public function getCreateTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "CREATE TABLE test (id INT NOT NULL, PRIMARY KEY(id))",
             "COMMENT ON COLUMN test.id IS 'This is a comment'",
-        );
+        ];
     }
 
     public function getAlterTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "ALTER TABLE mytable ADD quota INT NOT NULL",
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS NULL",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
-        );
+        ];
     }
 
     public function getCreateTableColumnTypeCommentsSQL()
     {
-        return array(
+        return [
             "CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))",
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
-        );
+        ];
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY("create"))',
-        );
+        ];
     }
 
     protected function getQuotedColumnInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL)',
             'CREATE INDEX IDX_22660D028FD6E0FB ON "quoted" ("create")',
-        );
+        ];
     }
 
     protected function getQuotedNameInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
             'CREATE INDEX "key" ON test (column1)',
-        );
+        ];
     }
 
     protected function getQuotedColumnInForeignKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL)',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES "foreign" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar") NOT DEFERRABLE INITIALLY IMMEDIATE',
-        );
+        ];
     }
 
     /**
@@ -467,45 +467,45 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
         $table = new Table('mytable');
         $table->addColumn('dfoo1', 'decimal');
-        $table->addColumn('dfoo2', 'decimal', array('precision' => 10, 'scale' => 6));
-        $table->addColumn('dfoo3', 'decimal', array('precision' => 10, 'scale' => 6));
-        $table->addColumn('dfoo4', 'decimal', array('precision' => 10, 'scale' => 6));
+        $table->addColumn('dfoo2', 'decimal', ['precision' => 10, 'scale' => 6]);
+        $table->addColumn('dfoo3', 'decimal', ['precision' => 10, 'scale' => 6]);
+        $table->addColumn('dfoo4', 'decimal', ['precision' => 10, 'scale' => 6]);
 
         $tableDiff = new TableDiff('mytable');
         $tableDiff->fromTable = $table;
 
         $tableDiff->changedColumns['dloo1'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'dloo1', new \Doctrine\DBAL\Schema\Column(
-                'dloo1', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 16, 'scale' => 6)
+                'dloo1', \Doctrine\DBAL\Types\Type::getType('decimal'), ['precision' => 16, 'scale' => 6]
             ),
-            array('precision')
+            ['precision']
         );
         $tableDiff->changedColumns['dloo2'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'dloo2', new \Doctrine\DBAL\Schema\Column(
-                'dloo2', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 10, 'scale' => 4)
+                'dloo2', \Doctrine\DBAL\Types\Type::getType('decimal'), ['precision' => 10, 'scale' => 4]
             ),
-            array('scale')
+            ['scale']
         );
         $tableDiff->changedColumns['dloo3'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'dloo3', new \Doctrine\DBAL\Schema\Column(
-                'dloo3', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 10, 'scale' => 6)
+                'dloo3', \Doctrine\DBAL\Types\Type::getType('decimal'), ['precision' => 10, 'scale' => 6]
             ),
-            array()
+            []
         );
         $tableDiff->changedColumns['dloo4'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'dloo4', new \Doctrine\DBAL\Schema\Column(
-                'dloo4', \Doctrine\DBAL\Types\Type::getType('decimal'), array('precision' => 16, 'scale' => 8)
+                'dloo4', \Doctrine\DBAL\Types\Type::getType('decimal'), ['precision' => 16, 'scale' => 8]
             ),
-            array('precision', 'scale')
+            ['precision', 'scale']
         );
 
         $sql = $this->_platform->getAlterTableSQL($tableDiff);
 
-        $expectedSql = array(
+        $expectedSql = [
             'ALTER TABLE mytable ALTER dloo1 TYPE NUMERIC(16, 6)',
             'ALTER TABLE mytable ALTER dloo2 TYPE NUMERIC(10, 4)',
             'ALTER TABLE mytable ALTER dloo4 TYPE NUMERIC(16, 8)',
-        );
+        ];
 
         self::assertEquals($expectedSql, $sql);
     }
@@ -517,22 +517,22 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         $newTable = new Table('mytable');
         $newTable->addColumn('id', 'integer');
-        $newTable->setPrimaryKey(array('id'));
+        $newTable->setPrimaryKey(['id']);
 
         $oldTable = clone $newTable;
         $oldTable->addColumn('parent_id', 'integer');
-        $oldTable->addUnnamedForeignKeyConstraint('mytable', array('parent_id'), array('id'));
+        $oldTable->addUnnamedForeignKeyConstraint('mytable', ['parent_id'], ['id']);
 
         $comparator = new \Doctrine\DBAL\Schema\Comparator();
         $tableDiff = $comparator->diffTable($oldTable, $newTable);
 
         $sql = $this->_platform->getAlterTableSQL($tableDiff);
 
-        $expectedSql = array(
+        $expectedSql = [
             'ALTER TABLE mytable DROP CONSTRAINT FK_6B2BD609727ACA70',
             'DROP INDEX IDX_6B2BD609727ACA70',
             'ALTER TABLE mytable DROP parent_id',
-        );
+        ];
 
         self::assertEquals($expectedSql, $sql);
     }
@@ -565,9 +565,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     public function dataCreateSequenceWithCache()
     {
-        return array(
-            array(3, 'CACHE 3')
-        );
+        return [
+            [3, 'CACHE 3']
+        ];
     }
 
     protected function getBinaryDefaultLength()
@@ -582,24 +582,24 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 9999999)));
+        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 9999999]));
 
-        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 9999999)));
+        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+        self::assertSame('BYTEA', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 9999999]));
     }
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType()
     {
         $table1 = new Table('mytable');
         $table1->addColumn('column_varbinary', 'binary');
-        $table1->addColumn('column_binary', 'binary', array('fixed' => true));
+        $table1->addColumn('column_binary', 'binary', ['fixed' => true]);
         $table1->addColumn('column_blob', 'blob');
 
         $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', 'binary', array('fixed' => true));
+        $table2->addColumn('column_varbinary', 'binary', ['fixed' => true]);
         $table2->addColumn('column_binary', 'binary');
         $table2->addColumn('column_blob', 'binary');
 
@@ -611,9 +611,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         self::assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
 
         $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', 'binary', array('length' => 42));
+        $table2->addColumn('column_varbinary', 'binary', ['length' => 42]);
         $table2->addColumn('column_binary', 'blob');
-        $table2->addColumn('column_blob', 'binary', array('length' => 11, 'fixed' => true));
+        $table2->addColumn('column_blob', 'binary', ['length' => 11, 'fixed' => true]);
 
         // VARBINARY -> VARBINARY with changed length
         // BINARY    -> BLOB
@@ -622,7 +622,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
         $table2 = new Table('mytable');
         $table2->addColumn('column_varbinary', 'blob');
-        $table2->addColumn('column_binary', 'binary', array('length' => 42, 'fixed' => true));
+        $table2->addColumn('column_binary', 'binary', ['length' => 42, 'fixed' => true]);
         $table2->addColumn('column_blob', 'blob');
 
         // VARBINARY -> BLOB
@@ -636,9 +636,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'ALTER INDEX idx_foo RENAME TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -646,10 +646,10 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getQuotedAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'ALTER INDEX "create" RENAME TO "select"',
             'ALTER INDEX "foo" RENAME TO "bar"',
-        );
+        ];
     }
 
     /**
@@ -658,26 +658,26 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function pgBooleanProvider()
     {
-        return array(
+        return [
             // Database value, prepared statement value, boolean integer value, boolean value.
-            array(true, 'true', 1, true),
-            array('t', 'true', 1, true),
-            array('true', 'true', 1, true),
-            array('y', 'true', 1, true),
-            array('yes', 'true', 1, true),
-            array('on', 'true', 1, true),
-            array('1', 'true', 1, true),
+            [true, 'true', 1, true],
+            ['t', 'true', 1, true],
+            ['true', 'true', 1, true],
+            ['y', 'true', 1, true],
+            ['yes', 'true', 1, true],
+            ['on', 'true', 1, true],
+            ['1', 'true', 1, true],
 
-            array(false, 'false', 0, false),
-            array('f', 'false', 0, false),
-            array('false', 'false', 0, false),
-            array( 'n', 'false', 0, false),
-            array('no', 'false', 0, false),
-            array('off', 'false', 0, false),
-            array('0', 'false', 0, false),
+            [false, 'false', 0, false],
+            ['f', 'false', 0, false],
+            ['false', 'false', 0, false],
+            [ 'n', 'false', 0, false],
+            ['no', 'false', 0, false],
+            ['off', 'false', 0, false],
+            ['0', 'false', 0, false],
 
-            array(null, 'NULL', null, null)
-        );
+            [null, 'NULL', null, null]
+        ];
     }
 
     /**
@@ -685,7 +685,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getQuotedAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable RENAME COLUMN unquoted1 TO unquoted',
             'ALTER TABLE mytable RENAME COLUMN unquoted2 TO "where"',
             'ALTER TABLE mytable RENAME COLUMN unquoted3 TO "foo"',
@@ -695,7 +695,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             'ALTER TABLE mytable RENAME COLUMN quoted1 TO quoted',
             'ALTER TABLE mytable RENAME COLUMN quoted2 TO "and"',
             'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
-        );
+        ];
     }
 
     /**
@@ -703,14 +703,14 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getQuotedAlterTableChangeColumnLengthSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable ALTER unquoted1 TYPE VARCHAR(255)',
             'ALTER TABLE mytable ALTER unquoted2 TYPE VARCHAR(255)',
             'ALTER TABLE mytable ALTER unquoted3 TYPE VARCHAR(255)',
             'ALTER TABLE mytable ALTER "create" TYPE VARCHAR(255)',
             'ALTER TABLE mytable ALTER "table" TYPE VARCHAR(255)',
             'ALTER TABLE mytable ALTER "select" TYPE VARCHAR(255)',
-        );
+        ];
     }
 
     /**
@@ -718,9 +718,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'ALTER INDEX myschema.idx_foo RENAME TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -728,10 +728,10 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'ALTER INDEX "schema"."create" RENAME TO "select"',
             'ALTER INDEX "schema"."foo" RENAME TO "bar"',
-        );
+        ];
     }
 
     protected function getQuotesDropForeignKeySQL()
@@ -752,7 +752,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        self::assertSame('UUID', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('UUID', $this->_platform->getGuidTypeDeclarationSQL([]));
     }
 
     /**
@@ -760,9 +760,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function getAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             'ALTER TABLE foo RENAME COLUMN bar TO baz',
-        );
+        ];
     }
 
     /**
@@ -770,7 +770,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getQuotesTableIdentifiersInAlterTableSQL()
     {
-        return array(
+        return [
             'ALTER TABLE "foo" DROP CONSTRAINT fk1',
             'ALTER TABLE "foo" DROP CONSTRAINT fk2',
             'ALTER TABLE "foo" ADD bloo INT NOT NULL',
@@ -782,7 +782,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             'INITIALLY IMMEDIATE',
             'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id) NOT DEFERRABLE ' .
             'INITIALLY IMMEDIATE',
-        );
+        ];
     }
 
     /**
@@ -790,11 +790,11 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getCommentOnColumnSQL()
     {
-        return array(
+        return [
             'COMMENT ON COLUMN foo.bar IS \'comment\'',
             'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
             'COMMENT ON COLUMN "select"."from" IS \'comment\'',
-        );
+        ];
     }
 
     /**
@@ -802,8 +802,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers()
     {
-        $table1 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'))));
-        $table2 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'), array('comment' => 'baz'))));
+        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
+        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
 
         $comparator = new Comparator();
 
@@ -811,9 +811,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
         self::assertSame(
-            array(
+            [
                 'COMMENT ON COLUMN "foo"."bar" IS \'baz\'',
-            ),
+            ],
             $this->_platform->getAlterTableSQL($tableDiff)
         );
     }
@@ -847,9 +847,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getAlterStringToFixedStringSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable ALTER name TYPE CHAR(2)',
-        );
+        ];
     }
 
     /**
@@ -857,9 +857,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
     {
-        return array(
+        return [
             'ALTER INDEX idx_foo RENAME TO idx_foo_renamed',
-        );
+        ];
     }
 
     /**

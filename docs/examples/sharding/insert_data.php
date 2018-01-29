@@ -4,91 +4,91 @@ require_once "bootstrap.php";
 
 $shardManager->selectShard(0);
 
-$conn->insert("Products", array(
+$conn->insert("Products", [
     "ProductID" => 386,
     "SupplierID" => 1001,
     "ProductName" => 'Titanium Extension Bracket Left Hand',
     "Price" => 5.25,
-));
-$conn->insert("Products", array(
+]);
+$conn->insert("Products", [
     "ProductID" => 387,
     "SupplierID" => 1001,
     "ProductName" => 'Titanium Extension Bracket Right Hand',
     "Price" => 5.25,
-));
-$conn->insert("Products", array(
+]);
+$conn->insert("Products", [
     "ProductID" => 388,
     "SupplierID" => 1001,
     "ProductName" => 'Fusion Generator Module 5 kV',
     "Price" => 10.50,
-));
-$conn->insert("Products", array(
+]);
+$conn->insert("Products", [
     "ProductID" => 389,
     "SupplierID" => 1001,
     "ProductName" => 'Bypass Filter 400 MHz Low Pass',
     "Price" => 10.50,
-));
+]);
 
-$conn->insert("Customers", array(
+$conn->insert("Customers", [
     'CustomerID' => 10,
     'CompanyName' => 'Van Nuys',
     'FirstName' => 'Catherine',
     'LastName' => 'Abel',
-));
-$conn->insert("Customers", array(
+]);
+$conn->insert("Customers", [
     'CustomerID' => 20,
     'CompanyName' => 'Abercrombie',
     'FirstName' => 'Kim',
     'LastName' => 'Branch',
-));
-$conn->insert("Customers", array(
+]);
+$conn->insert("Customers", [
     'CustomerID' => 30,
     'CompanyName' => 'Contoso',
     'FirstName' => 'Frances',
     'LastName' => 'Adams',
-));
-$conn->insert("Customers", array(
+]);
+$conn->insert("Customers", [
     'CustomerID' => 40,
     'CompanyName' => 'A. Datum Corporation',
     'FirstName' => 'Mark',
     'LastName' => 'Harrington',
-));
-$conn->insert("Customers", array(
+]);
+$conn->insert("Customers", [
     'CustomerID' => 50,
     'CompanyName' => 'Adventure Works',
     'FirstName' => 'Keith',
     'LastName' => 'Harris',
-));
-$conn->insert("Customers", array(
+]);
+$conn->insert("Customers", [
     'CustomerID' => 60,
     'CompanyName' => 'Alpine Ski House',
     'FirstName' => 'Wilson',
     'LastName' => 'Pais',
-));
-$conn->insert("Customers", array(
+]);
+$conn->insert("Customers", [
     'CustomerID' => 70,
     'CompanyName' => 'Baldwin Museum of Science',
     'FirstName' => 'Roger',
     'LastName' => 'Harui',
-));
-$conn->insert("Customers", array(
+]);
+$conn->insert("Customers", [
     'CustomerID' => 80,
     'CompanyName' => 'Blue Yonder Airlines',
     'FirstName' => 'Pilar',
     'LastName' => 'Pinilla',
-));
-$conn->insert("Customers", array(
+]);
+$conn->insert("Customers", [
     'CustomerID' => 90,
     'CompanyName' => 'City Power & Light',
     'FirstName' => 'Kari',
     'LastName' => 'Hensien',
-));
-$conn->insert("Customers", array(
+]);
+$conn->insert("Customers", [
     'CustomerID' => 100,
     'CompanyName' => 'Coho Winery',
     'FirstName' => 'Peter',
     'LastName' => 'Brehm',
-));
+]);
 
 $conn->executeUpdate("
     DECLARE @orderId INT

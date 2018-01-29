@@ -27,7 +27,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     protected function setUp()
     {
         $this->pdoStatement = $this->getMockBuilder('\PDOStatement')
-            ->setMethods(array('execute', 'bindParam', 'bindValue'))
+            ->setMethods(['execute', 'bindParam', 'bindValue'])
             ->getMock();
         $platform = new \Doctrine\Tests\DBAL\Mocks\MockPlatform();
         $driverConnection = $this->createMock('\Doctrine\DBAL\Driver\Connection');
@@ -36,12 +36,12 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
                 ->will($this->returnValue($this->pdoStatement));
 
         $driver = $this->createMock('\Doctrine\DBAL\Driver');
-        $constructorArgs = array(
-            array(
+        $constructorArgs = [
+            [
                 'platform' => $platform
-            ),
+            ],
             $driver
-        );
+        ];
         $this->conn = $this->getMockBuilder('\Doctrine\DBAL\Connection')
             ->setConstructorArgs($constructorArgs)
             ->getMock();
@@ -65,8 +65,8 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
         $name = 'foo';
         $var = 'bar';
         $type = \PDO::PARAM_STR;
-        $values = array($name => $var);
-        $types = array($name => $type);
+        $values = [$name => $var];
+        $types = [$name => $type];
         $sql = '';
 
         $logger = $this->createMock('\Doctrine\DBAL\Logging\SQLLogger');
@@ -87,8 +87,8 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     {
         $name = 'foo';
         $var = 'bar';
-        $values = array($name => $var);
-        $types = array();
+        $values = [$name => $var];
+        $types = [];
         $sql = '';
 
         $logger = $this->createMock('\Doctrine\DBAL\Logging\SQLLogger');
@@ -140,7 +140,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
         // Needed to satisfy construction of DBALException
         $this->conn->expects($this->any())
             ->method('resolveParams')
-            ->will($this->returnValue(array()));
+            ->will($this->returnValue([]));
 
         $logger->expects($this->once())
             ->method('startQuery');

@@ -33,10 +33,10 @@ class MultiTenantVisitorTest extends \PHPUnit\Framework\TestCase
         $schema = new Schema();
         $foo = $schema->createTable('foo');
         $foo->addColumn('id', 'string');
-        $foo->setPrimaryKey(array('id'));
+        $foo->setPrimaryKey(['id']);
         $schema->visit($visitor);
 
-        self::assertEquals(array('id', 'tenant_id'), $foo->getPrimaryKey()->getColumns());
+        self::assertEquals(['id', 'tenant_id'], $foo->getPrimaryKey()->getColumns());
         self::assertTrue($foo->hasColumn('tenant_id'));
     }
 
@@ -49,17 +49,17 @@ class MultiTenantVisitorTest extends \PHPUnit\Framework\TestCase
         $foo = $schema->createTable('foo');
         $foo->addColumn('id', 'string');
         $foo->addColumn('created', 'datetime');
-        $foo->setPrimaryKey(array('id'));
-        $foo->addIndex(array('created'), 'idx');
+        $foo->setPrimaryKey(['id']);
+        $foo->addIndex(['created'], 'idx');
 
         $foo->getPrimaryKey()->addFlag('nonclustered');
         $foo->getIndex('idx')->addFlag('clustered');
 
         $schema->visit($visitor);
 
-        self::assertEquals(array('id'), $foo->getPrimaryKey()->getColumns());
+        self::assertEquals(['id'], $foo->getPrimaryKey()->getColumns());
         self::assertTrue($foo->hasColumn('tenant_id'));
-        self::assertEquals(array('created', 'tenant_id'), $foo->getIndex('idx')->getColumns());
+        self::assertEquals(['created', 'tenant_id'], $foo->getIndex('idx')->getColumns());
     }
 }
 

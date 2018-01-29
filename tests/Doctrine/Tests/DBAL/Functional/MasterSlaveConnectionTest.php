@@ -26,7 +26,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
             /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
             $table = new \Doctrine\DBAL\Schema\Table("master_slave_table");
             $table->addColumn('test_int', 'integer');
-            $table->setPrimaryKey(array('test_int'));
+            $table->setPrimaryKey(['test_int']);
 
             $sm = $this->_conn->getSchemaManager();
             $sm->createTable($table);
@@ -36,7 +36,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         }
 
         $this->_conn->executeUpdate('DELETE FROM master_slave_table');
-        $this->_conn->insert('master_slave_table', array('test_int' => 1));
+        $this->_conn->insert('master_slave_table', ['test_int' => 1]);
     }
 
     private function createMasterSlaveConnection(bool $keepSlave = false) : MasterSlaveConnection
@@ -48,7 +48,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         $params = $this->_conn->getParams();
         $params['master']       = $params;
-        $params['slaves']       = array($params, $params);
+        $params['slaves']       = [$params, $params];
         $params['keepSlave']    = $keepSlave;
         $params['wrapperClass'] = MasterSlaveConnection::class;
 
@@ -113,7 +113,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     public function testMasterOnWriteOperation()
     {
         $conn = $this->createMasterSlaveConnection();
-        $conn->insert('master_slave_table', array('test_int' => 30));
+        $conn->insert('master_slave_table', ['test_int' => 30]);
 
         self::assertTrue($conn->isConnectedToMaster());
 
@@ -134,7 +134,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn->connect('slave');
 
         $conn->beginTransaction();
-        $conn->insert('master_slave_table', array('test_int' => 30));
+        $conn->insert('master_slave_table', ['test_int' => 30]);
         $conn->commit();
 
         self::assertTrue($conn->isConnectedToMaster());
@@ -154,7 +154,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
         $conn = $this->createMasterSlaveConnection($keepSlave = true);
         $conn->connect('slave');
 
-        $conn->insert('master_slave_table', array('test_int' => 30));
+        $conn->insert('master_slave_table', ['test_int' => 30]);
 
         self::assertTrue($conn->isConnectedToMaster());
 

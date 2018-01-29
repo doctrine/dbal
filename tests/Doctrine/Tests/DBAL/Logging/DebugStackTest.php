@@ -18,14 +18,14 @@ class DebugStackTest extends \Doctrine\Tests\DbalTestCase
     {
         $this->logger->startQuery('SELECT column FROM table');
         self::assertEquals(
-            array(
-                1 => array(
+            [
+                1 => [
                     'sql' => 'SELECT column FROM table',
                     'params' => null,
                     'types' => null,
                     'executionMS' => 0,
-                ),
-            ),
+                ],
+            ],
             $this->logger->queries
         );
 
@@ -37,9 +37,9 @@ class DebugStackTest extends \Doctrine\Tests\DbalTestCase
     {
         $this->logger->enabled = false;
         $this->logger->startQuery('SELECT column FROM table');
-        self::assertEquals(array(), $this->logger->queries);
+        self::assertEquals([], $this->logger->queries);
 
         $this->logger->stopQuery();
-        self::assertEquals(array(), $this->logger->queries);
+        self::assertEquals([], $this->logger->queries);
     }
 }

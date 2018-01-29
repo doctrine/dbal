@@ -44,9 +44,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $table = new \Doctrine\DBAL\Schema\Table($tableName);
         $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', array());
-        $table->addColumn('column_binary', 'binary', array('fixed' => true));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('column_varbinary', 'binary', []);
+        $table->addColumn('column_binary', 'binary', ['fixed' => true]);
+        $table->setPrimaryKey(['id']);
 
         $this->_sm->createTable($table);
 
@@ -72,7 +72,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'string');
-        $table->setPrimaryKey(array('id'));
+        $table->setPrimaryKey(['id']);
 
         $this->_sm->dropAndCreateTable($table);
 
@@ -83,8 +83,8 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($columns['bar']->getNotnull());
 
         $diffTable = clone $table;
-        $diffTable->changeColumn('foo', array('notnull' => false));
-        $diffTable->changeColumn('bar', array('length' => 1024));
+        $diffTable->changeColumn('foo', ['notnull' => false]);
+        $diffTable->changeColumn('bar', ['length' => 1024]);
 
         $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
 
@@ -118,31 +118,31 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $offlinePrimaryTable->addColumn(
             '"Id"',
             'integer',
-            array('autoincrement' => true, 'comment' => 'Explicit casing.')
+            ['autoincrement' => true, 'comment' => 'Explicit casing.']
         );
-        $offlinePrimaryTable->addColumn('select', 'integer', array('comment' => 'Reserved keyword.'));
-        $offlinePrimaryTable->addColumn('foo', 'integer', array('comment' => 'Implicit uppercasing.'));
+        $offlinePrimaryTable->addColumn('select', 'integer', ['comment' => 'Reserved keyword.']);
+        $offlinePrimaryTable->addColumn('foo', 'integer', ['comment' => 'Implicit uppercasing.']);
         $offlinePrimaryTable->addColumn('BAR', 'integer');
         $offlinePrimaryTable->addColumn('"BAZ"', 'integer');
-        $offlinePrimaryTable->addIndex(array('select'), 'from');
-        $offlinePrimaryTable->addIndex(array('foo'), 'foo_index');
-        $offlinePrimaryTable->addIndex(array('BAR'), 'BAR_INDEX');
-        $offlinePrimaryTable->addIndex(array('"BAZ"'), 'BAZ_INDEX');
-        $offlinePrimaryTable->setPrimaryKey(array('"Id"'));
+        $offlinePrimaryTable->addIndex(['select'], 'from');
+        $offlinePrimaryTable->addIndex(['foo'], 'foo_index');
+        $offlinePrimaryTable->addIndex(['BAR'], 'BAR_INDEX');
+        $offlinePrimaryTable->addIndex(['"BAZ"'], 'BAZ_INDEX');
+        $offlinePrimaryTable->setPrimaryKey(['"Id"']);
 
         $foreignTableName = 'foreign';
         $offlineForeignTable = new Schema\Table($foreignTableName);
-        $offlineForeignTable->addColumn('id', 'integer', array('autoincrement' => true));
+        $offlineForeignTable->addColumn('id', 'integer', ['autoincrement' => true]);
         $offlineForeignTable->addColumn('"Fk"', 'integer');
-        $offlineForeignTable->addIndex(array('"Fk"'), '"Fk_index"');
+        $offlineForeignTable->addIndex(['"Fk"'], '"Fk_index"');
         $offlineForeignTable->addForeignKeyConstraint(
             $primaryTableName,
-            array('"Fk"'),
-            array('"Id"'),
-            array(),
+            ['"Fk"'],
+            ['"Id"'],
+            [],
             '"Primary_Table_Fk"'
         );
-        $offlineForeignTable->setPrimaryKey(array('id'));
+        $offlineForeignTable->setPrimaryKey(['id']);
 
         $this->_sm->tryMethod('dropTable', $foreignTableName);
         $this->_sm->tryMethod('dropTable', $primaryTableName);
@@ -161,7 +161,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertTrue($onlinePrimaryTable->hasColumn('"Id"'));
         self::assertSame('"Id"', $onlinePrimaryTable->getColumn('"Id"')->getQuotedName($platform));
         self::assertTrue($onlinePrimaryTable->hasPrimaryKey());
-        self::assertSame(array('"Id"'), $onlinePrimaryTable->getPrimaryKey()->getQuotedColumns($platform));
+        self::assertSame(['"Id"'], $onlinePrimaryTable->getPrimaryKey()->getQuotedColumns($platform));
 
         self::assertTrue($onlinePrimaryTable->hasColumn('select'));
         self::assertSame('"select"', $onlinePrimaryTable->getColumn('select')->getQuotedName($platform));
@@ -177,32 +177,32 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertTrue($onlinePrimaryTable->hasIndex('from'));
         self::assertTrue($onlinePrimaryTable->getIndex('from')->hasColumnAtPosition('"select"'));
-        self::assertSame(array('"select"'), $onlinePrimaryTable->getIndex('from')->getQuotedColumns($platform));
+        self::assertSame(['"select"'], $onlinePrimaryTable->getIndex('from')->getQuotedColumns($platform));
 
         self::assertTrue($onlinePrimaryTable->hasIndex('foo_index'));
         self::assertTrue($onlinePrimaryTable->getIndex('foo_index')->hasColumnAtPosition('foo'));
-        self::assertSame(array('FOO'), $onlinePrimaryTable->getIndex('foo_index')->getQuotedColumns($platform));
+        self::assertSame(['FOO'], $onlinePrimaryTable->getIndex('foo_index')->getQuotedColumns($platform));
 
         self::assertTrue($onlinePrimaryTable->hasIndex('BAR_INDEX'));
         self::assertTrue($onlinePrimaryTable->getIndex('BAR_INDEX')->hasColumnAtPosition('BAR'));
-        self::assertSame(array('BAR'), $onlinePrimaryTable->getIndex('BAR_INDEX')->getQuotedColumns($platform));
+        self::assertSame(['BAR'], $onlinePrimaryTable->getIndex('BAR_INDEX')->getQuotedColumns($platform));
 
         self::assertTrue($onlinePrimaryTable->hasIndex('BAZ_INDEX'));
         self::assertTrue($onlinePrimaryTable->getIndex('BAZ_INDEX')->hasColumnAtPosition('"BAZ"'));
-        self::assertSame(array('BAZ'), $onlinePrimaryTable->getIndex('BAZ_INDEX')->getQuotedColumns($platform));
+        self::assertSame(['BAZ'], $onlinePrimaryTable->getIndex('BAZ_INDEX')->getQuotedColumns($platform));
 
         // Foreign table assertions
         self::assertTrue($onlineForeignTable->hasColumn('id'));
         self::assertSame('ID', $onlineForeignTable->getColumn('id')->getQuotedName($platform));
         self::assertTrue($onlineForeignTable->hasPrimaryKey());
-        self::assertSame(array('ID'), $onlineForeignTable->getPrimaryKey()->getQuotedColumns($platform));
+        self::assertSame(['ID'], $onlineForeignTable->getPrimaryKey()->getQuotedColumns($platform));
 
         self::assertTrue($onlineForeignTable->hasColumn('"Fk"'));
         self::assertSame('"Fk"', $onlineForeignTable->getColumn('"Fk"')->getQuotedName($platform));
 
         self::assertTrue($onlineForeignTable->hasIndex('"Fk_index"'));
         self::assertTrue($onlineForeignTable->getIndex('"Fk_index"')->hasColumnAtPosition('"Fk"'));
-        self::assertSame(array('"Fk"'), $onlineForeignTable->getIndex('"Fk_index"')->getQuotedColumns($platform));
+        self::assertSame(['"Fk"'], $onlineForeignTable->getIndex('"Fk_index"')->getQuotedColumns($platform));
 
         self::assertTrue($onlineForeignTable->hasForeignKey('"Primary_Table_Fk"'));
         self::assertSame(
@@ -210,11 +210,11 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
             $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignTableName($platform)
         );
         self::assertSame(
-            array('"Fk"'),
+            ['"Fk"'],
             $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedLocalColumns($platform)
         );
         self::assertSame(
-            array('"Id"'),
+            ['"Id"'],
             $onlineForeignTable->getForeignKey('"Primary_Table_Fk"')->getQuotedForeignColumns($platform)
         );
     }
@@ -239,18 +239,18 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('list_table_indexes_pk_id_test');
         $table->setSchemaConfig($this->_sm->createSchemaConfig());
-        $table->addColumn('id', 'integer', array('notnull' => true));
-        $table->addUniqueIndex(array('id'), 'id_unique_index');
+        $table->addColumn('id', 'integer', ['notnull' => true]);
+        $table->addUniqueIndex(['id'], 'id_unique_index');
         $this->_sm->dropAndCreateTable($table);
 
         // Adding a primary key on already indexed columns
         // Oracle will reuse the unique index, which cause a constraint name differing from the index name
-        $this->_sm->createConstraint(new Schema\Index('id_pk_id_index', array('id'), true, true), 'list_table_indexes_pk_id_test');
+        $this->_sm->createConstraint(new Schema\Index('id_pk_id_index', ['id'], true, true), 'list_table_indexes_pk_id_test');
 
         $tableIndexes = $this->_sm->listTableIndexes('list_table_indexes_pk_id_test');
 
         self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        self::assertEquals(array('id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+        self::assertEquals(['id'], array_map('strtolower', $tableIndexes['primary']->getColumns()));
         self::assertTrue($tableIndexes['primary']->isUnique());
         self::assertTrue($tableIndexes['primary']->isPrimary());
     }

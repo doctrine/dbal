@@ -13,7 +13,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
         $tableName = "public.foo";
         $table = new Table($tableName);
 
-        $schema = new Schema(array($table));
+        $schema = new Schema([$table]);
 
         self::assertTrue($schema->hasTable($tableName));
 
@@ -28,7 +28,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
     {
         $table = new Table("Foo");
 
-        $schema = new Schema(array($table));
+        $schema = new Schema([$table]);
         self::assertTrue($schema->hasTable("foo"));
         self::assertTrue($schema->hasTable("FOO"));
 
@@ -51,7 +51,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
 
         $tableName = "foo";
         $table = new Table($tableName);
-        $tables = array($table, $table);
+        $tables = [$table, $table];
 
         $schema = new Schema($tables);
     }
@@ -60,7 +60,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
     {
         $tableName = "foo";
         $table = new Table($tableName);
-        $schema = new Schema(array($table));
+        $schema = new Schema([$table]);
 
         self::assertTrue($schema->hasTable("foo"));
         $schema->renameTable("foo", "bar");
@@ -73,7 +73,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
     {
         $tableName = "foo";
         $table = new Table($tableName);
-        $schema = new Schema(array($table));
+        $schema = new Schema([$table]);
 
         self::assertTrue($schema->hasTable("foo"));
 
@@ -99,7 +99,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
     {
         $sequence = new Sequence("a_seq", 1, 1);
 
-        $schema = new Schema(array(), array($sequence));
+        $schema = new Schema([], [$sequence]);
 
         self::assertTrue($schema->hasSequence("a_seq"));
         self::assertInstanceOf('Doctrine\DBAL\Schema\Sequence', $schema->getSequence("a_seq"));
@@ -112,7 +112,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
     {
         $sequence = new Sequence("a_Seq");
 
-        $schema = new Schema(array(), array($sequence));
+        $schema = new Schema([], [$sequence]);
         self::assertTrue($schema->hasSequence('a_seq'));
         self::assertTrue($schema->hasSequence('a_Seq'));
         self::assertTrue($schema->hasSequence('A_SEQ'));
@@ -150,7 +150,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
     {
         $sequence = new Sequence("a_seq", 1, 1);
 
-        $schema = new Schema(array(), array($sequence));
+        $schema = new Schema([], [$sequence]);
 
         $schema->dropSequence("a_seq");
         self::assertFalse($schema->hasSequence("a_seq"));
@@ -162,7 +162,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
 
         $sequence = new Sequence("a_seq", 1, 1);
 
-        $schema = new Schema(array(), array($sequence, $sequence));
+        $schema = new Schema([], [$sequence, $sequence]);
     }
 
     public function testConfigMaxIdentifierLength()
@@ -170,10 +170,10 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
         $schemaConfig = new \Doctrine\DBAL\Schema\SchemaConfig();
         $schemaConfig->setMaxIdentifierLength(5);
 
-        $schema = new Schema(array(), array(), $schemaConfig);
+        $schema = new Schema([], [], $schemaConfig);
         $table = $schema->createTable("smalltable");
         $table->addColumn('long_id', 'integer');
-        $table->addIndex(array('long_id'));
+        $table->addIndex(['long_id']);
 
         $index = current($table->getIndexes());
         self::assertEquals(5, strlen($index->getName()));
@@ -190,7 +190,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
         $tableB = $schema->createTable('bar');
         $tableB->addColumn('id', 'integer');
         $tableB->addColumn('foo_id', 'integer');
-        $tableB->addForeignKeyConstraint($tableA, array('foo_id'), array('id'));
+        $tableB->addForeignKeyConstraint($tableA, ['foo_id'], ['id']);
 
         $schemaNew = clone $schema;
 
@@ -267,7 +267,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($schema->hasNamespace('`bar`'));
         self::assertTrue($schema->hasNamespace('`BAR`'));
 
-        self::assertSame(array('foo' => 'foo', 'bar' => '`bar`'), $schema->getNamespaces());
+        self::assertSame(['foo' => 'foo', 'bar' => '`bar`'], $schema->getNamespaces());
     }
 
     /**

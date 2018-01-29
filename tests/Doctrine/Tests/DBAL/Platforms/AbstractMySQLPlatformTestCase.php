@@ -33,16 +33,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
-        return array(
+        return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA (foo, bar)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
-        );
+        ];
     }
 
     public function getGenerateAlterTableSql()
     {
-        return array(
+        return [
             "ALTER TABLE mytable RENAME TO userlist, ADD quota INT DEFAULT NULL, DROP foo, CHANGE bar baz VARCHAR(255) DEFAULT 'def' NOT NULL, CHANGE bloo bloo TINYINT(1) DEFAULT '0' NOT NULL"
-        );
+        ];
     }
 
     public function testGeneratesSqlSnippets()
@@ -86,16 +86,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'INT',
-            $this->_platform->getIntegerTypeDeclarationSQL(array())
+            $this->_platform->getIntegerTypeDeclarationSQL([])
         );
         self::assertEquals(
             'INT AUTO_INCREMENT',
-            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
+            $this->_platform->getIntegerTypeDeclarationSQL(['autoincrement' => true]
         ));
         self::assertEquals(
             'INT AUTO_INCREMENT',
             $this->_platform->getIntegerTypeDeclarationSQL(
-                array('autoincrement' => true, 'primary' => true)
+                ['autoincrement' => true, 'primary' => true]
         ));
     }
 
@@ -104,16 +104,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         self::assertEquals(
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
-                array('length' => 10, 'fixed' => true)
+                ['length' => 10, 'fixed' => true]
         ));
         self::assertEquals(
             'VARCHAR(50)',
-            $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
+            $this->_platform->getVarcharTypeDeclarationSQL(['length' => 50]),
             'Variable string declaration is not correct'
         );
         self::assertEquals(
             'VARCHAR(255)',
-            $this->_platform->getVarcharTypeDeclarationSQL(array()),
+            $this->_platform->getVarcharTypeDeclarationSQL([]),
             'Long string declaration is not correct'
         );
     }
@@ -156,8 +156,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $keyTable = new Table("foo");
         $keyTable->addColumn("bar", "integer");
         $keyTable->addColumn("baz", "string");
-        $keyTable->setPrimaryKey(array("bar"));
-        $keyTable->addUniqueIndex(array("baz"));
+        $keyTable->setPrimaryKey(["bar"]);
+        $keyTable->addUniqueIndex(["baz"]);
 
         $oldTable = new Table("foo");
         $oldTable->addColumn("bar", "integer");
@@ -168,10 +168,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $sql = $this->_platform->getAlterTableSQL($diff);
 
-        self::assertEquals(array(
+        self::assertEquals([
             "ALTER TABLE foo ADD PRIMARY KEY (bar)",
             "CREATE UNIQUE INDEX UNIQ_8C73652178240498 ON foo (baz)",
-        ), $sql);
+        ], $sql);
     }
 
     public function testModifyLimitQuery()
@@ -191,24 +191,24 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testGetDateTimeTypeDeclarationSql()
     {
-        self::assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => false)));
-        self::assertEquals("TIMESTAMP", $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => true)));
-        self::assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array()));
+        self::assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(['version' => false]));
+        self::assertEquals("TIMESTAMP", $this->_platform->getDateTimeTypeDeclarationSQL(['version' => true]));
+        self::assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL([]));
     }
 
     public function getCreateTableColumnCommentsSQL()
     {
-        return array("CREATE TABLE test (id INT NOT NULL COMMENT 'This is a comment', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB");
+        return ["CREATE TABLE test (id INT NOT NULL COMMENT 'This is a comment', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB"];
     }
 
     public function getAlterTableColumnCommentsSQL()
     {
-        return array("ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', CHANGE foo foo VARCHAR(255) NOT NULL, CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'");
+        return ["ALTER TABLE mytable ADD quota INT NOT NULL COMMENT 'A comment', CHANGE foo foo VARCHAR(255) NOT NULL, CHANGE bar baz VARCHAR(255) NOT NULL COMMENT 'B comment'"];
     }
 
     public function getCreateTableColumnTypeCommentsSQL()
     {
-        return array("CREATE TABLE test (id INT NOT NULL, data LONGTEXT NOT NULL COMMENT '(DC2Type:array)', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB");
+        return ["CREATE TABLE test (id INT NOT NULL, data LONGTEXT NOT NULL COMMENT '(DC2Type:array)', PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB"];
     }
 
     /**
@@ -216,47 +216,47 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testChangeIndexWithForeignKeys()
     {
-        $index = new Index("idx", array("col"), false);
-        $unique = new Index("uniq", array("col"), true);
+        $index = new Index("idx", ["col"], false);
+        $unique = new Index("uniq", ["col"], true);
 
-        $diff = new TableDiff("test", array(), array(), array(), array($unique), array(), array($index));
+        $diff = new TableDiff("test", [], [], [], [$unique], [], [$index]);
         $sql = $this->_platform->getAlterTableSQL($diff);
-        self::assertEquals(array("ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)"), $sql);
+        self::assertEquals(["ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)"], $sql);
 
-        $diff = new TableDiff("test", array(), array(), array(), array($index), array(), array($unique));
+        $diff = new TableDiff("test", [], [], [], [$index], [], [$unique]);
         $sql = $this->_platform->getAlterTableSQL($diff);
-        self::assertEquals(array("ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"), $sql);
+        self::assertEquals(["ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"], $sql);
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, PRIMARY KEY(`create`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
-        );
+        ];
     }
 
     protected function getQuotedColumnInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, INDEX IDX_22660D028FD6E0FB (`create`)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
-        );
+        ];
     }
 
     protected function getQuotedNameInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE test (column1 VARCHAR(255) NOT NULL, INDEX `key` (column1)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'
-        );
+        ];
     }
 
     protected function getQuotedColumnInForeignKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE `quoted` (`create` VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, `bar` VARCHAR(255) NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB',
             'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`) REFERENCES `foreign` (`create`, bar, `foo-bar`)',
             'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY (`create`, foo, `bar`) REFERENCES foo (`create`, bar, `foo-bar`)',
             'ALTER TABLE `quoted` ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY (`create`, foo, `bar`) REFERENCES `foo-bar` (`create`, bar, `foo-bar`)',
-        );
+        ];
     }
 
     public function testCreateTableWithFulltextIndex()
@@ -264,13 +264,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table = new Table('fulltext_table');
         $table->addOption('engine', 'MyISAM');
         $table->addColumn('text', 'text');
-        $table->addIndex(array('text'), 'fulltext_text');
+        $table->addIndex(['text'], 'fulltext_text');
 
         $index = $table->getIndex('fulltext_text');
         $index->addFlag('fulltext');
 
         $sql = $this->_platform->getCreateTableSQL($table);
-        self::assertEquals(array('CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (text)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
+        self::assertEquals(['CREATE TABLE fulltext_table (text LONGTEXT NOT NULL, FULLTEXT INDEX fulltext_text (text)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'], $sql);
     }
 
     public function testCreateTableWithSpatialIndex()
@@ -278,37 +278,37 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table = new Table('spatial_table');
         $table->addOption('engine', 'MyISAM');
         $table->addColumn('point', 'text'); // This should be a point type
-        $table->addIndex(array('point'), 'spatial_text');
+        $table->addIndex(['point'], 'spatial_text');
 
         $index = $table->getIndex('spatial_text');
         $index->addFlag('spatial');
 
         $sql = $this->_platform->getCreateTableSQL($table);
-        self::assertEquals(array('CREATE TABLE spatial_table (point LONGTEXT NOT NULL, SPATIAL INDEX spatial_text (point)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'), $sql);
+        self::assertEquals(['CREATE TABLE spatial_table (point LONGTEXT NOT NULL, SPATIAL INDEX spatial_text (point)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'], $sql);
     }
 
     public function testClobTypeDeclarationSQL()
     {
-        self::assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 1)));
-        self::assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 255)));
-        self::assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 256)));
-        self::assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 65535)));
-        self::assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 65536)));
-        self::assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 16777215)));
-        self::assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL(array('length' => 16777216)));
-        self::assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL(array()));
+        self::assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(['length' => 1]));
+        self::assertEquals('TINYTEXT', $this->_platform->getClobTypeDeclarationSQL(['length' => 255]));
+        self::assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(['length' => 256]));
+        self::assertEquals('TEXT', $this->_platform->getClobTypeDeclarationSQL(['length' => 65535]));
+        self::assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(['length' => 65536]));
+        self::assertEquals('MEDIUMTEXT', $this->_platform->getClobTypeDeclarationSQL(['length' => 16777215]));
+        self::assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL(['length' => 16777216]));
+        self::assertEquals('LONGTEXT', $this->_platform->getClobTypeDeclarationSQL([]));
     }
 
     public function testBlobTypeDeclarationSQL()
     {
-        self::assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 1)));
-        self::assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 255)));
-        self::assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 256)));
-        self::assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 65535)));
-        self::assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 65536)));
-        self::assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777215)));
-        self::assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array('length' => 16777216)));
-        self::assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(array()));
+        self::assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(['length' => 1]));
+        self::assertEquals('TINYBLOB', $this->_platform->getBlobTypeDeclarationSQL(['length' => 255]));
+        self::assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(['length' => 256]));
+        self::assertEquals('BLOB', $this->_platform->getBlobTypeDeclarationSQL(['length' => 65535]));
+        self::assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(['length' => 65536]));
+        self::assertEquals('MEDIUMBLOB', $this->_platform->getBlobTypeDeclarationSQL(['length' => 16777215]));
+        self::assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL(['length' => 16777216]));
+        self::assertEquals('LONGBLOB', $this->_platform->getBlobTypeDeclarationSQL([]));
     }
 
     /**
@@ -319,16 +319,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table = new Table('alter_table_add_pk');
         $table->addColumn('id', 'integer');
         $table->addColumn('foo', 'integer');
-        $table->addIndex(array('id'), 'idx_id');
+        $table->addIndex(['id'], 'idx_id');
 
         $comparator = new Comparator();
         $diffTable  = clone $table;
 
         $diffTable->dropIndex('idx_id');
-        $diffTable->setPrimaryKey(array('id'));
+        $diffTable->setPrimaryKey(['id']);
 
         self::assertEquals(
-            array('DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'),
+            ['DROP INDEX idx_id ON alter_table_add_pk', 'ALTER TABLE alter_table_add_pk ADD PRIMARY KEY (id)'],
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
     }
@@ -339,22 +339,22 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testAlterPrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("alter_primary_key");
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
-        $table->setPrimaryKey(array('id'));
+        $table->setPrimaryKey(['id']);
 
         $comparator = new Comparator();
         $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
-        $diffTable->setPrimaryKey(array('foo'));
+        $diffTable->setPrimaryKey(['foo']);
 
         self::assertEquals(
-            array(
+            [
                 'ALTER TABLE alter_primary_key MODIFY id INT NOT NULL',
                 'ALTER TABLE alter_primary_key DROP PRIMARY KEY',
                 'ALTER TABLE alter_primary_key ADD PRIMARY KEY (foo)'
-            ),
+            ],
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
     }
@@ -365,10 +365,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testDropPrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("drop_primary_key");
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'integer');
-        $table->setPrimaryKey(array('id', 'foo'));
+        $table->setPrimaryKey(['id', 'foo']);
 
         $comparator = new Comparator();
         $diffTable = clone $table;
@@ -376,10 +376,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $diffTable->dropPrimaryKey();
 
         self::assertEquals(
-            array(
+            [
                 'ALTER TABLE drop_primary_key MODIFY id INT NOT NULL',
                 'ALTER TABLE drop_primary_key DROP PRIMARY KEY'
-            ),
+            ],
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
     }
@@ -390,23 +390,23 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("tbl");
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'integer');
-        $table->setPrimaryKey(array('id', 'foo'));
+        $table->setPrimaryKey(['id', 'foo']);
 
         $comparator = new Comparator();
         $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
-        $diffTable->setPrimaryKey(array('id'));
+        $diffTable->setPrimaryKey(['id']);
 
         self::assertSame(
-            array(
+            [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id)',
-            ),
+            ],
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
     }
@@ -417,23 +417,23 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn()
     {
         $table = new Table("tbl");
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
         $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'integer');
-        $table->setPrimaryKey(array('id'));
+        $table->setPrimaryKey(['id']);
 
         $comparator = new Comparator();
         $diffTable = clone $table;
 
         $diffTable->dropPrimaryKey();
-        $diffTable->setPrimaryKey(array('id', 'foo'));
+        $diffTable->setPrimaryKey(['id', 'foo']);
 
         self::assertSame(
-            array(
+            [
                 'ALTER TABLE tbl MODIFY id INT NOT NULL',
                 'ALTER TABLE tbl DROP PRIMARY KEY',
                 'ALTER TABLE tbl ADD PRIMARY KEY (id, foo)',
-            ),
+            ],
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );
     }
@@ -444,9 +444,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testAddAutoIncrementPrimaryKey()
     {
         $keyTable = new Table("foo");
-        $keyTable->addColumn("id", "integer", array('autoincrement' => true));
+        $keyTable->addColumn("id", "integer", ['autoincrement' => true]);
         $keyTable->addColumn("baz", "string");
-        $keyTable->setPrimaryKey(array("id"));
+        $keyTable->setPrimaryKey(["id"]);
 
         $oldTable = new Table("foo");
         $oldTable->addColumn("baz", "string");
@@ -456,22 +456,22 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $sql = $this->_platform->getAlterTableSQL($diff);
 
-        self::assertEquals(array(
+        self::assertEquals([
             "ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)",
-        ), $sql);
+        ], $sql);
     }
 
     public function testNamedPrimaryKey()
     {
         $diff = new TableDiff('mytable');
-        $diff->changedIndexes['foo_index'] = new Index('foo_index', array('foo'), true, true);
+        $diff->changedIndexes['foo_index'] = new Index('foo_index', ['foo'], true, true);
 
         $sql = $this->_platform->getAlterTableSQL($diff);
 
-        self::assertEquals(array(
+        self::assertEquals([
             "ALTER TABLE mytable DROP PRIMARY KEY",
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
-        ), $sql);
+        ], $sql);
     }
     
     public function testAlterPrimaryKeyWithNewColumn()
@@ -479,21 +479,21 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table = new Table("yolo");
         $table->addColumn('pkc1', 'integer');
         $table->addColumn('col_a', 'integer');
-        $table->setPrimaryKey(array('pkc1'));
+        $table->setPrimaryKey(['pkc1']);
 
         $comparator = new Comparator();
         $diffTable = clone $table;
         
         $diffTable->addColumn('pkc2', 'integer');
         $diffTable->dropPrimaryKey();
-        $diffTable->setPrimaryKey(array('pkc1', 'pkc2'));
+        $diffTable->setPrimaryKey(['pkc1', 'pkc2']);
 
         self::assertSame(
-            array(
+            [
                 'ALTER TABLE yolo DROP PRIMARY KEY',
                 'ALTER TABLE yolo ADD pkc2 INT NOT NULL',
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
-            ),
+            ],
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
         );      
     }
@@ -514,19 +514,19 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('VARBINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65535)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 65536)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777215)));
-        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 16777216)));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARBINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 65535]));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 65536]));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 16777215]));
+        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 16777216]));
 
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('BINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65535)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 65536)));
-        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777215)));
-        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 16777216)));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+        self::assertSame('BINARY(65535)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 65535]));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 65536]));
+        self::assertSame('MEDIUMBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 16777215]));
+        self::assertSame('LONGBLOB', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 16777216]));
     }
 
     public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines()
@@ -534,12 +534,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table = new Table("foreign_table");
         $table->addColumn('id', 'integer');
         $table->addColumn('fk_id', 'integer');
-        $table->addForeignKeyConstraint('foreign_table', array('fk_id'), array('id'));
-        $table->setPrimaryKey(array('id'));
+        $table->addForeignKeyConstraint('foreign_table', ['fk_id'], ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addOption('engine', 'MyISAM');
 
         self::assertSame(
-            array('CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'),
+            ['CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = MyISAM'],
             $this->_platform->getCreateTableSQL(
                 $table,
                 AbstractPlatform::CREATE_INDEXES|AbstractPlatform::CREATE_FOREIGNKEYS
@@ -550,10 +550,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table->addOption('engine', 'InnoDB');
 
         self::assertSame(
-            array(
+            [
                 'CREATE TABLE foreign_table (id INT NOT NULL, fk_id INT NOT NULL, INDEX IDX_5690FFE2A57719D0 (fk_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB',
                 'ALTER TABLE foreign_table ADD CONSTRAINT FK_5690FFE2A57719D0 FOREIGN KEY (fk_id) REFERENCES foreign_table (id)'
-            ),
+            ],
             $this->_platform->getCreateTableSQL(
                 $table,
                 AbstractPlatform::CREATE_INDEXES|AbstractPlatform::CREATE_FOREIGNKEYS
@@ -566,13 +566,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $table = new Table("foreign_table");
         $table->addColumn('id', 'integer');
         $table->addColumn('fk_id', 'integer');
-        $table->addForeignKeyConstraint('foreign_table', array('fk_id'), array('id'));
-        $table->setPrimaryKey(array('id'));
+        $table->addForeignKeyConstraint('foreign_table', ['fk_id'], ['id']);
+        $table->setPrimaryKey(['id']);
         $table->addOption('engine', 'MyISAM');
 
-        $addedForeignKeys   = array(new ForeignKeyConstraint(array('fk_id'), 'foo', array('id'), 'fk_add'));
-        $changedForeignKeys = array(new ForeignKeyConstraint(array('fk_id'), 'bar', array('id'), 'fk_change'));
-        $removedForeignKeys = array(new ForeignKeyConstraint(array('fk_id'), 'baz', array('id'), 'fk_remove'));
+        $addedForeignKeys   = [new ForeignKeyConstraint(['fk_id'], 'foo', ['id'], 'fk_add')];
+        $changedForeignKeys = [new ForeignKeyConstraint(['fk_id'], 'bar', ['id'], 'fk_change')];
+        $removedForeignKeys = [new ForeignKeyConstraint(['fk_id'], 'baz', ['id'], 'fk_remove')];
 
         $tableDiff = new TableDiff('foreign_table');
         $tableDiff->fromTable = $table;
@@ -591,12 +591,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $tableDiff->removedForeignKeys = $removedForeignKeys;
 
         self::assertSame(
-            array(
+            [
                 'ALTER TABLE foreign_table DROP FOREIGN KEY fk_remove',
                 'ALTER TABLE foreign_table DROP FOREIGN KEY fk_change',
                 'ALTER TABLE foreign_table ADD CONSTRAINT fk_add FOREIGN KEY (fk_id) REFERENCES foo (id)',
                 'ALTER TABLE foreign_table ADD CONSTRAINT fk_change FOREIGN KEY (fk_id) REFERENCES bar (id)',
-            ),
+            ],
             $this->_platform->getAlterTableSQL($tableDiff)
         );
     }
@@ -606,10 +606,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'DROP INDEX idx_foo ON mytable',
             'CREATE INDEX idx_bar ON mytable (id)',
-        );
+        ];
     }
 
     /**
@@ -617,12 +617,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'DROP INDEX `create` ON `table`',
             'CREATE INDEX `select` ON `table` (id)',
             'DROP INDEX `foo` ON `table`',
             'CREATE INDEX `bar` ON `table` (id)',
-        );
+        ];
     }
 
     /**
@@ -630,10 +630,10 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'DROP INDEX idx_foo ON myschema.mytable',
             'CREATE INDEX idx_bar ON myschema.mytable (id)',
-        );
+        ];
     }
 
     /**
@@ -641,12 +641,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'DROP INDEX `create` ON `schema`.`table`',
             'CREATE INDEX `select` ON `schema`.`table` (id)',
             'DROP INDEX `foo` ON `schema`.`table`',
             'CREATE INDEX `bar` ON `schema`.`table` (id)',
-        );
+        ];
     }
 
     protected function getQuotesDropForeignKeySQL()
@@ -662,21 +662,21 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
     {
         $table = new Table("text_blob_default_value");
-        $table->addColumn('def_text', 'text', array('default' => 'def'));
-        $table->addColumn('def_text_null', 'text', array('notnull' => false, 'default' => 'def'));
-        $table->addColumn('def_blob', 'blob', array('default' => 'def'));
-        $table->addColumn('def_blob_null', 'blob', array('notnull' => false, 'default' => 'def'));
+        $table->addColumn('def_text', 'text', ['default' => 'def']);
+        $table->addColumn('def_text_null', 'text', ['notnull' => false, 'default' => 'def']);
+        $table->addColumn('def_blob', 'blob', ['default' => 'def']);
+        $table->addColumn('def_blob_null', 'blob', ['notnull' => false, 'default' => 'def']);
 
         self::assertSame(
-            array('CREATE TABLE text_blob_default_value (def_text LONGTEXT NOT NULL, def_text_null LONGTEXT DEFAULT NULL, def_blob LONGBLOB NOT NULL, def_blob_null LONGBLOB DEFAULT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'),
+            ['CREATE TABLE text_blob_default_value (def_text LONGTEXT NOT NULL, def_text_null LONGTEXT DEFAULT NULL, def_blob LONGBLOB NOT NULL, def_blob_null LONGBLOB DEFAULT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'],
             $this->_platform->getCreateTableSQL($table)
         );
 
         $diffTable = clone $table;
-        $diffTable->changeColumn('def_text', array('default' => null));
-        $diffTable->changeColumn('def_text_null', array('default' => null));
-        $diffTable->changeColumn('def_blob', array('default' => null));
-        $diffTable->changeColumn('def_blob_null', array('default' => null));
+        $diffTable->changeColumn('def_text', ['default' => null]);
+        $diffTable->changeColumn('def_text_null', ['default' => null]);
+        $diffTable->changeColumn('def_blob', ['default' => null]);
+        $diffTable->changeColumn('def_blob_null', ['default' => null]);
 
         $comparator = new Comparator();
 
@@ -688,7 +688,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             "ALTER TABLE mytable " .
             "CHANGE unquoted1 unquoted INT NOT NULL COMMENT 'Unquoted 1', " .
             "CHANGE unquoted2 `where` INT NOT NULL COMMENT 'Unquoted 2', " .
@@ -699,7 +699,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "CHANGE quoted1 quoted INT NOT NULL COMMENT 'Quoted 1', " .
             "CHANGE quoted2 `and` INT NOT NULL COMMENT 'Quoted 2', " .
             "CHANGE quoted3 `baz` INT NOT NULL COMMENT 'Quoted 3'"
-        );
+        ];
     }
 
     /**
@@ -707,7 +707,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableChangeColumnLengthSQL()
     {
-        return array(
+        return [
             "ALTER TABLE mytable " .
             "CHANGE unquoted1 unquoted1 VARCHAR(255) NOT NULL COMMENT 'Unquoted 1', " .
             "CHANGE unquoted2 unquoted2 VARCHAR(255) NOT NULL COMMENT 'Unquoted 2', " .
@@ -715,7 +715,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "CHANGE `create` `create` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 1', " .
             "CHANGE `table` `table` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 2', " .
             "CHANGE `select` `select` VARCHAR(255) NOT NULL COMMENT 'Reserved keyword 3'"
-        );
+        ];
     }
 
     /**
@@ -723,7 +723,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL([]));
     }
 
     /**
@@ -731,9 +731,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function getAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             "ALTER TABLE foo CHANGE bar baz INT DEFAULT 666 NOT NULL COMMENT 'rename test'",
-        );
+        ];
     }
 
     /**
@@ -741,14 +741,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getQuotesTableIdentifiersInAlterTableSQL()
     {
-        return array(
+        return [
             'ALTER TABLE `foo` DROP FOREIGN KEY fk1',
             'ALTER TABLE `foo` DROP FOREIGN KEY fk2',
             'ALTER TABLE `foo` RENAME TO `table`, ADD bloo INT NOT NULL, DROP baz, CHANGE bar bar INT DEFAULT NULL, ' .
             'CHANGE id war INT NOT NULL',
             'ALTER TABLE `table` ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
             'ALTER TABLE `table` ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        );
+        ];
     }
 
     /**
@@ -756,11 +756,11 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getCommentOnColumnSQL()
     {
-        return array(
+        return [
             "COMMENT ON COLUMN foo.bar IS 'comment'",
             "COMMENT ON COLUMN `Foo`.`BAR` IS 'comment'",
             "COMMENT ON COLUMN `select`.`from` IS 'comment'",
-        );
+        ];
     }
 
     /**
@@ -792,9 +792,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getAlterStringToFixedStringSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable CHANGE name name CHAR(2) NOT NULL',
-        );
+        ];
     }
 
     /**
@@ -802,12 +802,12 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable DROP FOREIGN KEY fk_foo',
             'DROP INDEX idx_foo ON mytable',
             'CREATE INDEX idx_foo_renamed ON mytable (foo)',
             'ALTER TABLE mytable ADD CONSTRAINT fk_foo FOREIGN KEY (foo) REFERENCES foreign_table (id)',
-        );
+        ];
     }
 
     /**
@@ -815,14 +815,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function getGeneratesDecimalTypeDeclarationSQL()
     {
-        return array(
-            array(array(), 'NUMERIC(10, 0)'),
-            array(array('unsigned' => true), 'NUMERIC(10, 0) UNSIGNED'),
-            array(array('unsigned' => false), 'NUMERIC(10, 0)'),
-            array(array('precision' => 5), 'NUMERIC(5, 0)'),
-            array(array('scale' => 5), 'NUMERIC(10, 5)'),
-            array(array('precision' => 8, 'scale' => 2), 'NUMERIC(8, 2)'),
-        );
+        return [
+            [[], 'NUMERIC(10, 0)'],
+            [['unsigned' => true], 'NUMERIC(10, 0) UNSIGNED'],
+            [['unsigned' => false], 'NUMERIC(10, 0)'],
+            [['precision' => 5], 'NUMERIC(5, 0)'],
+            [['scale' => 5], 'NUMERIC(10, 5)'],
+            [['precision' => 8, 'scale' => 2], 'NUMERIC(8, 2)'],
+        ];
     }
 
     /**
@@ -830,14 +830,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function getGeneratesFloatDeclarationSQL()
     {
-        return array(
-            array(array(), 'DOUBLE PRECISION'),
-            array(array('unsigned' => true), 'DOUBLE PRECISION UNSIGNED'),
-            array(array('unsigned' => false), 'DOUBLE PRECISION'),
-            array(array('precision' => 5), 'DOUBLE PRECISION'),
-            array(array('scale' => 5), 'DOUBLE PRECISION'),
-            array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
-        );
+        return [
+            [[], 'DOUBLE PRECISION'],
+            [['unsigned' => true], 'DOUBLE PRECISION UNSIGNED'],
+            [['unsigned' => false], 'DOUBLE PRECISION'],
+            [['precision' => 5], 'DOUBLE PRECISION'],
+            [['scale' => 5], 'DOUBLE PRECISION'],
+            [['precision' => 8, 'scale' => 2], 'DOUBLE PRECISION'],
+        ];
     }
 
     /**

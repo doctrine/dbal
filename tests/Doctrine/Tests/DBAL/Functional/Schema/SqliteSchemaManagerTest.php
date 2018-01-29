@@ -84,14 +84,14 @@ CREATE TABLE user (
 EOS
         );
 
-        $expected = array(
-            new Schema\ForeignKeyConstraint(array('log'), 'log', array(null), 'FK_3',
-                array('onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false)),
-            new Schema\ForeignKeyConstraint(array('parent'), 'user', array('id'), '1',
-                array('onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false)),
-            new Schema\ForeignKeyConstraint(array('page'), 'page', array('key'), 'FK_1',
-                array('onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true)),
-        );
+        $expected = [
+            new Schema\ForeignKeyConstraint(['log'], 'log', [null], 'FK_3',
+                ['onUpdate' => 'SET NULL', 'onDelete' => 'NO ACTION', 'deferrable' => false, 'deferred' => false]),
+            new Schema\ForeignKeyConstraint(['parent'], 'user', ['id'], '1',
+                ['onUpdate' => 'NO ACTION', 'onDelete' => 'CASCADE', 'deferrable' => false, 'deferred' => false]),
+            new Schema\ForeignKeyConstraint(['page'], 'page', ['key'], 'FK_1',
+                ['onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true]),
+        ];
 
         self::assertEquals($expected, $this->_sm->listTableForeignKeys('user'));
     }
@@ -119,9 +119,9 @@ EOS
 
         $table = new \Doctrine\DBAL\Schema\Table($tableName);
         $table->addColumn('id', 'integer');
-        $table->addColumn('column_varbinary', 'binary', array());
-        $table->addColumn('column_binary', 'binary', array('fixed' => true));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('column_varbinary', 'binary', []);
+        $table->addColumn('column_binary', 'binary', ['fixed' => true]);
+        $table->setPrimaryKey(['id']);
 
         $this->_sm->createTable($table);
 
@@ -158,7 +158,7 @@ EOS
          self::assertCount(1, $tableIndexes);
 
         self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
-        self::assertEquals(array('other_id', 'id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
+        self::assertEquals(['other_id', 'id'], array_map('strtolower', $tableIndexes['primary']->getColumns()));
     }
 
     /**
@@ -198,8 +198,8 @@ SQL;
         $tableName = 'test_int_autoincrement_table';
 
         $offlineTable = new \Doctrine\DBAL\Schema\Table($tableName);
-        $offlineTable->addColumn('id', $integerType, array('autoincrement' => true, 'unsigned' => $unsigned));
-        $offlineTable->setPrimaryKey(array('id'));
+        $offlineTable->addColumn('id', $integerType, ['autoincrement' => true, 'unsigned' => $unsigned]);
+        $offlineTable->setPrimaryKey(['id']);
 
         $this->_sm->dropAndCreateTable($offlineTable);
 
@@ -219,13 +219,13 @@ SQL;
      */
     public function getDiffListIntegerAutoincrementTableColumnsData()
     {
-        return array(
-            array('smallint', false, true),
-            array('smallint', true, true),
-            array('integer', false, false),
-            array('integer', true, true),
-            array('bigint', false, true),
-            array('bigint', true, true),
-        );
+        return [
+            ['smallint', false, true],
+            ['smallint', true, true],
+            ['integer', false, false],
+            ['integer', true, true],
+            ['bigint', false, true],
+            ['bigint', true, true],
+        ];
     }
 }

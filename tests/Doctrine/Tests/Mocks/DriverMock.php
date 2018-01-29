@@ -9,7 +9,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
 
     private $_schemaManagerMock;
 
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         return new DriverConnectionMock();
     }

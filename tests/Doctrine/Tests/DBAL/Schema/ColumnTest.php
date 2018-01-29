@@ -23,12 +23,12 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($column->getFixed());
         self::assertEquals("baz", $column->getDefault());
 
-        self::assertEquals(array('foo' => 'bar'), $column->getPlatformOptions());
+        self::assertEquals(['foo' => 'bar'], $column->getPlatformOptions());
         self::assertTrue($column->hasPlatformOption('foo'));
         self::assertEquals('bar', $column->getPlatformOption('foo'));
         self::assertFalse($column->hasPlatformOption('bar'));
 
-        self::assertEquals(array('bar' => 'baz'), $column->getCustomSchemaOptions());
+        self::assertEquals(['bar' => 'baz'], $column->getCustomSchemaOptions());
         self::assertTrue($column->hasCustomSchemaOption('bar'));
         self::assertEquals('baz', $column->getCustomSchemaOption('bar'));
         self::assertFalse($column->hasCustomSchemaOption('foo'));
@@ -36,7 +36,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
 
     public function testToArray()
     {
-        $expected = array(
+        $expected = [
             'name' => 'foo',
             'type' => Type::getType('string'),
             'default' => 'baz',
@@ -51,7 +51,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
             'comment' => null,
             'foo' => 'bar',
             'bar' => 'baz'
-        );
+        ];
 
         self::assertEquals($expected, $this->createColumn()->toArray());
     }
@@ -70,7 +70,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
      */
     public function createColumn()
     {
-        $options = array(
+        $options = [
             'length' => 200,
             'precision' => 5,
             'scale' => 2,
@@ -78,9 +78,9 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
             'notnull' => false,
             'fixed' => true,
             'default' => 'baz',
-            'platformOptions' => array('foo' => 'bar'),
-            'customSchemaOptions' => array('bar' => 'baz'),
-        );
+            'platformOptions' => ['foo' => 'bar'],
+            'customSchemaOptions' => ['bar' => 'baz'],
+        ];
 
         $string = Type::getType('string');
         return new Column("foo", $string, $options);
@@ -93,7 +93,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
     public function testQuotedColumnName()
     {
         $string = Type::getType('string');
-        $column = new Column("`bar`", $string, array());
+        $column = new Column("`bar`", $string, []);
 
         $mysqlPlatform = new \Doctrine\DBAL\Platforms\MySqlPlatform();
         $sqlitePlatform = new \Doctrine\DBAL\Platforms\SqlitePlatform();
@@ -124,12 +124,12 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
 
     public function getIsQuoted()
     {
-        return array(
-            array('bar', false),
-            array('`bar`', true),
-            array('"bar"', true),
-            array('[bar]', true),
-        );
+        return [
+            ['bar', false],
+            ['`bar`', true],
+            ['"bar"', true],
+            ['[bar]', true],
+        ];
     }
 
     /**

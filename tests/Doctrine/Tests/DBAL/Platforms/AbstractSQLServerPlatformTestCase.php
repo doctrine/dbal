@@ -19,15 +19,15 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
-        return array(
+        return [
             'CREATE TABLE test (foo NVARCHAR(255), bar NVARCHAR(255))',
             'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar) WHERE foo IS NOT NULL AND bar IS NOT NULL'
-        );
+        ];
     }
 
     public function getGenerateAlterTableSql()
     {
-        return array(
+        return [
             'ALTER TABLE mytable ADD quota INT',
             'ALTER TABLE mytable DROP COLUMN foo',
             'ALTER TABLE mytable ALTER COLUMN baz NVARCHAR(255) NOT NULL',
@@ -42,7 +42,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
             "WHERE tbl.name = 'userlist';" .
             "EXEC sp_executesql @sql"
-        );
+        ];
     }
 
     /**
@@ -96,16 +96,16 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         self::assertEquals(
                 'INT',
-                $this->_platform->getIntegerTypeDeclarationSQL(array())
+                $this->_platform->getIntegerTypeDeclarationSQL([])
         );
         self::assertEquals(
                 'INT IDENTITY',
-                $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
+                $this->_platform->getIntegerTypeDeclarationSQL(['autoincrement' => true]
         ));
         self::assertEquals(
                 'INT IDENTITY',
                 $this->_platform->getIntegerTypeDeclarationSQL(
-                        array('autoincrement' => true, 'primary' => true)
+                        ['autoincrement' => true, 'primary' => true]
         ));
     }
 
@@ -114,22 +114,22 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         self::assertEquals(
                 'NCHAR(10)',
                 $this->_platform->getVarcharTypeDeclarationSQL(
-                        array('length' => 10, 'fixed' => true)
+                        ['length' => 10, 'fixed' => true]
         ));
         self::assertEquals(
                 'NVARCHAR(50)',
-                $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
+                $this->_platform->getVarcharTypeDeclarationSQL(['length' => 50]),
                 'Variable string declaration is not correct'
         );
         self::assertEquals(
                 'NVARCHAR(255)',
-                $this->_platform->getVarcharTypeDeclarationSQL(array()),
+                $this->_platform->getVarcharTypeDeclarationSQL([]),
                 'Long string declaration is not correct'
         );
-        self::assertSame('VARCHAR(MAX)', $this->_platform->getClobTypeDeclarationSQL(array()));
+        self::assertSame('VARCHAR(MAX)', $this->_platform->getClobTypeDeclarationSQL([]));
         self::assertSame(
             'VARCHAR(MAX)',
-            $this->_platform->getClobTypeDeclarationSQL(array('length' => 5, 'fixed' => true))
+            $this->_platform->getClobTypeDeclarationSQL(['length' => 5, 'fixed' => true])
         );
     }
 
@@ -504,7 +504,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testCreateClusteredIndex()
     {
-        $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'));
+        $idx = new \Doctrine\DBAL\Schema\Index('idx', ['id']);
         $idx->addFlag('clustered');
         self::assertEquals('CREATE CLUSTERED INDEX idx ON tbl (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
     }
@@ -516,10 +516,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     {
         $table = new \Doctrine\DBAL\Schema\Table("tbl");
         $table->addColumn("id", "integer");
-        $table->setPrimaryKey(Array("id"));
+        $table->setPrimaryKey(["id"]);
         $table->getIndex('primary')->addFlag('nonclustered');
 
-        self::assertEquals(array('CREATE TABLE tbl (id INT NOT NULL, PRIMARY KEY NONCLUSTERED (id))'), $this->_platform->getCreateTableSQL($table));
+        self::assertEquals(['CREATE TABLE tbl (id INT NOT NULL, PRIMARY KEY NONCLUSTERED (id))'], $this->_platform->getCreateTableSQL($table));
     }
 
     /**
@@ -527,48 +527,48 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testCreateNonClusteredPrimaryKey()
     {
-        $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
+        $idx = new \Doctrine\DBAL\Schema\Index('idx', ['id'], false, true);
         $idx->addFlag('nonclustered');
         self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY NONCLUSTERED (id)', $this->_platform->getCreatePrimaryKeySQL($idx, 'tbl'));
     }
 
     public function testAlterAddPrimaryKey()
     {
-        $idx = new \Doctrine\DBAL\Schema\Index('idx', array('id'), false, true);
+        $idx = new \Doctrine\DBAL\Schema\Index('idx', ['id'], false, true);
         self::assertEquals('ALTER TABLE tbl ADD PRIMARY KEY (id)', $this->_platform->getCreateIndexSQL($idx, 'tbl'));
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, PRIMARY KEY ([create]))',
-        );
+        ];
     }
 
     protected function getQuotedColumnInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL)',
             'CREATE INDEX IDX_22660D028FD6E0FB ON [quoted] ([create])',
-        );
+        ];
     }
 
     protected function getQuotedNameInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE test (column1 NVARCHAR(255) NOT NULL)',
             'CREATE INDEX [key] ON test (column1)',
-        );
+        ];
     }
 
     protected function getQuotedColumnInForeignKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE [quoted] ([create] NVARCHAR(255) NOT NULL, foo NVARCHAR(255) NOT NULL, [bar] NVARCHAR(255) NOT NULL)',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ([create], foo, [bar]) REFERENCES [foreign] ([create], bar, [foo-bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ([create], foo, [bar]) REFERENCES foo ([create], bar, [foo-bar])',
             'ALTER TABLE [quoted] ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ([create], foo, [bar]) REFERENCES [foo-bar] ([create], bar, [foo-bar])',
-        );
+        ];
     }
 
     public function testGetCreateSchemaSQL()
@@ -583,10 +583,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function getCreateTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))",
             "EXEC sp_addextendedproperty N'MS_Description', N'This is a comment', N'SCHEMA', dbo, N'TABLE', test, N'COLUMN', id",
-        );
+        ];
     }
 
     /**
@@ -594,12 +594,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function getAlterTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "ALTER TABLE mytable ADD quota INT NOT NULL",
             "EXEC sp_addextendedproperty N'MS_Description', N'A comment', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', quota",
             // todo
             //"EXEC sp_addextendedproperty N'MS_Description', N'B comment', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', baz",
-        );
+        ];
     }
 
     /**
@@ -607,10 +607,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function getCreateTableColumnTypeCommentsSQL()
     {
-        return array(
+        return [
             "CREATE TABLE test (id INT NOT NULL, data VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))",
             "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', test, N'COLUMN', data",
-        );
+        ];
     }
 
     /**
@@ -619,23 +619,23 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testGeneratesCreateTableSQLWithColumnComments()
     {
         $table = new Table('mytable');
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
-        $table->addColumn('comment_null', 'integer', array('comment' => null));
-        $table->addColumn('comment_false', 'integer', array('comment' => false));
-        $table->addColumn('comment_empty_string', 'integer', array('comment' => ''));
-        $table->addColumn('comment_integer_0', 'integer', array('comment' => 0));
-        $table->addColumn('comment_float_0', 'integer', array('comment' => 0.0));
-        $table->addColumn('comment_string_0', 'integer', array('comment' => '0'));
-        $table->addColumn('comment', 'integer', array('comment' => 'Doctrine 0wnz you!'));
-        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'));
-        $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('comment_null', 'integer', ['comment' => null]);
+        $table->addColumn('comment_false', 'integer', ['comment' => false]);
+        $table->addColumn('comment_empty_string', 'integer', ['comment' => '']);
+        $table->addColumn('comment_integer_0', 'integer', ['comment' => 0]);
+        $table->addColumn('comment_float_0', 'integer', ['comment' => 0.0]);
+        $table->addColumn('comment_string_0', 'integer', ['comment' => '0']);
+        $table->addColumn('comment', 'integer', ['comment' => 'Doctrine 0wnz you!']);
+        $table->addColumn('`comment_quoted`', 'integer', ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!']);
+        $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
         $table->addColumn('commented_type', 'object');
-        $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
-        $table->addColumn('comment_with_string_literal_char', 'string', array('comment' => "O'Reilly"));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
+        $table->addColumn('comment_with_string_literal_char', 'string', ['comment' => "O'Reilly"]);
+        $table->setPrimaryKey(['id']);
 
         self::assertEquals(
-            array(
+            [
                 "CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_integer_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_float_0",
@@ -646,7 +646,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:object)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type",
                 "EXEC sp_addextendedproperty N'MS_Description', N'Doctrine array type.(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type_with_comment",
                 "EXEC sp_addextendedproperty N'MS_Description', N'O''Reilly', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_with_string_literal_char",
-            ),
+            ],
             $this->_platform->getCreateTableSQL($table)
         );
     }
@@ -658,108 +658,108 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function testGeneratesAlterTableSQLWithColumnComments()
     {
         $table = new Table('mytable');
-        $table->addColumn('id', 'integer', array('autoincrement' => true));
-        $table->addColumn('comment_null', 'integer', array('comment' => null));
-        $table->addColumn('comment_false', 'integer', array('comment' => false));
-        $table->addColumn('comment_empty_string', 'integer', array('comment' => ''));
-        $table->addColumn('comment_integer_0', 'integer', array('comment' => 0));
-        $table->addColumn('comment_float_0', 'integer', array('comment' => 0.0));
-        $table->addColumn('comment_string_0', 'integer', array('comment' => '0'));
-        $table->addColumn('comment', 'integer', array('comment' => 'Doctrine 0wnz you!'));
-        $table->addColumn('`comment_quoted`', 'integer', array('comment' => 'Doctrine 0wnz comments for explicitly quoted columns!'));
-        $table->addColumn('create', 'integer', array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'));
+        $table->addColumn('id', 'integer', ['autoincrement' => true]);
+        $table->addColumn('comment_null', 'integer', ['comment' => null]);
+        $table->addColumn('comment_false', 'integer', ['comment' => false]);
+        $table->addColumn('comment_empty_string', 'integer', ['comment' => '']);
+        $table->addColumn('comment_integer_0', 'integer', ['comment' => 0]);
+        $table->addColumn('comment_float_0', 'integer', ['comment' => 0.0]);
+        $table->addColumn('comment_string_0', 'integer', ['comment' => '0']);
+        $table->addColumn('comment', 'integer', ['comment' => 'Doctrine 0wnz you!']);
+        $table->addColumn('`comment_quoted`', 'integer', ['comment' => 'Doctrine 0wnz comments for explicitly quoted columns!']);
+        $table->addColumn('create', 'integer', ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!']);
         $table->addColumn('commented_type', 'object');
-        $table->addColumn('commented_type_with_comment', 'array', array('comment' => 'Doctrine array type.'));
-        $table->addColumn('comment_with_string_literal_quote_char', 'array', array('comment' => "O'Reilly"));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('commented_type_with_comment', 'array', ['comment' => 'Doctrine array type.']);
+        $table->addColumn('comment_with_string_literal_quote_char', 'array', ['comment' => "O'Reilly"]);
+        $table->setPrimaryKey(['id']);
 
         $tableDiff = new TableDiff('mytable');
         $tableDiff->fromTable = $table;
         $tableDiff->addedColumns['added_comment_none'] = new Column('added_comment_none', Type::getType('integer'));
-        $tableDiff->addedColumns['added_comment_null'] = new Column('added_comment_null', Type::getType('integer'), array('comment' => null));
-        $tableDiff->addedColumns['added_comment_false'] = new Column('added_comment_false', Type::getType('integer'), array('comment' => false));
-        $tableDiff->addedColumns['added_comment_empty_string'] = new Column('added_comment_empty_string', Type::getType('integer'), array('comment' => ''));
-        $tableDiff->addedColumns['added_comment_integer_0'] = new Column('added_comment_integer_0', Type::getType('integer'), array('comment' => 0));
-        $tableDiff->addedColumns['added_comment_float_0'] = new Column('added_comment_float_0', Type::getType('integer'), array('comment' => 0.0));
-        $tableDiff->addedColumns['added_comment_string_0'] = new Column('added_comment_string_0', Type::getType('integer'), array('comment' => '0'));
-        $tableDiff->addedColumns['added_comment'] = new Column('added_comment', Type::getType('integer'), array('comment' => 'Doctrine'));
-        $tableDiff->addedColumns['`added_comment_quoted`'] = new Column('`added_comment_quoted`', Type::getType('integer'), array('comment' => 'rulez'));
-        $tableDiff->addedColumns['select'] = new Column('select', Type::getType('integer'), array('comment' => '666'));
+        $tableDiff->addedColumns['added_comment_null'] = new Column('added_comment_null', Type::getType('integer'), ['comment' => null]);
+        $tableDiff->addedColumns['added_comment_false'] = new Column('added_comment_false', Type::getType('integer'), ['comment' => false]);
+        $tableDiff->addedColumns['added_comment_empty_string'] = new Column('added_comment_empty_string', Type::getType('integer'), ['comment' => '']);
+        $tableDiff->addedColumns['added_comment_integer_0'] = new Column('added_comment_integer_0', Type::getType('integer'), ['comment' => 0]);
+        $tableDiff->addedColumns['added_comment_float_0'] = new Column('added_comment_float_0', Type::getType('integer'), ['comment' => 0.0]);
+        $tableDiff->addedColumns['added_comment_string_0'] = new Column('added_comment_string_0', Type::getType('integer'), ['comment' => '0']);
+        $tableDiff->addedColumns['added_comment'] = new Column('added_comment', Type::getType('integer'), ['comment' => 'Doctrine']);
+        $tableDiff->addedColumns['`added_comment_quoted`'] = new Column('`added_comment_quoted`', Type::getType('integer'), ['comment' => 'rulez']);
+        $tableDiff->addedColumns['select'] = new Column('select', Type::getType('integer'), ['comment' => '666']);
         $tableDiff->addedColumns['added_commented_type'] = new Column('added_commented_type', Type::getType('object'));
-        $tableDiff->addedColumns['added_commented_type_with_comment'] = new Column('added_commented_type_with_comment', Type::getType('array'), array('comment' => '666'));
-        $tableDiff->addedColumns['added_comment_with_string_literal_char'] = new Column('added_comment_with_string_literal_char', Type::getType('string'), array('comment' => "''"));
+        $tableDiff->addedColumns['added_commented_type_with_comment'] = new Column('added_commented_type_with_comment', Type::getType('array'), ['comment' => '666']);
+        $tableDiff->addedColumns['added_comment_with_string_literal_char'] = new Column('added_comment_with_string_literal_char', Type::getType('string'), ['comment' => "''"]);
 
-        $tableDiff->renamedColumns['comment_float_0'] = new Column('comment_double_0', Type::getType('decimal'), array('comment' => 'Double for real!'));
+        $tableDiff->renamedColumns['comment_float_0'] = new Column('comment_double_0', Type::getType('decimal'), ['comment' => 'Double for real!']);
 
         // Add comment to non-commented column.
         $tableDiff->changedColumns['id'] = new ColumnDiff(
             'id',
-            new Column('id', Type::getType('integer'), array('autoincrement' => true, 'comment' => 'primary')),
-            array('comment'),
-            new Column('id', Type::getType('integer'), array('autoincrement' => true))
+            new Column('id', Type::getType('integer'), ['autoincrement' => true, 'comment' => 'primary']),
+            ['comment'],
+            new Column('id', Type::getType('integer'), ['autoincrement' => true])
         );
 
         // Remove comment from null-commented column.
         $tableDiff->changedColumns['comment_null'] = new ColumnDiff(
             'comment_null',
             new Column('comment_null', Type::getType('string')),
-            array('type'),
-            new Column('comment_null', Type::getType('integer'), array('comment' => null))
+            ['type'],
+            new Column('comment_null', Type::getType('integer'), ['comment' => null])
         );
 
         // Add comment to false-commented column.
         $tableDiff->changedColumns['comment_false'] = new ColumnDiff(
             'comment_false',
-            new Column('comment_false', Type::getType('integer'), array('comment' => 'false')),
-            array('comment'),
-            new Column('comment_false', Type::getType('integer'), array('comment' => false))
+            new Column('comment_false', Type::getType('integer'), ['comment' => 'false']),
+            ['comment'],
+            new Column('comment_false', Type::getType('integer'), ['comment' => false])
         );
 
         // Change type to custom type from empty string commented column.
         $tableDiff->changedColumns['comment_empty_string'] = new ColumnDiff(
             'comment_empty_string',
             new Column('comment_empty_string', Type::getType('object')),
-            array('type'),
-            new Column('comment_empty_string', Type::getType('integer'), array('comment' => ''))
+            ['type'],
+            new Column('comment_empty_string', Type::getType('integer'), ['comment' => ''])
         );
 
         // Change comment to false-comment from zero-string commented column.
         $tableDiff->changedColumns['comment_string_0'] = new ColumnDiff(
             'comment_string_0',
-            new Column('comment_string_0', Type::getType('integer'), array('comment' => false)),
-            array('comment'),
-            new Column('comment_string_0', Type::getType('integer'), array('comment' => '0'))
+            new Column('comment_string_0', Type::getType('integer'), ['comment' => false]),
+            ['comment'],
+            new Column('comment_string_0', Type::getType('integer'), ['comment' => '0'])
         );
 
         // Remove comment from regular commented column.
         $tableDiff->changedColumns['comment'] = new ColumnDiff(
             'comment',
             new Column('comment', Type::getType('integer')),
-            array('comment'),
-            new Column('comment', Type::getType('integer'), array('comment' => 'Doctrine 0wnz you!'))
+            ['comment'],
+            new Column('comment', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!'])
         );
 
         // Change comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['`comment_quoted`'] = new ColumnDiff(
             '`comment_quoted`',
-            new Column('`comment_quoted`', Type::getType('array'), array('comment' => 'Doctrine array.')),
-            array('comment', 'type'),
-            new Column('`comment_quoted`', Type::getType('integer'), array('comment' => 'Doctrine 0wnz you!'))
+            new Column('`comment_quoted`', Type::getType('array'), ['comment' => 'Doctrine array.']),
+            ['comment', 'type'],
+            new Column('`comment_quoted`', Type::getType('integer'), ['comment' => 'Doctrine 0wnz you!'])
         );
 
         // Remove comment and change type to custom type from regular commented column.
         $tableDiff->changedColumns['create'] = new ColumnDiff(
             'create',
             new Column('create', Type::getType('object')),
-            array('comment', 'type'),
-            new Column('create', Type::getType('integer'), array('comment' => 'Doctrine 0wnz comments for reserved keyword columns!'))
+            ['comment', 'type'],
+            new Column('create', Type::getType('integer'), ['comment' => 'Doctrine 0wnz comments for reserved keyword columns!'])
         );
 
         // Add comment and change custom type to regular type from non-commented column.
         $tableDiff->changedColumns['commented_type'] = new ColumnDiff(
             'commented_type',
-            new Column('commented_type', Type::getType('integer'), array('comment' => 'foo')),
-            array('comment', 'type'),
+            new Column('commented_type', Type::getType('integer'), ['comment' => 'foo']),
+            ['comment', 'type'],
             new Column('commented_type', Type::getType('object'))
         );
 
@@ -767,22 +767,22 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $tableDiff->changedColumns['commented_type_with_comment'] = new ColumnDiff(
             'commented_type_with_comment',
             new Column('commented_type_with_comment', Type::getType('array')),
-            array('comment'),
-            new Column('commented_type_with_comment', Type::getType('array'), array('comment' => 'Doctrine array type.'))
+            ['comment'],
+            new Column('commented_type_with_comment', Type::getType('array'), ['comment' => 'Doctrine array type.'])
         );
 
         // Change comment from comment with string literal char column.
         $tableDiff->changedColumns['comment_with_string_literal_char'] = new ColumnDiff(
             'comment_with_string_literal_char',
-            new Column('comment_with_string_literal_char', Type::getType('string'), array('comment' => "'")),
-            array('comment'),
-            new Column('comment_with_string_literal_char', Type::getType('array'), array('comment' => "O'Reilly"))
+            new Column('comment_with_string_literal_char', Type::getType('string'), ['comment' => "'"]),
+            ['comment'],
+            new Column('comment_with_string_literal_char', Type::getType('array'), ['comment' => "O'Reilly"])
         );
 
-        $tableDiff->removedColumns['comment_integer_0'] = new Column('comment_integer_0', Type::getType('integer'), array('comment' => 0));
+        $tableDiff->removedColumns['comment_integer_0'] = new Column('comment_integer_0', Type::getType('integer'), ['comment' => 0]);
 
         self::assertEquals(
-            array(
+            [
                 // Renamed columns.
                 "sp_RENAME 'mytable.comment_float_0', 'comment_double_0', 'COLUMN'",
 
@@ -829,7 +829,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "EXEC sp_updateextendedproperty N'MS_Description', N'foo', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', commented_type_with_comment",
                 "EXEC sp_updateextendedproperty N'MS_Description', N'''', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_with_string_literal_char",
-            ),
+            ],
             $this->_platform->getAlterTableSQL($tableDiff)
         );
     }
@@ -922,15 +922,15 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('VARBINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 8000)));
-        self::assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 8001)));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARBINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARBINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 8000]));
+        self::assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 8001]));
 
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('BINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 8000)));
-        self::assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 8001)));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BINARY(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+        self::assertSame('BINARY(8000)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 8000]));
+        self::assertSame('VARBINARY(MAX)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 8001]));
     }
 
     /**
@@ -938,9 +938,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             "EXEC sp_RENAME N'mytable.idx_foo', N'idx_bar', N'INDEX'",
-        );
+        ];
     }
 
     /**
@@ -948,10 +948,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getQuotedAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             "EXEC sp_RENAME N'[table].[create]', N'[select]', N'INDEX'",
             "EXEC sp_RENAME N'[table].[foo]', N'[bar]', N'INDEX'",
-        );
+        ];
     }
 
     /**
@@ -962,37 +962,37 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $tableName = 'column_def_change_type';
         $table     = new Table($tableName);
 
-        $table->addColumn('col_int', 'smallint', array('default' => 666));
-        $table->addColumn('col_string', 'string', array('default' => 'foo'));
+        $table->addColumn('col_int', 'smallint', ['default' => 666]);
+        $table->addColumn('col_string', 'string', ['default' => 'foo']);
 
         $tableDiff = new TableDiff($tableName);
         $tableDiff->fromTable = $table;
         $tableDiff->changedColumns['col_int'] = new ColumnDiff(
             'col_int',
-            new Column('col_int', Type::getType('integer'), array('default' => 666)),
-            array('type'),
-            new Column('col_int', Type::getType('smallint'), array('default' => 666))
+            new Column('col_int', Type::getType('integer'), ['default' => 666]),
+            ['type'],
+            new Column('col_int', Type::getType('smallint'), ['default' => 666])
         );
 
         $tableDiff->changedColumns['col_string'] = new ColumnDiff(
             'col_string',
-            new Column('col_string', Type::getType('string'), array('default' => 666, 'fixed' => true)),
-            array('fixed'),
-            new Column('col_string', Type::getType('string'), array('default' => 666))
+            new Column('col_string', Type::getType('string'), ['default' => 666, 'fixed' => true]),
+            ['fixed'],
+            new Column('col_string', Type::getType('string'), ['default' => 666])
         );
 
         $expected = $this->_platform->getAlterTableSQL($tableDiff);
 
         self::assertSame(
             $expected,
-            array(
+            [
                 'ALTER TABLE column_def_change_type DROP CONSTRAINT DF_829302E0_FA2CB292',
                 'ALTER TABLE column_def_change_type ALTER COLUMN col_int INT NOT NULL',
                 'ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_FA2CB292 DEFAULT 666 FOR col_int',
                 'ALTER TABLE column_def_change_type DROP CONSTRAINT DF_829302E0_2725A6D0',
                 'ALTER TABLE column_def_change_type ALTER COLUMN col_string NCHAR(255) NOT NULL',
                 "ALTER TABLE column_def_change_type ADD CONSTRAINT DF_829302E0_2725A6D0 DEFAULT '666' FOR col_string",
-            )
+            ]
         );
     }
 
@@ -1001,7 +1001,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getQuotedAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             "sp_RENAME 'mytable.unquoted1', 'unquoted', 'COLUMN'",
             "sp_RENAME 'mytable.unquoted2', '[where]', 'COLUMN'",
             "sp_RENAME 'mytable.unquoted3', '[foo]', 'COLUMN'",
@@ -1011,7 +1011,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "sp_RENAME 'mytable.quoted1', 'quoted', 'COLUMN'",
             "sp_RENAME 'mytable.quoted2', '[and]', 'COLUMN'",
             "sp_RENAME 'mytable.quoted3', '[baz]', 'COLUMN'",
-        );
+        ];
     }
 
     /**
@@ -1027,9 +1027,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             "EXEC sp_RENAME N'myschema.mytable.idx_foo', N'idx_bar', N'INDEX'",
-        );
+        ];
     }
 
     /**
@@ -1037,10 +1037,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             "EXEC sp_RENAME N'[schema].[table].[create]', N'[select]', N'INDEX'",
             "EXEC sp_RENAME N'[schema].[table].[foo]', N'[bar]', N'INDEX'",
-        );
+        ];
     }
 
     protected function getQuotesDropForeignKeySQL()
@@ -1064,16 +1064,16 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function getGeneratesIdentifierNamesInDefaultConstraintDeclarationSQL()
     {
-        return array(
+        return [
             // Unquoted identifiers non-reserved keywords.
-            array('mytable', array('name' => 'mycolumn', 'default' => 'foo'), " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn"),
+            ['mytable', ['name' => 'mycolumn', 'default' => 'foo'], " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn"],
             // Quoted identifiers non-reserved keywords.
-            array('`mytable`', array('name' => '`mycolumn`', 'default' => 'foo'), " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]"),
+            ['`mytable`', ['name' => '`mycolumn`', 'default' => 'foo'], " CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]"],
             // Unquoted identifiers reserved keywords.
-            array('table', array('name' => 'select', 'default' => 'foo'), " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"),
+            ['table', ['name' => 'select', 'default' => 'foo'], " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"],
             // Quoted identifiers reserved keywords.
-            array('`table`', array('name' => '`select`', 'default' => 'foo'), " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"),
-        );
+            ['`table`', ['name' => '`select`', 'default' => 'foo'], " CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"],
+        ];
     }
 
     /**
@@ -1087,40 +1087,40 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function getGeneratesIdentifierNamesInCreateTableSQL()
     {
-        return array(
+        return [
             // Unquoted identifiers non-reserved keywords.
-            array(
-                new Table('mytable', array(new Column('mycolumn', Type::getType('string'), array('default' => 'foo')))),
-                array(
+            [
+                new Table('mytable', [new Column('mycolumn', Type::getType('string'), ['default' => 'foo'])]),
+                [
                     'CREATE TABLE mytable (mycolumn NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR mycolumn"
-                )
-            ),
+                ]
+            ],
             // Quoted identifiers reserved keywords.
-            array(
-                new Table('`mytable`', array(new Column('`mycolumn`', Type::getType('string'), array('default' => 'foo')))),
-                array(
+            [
+                new Table('`mytable`', [new Column('`mycolumn`', Type::getType('string'), ['default' => 'foo'])]),
+                [
                     'CREATE TABLE [mytable] ([mycolumn] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'foo' FOR [mycolumn]"
-                )
-            ),
+                ]
+            ],
             // Unquoted identifiers reserved keywords.
-            array(
-                new Table('table', array(new Column('select', Type::getType('string'), array('default' => 'foo')))),
-                array(
+            [
+                new Table('table', [new Column('select', Type::getType('string'), ['default' => 'foo'])]),
+                [
                     'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"
-                )
-            ),
+                ]
+            ],
             // Quoted identifiers reserved keywords.
-            array(
-                new Table('`table`', array(new Column('`select`', Type::getType('string'), array('default' => 'foo')))),
-                array(
+            [
+                new Table('`table`', [new Column('`select`', Type::getType('string'), ['default' => 'foo'])]),
+                [
                     'CREATE TABLE [table] ([select] NVARCHAR(255) NOT NULL)',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'foo' FOR [select]"
-                )
-            ),
-        );
+                ]
+            ],
+        ];
     }
 
     /**
@@ -1134,104 +1134,104 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
     public function getGeneratesIdentifierNamesInAlterTableSQL()
     {
-        return array(
+        return [
             // Unquoted identifiers non-reserved keywords.
-            array(
+            [
                 new TableDiff(
                     'mytable',
-                    array(new Column('addcolumn', Type::getType('string'), array('default' => 'foo'))),
-                    array(
+                    [new Column('addcolumn', Type::getType('string'), ['default' => 'foo'])],
+                    [
                         'mycolumn' => new ColumnDiff(
                             'mycolumn',
-                            new Column('mycolumn', Type::getType('string'), array('default' => 'bar')),
-                            array('default'),
-                            new Column('mycolumn', Type::getType('string'), array('default' => 'foo'))
+                            new Column('mycolumn', Type::getType('string'), ['default' => 'bar']),
+                            ['default'],
+                            new Column('mycolumn', Type::getType('string'), ['default' => 'foo'])
                         )
-                    ),
-                    array(new Column('removecolumn', Type::getType('string'), array('default' => 'foo')))
+                    ],
+                    [new Column('removecolumn', Type::getType('string'), ['default' => 'foo'])]
                 ),
-                array(
+                [
                     'ALTER TABLE mytable ADD addcolumn NVARCHAR(255) NOT NULL',
                     "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo' FOR addcolumn",
                     'ALTER TABLE mytable DROP COLUMN removecolumn',
                     'ALTER TABLE mytable DROP CONSTRAINT DF_6B2BD609_9BADD926',
                     'ALTER TABLE mytable ALTER COLUMN mycolumn NVARCHAR(255) NOT NULL',
                     "ALTER TABLE mytable ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'bar' FOR mycolumn"
-                )
-            ),
+                ]
+            ],
             // Quoted identifiers non-reserved keywords.
-            array(
+            [
                 new TableDiff(
                     '`mytable`',
-                    array(new Column('`addcolumn`', Type::getType('string'), array('default' => 'foo'))),
-                    array(
+                    [new Column('`addcolumn`', Type::getType('string'), ['default' => 'foo'])],
+                    [
                         'mycolumn' => new ColumnDiff(
                             '`mycolumn`',
-                            new Column('`mycolumn`', Type::getType('string'), array('default' => 'bar')),
-                            array('default'),
-                            new Column('`mycolumn`', Type::getType('string'), array('default' => 'foo'))
+                            new Column('`mycolumn`', Type::getType('string'), ['default' => 'bar']),
+                            ['default'],
+                            new Column('`mycolumn`', Type::getType('string'), ['default' => 'foo'])
                         )
-                    ),
-                    array(new Column('`removecolumn`', Type::getType('string'), array('default' => 'foo')))
+                    ],
+                    [new Column('`removecolumn`', Type::getType('string'), ['default' => 'foo'])]
                 ),
-                array(
+                [
                     'ALTER TABLE [mytable] ADD [addcolumn] NVARCHAR(255) NOT NULL',
                     "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_4AD86123 DEFAULT 'foo' FOR [addcolumn]",
                     'ALTER TABLE [mytable] DROP COLUMN [removecolumn]',
                     'ALTER TABLE [mytable] DROP CONSTRAINT DF_6B2BD609_9BADD926',
                     'ALTER TABLE [mytable] ALTER COLUMN [mycolumn] NVARCHAR(255) NOT NULL',
                     "ALTER TABLE [mytable] ADD CONSTRAINT DF_6B2BD609_9BADD926 DEFAULT 'bar' FOR [mycolumn]"
-                )
-            ),
+                ]
+            ],
             // Unquoted identifiers reserved keywords.
-            array(
+            [
                 new TableDiff(
                     'table',
-                    array(new Column('add', Type::getType('string'), array('default' => 'foo'))),
-                    array(
+                    [new Column('add', Type::getType('string'), ['default' => 'foo'])],
+                    [
                         'select' => new ColumnDiff(
                             'select',
-                            new Column('select', Type::getType('string'), array('default' => 'bar')),
-                            array('default'),
-                            new Column('select', Type::getType('string'), array('default' => 'foo'))
+                            new Column('select', Type::getType('string'), ['default' => 'bar']),
+                            ['default'],
+                            new Column('select', Type::getType('string'), ['default' => 'foo'])
                         )
-                    ),
-                    array(new Column('drop', Type::getType('string'), array('default' => 'foo')))
+                    ],
+                    [new Column('drop', Type::getType('string'), ['default' => 'foo'])]
                 ),
-                array(
+                [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo' FOR [add]",
                     'ALTER TABLE [table] DROP COLUMN [drop]',
                     'ALTER TABLE [table] DROP CONSTRAINT DF_F6298F46_4BF2EAC0',
                     'ALTER TABLE [table] ALTER COLUMN [select] NVARCHAR(255) NOT NULL',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'bar' FOR [select]"
-                )
-            ),
+                ]
+            ],
             // Quoted identifiers reserved keywords.
-            array(
+            [
                 new TableDiff(
                     '`table`',
-                    array(new Column('`add`', Type::getType('string'), array('default' => 'foo'))),
-                    array(
+                    [new Column('`add`', Type::getType('string'), ['default' => 'foo'])],
+                    [
                         'select' => new ColumnDiff(
                             '`select`',
-                            new Column('`select`', Type::getType('string'), array('default' => 'bar')),
-                            array('default'),
-                            new Column('`select`', Type::getType('string'), array('default' => 'foo'))
+                            new Column('`select`', Type::getType('string'), ['default' => 'bar']),
+                            ['default'],
+                            new Column('`select`', Type::getType('string'), ['default' => 'foo'])
                         )
-                    ),
-                    array(new Column('`drop`', Type::getType('string'), array('default' => 'foo')))
+                    ],
+                    [new Column('`drop`', Type::getType('string'), ['default' => 'foo'])]
                 ),
-                array(
+                [
                     'ALTER TABLE [table] ADD [add] NVARCHAR(255) NOT NULL',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_FD1A73E7 DEFAULT 'foo' FOR [add]",
                     'ALTER TABLE [table] DROP COLUMN [drop]',
                     'ALTER TABLE [table] DROP CONSTRAINT DF_F6298F46_4BF2EAC0',
                     'ALTER TABLE [table] ALTER COLUMN [select] NVARCHAR(255) NOT NULL',
                     "ALTER TABLE [table] ADD CONSTRAINT DF_F6298F46_4BF2EAC0 DEFAULT 'bar' FOR [select]"
-                )
-            ),
-        );
+                ]
+            ],
+        ];
     }
 
     /**
@@ -1239,7 +1239,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        self::assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL([]));
     }
 
     /**
@@ -1247,11 +1247,11 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function getAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             "sp_RENAME 'foo.bar', 'baz', 'COLUMN'",
             'ALTER TABLE foo DROP CONSTRAINT DF_8C736521_76FF8CAA',
             'ALTER TABLE foo ADD CONSTRAINT DF_8C736521_78240498 DEFAULT 666 FOR baz',
-        );
+        ];
     }
 
     /**
@@ -1259,7 +1259,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getQuotesTableIdentifiersInAlterTableSQL()
     {
-        return array(
+        return [
             'ALTER TABLE [foo] DROP CONSTRAINT fk1',
             'ALTER TABLE [foo] DROP CONSTRAINT fk2',
             "sp_RENAME '[foo].id', 'war', 'COLUMN'",
@@ -1273,7 +1273,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "WHERE tbl.name = 'table';EXEC sp_executesql @sql",
             'ALTER TABLE [table] ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
             'ALTER TABLE [table] ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        );
+        ];
     }
 
     /**
@@ -1281,11 +1281,11 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getCommentOnColumnSQL()
     {
-        return array(
+        return [
             "COMMENT ON COLUMN foo.bar IS 'comment'",
             "COMMENT ON COLUMN [Foo].[BAR] IS 'comment'",
             "COMMENT ON COLUMN [select].[from] IS 'comment'",
-        );
+        ];
     }
 
     /**
@@ -1293,14 +1293,14 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function getReturnsForeignKeyReferentialActionSQL()
     {
-        return array(
-            array('CASCADE', 'CASCADE'),
-            array('SET NULL', 'SET NULL'),
-            array('NO ACTION', 'NO ACTION'),
-            array('RESTRICT', 'NO ACTION'),
-            array('SET DEFAULT', 'SET DEFAULT'),
-            array('CaScAdE', 'CASCADE'),
-        );
+        return [
+            ['CASCADE', 'CASCADE'],
+            ['SET NULL', 'SET NULL'],
+            ['NO ACTION', 'NO ACTION'],
+            ['RESTRICT', 'NO ACTION'],
+            ['SET DEFAULT', 'SET DEFAULT'],
+            ['CaScAdE', 'CASCADE'],
+        ];
     }
 
     /**
@@ -1332,9 +1332,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getAlterStringToFixedStringSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable ALTER COLUMN name NCHAR(2) NOT NULL',
-        );
+        ];
     }
 
     /**
@@ -1342,9 +1342,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
     {
-        return array(
+        return [
             "EXEC sp_RENAME N'mytable.idx_foo', N'idx_foo_renamed', N'INDEX'",
-        );
+        ];
     }
 
     public function testModifyLimitQueryWithTopNSubQueryWithOrderBy()

@@ -61,12 +61,12 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
     {
         self::assertEquals(
             'TIMESTAMP WITH TIME ZONE',
-            $this->_platform->getDateTimeTzTypeDeclarationSQL(array(
+            $this->_platform->getDateTimeTzTypeDeclarationSQL([
                 'length' => 10,
                 'fixed' => true,
                 'unsigned' => true,
                 'autoincrement' => true
-            ))
+            ])
         );
     }
 
@@ -88,10 +88,10 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     true,
                     false,
-                    array('virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload')
+                    ['virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload']
                 ),
                 'footable'
             )
@@ -101,10 +101,10 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     false,
                     false,
-                    array('virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload')
+                    ['virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload']
                 ),
                 'footable'
             )
@@ -116,10 +116,10 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     false,
                     true,
-                    array('with_nulls_not_distinct')
+                    ['with_nulls_not_distinct']
                 ),
                 'footable'
             )
@@ -131,10 +131,10 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     false,
                     false,
-                    array('with_nulls_not_distinct')
+                    ['with_nulls_not_distinct']
                 ),
                 'footable'
             )

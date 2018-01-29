@@ -38,7 +38,7 @@ class BinaryTest extends \Doctrine\Tests\DbalTestCase
 
     public function testReturnsSQLDeclaration()
     {
-        self::assertSame('DUMMYBINARY', $this->type->getSQLDeclaration(array(), $this->platform));
+        self::assertSame('DUMMYBINARY', $this->type->getSQLDeclaration([], $this->platform));
     }
 
     public function testBinaryNullConvertsToPHPValue()
@@ -74,15 +74,15 @@ class BinaryTest extends \Doctrine\Tests\DbalTestCase
 
     public function getInvalidDatabaseValues()
     {
-        return array(
-            array(false),
-            array(true),
-            array(0),
-            array(1),
-            array(-1),
-            array(0.0),
-            array(1.1),
-            array(-1.1),
-        );
+        return [
+            [false],
+            [true],
+            [0],
+            [1],
+            [-1],
+            [0.0],
+            [1.1],
+            [-1.1],
+        ];
     }
 }

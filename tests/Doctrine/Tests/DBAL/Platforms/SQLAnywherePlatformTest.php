@@ -29,10 +29,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateAlterTableSql()
     {
-        return array(
+        return [
             "ALTER TABLE mytable ADD quota INT DEFAULT NULL, DROP foo, ALTER baz VARCHAR(1) DEFAULT 'def' NOT NULL, ALTER bloo BIT DEFAULT '0' NOT NULL",
             'ALTER TABLE mytable RENAME userlist'
-        );
+        ];
     }
 
     public function getGenerateForeignKeySql()
@@ -52,10 +52,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
-        return array(
+        return [
             'CREATE TABLE test (foo VARCHAR(255) DEFAULT NULL, bar VARCHAR(255) DEFAULT NULL)',
             'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)'
-        );
+        ];
     }
 
     public function getGenerateUniqueIndexSql()
@@ -65,58 +65,58 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     protected function getQuotedColumnInForeignKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, foo VARCHAR(255) NOT NULL, "bar" VARCHAR(255) NOT NULL, CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES "foreign" ("create", bar, "foo-bar"), CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar"), CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar"))',
-        );
+        ];
     }
 
     protected function getQuotedColumnInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL)',
             'CREATE INDEX IDX_22660D028FD6E0FB ON "quoted" ("create")'
-        );
+        ];
     }
 
     protected function getQuotedNameInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE test (column1 VARCHAR(255) NOT NULL)',
             'CREATE INDEX "key" ON test (column1)',
-        );
+        ];
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR(255) NOT NULL, PRIMARY KEY ("create"))'
-        );
+        ];
     }
 
     public function getCreateTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))",
             "COMMENT ON COLUMN test.id IS 'This is a comment'",
-        );
+        ];
     }
 
     public function getAlterTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "ALTER TABLE mytable ADD quota INT NOT NULL",
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS NULL",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
-        );
+        ];
     }
 
     public function getCreateTableColumnTypeCommentsSQL()
     {
-        return array(
+        return [
             "CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (id))",
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
-        );
+        ];
     }
 
     public function testHasCorrectPlatformName()
@@ -128,17 +128,17 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
-        $table->addColumn('name', 'string', array('length' => 50));
-        $table->setPrimaryKey(array('id'));
-        $table->addIndex(array('name'));
-        $table->addIndex(array('id', 'name'), 'composite_idx');
+        $table->addColumn('name', 'string', ['length' => 50]);
+        $table->setPrimaryKey(['id']);
+        $table->addIndex(['name']);
+        $table->addIndex(['id', 'name'], 'composite_idx');
 
         self::assertEquals(
-            array(
+            [
                 'CREATE TABLE test (id INT NOT NULL, name VARCHAR(50) NOT NULL, PRIMARY KEY (id))',
                 'CREATE INDEX IDX_D87F7E0C5E237E06 ON test (name)',
                 'CREATE INDEX composite_idx ON test (id, name)'
-            ),
+            ],
             $this->_platform->getCreateTableSQL($table)
         );
     }
@@ -149,22 +149,22 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         $table->addColumn('id', 'integer');
         $table->addColumn('fk_1', 'integer');
         $table->addColumn('fk_2', 'integer');
-        $table->setPrimaryKey(array('id'));
-        $table->addForeignKeyConstraint('foreign_table', array('fk_1', 'fk_2'), array('pk_1', 'pk_2'));
+        $table->setPrimaryKey(['id']);
+        $table->addForeignKeyConstraint('foreign_table', ['fk_1', 'fk_2'], ['pk_1', 'pk_2']);
         $table->addForeignKeyConstraint(
             'foreign_table2',
-            array('fk_1', 'fk_2'),
-            array('pk_1', 'pk_2'),
-            array(),
+            ['fk_1', 'fk_2'],
+            ['pk_1', 'pk_2'],
+            [],
             'named_fk'
         );
 
         self::assertEquals(
-            array(
+            [
                 'CREATE TABLE test (id INT NOT NULL, fk_1 INT NOT NULL, fk_2 INT NOT NULL, ' .
                 'CONSTRAINT FK_D87F7E0C177612A38E7F4319 FOREIGN KEY (fk_1, fk_2) REFERENCES foreign_table (pk_1, pk_2), ' .
                 'CONSTRAINT named_fk FOREIGN KEY (fk_1, fk_2) REFERENCES foreign_table2 (pk_1, pk_2))'
-            ),
+            ],
             $this->_platform->getCreateTableSQL($table, AbstractPlatform::CREATE_FOREIGNKEYS)
         );
     }
@@ -173,14 +173,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $table = new Table('test');
         $table->addColumn('id', 'integer');
-        $table->addColumn('check_max', 'integer', array('platformOptions' => array('max' => 10)));
-        $table->addColumn('check_min', 'integer', array('platformOptions' => array('min' => 10)));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('check_max', 'integer', ['platformOptions' => ['max' => 10]]);
+        $table->addColumn('check_min', 'integer', ['platformOptions' => ['min' => 10]]);
+        $table->setPrimaryKey(['id']);
 
         self::assertEquals(
-            array(
+            [
                 'CREATE TABLE test (id INT NOT NULL, check_max INT NOT NULL, check_min INT NOT NULL, PRIMARY KEY (id), CHECK (check_max <= 10), CHECK (check_min >= 10))'
-            ),
+            ],
             $this->_platform->getCreateTableSQL($table)
         );
     }
@@ -188,20 +188,20 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesTableAlterationWithRemovedColumnCommentSql()
     {
         $table = new Table('mytable');
-        $table->addColumn('foo', 'string', array('comment' => 'foo comment'));
+        $table->addColumn('foo', 'string', ['comment' => 'foo comment']);
 
         $tableDiff = new TableDiff('mytable');
         $tableDiff->fromTable = $table;
         $tableDiff->changedColumns['foo'] = new ColumnDiff(
             'foo',
             new Column('foo', Type::getType('string')),
-            array('comment')
+            ['comment']
         );
 
         self::assertEquals(
-            array(
+            [
                 "COMMENT ON COLUMN mytable.foo IS NULL"
-            ),
+            ],
             $this->_platform->getAlterTableSQL($tableDiff)
         );
     }
@@ -219,15 +219,15 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function getLockHints()
     {
-        return array(
-            array(null, ''),
-            array(false, ''),
-            array(true, ''),
-            array(LockMode::NONE, ' WITH (NOLOCK)'),
-            array(LockMode::OPTIMISTIC, ''),
-            array(LockMode::PESSIMISTIC_READ, ' WITH (UPDLOCK)'),
-            array(LockMode::PESSIMISTIC_WRITE, ' WITH (XLOCK)'),
-        );
+        return [
+            [null, ''],
+            [false, ''],
+            [true, ''],
+            [LockMode::NONE, ' WITH (NOLOCK)'],
+            [LockMode::OPTIMISTIC, ''],
+            [LockMode::PESSIMISTIC_READ, ' WITH (UPDLOCK)'],
+            [LockMode::PESSIMISTIC_WRITE, ' WITH (XLOCK)'],
+        ];
     }
 
     public function testHasCorrectMaxIdentifierLength()
@@ -259,27 +259,27 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesColumnTypesDeclarationSQL()
     {
-        $fullColumnDef = array(
+        $fullColumnDef = [
             'length' => 10,
             'fixed' => true,
             'unsigned' => true,
             'autoincrement' => true
-        );
+        ];
 
-        self::assertEquals('SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL(array()));
-        self::assertEquals('UNSIGNED SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL(array(
+        self::assertEquals('SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL([]));
+        self::assertEquals('UNSIGNED SMALLINT', $this->_platform->getSmallIntTypeDeclarationSQL([
             'unsigned' => true
-        )));
+        ]));
         self::assertEquals('UNSIGNED SMALLINT IDENTITY', $this->_platform->getSmallIntTypeDeclarationSQL($fullColumnDef));
-        self::assertEquals('INT', $this->_platform->getIntegerTypeDeclarationSQL(array()));
-        self::assertEquals('UNSIGNED INT', $this->_platform->getIntegerTypeDeclarationSQL(array(
+        self::assertEquals('INT', $this->_platform->getIntegerTypeDeclarationSQL([]));
+        self::assertEquals('UNSIGNED INT', $this->_platform->getIntegerTypeDeclarationSQL([
             'unsigned' => true
-        )));
+        ]));
         self::assertEquals('UNSIGNED INT IDENTITY', $this->_platform->getIntegerTypeDeclarationSQL($fullColumnDef));
-        self::assertEquals('BIGINT', $this->_platform->getBigIntTypeDeclarationSQL(array()));
-        self::assertEquals('UNSIGNED BIGINT', $this->_platform->getBigIntTypeDeclarationSQL(array(
+        self::assertEquals('BIGINT', $this->_platform->getBigIntTypeDeclarationSQL([]));
+        self::assertEquals('UNSIGNED BIGINT', $this->_platform->getBigIntTypeDeclarationSQL([
             'unsigned' => true
-        )));
+        ]));
         self::assertEquals('UNSIGNED BIGINT IDENTITY', $this->_platform->getBigIntTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('LONG BINARY', $this->_platform->getBlobTypeDeclarationSQL($fullColumnDef));
         self::assertEquals('BIT', $this->_platform->getBooleanTypeDeclarationSQL($fullColumnDef));
@@ -326,14 +326,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'CONSTRAINT pk PRIMARY KEY CLUSTERED (a, b)',
             $this->_platform->getPrimaryKeyDeclarationSQL(
-                new Index(null, array('a', 'b'), true, true, array('clustered')),
+                new Index(null, ['a', 'b'], true, true, ['clustered']),
                 'pk'
             )
         );
         self::assertEquals(
             'PRIMARY KEY (a, b)',
             $this->_platform->getPrimaryKeyDeclarationSQL(
-                new Index(null, array('a', 'b'), true, true)
+                new Index(null, ['a', 'b'], true, true)
             )
         );
     }
@@ -342,7 +342,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException('\InvalidArgumentException');
 
-        $this->_platform->getPrimaryKeyDeclarationSQL(new Index('pk', array(), true, true));
+        $this->_platform->getPrimaryKeyDeclarationSQL(new Index('pk', [], true, true));
     }
 
     public function testGeneratesCreateUnnamedPrimaryKeySQL()
@@ -350,14 +350,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'ALTER TABLE foo ADD PRIMARY KEY CLUSTERED (a, b)',
             $this->_platform->getCreatePrimaryKeySQL(
-                new Index('pk', array('a', 'b'), true, true, array('clustered')),
+                new Index('pk', ['a', 'b'], true, true, ['clustered']),
                 'foo'
             )
         );
         self::assertEquals(
             'ALTER TABLE foo ADD PRIMARY KEY (a, b)',
             $this->_platform->getCreatePrimaryKeySQL(
-                new Index('any_pk_name', array('a', 'b'), true, true),
+                new Index('any_pk_name', ['a', 'b'], true, true),
                 new Table('foo')
             )
         );
@@ -369,12 +369,12 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'CONSTRAINT unique_constraint UNIQUE CLUSTERED (a, b)',
             $this->_platform->getUniqueConstraintDeclarationSQL(
                 'unique_constraint',
-                new Index(null, array('a', 'b'), true, false, array('clustered'))
+                new Index(null, ['a', 'b'], true, false, ['clustered'])
             )
         );
         self::assertEquals(
             'UNIQUE (a, b)',
-            $this->_platform->getUniqueConstraintDeclarationSQL(null, new Index(null, array('a', 'b'), true, false))
+            $this->_platform->getUniqueConstraintDeclarationSQL(null, new Index(null, ['a', 'b'], true, false))
         );
     }
 
@@ -382,7 +382,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException('\InvalidArgumentException');
 
-        $this->_platform->getUniqueConstraintDeclarationSQL('constr', new Index('constr', array(), true));
+        $this->_platform->getUniqueConstraintDeclarationSQL('constr', new Index('constr', [], true));
     }
 
     public function testGeneratesForeignKeyConstraintsWithAdvancedPlatformOptionsSQL()
@@ -393,7 +393,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
                 'REFERENCES foreign_table (c, d) ' .
                 'MATCH UNIQUE SIMPLE ON UPDATE CASCADE ON DELETE SET NULL CHECK ON COMMIT CLUSTERED FOR OLAP WORKLOAD',
             $this->_platform->getForeignKeyDeclarationSQL(
-                new ForeignKeyConstraint(array('a', 'b'), 'foreign_table', array('c', 'd'), 'fk', array(
+                new ForeignKeyConstraint(['a', 'b'], 'foreign_table', ['c', 'd'], 'fk', [
                     'notnull' => true,
                     'match' => SQLAnywherePlatform::FOREIGN_KEY_MATCH_SIMPLE_UNIQUE,
                     'onUpdate' => 'CASCADE',
@@ -401,13 +401,13 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
                     'check_on_commit' => true,
                     'clustered' => true,
                     'for_olap_workload' => true
-                ))
+                ])
             )
         );
         self::assertEquals(
             'FOREIGN KEY (a, b) REFERENCES foreign_table (c, d)',
             $this->_platform->getForeignKeyDeclarationSQL(
-                new ForeignKeyConstraint(array('a', 'b'), 'foreign_table', array('c', 'd'))
+                new ForeignKeyConstraint(['a', 'b'], 'foreign_table', ['c', 'd'])
             )
         );
     }
@@ -430,26 +430,26 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyLocalColumns()
     {
         $this->expectException('\InvalidArgumentException');
-        $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(array(), 'foreign_tbl', array('c', 'd')));
+        $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint([], 'foreign_tbl', ['c', 'd']));
     }
 
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignColumns()
     {
         $this->expectException('\InvalidArgumentException');
-        $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(array('a', 'b'), 'foreign_tbl', array()));
+        $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(['a', 'b'], 'foreign_tbl', []));
     }
 
     public function testCannotGenerateForeignKeyConstraintSQLWithEmptyForeignTableName()
     {
         $this->expectException('\InvalidArgumentException');
-        $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(array('a', 'b'), '', array('c', 'd')));
+        $this->_platform->getForeignKeyDeclarationSQL(new ForeignKeyConstraint(['a', 'b'], '', ['c', 'd']));
     }
 
     public function testCannotGenerateCommonIndexWithCreateConstraintSQL()
     {
         $this->expectException('\InvalidArgumentException');
 
-        $this->_platform->getCreateConstraintSQL(new Index('fooindex', array()), new Table('footable'));
+        $this->_platform->getCreateConstraintSQL(new Index('fooindex', []), new Table('footable'));
     }
 
     public function testCannotGenerateCustomConstraintWithCreateConstraintSQL()
@@ -466,10 +466,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     true,
                     false,
-                    array('virtual', 'clustered', 'for_olap_workload')
+                    ['virtual', 'clustered', 'for_olap_workload']
                 ),
                 'footable'
             )
@@ -480,12 +480,12 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException('\Doctrine\DBAL\DBALException');
 
-        $this->_platform->getIndexDeclarationSQL('index', new Index('index', array()));
+        $this->_platform->getIndexDeclarationSQL('index', new Index('index', []));
     }
 
     public function testGeneratesDropIndexSQL()
     {
-        $index = new Index('fooindex', array());
+        $index = new Index('fooindex', []);
 
         self::assertEquals('DROP INDEX fooindex', $this->_platform->getDropIndexSQL($index));
         self::assertEquals('DROP INDEX footable.fooindex', $this->_platform->getDropIndexSQL($index, 'footable'));
@@ -499,14 +499,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         $this->expectException('\InvalidArgumentException');
 
-        $this->_platform->getDropIndexSQL(array('index'), 'table');
+        $this->_platform->getDropIndexSQL(['index'], 'table');
     }
 
     public function testCannotGenerateDropIndexSQLWithInvalidTableParameter()
     {
         $this->expectException('\InvalidArgumentException');
 
-        $this->_platform->getDropIndexSQL('index', array('table'));
+        $this->_platform->getDropIndexSQL('index', ['table']);
     }
 
     public function testGeneratesSQLSnippets()
@@ -783,15 +783,15 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('VARBINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32767)));
-        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 32768)));
+        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('VARBINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('VARBINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32767]));
+        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 32768]));
 
-        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('BINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32767)));
-        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 32768)));
+        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('BINARY(1)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+        self::assertSame('BINARY(32767)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32767]));
+        self::assertSame('LONG BINARY', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 32768]));
     }
 
     /**
@@ -799,9 +799,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'ALTER INDEX idx_foo ON mytable RENAME TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -809,10 +809,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'ALTER INDEX "create" ON "table" RENAME TO "select"',
             'ALTER INDEX "foo" ON "table" RENAME TO "bar"',
-        );
+        ];
     }
 
     /**
@@ -820,7 +820,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable RENAME unquoted1 TO unquoted',
             'ALTER TABLE mytable RENAME unquoted2 TO "where"',
             'ALTER TABLE mytable RENAME unquoted3 TO "foo"',
@@ -830,7 +830,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable RENAME quoted1 TO quoted',
             'ALTER TABLE mytable RENAME quoted2 TO "and"',
             'ALTER TABLE mytable RENAME quoted3 TO "baz"',
-        );
+        ];
     }
 
     /**
@@ -846,9 +846,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'ALTER INDEX idx_foo ON myschema.mytable RENAME TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -856,10 +856,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'ALTER INDEX "create" ON "schema"."table" RENAME TO "select"',
             'ALTER INDEX "foo" ON "schema"."table" RENAME TO "bar"',
-        );
+        ];
     }
 
     /**
@@ -867,7 +867,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        self::assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('UNIQUEIDENTIFIER', $this->_platform->getGuidTypeDeclarationSQL([]));
     }
 
     /**
@@ -875,9 +875,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function getAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             'ALTER TABLE foo RENAME bar TO baz',
-        );
+        ];
     }
 
     /**
@@ -885,7 +885,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotesTableIdentifiersInAlterTableSQL()
     {
-        return array(
+        return [
             'ALTER TABLE "foo" DROP FOREIGN KEY fk1',
             'ALTER TABLE "foo" DROP FOREIGN KEY fk2',
             'ALTER TABLE "foo" RENAME id TO war',
@@ -893,7 +893,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE "foo" RENAME "table"',
             'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
             'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        );
+        ];
     }
 
     /**
@@ -901,11 +901,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getCommentOnColumnSQL()
     {
-        return array(
+        return [
             'COMMENT ON COLUMN foo.bar IS \'comment\'',
             'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
             'COMMENT ON COLUMN "select"."from" IS \'comment\'',
-        );
+        ];
     }
 
     /**
@@ -913,8 +913,8 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers()
     {
-        $table1 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'))));
-        $table2 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'), array('comment' => 'baz'))));
+        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
+        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
 
         $comparator = new Comparator();
 
@@ -922,9 +922,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
         self::assertSame(
-            array(
+            [
                 'COMMENT ON COLUMN "foo"."bar" IS \'baz\'',
-            ),
+            ],
             $this->_platform->getAlterTableSQL($tableDiff)
         );
     }
@@ -934,14 +934,14 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     public function getReturnsForeignKeyReferentialActionSQL()
     {
-        return array(
-            array('CASCADE', 'CASCADE'),
-            array('SET NULL', 'SET NULL'),
-            array('NO ACTION', 'RESTRICT'),
-            array('RESTRICT', 'RESTRICT'),
-            array('SET DEFAULT', 'SET DEFAULT'),
-            array('CaScAdE', 'CASCADE'),
-        );
+        return [
+            ['CASCADE', 'CASCADE'],
+            ['SET NULL', 'SET NULL'],
+            ['NO ACTION', 'RESTRICT'],
+            ['RESTRICT', 'RESTRICT'],
+            ['SET DEFAULT', 'SET DEFAULT'],
+            ['CaScAdE', 'CASCADE'],
+        ];
     }
 
     /**
@@ -981,9 +981,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getAlterStringToFixedStringSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable ALTER name CHAR(2) NOT NULL',
-        );
+        ];
     }
 
     /**
@@ -991,9 +991,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
     {
-        return array(
+        return [
             'ALTER INDEX idx_foo ON mytable RENAME TO idx_foo_renamed',
-        );
+        ];
     }
 
     /**

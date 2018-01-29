@@ -32,14 +32,14 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table = $this->getTestTable('test_create_advanced_index');
         $this->_sm->dropAndCreateTable($table);
         $this->_sm->dropAndCreateIndex(
-            new Index('test', array('test'), true, false, array('clustered', 'with_nulls_not_distinct', 'for_olap_workload')),
+            new Index('test', ['test'], true, false, ['clustered', 'with_nulls_not_distinct', 'for_olap_workload']),
             $table->getName()
         );
 
         $tableIndexes = $this->_sm->listTableIndexes('test_create_advanced_index');
         self::assertInternalType('array', $tableIndexes);
         self::assertEquals('test', $tableIndexes['test']->getName());
-        self::assertEquals(array('test'), $tableIndexes['test']->getColumns());
+        self::assertEquals(['test'], $tableIndexes['test']->getColumns());
         self::assertTrue($tableIndexes['test']->isUnique());
         self::assertFalse($tableIndexes['test']->isPrimary());
         self::assertTrue($tableIndexes['test']->hasFlag('clustered'));
@@ -50,9 +50,9 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableColumnsWithFixedStringTypeColumn()
     {
         $table = new Table('list_table_columns_char');
-        $table->addColumn('id', 'integer', array('notnull' => true));
-        $table->addColumn('test', 'string', array('fixed' => true));
-        $table->setPrimaryKey(array('id'));
+        $table->addColumn('id', 'integer', ['notnull' => true]);
+        $table->addColumn('test', 'string', ['fixed' => true]);
+        $table->setPrimaryKey(['id']);
 
         $this->_sm->dropAndCreateTable($table);
 

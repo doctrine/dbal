@@ -23,9 +23,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testDriverOptions()
     {
-        $driverOptions = array(
+        $driverOptions = [
             \MYSQLI_OPT_CONNECT_TIMEOUT => 1,
-        );
+        ];
 
         $connection = $this->getConnection($driverOptions);
         self::assertInstanceOf("\Doctrine\DBAL\Driver\Mysqli\MysqliConnection", $connection);
@@ -36,22 +36,22 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testUnsupportedDriverOption()
     {
-        $this->getConnection(array('hello' => 'world')); // use local infile
+        $this->getConnection(['hello' => 'world']); // use local infile
     }
 
     public function testPing()
     {
-        $conn = $this->getConnection(array());
+        $conn = $this->getConnection([]);
         self::assertTrue($conn->ping());
     }
 
     private function getConnection(array $driverOptions)
     {
         return new \Doctrine\DBAL\Driver\Mysqli\MysqliConnection(
-            array(
+            [
                  'host' => $GLOBALS['db_host'],
                  'dbname' => $GLOBALS['db_name'],
-            ),
+            ],
             $GLOBALS['db_username'],
             $GLOBALS['db_password'],
             $driverOptions

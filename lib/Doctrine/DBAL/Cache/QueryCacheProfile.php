@@ -111,7 +111,7 @@ class QueryCacheProfile
             $cacheKey = $this->cacheKey;
         }
 
-        return array($cacheKey, $realCacheKey);
+        return [$cacheKey, $realCacheKey];
     }
 
     /**

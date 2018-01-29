@@ -75,7 +75,7 @@ class HydratorMockStatement implements \Doctrine\DBAL\Driver\Statement
     {
     }
 
-    public function bindParam($column, &$variable, $type = null, $length = null, $driverOptions = array())
+    public function bindParam($column, &$variable, $type = null, $length = null, $driverOptions = [])
     {
     }
 
@@ -91,7 +91,7 @@ class HydratorMockStatement implements \Doctrine\DBAL\Driver\Statement
     {
     }
 
-    public function execute($params = array())
+    public function execute($params = [])
     {
     }
 

@@ -84,7 +84,7 @@ abstract class AbstractDriverTest extends DbalTestCase
             }
         };
 
-        $data[] = array($driverException, self::EXCEPTION_DRIVER);
+        $data[] = [$driverException, self::EXCEPTION_DRIVER];
 
         $message = 'DBAL exception message';
 
@@ -149,11 +149,11 @@ abstract class AbstractDriverTest extends DbalTestCase
 
     public function testReturnsDatabaseName()
     {
-        $params = array(
+        $params = [
             'user'     => 'foo',
             'password' => 'bar',
             'dbname'   => 'baz',
-        );
+        ];
 
         $connection = $this->getConnectionMock();
 
@@ -216,17 +216,17 @@ abstract class AbstractDriverTest extends DbalTestCase
 
     protected function getDatabasePlatformsForVersions()
     {
-        return array();
+        return [];
     }
 
     protected function getExceptionConversionData()
     {
-        return array();
+        return [];
     }
 
     private function getExceptionConversions()
     {
-        $data = array();
+        $data = [];
 
         foreach ($this->getExceptionConversionData() as $convertedExceptionClassName => $errors) {
             foreach ($errors as $error) {
@@ -269,7 +269,7 @@ abstract class AbstractDriverTest extends DbalTestCase
                     }
                 };
 
-                $data[] = array($driverException, $convertedExceptionClassName);
+                $data[] = [$driverException, $convertedExceptionClassName];
             }
         }
 

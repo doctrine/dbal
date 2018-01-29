@@ -72,20 +72,20 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function getGenerateTableWithMultiColumnUniqueIndexSql()
     {
-        return array(
+        return [
             'CREATE TABLE test (foo VARCHAR2(255) DEFAULT NULL NULL, bar VARCHAR2(255) DEFAULT NULL NULL)',
             'CREATE UNIQUE INDEX UNIQ_D87F7E0C8C73652176FF8CAA ON test (foo, bar)',
-        );
+        ];
     }
 
     public function getGenerateAlterTableSql()
     {
-        return array(
+        return [
             'ALTER TABLE mytable ADD (quota NUMBER(10) DEFAULT NULL NULL)',
             "ALTER TABLE mytable MODIFY (baz VARCHAR2(255) DEFAULT 'def' NOT NULL, bloo NUMBER(1) DEFAULT '0' NOT NULL)",
             "ALTER TABLE mytable DROP (foo)",
             "ALTER TABLE mytable RENAME TO userlist",
-        );
+        ];
     }
 
     /**
@@ -144,16 +144,16 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'NUMBER(10)',
-            $this->_platform->getIntegerTypeDeclarationSQL(array())
+            $this->_platform->getIntegerTypeDeclarationSQL([])
         );
         self::assertEquals(
             'NUMBER(10)',
-            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
+            $this->_platform->getIntegerTypeDeclarationSQL(['autoincrement' => true]
             ));
         self::assertEquals(
             'NUMBER(10)',
             $this->_platform->getIntegerTypeDeclarationSQL(
-                array('autoincrement' => true, 'primary' => true)
+                ['autoincrement' => true, 'primary' => true]
             ));
     }
 
@@ -162,16 +162,16 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             'CHAR(10)',
             $this->_platform->getVarcharTypeDeclarationSQL(
-                array('length' => 10, 'fixed' => true)
+                ['length' => 10, 'fixed' => true]
             ));
         self::assertEquals(
             'VARCHAR2(50)',
-            $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
+            $this->_platform->getVarcharTypeDeclarationSQL(['length' => 50]),
             'Variable string declaration is not correct'
         );
         self::assertEquals(
             'VARCHAR2(255)',
-            $this->_platform->getVarcharTypeDeclarationSQL(array()),
+            $this->_platform->getVarcharTypeDeclarationSQL([]),
             'Long string declaration is not correct'
         );
     }
@@ -221,7 +221,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testGeneratesAdvancedForeignKeyOptionsSQL(array $options, $expectedSql)
     {
-        $foreignKey = new ForeignKeyConstraint(array('foo'), 'foreign_table', array('bar'), null, $options);
+        $foreignKey = new ForeignKeyConstraint(['foo'], 'foreign_table', ['bar'], null, $options);
 
         self::assertSame($expectedSql, $this->_platform->getAdvancedForeignKeyOptionsSQL($foreignKey));
     }
@@ -231,14 +231,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function getGeneratesAdvancedForeignKeyOptionsSQLData()
     {
-        return array(
-            array(array(), ''),
-            array(array('onUpdate' => 'CASCADE'), ''),
-            array(array('onDelete' => 'CASCADE'), ' ON DELETE CASCADE'),
-            array(array('onDelete' => 'NO ACTION'), ''),
-            array(array('onDelete' => 'RESTRICT'), ''),
-            array(array('onUpdate' => 'SET NULL', 'onDelete' => 'SET NULL'), ' ON DELETE SET NULL'),
-        );
+        return [
+            [[], ''],
+            [['onUpdate' => 'CASCADE'], ''],
+            [['onDelete' => 'CASCADE'], ' ON DELETE CASCADE'],
+            [['onDelete' => 'NO ACTION'], ''],
+            [['onDelete' => 'RESTRICT'], ''],
+            [['onUpdate' => 'SET NULL', 'onDelete' => 'SET NULL'], ' ON DELETE SET NULL'],
+        ];
     }
 
     /**
@@ -246,13 +246,13 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function getReturnsForeignKeyReferentialActionSQL()
     {
-        return array(
-            array('CASCADE', 'CASCADE'),
-            array('SET NULL', 'SET NULL'),
-            array('NO ACTION', ''),
-            array('RESTRICT', ''),
-            array('CaScAdE', 'CASCADE'),
-        );
+        return [
+            ['CASCADE', 'CASCADE'],
+            ['SET NULL', 'SET NULL'],
+            ['NO ACTION', ''],
+            ['RESTRICT', ''],
+            ['CaScAdE', 'CASCADE'],
+        ];
     }
 
     public function testModifyLimitQuery()
@@ -298,12 +298,12 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $table = new \Doctrine\DBAL\Schema\Table($tableName);
         $column = $table->addColumn($columnName, 'integer');
         $column->setAutoincrement(true);
-        $targets = array(
+        $targets = [
             "CREATE TABLE {$tableName} ({$columnName} NUMBER(10) NOT NULL)",
             "DECLARE constraints_Count NUMBER; BEGIN SELECT COUNT(CONSTRAINT_NAME) INTO constraints_Count FROM USER_CONSTRAINTS WHERE TABLE_NAME = '{$tableName}' AND CONSTRAINT_TYPE = 'P'; IF constraints_Count = 0 OR constraints_Count = '' THEN EXECUTE IMMEDIATE 'ALTER TABLE {$tableName} ADD CONSTRAINT {$tableName}_AI_PK PRIMARY KEY ({$columnName})'; END IF; END;",
             "CREATE SEQUENCE {$tableName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
             "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
-        );
+        ];
         $statements = $this->_platform->getCreateTableSQL($table);
         //strip all the whitespace from the statements
         array_walk($statements, function(&$value){
@@ -317,28 +317,28 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function getCreateTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "CREATE TABLE test (id NUMBER(10) NOT NULL, PRIMARY KEY(id))",
             "COMMENT ON COLUMN test.id IS 'This is a comment'",
-        );
+        ];
     }
 
     public function getCreateTableColumnTypeCommentsSQL()
     {
-        return array(
+        return [
             "CREATE TABLE test (id NUMBER(10) NOT NULL, data CLOB NOT NULL, PRIMARY KEY(id))",
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
-        );
+        ];
     }
 
     public function getAlterTableColumnCommentsSQL()
     {
-        return array(
+        return [
             "ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)",
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS ''",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
-        );
+        ];
     }
 
     public function getBitAndComparisonExpressionSql($value1, $value2)
@@ -355,33 +355,33 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     protected function getQuotedColumnInPrimaryKeySQL()
     {
-        return array('CREATE TABLE "quoted" ("create" VARCHAR2(255) NOT NULL, PRIMARY KEY("create"))');
+        return ['CREATE TABLE "quoted" ("create" VARCHAR2(255) NOT NULL, PRIMARY KEY("create"))'];
     }
 
     protected function getQuotedColumnInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR2(255) NOT NULL)',
             'CREATE INDEX IDX_22660D028FD6E0FB ON "quoted" ("create")',
-        );
+        ];
     }
 
     protected function getQuotedNameInIndexSQL()
     {
-        return array(
+        return [
             'CREATE TABLE test (column1 VARCHAR2(255) NOT NULL)',
             'CREATE INDEX "key" ON test (column1)',
-        );
+        ];
     }
 
     protected function getQuotedColumnInForeignKeySQL()
     {
-        return array(
+        return [
             'CREATE TABLE "quoted" ("create" VARCHAR2(255) NOT NULL, foo VARCHAR2(255) NOT NULL, "bar" VARCHAR2(255) NOT NULL)',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foreign ("create", bar, "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_NON_RESERVED_KEYWORD FOREIGN KEY ("create", foo, "bar") REFERENCES foo ("create", bar, "foo-bar")',
             'ALTER TABLE "quoted" ADD CONSTRAINT FK_WITH_INTENDED_QUOTATION FOREIGN KEY ("create", foo, "bar") REFERENCES "foo-bar" ("create", bar, "foo-bar")',
-        );
+        ];
     }
 
     /**
@@ -393,26 +393,26 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $tableDiff = new \Doctrine\DBAL\Schema\TableDiff('mytable');
         $tableDiff->changedColumns['foo'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'foo', new \Doctrine\DBAL\Schema\Column(
-                'foo', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'bla', 'notnull' => true)
+                'foo', \Doctrine\DBAL\Types\Type::getType('string'), ['default' => 'bla', 'notnull' => true]
             ),
-            array('type')
+            ['type']
         );
         $tableDiff->changedColumns['bar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'bar', new \Doctrine\DBAL\Schema\Column(
-                'baz', \Doctrine\DBAL\Types\Type::getType('string'), array('default' => 'bla', 'notnull' => true)
+                'baz', \Doctrine\DBAL\Types\Type::getType('string'), ['default' => 'bla', 'notnull' => true]
             ),
-            array('type', 'notnull')
+            ['type', 'notnull']
         );
         $tableDiff->changedColumns['metar'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'metar', new \Doctrine\DBAL\Schema\Column(
-                'metar', \Doctrine\DBAL\Types\Type::getType('string'), array('length' => 2000, 'notnull' => false)
+                'metar', \Doctrine\DBAL\Types\Type::getType('string'), ['length' => 2000, 'notnull' => false]
             ),
-            array('notnull')
+            ['notnull']
         );
 
-        $expectedSql = array(
+        $expectedSql = [
             "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)",
-        );
+        ];
         self::assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
     }
 
@@ -438,25 +438,25 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 2000)));
-        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 2001)));
+        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL([]));
+        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 0]));
+        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 2000]));
+        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(['length' => 2001]));
 
-        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2000)));
-        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2001)));
+        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true]));
+        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 0]));
+        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 2000]));
+        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(['fixed' => true, 'length' => 2001]));
     }
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType()
     {
         $table1 = new Table('mytable');
         $table1->addColumn('column_varbinary', 'binary');
-        $table1->addColumn('column_binary', 'binary', array('fixed' => true));
+        $table1->addColumn('column_binary', 'binary', ['fixed' => true]);
 
         $table2 = new Table('mytable');
-        $table2->addColumn('column_varbinary', 'binary', array('fixed' => true));
+        $table2->addColumn('column_varbinary', 'binary', ['fixed' => true]);
         $table2->addColumn('column_binary', 'binary');
 
         $comparator = new Comparator();
@@ -498,11 +498,11 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function dataCreateSequenceWithCache()
     {
-        return array(
-            array(1, 'NOCACHE'),
-            array(0, 'NOCACHE'),
-            array(3, 'CACHE 3')
-        );
+        return [
+            [1, 'NOCACHE'],
+            [0, 'NOCACHE'],
+            [3, 'CACHE 3']
+        ];
     }
 
     /**
@@ -510,9 +510,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     protected function getAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'ALTER INDEX idx_foo RENAME TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -520,10 +520,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexSQL()
     {
-        return array(
+        return [
             'ALTER INDEX "create" RENAME TO "select"',
             'ALTER INDEX "foo" RENAME TO "bar"',
-        );
+        ];
     }
 
     /**
@@ -531,7 +531,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable RENAME COLUMN unquoted1 TO unquoted',
             'ALTER TABLE mytable RENAME COLUMN unquoted2 TO "where"',
             'ALTER TABLE mytable RENAME COLUMN unquoted3 TO "foo"',
@@ -541,7 +541,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE mytable RENAME COLUMN quoted1 TO quoted',
             'ALTER TABLE mytable RENAME COLUMN quoted2 TO "and"',
             'ALTER TABLE mytable RENAME COLUMN quoted3 TO "baz"',
-        );
+        ];
     }
 
     /**
@@ -557,9 +557,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     protected function getAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'ALTER INDEX myschema.idx_foo RENAME TO idx_bar',
-        );
+        ];
     }
 
     /**
@@ -567,10 +567,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotedAlterTableRenameIndexInSchemaSQL()
     {
-        return array(
+        return [
             'ALTER INDEX "schema"."create" RENAME TO "select"',
             'ALTER INDEX "schema"."foo" RENAME TO "bar"',
-        );
+        ];
     }
 
     protected function getQuotesDropForeignKeySQL()
@@ -583,7 +583,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL([]));
     }
 
     /**
@@ -591,9 +591,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function getAlterTableRenameColumnSQL()
     {
-        return array(
+        return [
             'ALTER TABLE foo RENAME COLUMN bar TO baz',
-        );
+        ];
     }
 
     /**
@@ -607,32 +607,32 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function getReturnsDropAutoincrementSQL()
     {
-        return array(
-            array(
+        return [
+            [
                 'myTable',
-                array(
+                [
                     'DROP TRIGGER MYTABLE_AI_PK',
                     'DROP SEQUENCE MYTABLE_SEQ',
                     'ALTER TABLE MYTABLE DROP CONSTRAINT MYTABLE_AI_PK',
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 '"myTable"',
-                array(
+                [
                     'DROP TRIGGER "myTable_AI_PK"',
                     'DROP SEQUENCE "myTable_SEQ"',
                     'ALTER TABLE "myTable" DROP CONSTRAINT "myTable_AI_PK"',
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'table',
-                array(
+                [
                     'DROP TRIGGER TABLE_AI_PK',
                     'DROP SEQUENCE TABLE_SEQ',
                     'ALTER TABLE "TABLE" DROP CONSTRAINT TABLE_AI_PK',
-                )
-            ),
-        );
+                ]
+            ],
+        ];
     }
 
     /**
@@ -640,7 +640,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     protected function getQuotesTableIdentifiersInAlterTableSQL()
     {
-        return array(
+        return [
             'ALTER TABLE "foo" DROP CONSTRAINT fk1',
             'ALTER TABLE "foo" DROP CONSTRAINT fk2',
             'ALTER TABLE "foo" ADD (bloo NUMBER(10) NOT NULL)',
@@ -650,7 +650,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             'ALTER TABLE "foo" RENAME TO "table"',
             'ALTER TABLE "table" ADD CONSTRAINT fk_add FOREIGN KEY (fk3) REFERENCES fk_table (id)',
             'ALTER TABLE "table" ADD CONSTRAINT fk2 FOREIGN KEY (fk2) REFERENCES fk_table2 (id)',
-        );
+        ];
     }
 
     /**
@@ -658,11 +658,11 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     protected function getCommentOnColumnSQL()
     {
-        return array(
+        return [
             'COMMENT ON COLUMN foo.bar IS \'comment\'',
             'COMMENT ON COLUMN "Foo"."BAR" IS \'comment\'',
             'COMMENT ON COLUMN "select"."from" IS \'comment\'',
-        );
+        ];
     }
 
     /**
@@ -670,8 +670,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testAltersTableColumnCommentWithExplicitlyQuotedIdentifiers()
     {
-        $table1 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'))));
-        $table2 = new Table('"foo"', array(new Column('"bar"', Type::getType('integer'), array('comment' => 'baz'))));
+        $table1 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'))]);
+        $table2 = new Table('"foo"', [new Column('"bar"', Type::getType('integer'), ['comment' => 'baz'])]);
 
         $comparator = new Comparator();
 
@@ -679,9 +679,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $tableDiff);
         self::assertSame(
-            array(
+            [
                 'COMMENT ON COLUMN "foo"."bar" IS \'baz\'',
-            ),
+            ],
             $this->_platform->getAlterTableSQL($tableDiff)
         );
     }
@@ -689,7 +689,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function testQuotedTableNames()
     {
         $table = new Table('"test"');
-        $table->addColumn('"id"', 'integer', array('autoincrement' => true));
+        $table->addColumn('"id"', 'integer', ['autoincrement' => true]);
 
         // assert tabel
         self::assertTrue($table->isQuoted());
@@ -740,8 +740,8 @@ EOD;
 
     public function getReturnsGetListTableColumnsSQL()
     {
-        return array(
-            array(
+        return [
+            [
                 null,
                 "SELECT   c.*,
                          (
@@ -753,8 +753,8 @@ EOD;
                 FROM     user_tab_columns c
                 WHERE    c.table_name = 'test' 
                 ORDER BY c.column_id"
-            ),
-            array(
+            ],
+            [
                 '/',
                 "SELECT   c.*,
                          (
@@ -766,8 +766,8 @@ EOD;
                 FROM     user_tab_columns c
                 WHERE    c.table_name = 'test' 
                 ORDER BY c.column_id"
-            ),
-            array(
+            ],
+            [
                 'scott',
                 "SELECT   c.*,
                          (
@@ -779,8 +779,8 @@ EOD;
                 FROM     all_tab_columns c
                 WHERE    c.table_name = 'test' AND c.owner = 'SCOTT'
                 ORDER BY c.column_id"
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -812,9 +812,9 @@ EOD;
      */
     protected function getAlterStringToFixedStringSQL()
     {
-        return array(
+        return [
             'ALTER TABLE mytable MODIFY (name CHAR(2) DEFAULT NULL)',
-        );
+        ];
     }
 
     /**
@@ -822,9 +822,9 @@ EOD;
      */
     protected function getGeneratesAlterTableRenameIndexUsedByForeignKeySQL()
     {
-        return array(
+        return [
             'ALTER INDEX idx_foo RENAME TO idx_foo_renamed',
-        );
+        ];
     }
 
     /**

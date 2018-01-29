@@ -13,7 +13,7 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $table = new Table('boolean_column_test');
         $table->addColumn('bool', 'boolean');
-        $table->addColumn('bool_commented', 'boolean', array('comment' => "That's a comment"));
+        $table->addColumn('bool_commented', 'boolean', ['comment' => "That's a comment"]);
 
         $this->_sm->createTable($table);
 

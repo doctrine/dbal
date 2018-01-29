@@ -40,20 +40,20 @@ class OracleSessionInitTest extends DbalTestCase
         $eventArgs = new ConnectionEventArgs($connectionMock);
 
 
-        $listener = new OracleSessionInit(array($name => $value));
+        $listener = new OracleSessionInit([$name => $value]);
         $listener->postConnect($eventArgs);
     }
 
     public function getPostConnectWithSessionParameterValuesData()
     {
-        return array(
-            array('CURRENT_SCHEMA', 'foo'),
-        );
+        return [
+            ['CURRENT_SCHEMA', 'foo'],
+        ];
     }
 
     public function testGetSubscribedEvents()
     {
         $listener = new OracleSessionInit();
-        self::assertEquals(array(Events::postConnect), $listener->getSubscribedEvents());
+        self::assertEquals([Events::postConnect], $listener->getSubscribedEvents());
     }
 }

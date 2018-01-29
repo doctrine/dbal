@@ -16,13 +16,13 @@ class ColumnDiffTest extends \PHPUnit\Framework\TestCase
         $fromColumn = new Column('"foo"', Type::getType(Type::INTEGER));
         $toColumn = new Column('bar', Type::getType(Type::INTEGER));
 
-        $columnDiff = new ColumnDiff('"foo"', $toColumn, array());
+        $columnDiff = new ColumnDiff('"foo"', $toColumn, []);
         self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
 
-        $columnDiff = new ColumnDiff('"foo"', $toColumn, array(), $fromColumn);
+        $columnDiff = new ColumnDiff('"foo"', $toColumn, [], $fromColumn);
         self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
 
-        $columnDiff = new ColumnDiff('foo', $toColumn, array(), $fromColumn);
+        $columnDiff = new ColumnDiff('foo', $toColumn, [], $fromColumn);
         self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
     }
 }

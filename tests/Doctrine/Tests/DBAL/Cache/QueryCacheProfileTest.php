@@ -25,13 +25,13 @@ class QueryCacheProfileTest extends DbalTestCase
         $params = [666];
         $types  = [PDO::PARAM_INT];
 
-        $connectionParams = array(
+        $connectionParams = [
             'dbname'   => 'database_name',
             'user'     => 'database_user',
             'password' => 'database_password',
             'host'     => 'database_host',
             'driver'   => 'database_driver'
-        );
+        ];
 
         list($cacheKey) = $this->queryCacheProfile->generateCacheKeys(
             $query,
@@ -49,13 +49,13 @@ class QueryCacheProfileTest extends DbalTestCase
         $params = [666];
         $types  = [PDO::PARAM_INT];
 
-        $connectionParams = array(
+        $connectionParams = [
             'dbname'   => 'database_name',
             'user'     => 'database_user',
             'password' => 'database_password',
             'host'     => 'database_host',
             'driver'   => 'database_driver'
-        );
+        ];
 
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
@@ -81,13 +81,13 @@ class QueryCacheProfileTest extends DbalTestCase
         $params = [666];
         $types  = [PDO::PARAM_INT];
 
-        $connectionParams = array(
+        $connectionParams = [
             'dbname'   => 'database_name',
             'user'     => 'database_user',
             'password' => 'database_password',
             'host'     => 'database_host',
             'driver'   => 'database_driver'
-        );
+        ];
 
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 
@@ -116,13 +116,13 @@ class QueryCacheProfileTest extends DbalTestCase
         $params = [666];
         $types  = [PDO::PARAM_INT];
 
-        $connectionParams = array(
+        $connectionParams = [
             'dbname'   => 'database_name',
             'user'     => 'database_user',
             'password' => 'database_password',
             'host'     => 'database_host',
             'driver'   => 'database_driver'
-        );
+        ];
 
         $this->queryCacheProfile = $this->queryCacheProfile->setCacheKey(null);
 

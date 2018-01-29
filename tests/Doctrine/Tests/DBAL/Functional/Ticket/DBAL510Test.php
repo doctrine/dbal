@@ -23,7 +23,7 @@ class DBAL510Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $table = new Table("dbal510tbl");
         $table->addColumn('id', 'integer');
-        $table->setPrimaryKey(array('id'));
+        $table->setPrimaryKey(['id']);
 
         $this->_conn->getSchemaManager()->createTable($table);
 

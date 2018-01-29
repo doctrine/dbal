@@ -27,7 +27,7 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
     {
         self::assertInternalType(
             'string',
-            $this->_type->convertToDatabaseValue(array(), $this->_platform)
+            $this->_type->convertToDatabaseValue([], $this->_platform)
         );
     }
 
@@ -35,7 +35,7 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
     {
         self::assertInternalType(
             'array',
-            $this->_type->convertToPHPValue(serialize(array()), $this->_platform)
+            $this->_type->convertToPHPValue(serialize([]), $this->_platform)
         );
     }
 

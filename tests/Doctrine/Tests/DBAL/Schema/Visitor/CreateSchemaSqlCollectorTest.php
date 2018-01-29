@@ -25,19 +25,19 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 
         $this->platformMock = $this->getMockBuilder('Doctrine\DBAL\Platforms\AbstractPlatform')
             ->setMethods(
-                array(
+                [
                     'getCreateForeignKeySQL',
                     'getCreateSchemaSQL',
                     'getCreateSequenceSQL',
                     'getCreateTableSQL',
                     'supportsForeignKeyConstraints',
                     'supportsSchemas'
-                )
+                ]
             )
             ->getMockForAbstractClass();
         $this->visitor = new CreateSchemaSqlCollector($this->platformMock);
 
-        foreach (array('getCreateSchemaSQL', 'getCreateTableSQL', 'getCreateForeignKeySQL', 'getCreateSequenceSQL') as $method) {
+        foreach (['getCreateSchemaSQL', 'getCreateTableSQL', 'getCreateForeignKeySQL', 'getCreateSequenceSQL'] as $method) {
             $this->platformMock->expects($this->any())
                 ->method($method)
                 ->will($this->returnValue('foo'));
@@ -60,7 +60,7 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 
         $this->visitor->acceptNamespace('foo');
 
-        self::assertSame(array('foo'), $this->visitor->getQueries());
+        self::assertSame(['foo'], $this->visitor->getQueries());
     }
 
     public function testAcceptsTable()
@@ -69,7 +69,7 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 
         $this->visitor->acceptTable($table);
 
-        self::assertSame(array('foo'), $this->visitor->getQueries());
+        self::assertSame(['foo'], $this->visitor->getQueries());
     }
 
     public function testAcceptsForeignKey()
@@ -91,7 +91,7 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 
         $this->visitor->acceptForeignKey($table, $foreignKey);
 
-        self::assertSame(array('foo'), $this->visitor->getQueries());
+        self::assertSame(['foo'], $this->visitor->getQueries());
     }
 
     public function testAcceptsSequences()
@@ -100,12 +100,12 @@ class CreateSchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 
         $this->visitor->acceptSequence($sequence);
 
-        self::assertSame(array('foo'), $this->visitor->getQueries());
+        self::assertSame(['foo'], $this->visitor->getQueries());
     }
 
     public function testResetsQueries()
     {
-        foreach (array('supportsSchemas', 'supportsForeignKeyConstraints') as $method) {
+        foreach (['supportsSchemas', 'supportsForeignKeyConstraints'] as $method) {
             $this->platformMock->expects($this->any())
                 ->method($method)
                 ->will($this->returnValue(true));
