@@ -68,7 +68,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     /**
      * @dataProvider dataIdempotentDataConversion
      * @param string $type
-     * @param mixed $originalValue
+     * @param mixed  $originalValue
      * @param string $expectedPhpType
      */
     public function testIdempotentDataConversion($type, $originalValue, $expectedPhpType)

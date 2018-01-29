@@ -37,7 +37,7 @@ class SQLAzureShardManager implements ShardManager
     private $federationName;
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $filteringEnabled;
 
@@ -122,7 +122,7 @@ class SQLAzureShardManager implements ShardManager
     /**
      * Sets Enabled/Disable filtering on the fly.
      *
-     * @param boolean $flag
+     * @param bool $flag
      *
      * @return void
      */

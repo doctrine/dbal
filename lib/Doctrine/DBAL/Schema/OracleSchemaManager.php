@@ -343,7 +343,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * @param string $table
      *
-     * @return boolean
+     * @return bool
      */
     public function dropAutoincrement($table)
     {

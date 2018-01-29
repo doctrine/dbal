@@ -31,7 +31,7 @@ use PDO;
 class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 {
     /**
-     * @var integer
+     * @var int
      */
     private $portability;
 
@@ -41,12 +41,12 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     private $stmt;
 
     /**
-     * @var integer
+     * @var int
      */
     private $case;
 
     /**
-     * @var integer
+     * @var int
      */
     private $defaultFetchMode = PDO::FETCH_BOTH;
 
@@ -195,9 +195,9 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     }
 
     /**
-     * @param mixed   $row
-     * @param integer $iterateRow
-     * @param boolean $fixCase
+     * @param mixed $row
+     * @param int   $iterateRow
+     * @param bool  $fixCase
      *
      * @return array
      */

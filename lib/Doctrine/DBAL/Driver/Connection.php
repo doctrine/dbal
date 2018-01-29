@@ -48,8 +48,8 @@ interface Connection
     /**
      * Quotes a string for use in a query.
      *
-     * @param mixed  $input
-     * @param integer $type
+     * @param mixed $input
+     * @param int   $type
      *
      * @return mixed
      */
@@ -60,7 +60,7 @@ interface Connection
      *
      * @param string $statement
      *
-     * @return integer
+     * @return int
      */
     function exec($statement);
 
@@ -76,21 +76,21 @@ interface Connection
     /**
      * Initiates a transaction.
      *
-     * @return boolean TRUE on success or FALSE on failure.
+     * @return bool TRUE on success or FALSE on failure.
      */
     function beginTransaction();
 
     /**
      * Commits a transaction.
      *
-     * @return boolean TRUE on success or FALSE on failure.
+     * @return bool TRUE on success or FALSE on failure.
      */
     function commit();
 
     /**
      * Rolls back the current transaction, as initiated by beginTransaction().
      *
-     * @return boolean TRUE on success or FALSE on failure.
+     * @return bool TRUE on success or FALSE on failure.
      */
     function rollBack();
 

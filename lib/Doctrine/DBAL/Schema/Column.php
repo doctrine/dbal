@@ -36,32 +36,32 @@ class Column extends AbstractAsset
     protected $_type;
 
     /**
-     * @var integer|null
+     * @var int|null
      */
     protected $_length = null;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $_precision = 10;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $_scale = 0;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $_unsigned = false;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $_fixed = false;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $_notnull = true;
 
@@ -71,7 +71,7 @@ class Column extends AbstractAsset
     protected $_default = null;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $_autoincrement = false;
 
@@ -147,7 +147,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param integer|null $length
+     * @param int|null $length
      *
      * @return Column
      */
@@ -163,7 +163,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param integer $precision
+     * @param int $precision
      *
      * @return Column
      */
@@ -179,7 +179,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param integer $scale
+     * @param int $scale
      *
      * @return Column
      */
@@ -195,7 +195,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param boolean $unsigned
+     * @param bool $unsigned
      *
      * @return Column
      */
@@ -207,7 +207,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param boolean $fixed
+     * @param bool $fixed
      *
      * @return Column
      */
@@ -219,7 +219,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param boolean $notnull
+     * @param bool $notnull
      *
      * @return Column
      */
@@ -288,7 +288,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return integer|null
+     * @return int|null
      */
     public function getLength()
     {
@@ -296,7 +296,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getPrecision()
     {
@@ -304,7 +304,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getScale()
     {
@@ -312,7 +312,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getUnsigned()
     {
@@ -320,7 +320,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getFixed()
     {
@@ -328,7 +328,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getNotnull()
     {
@@ -354,7 +354,7 @@ class Column extends AbstractAsset
     /**
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     public function hasPlatformOption($name)
     {
@@ -380,7 +380,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getAutoincrement()
     {
@@ -388,7 +388,7 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param boolean $flag
+     * @param bool $flag
      *
      * @return Column
      */
@@ -435,7 +435,7 @@ class Column extends AbstractAsset
     /**
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     public function hasCustomSchemaOption($name)
     {

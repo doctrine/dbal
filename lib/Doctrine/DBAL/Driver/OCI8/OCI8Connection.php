@@ -35,7 +35,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     protected $dbh;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $executeMode = OCI_COMMIT_ON_SUCCESS;
 
@@ -46,8 +46,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      * @param string      $password
      * @param string      $db
      * @param string|null $charset
-     * @param integer     $sessionMode
-     * @param boolean     $persistent
+     * @param int         $sessionMode
+     * @param bool        $persistent
      *
      * @throws OCI8Exception
      */
@@ -164,7 +164,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * Returns the current execution mode.
      *
-     * @return integer
+     * @return int
      */
     public function getExecuteMode()
     {

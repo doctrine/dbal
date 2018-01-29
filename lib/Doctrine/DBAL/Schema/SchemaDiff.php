@@ -138,7 +138,7 @@ class SchemaDiff
 
     /**
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
-     * @param boolean                                   $saveMode
+     * @param bool                                      $saveMode
      *
      * @return array
      */

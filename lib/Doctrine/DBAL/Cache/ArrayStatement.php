@@ -30,17 +30,17 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     private $data;
 
     /**
-     * @var integer
+     * @var int
      */
     private $columnCount = 0;
 
     /**
-     * @var integer
+     * @var int
      */
     private $num = 0;
 
     /**
-     * @var integer
+     * @var int
      */
     private $defaultFetchMode = PDO::FETCH_BOTH;
 

@@ -144,9 +144,9 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     /**
      * @dataProvider ticketProvider
      * @param string $query
-     * @param array $params
-     * @param array $types
-     * @param array $expected
+     * @param array  $params
+     * @param array  $types
+     * @param array  $expected
      */
     public function testTicket($query,$params,$types,$expected)
     {

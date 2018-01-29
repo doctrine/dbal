@@ -139,7 +139,7 @@ abstract class Type
      *
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
-     * @return integer|null
+     * @return int|null
      *
      * @todo Needed?
      */
@@ -213,7 +213,7 @@ abstract class Type
      *
      * @param string $name The name of the type.
      *
-     * @return boolean TRUE if type is supported; FALSE otherwise.
+     * @return bool TRUE if type is supported; FALSE otherwise.
      */
     public static function hasType($name)
     {
@@ -255,7 +255,7 @@ abstract class Type
      * PDO::PARAM_STR
      * PDO::PARAM_LOB
      *
-     * @return integer
+     * @return int
      */
     public function getBindingType()
     {
@@ -291,7 +291,7 @@ abstract class Type
      * {@link convertToPHPValueSQL} works for any type and mostly
      * does nothing. This method can additionally be used for optimization purposes.
      *
-     * @return boolean
+     * @return bool
      */
     public function canRequireSQLConversion()
     {
@@ -344,7 +344,7 @@ abstract class Type
      *
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
-     * @return boolean
+     * @return bool
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {

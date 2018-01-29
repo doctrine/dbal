@@ -35,7 +35,7 @@ interface ShardChoser
      * @param string                                         $distributionValue
      * @param \Doctrine\DBAL\Sharding\PoolingShardConnection $conn
      *
-     * @return integer
+     * @return int
      */
     function pickShard($distributionValue, PoolingShardConnection $conn);
 }

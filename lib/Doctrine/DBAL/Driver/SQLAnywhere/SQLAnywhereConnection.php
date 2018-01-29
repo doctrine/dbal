@@ -41,8 +41,8 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      *
      * Connects to database with given connection string.
      *
-     * @param string  $dsn        The connection string.
-     * @param boolean $persistent Whether or not to establish a persistent connection.
+     * @param string $dsn        The connection string.
+     * @param bool   $persistent Whether or not to establish a persistent connection.
      *
      * @throws SQLAnywhereException
      */
@@ -210,7 +210,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      *
-     * @return boolean Whether or not ending transactional mode succeeded.
+     * @return bool Whether or not ending transactional mode succeeded.
      */
     private function endTransaction()
     {

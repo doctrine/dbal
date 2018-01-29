@@ -93,7 +93,7 @@ class MasterSlaveConnection extends Connection
      * You can keep the slave connection and then switch back to it
      * during the request if you know what you are doing.
      *
-     * @var boolean
+     * @var bool
      */
     protected $keepSlave = false;
 
@@ -129,7 +129,7 @@ class MasterSlaveConnection extends Connection
     /**
      * Checks if the connection is currently towards the master or not.
      *
-     * @return boolean
+     * @return bool
      */
     public function isConnectedToMaster()
     {

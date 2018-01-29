@@ -77,7 +77,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     protected $_values = [];
 
     /**
-     * @var integer
+     * @var int
      */
     protected $_defaultFetchMode = PDO::FETCH_BOTH;
 
@@ -227,7 +227,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      *
      * @param array $values
      *
-     * @return boolean
+     * @return bool
      */
     private function _bindValues($values)
     {
@@ -243,7 +243,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     }
 
     /**
-     * @return boolean|array
+     * @return bool|array
      */
     private function _fetch()
     {

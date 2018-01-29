@@ -868,7 +868,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     /**
      * @param string $name
-     * @param array $data
+     * @param array  $data
      * @return Table
      */
     protected function createTestTable($name = 'test_table', $data = array())

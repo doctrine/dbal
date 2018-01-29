@@ -65,7 +65,7 @@ class ColumnDiff
     /**
      * @param string $propertyName
      *
-     * @return boolean
+     * @return bool
      */
     public function hasChanged($propertyName)
     {

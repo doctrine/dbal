@@ -198,7 +198,7 @@ abstract class AbstractSchemaManager
      *
      * @param array $tableNames
      *
-     * @return boolean
+     * @return bool
      */
     public function tablesExist($tableNames)
     {

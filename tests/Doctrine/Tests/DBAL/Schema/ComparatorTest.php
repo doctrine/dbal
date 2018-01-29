@@ -1067,9 +1067,9 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @param SchemaDiff $diff
-     * @param int $newTableCount
-     * @param int $changeTableCount
-     * @param int $removeTableCount
+     * @param int        $newTableCount
+     * @param int        $changeTableCount
+     * @param int        $removeTableCount
      */
     public function assertSchemaTableChangeCount($diff, $newTableCount=0, $changeTableCount=0, $removeTableCount=0)
     {
@@ -1080,9 +1080,9 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @param SchemaDiff $diff
-     * @param int $newSequenceCount
-     * @param int $changeSequenceCount
-     * @param int $changeSequenceCount
+     * @param int        $newSequenceCount
+     * @param int        $changeSequenceCount
+     * @param int        $changeSequenceCount
      */
     public function assertSchemaSequenceChangeCount($diff, $newSequenceCount=0, $changeSequenceCount=0, $removeSequenceCount=0)
     {

@@ -41,7 +41,7 @@ class DebugStack implements SQLLogger
     /**
      * If Debug Stack is enabled (log queries) or not.
      *
-     * @var boolean
+     * @var bool
      */
     public $enabled = true;
 
@@ -51,7 +51,7 @@ class DebugStack implements SQLLogger
     public $start = null;
 
     /**
-     * @var integer
+     * @var int
      */
     public $currentQuery = 0;
 

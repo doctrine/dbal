@@ -73,21 +73,21 @@ class Connection implements DriverConnection
     /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.
      *
-     * @var integer
+     * @var int
      */
     const PARAM_INT_ARRAY = 101;
 
     /**
      * Represents an array of strings to be expanded by Doctrine SQL parsing.
      *
-     * @var integer
+     * @var int
      */
     const PARAM_STR_ARRAY = 102;
 
     /**
      * Offset by which PARAM_* constants are detected as arrays of the param type.
      *
-     * @var integer
+     * @var int
      */
     const ARRAY_PARAM_OFFSET = 100;
 
@@ -116,35 +116,35 @@ class Connection implements DriverConnection
     /**
      * Whether or not a connection has been established.
      *
-     * @var boolean
+     * @var bool
      */
     private $_isConnected = false;
 
     /**
      * The current auto-commit mode of this connection.
      *
-     * @var boolean
+     * @var bool
      */
     private $autoCommit = true;
 
     /**
      * The transaction nesting level.
      *
-     * @var integer
+     * @var int
      */
     private $_transactionNestingLevel = 0;
 
     /**
      * The currently active transaction isolation level.
      *
-     * @var integer
+     * @var int
      */
     private $_transactionIsolationLevel;
 
     /**
      * If nested transactions should use savepoints.
      *
-     * @var boolean
+     * @var bool
      */
     private $_nestTransactionsWithSavepoints = false;
 
@@ -180,12 +180,12 @@ class Connection implements DriverConnection
     /**
      * Flag that indicates whether the current transaction is marked for rollback only.
      *
-     * @var boolean
+     * @var bool
      */
     private $_isRollbackOnly = false;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $defaultFetchMode = PDO::FETCH_ASSOC;
 
@@ -356,8 +356,8 @@ class Connection implements DriverConnection
     /**
      * Establishes the connection with the database.
      *
-     * @return boolean TRUE if the connection was successfully established, FALSE if
-     *                 the connection is already open.
+     * @return bool TRUE if the connection was successfully established, FALSE if
+     *              the connection is already open.
      */
     public function connect()
     {
@@ -489,7 +489,7 @@ class Connection implements DriverConnection
     /**
      * Returns the current auto-commit mode for this connection.
      *
-     * @return boolean True if auto-commit mode is currently enabled for this connection, false otherwise.
+     * @return bool True if auto-commit mode is currently enabled for this connection, false otherwise.
      *
      * @see    setAutoCommit
      */
@@ -508,7 +508,7 @@ class Connection implements DriverConnection
      * NOTE: If this method is called during a transaction and the auto-commit mode is changed, the transaction is
      * committed. If this method is called and the auto-commit mode is not changed, the call is a no-op.
      *
-     * @param boolean $autoCommit True to enable auto-commit mode; false to disable it.
+     * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
      *
      * @see   isAutoCommit
      */
@@ -532,7 +532,7 @@ class Connection implements DriverConnection
     /**
      * Sets the fetch mode.
      *
-     * @param integer $fetchMode
+     * @param int $fetchMode
      *
      * @return void
      */
@@ -577,10 +577,10 @@ class Connection implements DriverConnection
      * Prepares and executes an SQL query and returns the value of a single column
      * of the first row of the result.
      *
-     * @param string  $statement The SQL query to be executed.
-     * @param array   $params    The prepared statement params.
-     * @param integer $column    The 0-indexed column number to retrieve.
-     * @param array  $types      The query parameter types.
+     * @param string $statement The SQL query to be executed.
+     * @param array  $params    The prepared statement params.
+     * @param int    $column    The 0-indexed column number to retrieve.
+     * @param array  $types     The query parameter types.
      *
      * @return mixed|bool False is returned if no rows are found.
      *
@@ -594,7 +594,7 @@ class Connection implements DriverConnection
     /**
      * Whether an actual connection to the database is established.
      *
-     * @return boolean
+     * @return bool
      */
     public function isConnected()
     {
@@ -604,7 +604,7 @@ class Connection implements DriverConnection
     /**
      * Checks whether a transaction is currently active.
      *
-     * @return boolean TRUE if a transaction is currently active, FALSE otherwise.
+     * @return bool TRUE if a transaction is currently active, FALSE otherwise.
      */
     public function isTransactionActive()
     {
@@ -646,11 +646,11 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string $tableExpression  The expression of the table on which to delete.
-     * @param array  $identifier The deletion criteria. An associative array containing column-value pairs.
-     * @param array  $types      The types of identifiers.
+     * @param string $tableExpression The expression of the table on which to delete.
+     * @param array  $identifier      The deletion criteria. An associative array containing column-value pairs.
+     * @param array  $types           The types of identifiers.
      *
-     * @return integer The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws \Doctrine\DBAL\DBALException
      * @throws InvalidArgumentException
@@ -685,9 +685,9 @@ class Connection implements DriverConnection
     /**
      * Sets the transaction isolation level.
      *
-     * @param integer $level The level to set.
+     * @param int $level The level to set.
      *
-     * @return integer
+     * @return int
      */
     public function setTransactionIsolation($level)
     {
@@ -699,7 +699,7 @@ class Connection implements DriverConnection
     /**
      * Gets the currently active transaction isolation level.
      *
-     * @return integer The current transaction isolation level.
+     * @return int The current transaction isolation level.
      */
     public function getTransactionIsolation()
     {
@@ -715,12 +715,12 @@ class Connection implements DriverConnection
      *
      * Table expression and columns are not escaped and are not safe for user-input.
      *
-     * @param string $tableExpression  The expression of the table to update quoted or unquoted.
-     * @param array  $data       An associative array containing column-value pairs.
-     * @param array  $identifier The update criteria. An associative array containing column-value pairs.
-     * @param array  $types      Types of the merged $data and $identifier arrays in that order.
+     * @param string $tableExpression The expression of the table to update quoted or unquoted.
+     * @param array  $data            An associative array containing column-value pairs.
+     * @param array  $identifier      The update criteria. An associative array containing column-value pairs.
+     * @param array  $types           Types of the merged $data and $identifier arrays in that order.
      *
-     * @return integer The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -756,10 +756,10 @@ class Connection implements DriverConnection
      * Table expression and columns are not escaped and are not safe for user-input.
      *
      * @param string $tableExpression The expression of the table to insert data into, quoted or unquoted.
-     * @param array  $data      An associative array containing column-value pairs.
-     * @param array  $types     Types of the inserted data.
+     * @param array  $data            An associative array containing column-value pairs.
+     * @param array  $types           Types of the inserted data.
      *
-     * @return integer The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -828,7 +828,7 @@ class Connection implements DriverConnection
     /**
      * Quotes a given input parameter.
      *
-     * @param mixed       $input The parameter to be quoted.
+     * @param mixed    $input The parameter to be quoted.
      * @param int|null $type  The type of the parameter.
      *
      * @return string The quoted parameter.
@@ -1042,7 +1042,7 @@ class Connection implements DriverConnection
      * @param array  $params The query parameters.
      * @param array  $types  The parameter types.
      *
-     * @return integer The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -1086,7 +1086,7 @@ class Connection implements DriverConnection
      *
      * @param string $statement
      *
-     * @return integer The number of affected rows.
+     * @return int The number of affected rows.
      *
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -1115,7 +1115,7 @@ class Connection implements DriverConnection
     /**
      * Returns the current transaction nesting level.
      *
-     * @return integer The nesting level. A value of 0 means there's no active transaction.
+     * @return int The nesting level. A value of 0 means there's no active transaction.
      */
     public function getTransactionNestingLevel()
     {
@@ -1125,7 +1125,7 @@ class Connection implements DriverConnection
     /**
      * Fetches the SQLSTATE associated with the last database operation.
      *
-     * @return integer The last error code.
+     * @return int The last error code.
      */
     public function errorCode()
     {
@@ -1199,7 +1199,7 @@ class Connection implements DriverConnection
     /**
      * Sets if nested transactions should use savepoints.
      *
-     * @param boolean $nestTransactionsWithSavepoints
+     * @param bool $nestTransactionsWithSavepoints
      *
      * @return void
      *
@@ -1221,7 +1221,7 @@ class Connection implements DriverConnection
     /**
      * Gets if nested transactions should use savepoints.
      *
-     * @return boolean
+     * @return bool
      */
     public function getNestTransactionsWithSavepoints()
     {
@@ -1481,7 +1481,7 @@ class Connection implements DriverConnection
     /**
      * Checks whether the current transaction is marked for rollback only.
      *
-     * @return boolean
+     * @return bool
      *
      * @throws \Doctrine\DBAL\ConnectionException If no transaction is active.
      */

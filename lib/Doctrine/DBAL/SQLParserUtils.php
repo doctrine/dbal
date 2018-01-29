@@ -43,8 +43,8 @@ class SQLParserUtils
      * Returns an integer => integer pair (indexed from zero) for a positional statement
      * and a string => int[] pair for a named statement.
      *
-     * @param string  $statement
-     * @param boolean $isPositional
+     * @param string $statement
+     * @param bool   $isPositional
      *
      * @return array
      */
@@ -211,10 +211,10 @@ class SQLParserUtils
     }
 
     /**
-     * @param string    $paramName      The name of the parameter (without a colon in front)
-     * @param array     $paramsOrTypes  A hash of parameters or types
-     * @param bool      $isParam
-     * @param mixed     $defaultValue   An optional default value. If omitted, an exception is thrown
+     * @param string $paramName     The name of the parameter (without a colon in front)
+     * @param array  $paramsOrTypes A hash of parameters or types
+     * @param bool   $isParam
+     * @param mixed  $defaultValue  An optional default value. If omitted, an exception is thrown
      *
      * @throws SQLParserUtilsException
      * @return mixed

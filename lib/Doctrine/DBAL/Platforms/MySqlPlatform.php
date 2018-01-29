@@ -51,9 +51,9 @@ class MySqlPlatform extends AbstractPlatform
      * Adds MySQL-specific LIMIT clause to the query
      * 18446744073709551615 is 2^64-1 maximum of unsigned BIGINT the biggest limit possible
      *
-     * @param string  $query
-     * @param integer $limit
-     * @param integer $offset
+     * @param string $query
+     * @param int    $limit
+     * @param int    $offset
      *
      * @return string
      */

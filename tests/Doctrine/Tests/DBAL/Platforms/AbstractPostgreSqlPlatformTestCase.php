@@ -369,8 +369,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      *
      * @param string $databaseValue
      * @param string $preparedStatementValue
-     * @param integer $integerValue
-     * @param boolean $booleanValue
+     * @param int    $integerValue
+     * @param bool   $booleanValue
      */
     public function testConvertBooleanAsLiteralStrings(
         $databaseValue,
@@ -404,8 +404,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      *
      * @param string $databaseValue
      * @param string $preparedStatementValue
-     * @param integer $integerValue
-     * @param boolean $booleanValue
+     * @param int    $integerValue
+     * @param bool   $booleanValue
      */
     public function testConvertBooleanAsDatabaseValueStrings(
         $databaseValue,
@@ -436,8 +436,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      *
      * @param string $databaseValue
      * @param string $prepareStatementValue
-     * @param integer $integerValue
-     * @param boolean $booleanValue
+     * @param int    $integerValue
+     * @param bool   $booleanValue
      */
     public function testConvertFromBoolean($databaseValue, $prepareStatementValue, $integerValue, $booleanValue)
     {
