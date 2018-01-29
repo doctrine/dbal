@@ -195,8 +195,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
 
-        $sql  = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $data = $this->_conn->fetchAll($sql, array(1, $datetime), array(ParameterType::STRING, Type::DATETIME));
+        $sql  = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+        $data = $this->_conn->fetchAll($sql, [1, $datetime], [ParameterType::STRING, Type::DATETIME]);
 
         self::assertCount(1, $data);
 
@@ -227,8 +227,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testFetchBoth()
     {
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
-        $row = $this->_conn->executeQuery($sql, array(1, 'foo'))->fetch(FetchMode::MIXED);
+        $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
+        $row = $this->_conn->executeQuery($sql, [1, 'foo'])->fetch(FetchMode::MIXED);
 
         self::assertNotFalse($row);
 
@@ -265,8 +265,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
 
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchAssoc($sql, array(1, $datetime), array(ParameterType::STRING, Type::DATETIME));
+        $sql = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+        $row = $this->_conn->fetchAssoc($sql, [1, $datetime], [ParameterType::STRING, Type::DATETIME]);
 
         self::assertNotFalse($row);
 
@@ -306,8 +306,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
 
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchArray($sql, array(1, $datetime), array(ParameterType::STRING, Type::DATETIME));
+        $sql = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+        $row = $this->_conn->fetchArray($sql, [1, $datetime], [ParameterType::STRING, Type::DATETIME]);
 
         self::assertNotFalse($row);
 
@@ -351,13 +351,8 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
 
-        $sql    = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $column = $this->_conn->fetchColumn(
-            $sql,
-            array(1, $datetime),
-            1,
-            array(ParameterType::STRING, Type::DATETIME)
-        );
+        $sql    = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+        $column = $this->_conn->fetchColumn($sql, [1, $datetime], 1, [ParameterType::STRING, Type::DATETIME]);
 
         self::assertNotFalse($column);
 
@@ -402,18 +397,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $datetime = new \DateTime('2010-02-02 20:20:20');
 
         $sql = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
-        $affectedRows = $this->_conn->executeUpdate($sql,
-            array(
-                1 => 50,
-                2 => 'foo',
-                3 => $datetime,
-            ),
-            array(
-                1 => ParameterType::INTEGER,
-                2 => ParameterType::STRING,
-                3 => Type::DATETIME,
-            )
-        );
+        $affectedRows = $this->_conn->executeUpdate($sql, [
+            1 => 50,
+            2 => 'foo',
+            3 => $datetime,
+        ], [
+            1 => ParameterType::INTEGER,
+            2 => ParameterType::STRING,
+            3 => Type::DATETIME,
+        ]);
 
         self::assertEquals(1, $affectedRows);
         self::assertEquals(1, $this->_conn->executeQuery(

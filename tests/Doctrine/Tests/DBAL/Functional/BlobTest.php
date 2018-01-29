@@ -37,10 +37,18 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testInsert()
     {
-        $ret = $this->_conn->insert('blob_table',
-            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
-            array(ParameterType::INTEGER, ParameterType::STRING, ParameterType::LARGE_OBJECT, ParameterType::LARGE_OBJECT)
-        );
+        $ret = $this->_conn->insert('blob_table', [
+            'id'          => 1,
+            'clobfield'   => 'test',
+            'blobfield'   => 'test',
+            'binaryfield' => 'test',
+        ], [
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            ParameterType::LARGE_OBJECT,
+            ParameterType::LARGE_OBJECT,
+        ]);
+
         self::assertEquals(1, $ret);
     }
 

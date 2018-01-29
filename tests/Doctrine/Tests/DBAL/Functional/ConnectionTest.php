@@ -244,8 +244,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testQuote()
     {
         self::assertEquals(
-            $this->_conn->quote("foo", Type::STRING),
-            $this->_conn->quote("foo", ParameterType::STRING)
+            $this->_conn->quote('foo', Type::STRING),
+            $this->_conn->quote('foo', ParameterType::STRING)
         );
     }
 

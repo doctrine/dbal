@@ -263,9 +263,9 @@ class QueryBuilder
      *         ->setParameter(':user_id', 1);
      * </code>
      *
-     * @param string|integer      $key   The parameter position or name.
-     * @param mixed               $value The parameter value.
-     * @param string|integer|null $type  One of the {@link \Doctrine\DBAL\ParameterType} constants.
+     * @param string|int      $key   The parameter position or name.
+     * @param mixed           $value The parameter value.
+     * @param string|int|null $type  One of the {@link \Doctrine\DBAL\ParameterType} constants.
      *
      * @return $this This QueryBuilder instance.
      */

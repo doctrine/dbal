@@ -43,7 +43,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
 
         self::assertEquals(
             $charset,
-            $connection->query("SHOW client_encoding")
+            $connection->query('SHOW client_encoding')
                 ->fetch(FetchMode::COLUMN)
         );
     }
