@@ -356,7 +356,7 @@ class ForeignKeyConstraint extends AbstractAsset implements Constraint
         if (isset($this->_options[$event])) {
             $onEvent = strtoupper($this->_options[$event]);
 
-            if ( ! in_array($onEvent, ['NO ACTION', 'RESTRICT'])) {
+            if ( ! in_array($onEvent, ['NO ACTION', 'RESTRICT'], true)) {
                 return $onEvent;
             }
         }

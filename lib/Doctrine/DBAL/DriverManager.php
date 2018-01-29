@@ -204,7 +204,7 @@ final class DriverManager
             throw DBALException::unknownDriver($params['driver'], array_keys(self::$_driverMap));
         }
 
-        if (isset($params['driverClass']) && ! in_array('Doctrine\DBAL\Driver', class_implements($params['driverClass'], true))) {
+        if (isset($params['driverClass']) && ! in_array('Doctrine\DBAL\Driver', class_implements($params['driverClass'], true), true)) {
             throw DBALException::invalidDriverClass($params['driverClass']);
         }
     }

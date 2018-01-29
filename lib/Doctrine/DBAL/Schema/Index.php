@@ -166,7 +166,7 @@ class Index extends AbstractAsset implements Constraint
         $columnName   = $this->trimQuotes(strtolower($columnName));
         $indexColumns = array_map('strtolower', $this->getUnquotedColumns());
 
-        return array_search($columnName, $indexColumns) === $pos;
+        return array_search($columnName, $indexColumns, true) === $pos;
     }
 
     /**

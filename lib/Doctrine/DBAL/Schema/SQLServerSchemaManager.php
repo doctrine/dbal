@@ -117,7 +117,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 
         $options = [
-            'length'        => ($length == 0 || !in_array($type, ['text', 'string'])) ? null : $length,
+            'length'        => ($length == 0 || !in_array($type, ['text', 'string'], true)) ? null : $length,
             'unsigned'      => false,
             'fixed'         => (bool) $fixed,
             'default'       => $default !== 'NULL' ? $default : null,

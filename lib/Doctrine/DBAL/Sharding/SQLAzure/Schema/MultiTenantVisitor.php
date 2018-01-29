@@ -90,7 +90,7 @@ class MultiTenantVisitor implements Visitor
      */
     public function acceptTable(Table $table)
     {
-        if (in_array($table->getName(), $this->excludedTables)) {
+        if (in_array($table->getName(), $this->excludedTables, true)) {
             return;
         }
 

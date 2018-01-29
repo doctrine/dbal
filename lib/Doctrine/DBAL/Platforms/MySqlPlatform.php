@@ -745,7 +745,7 @@ class MySqlPlatform extends AbstractPlatform
                     $column = $diff->fromTable->getColumn($columnName);
 
                     // Check if an autoincrement column was dropped from the primary key.
-                    if ($column->getAutoincrement() && ! in_array($columnName, $changedIndex->getColumns())) {
+                    if ($column->getAutoincrement() && ! in_array($columnName, $changedIndex->getColumns(), true)) {
                         // The autoincrement attribute needs to be removed from the dropped column
                         // before we can drop and recreate the primary key.
                         $column->setAutoincrement(false);

@@ -12,7 +12,7 @@ class DBAL421Test extends \Doctrine\Tests\DbalFunctionalTestCase
         parent::setUp();
 
         $platform = $this->_conn->getDatabasePlatform()->getName();
-        if (!in_array($platform, array('mysql', 'sqlite'))) {
+        if (!in_array($platform, array('mysql', 'sqlite'), true)) {
             $this->markTestSkipped('Currently restricted to MySQL and SQLite.');
         }
     }

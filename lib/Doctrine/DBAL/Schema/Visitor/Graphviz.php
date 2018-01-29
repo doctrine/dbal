@@ -98,7 +98,7 @@ class Graphviz extends AbstractVisitor
             $label .= '<FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="12">' . $columnLabel . '</FONT>';
             $label .= '</TD><TD BORDER="0" ALIGN="LEFT" BGCOLOR="#eeeeec"><FONT COLOR="#2e3436" FACE="Helvetica" POINT-SIZE="10">' . strtolower($column->getType()) . '</FONT></TD>';
             $label .= '<TD BORDER="0" ALIGN="RIGHT" BGCOLOR="#eeeeec" PORT="col'.$column->getName().'">';
-            if ($table->hasPrimaryKey() && in_array($column->getName(), $table->getPrimaryKey()->getColumns())) {
+            if ($table->hasPrimaryKey() && in_array($column->getName(), $table->getPrimaryKey()->getColumns(), true)) {
                 $label .= "\xe2\x9c\xb7";
             }
             $label .= '</TD></TR>';
