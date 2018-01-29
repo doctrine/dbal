@@ -30,6 +30,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     protected $_conn = null;
 
+    /**
+     * @var array
+     */
     protected $params = array(
         'driver' => 'pdo_mysql',
         'host' => 'localhost',

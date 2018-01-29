@@ -11,6 +11,9 @@ use PDO;
  */
 class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    /**
+     * @var bool
+     */
     private $running = false;
 
     protected function setUp()

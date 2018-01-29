@@ -7,9 +7,15 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class StringTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /**
+     * @var MockPlatform
+     */
+    protected $_platform;
+
+    /**
+     * @var Type
+     */
+    protected $_type;
 
     protected function setUp()
     {

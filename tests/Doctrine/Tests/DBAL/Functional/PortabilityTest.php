@@ -13,6 +13,9 @@ use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
  */
 class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    /**
+     * @var Connection
+     */
     private $portableConnection;
 
     protected function tearDown()

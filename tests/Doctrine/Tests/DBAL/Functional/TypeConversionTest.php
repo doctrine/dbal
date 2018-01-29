@@ -6,6 +6,9 @@ use Doctrine\DBAL\Types\Type;
 
 class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    /**
+     * @var int
+     */
     static private $typeCounter = 0;
 
     protected function setUp()

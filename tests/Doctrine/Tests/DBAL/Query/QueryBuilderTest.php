@@ -11,6 +11,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 {
+    /**
+     * @var \Doctrine\DBAL\Connection
+     */
     protected $conn;
 
     protected function setUp()

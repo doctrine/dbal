@@ -4,9 +4,24 @@ namespace Doctrine\Tests\Mocks;
 
 class ConnectionMock extends \Doctrine\DBAL\Connection
 {
+    /**
+     * @var
+     */
     private $_fetchOneResult;
+
+    /**
+     * @var DatabasePlatformMock
+     */
     private $_platformMock;
+
+    /**
+     * @var int
+     */
     private $_lastInsertId = 0;
+
+    /**
+     * @var array
+     */
     private $_inserts = array();
 
     public function __construct(array $params, $driver, $config = null, $eventManager = null)

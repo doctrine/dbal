@@ -11,6 +11,9 @@ use Doctrine\DBAL\Types\Type;
 
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    /**
+     * @var bool
+     */
     static private $generated = false;
 
     protected function setUp()

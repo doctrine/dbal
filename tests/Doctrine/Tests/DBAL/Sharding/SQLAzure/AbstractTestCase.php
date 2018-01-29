@@ -8,7 +8,14 @@ use Doctrine\DBAL\Sharding\SQLAzure\SQLAzureShardManager;
 
 abstract class AbstractTestCase extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @var \Doctrine\DBAL\Connection
+     */
     protected $conn;
+
+    /**
+     * @var SQLAzureShardManager
+     */
     protected $sm;
 
     protected function setUp()
