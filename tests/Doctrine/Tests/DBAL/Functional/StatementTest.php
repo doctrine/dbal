@@ -200,9 +200,8 @@ EOF
 
         $stmt = $this->_conn->prepare($sql);
 
-        $paramCount = 1;
-        $stmt->bindValue($paramCount++, $col1, 'integer');
-        $stmt->bindValue($paramCount++, $col2, 'string');
+        $stmt->bindValue(1, $col1, 'integer');
+        $stmt->bindValue(2, $col2, 'string');
 
         self::assertTrue($stmt->execute(), 'Insert-Statement failed');
     }
