@@ -1003,15 +1003,15 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
     {
         if ( ! $char) {
             switch ($pos) {
-                case self::TRIM_LEADING:
+                case TrimMode::LEADING:
                     $trimFn = 'LTRIM';
                     break;
 
-                case self::TRIM_TRAILING:
+                case TrimMode::TRAILING:
                     $trimFn = 'RTRIM';
                     break;
 
@@ -1033,11 +1033,11 @@ class SQLServerPlatform extends AbstractPlatform
          */
         $pattern = "'%[^' + $char + ']%'";
 
-        if ($pos == self::TRIM_LEADING) {
+        if ($pos === TrimMode::LEADING) {
             return 'stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)';
         }
 
-        if ($pos == self::TRIM_TRAILING) {
+        if ($pos === TrimMode::TRAILING) {
             return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
         }
 

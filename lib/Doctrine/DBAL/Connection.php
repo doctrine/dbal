@@ -52,23 +52,31 @@ class Connection implements DriverConnection
 {
     /**
      * Constant for transaction isolation level READ UNCOMMITTED.
+     *
+     * @deprecated Use TransactionIsolationLevel::READ_UNCOMMITTED.
      */
-    const TRANSACTION_READ_UNCOMMITTED = 1;
+    public const TRANSACTION_READ_UNCOMMITTED = TransactionIsolationLevel::READ_UNCOMMITTED;
 
     /**
      * Constant for transaction isolation level READ COMMITTED.
+     *
+     * @deprecated Use TransactionIsolationLevel::READ_COMMITTED.
      */
-    const TRANSACTION_READ_COMMITTED = 2;
+    public const TRANSACTION_READ_COMMITTED = TransactionIsolationLevel::READ_COMMITTED;
 
     /**
      * Constant for transaction isolation level REPEATABLE READ.
+     *
+     * @deprecated Use TransactionIsolationLevel::REPEATABLE_READ.
      */
-    const TRANSACTION_REPEATABLE_READ = 3;
+    public const TRANSACTION_REPEATABLE_READ = TransactionIsolationLevel::REPEATABLE_READ;
 
     /**
      * Constant for transaction isolation level SERIALIZABLE.
+     *
+     * @deprecated Use TransactionIsolationLevel::SERIALIZABLE.
      */
-    const TRANSACTION_SERIALIZABLE = 4;
+    public const TRANSACTION_SERIALIZABLE = TransactionIsolationLevel::SERIALIZABLE;
 
     /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
+use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
@@ -13,6 +14,7 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
 class SQLAnywherePlatformTest extends AbstractPlatformTestCase
@@ -549,11 +551,11 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals('GLOBAL TEMPORARY', $this->_platform->getTemporaryTableSQL());
         self::assertEquals(
             'LTRIM(column)',
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_LEADING)
+            $this->_platform->getTrimExpression('column', TrimMode::LEADING)
         );
         self::assertEquals(
             'RTRIM(column)',
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_TRAILING)
+            $this->_platform->getTrimExpression('column', TrimMode::TRAILING)
         );
         self::assertEquals(
             'TRIM(column)',
@@ -561,15 +563,15 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
         self::assertEquals(
             'TRIM(column)',
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED)
+            $this->_platform->getTrimExpression('column', TrimMode::UNSPECIFIED)
         );
         self::assertEquals(
             "SUBSTR(column, PATINDEX('%[^' + c + ']%', column))",
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_LEADING, 'c')
+            $this->_platform->getTrimExpression('column', TrimMode::LEADING, 'c')
         );
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(column), PATINDEX('%[^' + c + ']%', REVERSE(column))))",
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_TRAILING, 'c')
+            $this->_platform->getTrimExpression('column', TrimMode::TRAILING, 'c')
         );
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
@@ -579,7 +581,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals(
             "REVERSE(SUBSTR(REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))), PATINDEX('%[^' + c + ']%', " .
             "REVERSE(SUBSTR(column, PATINDEX('%[^' + c + ']%', column))))))",
-            $this->_platform->getTrimExpression('column', AbstractPlatform::TRIM_UNSPECIFIED, 'c')
+            $this->_platform->getTrimExpression('column', TrimMode::UNSPECIFIED, 'c')
         );
     }
 
@@ -601,7 +603,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function testHasCorrectDefaultTransactionIsolationLevel()
     {
         self::assertEquals(
-            Connection::TRANSACTION_READ_UNCOMMITTED,
+            TransactionIsolationLevel::READ_UNCOMMITTED,
             $this->_platform->getDefaultTransactionIsolationLevel()
         );
     }
@@ -610,19 +612,19 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'SET TEMPORARY OPTION isolation_level = 0',
-            $this->_platform->getSetTransactionIsolationSQL(Connection::TRANSACTION_READ_UNCOMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
         );
         self::assertEquals(
             'SET TEMPORARY OPTION isolation_level = 1',
-            $this->_platform->getSetTransactionIsolationSQL(Connection::TRANSACTION_READ_COMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
         );
         self::assertEquals(
             'SET TEMPORARY OPTION isolation_level = 2',
-            $this->_platform->getSetTransactionIsolationSQL(Connection::TRANSACTION_REPEATABLE_READ)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
         );
         self::assertEquals(
             'SET TEMPORARY OPTION isolation_level = 3',
-            $this->_platform->getSetTransactionIsolationSQL(Connection::TRANSACTION_SERIALIZABLE)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
         );
     }
 

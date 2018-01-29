@@ -19,11 +19,11 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
 
@@ -1136,6 +1136,6 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getDefaultTransactionIsolationLevel()
     {
-        return Connection::TRANSACTION_REPEATABLE_READ;
+        return TransactionIsolationLevel::REPEATABLE_READ;
     }
 }
