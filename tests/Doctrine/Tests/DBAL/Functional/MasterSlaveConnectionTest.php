@@ -24,7 +24,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
         try {
             /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-            $table = new \Doctrine\DBAL\Schema\Table("master_slave_table");
+            $table = new \Doctrine\DBAL\Schema\Table('master_slave_table');
             $table->addColumn('test_int', 'integer');
             $table->setPrimaryKey(array('test_int'));
 
@@ -102,7 +102,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         $conn = $this->createMasterSlaveConnection();
 
-        $sql = "SELECT count(*) as num FROM master_slave_table";
+        $sql = 'SELECT count(*) as num FROM master_slave_table';
         $data = $conn->fetchAll($sql);
         $data[0] = array_change_key_case($data[0], CASE_LOWER);
 
@@ -117,7 +117,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
         self::assertTrue($conn->isConnectedToMaster());
 
-        $sql = "SELECT count(*) as num FROM master_slave_table";
+        $sql = 'SELECT count(*) as num FROM master_slave_table';
         $data = $conn->fetchAll($sql);
         $data[0] = array_change_key_case($data[0], CASE_LOWER);
 

@@ -22,7 +22,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
      */
     protected function _constructPdoDsn(array $params)
     {
-        return "";
+        return '';
     }
 
     /**

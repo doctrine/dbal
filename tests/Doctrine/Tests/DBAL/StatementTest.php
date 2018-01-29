@@ -150,9 +150,9 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
         $this->pdoStatement->expects($this->once())
             ->method('execute')
-            ->will($this->throwException(new \Exception("Mock test exception")));
+            ->will($this->throwException(new \Exception('Mock test exception')));
 
-        $statement = new Statement("", $this->conn);
+        $statement = new Statement('', $this->conn);
         $statement->execute();
     }
 }

@@ -64,13 +64,13 @@ class Connection extends \Doctrine\DBAL\Connection
         if ($ret) {
             $params = $this->getParams();
             if (isset($params['portability'])) {
-                if ($this->getDatabasePlatform()->getName() === "oracle") {
+                if ($this->getDatabasePlatform()->getName() === 'oracle') {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_ORACLE;
-                } elseif ($this->getDatabasePlatform()->getName() === "postgresql") {
+                } elseif ($this->getDatabasePlatform()->getName() === 'postgresql') {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_POSTGRESQL;
-                } elseif ($this->getDatabasePlatform()->getName() === "sqlite") {
+                } elseif ($this->getDatabasePlatform()->getName() === 'sqlite') {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLITE;
-                } elseif ($this->getDatabasePlatform()->getName() === "drizzle") {
+                } elseif ($this->getDatabasePlatform()->getName() === 'drizzle') {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_DRIZZLE;
                 } elseif ($this->getDatabasePlatform()->getName() === 'sqlanywhere') {
                     $params['portability'] = $params['portability'] & self::PORTABILITY_SQLANYWHERE;

@@ -143,14 +143,14 @@ EOT
             if (!isset($this->keywordListClasses[$keywordList])) {
                 throw new \InvalidArgumentException(
                     "There exists no keyword list with name '" . $keywordList . "'. ".
-                    "Known lists: " . implode(", ", array_keys($this->keywordListClasses))
+                    'Known lists: ' . implode(', ', array_keys($this->keywordListClasses))
                 );
             }
             $class = $this->keywordListClasses[$keywordList];
             $keywords[] = new $class;
         }
 
-        $output->write('Checking keyword violations for <comment>' . implode(", ", $keywordLists) . "</comment>...", true);
+        $output->write('Checking keyword violations for <comment>' . implode(', ', $keywordLists) . '</comment>...', true);
 
         /* @var $schema \Doctrine\DBAL\Schema\Schema */
         $schema = $conn->getSchemaManager()->createSchema();
@@ -159,7 +159,7 @@ EOT
 
         $violations = $visitor->getViolations();
         if (count($violations) == 0) {
-            $output->write("No reserved keywords violations have been found!", true);
+            $output->write('No reserved keywords violations have been found!', true);
         } else {
             $output->write('There are <error>' . count($violations) . '</error> reserved keyword violations in your database schema:', true);
             foreach ($violations as $violation) {

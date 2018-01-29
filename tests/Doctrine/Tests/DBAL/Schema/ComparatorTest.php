@@ -223,22 +223,22 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testCompareChangeColumns_MultipleNewColumnsRename()
     {
-        $tableA = new Table("foo");
+        $tableA = new Table('foo');
         $tableA->addColumn('datefield1', 'datetime');
 
-        $tableB = new Table("foo");
+        $tableB = new Table('foo');
         $tableB->addColumn('new_datefield1', 'datetime');
         $tableB->addColumn('new_datefield2', 'datetime');
 
         $c = new Comparator();
         $tableDiff = $c->diffTable($tableA, $tableB);
 
-        self::assertCount(1, $tableDiff->renamedColumns, "we should have one rename datefield1 => new_datefield1.");
+        self::assertCount(1, $tableDiff->renamedColumns, 'we should have one rename datefield1 => new_datefield1.');
         self::assertArrayHasKey('datefield1', $tableDiff->renamedColumns, "'datefield1' should be set to be renamed to new_datefield1");
         self::assertCount(1, $tableDiff->addedColumns, "'new_datefield2' should be added");
         self::assertArrayHasKey('new_datefield2', $tableDiff->addedColumns, "'new_datefield2' should be added, not created through renaming!");
-        self::assertCount(0, $tableDiff->removedColumns, "Nothing should be removed.");
-        self::assertCount(0, $tableDiff->changedColumns, "Nothing should be changed as all fields old & new have diff names.");
+        self::assertCount(0, $tableDiff->removedColumns, 'Nothing should be removed.');
+        self::assertCount(0, $tableDiff->changedColumns, 'Nothing should be changed as all fields old & new have diff names.');
     }
 
     public function testCompareRemovedIndex()
@@ -471,13 +471,13 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testTableAddForeignKey()
     {
-        $tableForeign = new Table("bar");
+        $tableForeign = new Table('bar');
         $tableForeign->addColumn('id', 'integer');
 
-        $table1 = new Table("foo");
+        $table1 = new Table('foo');
         $table1->addColumn('fk', 'integer');
 
-        $table2 = new Table("foo");
+        $table2 = new Table('foo');
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign, array('fk'), array('id'));
 
@@ -490,13 +490,13 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testTableRemoveForeignKey()
     {
-        $tableForeign = new Table("bar");
+        $tableForeign = new Table('bar');
         $tableForeign->addColumn('id', 'integer');
 
-        $table1 = new Table("foo");
+        $table1 = new Table('foo');
         $table1->addColumn('fk', 'integer');
 
-        $table2 = new Table("foo");
+        $table2 = new Table('foo');
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign, array('fk'), array('id'));
 
@@ -509,14 +509,14 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testTableUpdateForeignKey()
     {
-        $tableForeign = new Table("bar");
+        $tableForeign = new Table('bar');
         $tableForeign->addColumn('id', 'integer');
 
-        $table1 = new Table("foo");
+        $table1 = new Table('foo');
         $table1->addColumn('fk', 'integer');
         $table1->addForeignKeyConstraint($tableForeign, array('fk'), array('id'));
 
-        $table2 = new Table("foo");
+        $table2 = new Table('foo');
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign, array('fk'), array('id'), array('onUpdate' => 'CASCADE'));
 
@@ -529,17 +529,17 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testMovedForeignKeyForeignTable()
     {
-        $tableForeign = new Table("bar");
+        $tableForeign = new Table('bar');
         $tableForeign->addColumn('id', 'integer');
 
-        $tableForeign2 = new Table("bar2");
+        $tableForeign2 = new Table('bar2');
         $tableForeign2->addColumn('id', 'integer');
 
-        $table1 = new Table("foo");
+        $table1 = new Table('foo');
         $table1->addColumn('fk', 'integer');
         $table1->addForeignKeyConstraint($tableForeign, array('fk'), array('id'));
 
-        $table2 = new Table("foo");
+        $table2 = new Table('foo');
         $table2->addColumn('fk', 'integer');
         $table2->addForeignKeyConstraint($tableForeign2, array('fk'), array('id'));
 
@@ -592,10 +592,10 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testCompareColumnCompareCaseInsensitive()
     {
-        $tableA = new Table("foo");
+        $tableA = new Table('foo');
         $tableA->addColumn('id', 'integer');
 
-        $tableB = new Table("foo");
+        $tableB = new Table('foo');
         $tableB->addColumn('ID', 'integer');
 
         $c = new Comparator();
@@ -606,13 +606,13 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testCompareIndexBasedOnPropertiesNotName()
     {
-        $tableA = new Table("foo");
+        $tableA = new Table('foo');
         $tableA->addColumn('id', 'integer');
-        $tableA->addIndex(array("id"), "foo_bar_idx");
+        $tableA->addIndex(array('id'), 'foo_bar_idx');
 
-        $tableB = new Table("foo");
+        $tableB = new Table('foo');
         $tableB->addColumn('ID', 'integer');
-        $tableB->addIndex(array("id"), "bar_foo_idx");
+        $tableB->addIndex(array('id'), 'bar_foo_idx');
 
         $c = new Comparator();
         $tableDiff = new TableDiff('foo');
@@ -627,11 +627,11 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testCompareForeignKeyBasedOnPropertiesNotName()
     {
-        $tableA = new Table("foo");
+        $tableA = new Table('foo');
         $tableA->addColumn('id', 'integer');
         $tableA->addNamedForeignKeyConstraint('foo_constraint', 'bar', array('id'), array('id'));
 
-        $tableB = new Table("foo");
+        $tableB = new Table('foo');
         $tableB->addColumn('ID', 'integer');
         $tableB->addNamedForeignKeyConstraint('bar_constraint', 'bar', array('id'), array('id'));
 
@@ -643,8 +643,8 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testCompareForeignKey_RestrictNoAction_AreTheSame()
     {
-        $fk1 = new ForeignKeyConstraint(array("foo"), "bar", array("baz"), "fk1", array('onDelete' => 'NO ACTION'));
-        $fk2 = new ForeignKeyConstraint(array("foo"), "bar", array("baz"), "fk1", array('onDelete' => 'RESTRICT'));
+        $fk1 = new ForeignKeyConstraint(array('foo'), 'bar', array('baz'), 'fk1', array('onDelete' => 'NO ACTION'));
+        $fk2 = new ForeignKeyConstraint(array('foo'), 'bar', array('baz'), 'fk1', array('onDelete' => 'RESTRICT'));
 
         $c = new Comparator();
         self::assertFalse($c->diffForeignKey($fk1, $fk2));
@@ -655,8 +655,8 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
      */
     public function testCompareForeignKeyNamesUnqualified_AsNoSchemaInformationIsAvailable()
     {
-        $fk1 = new ForeignKeyConstraint(array("foo"), "foo.bar", array("baz"), "fk1");
-        $fk2 = new ForeignKeyConstraint(array("foo"), "baz.bar", array("baz"), "fk1");
+        $fk1 = new ForeignKeyConstraint(array('foo'), 'foo.bar', array('baz'), 'fk1');
+        $fk2 = new ForeignKeyConstraint(array('foo'), 'baz.bar', array('baz'), 'fk1');
 
         $c = new Comparator();
         self::assertFalse($c->diffForeignKey($fk1, $fk2));
@@ -664,10 +664,10 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
 
     public function testDetectRenameColumn()
     {
-        $tableA = new Table("foo");
+        $tableA = new Table('foo');
         $tableA->addColumn('foo', 'integer');
 
-        $tableB = new Table("foo");
+        $tableB = new Table('foo');
         $tableB->addColumn('bar', 'integer');
 
         $c = new Comparator();
@@ -688,11 +688,11 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
      */
     public function testDetectRenameColumnAmbiguous()
     {
-        $tableA = new Table("foo");
+        $tableA = new Table('foo');
         $tableA->addColumn('foo', 'integer');
         $tableA->addColumn('bar', 'integer');
 
-        $tableB = new Table("foo");
+        $tableB = new Table('foo');
         $tableB->addColumn('baz', 'integer');
 
         $c = new Comparator();
@@ -703,7 +703,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
         self::assertCount(2, $tableDiff->removedColumns, "'foo' and 'bar' should both be dropped, an ambiguity exists which one could be renamed to 'baz'.");
         self::assertArrayHasKey('foo', $tableDiff->removedColumns, "'foo' should be removed.");
         self::assertArrayHasKey('bar', $tableDiff->removedColumns, "'bar' should be removed.");
-        self::assertCount(0, $tableDiff->renamedColumns, "no renamings should take place.");
+        self::assertCount(0, $tableDiff->renamedColumns, 'no renamings should take place.');
     }
 
     /**
@@ -763,10 +763,10 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
     {
         $this->markTestSkipped('DBAL-2 was reopened, this test cannot work anymore.');
 
-        $tableA = new Table("foo");
+        $tableA = new Table('foo');
         $tableA->addColumn('id', 'integer', array('autoincrement' => false));
 
-        $tableB = new Table("foo");
+        $tableB = new Table('foo');
         $tableB->addColumn('id', 'integer', array('autoincrement' => true));
 
         $c = new Comparator();
@@ -843,7 +843,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
     public function testFqnSchemaComparison()
     {
         $config = new SchemaConfig();
-        $config->setName("foo");
+        $config->setName('foo');
 
         $oldSchema = new Schema(array(), array(), $config);
         $oldSchema->createTable('bar');
@@ -863,7 +863,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
     public function testNamespacesComparison()
     {
         $config = new SchemaConfig();
-        $config->setName("schemaName");
+        $config->setName('schemaName');
 
         $oldSchema = new Schema(array(), array(), $config);
         $oldSchema->createTable('taz');
@@ -890,7 +890,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
     public function testFqnSchemaComparisonDifferentSchemaNameButSameTableNoDiff()
     {
         $config = new SchemaConfig();
-        $config->setName("foo");
+        $config->setName('foo');
 
         $oldSchema = new Schema(array(), array(), $config);
         $oldSchema->createTable('foo.bar');
@@ -910,7 +910,7 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
     public function testFqnSchemaComparisonNoSchemaSame()
     {
         $config = new SchemaConfig();
-        $config->setName("foo");
+        $config->setName('foo');
         $oldSchema = new Schema(array(), array(), $config);
         $oldSchema->createTable('bar');
 
@@ -929,15 +929,15 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
     public function testAutoIncrementSequences()
     {
         $oldSchema = new Schema();
-        $table = $oldSchema->createTable("foo");
-        $table->addColumn("id", "integer", array("autoincrement" => true));
-        $table->setPrimaryKey(array("id"));
-        $oldSchema->createSequence("foo_id_seq");
+        $table = $oldSchema->createTable('foo');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->setPrimaryKey(array('id'));
+        $oldSchema->createSequence('foo_id_seq');
 
         $newSchema = new Schema();
-        $table = $newSchema->createTable("foo");
-        $table->addColumn("id", "integer", array("autoincrement" => true));
-        $table->setPrimaryKey(array("id"));
+        $table = $newSchema->createTable('foo');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->setPrimaryKey(array('id'));
 
         $c = new Comparator();
         $diff = $c->compare($oldSchema, $newSchema);
@@ -953,15 +953,15 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
     public function testAutoIncrementNoSequences()
     {
         $oldSchema = new Schema();
-        $table = $oldSchema->createTable("foo");
-        $table->addColumn("id", "integer", array("autoincrement" => true));
-        $table->setPrimaryKey(array("id"));
+        $table = $oldSchema->createTable('foo');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->setPrimaryKey(array('id'));
 
         $newSchema = new Schema();
-        $table = $newSchema->createTable("foo");
-        $table->addColumn("id", "integer", array("autoincrement" => true));
-        $table->setPrimaryKey(array("id"));
-        $newSchema->createSequence("foo_id_seq");
+        $table = $newSchema->createTable('foo');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->setPrimaryKey(array('id'));
+        $newSchema->createSequence('foo_id_seq');
 
         $c = new Comparator();
         $diff = $c->compare($oldSchema, $newSchema);
@@ -1056,8 +1056,8 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
      */
     public function testCompareQuotedAndUnquotedForeignKeyColumns()
     {
-        $fk1 = new ForeignKeyConstraint(array("foo"), "bar", array("baz"), "fk1", array('onDelete' => 'NO ACTION'));
-        $fk2 = new ForeignKeyConstraint(array("`foo`"), "bar", array("`baz`"), "fk1", array('onDelete' => 'NO ACTION'));
+        $fk1 = new ForeignKeyConstraint(array('foo'), 'bar', array('baz'), 'fk1', array('onDelete' => 'NO ACTION'));
+        $fk2 = new ForeignKeyConstraint(array('`foo`'), 'bar', array('`baz`'), 'fk1', array('onDelete' => 'NO ACTION'));
 
         $comparator = new Comparator();
         $diff = $comparator->diffForeignKey($fk1, $fk2);
@@ -1086,9 +1086,9 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
      */
     public function assertSchemaSequenceChangeCount($diff, $newSequenceCount=0, $changeSequenceCount=0, $removeSequenceCount=0)
     {
-        self::assertCount($newSequenceCount, $diff->newSequences, "Expected number of new sequences is wrong.");
-        self::assertCount($changeSequenceCount, $diff->changedSequences, "Expected number of changed sequences is wrong.");
-        self::assertCount($removeSequenceCount, $diff->removedSequences, "Expected number of removed sequences is wrong.");
+        self::assertCount($newSequenceCount, $diff->newSequences, 'Expected number of new sequences is wrong.');
+        self::assertCount($changeSequenceCount, $diff->changedSequences, 'Expected number of changed sequences is wrong.');
+        self::assertCount($removeSequenceCount, $diff->removedSequences, 'Expected number of removed sequences is wrong.');
     }
 
     public function testDiffColumnPlatformOptions()
@@ -1270,10 +1270,10 @@ class ComparatorTest extends \PHPUnit\Framework\TestCase
                 ))
         ));
         $actual = Comparator::compareSchemas($fromSchema, $toSchema);
-        self::assertArrayHasKey("table2", $actual->changedTables);
+        self::assertArrayHasKey('table2', $actual->changedTables);
         self::assertCount(1, $actual->orphanedForeignKeys);
-        self::assertEquals("fk_table2_table1", $actual->orphanedForeignKeys[0]->getName());
-        self::assertCount(1, $actual->changedTables['table2']->addedForeignKeys, "FK to table3 should be added.");
-        self::assertEquals("table3", $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
+        self::assertEquals('fk_table2_table1', $actual->orphanedForeignKeys[0]->getName());
+        self::assertCount(1, $actual->changedTables['table2']->addedForeignKeys, 'FK to table3 should be added.');
+        self::assertEquals('table3', $actual->changedTables['table2']->addedForeignKeys[0]->getForeignTableName());
     }
 }

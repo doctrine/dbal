@@ -96,7 +96,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function getCreateTableColumnCommentsSQL()
     {
         return array(
-            "CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))",
+            'CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))',
             "COMMENT ON COLUMN test.id IS 'This is a comment'",
         );
     }
@@ -104,9 +104,9 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable ADD quota INT NOT NULL",
+            'ALTER TABLE mytable ADD quota INT NOT NULL',
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
-            "COMMENT ON COLUMN mytable.foo IS NULL",
+            'COMMENT ON COLUMN mytable.foo IS NULL',
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }
@@ -114,7 +114,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function getCreateTableColumnTypeCommentsSQL()
     {
         return array(
-            "CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (id))",
+            'CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY (id))',
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
         );
     }
@@ -200,7 +200,7 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
         self::assertEquals(
             array(
-                "COMMENT ON COLUMN mytable.foo IS NULL"
+                'COMMENT ON COLUMN mytable.foo IS NULL'
             ),
             $this->_platform->getAlterTableSQL($tableDiff)
         );
@@ -537,8 +537,8 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         self::assertEquals("DATEADD(SECOND, -1 * 1, '1987/05/02')", $this->_platform->getDateSubSecondsExpression("'1987/05/02'", 1));
         self::assertEquals("DATEADD(WEEK, -1 * 3, '1987/05/02')", $this->_platform->getDateSubWeeksExpression("'1987/05/02'", 3));
         self::assertEquals("DATEADD(YEAR, -1 * 10, '1987/05/02')", $this->_platform->getDateSubYearsExpression("'1987/05/02'", 10));
-        self::assertEquals("Y-m-d H:i:s.u", $this->_platform->getDateTimeFormatString());
-        self::assertEquals("H:i:s.u", $this->_platform->getTimeFormatString());
+        self::assertEquals('Y-m-d H:i:s.u', $this->_platform->getDateTimeFormatString());
+        self::assertEquals('H:i:s.u', $this->_platform->getTimeFormatString());
         self::assertEquals('', $this->_platform->getForUpdateSQL());
         self::assertEquals('NEWID()', $this->_platform->getGuidExpression());
         self::assertEquals('LOCATE(string_column, substring_column)', $this->_platform->getLocateExpression('string_column', 'substring_column'));

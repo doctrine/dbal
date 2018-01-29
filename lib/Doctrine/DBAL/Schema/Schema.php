@@ -209,8 +209,8 @@ class Schema extends AbstractAsset
     {
         $name = $this->getUnquotedAssetName($name);
 
-        if (strpos($name, ".") === false) {
-            $name = $this->getName() . "." . $name;
+        if (strpos($name, '.') === false) {
+            $name = $this->getName() . '.' . $name;
         }
 
         return strtolower($name);

@@ -95,7 +95,7 @@ class DB2Statement implements \IteratorAggregate, Statement
             $type = DB2_CHAR;
         }
 
-        if (!db2_bind_param($this->_stmt, $column, "variable", DB2_PARAM_IN, $type)) {
+        if (!db2_bind_param($this->_stmt, $column, 'variable', DB2_PARAM_IN, $type)) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
 

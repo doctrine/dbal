@@ -8,16 +8,16 @@ class IndexTest extends \PHPUnit\Framework\TestCase
 {
     public function createIndex($unique = false, $primary = false, $options = array())
     {
-        return new Index("foo", array("bar", "baz"), $unique, $primary, array(), $options);
+        return new Index('foo', array('bar', 'baz'), $unique, $primary, array(), $options);
     }
 
     public function testCreateIndex()
     {
         $idx = $this->createIndex();
-        self::assertEquals("foo", $idx->getName());
+        self::assertEquals('foo', $idx->getName());
         $columns = $idx->getColumns();
         self::assertCount(2, $columns);
-        self::assertEquals(array("bar", "baz"), $columns);
+        self::assertEquals(array('bar', 'baz'), $columns);
         self::assertFalse($idx->isUnique());
         self::assertFalse($idx->isPrimary());
     }
@@ -131,14 +131,14 @@ class IndexTest extends \PHPUnit\Framework\TestCase
      */
     public function testIndexQuotes()
     {
-        $index = new Index("foo", array("`bar`", "`baz`"));
+        $index = new Index('foo', array('`bar`', '`baz`'));
 
-        self::assertTrue($index->spansColumns(array("bar", "baz")));
-        self::assertTrue($index->hasColumnAtPosition("bar", 0));
-        self::assertTrue($index->hasColumnAtPosition("baz", 1));
+        self::assertTrue($index->spansColumns(array('bar', 'baz')));
+        self::assertTrue($index->hasColumnAtPosition('bar', 0));
+        self::assertTrue($index->hasColumnAtPosition('baz', 1));
 
-        self::assertFalse($index->hasColumnAtPosition("bar", 1));
-        self::assertFalse($index->hasColumnAtPosition("baz", 0));
+        self::assertFalse($index->hasColumnAtPosition('bar', 1));
+        self::assertFalse($index->hasColumnAtPosition('baz', 0));
     }
 
     public function testOptions()

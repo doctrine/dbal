@@ -15,7 +15,7 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
         $sm = $this->_conn->getSchemaManager();
 
-        $table = new \Doctrine\DBAL\Schema\Table("type_conversion");
+        $table = new \Doctrine\DBAL\Schema\Table('type_conversion');
         $table->addColumn('id', 'integer', array('notnull' => false));
         $table->addColumn('test_string', 'string', array('notnull' => false));
         $table->addColumn('test_boolean', 'boolean', array('notnull' => false));
@@ -43,8 +43,8 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public static function dataIdempotentDataConversion()
     {
         $obj = new \stdClass();
-        $obj->foo = "bar";
-        $obj->bar = "baz";
+        $obj->foo = 'bar';
+        $obj->bar = 'baz';
 
         return array(
             array('string',     'ABCDEFGaaaBBB', 'string'),
@@ -73,26 +73,26 @@ class TypeConversionTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testIdempotentDataConversion($type, $originalValue, $expectedPhpType)
     {
-        $columnName = "test_" . $type;
+        $columnName = 'test_' . $type;
         $typeInstance = Type::getType($type);
         $insertionValue = $typeInstance->convertToDatabaseValue($originalValue, $this->_conn->getDatabasePlatform());
 
         $this->_conn->insert('type_conversion', array('id' => ++self::$typeCounter, $columnName => $insertionValue));
 
-        $sql = "SELECT " . $columnName . " FROM type_conversion WHERE id = " . self::$typeCounter;
+        $sql = 'SELECT ' . $columnName . ' FROM type_conversion WHERE id = ' . self::$typeCounter;
         $actualDbValue = $typeInstance->convertToPHPValue($this->_conn->fetchColumn($sql), $this->_conn->getDatabasePlatform());
 
         if ($originalValue instanceof \DateTime) {
-            self::assertInstanceOf($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+            self::assertInstanceOf($expectedPhpType, $actualDbValue, 'The expected type from the conversion to and back from the database should be ' . $expectedPhpType);
         } else {
-            self::assertInternalType($expectedPhpType, $actualDbValue, "The expected type from the conversion to and back from the database should be " . $expectedPhpType);
+            self::assertInternalType($expectedPhpType, $actualDbValue, 'The expected type from the conversion to and back from the database should be ' . $expectedPhpType);
         }
 
-        if ($type !== "datetimetz") {
-            self::assertEquals($originalValue, $actualDbValue, "Conversion between values should produce the same out as in value, but doesnt!");
+        if ($type !== 'datetimetz') {
+            self::assertEquals($originalValue, $actualDbValue, 'Conversion between values should produce the same out as in value, but doesnt!');
 
             if ($originalValue instanceof \DateTime) {
-                self::assertEquals($originalValue->getTimezone()->getName(), $actualDbValue->getTimezone()->getName(), "Timezones should be the same.");
+                self::assertEquals($originalValue->getTimezone()->getName(), $actualDbValue->getTimezone()->getName(), 'Timezones should be the same.');
             }
         }
     }

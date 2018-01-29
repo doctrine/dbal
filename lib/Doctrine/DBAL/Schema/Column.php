@@ -117,7 +117,7 @@ class Column extends AbstractAsset
     public function setOptions(array $options)
     {
         foreach ($options as $name => $value) {
-            $method = "set".$name;
+            $method = 'set'.$name;
             if ( ! method_exists($this, $method)) {
                 // next major: throw an exception
                 @trigger_error(sprintf(

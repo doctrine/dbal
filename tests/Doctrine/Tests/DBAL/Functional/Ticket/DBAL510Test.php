@@ -14,14 +14,14 @@ class DBAL510Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->_conn->getDatabasePlatform()->getName() !== "postgresql") {
+        if ($this->_conn->getDatabasePlatform()->getName() !== 'postgresql') {
             $this->markTestSkipped('PostgreSQL Only test');
         }
     }
 
     public function testSearchPathSchemaChanges()
     {
-        $table = new Table("dbal510tbl");
+        $table = new Table('dbal510tbl');
         $table->addColumn('id', 'integer');
         $table->setPrimaryKey(array('id'));
 

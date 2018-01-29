@@ -137,7 +137,7 @@ class Table extends AbstractAsset
      */
     public function setPrimaryKey(array $columns, $indexName = false)
     {
-        $this->_addIndex($this->_createIndex($columns, $indexName ?: "primary", true, true));
+        $this->_addIndex($this->_createIndex($columns, $indexName ?: 'primary', true, true));
 
         foreach ($columns as $columnName) {
             $column = $this->getColumn($columnName);
@@ -159,7 +159,7 @@ class Table extends AbstractAsset
     {
         if ($indexName == null) {
             $indexName = $this->_generateIdentifierName(
-                array_merge([$this->getName()], $columnNames), "idx", $this->_getMaxIdentifierLength()
+                array_merge([$this->getName()], $columnNames), 'idx', $this->_getMaxIdentifierLength()
             );
         }
 
@@ -206,7 +206,7 @@ class Table extends AbstractAsset
     {
         if ($indexName === null) {
             $indexName = $this->_generateIdentifierName(
-                array_merge([$this->getName()], $columnNames), "uniq", $this->_getMaxIdentifierLength()
+                array_merge([$this->getName()], $columnNames), 'uniq', $this->_getMaxIdentifierLength()
             );
         }
 
@@ -337,9 +337,9 @@ class Table extends AbstractAsset
      */
     public function renameColumn($oldColumnName, $newColumnName)
     {
-        throw new DBALException("Table#renameColumn() was removed, because it drops and recreates " .
-            "the column instead. There is no fix available, because a schema diff cannot reliably detect if a " .
-            "column was renamed or one column was created and another one dropped.");
+        throw new DBALException('Table#renameColumn() was removed, because it drops and recreates ' .
+            'the column instead. There is no fix available, because a schema diff cannot reliably detect if a ' .
+            'column was renamed or one column was created and another one dropped.');
     }
 
     /**
@@ -388,7 +388,7 @@ class Table extends AbstractAsset
      */
     public function addForeignKeyConstraint($foreignTable, array $localColumnNames, array $foreignColumnNames, array $options=[], $constraintName = null)
     {
-        $constraintName = $constraintName ?: $this->_generateIdentifierName(array_merge((array) $this->getName(), $localColumnNames), "fk", $this->_getMaxIdentifierLength());
+        $constraintName = $constraintName ?: $this->_generateIdentifierName(array_merge((array) $this->getName(), $localColumnNames), 'fk', $this->_getMaxIdentifierLength());
 
         return $this->addNamedForeignKeyConstraint($constraintName, $foreignTable, $localColumnNames, $foreignColumnNames, $options);
     }
@@ -536,7 +536,7 @@ class Table extends AbstractAsset
             $name = $constraint->getName();
         } else {
             $name = $this->_generateIdentifierName(
-                array_merge((array) $this->getName(), $constraint->getLocalColumns()), "fk", $this->_getMaxIdentifierLength()
+                array_merge((array) $this->getName(), $constraint->getLocalColumns()), 'fk', $this->_getMaxIdentifierLength()
             );
         }
         $name = $this->normalizeIdentifier($name);
@@ -548,7 +548,7 @@ class Table extends AbstractAsset
         // lead to duplicates. This creates computation overhead in this case, however no duplicate indexes are ever added (based on columns).
         $indexName = $this->_generateIdentifierName(
             array_merge([$this->getName()], $constraint->getColumns()),
-            "idx",
+            'idx',
             $this->_getMaxIdentifierLength()
         );
         $indexCandidate = $this->_createIndex($constraint->getColumns(), $indexName, false, false);
@@ -712,7 +712,7 @@ class Table extends AbstractAsset
     public function getPrimaryKeyColumns()
     {
         if ( ! $this->hasPrimaryKey()) {
-            throw new DBALException("Table " . $this->getName() . " has no primary key.");
+            throw new DBALException('Table ' . $this->getName() . ' has no primary key.');
         }
         return $this->getPrimaryKey()->getColumns();
     }

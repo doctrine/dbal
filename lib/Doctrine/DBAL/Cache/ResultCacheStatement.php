@@ -168,7 +168,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
             } elseif ($fetchMode == PDO::FETCH_COLUMN) {
                 return reset($row);
             } else {
-                throw new \InvalidArgumentException("Invalid fetch-style given for caching result.");
+                throw new \InvalidArgumentException('Invalid fetch-style given for caching result.');
             }
         }
         $this->emptied = true;

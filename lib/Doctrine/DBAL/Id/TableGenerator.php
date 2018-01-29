@@ -88,7 +88,7 @@ class TableGenerator
     {
         $params = $conn->getParams();
         if ($params['driver'] == 'pdo_sqlite') {
-            throw new \Doctrine\DBAL\DBALException("Cannot use TableGenerator with SQLite.");
+            throw new \Doctrine\DBAL\DBALException('Cannot use TableGenerator with SQLite.');
         }
         $this->conn = DriverManager::getConnection($params, $conn->getConfiguration(), $conn->getEventManager());
         $this->generatorTableName = $generatorTableName;
@@ -119,9 +119,9 @@ class TableGenerator
 
         try {
             $platform = $this->conn->getDatabasePlatform();
-            $sql = "SELECT sequence_value, sequence_increment_by " .
-                   "FROM " . $platform->appendLockHint($this->generatorTableName, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) . " " .
-                   "WHERE sequence_name = ? " . $platform->getWriteLockSQL();
+            $sql = 'SELECT sequence_value, sequence_increment_by ' .
+                   'FROM ' . $platform->appendLockHint($this->generatorTableName, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) . ' ' .
+                   'WHERE sequence_name = ? ' . $platform->getWriteLockSQL();
             $stmt = $this->conn->executeQuery($sql, [$sequenceName]);
 
             if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -137,13 +137,13 @@ class TableGenerator
                     ];
                 }
 
-                $sql = "UPDATE " . $this->generatorTableName . " ".
-                       "SET sequence_value = sequence_value + sequence_increment_by " .
-                       "WHERE sequence_name = ? AND sequence_value = ?";
+                $sql = 'UPDATE ' . $this->generatorTableName . ' '.
+                       'SET sequence_value = sequence_value + sequence_increment_by ' .
+                       'WHERE sequence_name = ? AND sequence_value = ?';
                 $rows = $this->conn->executeUpdate($sql, [$sequenceName, $row['sequence_value']]);
 
                 if ($rows != 1) {
-                    throw new \Doctrine\DBAL\DBALException("Race-condition detected while updating sequence. Aborting generation");
+                    throw new \Doctrine\DBAL\DBALException('Race-condition detected while updating sequence. Aborting generation');
                 }
             } else {
                 $this->conn->insert(
@@ -157,7 +157,7 @@ class TableGenerator
 
         } catch (\Exception $e) {
             $this->conn->rollBack();
-            throw new \Doctrine\DBAL\DBALException("Error occurred while generating ID with TableGenerator, aborted generation: " . $e->getMessage(), 0, $e);
+            throw new \Doctrine\DBAL\DBALException('Error occurred while generating ID with TableGenerator, aborted generation: ' . $e->getMessage(), 0, $e);
         }
 
         return $value;

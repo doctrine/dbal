@@ -144,7 +144,7 @@ class SQLParserUtils
                     array_slice($types, $needle + 1)
                 );
 
-                $expandStr  = $count ? implode(", ", array_fill(0, $count, "?")) : 'NULL';
+                $expandStr  = $count ? implode(', ', array_fill(0, $count, '?')) : 'NULL';
                 $query      = substr($query, 0, $needlePos) . $expandStr . substr($query, $needlePos + 1);
 
                 $paramOffset += ($count - 1); // Grows larger by number of parameters minus the replaced needle.

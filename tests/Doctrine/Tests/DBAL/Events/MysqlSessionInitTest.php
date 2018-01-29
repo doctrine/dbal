@@ -14,7 +14,7 @@ class MysqlSessionInitTest extends DbalTestCase
         $connectionMock = $this->createMock('Doctrine\DBAL\Connection');
         $connectionMock->expects($this->once())
                        ->method('executeUpdate')
-                       ->with($this->equalTo("SET NAMES foo COLLATE bar"));
+                       ->with($this->equalTo('SET NAMES foo COLLATE bar'));
 
         $eventArgs = new ConnectionEventArgs($connectionMock);
 

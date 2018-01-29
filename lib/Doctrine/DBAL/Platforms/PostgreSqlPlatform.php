@@ -134,7 +134,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             $unit = self::DATE_INTERVAL_UNIT_MONTH;
         }
 
-        return "(" . $date ." " . $operator . " (" . $interval . " || ' " . $unit . "')::interval)";
+        return '(' . $date .' ' . $operator . ' (' . $interval . " || ' " . $unit . "')::interval)";
     }
 
     /**
@@ -288,13 +288,13 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
-        return "SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
+        return 'SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
                   FROM pg_catalog.pg_constraint r
                   WHERE r.conrelid =
                   (
                       SELECT c.oid
                       FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
-                      WHERE " .$this->getTableWhereClause($table) ." AND n.oid = c.relnamespace
+                      WHERE ' .$this->getTableWhereClause($table) ." AND n.oid = c.relnamespace
                   )
                   AND r.contype = 'f'";
     }
@@ -344,15 +344,15 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        return "SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
+        return 'SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
                        pg_index.indkey, pg_index.indrelid,
                        pg_get_expr(indpred, indrelid) AS where
                  FROM pg_class, pg_index
                  WHERE oid IN (
                     SELECT indexrelid
                     FROM pg_index si, pg_class sc, pg_namespace sn
-                    WHERE " . $this->getTableWhereClause($table, 'sc', 'sn')." AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
-                 ) AND pg_index.indexrelid = oid";
+                    WHERE ' . $this->getTableWhereClause($table, 'sc', 'sn').' AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
+                 ) AND pg_index.indexrelid = oid';
     }
 
     /**
@@ -365,8 +365,8 @@ class PostgreSqlPlatform extends AbstractPlatform
     private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n')
     {
         $whereClause = $namespaceAlias.".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
-        if (strpos($table, ".") !== false) {
-            list($schema, $table) = explode(".", $table);
+        if (strpos($table, '.') !== false) {
+            list($schema, $table) = explode('.', $table);
             $schema = $this->quoteStringLiteral($schema);
         } else {
             $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') from pg_catalog.pg_settings where name = 'search_path'),','))";
@@ -408,12 +408,12 @@ class PostgreSqlPlatform extends AbstractPlatform
                         FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
                     ) AS comment
                     FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
-                    WHERE ".$this->getTableWhereClause($table, 'c', 'n') ."
+                    WHERE ".$this->getTableWhereClause($table, 'c', 'n') .'
                         AND a.attnum > 0
                         AND a.attrelid = c.oid
                         AND a.atttypid = t.oid
                         AND n.oid = c.relnamespace
-                    ORDER BY a.attnum";
+                    ORDER BY a.attnum';
     }
 
     /**
@@ -564,14 +564,14 @@ class PostgreSqlPlatform extends AbstractPlatform
                     // add autoincrement
                     $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
 
-                    $sql[] = "CREATE SEQUENCE " . $seqName;
-                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->getName($this)->getQuotedName($this) . "))";
-                    $query = "ALTER " . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
-                    $sql[] = "ALTER TABLE " . $diff->getName($this)->getQuotedName($this) . " " . $query;
+                    $sql[] = 'CREATE SEQUENCE ' . $seqName;
+                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ') FROM ' . $diff->getName($this)->getQuotedName($this) . '))';
+                    $query = 'ALTER ' . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
+                    $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
                 } else {
                     // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
-                    $query = "ALTER " . $oldColumnName . " " . "DROP DEFAULT";
-                    $sql[] = "ALTER TABLE " . $diff->getName($this)->getQuotedName($this) . " " . $query;
+                    $query = 'ALTER ' . $oldColumnName . ' ' . 'DROP DEFAULT';
+                    $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
                 }
             }
 
@@ -682,7 +682,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         $columnName = new Identifier($columnName);
         $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
-        return "COMMENT ON COLUMN " . $tableName->getQuotedName($this) . "." . $columnName->getQuotedName($this) .
+        return 'COMMENT ON COLUMN ' . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
             " IS $comment";
     }
 

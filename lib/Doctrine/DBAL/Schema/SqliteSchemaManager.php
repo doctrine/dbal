@@ -179,7 +179,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             return $a['pk'] - $b['pk'];
         });
         foreach ($indexArray as $indexColumnRow) {
-            if ($indexColumnRow['pk'] != "0") {
+            if ($indexColumnRow['pk'] != '0') {
                 $indexBuffer[] = [
                     'key_name' => 'primary',
                     'primary' => true,
@@ -331,7 +331,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             case 'numeric':
                 if (isset($tableColumn['length'])) {
                     if (strpos($tableColumn['length'], ',') === false) {
-                        $tableColumn['length'] .= ",0";
+                        $tableColumn['length'] .= ',0';
                     }
                     list($precision, $scale) = array_map('trim', explode(',', $tableColumn['length']));
                 }
@@ -371,10 +371,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $value = array_change_key_case($value, CASE_LOWER);
             $name = $value['constraint_name'];
             if ( ! isset($list[$name])) {
-                if ( ! isset($value['on_delete']) || $value['on_delete'] == "RESTRICT") {
+                if ( ! isset($value['on_delete']) || $value['on_delete'] == 'RESTRICT') {
                     $value['on_delete'] = null;
                 }
-                if ( ! isset($value['on_update']) || $value['on_update'] == "RESTRICT") {
+                if ( ! isset($value['on_update']) || $value['on_update'] == 'RESTRICT') {
                     $value['on_update'] = null;
                 }
 

@@ -195,7 +195,7 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ( ! empty($alterClauses)) {
-                $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' . implode(", ", $alterClauses);
+                $sql[] = $this->getAlterTableClause($diff->getName($this)) . ' ' . implode(', ', $alterClauses);
             }
 
             $sql = array_merge($sql, $commentsSQL);
@@ -373,7 +373,7 @@ class SQLAnywherePlatform extends AbstractPlatform
         $columnName = new Identifier($columnName);
         $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
-        return "COMMENT ON COLUMN " . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
+        return 'COMMENT ON COLUMN ' . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
             " IS $comment";
     }
 
@@ -974,7 +974,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getMd5Expression($column)
     {
-        return "HASH(" . $column . ", 'MD5')";
+        return 'HASH(' . $column . ", 'MD5')";
     }
 
     /**

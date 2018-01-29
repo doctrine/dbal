@@ -59,7 +59,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     public function getSchemaSearchPaths()
     {
         $params = $this->_conn->getParams();
-        $schema = explode(",", $this->_conn->fetchColumn('SHOW search_path'));
+        $schema = explode(',', $this->_conn->fetchColumn('SHOW search_path'));
 
         if (isset($params['user'])) {
             $schema = str_replace('"$user"', $params['user'], $schema);
@@ -146,8 +146,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         if (preg_match('/FOREIGN KEY \((.+)\) REFERENCES (.+)\((.+)\)/', $tableForeignKey['condef'], $values)) {
             // PostgreSQL returns identifiers that are keywords with quotes, we need them later, don't get
             // the idea to trim them here.
-            $localColumns = array_map('trim', explode(",", $values[1]));
-            $foreignColumns = array_map('trim', explode(",", $values[3]));
+            $localColumns = array_map('trim', explode(',', $values[1]));
+            $foreignColumns = array_map('trim', explode(',', $values[3]));
             $foreignTable = $values[2];
         }
 
@@ -196,7 +196,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             return $table['table_name'];
         }
 
-        return $table['schema_name'] . "." . $table['table_name'];
+        return $table['schema_name'] . '.' . $table['table_name'];
     }
 
     /**
@@ -253,7 +253,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         foreach ($sequences as $sequence) {
             if ($sequence['schemaname'] != 'public') {
-                $sequenceName = $sequence['schemaname'] . "." . $sequence['relname'];
+                $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
             } else {
                 $sequenceName = $sequence['relname'];
             }
@@ -284,7 +284,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     protected function _getPortableSequenceDefinition($sequence)
     {
         if ($sequence['schemaname'] !== 'public') {
-            $sequenceName = $sequence['schemaname'] . "." . $sequence['relname'];
+            $sequenceName = $sequence['schemaname'] . '.' . $sequence['relname'];
         } else {
             $sequenceName = $sequence['relname'];
         }

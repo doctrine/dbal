@@ -426,7 +426,7 @@ abstract class AbstractPlatform
         $dbType = strtolower($dbType);
 
         if (!isset($this->doctrineTypeMapping[$dbType])) {
-            throw new \Doctrine\DBAL\DBALException("Unknown database type ".$dbType." requested, " . get_class($this) . " may not support it.");
+            throw new \Doctrine\DBAL\DBALException('Unknown database type '.$dbType.' requested, ' . get_class($this) . ' may not support it.');
         }
 
         return $this->doctrineTypeMapping[$dbType];
@@ -547,7 +547,7 @@ abstract class AbstractPlatform
      */
     public function getSqlCommentStartString()
     {
-        return "--";
+        return '--';
     }
 
     /**
@@ -1509,7 +1509,7 @@ abstract class AbstractPlatform
     public function getCreateTableSQL(Table $table, $createFlags = self::CREATE_INDEXES)
     {
         if ( ! is_int($createFlags)) {
-            throw new \InvalidArgumentException("Second argument of AbstractPlatform::getCreateTableSQL() has to be integer.");
+            throw new \InvalidArgumentException('Second argument of AbstractPlatform::getCreateTableSQL() has to be integer.');
         }
 
         if (count($table->getColumns()) === 0) {
@@ -1553,7 +1553,7 @@ abstract class AbstractPlatform
 
             $columnData = $column->toArray();
             $columnData['name'] = $column->getQuotedName($this);
-            $columnData['version'] = $column->hasPlatformOption("version") ? $column->getPlatformOption('version') : false;
+            $columnData['version'] = $column->hasPlatformOption('version') ? $column->getPlatformOption('version') : false;
             $columnData['comment'] = $this->getColumnComment($column);
 
             if ($columnData['type'] instanceof Types\StringType && $columnData['length'] === null) {
@@ -1610,8 +1610,8 @@ abstract class AbstractPlatform
         $columnName = new Identifier($columnName);
         $comment = $this->quoteStringLiteral($comment);
 
-        return "COMMENT ON COLUMN " . $tableName->getQuotedName($this) . "." . $columnName->getQuotedName($this) .
-            " IS " . $comment;
+        return 'COMMENT ON COLUMN ' . $tableName->getQuotedName($this) . '.' . $columnName->getQuotedName($this) .
+            ' IS ' . $comment;
     }
 
     /**
@@ -1629,7 +1629,7 @@ abstract class AbstractPlatform
             throw DBALException::notSupported(__METHOD__);
         }
 
-        return "COMMENT " . $this->quoteStringLiteral($comment);
+        return 'COMMENT ' . $this->quoteStringLiteral($comment);
     }
 
     /**
@@ -1685,7 +1685,7 @@ abstract class AbstractPlatform
      */
     public function getCreateTemporaryTableSnippetSQL()
     {
-        return "CREATE TEMPORARY TABLE";
+        return 'CREATE TEMPORARY TABLE';
     }
 
     /**
@@ -1859,10 +1859,10 @@ abstract class AbstractPlatform
      */
     public function quoteIdentifier($str)
     {
-        if (strpos($str, ".") !== false) {
-            $parts = array_map([$this, "quoteSingleIdentifier"], explode(".", $str));
+        if (strpos($str, '.') !== false) {
+            $parts = array_map([$this, 'quoteSingleIdentifier'], explode('.', $str));
 
-            return implode(".", $parts);
+            return implode('.', $parts);
         }
 
         return $this->quoteSingleIdentifier($str);
@@ -3264,7 +3264,7 @@ abstract class AbstractPlatform
      */
     public function getIdentityColumnNullInsertSQL()
     {
-        return "";
+        return '';
     }
 
     /**
@@ -3355,7 +3355,7 @@ abstract class AbstractPlatform
                 throw new DBALException("LIMIT argument offset=$offset is not valid");
             }
             if ($offset > 0 && ! $this->supportsLimitOffset()) {
-                throw new DBALException(sprintf("Platform %s does not support offset values in limit queries.", $this->getName()));
+                throw new DBALException(sprintf('Platform %s does not support offset values in limit queries.', $this->getName()));
             }
         }
 

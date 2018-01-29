@@ -21,7 +21,7 @@ class ReservedKeywordsValidatorTest extends \Doctrine\Tests\DbalTestCase
 
     public function testReservedTableName()
     {
-        $table = new Table("TABLE");
+        $table = new Table('TABLE');
         $this->validator->acceptTable($table);
 
         self::assertEquals(
@@ -32,7 +32,7 @@ class ReservedKeywordsValidatorTest extends \Doctrine\Tests\DbalTestCase
 
     public function testReservedColumnName()
     {
-        $table = new Table("TABLE");
+        $table = new Table('TABLE');
         $column = $table->addColumn('table', 'string');
 
         $this->validator->acceptColumn($table, $column);

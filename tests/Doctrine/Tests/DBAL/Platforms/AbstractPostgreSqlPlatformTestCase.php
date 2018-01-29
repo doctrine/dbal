@@ -54,7 +54,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
                 array('foreign_id'), 'my_table', array('id'), 'my_fk', array('onDelete' => 'CASCADE')
         );
         self::assertEquals(
-            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE",
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE',
             $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -62,7 +62,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             array('foreign_id'), 'my_table', array('id'), 'my_fk', array('match' => 'full')
         );
         self::assertEquals(
-            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full NOT DEFERRABLE INITIALLY IMMEDIATE",
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full NOT DEFERRABLE INITIALLY IMMEDIATE',
             $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -70,7 +70,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferrable' => true)
         );
         self::assertEquals(
-            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) DEFERRABLE INITIALLY IMMEDIATE",
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) DEFERRABLE INITIALLY IMMEDIATE',
             $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -78,7 +78,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferred' => true)
         );
         self::assertEquals(
-            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED",
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
             $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -86,7 +86,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             array('foreign_id'), 'my_table', array('id'), 'my_fk', array('feferred' => true)
         );
         self::assertEquals(
-            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED",
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) NOT DEFERRABLE INITIALLY DEFERRED',
             $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
         );
 
@@ -94,7 +94,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
             array('foreign_id'), 'my_table', array('id'), 'my_fk', array('deferrable' => true, 'deferred' => true, 'match' => 'full')
         );
         self::assertEquals(
-            "CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full DEFERRABLE INITIALLY DEFERRED",
+            'CONSTRAINT my_fk FOREIGN KEY (foreign_id) REFERENCES my_table (id) MATCH full DEFERRABLE INITIALLY DEFERRED',
             $this->_platform->getForeignKeyDeclarationSQL($foreignKey)
         );
     }
@@ -307,7 +307,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function getCreateTableColumnCommentsSQL()
     {
         return array(
-            "CREATE TABLE test (id INT NOT NULL, PRIMARY KEY(id))",
+            'CREATE TABLE test (id INT NOT NULL, PRIMARY KEY(id))',
             "COMMENT ON COLUMN test.id IS 'This is a comment'",
         );
     }
@@ -315,9 +315,9 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable ADD quota INT NOT NULL",
+            'ALTER TABLE mytable ADD quota INT NOT NULL',
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
-            "COMMENT ON COLUMN mytable.foo IS NULL",
+            'COMMENT ON COLUMN mytable.foo IS NULL',
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",
         );
     }
@@ -325,7 +325,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function getCreateTableColumnTypeCommentsSQL()
     {
         return array(
-            "CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))",
+            'CREATE TABLE test (id INT NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))',
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
         );
     }
@@ -452,7 +452,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      */
     public function testThrowsExceptionWithInvalidBooleanLiteral()
     {
-        $platform = $this->createPlatform()->convertBooleansToDatabaseValue("my-bool");
+        $platform = $this->createPlatform()->convertBooleansToDatabaseValue('my-bool');
     }
 
     public function testGetCreateSchemaSQL()
@@ -742,7 +742,7 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     public function testGetNullCommentOnColumnSQL()
     {
         self::assertEquals(
-            "COMMENT ON COLUMN mytable.id IS NULL",
+            'COMMENT ON COLUMN mytable.id IS NULL',
             $this->_platform->getCommentOnColumnSQL('mytable', 'id', null)
         );
     }

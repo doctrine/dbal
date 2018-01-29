@@ -51,10 +51,10 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testSupportDomainTypeFallback()
     {
-        $createDomainTypeSQL = "CREATE DOMAIN MyMoney AS DECIMAL(18,2)";
+        $createDomainTypeSQL = 'CREATE DOMAIN MyMoney AS DECIMAL(18,2)';
         $this->_conn->exec($createDomainTypeSQL);
 
-        $createTableSQL = "CREATE TABLE domain_type_test (id INT PRIMARY KEY, value MyMoney)";
+        $createTableSQL = 'CREATE TABLE domain_type_test (id INT PRIMARY KEY, value MyMoney)';
         $this->_conn->exec($createTableSQL);
 
         $table = $this->_conn->getSchemaManager()->listTableDetails('domain_type_test');
@@ -100,7 +100,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diff = $c->diffTable($tableFrom, $tableTo);
         $sql = $this->_conn->getDatabasePlatform()->getAlterTableSQL($diff);
         self::assertEquals(array(
-            "CREATE SEQUENCE autoinc_table_add_id_seq",
+            'CREATE SEQUENCE autoinc_table_add_id_seq',
             "SELECT setval('autoinc_table_add_id_seq', (SELECT MAX(id) FROM autoinc_table_add))",
             "ALTER TABLE autoinc_table_add ALTER id SET DEFAULT nextval('autoinc_table_add_id_seq')",
         ), $sql);
@@ -127,8 +127,8 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $c = new \Doctrine\DBAL\Schema\Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
-        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $diff, "There should be a difference and not false being returned from the table comparison");
-        self::assertEquals(array("ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT"), $this->_conn->getDatabasePlatform()->getAlterTableSQL($diff));
+        self::assertInstanceOf('Doctrine\DBAL\Schema\TableDiff', $diff, 'There should be a difference and not false being returned from the table comparison');
+        self::assertEquals(array('ALTER TABLE autoinc_table_drop ALTER id DROP DEFAULT'), $this->_conn->getDatabasePlatform()->getAlterTableSQL($diff));
 
         $this->_sm->alterTable($diff);
         $tableFinal = $this->_sm->listTableDetails('autoinc_table_drop');
@@ -157,7 +157,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->createTable($nestedSchemaTable);
 
         $tables = $this->_sm->listTableNames();
-        self::assertContains('nested.schematable', $tables, "The table should be detected with its non-public schema.");
+        self::assertContains('nested.schematable', $tables, 'The table should be detected with its non-public schema.');
 
         $nestedSchemaTable = $this->_sm->listTableDetails('nested.schematable');
         self::assertTrue($nestedSchemaTable->hasColumn('id'));
@@ -166,7 +166,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $relatedFks = $nestedSchemaTable->getForeignKeys();
         self::assertCount(1, $relatedFks);
         $relatedFk = array_pop($relatedFks);
-        self::assertEquals("nested.schemarelated", $relatedFk->getForeignTableName());
+        self::assertEquals('nested.schemarelated', $relatedFk->getForeignTableName());
     }
 
     /**
@@ -185,8 +185,8 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         self::assertEquals(
             array(
-                "CREATE TABLE dbal91_something (id INT NOT NULL, \"table\" INT DEFAULT NULL, PRIMARY KEY(id))",
-                "CREATE INDEX IDX_A9401304ECA7352B ON dbal91_something (\"table\")",
+                'CREATE TABLE dbal91_something (id INT NOT NULL, "table" INT DEFAULT NULL, PRIMARY KEY(id))',
+                'CREATE INDEX IDX_A9401304ECA7352B ON dbal91_something ("table")',
             ),
             $this->_conn->getDatabasePlatform()->getCreateTableSQL($table)
         );
@@ -225,7 +225,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         for($i = 0; $i < count($fkOptions); $i++) {
             $fkTable->addColumn("foreign_key_test$i", 'integer');
             $foreignKeys[] = new \Doctrine\DBAL\Schema\ForeignKeyConstraint(
-                                 array("foreign_key_test$i"), 'test_create_fk2', array('id'), "foreign_key_test_$i"."_fk", array('onDelete' => $fkOptions[$i]));
+                                 array("foreign_key_test$i"), 'test_create_fk2', array('id'), "foreign_key_test_$i".'_fk', array('onDelete' => $fkOptions[$i]));
         }
         $this->_sm->dropAndCreateTable($fkTable);
         $this->createTestTable('test_create_fk2');
@@ -234,7 +234,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
             $this->_sm->createForeignKey($foreignKey, 'test_create_fk1');
         }
         $fkeys = $this->_sm->listTableForeignKeys('test_create_fk1');
-        self::assertEquals(count($foreignKeys), count($fkeys), "Table 'test_create_fk1' has to have " . count($foreignKeys) . " foreign keys.");
+        self::assertEquals(count($foreignKeys), count($fkeys), "Table 'test_create_fk1' has to have " . count($foreignKeys) . ' foreign keys.');
         for ($i = 0; $i < count($fkeys); $i++) {
             self::assertEquals(array("foreign_key_test$i"), array_map('strtolower', $fkeys[$i]->getLocalColumns()));
             self::assertEquals(array('id'), array_map('strtolower', $fkeys[$i]->getForeignColumns()));
@@ -326,8 +326,8 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $this->createTestTable('list_tables_excludes_views');
 
-        $name = "list_tables_excludes_views_test_view";
-        $sql = "SELECT * from list_tables_excludes_views";
+        $name = 'list_tables_excludes_views_test_view';
+        $sql = 'SELECT * from list_tables_excludes_views';
 
         $view = new Schema\View($name, $sql);
 
@@ -375,7 +375,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testJsonbColumn(string $type): void
     {
         if (!$this->_sm->getDatabasePlatform() instanceof PostgreSQL94Platform) {
-            $this->markTestSkipped("Requires PostgresSQL 9.4+");
+            $this->markTestSkipped('Requires PostgresSQL 9.4+');
             return;
         }
 
@@ -487,7 +487,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $c = new Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
-        self::assertInstanceOf(TableDiff::class, $diff, "There should be a difference and not false being returned from the table comparison");
+        self::assertInstanceOf(TableDiff::class, $diff, 'There should be a difference and not false being returned from the table comparison');
         self::assertSame(['ALTER TABLE autoinc_type_modification ALTER id TYPE ' . $expected], $this->_conn->getDatabasePlatform()->getAlterTableSQL($diff));
 
         $this->_sm->alterTable($diff);
@@ -509,7 +509,7 @@ class MoneyType extends Type
 
     public function getName()
     {
-        return "MyMoney";
+        return 'MyMoney';
     }
 
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)

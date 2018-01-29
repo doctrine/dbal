@@ -12,13 +12,13 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testIsAutoincrementFor()
     {
-        $table = new Table("foo");
-        $table->addColumn("id", "integer", array("autoincrement" => true));
-        $table->setPrimaryKey(array("id"));
+        $table = new Table('foo');
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
+        $table->setPrimaryKey(array('id'));
 
-        $sequence = new Sequence("foo_id_seq");
-        $sequence2 = new Sequence("bar_id_seq");
-        $sequence3 = new Sequence("other.foo_id_seq");
+        $sequence = new Sequence('foo_id_seq');
+        $sequence2 = new Sequence('bar_id_seq');
+        $sequence3 = new Sequence('other.foo_id_seq');
 
         self::assertTrue($sequence->isAutoIncrementsFor($table));
         self::assertFalse($sequence2->isAutoIncrementsFor($table));
@@ -31,11 +31,11 @@ class SequenceTest extends \Doctrine\Tests\DbalTestCase
         $table->addColumn('ID', 'integer', array('autoincrement' => true));
         $table->setPrimaryKey(array('ID'));
 
-        $sequence = new Sequence("foo_id_seq");
-        $sequence1 = new Sequence("foo_ID_seq");
-        $sequence2 = new Sequence("bar_id_seq");
-        $sequence3 = new Sequence("bar_ID_seq");
-        $sequence4 = new Sequence("other.foo_id_seq");
+        $sequence = new Sequence('foo_id_seq');
+        $sequence1 = new Sequence('foo_ID_seq');
+        $sequence2 = new Sequence('bar_id_seq');
+        $sequence3 = new Sequence('bar_ID_seq');
+        $sequence4 = new Sequence('other.foo_id_seq');
 
         self::assertTrue($sequence->isAutoIncrementsFor($table));
         self::assertTrue($sequence1->isAutoIncrementsFor($table));

@@ -211,13 +211,13 @@ class Connection implements DriverConnection
             unset($this->_params['pdo']);
         }
 
-        if (isset($params["platform"])) {
+        if (isset($params['platform'])) {
             if ( ! $params['platform'] instanceof Platforms\AbstractPlatform) {
                 throw DBALException::invalidPlatformType($params['platform']);
             }
 
-            $this->platform = $params["platform"];
-            unset($this->_params["platform"]);
+            $this->platform = $params['platform'];
+            unset($this->_params['platform']);
         }
 
         // Create default config and event manager if none given

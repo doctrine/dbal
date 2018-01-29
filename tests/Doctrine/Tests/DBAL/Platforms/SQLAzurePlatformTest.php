@@ -18,8 +18,8 @@ class SQLAzurePlatformTest extends DbalTestCase
 
     public function testCreateFederatedOnTable()
     {
-        $table = new \Doctrine\DBAL\Schema\Table("tbl");
-        $table->addColumn("id", "integer");
+        $table = new \Doctrine\DBAL\Schema\Table('tbl');
+        $table->addColumn('id', 'integer');
         $table->addOption('azure.federatedOnDistributionName', 'TblId');
         $table->addOption('azure.federatedOnColumnName', 'id');
 

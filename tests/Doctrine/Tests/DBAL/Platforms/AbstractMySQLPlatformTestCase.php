@@ -19,8 +19,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testGenerateMixedCaseTableCreate()
     {
-        $table = new Table("Foo");
-        $table->addColumn("Bar", "integer");
+        $table = new Table('Foo');
+        $table->addColumn('Bar', 'integer');
 
         $sql = $this->_platform->getCreateTableSQL($table);
         self::assertEquals('CREATE TABLE Foo (Bar INT NOT NULL) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB', array_shift($sql));
@@ -153,15 +153,15 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testUniquePrimaryKey()
     {
-        $keyTable = new Table("foo");
-        $keyTable->addColumn("bar", "integer");
-        $keyTable->addColumn("baz", "string");
-        $keyTable->setPrimaryKey(array("bar"));
-        $keyTable->addUniqueIndex(array("baz"));
+        $keyTable = new Table('foo');
+        $keyTable->addColumn('bar', 'integer');
+        $keyTable->addColumn('baz', 'string');
+        $keyTable->setPrimaryKey(array('bar'));
+        $keyTable->addUniqueIndex(array('baz'));
 
-        $oldTable = new Table("foo");
-        $oldTable->addColumn("bar", "integer");
-        $oldTable->addColumn("baz", "string");
+        $oldTable = new Table('foo');
+        $oldTable->addColumn('bar', 'integer');
+        $oldTable->addColumn('baz', 'string');
 
         $c = new \Doctrine\DBAL\Schema\Comparator;
         $diff = $c->diffTable($oldTable, $keyTable);
@@ -169,8 +169,8 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $sql = $this->_platform->getAlterTableSQL($diff);
 
         self::assertEquals(array(
-            "ALTER TABLE foo ADD PRIMARY KEY (bar)",
-            "CREATE UNIQUE INDEX UNIQ_8C73652178240498 ON foo (baz)",
+            'ALTER TABLE foo ADD PRIMARY KEY (bar)',
+            'CREATE UNIQUE INDEX UNIQ_8C73652178240498 ON foo (baz)',
         ), $sql);
     }
 
@@ -191,9 +191,9 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testGetDateTimeTypeDeclarationSql()
     {
-        self::assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => false)));
-        self::assertEquals("TIMESTAMP", $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => true)));
-        self::assertEquals("DATETIME", $this->_platform->getDateTimeTypeDeclarationSQL(array()));
+        self::assertEquals('DATETIME', $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => false)));
+        self::assertEquals('TIMESTAMP', $this->_platform->getDateTimeTypeDeclarationSQL(array('version' => true)));
+        self::assertEquals('DATETIME', $this->_platform->getDateTimeTypeDeclarationSQL(array()));
     }
 
     public function getCreateTableColumnCommentsSQL()
@@ -216,16 +216,16 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testChangeIndexWithForeignKeys()
     {
-        $index = new Index("idx", array("col"), false);
-        $unique = new Index("uniq", array("col"), true);
+        $index = new Index('idx', array('col'), false);
+        $unique = new Index('uniq', array('col'), true);
 
-        $diff = new TableDiff("test", array(), array(), array(), array($unique), array(), array($index));
+        $diff = new TableDiff('test', array(), array(), array(), array($unique), array(), array($index));
         $sql = $this->_platform->getAlterTableSQL($diff);
-        self::assertEquals(array("ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)"), $sql);
+        self::assertEquals(array('ALTER TABLE test DROP INDEX idx, ADD UNIQUE INDEX uniq (col)'), $sql);
 
-        $diff = new TableDiff("test", array(), array(), array(), array($index), array(), array($unique));
+        $diff = new TableDiff('test', array(), array(), array(), array($index), array(), array($unique));
         $sql = $this->_platform->getAlterTableSQL($diff);
-        self::assertEquals(array("ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)"), $sql);
+        self::assertEquals(array('ALTER TABLE test DROP INDEX uniq, ADD INDEX idx (col)'), $sql);
     }
 
     protected function getQuotedColumnInPrimaryKeySQL()
@@ -338,7 +338,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testAlterPrimaryKeyWithAutoincrementColumn()
     {
-        $table = new Table("alter_primary_key");
+        $table = new Table('alter_primary_key');
         $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->addColumn('foo', 'integer');
         $table->setPrimaryKey(array('id'));
@@ -364,7 +364,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testDropPrimaryKeyWithAutoincrementColumn()
     {
-        $table = new Table("drop_primary_key");
+        $table = new Table('drop_primary_key');
         $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'integer');
@@ -389,7 +389,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testDropNonAutoincrementColumnFromCompositePrimaryKeyWithAutoincrementColumn()
     {
-        $table = new Table("tbl");
+        $table = new Table('tbl');
         $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'integer');
@@ -416,7 +416,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testAddNonAutoincrementColumnToPrimaryKeyWithAutoincrementColumn()
     {
-        $table = new Table("tbl");
+        $table = new Table('tbl');
         $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->addColumn('foo', 'integer');
         $table->addColumn('bar', 'integer');
@@ -443,13 +443,13 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
      */
     public function testAddAutoIncrementPrimaryKey()
     {
-        $keyTable = new Table("foo");
-        $keyTable->addColumn("id", "integer", array('autoincrement' => true));
-        $keyTable->addColumn("baz", "string");
-        $keyTable->setPrimaryKey(array("id"));
+        $keyTable = new Table('foo');
+        $keyTable->addColumn('id', 'integer', array('autoincrement' => true));
+        $keyTable->addColumn('baz', 'string');
+        $keyTable->setPrimaryKey(array('id'));
 
-        $oldTable = new Table("foo");
-        $oldTable->addColumn("baz", "string");
+        $oldTable = new Table('foo');
+        $oldTable->addColumn('baz', 'string');
 
         $c = new \Doctrine\DBAL\Schema\Comparator;
         $diff = $c->diffTable($oldTable, $keyTable);
@@ -457,7 +457,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $sql = $this->_platform->getAlterTableSQL($diff);
 
         self::assertEquals(array(
-            "ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)",
+            'ALTER TABLE foo ADD id INT AUTO_INCREMENT NOT NULL, ADD PRIMARY KEY (id)',
         ), $sql);
     }
 
@@ -469,14 +469,14 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
         $sql = $this->_platform->getAlterTableSQL($diff);
 
         self::assertEquals(array(
-            "ALTER TABLE mytable DROP PRIMARY KEY",
-            "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
+            'ALTER TABLE mytable DROP PRIMARY KEY',
+            'ALTER TABLE mytable ADD PRIMARY KEY (foo)',
         ), $sql);
     }
     
     public function testAlterPrimaryKeyWithNewColumn()
     {
-        $table = new Table("yolo");
+        $table = new Table('yolo');
         $table->addColumn('pkc1', 'integer');
         $table->addColumn('col_a', 'integer');
         $table->setPrimaryKey(array('pkc1'));
@@ -531,7 +531,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testDoesNotPropagateForeignKeyCreationForNonSupportingEngines()
     {
-        $table = new Table("foreign_table");
+        $table = new Table('foreign_table');
         $table->addColumn('id', 'integer');
         $table->addColumn('fk_id', 'integer');
         $table->addForeignKeyConstraint('foreign_table', array('fk_id'), array('id'));
@@ -563,7 +563,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testDoesNotPropagateForeignKeyAlterationForNonSupportingEngines()
     {
-        $table = new Table("foreign_table");
+        $table = new Table('foreign_table');
         $table->addColumn('id', 'integer');
         $table->addColumn('fk_id', 'integer');
         $table->addForeignKeyConstraint('foreign_table', array('fk_id'), array('id'));
@@ -661,7 +661,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
     public function testDoesNotPropagateDefaultValuesForUnsupportedColumnTypes()
     {
-        $table = new Table("text_blob_default_value");
+        $table = new Table('text_blob_default_value');
         $table->addColumn('def_text', 'text', array('default' => 'def'));
         $table->addColumn('def_text_null', 'text', array('notnull' => false, 'default' => 'def'));
         $table->addColumn('def_blob', 'blob', array('default' => 'def'));
@@ -689,7 +689,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     protected function getQuotedAlterTableRenameColumnSQL()
     {
         return array(
-            "ALTER TABLE mytable " .
+            'ALTER TABLE mytable ' .
             "CHANGE unquoted1 unquoted INT NOT NULL COMMENT 'Unquoted 1', " .
             "CHANGE unquoted2 `where` INT NOT NULL COMMENT 'Unquoted 2', " .
             "CHANGE unquoted3 `foo` INT NOT NULL COMMENT 'Unquoted 3', " .
@@ -708,7 +708,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
     protected function getQuotedAlterTableChangeColumnLengthSQL()
     {
         return array(
-            "ALTER TABLE mytable " .
+            'ALTER TABLE mytable ' .
             "CHANGE unquoted1 unquoted1 VARCHAR(255) NOT NULL COMMENT 'Unquoted 1', " .
             "CHANGE unquoted2 unquoted2 VARCHAR(255) NOT NULL COMMENT 'Unquoted 2', " .
             "CHANGE unquoted3 unquoted3 VARCHAR(255) NOT NULL COMMENT 'Unquoted 3', " .

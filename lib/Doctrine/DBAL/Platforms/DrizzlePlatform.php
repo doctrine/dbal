@@ -276,7 +276,7 @@ class DrizzlePlatform extends AbstractPlatform
         if (isset($options['comment'])) {
             $comment = trim($options['comment'], " '");
 
-            $tableOptions[] = sprintf("COMMENT = %s ", $this->quoteStringLiteral($comment));
+            $tableOptions[] = sprintf('COMMENT = %s ', $this->quoteStringLiteral($comment));
         }
 
         // Row format
@@ -336,10 +336,10 @@ class DrizzlePlatform extends AbstractPlatform
             $database = 'DATABASE()';
         }
 
-        return "SELECT COLUMN_NAME, DATA_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT, CHARACTER_MAXIMUM_LENGTH, COLUMN_DEFAULT," .
-               " NUMERIC_PRECISION, NUMERIC_SCALE, COLLATION_NAME" .
-               " FROM DATA_DICTIONARY.COLUMNS" .
-               " WHERE TABLE_SCHEMA=" . $database . " AND TABLE_NAME = '" . $table . "'";
+        return 'SELECT COLUMN_NAME, DATA_TYPE, COLUMN_COMMENT, IS_NULLABLE, IS_AUTO_INCREMENT, CHARACTER_MAXIMUM_LENGTH, COLUMN_DEFAULT,' .
+               ' NUMERIC_PRECISION, NUMERIC_SCALE, COLLATION_NAME' .
+               ' FROM DATA_DICTIONARY.COLUMNS' .
+               ' WHERE TABLE_SCHEMA=' . $database . " AND TABLE_NAME = '" . $table . "'";
     }
 
     /**
@@ -353,9 +353,9 @@ class DrizzlePlatform extends AbstractPlatform
             $database = 'DATABASE()';
         }
 
-        return "SELECT CONSTRAINT_NAME, CONSTRAINT_COLUMNS, REFERENCED_TABLE_NAME, REFERENCED_TABLE_COLUMNS, UPDATE_RULE, DELETE_RULE" .
-               " FROM DATA_DICTIONARY.FOREIGN_KEYS" .
-               " WHERE CONSTRAINT_SCHEMA=" . $database . " AND CONSTRAINT_TABLE='" . $table . "'";
+        return 'SELECT CONSTRAINT_NAME, CONSTRAINT_COLUMNS, REFERENCED_TABLE_NAME, REFERENCED_TABLE_COLUMNS, UPDATE_RULE, DELETE_RULE' .
+               ' FROM DATA_DICTIONARY.FOREIGN_KEYS' .
+               ' WHERE CONSTRAINT_SCHEMA=' . $database . " AND CONSTRAINT_TABLE='" . $table . "'";
     }
 
     /**
@@ -370,8 +370,8 @@ class DrizzlePlatform extends AbstractPlatform
         }
 
         return "SELECT INDEX_NAME AS 'key_name', COLUMN_NAME AS 'column_name', IS_USED_IN_PRIMARY AS 'primary', IS_UNIQUE=0 AS 'non_unique'" .
-               " FROM DATA_DICTIONARY.INDEX_PARTS" .
-               " WHERE TABLE_SCHEMA=" . $database . " AND TABLE_NAME='" . $table . "'";
+               ' FROM DATA_DICTIONARY.INDEX_PARTS' .
+               ' WHERE TABLE_SCHEMA=' . $database . " AND TABLE_NAME='" . $table . "'";
     }
 
     /**
@@ -550,7 +550,7 @@ class DrizzlePlatform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(", ", $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(', ', $queryParts);
             }
             $sql = array_merge(
                 $this->getPreAlterTableIndexForeignKeySQL($diff),

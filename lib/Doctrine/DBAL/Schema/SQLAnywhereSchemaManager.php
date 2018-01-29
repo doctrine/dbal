@@ -111,7 +111,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
 
         if (null !== $tableColumn['default']) {
             // Strip quotes from default value.
-            $default = preg_replace(["/^'(.*)'$/", "/''/"], ["$1", "'"], $tableColumn['default']);
+            $default = preg_replace(["/^'(.*)'$/", "/''/"], ['$1', "'"], $tableColumn['default']);
 
             if ('autoincrement' == $default) {
                 $default = null;
@@ -238,7 +238,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     {
         return new View(
             $view['table_name'],
-            preg_replace('/^.*\s+as\s+SELECT(.*)/i', "SELECT$1", $view['view_def'])
+            preg_replace('/^.*\s+as\s+SELECT(.*)/i', 'SELECT$1', $view['view_def'])
         );
     }
 }

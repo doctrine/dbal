@@ -38,7 +38,7 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
             $this->_platform->getDropSequenceSQL('myseq')
         );
         self::assertEquals(
-            "SELECT NEXT VALUE FOR myseq",
+            'SELECT NEXT VALUE FOR myseq',
             $this->_platform->getSequenceNextValSQL('myseq')
         );
     }
@@ -159,26 +159,26 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     public function testModifyLimitQueryWithSubSelectInSelectList()
     {
         $sql = $this->_platform->modifyLimitQuery(
-            "SELECT " .
-            "u.id, " .
-            "(u.foo/2) foodiv, " .
-            "CONCAT(u.bar, u.baz) barbaz, " .
-            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
-            "FROM user u " .
+            'SELECT ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
             "WHERE u.status = 'disabled'",
             10
         );
 
         self::assertEquals(
 
-            "SELECT " .
-            "u.id, " .
-            "(u.foo/2) foodiv, " .
-            "CONCAT(u.bar, u.baz) barbaz, " .
-            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
-            "FROM user u " .
+            'SELECT ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
             "WHERE u.status = 'disabled' " .
-            "ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY",
+            'ORDER BY (SELECT 0) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY',
             $sql
         );
     }
@@ -189,28 +189,28 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     public function testModifyLimitQueryWithSubSelectInSelectListAndOrderByClause()
     {
         $sql = $this->_platform->modifyLimitQuery(
-            "SELECT " .
-            "u.id, " .
-            "(u.foo/2) foodiv, " .
-            "CONCAT(u.bar, u.baz) barbaz, " .
-            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
-            "FROM user u " .
+            'SELECT ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
             "WHERE u.status = 'disabled' " .
-            "ORDER BY u.username DESC",
+            'ORDER BY u.username DESC',
             10,
             5
         );
 
         self::assertEquals(
-            "SELECT " .
-            "u.id, " .
-            "(u.foo/2) foodiv, " .
-            "CONCAT(u.bar, u.baz) barbaz, " .
-            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
-            "FROM user u " .
+            'SELECT ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
             "WHERE u.status = 'disabled' " .
-            "ORDER BY u.username DESC " .
-            "OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
+            'ORDER BY u.username DESC ' .
+            'OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY',
             $sql
         );
     }
@@ -221,51 +221,51 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
     public function testModifyLimitQueryWithAggregateFunctionInOrderByClause()
     {
         $sql = $this->_platform->modifyLimitQuery(
-            "SELECT " .
-            "MAX(heading_id) aliased, " .
-            "code " .
-            "FROM operator_model_operator " .
-            "GROUP BY code " .
-            "ORDER BY MAX(heading_id) DESC",
+            'SELECT ' .
+            'MAX(heading_id) aliased, ' .
+            'code ' .
+            'FROM operator_model_operator ' .
+            'GROUP BY code ' .
+            'ORDER BY MAX(heading_id) DESC',
             1,
             0
         );
 
         self::assertEquals(
-            "SELECT " .
-            "MAX(heading_id) aliased, " .
-            "code " .
-            "FROM operator_model_operator " .
-            "GROUP BY code " .
-            "ORDER BY MAX(heading_id) DESC " .
-            "OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY",
+            'SELECT ' .
+            'MAX(heading_id) aliased, ' .
+            'code ' .
+            'FROM operator_model_operator ' .
+            'GROUP BY code ' .
+            'ORDER BY MAX(heading_id) DESC ' .
+            'OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY',
             $sql
         );
     }
 
     public function testModifyLimitQueryWithFromSubquery()
     {
-        $sql = $this->_platform->modifyLimitQuery("SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result", 10);
+        $sql = $this->_platform->modifyLimitQuery('SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result', 10);
 
-        $expected = "SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
+        $expected = 'SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
 
         self::assertEquals($sql, $expected);
     }
 
     public function testModifyLimitQueryWithFromSubqueryAndOrder()
     {
-        $sql = $this->_platform->modifyLimitQuery("SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC", 10);
+        $sql = $this->_platform->modifyLimitQuery('SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC', 10);
 
-        $expected = "SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
+        $expected = 'SELECT DISTINCT id_0, value_1 FROM (SELECT k0_.id AS id_0, k0_.value AS value_1 FROM key_measure k0_ WHERE (k0_.id_zone in(2))) dctrn_result ORDER BY value_1 DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
 
         self::assertEquals($sql, $expected);
     }
 
     public function testModifyLimitQueryWithComplexOrderByExpression()
     {
-        $sql = $this->_platform->modifyLimitQuery("SELECT * FROM table ORDER BY (table.x * table.y) DESC", 10);
+        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM table ORDER BY (table.x * table.y) DESC', 10);
 
-        $expected = "SELECT * FROM table ORDER BY (table.x * table.y) DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
+        $expected = 'SELECT * FROM table ORDER BY (table.x * table.y) DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
 
         self::assertEquals($sql, $expected);
     }
@@ -276,20 +276,20 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
      */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable()
     {
-        $querySql = "SELECT DISTINCT id_0, name_1 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
-            . ") dctrn_result "
-            . "ORDER BY id_0 ASC";
-        $alteredSql = "SELECT DISTINCT id_0, name_1 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
-            . ") dctrn_result "
-            . "ORDER BY id_0 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
+        $querySql = 'SELECT DISTINCT id_0, name_1 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
+            . ') dctrn_result '
+            . 'ORDER BY id_0 ASC';
+        $alteredSql = 'SELECT DISTINCT id_0, name_1 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
+            . ') dctrn_result '
+            . 'ORDER BY id_0 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY';
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
         self::assertEquals($alteredSql, $sql);
     }
@@ -299,20 +299,20 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
      */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable()
     {
-        $querySql = "SELECT DISTINCT id_0, name_1 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
-            . ") dctrn_result "
-            . "ORDER BY name_1 ASC";
-        $alteredSql = "SELECT DISTINCT id_0, name_1 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
-            . ") dctrn_result "
-            . "ORDER BY name_1 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
+        $querySql = 'SELECT DISTINCT id_0, name_1 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
+            . ') dctrn_result '
+            . 'ORDER BY name_1 ASC';
+        $alteredSql = 'SELECT DISTINCT id_0, name_1 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
+            . ') dctrn_result '
+            . 'ORDER BY name_1 ASC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY';
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
         self::assertEquals($alteredSql, $sql);
     }
@@ -322,31 +322,31 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
      */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables()
     {
-        $querySql = "SELECT DISTINCT id_0, name_1, foo_2 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
-            . ") dctrn_result "
-            . "ORDER BY name_1 ASC, foo_2 DESC";
-        $alteredSql = "SELECT DISTINCT id_0, name_1, foo_2 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
-            . ") dctrn_result "
-            . "ORDER BY name_1 ASC, foo_2 DESC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY";
+        $querySql = 'SELECT DISTINCT id_0, name_1, foo_2 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
+            . ') dctrn_result '
+            . 'ORDER BY name_1 ASC, foo_2 DESC';
+        $alteredSql = 'SELECT DISTINCT id_0, name_1, foo_2 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
+            . ') dctrn_result '
+            . 'ORDER BY name_1 ASC, foo_2 DESC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY';
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
         self::assertEquals($alteredSql, $sql);
     }
 
     public function testModifyLimitSubquerySimple()
     {
-        $querySql = "SELECT DISTINCT id_0 FROM "
-            . "(SELECT k0_.id AS id_0, k0_.field AS field_1 "
-            . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result";
-        $alteredSql = "SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 "
-            . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
+        $querySql = 'SELECT DISTINCT id_0 FROM '
+            . '(SELECT k0_.id AS id_0, k0_.field AS field_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
+        $alteredSql = 'SELECT DISTINCT id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY';
         $sql = $this->_platform->modifyLimitQuery($querySql, 20);
         self::assertEquals($alteredSql, $sql);
     }

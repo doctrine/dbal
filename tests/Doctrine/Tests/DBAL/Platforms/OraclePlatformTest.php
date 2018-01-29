@@ -83,8 +83,8 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         return array(
             'ALTER TABLE mytable ADD (quota NUMBER(10) DEFAULT NULL NULL)',
             "ALTER TABLE mytable MODIFY (baz VARCHAR2(255) DEFAULT 'def' NOT NULL, bloo NUMBER(1) DEFAULT '0' NOT NULL)",
-            "ALTER TABLE mytable DROP (foo)",
-            "ALTER TABLE mytable RENAME TO userlist",
+            'ALTER TABLE mytable DROP (foo)',
+            'ALTER TABLE mytable RENAME TO userlist',
         );
     }
 
@@ -318,7 +318,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getCreateTableColumnCommentsSQL()
     {
         return array(
-            "CREATE TABLE test (id NUMBER(10) NOT NULL, PRIMARY KEY(id))",
+            'CREATE TABLE test (id NUMBER(10) NOT NULL, PRIMARY KEY(id))',
             "COMMENT ON COLUMN test.id IS 'This is a comment'",
         );
     }
@@ -326,7 +326,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getCreateTableColumnTypeCommentsSQL()
     {
         return array(
-            "CREATE TABLE test (id NUMBER(10) NOT NULL, data CLOB NOT NULL, PRIMARY KEY(id))",
+            'CREATE TABLE test (id NUMBER(10) NOT NULL, data CLOB NOT NULL, PRIMARY KEY(id))',
             "COMMENT ON COLUMN test.data IS '(DC2Type:array)'"
         );
     }
@@ -334,7 +334,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)",
+            'ALTER TABLE mytable ADD (quota NUMBER(10) NOT NULL)',
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS ''",
             "COMMENT ON COLUMN mytable.baz IS 'B comment'",

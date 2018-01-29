@@ -39,7 +39,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
             try {
                 /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-                $table = new \Doctrine\DBAL\Schema\Table("portability_table");
+                $table = new \Doctrine\DBAL\Schema\Table('portability_table');
                 $table->addColumn('Test_Int', 'integer');
                 $table->addColumn('Test_String', 'string', array('fixed' => true, 'length' => 32));
                 $table->addColumn('Test_Null', 'string', array('notnull' => false));
@@ -116,11 +116,11 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertFetchResultRow($row)
     {
-        self::assertContains($row['test_int'], array(1, 2), "Primary key test_int should either be 1 or 2.");
-        self::assertArrayHasKey('test_string', $row, "Case should be lowered.");
-        self::assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
+        self::assertContains($row['test_int'], array(1, 2), 'Primary key test_int should either be 1 or 2.');
+        self::assertArrayHasKey('test_string', $row, 'Case should be lowered.');
+        self::assertEquals(3, strlen($row['test_string']), 'test_string should be rtrimed to length of three for CHAR(32) column.');
         self::assertNull($row['test_null']);
-        self::assertArrayNotHasKey(0, $row, "PDO::FETCH_ASSOC should not return numerical keys.");
+        self::assertArrayNotHasKey(0, $row, 'PDO::FETCH_ASSOC should not return numerical keys.');
     }
 
     public function testPortabilitySqlServer()

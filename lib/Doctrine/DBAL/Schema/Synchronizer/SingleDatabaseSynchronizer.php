@@ -118,7 +118,7 @@ class SingleDatabaseSynchronizer extends AbstractSchemaSynchronizer
                 continue;
             }
 
-            $checkSequence = $table->getName() . "_" . $columns[0] . "_seq";
+            $checkSequence = $table->getName() . '_' . $columns[0] . '_seq';
             if ($fullSchema->hasSequence($checkSequence)) {
                 $visitor->acceptSequence($fullSchema->getSequence($checkSequence));
             }

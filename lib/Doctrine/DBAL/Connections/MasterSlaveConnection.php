@@ -145,7 +145,7 @@ class MasterSlaveConnection extends Connection
         $connectionName            = $connectionName ?: 'slave';
 
         if ($connectionName !== 'slave' && $connectionName !== 'master') {
-            throw new \InvalidArgumentException("Invalid option to connect(), only master or slave allowed.");
+            throw new \InvalidArgumentException('Invalid option to connect(), only master or slave allowed.');
         }
 
         // If we have a connection open, and this is not an explicit connection

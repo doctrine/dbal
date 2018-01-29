@@ -6,7 +6,7 @@ use Doctrine\DBAL\DBALException;
 
 class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
 {
-    private $_sequenceNextValSql = "";
+    private $_sequenceNextValSql = '';
     private $_prefersIdentityColumns = true;
     private $_prefersSequences = false;
 

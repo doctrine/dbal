@@ -54,7 +54,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
            ->from('users', 'u')
            ->where($expr->andX($expr->eq('u.nickname', '?')));
 
-        self::assertEquals("SELECT u.id FROM users u WHERE u.nickname = ?", (string) $qb);
+        self::assertEquals('SELECT u.id FROM users u WHERE u.nickname = ?', (string) $qb);
     }
 
     public function testSelectWithLeftJoin()
@@ -780,7 +780,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             ->from('users')
             ->where('awesome=9001');
 
-        self::assertEquals("SELECT id, name FROM users WHERE awesome=9001", (string) $qb);
+        self::assertEquals('SELECT id, name FROM users WHERE awesome=9001', (string) $qb);
     }
 
     public function testComplexSelectWithoutTableAliases()
@@ -818,7 +818,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb->select('users.*')
             ->from('users');
 
-        self::assertEquals("SELECT users.* FROM users", (string) $qb);
+        self::assertEquals('SELECT users.* FROM users', (string) $qb);
     }
 
     public function testSelectAllWithoutTableAlias()
@@ -828,7 +828,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb->select('*')
             ->from('users');
 
-        self::assertEquals("SELECT * FROM users", (string) $qb);
+        self::assertEquals('SELECT * FROM users', (string) $qb);
     }
 
     /**

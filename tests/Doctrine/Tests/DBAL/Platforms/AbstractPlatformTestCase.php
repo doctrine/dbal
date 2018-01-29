@@ -34,13 +34,13 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testQuoteIdentifier()
     {
-        if ($this->_platform->getName() == "mssql") {
+        if ($this->_platform->getName() == 'mssql') {
             $this->markTestSkipped('Not working this way on mssql.');
         }
 
         $c = $this->_platform->getIdentifierQuoteCharacter();
-        self::assertEquals($c."test".$c, $this->_platform->quoteIdentifier("test"));
-        self::assertEquals($c."test".$c.".".$c."test".$c, $this->_platform->quoteIdentifier("test.test"));
+        self::assertEquals($c.'test'.$c, $this->_platform->quoteIdentifier('test'));
+        self::assertEquals($c.'test'.$c.'.'.$c.'test'.$c, $this->_platform->quoteIdentifier('test.test'));
         self::assertEquals(str_repeat($c, 4), $this->_platform->quoteIdentifier($c));
     }
 
@@ -49,13 +49,13 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testQuoteSingleIdentifier()
     {
-        if ($this->_platform->getName() == "mssql") {
+        if ($this->_platform->getName() == 'mssql') {
             $this->markTestSkipped('Not working this way on mssql.');
         }
 
         $c = $this->_platform->getIdentifierQuoteCharacter();
-        self::assertEquals($c."test".$c, $this->_platform->quoteSingleIdentifier("test"));
-        self::assertEquals($c."test.test".$c, $this->_platform->quoteSingleIdentifier("test.test"));
+        self::assertEquals($c.'test'.$c, $this->_platform->quoteSingleIdentifier('test'));
+        self::assertEquals($c.'test.test'.$c, $this->_platform->quoteSingleIdentifier('test.test'));
         self::assertEquals(str_repeat($c, 4), $this->_platform->quoteSingleIdentifier($c));
     }
 
@@ -177,7 +177,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         $table = new Table('test');
         $table->addColumn('foo', 'string', array('notnull' => false, 'length' => 255));
         $table->addColumn('bar', 'string', array('notnull' => false, 'length' => 255));
-        $table->addUniqueIndex(array("foo", "bar"));
+        $table->addUniqueIndex(array('foo', 'bar'));
 
         $sql = $this->_platform->getCreateTableSQL($table);
         self::assertEquals($this->getGenerateTableWithMultiColumnUniqueIndexSql(), $sql);
@@ -1149,7 +1149,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
 
         self::assertEquals(
             $this->getQuotedCommentOnColumnSQLWithQuoteCharacter(),
-            $this->_platform->getCommentOnColumnSQL('mytable', 'id', "It" . $c . "s a quote !")
+            $this->_platform->getCommentOnColumnSQL('mytable', 'id', 'It' . $c . 's a quote !')
         );
     }
 

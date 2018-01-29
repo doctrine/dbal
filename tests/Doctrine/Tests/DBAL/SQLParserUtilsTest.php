@@ -24,16 +24,16 @@ class SQLParserUtilsTest extends \Doctrine\Tests\DbalTestCase
             array('SELECT ? FROM ?', true, array(7, 14)),
             array('SELECT "?" FROM foo', true, array()),
             array("SELECT '?' FROM foo", true, array()),
-            array("SELECT `?` FROM foo", true, array()), // Ticket DBAL-552
-            array("SELECT [?] FROM foo", true, array()),
+            array('SELECT `?` FROM foo', true, array()), // Ticket DBAL-552
+            array('SELECT [?] FROM foo', true, array()),
             array("SELECT 'Doctrine\DBAL?' FROM foo", true, array()), // Ticket DBAL-558
             array('SELECT "Doctrine\DBAL?" FROM foo', true, array()), // Ticket DBAL-558
             array('SELECT `Doctrine\DBAL?` FROM foo', true, array()), // Ticket DBAL-558
             array('SELECT [Doctrine\DBAL?] FROM foo', true, array()), // Ticket DBAL-558
             array('SELECT "?" FROM foo WHERE bar = ?', true, array(32)),
             array("SELECT '?' FROM foo WHERE bar = ?", true, array(32)),
-            array("SELECT `?` FROM foo WHERE bar = ?", true, array(32)), // Ticket DBAL-552
-            array("SELECT [?] FROM foo WHERE bar = ?", true, array(32)),
+            array('SELECT `?` FROM foo WHERE bar = ?', true, array(32)), // Ticket DBAL-552
+            array('SELECT [?] FROM foo WHERE bar = ?', true, array(32)),
             array('SELECT * FROM foo WHERE jsonb_exists_any(foo.bar, ARRAY[?])', true, array(56)), // Ticket GH-2295
             array("SELECT 'Doctrine\DBAL?' FROM foo WHERE bar = ?", true, array(45)), // Ticket DBAL-558
             array('SELECT "Doctrine\DBAL?" FROM foo WHERE bar = ?', true, array(45)), // Ticket DBAL-558
@@ -90,7 +90,7 @@ SQLDATA
         return array(
             // Positional: Very simple with one needle
             array(
-                "SELECT * FROM Foo WHERE foo IN (?)",
+                'SELECT * FROM Foo WHERE foo IN (?)',
                 array(array(1, 2, 3)),
                 array(Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
@@ -99,25 +99,25 @@ SQLDATA
             ),
             // Positional: One non-list before d one after list-needle
             array(
-                "SELECT * FROM Foo WHERE foo = ? AND bar IN (?)",
-                array("string", array(1, 2, 3)),
+                'SELECT * FROM Foo WHERE foo = ? AND bar IN (?)',
+                array('string', array(1, 2, 3)),
                 array(\PDO::PARAM_STR, Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?)',
-                array("string", 1, 2, 3),
+                array('string', 1, 2, 3),
                 array(\PDO::PARAM_STR, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
             // Positional: One non-list after list-needle
             array(
-                "SELECT * FROM Foo WHERE bar IN (?) AND baz = ?",
-                array(array(1, 2, 3), "foo"),
+                'SELECT * FROM Foo WHERE bar IN (?) AND baz = ?',
+                array(array(1, 2, 3), 'foo'),
                 array(Connection::PARAM_INT_ARRAY, \PDO::PARAM_STR),
                 'SELECT * FROM Foo WHERE bar IN (?, ?, ?) AND baz = ?',
-                array(1, 2, 3, "foo"),
+                array(1, 2, 3, 'foo'),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
             ),
             // Positional: One non-list before and one after list-needle
             array(
-                "SELECT * FROM Foo WHERE foo = ? AND bar IN (?) AND baz = ?",
+                'SELECT * FROM Foo WHERE foo = ? AND bar IN (?) AND baz = ?',
                 array(1, array(1, 2, 3), 4),
                 array(\PDO::PARAM_INT, Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT),
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?) AND baz = ?',
@@ -126,7 +126,7 @@ SQLDATA
             ),
             // Positional: Two lists
             array(
-                "SELECT * FROM Foo WHERE foo IN (?, ?)",
+                'SELECT * FROM Foo WHERE foo IN (?, ?)',
                 array(array(1, 2, 3), array(4, 5)),
                 array(Connection::PARAM_INT_ARRAY, Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
@@ -135,7 +135,7 @@ SQLDATA
             ),
             // Positional: Empty "integer" array DDC-1978
             array(
-                "SELECT * FROM Foo WHERE foo IN (?)",
+                'SELECT * FROM Foo WHERE foo IN (?)',
                 array(array()),
                 array(Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (NULL)',
@@ -144,7 +144,7 @@ SQLDATA
             ),
             // Positional: Empty "str" array DDC-1978
             array(
-                "SELECT * FROM Foo WHERE foo IN (?)",
+                'SELECT * FROM Foo WHERE foo IN (?)',
                 array(array()),
                 array(Connection::PARAM_STR_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (NULL)',
@@ -153,7 +153,7 @@ SQLDATA
             ),
             // Positional: explicit keys for params and types
             array(
-                "SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?",
+                'SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?',
                 array(1 => 'bar', 2 => 'baz', 0 => 1),
                 array(2 => \PDO::PARAM_STR, 1 => \PDO::PARAM_STR),
                 'SELECT * FROM Foo WHERE foo = ? AND bar = ? AND baz = ?',
@@ -162,7 +162,7 @@ SQLDATA
             ),
             // Positional: explicit keys for array params and array types
             array(
-                "SELECT * FROM Foo WHERE foo IN (?) AND bar IN (?) AND baz = ?",
+                'SELECT * FROM Foo WHERE foo IN (?) AND bar IN (?) AND baz = ?',
                 array(1 => array('bar1', 'bar2'), 2 => true, 0 => array(1, 2, 3)),
                 array(2 => \PDO::PARAM_BOOL, 1 => Connection::PARAM_STR_ARRAY, 0 => Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND bar IN (?, ?) AND baz = ?',
@@ -171,7 +171,7 @@ SQLDATA
             ),
             // Positional starts from 1: One non-list before and one after list-needle
             array(
-                "SELECT * FROM Foo WHERE foo = ? AND bar IN (?) AND baz = ? AND foo IN (?)",
+                'SELECT * FROM Foo WHERE foo = ? AND bar IN (?) AND baz = ? AND foo IN (?)',
                 array(1 => 1, 2 => array(1, 2, 3), 3 => 4, 4 => array(5, 6)),
                 array(1 => \PDO::PARAM_INT, 2 => Connection::PARAM_INT_ARRAY, 3 => \PDO::PARAM_INT, 4 => Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?) AND baz = ? AND foo IN (?, ?)',
@@ -180,7 +180,7 @@ SQLDATA
             ),
             //  Named parameters : Very simple with param int
             array(
-                "SELECT * FROM Foo WHERE foo = :foo",
+                'SELECT * FROM Foo WHERE foo = :foo',
                 array('foo'=>1),
                 array('foo'=>\PDO::PARAM_INT),
                 'SELECT * FROM Foo WHERE foo = ?',
@@ -190,7 +190,7 @@ SQLDATA
 
              //  Named parameters : Very simple with param int and string
             array(
-                "SELECT * FROM Foo WHERE foo = :foo AND bar = :bar",
+                'SELECT * FROM Foo WHERE foo = :foo AND bar = :bar',
                 array('bar'=>'Some String','foo'=>1),
                 array('foo'=>\PDO::PARAM_INT,'bar'=>\PDO::PARAM_STR),
                 'SELECT * FROM Foo WHERE foo = ? AND bar = ?',
@@ -199,7 +199,7 @@ SQLDATA
             ),
             //  Named parameters : Very simple with one needle
             array(
-                "SELECT * FROM Foo WHERE foo IN (:foo)",
+                'SELECT * FROM Foo WHERE foo IN (:foo)',
                 array('foo'=>array(1, 2, 3)),
                 array('foo'=>Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?)',
@@ -208,25 +208,25 @@ SQLDATA
             ),
             // Named parameters: One non-list before d one after list-needle
             array(
-                "SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar)",
-                array('foo'=>"string", 'bar'=>array(1, 2, 3)),
+                'SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar)',
+                array('foo'=>'string', 'bar'=>array(1, 2, 3)),
                 array('foo'=>\PDO::PARAM_STR, 'bar'=>Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?)',
-                array("string", 1, 2, 3),
+                array('string', 1, 2, 3),
                 array(\PDO::PARAM_STR, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
             // Named parameters: One non-list after list-needle
             array(
-                "SELECT * FROM Foo WHERE bar IN (:bar) AND baz = :baz",
-                array('bar'=>array(1, 2, 3), 'baz'=>"foo"),
+                'SELECT * FROM Foo WHERE bar IN (:bar) AND baz = :baz',
+                array('bar'=>array(1, 2, 3), 'baz'=>'foo'),
                 array('bar'=>Connection::PARAM_INT_ARRAY, 'baz'=>\PDO::PARAM_STR),
                 'SELECT * FROM Foo WHERE bar IN (?, ?, ?) AND baz = ?',
-                array(1, 2, 3, "foo"),
+                array(1, 2, 3, 'foo'),
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
             ),
             // Named parameters: One non-list before and one after list-needle
             array(
-                "SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar) AND baz = :baz",
+                'SELECT * FROM Foo WHERE foo = :foo AND bar IN (:bar) AND baz = :baz',
                 array('bar'=>array(1, 2, 3),'foo'=>1, 'baz'=>4),
                 array('bar'=>Connection::PARAM_INT_ARRAY, 'foo'=>\PDO::PARAM_INT, 'baz'=>\PDO::PARAM_INT),
                 'SELECT * FROM Foo WHERE foo = ? AND bar IN (?, ?, ?) AND baz = ?',
@@ -235,7 +235,7 @@ SQLDATA
             ),
             // Named parameters: Two lists
             array(
-                "SELECT * FROM Foo WHERE foo IN (:a, :b)",
+                'SELECT * FROM Foo WHERE foo IN (:a, :b)',
                 array('b'=>array(4, 5),'a'=>array(1, 2, 3)),
                 array('a'=>Connection::PARAM_INT_ARRAY, 'b'=>Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?, ?, ?)',
@@ -244,16 +244,16 @@ SQLDATA
             ),
             //  Named parameters : With the same name arg type string
             array(
-                "SELECT * FROM Foo WHERE foo <> :arg AND bar = :arg",
-                array('arg'=>"Some String"),
+                'SELECT * FROM Foo WHERE foo <> :arg AND bar = :arg',
+                array('arg'=>'Some String'),
                 array('arg'=>\PDO::PARAM_STR),
                 'SELECT * FROM Foo WHERE foo <> ? AND bar = ?',
-                array("Some String","Some String"),
+                array('Some String','Some String'),
                 array(\PDO::PARAM_STR,\PDO::PARAM_STR,)
             ),
              //  Named parameters : With the same name arg
             array(
-                "SELECT * FROM Foo WHERE foo IN (:arg) AND NOT bar IN (:arg)",
+                'SELECT * FROM Foo WHERE foo IN (:arg) AND NOT bar IN (:arg)',
                 array('arg'=>array(1, 2, 3)),
                 array('arg'=>Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?, ?) AND NOT bar IN (?, ?, ?)',
@@ -263,7 +263,7 @@ SQLDATA
 
              //  Named parameters : Same name, other name in between DBAL-299
             array(
-                "SELECT * FROM Foo WHERE (:foo = 2) AND (:bar = 3) AND (:foo = 2)",
+                'SELECT * FROM Foo WHERE (:foo = 2) AND (:bar = 3) AND (:foo = 2)',
                 array('foo'=>2,'bar'=>3),
                 array('foo'=>\PDO::PARAM_INT,'bar'=>\PDO::PARAM_INT),
                 'SELECT * FROM Foo WHERE (? = 2) AND (? = 3) AND (? = 2)',
@@ -272,7 +272,7 @@ SQLDATA
             ),
              //  Named parameters : Empty "integer" array DDC-1978
             array(
-                "SELECT * FROM Foo WHERE foo IN (:foo)",
+                'SELECT * FROM Foo WHERE foo IN (:foo)',
                 array('foo'=>array()),
                 array('foo'=>Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (NULL)',
@@ -281,7 +281,7 @@ SQLDATA
             ),
              //  Named parameters : Two empty "str" array DDC-1978
             array(
-                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)",
+                'SELECT * FROM Foo WHERE foo IN (:foo) OR bar IN (:bar)',
                 array('foo'=>array(), 'bar'=>array()),
                 array('foo'=>Connection::PARAM_STR_ARRAY, 'bar'=>Connection::PARAM_STR_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (NULL) OR bar IN (NULL)',
@@ -289,7 +289,7 @@ SQLDATA
                 array()
             ),
             array(
-                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar OR baz = :baz",
+                'SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar OR baz = :baz',
                 array('foo' => array(1, 2), 'bar' => 'bar', 'baz' => 'baz'),
                 array('foo' => Connection::PARAM_INT_ARRAY, 'baz' => 'string'),
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ? OR baz = ?',
@@ -297,7 +297,7 @@ SQLDATA
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR, 'string')
             ),
             array(
-                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar",
+                'SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar',
                 array('foo' => array(1, 2), 'bar' => 'bar'),
                 array('foo' => Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ?',
@@ -306,7 +306,7 @@ SQLDATA
             ),
             // Params/types with colons
             array(
-                "SELECT * FROM Foo WHERE foo = :foo OR bar = :bar",
+                'SELECT * FROM Foo WHERE foo = :foo OR bar = :bar',
                 array(':foo' => 'foo', ':bar' => 'bar'),
                 array(':foo' => \PDO::PARAM_INT),
                 'SELECT * FROM Foo WHERE foo = ? OR bar = ?',
@@ -314,7 +314,7 @@ SQLDATA
                 array(\PDO::PARAM_INT, \PDO::PARAM_STR)
             ),
             array(
-                "SELECT * FROM Foo WHERE foo = :foo OR bar = :bar",
+                'SELECT * FROM Foo WHERE foo = :foo OR bar = :bar',
                 array(':foo' => 'foo', ':bar' => 'bar'),
                 array(':foo' => \PDO::PARAM_INT, 'bar' => \PDO::PARAM_INT),
                 'SELECT * FROM Foo WHERE foo = ? OR bar = ?',
@@ -322,7 +322,7 @@ SQLDATA
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT)
             ),
             array(
-                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar",
+                'SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar',
                 array(':foo' => array(1, 2), ':bar' => 'bar'),
                 array('foo' => Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ?',
@@ -330,7 +330,7 @@ SQLDATA
                 array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_STR)
             ),
             array(
-                "SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar",
+                'SELECT * FROM Foo WHERE foo IN (:foo) OR bar = :bar',
                 array('foo' => array(1, 2), 'bar' => 'bar'),
                 array(':foo' => Connection::PARAM_INT_ARRAY),
                 'SELECT * FROM Foo WHERE foo IN (?, ?) OR bar = ?',
@@ -373,41 +373,41 @@ SQLDATA
     {
         list($query, $params, $types) = SQLParserUtils::expandListParameters($q, $p, $t);
 
-        self::assertEquals($expectedQuery, $query, "Query was not rewritten correctly.");
-        self::assertEquals($expectedParams, $params, "Params dont match");
-        self::assertEquals($expectedTypes, $types, "Types dont match");
+        self::assertEquals($expectedQuery, $query, 'Query was not rewritten correctly.');
+        self::assertEquals($expectedParams, $params, 'Params dont match');
+        self::assertEquals($expectedTypes, $types, 'Types dont match');
     }
 
     public function dataQueryWithMissingParameters()
     {
         return array(
             array(
-                "SELECT * FROM foo WHERE bar = :param",
+                'SELECT * FROM foo WHERE bar = :param',
                 array('other' => 'val'),
                 array(),
             ),
             array(
-                "SELECT * FROM foo WHERE bar = :param",
+                'SELECT * FROM foo WHERE bar = :param',
                 array(),
                 array(),
             ),
             array(
-                "SELECT * FROM foo WHERE bar = :param",
+                'SELECT * FROM foo WHERE bar = :param',
                 array(),
                 array('param' => Connection::PARAM_INT_ARRAY),
             ),
             array(
-                "SELECT * FROM foo WHERE bar = :param",
+                'SELECT * FROM foo WHERE bar = :param',
                 array(),
                 array(':param' => Connection::PARAM_INT_ARRAY),
             ),
             array(
-                "SELECT * FROM foo WHERE bar = :param",
+                'SELECT * FROM foo WHERE bar = :param',
                 array(),
                 array('bar' => Connection::PARAM_INT_ARRAY),
             ),
              array(
-                "SELECT * FROM foo WHERE bar = :param",
+                'SELECT * FROM foo WHERE bar = :param',
                 array('bar' => 'value'),
                 array('bar' => Connection::PARAM_INT_ARRAY),
             ),

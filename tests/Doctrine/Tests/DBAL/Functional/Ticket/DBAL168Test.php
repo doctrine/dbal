@@ -9,11 +9,11 @@ class DBAL168Test extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function testDomainsTable()
     {
-        if ($this->_conn->getDatabasePlatform()->getName() != "postgresql") {
+        if ($this->_conn->getDatabasePlatform()->getName() != 'postgresql') {
             $this->markTestSkipped('PostgreSQL only test');
         }
 
-        $table = new \Doctrine\DBAL\Schema\Table("domains");
+        $table = new \Doctrine\DBAL\Schema\Table('domains');
         $table->addColumn('id', 'integer');
         $table->addColumn('parent_id', 'integer');
         $table->setPrimaryKey(array('id'));

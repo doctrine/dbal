@@ -89,7 +89,7 @@ class PoolingShardManagerTest extends \PHPUnit\Framework\TestCase
 
     public function testQueryAll()
     {
-        $sql = "SELECT * FROM table";
+        $sql = 'SELECT * FROM table';
         $params = array(1);
         $types = array(1);
 
@@ -119,7 +119,7 @@ class PoolingShardManagerTest extends \PHPUnit\Framework\TestCase
 
     public function testQueryAllWithStaticShardChoser()
     {
-        $sql = "SELECT * FROM table";
+        $sql = 'SELECT * FROM table';
         $params = array(1);
         $types = array(1);
 

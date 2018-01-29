@@ -16,7 +16,7 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
         parent::setUp();
 
         $platform = $this->_conn->getDatabasePlatform();
-        if ($platform->getName() == "sqlite") {
+        if ($platform->getName() == 'sqlite') {
             $this->markTestSkipped('TableGenerator does not work with SQLite');
         }
 
@@ -36,23 +36,23 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testNextVal()
     {
-        $id1 = $this->generator->nextValue("tbl1");
-        $id2 = $this->generator->nextValue("tbl1");
-        $id3 = $this->generator->nextValue("tbl2");
+        $id1 = $this->generator->nextValue('tbl1');
+        $id2 = $this->generator->nextValue('tbl1');
+        $id3 = $this->generator->nextValue('tbl2');
 
-        self::assertGreaterThan(0, $id1, "First id has to be larger than 0");
-        self::assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
-        self::assertEquals($id1, $id3, "First ids from different tables are equal.");
+        self::assertGreaterThan(0, $id1, 'First id has to be larger than 0');
+        self::assertEquals($id1 + 1, $id2, 'Second id is one larger than first one.');
+        self::assertEquals($id1, $id3, 'First ids from different tables are equal.');
     }
 
     public function testNextValNotAffectedByOuterTransactions()
     {
         $this->_conn->beginTransaction();
-        $id1 = $this->generator->nextValue("tbl1");
+        $id1 = $this->generator->nextValue('tbl1');
         $this->_conn->rollBack();
-        $id2 = $this->generator->nextValue("tbl1");
+        $id2 = $this->generator->nextValue('tbl1');
 
-        self::assertGreaterThan(0, $id1, "First id has to be larger than 0");
-        self::assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
+        self::assertGreaterThan(0, $id1, 'First id has to be larger than 0');
+        self::assertEquals($id1 + 1, $id2, 'Second id is one larger than first one.');
     }
 }
