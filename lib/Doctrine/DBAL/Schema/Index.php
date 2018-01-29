@@ -226,11 +226,7 @@ class Index extends AbstractAsset implements Constraint
                 return false;
             }
 
-            if ($other->isUnique() != $this->isUnique()) {
-                return false;
-            }
-
-            return true;
+            return $other->isUnique() === $this->isUnique();
         }
 
         return false;
@@ -251,11 +247,7 @@ class Index extends AbstractAsset implements Constraint
             return false;
         }
 
-        if ($this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique()) && $this->samePartialIndex($other)) {
-            return true;
-        }
-
-        return false;
+        return $this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique()) && $this->samePartialIndex($other);
     }
 
     /**
@@ -348,11 +340,7 @@ class Index extends AbstractAsset implements Constraint
             return true;
         }
 
-        if ( ! $this->hasOption('where') && ! $other->hasOption('where')) {
-            return true;
-        }
-
-        return false;
+        return ! $this->hasOption('where') && ! $other->hasOption('where');
     }
 
 }

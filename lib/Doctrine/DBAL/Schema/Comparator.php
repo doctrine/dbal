@@ -184,11 +184,7 @@ class Comparator
             return true;
         }
 
-        if ($sequence1->getInitialValue() != $sequence2->getInitialValue()) {
-            return true;
-        }
-
-        return false;
+        return $sequence1->getInitialValue() !== $sequence2->getInitialValue();
     }
 
     /**
@@ -406,11 +402,7 @@ class Comparator
             return true;
         }
 
-        if ($key1->onDelete() != $key2->onDelete()) {
-            return true;
-        }
-
-        return false;
+        return $key1->onDelete() !== $key2->onDelete();
     }
 
     /**
@@ -534,10 +526,6 @@ class Comparator
      */
     public function diffIndex(Index $index1, Index $index2)
     {
-        if ($index1->isFullfilledBy($index2) && $index2->isFullfilledBy($index1)) {
-            return false;
-        }
-
-        return true;
+        return ! ($index1->isFullfilledBy($index2) && $index2->isFullfilledBy($index1));
     }
 }

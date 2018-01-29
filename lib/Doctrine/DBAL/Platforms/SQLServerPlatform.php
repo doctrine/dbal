@@ -654,11 +654,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         // We need to drop an existing default constraint if the column was
         // defined with a default value before and the native column type has changed.
-        if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('fixed')) {
-            return true;
-        }
-
-        return false;
+        return $columnDiff->hasChanged('type') || $columnDiff->hasChanged('fixed');
     }
 
     /**
@@ -1320,11 +1316,7 @@ class SQLServerPlatform extends AbstractPlatform
             $currentPosition--;
         }
 
-        if (preg_match('/SELECT\s+(DISTINCT\s+)?TOP\s/i', $subQueryBuffer)) {
-            return true;
-        }
-
-        return false;
+        return (bool) preg_match('/SELECT\s+(DISTINCT\s+)?TOP\s/i', $subQueryBuffer);
     }
 
     /**
