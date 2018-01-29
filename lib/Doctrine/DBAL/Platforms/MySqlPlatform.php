@@ -496,7 +496,7 @@ class MySqlPlatform extends AbstractPlatform
 
         // Collate
         if ( ! isset($options['collate'])) {
-            $options['collate'] = $options['charset'].'_unicode_ci';
+            $options['collate'] = $options['charset'] . '_unicode_ci';
         }
 
         $tableOptions[] = sprintf('COLLATE %s', $options['collate']);
