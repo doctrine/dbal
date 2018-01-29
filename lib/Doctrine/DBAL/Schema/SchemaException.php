@@ -162,10 +162,10 @@ class SchemaException extends \Doctrine\DBAL\DBALException
     public static function namedForeignKeyRequired(Table $localTable, ForeignKeyConstraint $foreignKey)
     {
         return new self(
-            "The performed schema operation on ".$localTable->getName()." requires a named foreign key, ".
-            "but the given foreign key from (".implode(", ", $foreignKey->getColumns()).") onto foreign table ".
-            "'".$foreignKey->getForeignTableName()."' (".implode(", ", $foreignKey->getForeignColumns()).") is currently ".
-            "unnamed."
+            'The performed schema operation on '.$localTable->getName().' requires a named foreign key, '.
+            'but the given foreign key from ('.implode(', ', $foreignKey->getColumns()).') onto foreign table '.
+            "'".$foreignKey->getForeignTableName()."' (".implode(', ', $foreignKey->getForeignColumns()).') is currently '.
+            'unnamed.'
         );
     }
 

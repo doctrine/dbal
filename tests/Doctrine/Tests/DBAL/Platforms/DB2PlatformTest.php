@@ -26,15 +26,15 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getGenerateAlterTableSql()
     {
         return array(
-            "ALTER TABLE mytable ALTER COLUMN baz SET DATA TYPE VARCHAR(255)",
-            "ALTER TABLE mytable ALTER COLUMN baz SET NOT NULL",
+            'ALTER TABLE mytable ALTER COLUMN baz SET DATA TYPE VARCHAR(255)',
+            'ALTER TABLE mytable ALTER COLUMN baz SET NOT NULL',
             "ALTER TABLE mytable ALTER COLUMN baz SET DEFAULT 'def'",
-            "ALTER TABLE mytable ALTER COLUMN bloo SET DATA TYPE SMALLINT",
-            "ALTER TABLE mytable ALTER COLUMN bloo SET NOT NULL",
+            'ALTER TABLE mytable ALTER COLUMN bloo SET DATA TYPE SMALLINT',
+            'ALTER TABLE mytable ALTER COLUMN bloo SET NOT NULL',
             "ALTER TABLE mytable ALTER COLUMN bloo SET DEFAULT '0'",
-            "ALTER TABLE mytable " .
-            "ADD COLUMN quota INTEGER DEFAULT NULL " .
-            "DROP COLUMN foo",
+            'ALTER TABLE mytable ' .
+            'ADD COLUMN quota INTEGER DEFAULT NULL ' .
+            'DROP COLUMN foo',
             "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
             'RENAME TABLE mytable TO userlist',
         );
@@ -114,7 +114,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getCreateTableColumnCommentsSQL()
     {
         return array(
-            "CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))",
+            'CREATE TABLE test (id INTEGER NOT NULL, PRIMARY KEY(id))',
             "COMMENT ON COLUMN test.id IS 'This is a comment'",
         );
     }
@@ -122,8 +122,8 @@ class DB2PlatformTest extends AbstractPlatformTestCase
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable " .
-            "ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT",
+            'ALTER TABLE mytable ' .
+            'ADD COLUMN quota INTEGER NOT NULL WITH DEFAULT',
             "CALL SYSPROC.ADMIN_CMD ('REORG TABLE mytable')",
             "COMMENT ON COLUMN mytable.quota IS 'A comment'",
             "COMMENT ON COLUMN mytable.foo IS ''",
@@ -298,8 +298,8 @@ class DB2PlatformTest extends AbstractPlatformTestCase
 
     public function testGeneratesDDLSnippets()
     {
-        self::assertEquals("CREATE DATABASE foobar", $this->_platform->getCreateDatabaseSQL('foobar'));
-        self::assertEquals("DROP DATABASE foobar", $this->_platform->getDropDatabaseSQL('foobar'));
+        self::assertEquals('CREATE DATABASE foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals('DROP DATABASE foobar', $this->_platform->getDropDatabaseSQL('foobar'));
         self::assertEquals('DECLARE GLOBAL TEMPORARY TABLE', $this->_platform->getCreateTemporaryTableSnippetSQL());
         self::assertEquals('TRUNCATE foobar IMMEDIATE', $this->_platform->getTruncateTableSQL('foobar'));
         self::assertEquals('TRUNCATE foobar IMMEDIATE', $this->_platform->getTruncateTableSQL('foobar'), true);
@@ -630,7 +630,7 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             array(
                 'default',
                 new Column('bar', Type::getType('string')),
-                "DROP DEFAULT"
+                'DROP DEFAULT'
             ),
         );
     }

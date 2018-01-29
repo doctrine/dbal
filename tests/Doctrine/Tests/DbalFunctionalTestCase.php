@@ -54,7 +54,7 @@ class DbalFunctionalTestCase extends DbalTestCase
         }
 
         if(isset($this->_sqlLoggerStack->queries) && count($this->_sqlLoggerStack->queries)) {
-            $queries = "";
+            $queries = '';
             $i = count($this->_sqlLoggerStack->queries);
             foreach (array_reverse($this->_sqlLoggerStack->queries) as $query) {
                 $params = array_map(function($p) {
@@ -66,24 +66,24 @@ class DbalFunctionalTestCase extends DbalTestCase
 
                     return var_export($p, true);
                 }, $query['params'] ?: array());
-                $queries .= $i.". SQL: '".$query['sql']."' Params: ".implode(", ", $params).PHP_EOL;
+                $queries .= $i.". SQL: '".$query['sql']."' Params: ".implode(', ', $params).PHP_EOL;
                 $i--;
             }
 
             $trace = $t->getTrace();
-            $traceMsg = "";
+            $traceMsg = '';
             foreach($trace as $part) {
                 if(isset($part['file'])) {
-                    if(strpos($part['file'], "PHPUnit/") !== false) {
+                    if(strpos($part['file'], 'PHPUnit/') !== false) {
                         // Beginning with PHPUnit files we don't print the trace anymore.
                         break;
                     }
 
-                    $traceMsg .= $part['file'].":".$part['line'].PHP_EOL;
+                    $traceMsg .= $part['file'].':'.$part['line'].PHP_EOL;
                 }
             }
 
-            $message = "[".get_class($t)."] ".$t->getMessage().PHP_EOL.PHP_EOL."With queries:".PHP_EOL.$queries.PHP_EOL."Trace:".PHP_EOL.$traceMsg;
+            $message = '['.get_class($t).'] '.$t->getMessage().PHP_EOL.PHP_EOL.'With queries:'.PHP_EOL.$queries.PHP_EOL.'Trace:'.PHP_EOL.$traceMsg;
 
             throw new \Exception($message, (int)$t->getCode(), $t);
         }

@@ -1,6 +1,6 @@
 <?php
 // query_filtering_on.php
-require_once "bootstrap.php";
+require_once 'bootstrap.php';
 
 $shardManager->setFilteringEnabled(true);
 $shardManager->selectShard(55);

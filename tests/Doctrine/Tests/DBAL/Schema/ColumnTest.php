@@ -12,7 +12,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
     {
         $column = $this->createColumn();
 
-        self::assertEquals("foo", $column->getName());
+        self::assertEquals('foo', $column->getName());
         self::assertSame(Type::getType('string'), $column->getType());
 
         self::assertEquals(200, $column->getLength());
@@ -21,7 +21,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($column->getUnsigned());
         self::assertFalse($column->getNotNull());
         self::assertTrue($column->getFixed());
-        self::assertEquals("baz", $column->getDefault());
+        self::assertEquals('baz', $column->getDefault());
 
         self::assertEquals(array('foo' => 'bar'), $column->getPlatformOptions());
         self::assertTrue($column->hasPlatformOption('foo'));
@@ -83,7 +83,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
         );
 
         $string = Type::getType('string');
-        return new Column("foo", $string, $options);
+        return new Column('foo', $string, $options);
     }
 
     /**
@@ -93,7 +93,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
     public function testQuotedColumnName()
     {
         $string = Type::getType('string');
-        $column = new Column("`bar`", $string, array());
+        $column = new Column('`bar`', $string, array());
 
         $mysqlPlatform = new \Doctrine\DBAL\Platforms\MySqlPlatform();
         $sqlitePlatform = new \Doctrine\DBAL\Platforms\SqlitePlatform();
@@ -102,7 +102,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('`bar`', $column->getQuotedName($mysqlPlatform));
         self::assertEquals('"bar"', $column->getQuotedName($sqlitePlatform));
 
-        $column = new Column("[bar]", $string);
+        $column = new Column('[bar]', $string);
 
         $sqlServerPlatform = new \Doctrine\DBAL\Platforms\SQLServerPlatform();
 
@@ -137,11 +137,11 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
      */
     public function testColumnComment()
     {
-        $column = new Column("bar", Type::getType('string'));
+        $column = new Column('bar', Type::getType('string'));
         self::assertNull($column->getComment());
 
-        $column->setComment("foo");
-        self::assertEquals("foo", $column->getComment());
+        $column->setComment('foo');
+        self::assertEquals('foo', $column->getComment());
 
         $columnArray = $column->toArray();
         self::assertArrayHasKey('comment', $columnArray);

@@ -50,7 +50,7 @@ class OraclePlatform extends AbstractPlatform
     public static function assertValidIdentifier($identifier)
     {
         if ( ! preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier)) {
-            throw new DBALException("Invalid Oracle identifier");
+            throw new DBALException('Invalid Oracle identifier');
         }
     }
 
@@ -155,7 +155,7 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getDateDiffExpression($date1, $date2)
     {
-        return "TRUNC(TO_NUMBER(SUBSTR((" . $date1 . "-" . $date2 . "), 1, INSTR(" . $date1 . "-" . $date2 .", ' '))))";
+        return 'TRUNC(TO_NUMBER(SUBSTR((' . $date1 . '-' . $date2 . '), 1, INSTR(' . $date1 . '-' . $date2 .", ' '))))";
     }
 
     /**
@@ -377,8 +377,8 @@ class OraclePlatform extends AbstractPlatform
         $database = $this->normalizeIdentifier($database);
         $database = $this->quoteStringLiteral($database->getName());
 
-        return "SELECT sequence_name, min_value, increment_by FROM sys.all_sequences ".
-               "WHERE SEQUENCE_OWNER = " . $database;
+        return 'SELECT sequence_name, min_value, increment_by FROM sys.all_sequences '.
+               'WHERE SEQUENCE_OWNER = ' . $database;
     }
 
     /**
@@ -446,8 +446,8 @@ class OraclePlatform extends AbstractPlatform
                            WHERE  ucon.index_name = uind_col.index_name
                        ) AS is_primary
              FROM      user_ind_columns uind_col
-             WHERE     uind_col.table_name = " . $table . "
-             ORDER BY  uind_col.column_position ASC";
+             WHERE     uind_col.table_name = " . $table . '
+             ORDER BY  uind_col.column_position ASC';
     }
 
     /**
@@ -633,8 +633,8 @@ END;';
      JOIN user_constraints alc
        ON alc.constraint_name = cols.constraint_name
       AND alc.constraint_type = 'R'
-      AND alc.table_name = " . $table . "
-    ORDER BY cols.constraint_name ASC, cols.position ASC";
+      AND alc.table_name = " . $table . '
+    ORDER BY cols.constraint_name ASC, cols.position ASC';
     }
 
     /**
@@ -645,7 +645,7 @@ END;';
         $table = $this->normalizeIdentifier($table);
         $table = $this->quoteStringLiteral($table->getName());
 
-        return "SELECT * FROM user_constraints WHERE table_name = " . $table;
+        return 'SELECT * FROM user_constraints WHERE table_name = ' . $table;
     }
 
     /**
@@ -656,18 +656,18 @@ END;';
         $table = $this->normalizeIdentifier($table);
         $table = $this->quoteStringLiteral($table->getName());
 
-        $tabColumnsTableName = "user_tab_columns";
-        $colCommentsTableName = "user_col_comments";
+        $tabColumnsTableName = 'user_tab_columns';
+        $colCommentsTableName = 'user_col_comments';
         $tabColumnsOwnerCondition = '';
         $colCommentsOwnerCondition = '';
 
         if (null !== $database && '/' !== $database) {
             $database = $this->normalizeIdentifier($database);
             $database = $this->quoteStringLiteral($database->getName());
-            $tabColumnsTableName = "all_tab_columns";
-            $colCommentsTableName = "all_col_comments";
-            $tabColumnsOwnerCondition = "AND c.owner = " . $database;
-            $colCommentsOwnerCondition = "AND d.OWNER = c.OWNER";
+            $tabColumnsTableName = 'all_tab_columns';
+            $colCommentsTableName = 'all_col_comments';
+            $tabColumnsOwnerCondition = 'AND c.owner = ' . $database;
+            $colCommentsOwnerCondition = 'AND d.OWNER = c.OWNER';
         }
 
         return "SELECT   c.*,
@@ -983,7 +983,7 @@ END;';
 
         if (preg_match('/^\s*SELECT/i', $query)) {
             if (!preg_match('/\sFROM\s/i', $query)) {
-                $query .= " FROM dual";
+                $query .= ' FROM dual';
             }
 
             $columns = ['a.*'];
@@ -1021,7 +1021,7 @@ END;';
      */
     public function getCreateTemporaryTableSnippetSQL()
     {
-        return "CREATE GLOBAL TEMPORARY TABLE";
+        return 'CREATE GLOBAL TEMPORARY TABLE';
     }
 
     /**

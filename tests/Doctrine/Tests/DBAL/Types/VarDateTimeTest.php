@@ -60,7 +60,7 @@ class VarDateTimeTest extends \Doctrine\Tests\DbalTestCase
 
     public function testConvertDateTimeToPHPValue()
     {
-        $date = new \DateTime("now");
+        $date = new \DateTime('now');
         self::assertSame($date, $this->_type->convertToPHPValue($date, $this->_platform));
     }
 }

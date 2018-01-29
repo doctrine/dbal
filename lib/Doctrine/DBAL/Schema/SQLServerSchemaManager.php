@@ -236,7 +236,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         try {
             $tableIndexes = $this->_conn->fetchAll($sql);
         } catch (\PDOException $e) {
-            if ($e->getCode() == "IMSSP") {
+            if ($e->getCode() == 'IMSSP') {
                 return [];
             } else {
                 throw $e;
@@ -284,8 +284,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             ON Tab.[ID] = Sysobjects.[Parent_Obj]
             INNER JOIN sys.default_constraints DefCons ON DefCons.[object_id] = Sysobjects.[ID]
             INNER JOIN SysColumns Col ON Col.[ColID] = DefCons.[parent_column_id] AND Col.[ID] = Tab.[ID]
-            WHERE Col.[Name] = " . $this->_conn->quote($column) ." AND Tab.[Name] = " . $this->_conn->quote($table) . "
-            ORDER BY Col.[Name]";
+            WHERE Col.[Name] = " . $this->_conn->quote($column) .' AND Tab.[Name] = ' . $this->_conn->quote($table) . '
+            ORDER BY Col.[Name]';
     }
 
     /**

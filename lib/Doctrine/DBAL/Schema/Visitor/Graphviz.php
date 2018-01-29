@@ -39,8 +39,8 @@ class Graphviz extends AbstractVisitor
     public function acceptForeignKey(Table $localTable, ForeignKeyConstraint $fkConstraint)
     {
         $this->output .= $this->createNodeRelation(
-            $fkConstraint->getLocalTableName() . ":col" . current($fkConstraint->getLocalColumns()).":se",
-            $fkConstraint->getForeignTableName() . ":col" . current($fkConstraint->getForeignColumns()).":se",
+            $fkConstraint->getLocalTableName() . ':col' . current($fkConstraint->getLocalColumns()).':se',
+            $fkConstraint->getForeignTableName() . ':col' . current($fkConstraint->getForeignColumns()).':se',
             [
                 'dir'       => 'back',
                 'arrowtail' => 'dot',
@@ -118,7 +118,7 @@ class Graphviz extends AbstractVisitor
      */
     private function createNode($name, $options)
     {
-        $node = $name . " [";
+        $node = $name . ' [';
         foreach ($options as $key => $value) {
             $node .= $key . '=' . $value . ' ';
         }
@@ -152,7 +152,7 @@ class Graphviz extends AbstractVisitor
      */
     public function getOutput()
     {
-        return $this->output . "}";
+        return $this->output . '}';
     }
 
     /**

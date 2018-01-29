@@ -118,7 +118,7 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
 
     public function testShardNonNumericId()
     {
-        $this->expectException('InvalidArgumentException', "Shard Id has to be a non-negative number.");
+        $this->expectException('InvalidArgumentException', 'Shard Id has to be a non-negative number.');
 
         DriverManager::getConnection(array(
             'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',
@@ -148,7 +148,7 @@ class PoolingShardConnectionTest extends \PHPUnit\Framework\TestCase
 
     public function testDuplicateShardId()
     {
-        $this->expectException('InvalidArgumentException', "Shard 1 is duplicated in the configuration.");
+        $this->expectException('InvalidArgumentException', 'Shard 1 is duplicated in the configuration.');
 
         DriverManager::getConnection(array(
             'wrapperClass' => 'Doctrine\DBAL\Sharding\PoolingShardConnection',

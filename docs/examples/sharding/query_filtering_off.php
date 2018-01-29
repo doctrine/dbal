@@ -1,6 +1,6 @@
 <?php
 // query_filtering_off.php
-require_once "bootstrap.php";
+require_once 'bootstrap.php';
 
 $shardManager->selectShard(0);
 

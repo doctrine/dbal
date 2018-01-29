@@ -77,7 +77,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         if ($arg2 !== null || $arg3 !== null) {
-            throw new \InvalidArgumentException("Caching layer does not support 2nd/3rd argument to setFetchMode()");
+            throw new \InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode()');
         }
 
         $this->defaultFetchMode = $fetchMode;
@@ -112,7 +112,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
             } elseif ($fetchMode === PDO::FETCH_COLUMN) {
                 return reset($row);
             } else {
-                throw new \InvalidArgumentException("Invalid fetch-style given for fetching result.");
+                throw new \InvalidArgumentException('Invalid fetch-style given for fetching result.');
             }
         }
 

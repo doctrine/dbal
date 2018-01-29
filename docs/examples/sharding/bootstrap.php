@@ -3,7 +3,7 @@
 use Doctrine\DBAL\DriverManager;
 use Doctrine\Shards\DBAL\SQLAzure\SQLAzureShardManager;
 
-require_once "vendor/autoload.php";
+require_once 'vendor/autoload.php';
 
 $config = array(
     'dbname'   => 'SalesDB',
@@ -17,7 +17,7 @@ $config = array(
     )
 );
 
-if ($config['host'] == "tcp:dbname.windows.net") {
+if ($config['host'] == 'tcp:dbname.windows.net') {
     die("You have to change the configuration to your Azure account.\n");
 }
 

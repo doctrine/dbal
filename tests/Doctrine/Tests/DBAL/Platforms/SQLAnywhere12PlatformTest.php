@@ -48,7 +48,7 @@ class SQLAnywhere12PlatformTest extends SQLAnywhere11PlatformTest
             $this->_platform->getDropSequenceSQL($sequence)
         );
         self::assertEquals(
-            "SELECT myseq.NEXTVAL",
+            'SELECT myseq.NEXTVAL',
             $this->_platform->getSequenceNextValSQL('myseq')
         );
         self::assertEquals(

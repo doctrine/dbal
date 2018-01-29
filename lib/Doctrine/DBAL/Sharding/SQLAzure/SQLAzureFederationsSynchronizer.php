@@ -76,7 +76,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
         $globalSql = $this->synchronizer->getCreateSchema($global);
         if ($globalSql) {
             $sql[] = "-- Create Root Federation\n" .
-                     "USE FEDERATION ROOT WITH RESET;";
+                     'USE FEDERATION ROOT WITH RESET;';
             $sql = array_merge($sql, $globalSql);
         }
 
@@ -86,7 +86,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
             $defaultValue = $this->getFederationTypeDefaultValue();
 
             $sql[] = $this->getCreateFederationStatement();
-            $sql[] = "USE FEDERATION " . $this->shardManager->getFederationName() . " (" . $this->shardManager->getDistributionKey() . " = " . $defaultValue . ") WITH RESET, FILTERING = OFF;";
+            $sql[] = 'USE FEDERATION ' . $this->shardManager->getFederationName() . ' (' . $this->shardManager->getDistributionKey() . ' = ' . $defaultValue . ') WITH RESET, FILTERING = OFF;';
             $sql = array_merge($sql, $federationSql);
         }
 
@@ -156,14 +156,14 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
 
             $federationSql = $this->synchronizer->getDropAllSchema();
             if ($federationSql) {
-                $sql[] = "-- Work on Federation ID " . $shard['id'] . "\n" .
-                         "USE FEDERATION " . $this->shardManager->getFederationName() . " (" . $this->shardManager->getDistributionKey() . " = " . $shard['rangeLow'].") WITH RESET, FILTERING = OFF;";
+                $sql[] = '-- Work on Federation ID ' . $shard['id'] . "\n" .
+                         'USE FEDERATION ' . $this->shardManager->getFederationName() . ' (' . $this->shardManager->getDistributionKey() . ' = ' . $shard['rangeLow'].') WITH RESET, FILTERING = OFF;';
                 $sql = array_merge($sql, $federationSql);
             }
         }
 
-        $sql[] = "USE FEDERATION ROOT WITH RESET;";
-        $sql[] = "DROP FEDERATION " . $this->shardManager->getFederationName();
+        $sql[] = 'USE FEDERATION ROOT WITH RESET;';
+        $sql[] = 'DROP FEDERATION ' . $this->shardManager->getFederationName();
 
         return $sql;
     }
@@ -212,7 +212,7 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
                 foreach ($table->getForeignKeys() as $fk) {
                     $foreignTable = $schema->getTable($fk->getForeignTableName());
                     if ($foreignTable->hasOption(self::FEDERATION_TABLE_FEDERATED) !== $isFederation) {
-                        throw new \RuntimeException("Cannot have foreign key between global/federation.");
+                        throw new \RuntimeException('Cannot have foreign key between global/federation.');
                     }
                 }
             }
@@ -251,8 +251,8 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
 
             $federationSql = $operation($this->synchronizer, $federation);
             if ($federationSql) {
-                $sql[] = "-- Work on Federation ID " . $shard['id'] . "\n" .
-                         "USE FEDERATION " . $this->shardManager->getFederationName() . " (" . $this->shardManager->getDistributionKey() . " = " . $shard['rangeLow'].") WITH RESET, FILTERING = OFF;";
+                $sql[] = '-- Work on Federation ID ' . $shard['id'] . "\n" .
+                         'USE FEDERATION ' . $this->shardManager->getFederationName() . ' (' . $this->shardManager->getDistributionKey() . ' = ' . $shard['rangeLow'].') WITH RESET, FILTERING = OFF;';
                 $sql   = array_merge($sql, $federationSql);
             }
         }
@@ -293,6 +293,6 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
         $federationTypeSql = $federationType->getSQLDeclaration([], $this->conn->getDatabasePlatform());
 
         return "--Create Federation\n" .
-               "CREATE FEDERATION " . $this->shardManager->getFederationName() . " (" . $this->shardManager->getDistributionKey() . " " . $federationTypeSql ."  RANGE)";
+               'CREATE FEDERATION ' . $this->shardManager->getFederationName() . ' (' . $this->shardManager->getDistributionKey() . ' ' . $federationTypeSql .'  RANGE)';
     }
 }

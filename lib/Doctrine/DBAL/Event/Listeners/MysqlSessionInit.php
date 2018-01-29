@@ -66,8 +66,8 @@ class MysqlSessionInit implements EventSubscriber
      */
     public function postConnect(ConnectionEventArgs $args)
     {
-        $collation = ($this->_collation) ? " COLLATE ".$this->_collation : "";
-        $args->getConnection()->executeUpdate("SET NAMES ".$this->_charset . $collation);
+        $collation = ($this->_collation) ? ' COLLATE '.$this->_collation : '';
+        $args->getConnection()->executeUpdate('SET NAMES '.$this->_charset . $collation);
     }
 
     /**

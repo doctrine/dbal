@@ -113,11 +113,11 @@ class PoolingShardConnection extends Connection
             }
 
             if ( !is_numeric($shard['id']) || $shard['id'] < 1) {
-                throw new \InvalidArgumentException("Shard Id has to be a non-negative number.");
+                throw new \InvalidArgumentException('Shard Id has to be a non-negative number.');
             }
 
             if (isset($this->connections[$shard['id']])) {
-                throw new \InvalidArgumentException("Shard " . $shard['id'] . " is duplicated in the configuration.");
+                throw new \InvalidArgumentException('Shard ' . $shard['id'] . ' is duplicated in the configuration.');
             }
 
             $this->connections[$shard['id']] = array_merge($params, $shard);
@@ -204,7 +204,7 @@ class PoolingShardConnection extends Connection
         }
 
         if ($this->getTransactionNestingLevel() > 0) {
-            throw new ShardingException("Cannot switch shard when transaction is active.");
+            throw new ShardingException('Cannot switch shard when transaction is active.');
         }
 
         $this->activeShardId = (int)$shardId;

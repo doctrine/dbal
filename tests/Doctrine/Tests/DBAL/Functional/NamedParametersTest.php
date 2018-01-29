@@ -105,9 +105,9 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if (!$this->_conn->getSchemaManager()->tablesExist("ddc1372_foobar")) {
+        if (!$this->_conn->getSchemaManager()->tablesExist('ddc1372_foobar')) {
             try {
-                $table = new \Doctrine\DBAL\Schema\Table("ddc1372_foobar");
+                $table = new \Doctrine\DBAL\Schema\Table('ddc1372_foobar');
                 $table->addColumn('id', 'integer');
                 $table->addColumn('foo','string');
                 $table->addColumn('bar','string');

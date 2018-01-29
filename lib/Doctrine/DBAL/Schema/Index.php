@@ -95,7 +95,7 @@ class Index extends AbstractAsset implements Constraint
         if (is_string($column)) {
             $this->_columns[$column] = new Identifier($column);
         } else {
-            throw new \InvalidArgumentException("Expecting a string as Index Column");
+            throw new \InvalidArgumentException('Expecting a string as Index Column');
         }
     }
 

@@ -30,7 +30,7 @@ class MySqlSchemaManagerTest extends \PHPUnit\Framework\TestCase
     {
         $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue($this->getFKDefinition()));
         $fkeys = $this->manager->listTableForeignKeys('dummy');
-        self::assertCount(1, $fkeys, "Table has to have one foreign key.");
+        self::assertCount(1, $fkeys, 'Table has to have one foreign key.');
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $fkeys[0]);
         self::assertEquals(array('column_1', 'column_2', 'column_3'), array_map('strtolower', $fkeys[0]->getLocalColumns()));
@@ -41,28 +41,28 @@ class MySqlSchemaManagerTest extends \PHPUnit\Framework\TestCase
     {
         return array(
             array(
-                "CONSTRAINT_NAME" => "FK_C1B1712387FE737264DE5A5511B8B3E",
-                "COLUMN_NAME" => "column_1",
-                "REFERENCED_TABLE_NAME" => "dummy",
-                "REFERENCED_COLUMN_NAME" => "column_1",
-                "update_rule" => "RESTRICT",
-                "delete_rule" => "RESTRICT",
+                'CONSTRAINT_NAME' => 'FK_C1B1712387FE737264DE5A5511B8B3E',
+                'COLUMN_NAME' => 'column_1',
+                'REFERENCED_TABLE_NAME' => 'dummy',
+                'REFERENCED_COLUMN_NAME' => 'column_1',
+                'update_rule' => 'RESTRICT',
+                'delete_rule' => 'RESTRICT',
             ),
             array(
-                "CONSTRAINT_NAME" => "FK_C1B1712387FE737264DE5A5511B8B3E",
-                "COLUMN_NAME" => "column_2",
-                "REFERENCED_TABLE_NAME" => "dummy",
-                "REFERENCED_COLUMN_NAME" => "column_2",
-                "update_rule" => "RESTRICT",
-                "delete_rule" => "RESTRICT",
+                'CONSTRAINT_NAME' => 'FK_C1B1712387FE737264DE5A5511B8B3E',
+                'COLUMN_NAME' => 'column_2',
+                'REFERENCED_TABLE_NAME' => 'dummy',
+                'REFERENCED_COLUMN_NAME' => 'column_2',
+                'update_rule' => 'RESTRICT',
+                'delete_rule' => 'RESTRICT',
             ),
             array(
-                "CONSTRAINT_NAME" => "FK_C1B1712387FE737264DE5A5511B8B3E",
-                "COLUMN_NAME" => "column_3",
-                "REFERENCED_TABLE_NAME" => "dummy",
-                "REFERENCED_COLUMN_NAME" => "column_3",
-                "update_rule" => "RESTRICT",
-                "delete_rule" => "RESTRICT",
+                'CONSTRAINT_NAME' => 'FK_C1B1712387FE737264DE5A5511B8B3E',
+                'COLUMN_NAME' => 'column_3',
+                'REFERENCED_TABLE_NAME' => 'dummy',
+                'REFERENCED_COLUMN_NAME' => 'column_3',
+                'update_rule' => 'RESTRICT',
+                'delete_rule' => 'RESTRICT',
             )
         );
     }

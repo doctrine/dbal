@@ -119,7 +119,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
         $this->_conn->setNestTransactionsWithSavepoints(true);
     }
@@ -131,7 +131,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
         $this->_conn->createSavepoint('foo');
     }
@@ -143,7 +143,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
         $this->_conn->releaseSavepoint('foo');
     }
@@ -155,7 +155,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage("Savepoints are not supported by this driver.");
+        $this->expectExceptionMessage('Savepoints are not supported by this driver.');
 
         $this->_conn->rollbackSavepoint('foo');
     }
@@ -196,7 +196,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->transactional(function($conn) {
                 /* @var $conn \Doctrine\DBAL\Connection */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
-                throw new \RuntimeException("Ooops!");
+                throw new \RuntimeException('Ooops!');
             });
             $this->fail('Expected exception');
         } catch (\RuntimeException $expected) {
@@ -210,7 +210,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->transactional(function($conn) {
                 /* @var $conn \Doctrine\DBAL\Connection */
                 $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
-                throw new \Error("Ooops!");
+                throw new \Error('Ooops!');
             });
             $this->fail('Expected exception');
         } catch (\Error $expected) {
@@ -242,7 +242,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testQuote()
     {
-        self::assertEquals($this->_conn->quote("foo", Type::STRING), $this->_conn->quote("foo", \PDO::PARAM_STR));
+        self::assertEquals($this->_conn->quote('foo', Type::STRING), $this->_conn->quote('foo', \PDO::PARAM_STR));
     }
 
     public function testPingDoesTriggersConnect()

@@ -20,7 +20,7 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         try {
             /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-            $table = new \Doctrine\DBAL\Schema\Table("blob_table");
+            $table = new \Doctrine\DBAL\Schema\Table('blob_table');
             $table->addColumn('id', 'integer');
             $table->addColumn('clobfield', 'text');
             $table->addColumn('blobfield', 'blob');

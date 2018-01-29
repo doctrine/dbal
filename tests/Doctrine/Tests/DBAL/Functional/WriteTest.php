@@ -12,7 +12,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         try {
             /* @var $sm \Doctrine\DBAL\Schema\AbstractSchemaManager */
-            $table = new \Doctrine\DBAL\Schema\Table("write_table");
+            $table = new \Doctrine\DBAL\Schema\Table('write_table');
             $table->addColumn('id', 'integer', array('autoincrement' => true));
             $table->addColumn('test_int', 'integer');
             $table->addColumn('test_string', 'string', array('notnull' => false));
@@ -30,36 +30,36 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testExecuteUpdateFirstTypeIsNull()
     {
-        $sql = "INSERT INTO write_table (test_string, test_int) VALUES (?, ?)";
-        $this->_conn->executeUpdate($sql, array("text", 1111), array(null, PDO::PARAM_INT));
+        $sql = 'INSERT INTO write_table (test_string, test_int) VALUES (?, ?)';
+        $this->_conn->executeUpdate($sql, array('text', 1111), array(null, PDO::PARAM_INT));
 
-        $sql = "SELECT * FROM write_table WHERE test_string = ? AND test_int = ?";
-        self::assertTrue((bool)$this->_conn->fetchColumn($sql, array("text", 1111)));
+        $sql = 'SELECT * FROM write_table WHERE test_string = ? AND test_int = ?';
+        self::assertTrue((bool)$this->_conn->fetchColumn($sql, array('text', 1111)));
     }
 
     public function testExecuteUpdate()
     {
-        $sql = "INSERT INTO write_table (test_int) VALUES ( " . $this->_conn->quote(1) . ")";
+        $sql = 'INSERT INTO write_table (test_int) VALUES ( ' . $this->_conn->quote(1) . ')';
         $affected = $this->_conn->executeUpdate($sql);
 
-        self::assertEquals(1, $affected, "executeUpdate() should return the number of affected rows!");
+        self::assertEquals(1, $affected, 'executeUpdate() should return the number of affected rows!');
     }
 
     public function testExecuteUpdateWithTypes()
     {
-        $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
+        $sql = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $affected = $this->_conn->executeUpdate($sql, array(1, 'foo'), array(\PDO::PARAM_INT, \PDO::PARAM_STR));
 
-        self::assertEquals(1, $affected, "executeUpdate() should return the number of affected rows!");
+        self::assertEquals(1, $affected, 'executeUpdate() should return the number of affected rows!');
     }
 
     public function testPrepareRowCountReturnsAffectedRows()
     {
-        $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
+        $sql = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->_conn->prepare($sql);
 
         $stmt->bindValue(1, 1);
-        $stmt->bindValue(2, "foo");
+        $stmt->bindValue(2, 'foo');
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());
@@ -67,11 +67,11 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testPrepareWithPdoTypes()
     {
-        $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
+        $sql = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->_conn->prepare($sql);
 
         $stmt->bindValue(1, 1, \PDO::PARAM_INT);
-        $stmt->bindValue(2, "foo", \PDO::PARAM_STR);
+        $stmt->bindValue(2, 'foo', \PDO::PARAM_STR);
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());
@@ -79,11 +79,11 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testPrepareWithDbalTypes()
     {
-        $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
+        $sql = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->_conn->prepare($sql);
 
         $stmt->bindValue(1, 1, Type::getType('integer'));
-        $stmt->bindValue(2, "foo", Type::getType('string'));
+        $stmt->bindValue(2, 'foo', Type::getType('string'));
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());
@@ -91,11 +91,11 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testPrepareWithDbalTypeNames()
     {
-        $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
+        $sql = 'INSERT INTO write_table (test_int, test_string) VALUES (?, ?)';
         $stmt = $this->_conn->prepare($sql);
 
         $stmt->bindValue(1, 1, 'integer');
-        $stmt->bindValue(2, "foo", 'string');
+        $stmt->bindValue(2, 'foo', 'string');
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());
@@ -141,8 +141,8 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 2, 'test_string' => 'bar')));
         $num = $this->_conn->lastInsertId();
 
-        self::assertNotNull($num, "LastInsertId() should not be null.");
-        self::assertGreaterThan(0, $num, "LastInsertId() should be non-negative number.");
+        self::assertNotNull($num, 'LastInsertId() should not be null.');
+        self::assertGreaterThan(0, $num, 'LastInsertId() should be non-negative number.');
     }
 
     public function testLastInsertIdSequence()

@@ -19,8 +19,8 @@ class GuidTest extends \Doctrine\Tests\DbalTestCase
 
     public function testConvertToPHPValue()
     {
-        self::assertInternalType("string", $this->_type->convertToPHPValue("foo", $this->_platform));
-        self::assertInternalType("string", $this->_type->convertToPHPValue("", $this->_platform));
+        self::assertInternalType('string', $this->_type->convertToPHPValue('foo', $this->_platform));
+        self::assertInternalType('string', $this->_type->convertToPHPValue('', $this->_platform));
     }
 
     public function testNullConversion()

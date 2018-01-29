@@ -221,7 +221,7 @@ class DB2Platform extends AbstractPlatform
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
         if (isset($fieldDeclaration['version']) && $fieldDeclaration['version'] == true) {
-            return "TIMESTAMP(0) WITH DEFAULT";
+            return 'TIMESTAMP(0) WITH DEFAULT';
         }
 
         return 'TIMESTAMP(0)';
@@ -300,7 +300,7 @@ class DB2Platform extends AbstractPlatform
                    ON (c.tabschema = k.tabschema
                        AND c.tabname = k.tabname
                        AND c.colname = k.colname)
-               WHERE UPPER(c.tabname) = UPPER(" . $table . ")
+               WHERE UPPER(c.tabname) = UPPER(" . $table . ')
                ORDER BY c.colno
              ) subq
           JOIN syscat.columns cols
@@ -308,7 +308,7 @@ class DB2Platform extends AbstractPlatform
                AND subq.tabname = cols.tabname
                AND subq.colno = cols.colno
         ORDER BY subq.colno
-        ";
+        ';
     }
 
     /**
@@ -324,7 +324,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getListViewsSQL($database)
     {
-        return "SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS";
+        return 'SELECT NAME, TEXT FROM SYSIBM.SYSVIEWS';
     }
 
     /**
@@ -347,8 +347,8 @@ class DB2Platform extends AbstractPlatform
                 FROM     SYSCAT.INDEXES AS idx
                 JOIN     SYSCAT.INDEXCOLUSE AS idxcol
                 ON       idx.INDSCHEMA = idxcol.INDSCHEMA AND idx.INDNAME = idxcol.INDNAME
-                WHERE    idx.TABNAME = UPPER(" . $table . ")
-                ORDER BY idxcol.COLSEQ ASC";
+                WHERE    idx.TABNAME = UPPER(" . $table . ')
+                ORDER BY idxcol.COLSEQ ASC';
     }
 
     /**
@@ -381,8 +381,8 @@ class DB2Platform extends AbstractPlatform
                 ON       fk.REFKEYNAME = pkcol.CONSTNAME
                 AND      fk.REFTABSCHEMA = pkcol.TABSCHEMA
                 AND      fk.REFTABNAME = pkcol.TABNAME
-                WHERE    fk.TABNAME = UPPER(" . $table . ")
-                ORDER BY fkcol.COLSEQ ASC";
+                WHERE    fk.TABNAME = UPPER(" . $table . ')
+                ORDER BY fkcol.COLSEQ ASC';
     }
 
     /**
@@ -390,7 +390,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getCreateViewSQL($name, $sql)
     {
-        return "CREATE VIEW ".$name." AS ".$sql;
+        return 'CREATE VIEW '.$name.' AS '.$sql;
     }
 
     /**
@@ -398,7 +398,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getDropViewSQL($name)
     {
-        return "DROP VIEW ".$name;
+        return 'DROP VIEW '.$name;
     }
 
     /**
@@ -406,7 +406,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getCreateDatabaseSQL($database)
     {
-        return "CREATE DATABASE ".$database;
+        return 'CREATE DATABASE '.$database;
     }
 
     /**
@@ -414,7 +414,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getDropDatabaseSQL($database)
     {
-        return "DROP DATABASE " . $database;
+        return 'DROP DATABASE ' . $database;
     }
 
     /**
@@ -462,7 +462,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getCurrentTimestampSQL()
     {
-        return "CURRENT TIMESTAMP";
+        return 'CURRENT TIMESTAMP';
     }
 
     /**
@@ -575,7 +575,7 @@ class DB2Platform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if (count($queryParts) > 0) {
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(" ", $queryParts);
+                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . implode(' ', $queryParts);
             }
 
             // Some table alteration operations require a table reorganization.
@@ -733,8 +733,8 @@ class DB2Platform extends AbstractPlatform
         }
 
         if (isset($field['version']) && $field['version']) {
-            if ((string) $field['type'] != "DateTime") {
-                $field['default'] = "1";
+            if ((string) $field['type'] != 'DateTime') {
+                $field['default'] = '1';
             }
         }
 
@@ -754,7 +754,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getCreateTemporaryTableSnippetSQL()
     {
-        return "DECLARE GLOBAL TEMPORARY TABLE";
+        return 'DECLARE GLOBAL TEMPORARY TABLE';
     }
 
     /**
@@ -762,7 +762,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getTemporaryTableName($tableName)
     {
-        return "SESSION." . $tableName;
+        return 'SESSION.' . $tableName;
     }
 
     /**

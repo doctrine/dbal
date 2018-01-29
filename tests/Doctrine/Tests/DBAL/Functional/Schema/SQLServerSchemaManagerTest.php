@@ -12,7 +12,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {
     protected function getPlatformName()
     {
-        return "mssql";
+        return 'mssql';
     }
 
     /**
@@ -192,7 +192,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_sm->createTable($table);
 
-        $columns = $this->_sm->listTableColumns("sqlsrv_column_comment");
+        $columns = $this->_sm->listTableColumns('sqlsrv_column_comment');
         self::assertCount(12, $columns);
         self::assertNull($columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());
@@ -308,7 +308,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_sm->alterTable($tableDiff);
 
-        $columns = $this->_sm->listTableColumns("sqlsrv_column_comment");
+        $columns = $this->_sm->listTableColumns('sqlsrv_column_comment');
         self::assertCount(23, $columns);
         self::assertEquals('primary', $columns['id']->getComment());
         self::assertNull($columns['comment_null']->getComment());

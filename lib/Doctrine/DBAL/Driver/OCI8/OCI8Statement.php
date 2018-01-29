@@ -396,7 +396,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
+            throw new \InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
         }
 
         return oci_fetch_array(
@@ -423,7 +423,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         if ( ! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
+            throw new \InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
         }
 
         if (self::$fetchModeMap[$fetchMode] === OCI_BOTH) {

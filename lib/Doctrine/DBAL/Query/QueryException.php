@@ -35,8 +35,8 @@ class QueryException extends DBALException
     public static function unknownAlias($alias, $registeredAliases)
     {
         return new self("The given alias '" . $alias . "' is not part of " .
-            "any FROM or JOIN clause table. The currently registered " .
-            "aliases are: " . implode(", ", $registeredAliases) . ".");
+            'any FROM or JOIN clause table. The currently registered ' .
+            'aliases are: ' . implode(', ', $registeredAliases) . '.');
     }
 
     /**
@@ -48,7 +48,7 @@ class QueryException extends DBALException
     public static function nonUniqueAlias($alias, $registeredAliases)
     {
         return new self("The given alias '" . $alias . "' is not unique " .
-            "in FROM and JOIN clause table. The currently registered " .
-            "aliases are: " . implode(", ", $registeredAliases) . ".");
+            'in FROM and JOIN clause table. The currently registered ' .
+            'aliases are: ' . implode(', ', $registeredAliases) . '.');
     }
 }

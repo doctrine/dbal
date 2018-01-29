@@ -107,7 +107,7 @@ class OracleSchemaManager extends AbstractSchemaManager
 
             $keyName = strtolower($tableIndex['name']);
 
-            if (strtolower($tableIndex['is_primary']) == "p") {
+            if (strtolower($tableIndex['is_primary']) == 'p') {
                 $keyName = 'primary';
                 $buffer['primary'] = true;
                 $buffer['non_unique'] = false;
@@ -131,11 +131,11 @@ class OracleSchemaManager extends AbstractSchemaManager
         $tableColumn = \array_change_key_case($tableColumn, CASE_LOWER);
 
         $dbType = strtolower($tableColumn['data_type']);
-        if (strpos($dbType, "timestamp(") === 0) {
-            if (strpos($dbType, "with time zone")) {
-                $dbType = "timestamptz";
+        if (strpos($dbType, 'timestamp(') === 0) {
+            if (strpos($dbType, 'with time zone')) {
+                $dbType = 'timestamptz';
             } else {
-                $dbType = "timestamp";
+                $dbType = 'timestamp';
             }
         }
 
@@ -252,7 +252,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         foreach ($tableForeignKeys as $value) {
             $value = \array_change_key_case($value, CASE_LOWER);
             if (!isset($list[$value['constraint_name']])) {
-                if ($value['delete_rule'] == "NO ACTION") {
+                if ($value['delete_rule'] == 'NO ACTION') {
                     $value['delete_rule'] = null;
                 }
 

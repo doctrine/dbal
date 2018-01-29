@@ -108,7 +108,7 @@ class PoolingShardManager implements ShardManager
     {
         $shards = $this->getShards();
         if (!$shards) {
-            throw new \RuntimeException("No shards found.");
+            throw new \RuntimeException('No shards found.');
         }
 
         $result = [];

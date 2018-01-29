@@ -426,7 +426,7 @@ class QueryBuilder
         $this->state = self::STATE_DIRTY;
 
         if ($append) {
-            if ($sqlPartName == "orderBy" || $sqlPartName == "groupBy" || $sqlPartName == "select" || $sqlPartName == "set") {
+            if ($sqlPartName == 'orderBy' || $sqlPartName == 'groupBy' || $sqlPartName == 'select' || $sqlPartName == 'set') {
                 foreach ($sqlPart as $part) {
                     $this->sqlParts[$sqlPartName][] = $part;
                 }
@@ -1197,7 +1197,7 @@ class QueryBuilder
     {
         $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
         $query = 'UPDATE ' . $table
-            . ' SET ' . implode(", ", $this->sqlParts['set'])
+            . ' SET ' . implode(', ', $this->sqlParts['set'])
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
 
         return $query;
@@ -1260,7 +1260,7 @@ class QueryBuilder
     {
         if ($placeHolder === null) {
             $this->boundCounter++;
-            $placeHolder = ":dcValue" . $this->boundCounter;
+            $placeHolder = ':dcValue' . $this->boundCounter;
         }
         $this->setParameter(substr($placeHolder, 1), $value, $type);
 
@@ -1294,7 +1294,7 @@ class QueryBuilder
         $this->boundCounter++;
         $this->setParameter($this->boundCounter, $value, $type);
 
-        return "?";
+        return '?';
     }
 
     /**

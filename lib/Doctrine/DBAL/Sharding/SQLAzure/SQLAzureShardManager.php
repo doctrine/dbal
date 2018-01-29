@@ -140,7 +140,7 @@ class SQLAzureShardManager implements ShardManager
             throw ShardingException::activeTransaction();
         }
 
-        $sql = "USE FEDERATION ROOT WITH RESET";
+        $sql = 'USE FEDERATION ROOT WITH RESET';
         $this->conn->exec($sql);
         $this->currentDistributionValue = null;
     }
@@ -160,7 +160,7 @@ class SQLAzureShardManager implements ShardManager
 
         $platform = $this->conn->getDatabasePlatform();
         $sql = sprintf(
-            "USE FEDERATION %s (%s = %s) WITH RESET, FILTERING = %s;",
+            'USE FEDERATION %s (%s = %s) WITH RESET, FILTERING = %s;',
             $platform->quoteIdentifier($this->federationName),
             $platform->quoteIdentifier($this->distributionKey),
             $this->conn->quote($distributionValue),
@@ -184,13 +184,13 @@ class SQLAzureShardManager implements ShardManager
      */
     public function getShards()
     {
-        $sql = "SELECT member_id as id,
+        $sql = 'SELECT member_id as id,
                       distribution_name as distribution_key,
                       CAST(range_low AS CHAR) AS rangeLow,
                       CAST(range_high AS CHAR) AS rangeHigh
                       FROM sys.federation_member_distributions d
                       INNER JOIN sys.federations f ON f.federation_id = d.federation_id
-                      WHERE f.name = " . $this->conn->quote($this->federationName);
+                      WHERE f.name = ' . $this->conn->quote($this->federationName);
 
         return $this->conn->fetchAll($sql);
     }
@@ -202,7 +202,7 @@ class SQLAzureShardManager implements ShardManager
     {
         $shards = $this->getShards();
         if (!$shards) {
-            throw new \RuntimeException("No shards found for " . $this->federationName);
+            throw new \RuntimeException('No shards found for ' . $this->federationName);
         }
 
         $result = [];
@@ -235,9 +235,9 @@ class SQLAzureShardManager implements ShardManager
     {
         $type = Type::getType($this->distributionType);
 
-        $sql = "ALTER FEDERATION " . $this->getFederationName() . " " .
-               "SPLIT AT (" . $this->getDistributionKey() . " = " .
-               $this->conn->quote($splitDistributionValue, $type->getBindingType()) . ")";
+        $sql = 'ALTER FEDERATION ' . $this->getFederationName() . ' ' .
+               'SPLIT AT (' . $this->getDistributionKey() . ' = ' .
+               $this->conn->quote($splitDistributionValue, $type->getBindingType()) . ')';
         $this->conn->exec($sql);
     }
 }

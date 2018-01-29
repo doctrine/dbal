@@ -155,7 +155,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($result === false || !isset($result['CURRVAL'])) {
-            throw new OCI8Exception("lastInsertId failed: Query was executed but no result was returned.");
+            throw new OCI8Exception('lastInsertId failed: Query was executed but no result was returned.');
         }
 
         return (int) $result['CURRVAL'];

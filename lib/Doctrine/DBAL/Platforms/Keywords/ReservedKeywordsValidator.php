@@ -62,7 +62,7 @@ class ReservedKeywordsValidator implements Visitor
      */
     private function isReservedWord($word)
     {
-        if ($word[0] == "`") {
+        if ($word[0] == '`') {
             $word = str_replace('`', '', $word);
         }
 

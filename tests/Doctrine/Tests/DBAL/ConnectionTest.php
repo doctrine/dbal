@@ -643,7 +643,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $conn = new Connection($params, $driverMock);
 
-        self::assertArrayNotHasKey('pdo', $conn->getParams(), "Connection is maintaining additional reference to the PDO connection");
+        self::assertArrayNotHasKey('pdo', $conn->getParams(), 'Connection is maintaining additional reference to the PDO connection');
     }
 
     public function testPassingExternalPDOMeansConnectionIsConnected()
@@ -654,7 +654,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $conn = new Connection($params, $driverMock);
 
-        self::assertTrue($conn->isConnected(), "Connection is not connected after passing external PDO");
+        self::assertTrue($conn->isConnected(), 'Connection is not connected after passing external PDO');
     }
 
     public function testCallingDeleteWithNoDeletionCriteriaResultsInInvalidArgumentException()

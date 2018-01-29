@@ -63,8 +63,8 @@ abstract class AbstractAsset
             $this->_quoted = true;
             $name = $this->trimQuotes($name);
         }
-        if (strpos($name, ".") !== false) {
-            $parts = explode(".", $name);
+        if (strpos($name, '.') !== false) {
+            $parts = explode('.', $name);
             $this->_namespace = $parts[0];
             $name = $parts[1];
         }
@@ -130,7 +130,7 @@ abstract class AbstractAsset
     {
         $name = $this->getName();
         if ( ! $this->_namespace) {
-            $name = $defaultNamespaceName . "." . $name;
+            $name = $defaultNamespaceName . '.' . $name;
         }
 
         return strtolower($name);
@@ -178,7 +178,7 @@ abstract class AbstractAsset
     public function getName()
     {
         if ($this->_namespace) {
-            return $this->_namespace . "." . $this->_name;
+            return $this->_namespace . '.' . $this->_name;
         }
 
         return $this->_name;
@@ -195,12 +195,12 @@ abstract class AbstractAsset
     public function getQuotedName(AbstractPlatform $platform)
     {
         $keywords = $platform->getReservedKeywordsList();
-        $parts = explode(".", $this->getName());
+        $parts = explode('.', $this->getName());
         foreach ($parts as $k => $v) {
             $parts[$k] = ($this->_quoted || $keywords->isKeyword($v)) ? $platform->quoteIdentifier($v) : $v;
         }
 
-        return implode(".", $parts);
+        return implode('.', $parts);
     }
 
     /**
@@ -218,10 +218,10 @@ abstract class AbstractAsset
      */
     protected function _generateIdentifierName($columnNames, $prefix='', $maxSize=30)
     {
-        $hash = implode("", array_map(function ($column) {
+        $hash = implode('', array_map(function ($column) {
             return dechex(crc32($column));
         }, $columnNames));
 
-        return substr(strtoupper($prefix . "_" . $hash), 0, $maxSize);
+        return substr(strtoupper($prefix . '_' . $hash), 0, $maxSize);
     }
 }

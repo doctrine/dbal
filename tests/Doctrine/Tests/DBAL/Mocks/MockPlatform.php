@@ -23,7 +23,7 @@ class MockPlatform extends AbstractPlatform
 
     public function getVarcharTypeDeclarationSQL(array $field)
     {
-        return "DUMMYVARCHAR()";
+        return 'DUMMYVARCHAR()';
     }
 
     /** @override */

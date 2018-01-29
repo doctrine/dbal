@@ -224,9 +224,9 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return "IF EXISTS (SELECT * FROM sysobjects WHERE name = '$index')
-                    ALTER TABLE " . $table . " DROP CONSTRAINT " . $index . "
+                    ALTER TABLE " . $table . ' DROP CONSTRAINT ' . $index . '
                 ELSE
-                    DROP INDEX " . $index . " ON " . $table;
+                    DROP INDEX ' . $index . ' ON ' . $table;
     }
 
     /**
@@ -536,7 +536,7 @@ class SQLServerPlatform extends AbstractPlatform
             $oldColumnName = new Identifier($oldColumnName);
 
             $sql[] = "sp_RENAME '" .
-                $diff->getName($this)->getQuotedName($this) . "." . $oldColumnName->getQuotedName($this) .
+                $diff->getName($this)->getQuotedName($this) . '.' . $oldColumnName->getQuotedName($this) .
                 "', '" . $column->getQuotedName($this) . "', 'COLUMN'";
 
             // Recreate default constraint with new column name if necessary (for future reference).
@@ -576,10 +576,10 @@ class SQLServerPlatform extends AbstractPlatform
                 "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
                 "+ REPLACE(dc.name, '" . $this->generateIdentifierName($diff->name) . "', " .
                 "'" . $this->generateIdentifierName($diff->newName) . "') + ''', ''OBJECT'';' " .
-                "FROM sys.default_constraints dc " .
-                "JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
+                'FROM sys.default_constraints dc ' .
+                'JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
                 "WHERE tbl.name = '" . $diff->getNewName()->getName() . "';" .
-                "EXEC sp_executesql @sql";
+                'EXEC sp_executesql @sql';
         }
 
         $sql = array_merge(
@@ -762,11 +762,11 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Type = null,
         $level2Name = null
     ) {
-        return "EXEC sp_addextendedproperty " .
-            "N" . $this->quoteStringLiteral($name) . ", N" . $this->quoteStringLiteral($value) . ", " .
-            "N" . $this->quoteStringLiteral($level0Type) . ", " . $level0Name . ', ' .
-            "N" . $this->quoteStringLiteral($level1Type) . ", " . $level1Name . ', ' .
-            "N" . $this->quoteStringLiteral($level2Type) . ", " . $level2Name;
+        return 'EXEC sp_addextendedproperty ' .
+            'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral($value) . ', ' .
+            'N' . $this->quoteStringLiteral($level0Type) . ', ' . $level0Name . ', ' .
+            'N' . $this->quoteStringLiteral($level1Type) . ', ' . $level1Name . ', ' .
+            'N' . $this->quoteStringLiteral($level2Type) . ', ' . $level2Name;
     }
 
     /**
@@ -793,11 +793,11 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Type = null,
         $level2Name = null
     ) {
-        return "EXEC sp_dropextendedproperty " .
-            "N" . $this->quoteStringLiteral($name) . ", " .
-            "N" . $this->quoteStringLiteral($level0Type) . ", " . $level0Name . ', ' .
-            "N" . $this->quoteStringLiteral($level1Type) . ", " . $level1Name . ', ' .
-            "N" . $this->quoteStringLiteral($level2Type) . ", " . $level2Name;
+        return 'EXEC sp_dropextendedproperty ' .
+            'N' . $this->quoteStringLiteral($name) . ', ' .
+            'N' . $this->quoteStringLiteral($level0Type) . ', ' . $level0Name . ', ' .
+            'N' . $this->quoteStringLiteral($level1Type) . ', ' . $level1Name . ', ' .
+            'N' . $this->quoteStringLiteral($level2Type) . ', ' . $level2Name;
     }
 
     /**
@@ -826,11 +826,11 @@ class SQLServerPlatform extends AbstractPlatform
         $level2Type = null,
         $level2Name = null
     ) {
-        return "EXEC sp_updateextendedproperty " .
-        "N" . $this->quoteStringLiteral($name) . ", N" . $this->quoteStringLiteral($value) . ", " .
-        "N" . $this->quoteStringLiteral($level0Type) . ", " . $level0Name . ', ' .
-        "N" . $this->quoteStringLiteral($level1Type) . ", " . $level1Name . ', ' .
-        "N" . $this->quoteStringLiteral($level2Type) . ", " . $level2Name;
+        return 'EXEC sp_updateextendedproperty ' .
+        'N' . $this->quoteStringLiteral($name) . ', N' . $this->quoteStringLiteral($value) . ', ' .
+        'N' . $this->quoteStringLiteral($level0Type) . ', ' . $level0Name . ', ' .
+        'N' . $this->quoteStringLiteral($level1Type) . ', ' . $level1Name . ', ' .
+        'N' . $this->quoteStringLiteral($level2Type) . ', ' . $level2Name;
     }
 
     /**
@@ -889,7 +889,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
-        return "SELECT f.name AS ForeignKey,
+        return 'SELECT f.name AS ForeignKey,
                 SCHEMA_NAME (f.SCHEMA_ID) AS SchemaName,
                 OBJECT_NAME (f.parent_object_id) AS TableName,
                 COL_NAME (fc.parent_object_id,fc.parent_column_id) AS ColumnName,
@@ -902,7 +902,7 @@ class SQLServerPlatform extends AbstractPlatform
                 INNER JOIN sys.foreign_key_columns AS fc
                 INNER JOIN sys.objects AS o ON o.OBJECT_ID = fc.referenced_object_id
                 ON f.OBJECT_ID = fc.constraint_object_id
-                WHERE " .
+                WHERE ' .
                 $this->getTableWhereClause($table, 'SCHEMA_NAME (f.schema_id)', 'OBJECT_NAME (f.parent_object_id)');
     }
 
@@ -925,8 +925,8 @@ class SQLServerPlatform extends AbstractPlatform
                 JOIN sys.indexes AS idx ON tbl.object_id = idx.object_id
                 JOIN sys.index_columns AS idxcol ON idx.object_id = idxcol.object_id AND idx.index_id = idxcol.index_id
                 JOIN sys.columns AS col ON idxcol.object_id = col.object_id AND idxcol.column_id = col.column_id
-                WHERE " . $this->getTableWhereClause($table, 'scm.name', 'tbl.name') . "
-                ORDER BY idx.index_id ASC, idxcol.key_ordinal ASC";
+                WHERE " . $this->getTableWhereClause($table, 'scm.name', 'tbl.name') . '
+                ORDER BY idx.index_id ASC, idxcol.key_ordinal ASC';
     }
 
     /**
@@ -956,12 +956,12 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function getTableWhereClause($table, $schemaColumn, $tableColumn)
     {
-        if (strpos($table, ".") !== false) {
-            list($schema, $table) = explode(".", $table);
+        if (strpos($table, '.') !== false) {
+            list($schema, $table) = explode('.', $table);
             $schema = $this->quoteStringLiteral($schema);
             $table = $this->quoteStringLiteral($table);
         } else {
-            $schema = "SCHEMA_NAME()";
+            $schema = 'SCHEMA_NAME()';
             $table = $this->quoteStringLiteral($table);
         }
 
@@ -1226,7 +1226,7 @@ class SQLServerPlatform extends AbstractPlatform
         $replacePattern = sprintf('$1%s $2', "TOP $end");
         $query = preg_replace($selectPattern, $replacePattern, $query);
 
-        if (stristr($query, "ORDER BY")) {
+        if (stristr($query, 'ORDER BY')) {
             // Inner order by is not valid in SQL Server for our purposes
             // unless it's in a TOP N subquery.
             $query = $this->scrubInnerOrderBy($query);
@@ -1234,11 +1234,11 @@ class SQLServerPlatform extends AbstractPlatform
 
         // Build a new limited query around the original, using a CTE
         return sprintf(
-            "WITH dctrn_cte AS (%s) "
-            . "SELECT * FROM ("
-            . "SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte"
-            . ") AS doctrine_tbl "
-            . "WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum ASC",
+            'WITH dctrn_cte AS (%s) '
+            . 'SELECT * FROM ('
+            . 'SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte'
+            . ') AS doctrine_tbl '
+            . 'WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum ASC',
             $query,
             $start,
             $end
@@ -1358,7 +1358,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getCreateTemporaryTableSnippetSQL()
     {
-        return "CREATE TABLE";
+        return 'CREATE TABLE';
     }
 
     /**
@@ -1521,7 +1521,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function quoteSingleIdentifier($str)
     {
-        return "[" . str_replace("]", "][", $str) . "]";
+        return '[' . str_replace(']', '][', $str) . ']';
     }
 
     /**
@@ -1558,11 +1558,11 @@ class SQLServerPlatform extends AbstractPlatform
         $type = $field['type'];
 
         if ($type instanceof Types\PhpIntegerMappingType) {
-            return " DEFAULT " . $field['default'];
+            return ' DEFAULT ' . $field['default'];
         }
 
         if ($type instanceof Types\PhpDateTimeMappingType && $field['default'] === $this->getCurrentTimestampSQL()) {
-            return " DEFAULT " . $this->getCurrentTimestampSQL();
+            return ' DEFAULT ' . $this->getCurrentTimestampSQL();
         }
 
         if ($type instanceof Types\BooleanType) {

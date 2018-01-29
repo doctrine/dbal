@@ -189,10 +189,10 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableForeignKeyRuleDef($def)
     {
-        if ($def == "C") {
-            return "CASCADE";
-        } elseif ($def == "N") {
-            return "SET NULL";
+        if ($def == 'C') {
+            return 'CASCADE';
+        } elseif ($def == 'N') {
+            return 'SET NULL';
         }
 
         return null;

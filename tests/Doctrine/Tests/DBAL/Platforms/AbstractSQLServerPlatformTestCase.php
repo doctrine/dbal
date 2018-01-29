@@ -10,7 +10,7 @@ use Doctrine\DBAL\Types\Type;
 
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
-    protected static $selectFromCtePattern = "WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum ASC";
+    protected static $selectFromCtePattern = 'WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum ASC';
 
     public function getGenerateTableSql()
     {
@@ -38,10 +38,10 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "DECLARE @sql NVARCHAR(MAX) = N''; " .
             "SELECT @sql += N'EXEC sp_rename N''' + dc.name + ''', N''' " .
             "+ REPLACE(dc.name, '6B2BD609', 'E2B58069') + ''', ''OBJECT'';' " .
-            "FROM sys.default_constraints dc " .
-            "JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id " .
+            'FROM sys.default_constraints dc ' .
+            'JOIN sys.tables tbl ON dc.parent_object_id = tbl.object_id ' .
             "WHERE tbl.name = 'userlist';" .
-            "EXEC sp_executesql @sql"
+            'EXEC sp_executesql @sql'
         );
     }
 
@@ -326,19 +326,19 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithSubSelectInSelectList()
     {
-        $querySql = "SELECT " .
-            "u.id, " .
-            "(u.foo/2) foodiv, " .
-            "CONCAT(u.bar, u.baz) barbaz, " .
-            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
-            "FROM user u " .
+        $querySql = 'SELECT ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
             "WHERE u.status = 'disabled'";
-        $alteredSql = "SELECT TOP 10 " .
-            "u.id, " .
-            "(u.foo/2) foodiv, " .
-            "CONCAT(u.bar, u.baz) barbaz, " .
-            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
-            "FROM user u " .
+        $alteredSql = 'SELECT TOP 10 ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
             "WHERE u.status = 'disabled'";
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
 
@@ -354,22 +354,22 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             $this->markTestSkipped(sprintf('Platform "%s" does not support offsets in result limiting.', $this->_platform->getName()));
         }
 
-        $querySql = "SELECT " .
-            "u.id, " .
-            "(u.foo/2) foodiv, " .
-            "CONCAT(u.bar, u.baz) barbaz, " .
-            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
-            "FROM user u " .
+        $querySql = 'SELECT ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
             "WHERE u.status = 'disabled' " .
-            "ORDER BY u.username DESC";
-        $alteredSql = "SELECT TOP 15 " .
-            "u.id, " .
-            "(u.foo/2) foodiv, " .
-            "CONCAT(u.bar, u.baz) barbaz, " .
-            "(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count " .
-            "FROM user u " .
+            'ORDER BY u.username DESC';
+        $alteredSql = 'SELECT TOP 15 ' .
+            'u.id, ' .
+            '(u.foo/2) foodiv, ' .
+            'CONCAT(u.bar, u.baz) barbaz, ' .
+            '(SELECT (SELECT COUNT(*) FROM login l WHERE l.profile_id = p.id) FROM profile p WHERE p.user_id = u.id) login_count ' .
+            'FROM user u ' .
             "WHERE u.status = 'disabled' " .
-            "ORDER BY u.username DESC";
+            'ORDER BY u.username DESC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
     }
@@ -379,18 +379,18 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitQueryWithAggregateFunctionInOrderByClause()
     {
-        $querySql = "SELECT " .
-            "MAX(heading_id) aliased, " .
-            "code " .
-            "FROM operator_model_operator " .
-            "GROUP BY code " .
-            "ORDER BY MAX(heading_id) DESC";
-        $alteredSql = "SELECT TOP 1 " .
-            "MAX(heading_id) aliased, " .
-            "code " .
-            "FROM operator_model_operator " .
-            "GROUP BY code " .
-            "ORDER BY MAX(heading_id) DESC";
+        $querySql = 'SELECT ' .
+            'MAX(heading_id) aliased, ' .
+            'code ' .
+            'FROM operator_model_operator ' .
+            'GROUP BY code ' .
+            'ORDER BY MAX(heading_id) DESC';
+        $alteredSql = 'SELECT TOP 1 ' .
+            'MAX(heading_id) aliased, ' .
+            'code ' .
+            'FROM operator_model_operator ' .
+            'GROUP BY code ' .
+            'ORDER BY MAX(heading_id) DESC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 1, 0);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 1), $sql);
     }
@@ -400,21 +400,21 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromBaseTable()
     {
-        $querySql = "SELECT DISTINCT id_0, name_1 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id "
-            . "ORDER BY t1.id ASC"
-            . ") dctrn_result "
-            . "ORDER BY id_0 ASC";
-        $alteredSql = "SELECT DISTINCT TOP 5 id_0, name_1 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
-            . ") dctrn_result "
-            . "ORDER BY id_0 ASC";
+        $querySql = 'SELECT DISTINCT id_0, name_1 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id '
+            . 'ORDER BY t1.id ASC'
+            . ') dctrn_result '
+            . 'ORDER BY id_0 ASC';
+        $alteredSql = 'SELECT DISTINCT TOP 5 id_0, name_1 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
+            . ') dctrn_result '
+            . 'ORDER BY id_0 ASC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 5), $sql);
     }
@@ -425,21 +425,21 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnFromJoinTable()
     {
-        $querySql = "SELECT DISTINCT id_0, name_1 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id "
-            . "ORDER BY t2.name ASC"
-            . ") dctrn_result "
-            . "ORDER BY name_1 ASC";
-        $alteredSql = "SELECT DISTINCT TOP 5 id_0, name_1 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
-            . ") dctrn_result "
-            . "ORDER BY name_1 ASC";
+        $querySql = 'SELECT DISTINCT id_0, name_1 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id '
+            . 'ORDER BY t2.name ASC'
+            . ') dctrn_result '
+            . 'ORDER BY name_1 ASC';
+        $alteredSql = 'SELECT DISTINCT TOP 5 id_0, name_1 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
+            . ') dctrn_result '
+            . 'ORDER BY name_1 ASC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 5), $sql);
     }
@@ -449,32 +449,32 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testModifyLimitSubqueryWithJoinAndSubqueryOrderedByColumnsFromBothTables()
     {
-        $querySql = "SELECT DISTINCT id_0, name_1, foo_2 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id "
-            . "ORDER BY t2.name ASC, t2.foo DESC"
-            . ") dctrn_result "
-            . "ORDER BY name_1 ASC, foo_2 DESC";
-        $alteredSql = "SELECT DISTINCT TOP 5 id_0, name_1, foo_2 "
-            . "FROM ("
-            . "SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 "
-            . "FROM table_parent t1 "
-            . "LEFT JOIN join_table t2 ON t1.id = t2.table_id"
-            . ") dctrn_result "
-            . "ORDER BY name_1 ASC, foo_2 DESC";
+        $querySql = 'SELECT DISTINCT id_0, name_1, foo_2 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id '
+            . 'ORDER BY t2.name ASC, t2.foo DESC'
+            . ') dctrn_result '
+            . 'ORDER BY name_1 ASC, foo_2 DESC';
+        $alteredSql = 'SELECT DISTINCT TOP 5 id_0, name_1, foo_2 '
+            . 'FROM ('
+            . 'SELECT t1.id AS id_0, t2.name AS name_1, t2.foo AS foo_2 '
+            . 'FROM table_parent t1 '
+            . 'LEFT JOIN join_table t2 ON t1.id = t2.table_id'
+            . ') dctrn_result '
+            . 'ORDER BY name_1 ASC, foo_2 DESC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 5), $sql);
     }
 
     public function testModifyLimitSubquerySimple()
     {
-        $querySql = "SELECT DISTINCT id_0 FROM "
-            . "(SELECT k0_.id AS id_0, k0_.field AS field_1 "
-            . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result";
-        $alteredSql = "SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 "
-            . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result";
+        $querySql = 'SELECT DISTINCT id_0 FROM '
+            . '(SELECT k0_.id AS id_0, k0_.field AS field_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
+        $alteredSql = 'SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 '
+            . 'FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result';
         $sql = $this->_platform->modifyLimitQuery($querySql, 20);
         self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 20), $sql);
     }
@@ -514,9 +514,9 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
      */
     public function testCreateNonClusteredPrimaryKeyInTable()
     {
-        $table = new \Doctrine\DBAL\Schema\Table("tbl");
-        $table->addColumn("id", "integer");
-        $table->setPrimaryKey(Array("id"));
+        $table = new \Doctrine\DBAL\Schema\Table('tbl');
+        $table->addColumn('id', 'integer');
+        $table->setPrimaryKey(Array('id'));
         $table->getIndex('primary')->addFlag('nonclustered');
 
         self::assertEquals(array('CREATE TABLE tbl (id INT NOT NULL, PRIMARY KEY NONCLUSTERED (id))'), $this->_platform->getCreateTableSQL($table));
@@ -584,7 +584,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function getCreateTableColumnCommentsSQL()
     {
         return array(
-            "CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))",
+            'CREATE TABLE test (id INT NOT NULL, PRIMARY KEY (id))',
             "EXEC sp_addextendedproperty N'MS_Description', N'This is a comment', N'SCHEMA', dbo, N'TABLE', test, N'COLUMN', id",
         );
     }
@@ -595,7 +595,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function getAlterTableColumnCommentsSQL()
     {
         return array(
-            "ALTER TABLE mytable ADD quota INT NOT NULL",
+            'ALTER TABLE mytable ADD quota INT NOT NULL',
             "EXEC sp_addextendedproperty N'MS_Description', N'A comment', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', quota",
             // todo
             //"EXEC sp_addextendedproperty N'MS_Description', N'B comment', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', baz",
@@ -608,7 +608,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
     public function getCreateTableColumnTypeCommentsSQL()
     {
         return array(
-            "CREATE TABLE test (id INT NOT NULL, data VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))",
+            'CREATE TABLE test (id INT NOT NULL, data VARCHAR(MAX) NOT NULL, PRIMARY KEY (id))',
             "EXEC sp_addextendedproperty N'MS_Description', N'(DC2Type:array)', N'SCHEMA', dbo, N'TABLE', test, N'COLUMN', data",
         );
     }
@@ -636,7 +636,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
 
         self::assertEquals(
             array(
-                "CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))",
+                'CREATE TABLE mytable (id INT IDENTITY NOT NULL, comment_null INT NOT NULL, comment_false INT NOT NULL, comment_empty_string INT NOT NULL, comment_integer_0 INT NOT NULL, comment_float_0 INT NOT NULL, comment_string_0 INT NOT NULL, comment INT NOT NULL, [comment_quoted] INT NOT NULL, [create] INT NOT NULL, commented_type VARCHAR(MAX) NOT NULL, commented_type_with_comment VARCHAR(MAX) NOT NULL, comment_with_string_literal_char NVARCHAR(255) NOT NULL, PRIMARY KEY (id))',
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_integer_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_float_0",
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', comment_string_0",
@@ -787,25 +787,25 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 "sp_RENAME 'mytable.comment_float_0', 'comment_double_0', 'COLUMN'",
 
                 // Added columns.
-                "ALTER TABLE mytable ADD added_comment_none INT NOT NULL",
-                "ALTER TABLE mytable ADD added_comment_null INT NOT NULL",
-                "ALTER TABLE mytable ADD added_comment_false INT NOT NULL",
-                "ALTER TABLE mytable ADD added_comment_empty_string INT NOT NULL",
-                "ALTER TABLE mytable ADD added_comment_integer_0 INT NOT NULL",
-                "ALTER TABLE mytable ADD added_comment_float_0 INT NOT NULL",
-                "ALTER TABLE mytable ADD added_comment_string_0 INT NOT NULL",
-                "ALTER TABLE mytable ADD added_comment INT NOT NULL",
-                "ALTER TABLE mytable ADD [added_comment_quoted] INT NOT NULL",
-                "ALTER TABLE mytable ADD [select] INT NOT NULL",
-                "ALTER TABLE mytable ADD added_commented_type VARCHAR(MAX) NOT NULL",
-                "ALTER TABLE mytable ADD added_commented_type_with_comment VARCHAR(MAX) NOT NULL",
-                "ALTER TABLE mytable ADD added_comment_with_string_literal_char NVARCHAR(255) NOT NULL",
-                "ALTER TABLE mytable DROP COLUMN comment_integer_0",
-                "ALTER TABLE mytable ALTER COLUMN comment_null NVARCHAR(255) NOT NULL",
-                "ALTER TABLE mytable ALTER COLUMN comment_empty_string VARCHAR(MAX) NOT NULL",
-                "ALTER TABLE mytable ALTER COLUMN [comment_quoted] VARCHAR(MAX) NOT NULL",
-                "ALTER TABLE mytable ALTER COLUMN [create] VARCHAR(MAX) NOT NULL",
-                "ALTER TABLE mytable ALTER COLUMN commented_type INT NOT NULL",
+                'ALTER TABLE mytable ADD added_comment_none INT NOT NULL',
+                'ALTER TABLE mytable ADD added_comment_null INT NOT NULL',
+                'ALTER TABLE mytable ADD added_comment_false INT NOT NULL',
+                'ALTER TABLE mytable ADD added_comment_empty_string INT NOT NULL',
+                'ALTER TABLE mytable ADD added_comment_integer_0 INT NOT NULL',
+                'ALTER TABLE mytable ADD added_comment_float_0 INT NOT NULL',
+                'ALTER TABLE mytable ADD added_comment_string_0 INT NOT NULL',
+                'ALTER TABLE mytable ADD added_comment INT NOT NULL',
+                'ALTER TABLE mytable ADD [added_comment_quoted] INT NOT NULL',
+                'ALTER TABLE mytable ADD [select] INT NOT NULL',
+                'ALTER TABLE mytable ADD added_commented_type VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ADD added_commented_type_with_comment VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ADD added_comment_with_string_literal_char NVARCHAR(255) NOT NULL',
+                'ALTER TABLE mytable DROP COLUMN comment_integer_0',
+                'ALTER TABLE mytable ALTER COLUMN comment_null NVARCHAR(255) NOT NULL',
+                'ALTER TABLE mytable ALTER COLUMN comment_empty_string VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ALTER COLUMN [comment_quoted] VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ALTER COLUMN [create] VARCHAR(MAX) NOT NULL',
+                'ALTER TABLE mytable ALTER COLUMN commented_type INT NOT NULL',
 
                 // Added columns.
                 "EXEC sp_addextendedproperty N'MS_Description', N'0', N'SCHEMA', dbo, N'TABLE', mytable, N'COLUMN', added_comment_integer_0",

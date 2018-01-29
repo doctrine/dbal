@@ -19,7 +19,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $username = $GLOBALS['db_username'];
 
-        $query = "GRANT ALL PRIVILEGES TO ".$username;
+        $query = 'GRANT ALL PRIVILEGES TO '.$username;
 
         $conn = \Doctrine\Tests\TestUtil::getTempConnection();
         $conn->executeUpdate($query);

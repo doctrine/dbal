@@ -94,7 +94,7 @@ class DBALException extends \Exception
     {
         return new self(
             "The 'pdo' option was used in DriverManager::getConnection() but no ".
-            "instance of PDO was given."
+            'instance of PDO was given.'
         );
     }
 
@@ -109,14 +109,14 @@ class DBALException extends \Exception
             return new self(
                 sprintf(
                     "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
-                    "is given to DriverManager::getConnection(). Given URL: %s",
+                    'is given to DriverManager::getConnection(). Given URL: %s',
                     $url
                 )
             );
         }
 
         return new self("The options 'driver' or 'driverClass' are mandatory if no PDO ".
-            "instance is given to DriverManager::getConnection().");
+            'instance is given to DriverManager::getConnection().');
     }
 
     /**
@@ -127,8 +127,8 @@ class DBALException extends \Exception
      */
     public static function unknownDriver($unknownDriverName, array $knownDrivers)
     {
-        return new self("The given 'driver' ".$unknownDriverName." is unknown, ".
-            "Doctrine currently supports only the following drivers: ".implode(", ", $knownDrivers));
+        return new self("The given 'driver' ".$unknownDriverName.' is unknown, '.
+            'Doctrine currently supports only the following drivers: '.implode(', ', $knownDrivers));
     }
 
     /**
@@ -143,7 +143,7 @@ class DBALException extends \Exception
     {
         $msg = "An exception occurred while executing '".$sql."'";
         if ($params) {
-            $msg .= " with params " . self::formatParameters($params);
+            $msg .= ' with params ' . self::formatParameters($params);
         }
         $msg .= ":\n\n".$driverEx->getMessage();
 
@@ -158,7 +158,7 @@ class DBALException extends \Exception
      */
     public static function driverException(Driver $driver, \Exception $driverEx)
     {
-        return static::wrapException($driver, $driverEx, "An exception occurred in driver: " . $driverEx->getMessage());
+        return static::wrapException($driver, $driverEx, 'An exception occurred in driver: ' . $driverEx->getMessage());
     }
 
     /**
@@ -212,7 +212,7 @@ class DBALException extends \Exception
      */
     public static function invalidWrapperClass($wrapperClass)
     {
-        return new self("The given 'wrapperClass' ".$wrapperClass." has to be a ".
+        return new self("The given 'wrapperClass' ".$wrapperClass.' has to be a '.
             "subtype of \Doctrine\DBAL\Connection.");
     }
 
@@ -223,7 +223,7 @@ class DBALException extends \Exception
      */
     public static function invalidDriverClass($driverClass)
     {
-        return new self("The given 'driverClass' ".$driverClass." has to implement the ".
+        return new self("The given 'driverClass' ".$driverClass.' has to implement the '.
             "\Doctrine\DBAL\Driver interface.");
     }
 
@@ -234,7 +234,7 @@ class DBALException extends \Exception
      */
     public static function invalidTableName($tableName)
     {
-        return new self("Invalid table name specified: ".$tableName);
+        return new self('Invalid table name specified: '.$tableName);
     }
 
     /**
@@ -244,7 +244,7 @@ class DBALException extends \Exception
      */
     public static function noColumnsSpecifiedForTable($tableName)
     {
-        return new self("No columns specified for table ".$tableName);
+        return new self('No columns specified for table '.$tableName);
     }
 
     /**
@@ -252,7 +252,7 @@ class DBALException extends \Exception
      */
     public static function limitOffsetInvalid()
     {
-        return new self("Invalid Offset in Limit Query, it has to be larger than or equal to 0.");
+        return new self('Invalid Offset in Limit Query, it has to be larger than or equal to 0.');
     }
 
     /**
