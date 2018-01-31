@@ -11,7 +11,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * @var resource
      */
-    private $_conn = null;
+    private $conn = null;
 
     /**
      * @param array  $params
@@ -26,11 +26,11 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
         $isPersistent = (isset($params['persistent']) && $params['persistent'] == true);
 
         if ($isPersistent) {
-            $this->_conn = db2_pconnect($params['dbname'], $username, $password, $driverOptions);
+            $this->conn = db2_pconnect($params['dbname'], $username, $password, $driverOptions);
         } else {
-            $this->_conn = db2_connect($params['dbname'], $username, $password, $driverOptions);
+            $this->conn = db2_connect($params['dbname'], $username, $password, $driverOptions);
         }
-        if ( ! $this->_conn) {
+        if ( ! $this->conn) {
             throw new DB2Exception(db2_conn_errormsg());
         }
     }
@@ -40,7 +40,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function getServerVersion()
     {
-        $serverInfo = db2_server_info($this->_conn);
+        $serverInfo = db2_server_info($this->conn);
 
         return $serverInfo->DBMS_VER;
     }
@@ -58,7 +58,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function prepare($sql)
     {
-        $stmt = @db2_prepare($this->_conn, $sql);
+        $stmt = @db2_prepare($this->conn, $sql);
         if ( ! $stmt) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
@@ -98,7 +98,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function exec($statement)
     {
-        $stmt = @db2_exec($this->_conn, $statement);
+        $stmt = @db2_exec($this->conn, $statement);
 
         if (false === $stmt) {
             throw new DB2Exception(db2_stmt_errormsg());
@@ -112,7 +112,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function lastInsertId($name = null)
     {
-        return db2_last_insert_id($this->_conn);
+        return db2_last_insert_id($this->conn);
     }
 
     /**
@@ -120,7 +120,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function beginTransaction()
     {
-        db2_autocommit($this->_conn, DB2_AUTOCOMMIT_OFF);
+        db2_autocommit($this->conn, DB2_AUTOCOMMIT_OFF);
     }
 
     /**
@@ -128,10 +128,10 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function commit()
     {
-        if (!db2_commit($this->_conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->_conn));
+        if (!db2_commit($this->conn)) {
+            throw new DB2Exception(db2_conn_errormsg($this->conn));
         }
-        db2_autocommit($this->_conn, DB2_AUTOCOMMIT_ON);
+        db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON);
     }
 
     /**
@@ -139,10 +139,10 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function rollBack()
     {
-        if (!db2_rollback($this->_conn)) {
-            throw new DB2Exception(db2_conn_errormsg($this->_conn));
+        if (!db2_rollback($this->conn)) {
+            throw new DB2Exception(db2_conn_errormsg($this->conn));
         }
-        db2_autocommit($this->_conn, DB2_AUTOCOMMIT_ON);
+        db2_autocommit($this->conn, DB2_AUTOCOMMIT_ON);
     }
 
     /**
@@ -150,7 +150,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function errorCode()
     {
-        return db2_conn_error($this->_conn);
+        return db2_conn_error($this->conn);
     }
 
     /**
@@ -159,7 +159,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     public function errorInfo()
     {
         return [
-            0 => db2_conn_errormsg($this->_conn),
+            0 => db2_conn_errormsg($this->conn),
             1 => $this->errorCode(),
         ];
     }

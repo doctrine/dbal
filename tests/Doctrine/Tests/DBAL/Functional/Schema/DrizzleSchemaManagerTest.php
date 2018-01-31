@@ -16,9 +16,9 @@ class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('column_binary', 'binary', array('fixed' => true));
         $table->setPrimaryKey(array('id'));
 
-        $this->_sm->createTable($table);
+        $this->sm->createTable($table);
 
-        $table = $this->_sm->listTableDetails($tableName);
+        $table = $this->sm->listTableDetails($tableName);
 
         self::assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_varbinary')->getType());
         self::assertFalse($table->getColumn('column_varbinary')->getFixed());
@@ -35,9 +35,9 @@ class DrizzleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('text', 'text');
         $table->addColumn('foo', 'text')->setPlatformOption('collation', 'utf8_swedish_ci');
         $table->addColumn('bar', 'text')->setPlatformOption('collation', 'utf8_general_ci');
-        $this->_sm->dropAndCreateTable($table);
+        $this->sm->dropAndCreateTable($table);
 
-        $columns = $this->_sm->listTableColumns('test_collation');
+        $columns = $this->sm->listTableColumns('test_collation');
 
         self::assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
         self::assertEquals('utf8_unicode_ci', $columns['text']->getPlatformOption('collation'));

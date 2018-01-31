@@ -17,7 +17,7 @@ class DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
+        if (! $this->conn->getDriver() instanceof Driver) {
             $this->markTestSkipped('pdo_pgsql only test.');
         }
     }
@@ -27,15 +27,15 @@ class DriverTest extends AbstractDriverTest
      */
     public function testDatabaseParameters($databaseName, $defaultDatabaseName, $expectedDatabaseName)
     {
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         $params['dbname'] = $databaseName;
         $params['default_dbname'] = $defaultDatabaseName;
 
         $connection = new Connection(
             $params,
-            $this->_conn->getDriver(),
-            $this->_conn->getConfiguration(),
-            $this->_conn->getEventManager()
+            $this->conn->getDriver(),
+            $this->conn->getConfiguration(),
+            $this->conn->getEventManager()
         );
 
         self::assertSame(
@@ -64,7 +64,7 @@ class DriverTest extends AbstractDriverTest
      */
     public function testConnectsWithApplicationNameParameter()
     {
-        $parameters = $this->_conn->getParams();
+        $parameters = $this->conn->getParams();
         $parameters['application_name'] = 'doctrine';
 
         $user = $parameters['user'] ?? null;

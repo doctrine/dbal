@@ -50,7 +50,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      */
     public function startDatabase($database)
     {
-        $this->_execSql($this->_platform->getStartDatabaseSQL($database));
+        $this->execSql($this->platform->getStartDatabaseSQL($database));
     }
 
     /**
@@ -60,13 +60,13 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
      */
     public function stopDatabase($database)
     {
-        $this->_execSql($this->_platform->getStopDatabaseSQL($database));
+        $this->execSql($this->platform->getStopDatabaseSQL($database));
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function getPortableDatabaseDefinition($database)
     {
         return $database['name'];
     }
@@ -74,7 +74,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition($sequence)
+    protected function getPortableSequenceDefinition($sequence)
     {
         return new Sequence($sequence['sequence_name'], $sequence['increment_by'], $sequence['start_with']);
     }
@@ -82,9 +82,9 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function getPortableTableColumnDefinition($tableColumn)
     {
-        $type                   = $this->_platform->getDoctrineTypeMapping($tableColumn['type']);
+        $type                   = $this->platform->getDoctrineTypeMapping($tableColumn['type']);
         $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
         $precision              = null;
@@ -137,7 +137,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function getPortableTableDefinition($table)
     {
         return $table['table_name'];
     }
@@ -145,7 +145,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    protected function getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
@@ -159,7 +159,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function getPortableTableForeignKeysList($tableForeignKeys)
     {
         $foreignKeys = [];
 
@@ -186,13 +186,13 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
             }
         }
 
-        return parent::_getPortableTableForeignKeysList($foreignKeys);
+        return parent::getPortableTableForeignKeysList($foreignKeys);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    protected function getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['primary'] = (boolean) $tableIndex['primary'];
@@ -211,13 +211,13 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
             }
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
+        return parent::getPortableTableIndexesList($tableIndexRows, $tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function getPortableViewDefinition($view)
     {
         return new View(
             $view['table_name'],

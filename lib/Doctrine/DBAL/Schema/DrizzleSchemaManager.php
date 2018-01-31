@@ -14,11 +14,11 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function getPortableTableColumnDefinition($tableColumn)
     {
         $dbType = strtolower($tableColumn['DATA_TYPE']);
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->platform->getDoctrineTypeMapping($dbType);
         $type = $this->extractDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
         $tableColumn['COLUMN_COMMENT'] = $this->removeDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
 
@@ -46,7 +46,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function getPortableDatabaseDefinition($database)
     {
         return $database['SCHEMA_NAME'];
     }
@@ -54,7 +54,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function getPortableTableDefinition($table)
     {
         return $table['TABLE_NAME'];
     }
@@ -62,7 +62,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    public function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    public function getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         $columns = [];
         foreach (explode(',', $tableForeignKey['CONSTRAINT_COLUMNS']) as $value) {
@@ -89,7 +89,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
+    protected function getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
         $indexes = [];
         foreach ($tableIndexes as $k) {
@@ -97,6 +97,6 @@ class DrizzleSchemaManager extends AbstractSchemaManager
             $indexes[] = $k;
         }
 
-        return parent::_getPortableTableIndexesList($indexes, $tableName);
+        return parent::getPortableTableIndexesList($indexes, $tableName);
     }
 }

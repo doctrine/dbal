@@ -20,7 +20,7 @@ final class DriverManager
      *
      * @var array
      */
-     private static $_driverMap = [
+     private static $driverMap = [
          'pdo_mysql'          => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
          'pdo_sqlite'         => 'Doctrine\DBAL\Driver\PDOSqlite\Driver',
          'pdo_pgsql'          => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
@@ -133,10 +133,10 @@ final class DriverManager
             $params['pdo']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $params['driver'] = 'pdo_' . $params['pdo']->getAttribute(\PDO::ATTR_DRIVER_NAME);
         } else {
-            self::_checkParams($params);
+            self::checkParams($params);
         }
 
-        $className = $params['driverClass'] ?? self::$_driverMap[$params['driver']];
+        $className = $params['driverClass'] ?? self::$driverMap[$params['driver']];
 
         $driver = new $className();
 
@@ -159,7 +159,7 @@ final class DriverManager
      */
     public static function getAvailableDrivers(): array
     {
-        return array_keys(self::$_driverMap);
+        return array_keys(self::$driverMap);
     }
 
     /**
@@ -171,7 +171,7 @@ final class DriverManager
      *
      * @throws \Doctrine\DBAL\DBALException
      */
-    private static function _checkParams(array $params): void
+    private static function checkParams(array $params): void
     {
         // check existence of mandatory parameters
 
@@ -183,8 +183,8 @@ final class DriverManager
         // check validity of parameters
 
         // driver
-        if (isset($params['driver']) && ! isset(self::$_driverMap[$params['driver']])) {
-            throw DBALException::unknownDriver($params['driver'], array_keys(self::$_driverMap));
+        if (isset($params['driver']) && ! isset(self::$driverMap[$params['driver']])) {
+            throw DBALException::unknownDriver($params['driver'], array_keys(self::$driverMap));
         }
 
         if (isset($params['driverClass']) && ! in_array('Doctrine\DBAL\Driver', class_implements($params['driverClass'], true))) {

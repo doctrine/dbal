@@ -22,7 +22,7 @@ class ConnectionHelper extends Helper
      *
      * @var \Doctrine\DBAL\Connection
      */
-    protected $_connection;
+    protected $connection;
 
     /**
      * Constructor.
@@ -31,7 +31,7 @@ class ConnectionHelper extends Helper
      */
     public function __construct(Connection $connection)
     {
-        $this->_connection = $connection;
+        $this->connection = $connection;
     }
 
     /**
@@ -41,7 +41,7 @@ class ConnectionHelper extends Helper
      */
     public function getConnection()
     {
-        return $this->_connection;
+        return $this->connection;
     }
 
     /**

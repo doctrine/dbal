@@ -21,14 +21,14 @@ class MysqlSessionInit implements EventSubscriber
      *
      * @var string
      */
-    private $_charset;
+    private $charset;
 
     /**
      * The collation, or FALSE if no collation.
      *
      * @var string|boolean
      */
-    private $_collation;
+    private $collation;
 
     /**
      * Configure Charset and Collation options of MySQL Client for each Connection.
@@ -38,8 +38,8 @@ class MysqlSessionInit implements EventSubscriber
      */
     public function __construct($charset = 'utf8', $collation = false)
     {
-        $this->_charset = $charset;
-        $this->_collation = $collation;
+        $this->charset = $charset;
+        $this->collation = $collation;
     }
 
     /**
@@ -49,8 +49,8 @@ class MysqlSessionInit implements EventSubscriber
      */
     public function postConnect(ConnectionEventArgs $args)
     {
-        $collation = ($this->_collation) ? " COLLATE ".$this->_collation : "";
-        $args->getConnection()->executeUpdate("SET NAMES ".$this->_charset . $collation);
+        $collation = ($this->collation) ? " COLLATE ".$this->collation : "";
+        $args->getConnection()->executeUpdate("SET NAMES ".$this->charset . $collation);
     }
 
     /**

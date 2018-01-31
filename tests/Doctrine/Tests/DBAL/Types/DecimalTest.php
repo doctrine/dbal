@@ -8,22 +8,22 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 class DecimalTest extends \Doctrine\Tests\DbalTestCase
 {
     protected
-        $_platform,
-        $_type;
+        $platform,
+        $type;
 
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('decimal');
+        $this->platform = new MockPlatform();
+        $this->type = Type::getType('decimal');
     }
 
     public function testDecimalConvertsToPHPValue()
     {
-        self::assertInternalType('string', $this->_type->convertToPHPValue('5.5', $this->_platform));
+        self::assertInternalType('string', $this->type->convertToPHPValue('5.5', $this->platform));
     }
 
     public function testDecimalNullConvertsToPHPValue()
     {
-        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 }

@@ -204,7 +204,7 @@ class SchemaTest extends \PHPUnit\Framework\TestCase
 
         $fk = $schemaNew->getTable('bar')->getForeignKeys();
         $fk = current($fk);
-        self::assertSame($schemaNew->getTable('bar'), $this->readAttribute($fk, '_localTable'));
+        self::assertSame($schemaNew->getTable('bar'), $this->readAttribute($fk, 'localTable'));
     }
 
     /**

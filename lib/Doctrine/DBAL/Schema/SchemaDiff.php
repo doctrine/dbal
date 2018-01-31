@@ -106,7 +106,7 @@ class SchemaDiff
      */
     public function toSaveSql(AbstractPlatform $platform)
     {
-        return $this->_toSql($platform, true);
+        return $this->buildSql($platform, true);
     }
 
     /**
@@ -116,7 +116,7 @@ class SchemaDiff
      */
     public function toSql(AbstractPlatform $platform)
     {
-        return $this->_toSql($platform, false);
+        return $this->buildSql($platform, false);
     }
 
     /**
@@ -125,7 +125,7 @@ class SchemaDiff
      *
      * @return array
      */
-    protected function _toSql(AbstractPlatform $platform, $saveMode = false)
+    protected function buildSql(AbstractPlatform $platform, $saveMode = false)
     {
         $sql = [];
 

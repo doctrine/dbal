@@ -11,7 +11,7 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
         try {
-            $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTableSQL("nontemporary"));
+            $this->conn->exec($this->conn->getDatabasePlatform()->getDropTableSQL("nontemporary"));
         } catch(\Exception $e) {
 
         }
@@ -19,10 +19,10 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     protected function tearDown()
     {
-        if ($this->_conn) {
+        if ($this->conn) {
             try {
-                $tempTable = $this->_conn->getDatabasePlatform()->getTemporaryTableName("my_temporary");
-                $this->_conn->exec($this->_conn->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
+                $tempTable = $this->conn->getDatabasePlatform()->getTemporaryTableName("my_temporary");
+                $this->conn->exec($this->conn->getDatabasePlatform()->getDropTemporaryTableSQL($tempTable));
             } catch(\Exception $e) { }
         }
 
@@ -35,33 +35,33 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testDropTemporaryTableNotAutoCommitTransaction()
     {
-        if ($this->_conn->getDatabasePlatform()->getName() == 'sqlanywhere' ||
-            $this->_conn->getDatabasePlatform()->getName() == 'oracle') {
+        if ($this->conn->getDatabasePlatform()->getName() == 'sqlanywhere' ||
+            $this->conn->getDatabasePlatform()->getName() == 'oracle') {
             $this->markTestSkipped("Test does not work on Oracle and SQL Anywhere.");
         }
 
-        $platform = $this->_conn->getDatabasePlatform();
+        $platform = $this->conn->getDatabasePlatform();
         $columnDefinitions = array("id" => array("type" => Type::getType("integer"), "notnull" => true));
         $tempTable = $platform->getTemporaryTableName("my_temporary");
 
         $createTempTableSQL = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
                 . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
-        $this->_conn->executeUpdate($createTempTableSQL);
+        $this->conn->executeUpdate($createTempTableSQL);
 
         $table = new Table("nontemporary");
         $table->addColumn("id", "integer");
         $table->setPrimaryKey(array('id'));
 
-        $this->_conn->getSchemaManager()->createTable($table);
+        $this->conn->getSchemaManager()->createTable($table);
 
-        $this->_conn->beginTransaction();
-        $this->_conn->insert("nontemporary", array("id" => 1));
-        $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
-        $this->_conn->insert("nontemporary", array("id" => 2));
+        $this->conn->beginTransaction();
+        $this->conn->insert("nontemporary", array("id" => 1));
+        $this->conn->exec($platform->getDropTemporaryTableSQL($tempTable));
+        $this->conn->insert("nontemporary", array("id" => 2));
 
-        $this->_conn->rollBack();
+        $this->conn->rollBack();
 
-        $rows = $this->_conn->fetchAll('SELECT * FROM nontemporary');
+        $rows = $this->conn->fetchAll('SELECT * FROM nontemporary');
         self::assertEquals(array(), $rows, "In an event of an error this result has one row, because of an implicit commit.");
     }
 
@@ -71,12 +71,12 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testCreateTemporaryTableNotAutoCommitTransaction()
     {
-        if ($this->_conn->getDatabasePlatform()->getName() == 'sqlanywhere' ||
-            $this->_conn->getDatabasePlatform()->getName() == 'oracle') {
+        if ($this->conn->getDatabasePlatform()->getName() == 'sqlanywhere' ||
+            $this->conn->getDatabasePlatform()->getName() == 'oracle') {
             $this->markTestSkipped("Test does not work on Oracle and SQL Anywhere.");
         }
 
-        $platform = $this->_conn->getDatabasePlatform();
+        $platform = $this->conn->getDatabasePlatform();
         $columnDefinitions = array("id" => array("type" => Type::getType("integer"), "notnull" => true));
         $tempTable = $platform->getTemporaryTableName("my_temporary");
 
@@ -87,23 +87,23 @@ class TemporaryTableTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $table->addColumn("id", "integer");
         $table->setPrimaryKey(array('id'));
 
-        $this->_conn->getSchemaManager()->createTable($table);
+        $this->conn->getSchemaManager()->createTable($table);
 
-        $this->_conn->beginTransaction();
-        $this->_conn->insert("nontemporary", array("id" => 1));
+        $this->conn->beginTransaction();
+        $this->conn->insert("nontemporary", array("id" => 1));
 
-        $this->_conn->exec($createTempTableSQL);
-        $this->_conn->insert("nontemporary", array("id" => 2));
+        $this->conn->exec($createTempTableSQL);
+        $this->conn->insert("nontemporary", array("id" => 2));
 
-        $this->_conn->rollBack();
+        $this->conn->rollBack();
 
         try {
-            $this->_conn->exec($platform->getDropTemporaryTableSQL($tempTable));
+            $this->conn->exec($platform->getDropTemporaryTableSQL($tempTable));
         } catch(\Exception $e) {
 
         }
 
-        $rows = $this->_conn->fetchAll('SELECT * FROM nontemporary');
+        $rows = $this->conn->fetchAll('SELECT * FROM nontemporary');
         self::assertEquals(array(), $rows, "In an event of an error this result has one row, because of an implicit commit.");
     }
 }

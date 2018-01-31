@@ -15,7 +15,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
     {
         parent::setUp();
 
-        $platformName = $this->_conn->getDatabasePlatform()->getName();
+        $platformName = $this->conn->getDatabasePlatform()->getName();
 
         // This is a MySQL specific test, skip other vendors.
         if ($platformName != 'mysql') {
@@ -28,15 +28,15 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
             $table->addColumn('test_int', 'integer');
             $table->setPrimaryKey(array('test_int'));
 
-            $sm = $this->_conn->getSchemaManager();
+            $sm = $this->conn->getSchemaManager();
             $sm->createTable($table);
 
 
         } catch(\Exception $e) {
         }
 
-        $this->_conn->executeUpdate('DELETE FROM master_slave_table');
-        $this->_conn->insert('master_slave_table', array('test_int' => 1));
+        $this->conn->executeUpdate('DELETE FROM master_slave_table');
+        $this->conn->insert('master_slave_table', array('test_int' => 1));
     }
 
     private function createMasterSlaveConnection(bool $keepSlave = false) : MasterSlaveConnection
@@ -46,7 +46,7 @@ class MasterSlaveConnectionTest extends DbalFunctionalTestCase
 
     private function createMasterSlaveConnectionParams(bool $keepSlave = false) : array
     {
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         $params['master']       = $params;
         $params['slaves']       = array($params, $params);
         $params['keepSlave']    = $keepSlave;

@@ -116,7 +116,7 @@ class MasterSlaveConnection extends Connection
      */
     public function isConnectedToMaster()
     {
-        return $this->_conn !== null && $this->_conn === $this->connections['master'];
+        return $this->conn !== null && $this->conn === $this->connections['master'];
     }
 
     /**
@@ -134,7 +134,7 @@ class MasterSlaveConnection extends Connection
         // If we have a connection open, and this is not an explicit connection
         // change request, then abort right here, because we are already done.
         // This prevents writes to the slave in case of "keepSlave" option enabled.
-        if (isset($this->_conn) && $this->_conn && !$requestedConnectionChange) {
+        if (isset($this->conn) && $this->conn && !$requestedConnectionChange) {
             return false;
         }
 
@@ -146,29 +146,29 @@ class MasterSlaveConnection extends Connection
         }
 
         if (isset($this->connections[$connectionName]) && $this->connections[$connectionName]) {
-            $this->_conn = $this->connections[$connectionName];
+            $this->conn = $this->connections[$connectionName];
 
             if ($forceMasterAsSlave && ! $this->keepSlave) {
-                $this->connections['slave'] = $this->_conn;
+                $this->connections['slave'] = $this->conn;
             }
 
             return false;
         }
 
         if ($connectionName === 'master') {
-            $this->connections['master'] = $this->_conn = $this->connectTo($connectionName);
+            $this->connections['master'] = $this->conn = $this->connectTo($connectionName);
 
             // Set slave connection to master to avoid invalid reads
             if ( ! $this->keepSlave) {
                 $this->connections['slave'] = $this->connections['master'];
             }
         } else {
-            $this->connections['slave'] = $this->_conn = $this->connectTo($connectionName);
+            $this->connections['slave'] = $this->conn = $this->connectTo($connectionName);
         }
 
-        if ($this->_eventManager->hasListeners(Events::postConnect)) {
+        if ($this->eventManager->hasListeners(Events::postConnect)) {
             $eventArgs = new ConnectionEventArgs($this);
-            $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
+            $this->eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 
         return true;
@@ -192,7 +192,7 @@ class MasterSlaveConnection extends Connection
         $user = $connectionParams['user'] ?? null;
         $password = $connectionParams['password'] ?? null;
 
-        return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
+        return $this->driver->connect($connectionParams, $user, $password, $driverOptions);
     }
 
     /**
@@ -275,7 +275,7 @@ class MasterSlaveConnection extends Connection
 
         parent::close();
 
-        $this->_conn = null;
+        $this->conn = null;
         $this->connections = ['master' => null, 'slave' => null];
     }
 
@@ -353,7 +353,7 @@ class MasterSlaveConnection extends Connection
             $logger->startQuery($args[0]);
         }
 
-        $statement = $this->_conn->query(...$args);
+        $statement = $this->conn->query(...$args);
 
         if ($logger) {
             $logger->stopQuery();

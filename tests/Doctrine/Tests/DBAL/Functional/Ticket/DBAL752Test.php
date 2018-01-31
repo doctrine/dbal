@@ -11,7 +11,7 @@ class DBAL752Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        $platform = $this->_conn->getDatabasePlatform()->getName();
+        $platform = $this->conn->getDatabasePlatform()->getName();
 
         if (!in_array($platform, array('sqlite'))) {
             $this->markTestSkipped('Related to SQLite only');
@@ -20,7 +20,7 @@ class DBAL752Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testUnsignedIntegerDetection()
     {
-        $this->_conn->exec(<<<SQL
+        $this->conn->exec(<<<SQL
 CREATE TABLE dbal752_unsigneds (
     small SMALLINT,
     small_unsigned SMALLINT UNSIGNED,
@@ -34,7 +34,7 @@ CREATE TABLE dbal752_unsigneds (
 SQL
         );
 
-        $schemaManager = $this->_conn->getSchemaManager();
+        $schemaManager = $this->conn->getSchemaManager();
 
         $fetchedTable = $schemaManager->listTableDetails('dbal752_unsigneds');
 

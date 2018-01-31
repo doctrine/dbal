@@ -15,7 +15,7 @@ class DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
+        if (! $this->conn->getDriver() instanceof Driver) {
             $this->markTestSkipped('oci8 only test.');
         }
     }

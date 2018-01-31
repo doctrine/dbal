@@ -49,7 +49,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition($sequence)
+    protected function getPortableSequenceDefinition($sequence)
     {
         return new Sequence($sequence['name'], $sequence['increment'], $sequence['start_value']);
     }
@@ -57,7 +57,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function getPortableTableColumnDefinition($tableColumn)
     {
         $dbType = strtok($tableColumn['type'], '(), ');
         $fixed = null;
@@ -72,7 +72,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             $default = trim($default2, "'");
 
             if ($default == 'getdate()') {
-                $default = $this->_platform->getCurrentTimestampSQL();
+                $default = $this->platform->getCurrentTimestampSQL();
             }
         }
 
@@ -95,7 +95,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             $fixed = true;
         }
 
-        $type                   = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type                   = $this->platform->getDoctrineTypeMapping($dbType);
         $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 
@@ -123,7 +123,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function getPortableTableForeignKeysList($tableForeignKeys)
     {
         $foreignKeys = [];
 
@@ -145,13 +145,13 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             }
         }
 
-        return parent::_getPortableTableForeignKeysList($foreignKeys);
+        return parent::getPortableTableForeignKeysList($foreignKeys);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName=null)
+    protected function getPortableTableIndexesList($tableIndexRows, $tableName=null)
     {
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['non_unique'] = (boolean) $tableIndex['non_unique'];
@@ -159,13 +159,13 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             $tableIndex['flags'] = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
+        return parent::getPortableTableIndexesList($tableIndexRows, $tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    protected function getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
@@ -179,7 +179,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function getPortableTableDefinition($table)
     {
         return $table['name'];
     }
@@ -187,7 +187,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function getPortableDatabaseDefinition($database)
     {
         return $database['name'];
     }
@@ -203,7 +203,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function getPortableViewDefinition($view)
     {
         // @todo
         return new View($view['name'], null);
@@ -214,10 +214,10 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     public function listTableIndexes($table)
     {
-        $sql = $this->_platform->getListTableIndexesSQL($table, $this->_conn->getDatabase());
+        $sql = $this->platform->getListTableIndexesSQL($table, $this->conn->getDatabase());
 
         try {
-            $tableIndexes = $this->_conn->fetchAll($sql);
+            $tableIndexes = $this->conn->fetchAll($sql);
         } catch (\PDOException $e) {
             if ($e->getCode() == "IMSSP") {
                 return [];
@@ -232,7 +232,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             }
         }
 
-        return $this->_getPortableTableIndexesList($tableIndexes, $table);
+        return $this->getPortableTableIndexesList($tableIndexes, $table);
     }
 
     /**
@@ -243,8 +243,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         if (count($tableDiff->removedColumns) > 0) {
             foreach ($tableDiff->removedColumns as $col) {
                 $columnConstraintSql = $this->getColumnConstraintSQL($tableDiff->name, $col->getName());
-                foreach ($this->_conn->fetchAll($columnConstraintSql) as $constraint) {
-                    $this->_conn->exec("ALTER TABLE $tableDiff->name DROP CONSTRAINT " . $constraint['Name']);
+                foreach ($this->conn->fetchAll($columnConstraintSql) as $constraint) {
+                    $this->conn->exec("ALTER TABLE $tableDiff->name DROP CONSTRAINT " . $constraint['Name']);
                 }
             }
         }
@@ -267,7 +267,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             ON Tab.[ID] = Sysobjects.[Parent_Obj]
             INNER JOIN sys.default_constraints DefCons ON DefCons.[object_id] = Sysobjects.[ID]
             INNER JOIN SysColumns Col ON Col.[ColID] = DefCons.[parent_column_id] AND Col.[ID] = Tab.[ID]
-            WHERE Col.[Name] = " . $this->_conn->quote($column) ." AND Tab.[Name] = " . $this->_conn->quote($table) . "
+            WHERE Col.[Name] = " . $this->conn->quote($column) ." AND Tab.[Name] = " . $this->conn->quote($table) . "
             ORDER BY Col.[Name]";
     }
 
@@ -284,10 +284,10 @@ class SQLServerSchemaManager extends AbstractSchemaManager
     {
         $database = new Identifier($database);
 
-        $this->_execSql(
+        $this->execSql(
             sprintf(
                 'ALTER DATABASE %s SET SINGLE_USER WITH ROLLBACK IMMEDIATE',
-                $database->getQuotedName($this->_platform)
+                $database->getQuotedName($this->platform)
             )
         );
     }

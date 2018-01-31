@@ -7,31 +7,31 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class FloatTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected $_platform, $_type;
+    protected $platform, $type;
 
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('float');
+        $this->platform = new MockPlatform();
+        $this->type = Type::getType('float');
     }
 
     public function testFloatConvertsToPHPValue()
     {
-        self::assertInternalType('float', $this->_type->convertToPHPValue('5.5', $this->_platform));
+        self::assertInternalType('float', $this->type->convertToPHPValue('5.5', $this->platform));
     }
 
     public function testFloatNullConvertsToPHPValue()
     {
-        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     public function testFloatConvertToDatabaseValue()
     {
-        self::assertInternalType('float', $this->_type->convertToDatabaseValue(5.5, $this->_platform));
+        self::assertInternalType('float', $this->type->convertToDatabaseValue(5.5, $this->platform));
     }
 
     public function testFloatNullConvertToDatabaseValue()
     {
-        self::assertNull($this->_type->convertToDatabaseValue(null, $this->_platform));
+        self::assertNull($this->type->convertToDatabaseValue(null, $this->platform));
     }
 }

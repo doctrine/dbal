@@ -120,7 +120,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if (!$this->_conn->getSchemaManager()->tablesExist("ddc1372_foobar")) {
+        if (!$this->conn->getSchemaManager()->tablesExist("ddc1372_foobar")) {
             try {
                 $table = new \Doctrine\DBAL\Schema\Table("ddc1372_foobar");
                 $table->addColumn('id', 'integer');
@@ -129,25 +129,25 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 $table->setPrimaryKey(array('id'));
 
 
-                $sm = $this->_conn->getSchemaManager();
+                $sm = $this->conn->getSchemaManager();
                 $sm->createTable($table);
 
-                $this->_conn->insert('ddc1372_foobar', array(
+                $this->conn->insert('ddc1372_foobar', array(
                         'id'    => 1, 'foo'   => 1,  'bar'   => 1
                 ));
-                $this->_conn->insert('ddc1372_foobar', array(
+                $this->conn->insert('ddc1372_foobar', array(
                         'id'    => 2, 'foo'   => 1,  'bar'   => 2
                 ));
-                $this->_conn->insert('ddc1372_foobar', array(
+                $this->conn->insert('ddc1372_foobar', array(
                         'id'    => 3, 'foo'   => 1,  'bar'   => 3
                 ));
-                $this->_conn->insert('ddc1372_foobar', array(
+                $this->conn->insert('ddc1372_foobar', array(
                         'id'    => 4, 'foo'   => 1,  'bar'   => 4
                 ));
-                $this->_conn->insert('ddc1372_foobar', array(
+                $this->conn->insert('ddc1372_foobar', array(
                         'id'    => 5, 'foo'   => 2,  'bar'   => 1
                 ));
-                $this->_conn->insert('ddc1372_foobar', array(
+                $this->conn->insert('ddc1372_foobar', array(
                         'id'    => 6, 'foo'   => 2,  'bar'   => 2
                 ));
             } catch(\Exception $e) {
@@ -165,7 +165,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testTicket($query,$params,$types,$expected)
     {
-        $stmt   = $this->_conn->executeQuery($query, $params, $types);
+        $stmt   = $this->conn->executeQuery($query, $params, $types);
         $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         foreach ($result as $k => $v) {

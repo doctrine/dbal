@@ -11,38 +11,38 @@ class DBAL202Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        if ($this->_conn->getDatabasePlatform()->getName() != 'oracle') {
+        if ($this->conn->getDatabasePlatform()->getName() != 'oracle') {
             $this->markTestSkipped('OCI8 only test');
         }
 
-        if ($this->_conn->getSchemaManager()->tablesExist('DBAL202')) {
-            $this->_conn->exec('DELETE FROM DBAL202');
+        if ($this->conn->getSchemaManager()->tablesExist('DBAL202')) {
+            $this->conn->exec('DELETE FROM DBAL202');
         } else {
             $table = new \Doctrine\DBAL\Schema\Table('DBAL202');
             $table->addColumn('id', 'integer');
             $table->setPrimaryKey(array('id'));
 
-            $this->_conn->getSchemaManager()->createTable($table);
+            $this->conn->getSchemaManager()->createTable($table);
         }
     }
 
     public function testStatementRollback()
     {
-        $stmt = $this->_conn->prepare('INSERT INTO DBAL202 VALUES (8)');
-        $this->_conn->beginTransaction();
+        $stmt = $this->conn->prepare('INSERT INTO DBAL202 VALUES (8)');
+        $this->conn->beginTransaction();
         $stmt->execute();
-        $this->_conn->rollBack();
+        $this->conn->rollBack();
 
-        self::assertEquals(0, $this->_conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
+        self::assertEquals(0, $this->conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
     }
 
     public function testStatementCommit()
     {
-        $stmt = $this->_conn->prepare('INSERT INTO DBAL202 VALUES (8)');
-        $this->_conn->beginTransaction();
+        $stmt = $this->conn->prepare('INSERT INTO DBAL202 VALUES (8)');
+        $this->conn->beginTransaction();
         $stmt->execute();
-        $this->_conn->commit();
+        $this->conn->commit();
 
-        self::assertEquals(1, $this->_conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
+        self::assertEquals(1, $this->conn->query('SELECT COUNT(1) FROM DBAL202')->fetchColumn());
     }
 }

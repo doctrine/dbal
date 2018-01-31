@@ -15,7 +15,7 @@ class StatementTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
+        if (! $this->conn->getDriver() instanceof Driver) {
             $this->markTestSkipped('oci8 only test.');
         }
     }
@@ -27,7 +27,7 @@ class StatementTest extends DbalFunctionalTestCase
     {
         self::assertEquals(
             $expected,
-            $this->_conn->executeQuery($query, $params)->fetch()
+            $this->conn->executeQuery($query, $params)->fetch()
         );
     }
 

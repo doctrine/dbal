@@ -18,7 +18,7 @@ class DBAL461Test extends \PHPUnit\Framework\TestCase
 
         $schemaManager = new SQLServerSchemaManager($conn, $platform);
 
-        $reflectionMethod = new \ReflectionMethod($schemaManager, '_getPortableTableColumnDefinition');
+        $reflectionMethod = new \ReflectionMethod($schemaManager, 'getPortableTableColumnDefinition');
         $reflectionMethod->setAccessible(true);
         $column = $reflectionMethod->invoke($schemaManager, array(
             'type' => 'numeric(18,0)',

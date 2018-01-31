@@ -17,7 +17,7 @@ class Driver extends AbstractSQLServerDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         return new Connection(
-            $this->_constructPdoDsn($params),
+            $this->constructPdoDsn($params),
             $username,
             $password,
             $driverOptions
@@ -31,7 +31,7 @@ class Driver extends AbstractSQLServerDriver
      *
      * @return string The DSN.
      */
-    private function _constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params)
     {
         $dsn = 'sqlsrv:server=';
 

@@ -218,13 +218,13 @@ class OraclePlatform extends AbstractPlatform
      */
     public function getSetTransactionIsolationSQL($level)
     {
-        return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
+        return 'SET TRANSACTION ISOLATION LEVEL ' . $this->getTransactionIsolationLevelSQL($level);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function _getTransactionIsolationLevelSQL($level)
+    protected function getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
             case \Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED:
@@ -235,7 +235,7 @@ class OraclePlatform extends AbstractPlatform
             case \Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE:
                 return 'SERIALIZABLE';
             default:
-                return parent::_getTransactionIsolationLevelSQL($level);
+                return parent::getTransactionIsolationLevelSQL($level);
         }
     }
 
@@ -306,7 +306,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
         return '';
     }
@@ -367,11 +367,11 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function buildCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $indexes            = $options['indexes'] ?? [];
         $options['indexes'] = [];
-        $sql                = parent::_getCreateTableSQL($tableName, $columns, $options);
+        $sql                = parent::buildCreateTableSQL($tableName, $columns, $options);
 
         foreach ($columns as $name => $column) {
             if (isset($column['sequence'])) {

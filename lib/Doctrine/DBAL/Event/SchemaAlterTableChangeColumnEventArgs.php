@@ -18,22 +18,22 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     /**
      * @var \Doctrine\DBAL\Schema\ColumnDiff
      */
-    private $_columnDiff;
+    private $columnDiff;
 
     /**
      * @var \Doctrine\DBAL\Schema\TableDiff
      */
-    private $_tableDiff;
+    private $tableDiff;
 
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    private $_platform;
+    private $platform;
 
     /**
      * @var array
      */
-    private $_sql = [];
+    private $sql = [];
 
     /**
      * @param \Doctrine\DBAL\Schema\ColumnDiff          $columnDiff
@@ -42,9 +42,9 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
      */
     public function __construct(ColumnDiff $columnDiff, TableDiff $tableDiff, AbstractPlatform $platform)
     {
-        $this->_columnDiff = $columnDiff;
-        $this->_tableDiff  = $tableDiff;
-        $this->_platform   = $platform;
+        $this->columnDiff = $columnDiff;
+        $this->tableDiff  = $tableDiff;
+        $this->platform   = $platform;
     }
 
     /**
@@ -52,7 +52,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
      */
     public function getColumnDiff()
     {
-        return $this->_columnDiff;
+        return $this->columnDiff;
     }
 
     /**
@@ -60,7 +60,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
      */
     public function getTableDiff()
     {
-        return $this->_tableDiff;
+        return $this->tableDiff;
     }
 
     /**
@@ -68,7 +68,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
      */
     public function getPlatform()
     {
-        return $this->_platform;
+        return $this->platform;
     }
 
     /**
@@ -79,9 +79,9 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     public function addSql($sql)
     {
         if (is_array($sql)) {
-            $this->_sql = array_merge($this->_sql, $sql);
+            $this->sql = array_merge($this->sql, $sql);
         } else {
-            $this->_sql[] = $sql;
+            $this->sql[] = $sql;
         }
 
         return $this;
@@ -92,6 +92,6 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
      */
     public function getSql()
     {
-        return $this->_sql;
+        return $this->sql;
     }
 }

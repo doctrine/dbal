@@ -14,7 +14,7 @@ class View extends AbstractAsset
     /**
      * @var string
      */
-    private $_sql;
+    private $sql;
 
     /**
      * @param string $name
@@ -22,8 +22,8 @@ class View extends AbstractAsset
      */
     public function __construct($name, $sql)
     {
-        $this->_setName($name);
-        $this->_sql = $sql;
+        $this->setName($name);
+        $this->sql = $sql;
     }
 
     /**
@@ -31,6 +31,6 @@ class View extends AbstractAsset
      */
     public function getSql()
     {
-        return $this->_sql;
+        return $this->sql;
     }
 }

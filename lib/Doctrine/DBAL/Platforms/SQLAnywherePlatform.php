@@ -297,7 +297,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     {
         $columnDef['integer_type'] = 'BIGINT';
 
-        return $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return $this->getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
@@ -689,7 +689,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     {
         $columnDef['integer_type'] = 'INT';
 
-        return $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return $this->getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
@@ -995,7 +995,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getSetTransactionIsolationSQL($level)
     {
-        return 'SET TEMPORARY OPTION isolation_level = ' . $this->_getTransactionIsolationLevelSQL($level);
+        return 'SET TEMPORARY OPTION isolation_level = ' . $this->getTransactionIsolationLevelSQL($level);
     }
 
     /**
@@ -1005,7 +1005,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     {
         $columnDef['integer_type'] = 'SMALLINT';
 
-        return $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return $this->getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
@@ -1174,7 +1174,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
         $unsigned      = ! empty($columnDef['unsigned']) ? 'UNSIGNED ' : '';
         $autoincrement = ! empty($columnDef['autoincrement']) ? ' IDENTITY' : '';
@@ -1185,7 +1185,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function buildCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
         $indexSql = [];
@@ -1234,7 +1234,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function _getTransactionIsolationLevelSQL($level)
+    protected function getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
             case Connection::TRANSACTION_READ_UNCOMMITTED:

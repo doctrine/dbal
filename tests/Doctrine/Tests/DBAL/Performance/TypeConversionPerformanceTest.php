@@ -21,7 +21,7 @@ class TypeConversionPerformanceTest extends DbalPerformanceTestCase
     {
         $value = new \DateTime;
         $type = Type::getType("datetime");
-        $platform = $this->_conn->getDatabasePlatform();
+        $platform = $this->conn->getDatabasePlatform();
         $this->startTiming();
         for ($i = 0; $i < $count; $i++) {
             $type->convertToDatabaseValue($value, $platform);

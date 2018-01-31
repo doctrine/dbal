@@ -23,7 +23,7 @@ class Driver extends AbstractDB2Driver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         $conn = new PDOConnection(
-            $this->_constructPdoDsn($params),
+            $this->constructPdoDsn($params),
             $username,
             $password,
             $driverOptions
@@ -39,7 +39,7 @@ class Driver extends AbstractDB2Driver
      *
      * @return string The DSN.
      */
-    private function _constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params)
     {
         $dsn = 'ibm:';
         if (isset($params['host'])) {

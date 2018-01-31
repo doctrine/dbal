@@ -8,23 +8,23 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 class SmallIntTest extends \Doctrine\Tests\DbalTestCase
 {
     protected
-        $_platform,
-        $_type;
+        $platform,
+        $type;
 
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('smallint');
+        $this->platform = new MockPlatform();
+        $this->type = Type::getType('smallint');
     }
 
     public function testSmallIntConvertsToPHPValue()
     {
-        self::assertInternalType('integer', $this->_type->convertToPHPValue('1', $this->_platform));
-        self::assertInternalType('integer', $this->_type->convertToPHPValue('0', $this->_platform));
+        self::assertInternalType('integer', $this->type->convertToPHPValue('1', $this->platform));
+        self::assertInternalType('integer', $this->type->convertToPHPValue('0', $this->platform));
     }
 
     public function testSmallIntNullConvertsToPHPValue()
     {
-        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 }

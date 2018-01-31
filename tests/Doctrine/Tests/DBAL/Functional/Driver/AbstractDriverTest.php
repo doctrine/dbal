@@ -26,7 +26,7 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
      */
     public function testConnectsWithoutDatabaseNameParameter()
     {
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         unset($params['dbname']);
 
         $user = $params['user'] ?? null;
@@ -42,14 +42,14 @@ abstract class AbstractDriverTest extends DbalFunctionalTestCase
      */
     public function testReturnsDatabaseNameWithoutDatabaseNameParameter()
     {
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         unset($params['dbname']);
 
         $connection = new Connection(
             $params,
-            $this->_conn->getDriver(),
-            $this->_conn->getConfiguration(),
-            $this->_conn->getEventManager()
+            $this->conn->getDriver(),
+            $this->conn->getConfiguration(),
+            $this->conn->getEventManager()
         );
 
         self::assertSame(

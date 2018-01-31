@@ -22,7 +22,7 @@ class Driver extends AbstractPostgreSQLDriver
     {
         try {
             $pdo = new PDOConnection(
-                $this->_constructPdoDsn($params),
+                $this->constructPdoDsn($params),
                 $username,
                 $password,
                 $driverOptions
@@ -57,7 +57,7 @@ class Driver extends AbstractPostgreSQLDriver
      *
      * @return string The DSN.
      */
-    private function _constructPdoDsn(array $params)
+    private function constructPdoDsn(array $params)
     {
         $dsn = 'pgsql:';
 

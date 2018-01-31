@@ -27,13 +27,13 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testRenameTable()
     {
-        $this->_sm->tryMethod('DropTable', 'list_tables_test');
-        $this->_sm->tryMethod('DropTable', 'list_tables_test_new_name');
+        $this->sm->tryMethod('DropTable', 'list_tables_test');
+        $this->sm->tryMethod('DropTable', 'list_tables_test_new_name');
 
         $this->createTestTable('list_tables_test');
-        $this->_sm->renameTable('list_tables_test', 'list_tables_test_new_name');
+        $this->sm->renameTable('list_tables_test', 'list_tables_test_new_name');
 
-        $tables = $this->_sm->listTables();
+        $tables = $this->sm->listTables();
 
         self::assertHasTable($tables, 'list_tables_test_new_name');
     }
@@ -48,9 +48,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('column_binary', 'binary', array('fixed' => true));
         $table->setPrimaryKey(array('id'));
 
-        $this->_sm->createTable($table);
+        $this->sm->createTable($table);
 
-        $table = $this->_sm->listTableDetails($tableName);
+        $table = $this->sm->listTableDetails($tableName);
 
         self::assertInstanceOf('Doctrine\DBAL\Types\BinaryType', $table->getColumn('column_varbinary')->getType());
         self::assertFalse($table->getColumn('column_varbinary')->getFixed());
@@ -74,9 +74,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('bar', 'string');
         $table->setPrimaryKey(array('id'));
 
-        $this->_sm->dropAndCreateTable($table);
+        $this->sm->dropAndCreateTable($table);
 
-        $columns = $this->_sm->listTableColumns($tableName);
+        $columns = $this->sm->listTableColumns($tableName);
 
         self::assertTrue($columns['id']->getNotnull());
         self::assertTrue($columns['foo']->getNotnull());
@@ -86,9 +86,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $diffTable->changeColumn('foo', array('notnull' => false));
         $diffTable->changeColumn('bar', array('length' => 1024));
 
-        $this->_sm->alterTable($comparator->diffTable($table, $diffTable));
+        $this->sm->alterTable($comparator->diffTable($table, $diffTable));
 
-        $columns = $this->_sm->listTableColumns($tableName);
+        $columns = $this->sm->listTableColumns($tableName);
 
         self::assertTrue($columns['id']->getNotnull());
         self::assertFalse($columns['foo']->getNotnull());
@@ -102,7 +102,7 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $sm->dropAndCreateDatabase('c##test_create_database');
 
-        $databases = $this->_sm->listDatabases();
+        $databases = $this->sm->listDatabases();
         $databases = array_map('strtolower', $databases);
 
         self::assertContains('c##test_create_database', $databases);
@@ -144,16 +144,16 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
         $offlineForeignTable->setPrimaryKey(array('id'));
 
-        $this->_sm->tryMethod('dropTable', $foreignTableName);
-        $this->_sm->tryMethod('dropTable', $primaryTableName);
+        $this->sm->tryMethod('dropTable', $foreignTableName);
+        $this->sm->tryMethod('dropTable', $primaryTableName);
 
-        $this->_sm->createTable($offlinePrimaryTable);
-        $this->_sm->createTable($offlineForeignTable);
+        $this->sm->createTable($offlinePrimaryTable);
+        $this->sm->createTable($offlineForeignTable);
 
-        $onlinePrimaryTable = $this->_sm->listTableDetails($primaryTableName);
-        $onlineForeignTable = $this->_sm->listTableDetails($foreignTableName);
+        $onlinePrimaryTable = $this->sm->listTableDetails($primaryTableName);
+        $onlineForeignTable = $this->sm->listTableDetails($foreignTableName);
 
-        $platform = $this->_sm->getDatabasePlatform();
+        $platform = $this->sm->getDatabasePlatform();
 
         // Primary table assertions
         self::assertSame($primaryTableName, $onlinePrimaryTable->getQuotedName($platform));
@@ -222,13 +222,13 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableColumnsSameTableNamesInDifferentSchemas()
     {
         $table = $this->createListTableColumns();
-        $this->_sm->dropAndCreateTable($table);
+        $this->sm->dropAndCreateTable($table);
 
         $otherTable = new Table($table->getName());
         $otherTable->addColumn('id', Type::STRING);
         TestUtil::getTempConnection()->getSchemaManager()->dropAndCreateTable($otherTable);
 
-        $columns = $this->_sm->listTableColumns($table->getName(), $this->_conn->getUsername());
+        $columns = $this->sm->listTableColumns($table->getName(), $this->conn->getUsername());
         self::assertCount(7, $columns);
     }
 
@@ -238,16 +238,16 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testListTableIndexesPrimaryKeyConstraintNameDiffersFromIndexName()
     {
         $table = new Table('list_table_indexes_pk_id_test');
-        $table->setSchemaConfig($this->_sm->createSchemaConfig());
+        $table->setSchemaConfig($this->sm->createSchemaConfig());
         $table->addColumn('id', 'integer', array('notnull' => true));
         $table->addUniqueIndex(array('id'), 'id_unique_index');
-        $this->_sm->dropAndCreateTable($table);
+        $this->sm->dropAndCreateTable($table);
 
         // Adding a primary key on already indexed columns
         // Oracle will reuse the unique index, which cause a constraint name differing from the index name
-        $this->_sm->createConstraint(new Schema\Index('id_pk_id_index', array('id'), true, true), 'list_table_indexes_pk_id_test');
+        $this->sm->createConstraint(new Schema\Index('id_pk_id_index', array('id'), true, true), 'list_table_indexes_pk_id_test');
 
-        $tableIndexes = $this->_sm->listTableIndexes('list_table_indexes_pk_id_test');
+        $tableIndexes = $this->sm->listTableIndexes('list_table_indexes_pk_id_test');
 
         self::assertArrayHasKey('primary', $tableIndexes, 'listTableIndexes() has to return a "primary" array key.');
         self::assertEquals(array('id'), array_map('strtolower', $tableIndexes['primary']->getColumns()));
@@ -265,9 +265,9 @@ class OracleSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('col_datetime', 'datetime');
         $table->addColumn('col_datetimetz', 'datetimetz');
 
-        $this->_sm->dropAndCreateTable($table);
+        $this->sm->dropAndCreateTable($table);
 
-        $columns = $this->_sm->listTableColumns('tbl_date');
+        $columns = $this->sm->listTableColumns('tbl_date');
 
         self::assertSame('date', $columns['col_date']->getType()->getName());
         self::assertSame('datetime', $columns['col_datetime']->getType()->getName());

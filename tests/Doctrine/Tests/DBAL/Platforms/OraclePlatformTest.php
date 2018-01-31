@@ -93,32 +93,32 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testRLike()
     {
-        self::assertEquals('RLIKE', $this->_platform->getRegexpExpression(), 'Regular expression operator is not correct');
+        self::assertEquals('RLIKE', $this->platform->getRegexpExpression(), 'Regular expression operator is not correct');
     }
 
     public function testGeneratesSqlSnippets()
     {
-        self::assertEquals('"', $this->_platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
-        self::assertEquals('column1 || column2 || column3', $this->_platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
+        self::assertEquals('"', $this->platform->getIdentifierQuoteCharacter(), 'Identifier quote character is not correct');
+        self::assertEquals('column1 || column2 || column3', $this->platform->getConcatExpression('column1', 'column2', 'column3'), 'Concatenation expression is not correct');
     }
 
     public function testGeneratesTransactionsCommands()
     {
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
         );
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL READ COMMITTED',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
+            $this->platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
         );
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
+            $this->platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
         );
         self::assertEquals(
             'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
+            $this->platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
         );
     }
 
@@ -127,32 +127,32 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testCreateDatabaseThrowsException()
     {
-        self::assertEquals('CREATE DATABASE foobar', $this->_platform->getCreateDatabaseSQL('foobar'));
+        self::assertEquals('CREATE DATABASE foobar', $this->platform->getCreateDatabaseSQL('foobar'));
     }
 
     public function testDropDatabaseThrowsException()
     {
-        self::assertEquals('DROP USER foobar CASCADE', $this->_platform->getDropDatabaseSQL('foobar'));
+        self::assertEquals('DROP USER foobar CASCADE', $this->platform->getDropDatabaseSQL('foobar'));
     }
 
     public function testDropTable()
     {
-        self::assertEquals('DROP TABLE foobar', $this->_platform->getDropTableSQL('foobar'));
+        self::assertEquals('DROP TABLE foobar', $this->platform->getDropTableSQL('foobar'));
     }
 
     public function testGeneratesTypeDeclarationForIntegers()
     {
         self::assertEquals(
             'NUMBER(10)',
-            $this->_platform->getIntegerTypeDeclarationSQL(array())
+            $this->platform->getIntegerTypeDeclarationSQL(array())
         );
         self::assertEquals(
             'NUMBER(10)',
-            $this->_platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
+            $this->platform->getIntegerTypeDeclarationSQL(array('autoincrement' => true)
             ));
         self::assertEquals(
             'NUMBER(10)',
-            $this->_platform->getIntegerTypeDeclarationSQL(
+            $this->platform->getIntegerTypeDeclarationSQL(
                 array('autoincrement' => true, 'primary' => true)
             ));
     }
@@ -161,34 +161,34 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'CHAR(10)',
-            $this->_platform->getVarcharTypeDeclarationSQL(
+            $this->platform->getVarcharTypeDeclarationSQL(
                 array('length' => 10, 'fixed' => true)
             ));
         self::assertEquals(
             'VARCHAR2(50)',
-            $this->_platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
+            $this->platform->getVarcharTypeDeclarationSQL(array('length' => 50)),
             'Variable string declaration is not correct'
         );
         self::assertEquals(
             'VARCHAR2(255)',
-            $this->_platform->getVarcharTypeDeclarationSQL(array()),
+            $this->platform->getVarcharTypeDeclarationSQL(array()),
             'Long string declaration is not correct'
         );
     }
 
     public function testPrefersIdentityColumns()
     {
-        self::assertFalse($this->_platform->prefersIdentityColumns());
+        self::assertFalse($this->platform->prefersIdentityColumns());
     }
 
     public function testSupportsIdentityColumns()
     {
-        self::assertFalse($this->_platform->supportsIdentityColumns());
+        self::assertFalse($this->platform->supportsIdentityColumns());
     }
 
     public function testSupportsSavePoints()
     {
-        self::assertTrue($this->_platform->supportsSavepoints());
+        self::assertTrue($this->platform->supportsSavepoints());
     }
 
     /**
@@ -223,7 +223,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     {
         $foreignKey = new ForeignKeyConstraint(array('foo'), 'foreign_table', array('bar'), null, $options);
 
-        self::assertSame($expectedSql, $this->_platform->getAdvancedForeignKeyOptionsSQL($foreignKey));
+        self::assertSame($expectedSql, $this->platform->getAdvancedForeignKeyOptionsSQL($foreignKey));
     }
 
     /**
@@ -257,37 +257,37 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testModifyLimitQuery()
     {
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 0);
         self::assertEquals('SELECT a.* FROM (SELECT * FROM user) a WHERE ROWNUM <= 10', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
     {
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10);
         self::assertEquals('SELECT a.* FROM (SELECT * FROM user) a WHERE ROWNUM <= 10', $sql);
     }
 
     public function testModifyLimitQueryWithNonEmptyOffset()
     {
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', 10, 10);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', 10, 10);
         self::assertEquals('SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a WHERE ROWNUM <= 20) WHERE doctrine_rownum >= 11', $sql);
     }
 
     public function testModifyLimitQueryWithEmptyLimit()
     {
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user', null, 10);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user', null, 10);
         self::assertEquals('SELECT * FROM (SELECT a.*, ROWNUM AS doctrine_rownum FROM (SELECT * FROM user) a) WHERE doctrine_rownum >= 11', $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy()
     {
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username ASC', 10);
         self::assertEquals('SELECT a.* FROM (SELECT * FROM user ORDER BY username ASC) a WHERE ROWNUM <= 10', $sql);
     }
 
     public function testModifyLimitQueryWithDescOrderBy()
     {
-        $sql = $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
+        $sql = $this->platform->modifyLimitQuery('SELECT * FROM user ORDER BY username DESC', 10);
         self::assertEquals('SELECT a.* FROM (SELECT * FROM user ORDER BY username DESC) a WHERE ROWNUM <= 10', $sql);
     }
 
@@ -304,7 +304,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             "CREATE SEQUENCE {$tableName}_SEQ START WITH 1 MINVALUE 1 INCREMENT BY 1",
             "CREATE TRIGGER {$tableName}_AI_PK BEFORE INSERT ON {$tableName} FOR EACH ROW DECLARE last_Sequence NUMBER; last_InsertID NUMBER; BEGIN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; IF (:NEW.{$columnName} IS NULL OR :NEW.{$columnName} = 0) THEN SELECT {$tableName}_SEQ.NEXTVAL INTO :NEW.{$columnName} FROM DUAL; ELSE SELECT NVL(Last_Number, 0) INTO last_Sequence FROM User_Sequences WHERE Sequence_Name = '{$tableName}_SEQ'; SELECT :NEW.{$columnName} INTO last_InsertID FROM DUAL; WHILE (last_InsertID > last_Sequence) LOOP SELECT {$tableName}_SEQ.NEXTVAL INTO last_Sequence FROM DUAL; END LOOP; END IF; END;"
         );
-        $statements = $this->_platform->getCreateTableSQL($table);
+        $statements = $this->platform->getCreateTableSQL($table);
         //strip all the whitespace from the statements
         array_walk($statements, function(&$value){
             $value = preg_replace('/\s+/', ' ',$value);
@@ -413,7 +413,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         $expectedSql = array(
             "ALTER TABLE mytable MODIFY (foo VARCHAR2(255) DEFAULT 'bla', baz VARCHAR2(255) DEFAULT 'bla' NOT NULL, metar VARCHAR2(2000) DEFAULT NULL NULL)",
         );
-        self::assertEquals($expectedSql, $this->_platform->getAlterTableSQL($tableDiff));
+        self::assertEquals($expectedSql, $this->platform->getAlterTableSQL($tableDiff));
     }
 
     /**
@@ -421,14 +421,14 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testInitializesDoctrineTypeMappings()
     {
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('long raw'));
-        self::assertSame('blob', $this->_platform->getDoctrineTypeMapping('long raw'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('long raw'));
+        self::assertSame('blob', $this->platform->getDoctrineTypeMapping('long raw'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('raw'));
-        self::assertSame('binary', $this->_platform->getDoctrineTypeMapping('raw'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('raw'));
+        self::assertSame('binary', $this->platform->getDoctrineTypeMapping('raw'));
 
-        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('date'));
-        self::assertSame('date', $this->_platform->getDoctrineTypeMapping('date'));
+        self::assertTrue($this->platform->hasDoctrineTypeMappingFor('date'));
+        self::assertSame('date', $this->platform->getDoctrineTypeMapping('date'));
     }
 
     protected function getBinaryMaxLength()
@@ -438,15 +438,15 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
     public function testReturnsBinaryTypeDeclarationSQL()
     {
-        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(array()));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 2000)));
-        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('length' => 2001)));
+        self::assertSame('RAW(255)', $this->platform->getBinaryTypeDeclarationSQL(array()));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(array('length' => 0)));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(array('length' => 2000)));
+        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(array('length' => 2001)));
 
-        self::assertSame('RAW(255)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
-        self::assertSame('RAW(2000)', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2000)));
-        self::assertSame('BLOB', $this->_platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2001)));
+        self::assertSame('RAW(255)', $this->platform->getBinaryTypeDeclarationSQL(array('fixed' => true)));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 0)));
+        self::assertSame('RAW(2000)', $this->platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2000)));
+        self::assertSame('BLOB', $this->platform->getBinaryTypeDeclarationSQL(array('fixed' => true, 'length' => 2001)));
     }
 
     public function testDoesNotPropagateUnnecessaryTableAlterationOnBinaryType()
@@ -463,7 +463,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
 
         // VARBINARY -> BINARY
         // BINARY    -> VARBINARY
-        self::assertEmpty($this->_platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
+        self::assertEmpty($this->platform->getAlterTableSQL($comparator->diffTable($table1, $table2)));
     }
 
     /**
@@ -471,7 +471,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testUsesSequenceEmulatedIdentityColumns()
     {
-        self::assertTrue($this->_platform->usesSequenceEmulatedIdentityColumns());
+        self::assertTrue($this->platform->usesSequenceEmulatedIdentityColumns());
     }
 
     /**
@@ -480,10 +480,10 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsIdentitySequenceName()
     {
-        self::assertSame('MYTABLE_SEQ', $this->_platform->getIdentitySequenceName('mytable', 'mycolumn'));
-        self::assertSame('"mytable_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
-        self::assertSame('MYTABLE_SEQ', $this->_platform->getIdentitySequenceName('mytable', '"mycolumn"'));
-        self::assertSame('"mytable_SEQ"', $this->_platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
+        self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', 'mycolumn'));
+        self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', 'mycolumn'));
+        self::assertSame('MYTABLE_SEQ', $this->platform->getIdentitySequenceName('mytable', '"mycolumn"'));
+        self::assertSame('"mytable_SEQ"', $this->platform->getIdentitySequenceName('"mytable"', '"mycolumn"'));
     }
 
     /**
@@ -493,7 +493,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
     public function testCreateSequenceWithCache($cacheSize, $expectedSql)
     {
         $sequence = new \Doctrine\DBAL\Schema\Sequence('foo', 1, 1, $cacheSize);
-        self::assertContains($expectedSql, $this->_platform->getCreateSequenceSQL($sequence));
+        self::assertContains($expectedSql, $this->platform->getCreateSequenceSQL($sequence));
     }
 
     public function dataCreateSequenceWithCache()
@@ -583,7 +583,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsGuidTypeDeclarationSQL()
     {
-        self::assertSame('CHAR(36)', $this->_platform->getGuidTypeDeclarationSQL(array()));
+        self::assertSame('CHAR(36)', $this->platform->getGuidTypeDeclarationSQL(array()));
     }
 
     /**
@@ -602,7 +602,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
      */
     public function testReturnsDropAutoincrementSQL($table, $expectedSql)
     {
-        self::assertSame($expectedSql, $this->_platform->getDropAutoincrementSql($table));
+        self::assertSame($expectedSql, $this->platform->getDropAutoincrementSql($table));
     }
 
     public function getReturnsDropAutoincrementSQL()
@@ -682,7 +682,7 @@ class OraclePlatformTest extends AbstractPlatformTestCase
             array(
                 'COMMENT ON COLUMN "foo"."bar" IS \'baz\'',
             ),
-            $this->_platform->getAlterTableSQL($tableDiff)
+            $this->platform->getAlterTableSQL($tableDiff)
         );
     }
 
@@ -694,9 +694,9 @@ class OraclePlatformTest extends AbstractPlatformTestCase
         // assert tabel
         self::assertTrue($table->isQuoted());
         self::assertEquals('test', $table->getName());
-        self::assertEquals('"test"', $table->getQuotedName($this->_platform));
+        self::assertEquals('"test"', $table->getQuotedName($this->platform));
 
-        $sql = $this->_platform->getCreateTableSQL($table);
+        $sql = $this->platform->getCreateTableSQL($table);
         self::assertEquals('CREATE TABLE "test" ("id" NUMBER(10) NOT NULL)', $sql[0]);
         self::assertEquals('CREATE SEQUENCE "test_SEQ" START WITH 1 MINVALUE 1 INCREMENT BY 1', $sql[2]);
         $createTriggerStatement = <<<EOD
@@ -735,7 +735,7 @@ EOD;
         // note: this assertion is a bit strict, as it compares a full SQL string.
         // Should this break in future, then please try to reduce the matching to substring matching while reworking
         // the tests
-        self::assertEquals($expectedSql, $this->_platform->getListTableColumnsSQL('"test"', $database));
+        self::assertEquals($expectedSql, $this->platform->getListTableColumnsSQL('"test"', $database));
     }
 
     public function getReturnsGetListTableColumnsSQL()
@@ -832,7 +832,7 @@ EOD;
      */
     public function testQuotesDatabaseNameInListSequencesSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListSequencesSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListSequencesSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -840,7 +840,7 @@ EOD;
      */
     public function testQuotesTableNameInListTableIndexesSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableIndexesSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -848,7 +848,7 @@ EOD;
      */
     public function testQuotesTableNameInListTableForeignKeysSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableForeignKeysSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -856,7 +856,7 @@ EOD;
      */
     public function testQuotesTableNameInListTableConstraintsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableConstraintsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -864,7 +864,7 @@ EOD;
      */
     public function testQuotesTableNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableColumnsSQL("Foo'Bar\\"), '', true);
     }
 
     /**
@@ -872,6 +872,6 @@ EOD;
      */
     public function testQuotesDatabaseNameInListTableColumnsSQL()
     {
-        self::assertContains("'Foo''Bar\\\\'", $this->_platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
+        self::assertContains("'Foo''Bar\\\\'", $this->platform->getListTableColumnsSQL('foo_table', "Foo'Bar\\"), '', true);
     }
 }

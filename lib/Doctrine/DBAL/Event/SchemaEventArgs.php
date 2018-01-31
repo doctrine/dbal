@@ -16,14 +16,14 @@ class SchemaEventArgs extends EventArgs
     /**
      * @var boolean
      */
-    private $_preventDefault = false;
+    private $preventDefault = false;
 
     /**
      * @return \Doctrine\DBAL\Event\SchemaEventArgs
      */
     public function preventDefault()
     {
-        $this->_preventDefault = true;
+        $this->preventDefault = true;
 
         return $this;
     }
@@ -33,6 +33,6 @@ class SchemaEventArgs extends EventArgs
      */
     public function isDefaultPrevented()
     {
-        return $this->_preventDefault;
+        return $this->preventDefault;
     }
 }

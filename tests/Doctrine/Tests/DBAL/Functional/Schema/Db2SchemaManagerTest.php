@@ -15,9 +15,9 @@ class Db2SchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('bool', 'boolean');
         $table->addColumn('bool_commented', 'boolean', array('comment' => "That's a comment"));
 
-        $this->_sm->createTable($table);
+        $this->sm->createTable($table);
 
-        $columns = $this->_sm->listTableColumns('boolean_column_test');
+        $columns = $this->sm->listTableColumns('boolean_column_test');
 
         self::assertInstanceOf('Doctrine\DBAL\Types\BooleanType', $columns['bool']->getType());
         self::assertInstanceOf('Doctrine\DBAL\Types\BooleanType', $columns['bool_commented']->getType());

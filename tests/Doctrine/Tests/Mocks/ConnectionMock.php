@@ -4,19 +4,19 @@ namespace Doctrine\Tests\Mocks;
 
 class ConnectionMock extends \Doctrine\DBAL\Connection
 {
-    private $_fetchOneResult;
-    private $_platformMock;
-    private $_lastInsertId = 0;
-    private $_inserts = array();
+    private $fetchOneResult;
+    private $platformMock;
+    private $lastInsertId = 0;
+    private $inserts = array();
 
     public function __construct(array $params, $driver, $config = null, $eventManager = null)
     {
-        $this->_platformMock = new DatabasePlatformMock();
+        $this->platformMock = new DatabasePlatformMock();
 
         parent::__construct($params, $driver, $config, $eventManager);
 
         // Override possible assignment of platform to database platform mock
-        $this->_platform = $this->_platformMock;
+        $this->platform = $this->platformMock;
     }
 
     /**
@@ -24,7 +24,7 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
      */
     public function getDatabasePlatform()
     {
-        return $this->_platformMock;
+        return $this->platformMock;
     }
 
     /**
@@ -32,7 +32,7 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
      */
     public function insert($tableName, array $data, array $types = array())
     {
-        $this->_inserts[$tableName][] = $data;
+        $this->inserts[$tableName][] = $data;
     }
 
     /**
@@ -40,7 +40,7 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
      */
     public function lastInsertId($seqName = null)
     {
-        return $this->_lastInsertId;
+        return $this->lastInsertId;
     }
 
     /**
@@ -48,7 +48,7 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
      */
     public function fetchColumn($statement, array $params = array(), $colnum = 0, array $types = array())
     {
-        return $this->_fetchOneResult;
+        return $this->fetchOneResult;
     }
 
     /**
@@ -66,22 +66,22 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
 
     public function setFetchOneResult($fetchOneResult)
     {
-        $this->_fetchOneResult = $fetchOneResult;
+        $this->fetchOneResult = $fetchOneResult;
     }
 
     public function setLastInsertId($id)
     {
-        $this->_lastInsertId = $id;
+        $this->lastInsertId = $id;
     }
 
     public function getInserts()
     {
-        return $this->_inserts;
+        return $this->inserts;
     }
 
     public function reset()
     {
-        $this->_inserts = array();
-        $this->_lastInsertId = 0;
+        $this->inserts = array();
+        $this->lastInsertId = 0;
     }
 }

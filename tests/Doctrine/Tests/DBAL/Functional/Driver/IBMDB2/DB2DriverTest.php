@@ -15,7 +15,7 @@ class DB2DriverTest extends AbstractDriverTest
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof DB2Driver) {
+        if (! $this->conn->getDriver() instanceof DB2Driver) {
             $this->markTestSkipped('ibm_db2 only test.');
         }
     }

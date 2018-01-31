@@ -19,7 +19,7 @@ class MockPlatform extends AbstractPlatform
     public function getIntegerTypeDeclarationSQL(array $columnDef) {}
     public function getBigIntTypeDeclarationSQL(array $columnDef) {}
     public function getSmallIntTypeDeclarationSQL(array $columnDef) {}
-    public function _getCommonIntegerTypeDeclarationSQL(array $columnDef) {}
+    public function getCommonIntegerTypeDeclarationSQL(array $columnDef) {}
 
     public function getVarcharTypeDeclarationSQL(array $field)
     {

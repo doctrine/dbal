@@ -122,7 +122,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getIntegerTypeDeclarationSQL(array $columnDef)
     {
-        return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'INTEGER' . $this->getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
@@ -130,7 +130,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getBigIntTypeDeclarationSQL(array $columnDef)
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'BIGINT' . $this->getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
@@ -138,13 +138,13 @@ class DB2Platform extends AbstractPlatform
      */
     public function getSmallIntTypeDeclarationSQL(array $columnDef)
     {
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($columnDef);
+        return 'SMALLINT' . $this->getCommonIntegerTypeDeclarationSQL($columnDef);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
         $autoinc = '';
         if ( ! empty($columnDef['autoincrement'])) {
@@ -460,7 +460,7 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function buildCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $indexes = [];
         if (isset($options['indexes'])) {
@@ -468,7 +468,7 @@ class DB2Platform extends AbstractPlatform
         }
         $options['indexes'] = [];
 
-        $sqls = parent::_getCreateTableSQL($tableName, $columns, $options);
+        $sqls = parent::buildCreateTableSQL($tableName, $columns, $options);
 
         foreach ($indexes as $definition) {
             $sqls[] = $this->getCreateIndexSQL($definition, $tableName);

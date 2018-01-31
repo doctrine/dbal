@@ -17,7 +17,7 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
 
         parent::setUp();
 
-        if ( ! $this->_conn->getDatabasePlatform() instanceof PostgreSqlPlatform) {
+        if ( ! $this->conn->getDatabasePlatform() instanceof PostgreSqlPlatform) {
             $this->markTestSkipped('PDOPgsql only test.');
         }
     }
@@ -32,13 +32,13 @@ class PDOPgsqlConnectionTest extends DbalFunctionalTestCase
      */
     public function testConnectsWithValidCharsetOption($charset)
     {
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         $params['charset'] = $charset;
 
         $connection = DriverManager::getConnection(
             $params,
-            $this->_conn->getConfiguration(),
-            $this->_conn->getEventManager()
+            $this->conn->getConfiguration(),
+            $this->conn->getEventManager()
         );
 
         self::assertEquals(

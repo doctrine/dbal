@@ -36,7 +36,7 @@ class Sequence extends AbstractAsset
      */
     public function __construct($name, $allocationSize = 1, $initialValue = 1, $cache = null)
     {
-        $this->_setName($name);
+        $this->setName($name);
         $this->allocationSize = is_numeric($allocationSize) ? $allocationSize : 1;
         $this->initialValue = is_numeric($initialValue) ? $initialValue : 1;
         $this->cache = $cache;

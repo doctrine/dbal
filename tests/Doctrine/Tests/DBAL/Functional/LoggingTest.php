@@ -6,7 +6,7 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
     public function testLogExecuteQuery()
     {
-        $sql = $this->_conn->getDatabasePlatform()->getDummySelectSQL();
+        $sql = $this->conn->getDatabasePlatform()->getDummySelectSQL();
 
         $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
         $logMock->expects($this->at(0))
@@ -14,15 +14,15 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 ->with($this->equalTo($sql), $this->equalTo(array()), $this->equalTo(array()));
         $logMock->expects($this->at(1))
                 ->method('stopQuery');
-        $this->_conn->getConfiguration()->setSQLLogger($logMock);
-        $this->_conn->executeQuery($sql, array());
+        $this->conn->getConfiguration()->setSQLLogger($logMock);
+        $this->conn->executeQuery($sql, array());
     }
 
     public function testLogExecuteUpdate()
     {
         $this->markTestSkipped('Test breaks MySQL but works on all other platforms (Unbuffered Queries stuff).');
 
-        $sql = $this->_conn->getDatabasePlatform()->getDummySelectSQL();
+        $sql = $this->conn->getDatabasePlatform()->getDummySelectSQL();
 
         $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
         $logMock->expects($this->at(0))
@@ -30,13 +30,13 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 ->with($this->equalTo($sql), $this->equalTo(array()), $this->equalTo(array()));
         $logMock->expects($this->at(1))
                 ->method('stopQuery');
-        $this->_conn->getConfiguration()->setSQLLogger($logMock);
-        $this->_conn->executeUpdate($sql, array());
+        $this->conn->getConfiguration()->setSQLLogger($logMock);
+        $this->conn->executeUpdate($sql, array());
     }
 
     public function testLogPrepareExecute()
     {
-        $sql = $this->_conn->getDatabasePlatform()->getDummySelectSQL();
+        $sql = $this->conn->getDatabasePlatform()->getDummySelectSQL();
 
         $logMock = $this->createMock('Doctrine\DBAL\Logging\SQLLogger');
         $logMock->expects($this->once())
@@ -44,9 +44,9 @@ class LoggingTest extends \Doctrine\Tests\DbalFunctionalTestCase
                 ->with($this->equalTo($sql), $this->equalTo(array()));
         $logMock->expects($this->at(1))
                 ->method('stopQuery');
-        $this->_conn->getConfiguration()->setSQLLogger($logMock);
+        $this->conn->getConfiguration()->setSQLLogger($logMock);
 
-        $stmt = $this->_conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute();
     }
 }
