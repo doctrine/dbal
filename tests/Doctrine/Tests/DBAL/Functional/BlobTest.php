@@ -54,26 +54,43 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testSelect()
     {
-        $this->_conn->insert('blob_table',
-            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
-            array(ParameterType::INTEGER, ParameterType::STRING, ParameterType::LARGE_OBJECT, ParameterType::LARGE_OBJECT)
-        );
+        $this->_conn->insert('blob_table', [
+            'id'          => 1,
+            'clobfield'   => 'test',
+            'blobfield'   => 'test',
+            'binaryfield' => 'test',
+        ], [
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            ParameterType::LARGE_OBJECT,
+            ParameterType::LARGE_OBJECT,
+        ]);
 
         $this->assertBlobContains('test');
     }
 
     public function testUpdate()
     {
-        $this->_conn->insert('blob_table',
-            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
-            array(ParameterType::INTEGER, ParameterType::STRING, ParameterType::LARGE_OBJECT, ParameterType::LARGE_OBJECT)
-        );
+        $this->_conn->insert('blob_table', [
+            'id' => 1,
+            'clobfield' => 'test',
+            'blobfield' => 'test',
+            'binaryfield' => 'test',
+        ], [
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            ParameterType::LARGE_OBJECT,
+            ParameterType::LARGE_OBJECT,
+        ]);
 
-        $this->_conn->update('blob_table',
-            array('blobfield' => 'test2', 'binaryfield' => 'test2'),
-            array('id' => 1),
-            array(ParameterType::LARGE_OBJECT, ParameterType::LARGE_OBJECT, ParameterType::INTEGER)
-        );
+        $this->_conn->update('blob_table', [
+            'blobfield' => 'test2',
+            'binaryfield' => 'test2',
+        ], ['id' => 1], [
+            ParameterType::LARGE_OBJECT,
+            ParameterType::LARGE_OBJECT,
+            ParameterType::INTEGER,
+        ]);
 
         $this->assertBlobContains('test2');
         $this->assertBinaryContains('test2');

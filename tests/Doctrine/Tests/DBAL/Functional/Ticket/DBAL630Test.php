@@ -55,8 +55,8 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->_conn->executeUpdate(
             'INSERT INTO dbal630 (bool_col) VALUES(?)',
-            array('false'),
-            array(ParameterType::BOOLEAN)
+            ['false'],
+            [ParameterType::BOOLEAN]
         );
         $id = $this->_conn->lastInsertId('dbal630_id_seq');
         self::assertNotEmpty($id);

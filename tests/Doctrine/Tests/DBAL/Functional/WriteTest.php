@@ -32,10 +32,10 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testExecuteUpdateFirstTypeIsNull()
     {
         $sql = "INSERT INTO write_table (test_string, test_int) VALUES (?, ?)";
-        $this->_conn->executeUpdate($sql, array("text", 1111), array(null, ParameterType::INTEGER));
+        $this->_conn->executeUpdate($sql, ['text', 1111], [null, ParameterType::INTEGER]);
 
         $sql = "SELECT * FROM write_table WHERE test_string = ? AND test_int = ?";
-        self::assertTrue((bool)$this->_conn->fetchColumn($sql, array("text", 1111)));
+        self::assertTrue((bool) $this->_conn->fetchColumn($sql, ['text', 1111]));
     }
 
     public function testExecuteUpdate()
@@ -51,8 +51,8 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
         $affected = $this->_conn->executeUpdate(
             $sql,
-            array(1, 'foo'),
-            array(ParameterType::INTEGER, ParameterType::STRING)
+            [1, 'foo'],
+            [ParameterType::INTEGER, ParameterType::STRING]
         );
 
         self::assertEquals(1, $affected, "executeUpdate() should return the number of affected rows!");
@@ -76,7 +76,7 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $this->_conn->prepare($sql);
 
         $stmt->bindValue(1, 1, ParameterType::INTEGER);
-        $stmt->bindValue(2, "foo", ParameterType::STRING);
+        $stmt->bindValue(2, 'foo', ParameterType::STRING);
         $stmt->execute();
 
         self::assertEquals(1, $stmt->rowCount());

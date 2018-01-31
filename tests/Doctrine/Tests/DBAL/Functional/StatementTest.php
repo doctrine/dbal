@@ -104,9 +104,7 @@ d+N0hqezcjblboJ3Bj8ARJilHX4FAAA=
 EOF
     );
 
-        $this->_conn->insert('stmt_long_blob', array(
-            'contents' => $contents,
-        ), array(ParameterType::LARGE_OBJECT));
+        $this->_conn->insert('stmt_long_blob', ['contents' => $contents], [ParameterType::LARGE_OBJECT]);
 
         $stmt = $this->_conn->prepare('SELECT contents FROM stmt_long_blob');
         $stmt->execute();

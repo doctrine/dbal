@@ -495,9 +495,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testFetchAssoc()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = array(666);
-        $types     = array(ParameterType::INTEGER);
-        $result    = array();
+        $params    = [666];
+        $types     = [ParameterType::INTEGER];
+        $result    = [];
 
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
 
@@ -531,9 +531,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testFetchArray()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = array(666);
-        $types     = array(ParameterType::INTEGER);
-        $result    = array();
+        $params    = [666];
+        $types     = [ParameterType::INTEGER];
+        $result    = [];
 
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
 
@@ -567,10 +567,10 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testFetchColumn()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = array(666);
-        $types     = array(ParameterType::INTEGER);
+        $params    = [666];
+        $types     = [ParameterType::INTEGER];
         $column    = 0;
-        $result    = array();
+        $result    = [];
 
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
 
@@ -627,9 +627,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testFetchAll()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = array(666);
-        $types     = array(ParameterType::INTEGER);
-        $result    = array();
+        $params    = [666];
+        $types     = [ParameterType::INTEGER];
+        $result    = [];
 
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
 

@@ -96,7 +96,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * The fetch style.
      *
-     * @param int
+     * @var int
      */
     private $defaultFetchMode = FetchMode::MIXED;
 

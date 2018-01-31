@@ -123,7 +123,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
             return reset($row);
         }
 
-        throw new \InvalidArgumentException("Invalid fetch-style given for fetching result.");
+        throw new \InvalidArgumentException('Invalid fetch-style given for fetching result.');
     }
 
     /**

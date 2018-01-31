@@ -128,7 +128,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertArrayHasKey('test_string', $row, "Case should be lowered.");
         self::assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
         self::assertNull($row['test_null']);
-        self::assertArrayNotHasKey(0, $row, "The row should not contain numerical keys.");
+        self::assertArrayNotHasKey(0, $row, 'The row should not contain numerical keys.');
     }
 
     /**

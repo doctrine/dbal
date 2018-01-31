@@ -874,7 +874,10 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb->where('is_active = :isActive');
         $qb->setParameter('isActive', true, ParameterType::BOOLEAN);
 
-        self::assertSame(array('name' => ParameterType::STRING, 'isActive' => ParameterType::BOOLEAN), $qb->getParameterTypes());
+        self::assertSame([
+            'name'     => ParameterType::STRING,
+            'isActive' => ParameterType::BOOLEAN,
+        ], $qb->getParameterTypes());
     }
 
     /**
