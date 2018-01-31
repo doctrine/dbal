@@ -28,7 +28,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @var \Doctrine\DBAL\Connection
      */
-    protected $_conn = null;
+    protected $conn = null;
 
     protected $params = array(
         'driver' => 'pdo_mysql',
@@ -40,7 +40,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
     protected function setUp()
     {
-        $this->_conn = \Doctrine\DBAL\DriverManager::getConnection($this->params);
+        $this->conn = \Doctrine\DBAL\DriverManager::getConnection($this->params);
     }
 
     public function getExecuteUpdateMockConnection()
@@ -63,73 +63,73 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
     public function testIsConnected()
     {
-        self::assertFalse($this->_conn->isConnected());
+        self::assertFalse($this->conn->isConnected());
     }
 
     public function testNoTransactionActiveByDefault()
     {
-        self::assertFalse($this->_conn->isTransactionActive());
+        self::assertFalse($this->conn->isTransactionActive());
     }
 
     public function testCommitWithNoActiveTransaction_ThrowsException()
     {
         $this->expectException(ConnectionException::class);
-        $this->_conn->commit();
+        $this->conn->commit();
     }
 
     public function testRollbackWithNoActiveTransaction_ThrowsException()
     {
         $this->expectException(ConnectionException::class);
-        $this->_conn->rollBack();
+        $this->conn->rollBack();
     }
 
     public function testSetRollbackOnlyNoActiveTransaction_ThrowsException()
     {
         $this->expectException(ConnectionException::class);
-        $this->_conn->setRollbackOnly();
+        $this->conn->setRollbackOnly();
     }
 
     public function testIsRollbackOnlyNoActiveTransaction_ThrowsException()
     {
         $this->expectException(ConnectionException::class);
-        $this->_conn->isRollbackOnly();
+        $this->conn->isRollbackOnly();
     }
 
     public function testGetConfiguration()
     {
-        $config = $this->_conn->getConfiguration();
+        $config = $this->conn->getConfiguration();
 
         self::assertInstanceOf('Doctrine\DBAL\Configuration', $config);
     }
 
     public function testGetHost()
     {
-        self::assertEquals('localhost', $this->_conn->getHost());
+        self::assertEquals('localhost', $this->conn->getHost());
     }
 
     public function testGetPort()
     {
-        self::assertEquals('1234', $this->_conn->getPort());
+        self::assertEquals('1234', $this->conn->getPort());
     }
 
     public function testGetUsername()
     {
-        self::assertEquals('root', $this->_conn->getUsername());
+        self::assertEquals('root', $this->conn->getUsername());
     }
 
     public function testGetPassword()
     {
-        self::assertEquals('password', $this->_conn->getPassword());
+        self::assertEquals('password', $this->conn->getPassword());
     }
 
     public function testGetDriver()
     {
-        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $this->_conn->getDriver());
+        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOMySql\Driver', $this->conn->getDriver());
     }
 
     public function testGetEventManager()
     {
-        self::assertInstanceOf('Doctrine\Common\EventManager', $this->_conn->getEventManager());
+        self::assertInstanceOf('Doctrine\Common\EventManager', $this->conn->getEventManager());
     }
 
     public function testConnectDispatchEvent()
@@ -196,8 +196,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testEchoSQLLogger()
     {
         $logger = new \Doctrine\DBAL\Logging\EchoSQLLogger();
-        $this->_conn->getConfiguration()->setSQLLogger($logger);
-        self::assertSame($logger, $this->_conn->getConfiguration()->getSQLLogger());
+        $this->conn->getConfiguration()->setSQLLogger($logger);
+        self::assertSame($logger, $this->conn->getConfiguration()->getSQLLogger());
     }
 
     /**
@@ -208,8 +208,8 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testDebugSQLStack()
     {
         $logger = new \Doctrine\DBAL\Logging\DebugStack();
-        $this->_conn->getConfiguration()->setSQLLogger($logger);
-        self::assertSame($logger, $this->_conn->getConfiguration()->getSQLLogger());
+        $this->conn->getConfiguration()->setSQLLogger($logger);
+        self::assertSame($logger, $this->conn->getConfiguration()->getSQLLogger());
     }
 
     /**
@@ -217,7 +217,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testIsAutoCommit()
     {
-        self::assertTrue($this->_conn->isAutoCommit());
+        self::assertTrue($this->conn->isAutoCommit());
     }
 
     /**
@@ -225,10 +225,10 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testSetAutoCommit()
     {
-        $this->_conn->setAutoCommit(false);
-        self::assertFalse($this->_conn->isAutoCommit());
-        $this->_conn->setAutoCommit(0);
-        self::assertFalse($this->_conn->isAutoCommit());
+        $this->conn->setAutoCommit(false);
+        self::assertFalse($this->conn->isAutoCommit());
+        $this->conn->setAutoCommit(0);
+        self::assertFalse($this->conn->isAutoCommit());
     }
 
     /**
@@ -611,7 +611,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         // artificially set the wrapped connection to non-null
         $reflection = new \ReflectionObject($connection);
-        $connProperty = $reflection->getProperty('_conn');
+        $connProperty = $reflection->getProperty('conn');
         $connProperty->setAccessible(true);
         $connProperty->setValue($connection, new \stdClass);
 

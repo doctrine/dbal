@@ -17,14 +17,14 @@ class ConnectionEventArgs extends EventArgs
     /**
      * @var \Doctrine\DBAL\Connection
      */
-    private $_connection;
+    private $connection;
 
     /**
      * @param \Doctrine\DBAL\Connection $connection
      */
     public function __construct(Connection $connection)
     {
-        $this->_connection = $connection;
+        $this->connection = $connection;
     }
 
     /**
@@ -32,7 +32,7 @@ class ConnectionEventArgs extends EventArgs
      */
     public function getConnection()
     {
-        return $this->_connection;
+        return $this->connection;
     }
 
     /**
@@ -40,7 +40,7 @@ class ConnectionEventArgs extends EventArgs
      */
     public function getDriver()
     {
-        return $this->_connection->getDriver();
+        return $this->connection->getDriver();
     }
 
     /**
@@ -48,7 +48,7 @@ class ConnectionEventArgs extends EventArgs
      */
     public function getDatabasePlatform()
     {
-        return $this->_connection->getDatabasePlatform();
+        return $this->connection->getDatabasePlatform();
     }
 
     /**
@@ -56,6 +56,6 @@ class ConnectionEventArgs extends EventArgs
      */
     public function getSchemaManager()
     {
-        return $this->_connection->getSchemaManager();
+        return $this->connection->getSchemaManager();
     }
 }

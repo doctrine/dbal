@@ -33,7 +33,7 @@ class StatementIteratorTest extends \Doctrine\Tests\DbalTestCase
             });
 
         $stmtIterator = new StatementIterator($stmt);
-        foreach ($stmtIterator as $i => $_) {
+        foreach ($stmtIterator as $i => $value) {
             $this->assertEquals($i + 1, $calls);
         }
     }

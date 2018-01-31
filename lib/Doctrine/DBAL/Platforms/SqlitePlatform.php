@@ -147,7 +147,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getTransactionIsolationLevelSQL($level)
+    protected function getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
             case \Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED:
@@ -157,7 +157,7 @@ class SqlitePlatform extends AbstractPlatform
             case \Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE:
                 return 1;
             default:
-                return parent::_getTransactionIsolationLevelSQL($level);
+                return parent::getTransactionIsolationLevelSQL($level);
         }
     }
 
@@ -166,7 +166,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getSetTransactionIsolationSQL($level)
     {
-        return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
+        return 'PRAGMA read_uncommitted = ' . $this->getTransactionIsolationLevelSQL($level);
     }
 
     /**
@@ -190,7 +190,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
-        return 'INTEGER' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INTEGER' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -203,7 +203,7 @@ class SqlitePlatform extends AbstractPlatform
             return $this->getIntegerTypeDeclarationSQL($field);
         }
 
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'BIGINT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -216,7 +216,7 @@ class SqlitePlatform extends AbstractPlatform
             return $this->getIntegerTypeDeclarationSQL($field);
         }
 
-        return 'TINYINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'TINYINT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -229,7 +229,7 @@ class SqlitePlatform extends AbstractPlatform
             return $this->getIntegerTypeDeclarationSQL($field);
         }
 
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'SMALLINT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -242,7 +242,7 @@ class SqlitePlatform extends AbstractPlatform
             return $this->getIntegerTypeDeclarationSQL($field);
         }
 
-        return 'MEDIUMINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'MEDIUMINT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -272,7 +272,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
         // sqlite autoincrement is implicit for integer PKs, but not when the field is unsigned
         if ( ! empty($columnDef['autoincrement'])) {
@@ -299,7 +299,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function buildCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $tableName = str_replace('.', '__', $tableName);
         $queryFields = $this->getColumnDeclarationListSQL($columns);

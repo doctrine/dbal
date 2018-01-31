@@ -129,14 +129,14 @@ abstract class AbstractPlatform
     /**
      * @var \Doctrine\Common\EventManager
      */
-    protected $_eventManager;
+    protected $eventManager;
 
     /**
      * Holds the KeywordList instance for the current platform.
      *
      * @var \Doctrine\DBAL\Platforms\Keywords\KeywordList
      */
-    protected $_keywords;
+    protected $keywords;
 
     /**
      * Constructor.
@@ -152,7 +152,7 @@ abstract class AbstractPlatform
      */
     public function setEventManager(EventManager $eventManager)
     {
-        $this->_eventManager = $eventManager;
+        $this->eventManager = $eventManager;
     }
 
     /**
@@ -162,7 +162,7 @@ abstract class AbstractPlatform
      */
     public function getEventManager()
     {
-        return $this->_eventManager;
+        return $this->eventManager;
     }
 
     /**
@@ -208,7 +208,7 @@ abstract class AbstractPlatform
      *
      * @return string
      */
-    abstract protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef);
+    abstract protected function getCommonIntegerTypeDeclarationSQL(array $columnDef);
 
     /**
      * Lazy load Doctrine Type Mappings.
@@ -1385,9 +1385,9 @@ abstract class AbstractPlatform
             throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
-        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaDropTable)) {
+        if (null !== $this->eventManager && $this->eventManager->hasListeners(Events::onSchemaDropTable)) {
             $eventArgs = new SchemaDropTableEventArgs($tableArg, $this);
-            $this->_eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
+            $this->eventManager->dispatchEvent(Events::onSchemaDropTable, $eventArgs);
 
             if ($eventArgs->isDefaultPrevented()) {
                 return $eventArgs->getSql();
@@ -1538,9 +1538,9 @@ abstract class AbstractPlatform
 
         foreach ($table->getColumns() as $column) {
             /* @var \Doctrine\DBAL\Schema\Column $column */
-            if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTableColumn)) {
+            if (null !== $this->eventManager && $this->eventManager->hasListeners(Events::onSchemaCreateTableColumn)) {
                 $eventArgs = new SchemaCreateTableColumnEventArgs($column, $table, $this);
-                $this->_eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
+                $this->eventManager->dispatchEvent(Events::onSchemaCreateTableColumn, $eventArgs);
 
                 $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -1565,16 +1565,16 @@ abstract class AbstractPlatform
             $columns[$columnData['name']] = $columnData;
         }
 
-        if (null !== $this->_eventManager && $this->_eventManager->hasListeners(Events::onSchemaCreateTable)) {
+        if (null !== $this->eventManager && $this->eventManager->hasListeners(Events::onSchemaCreateTable)) {
             $eventArgs = new SchemaCreateTableEventArgs($table, $columns, $options, $this);
-            $this->_eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
+            $this->eventManager->dispatchEvent(Events::onSchemaCreateTable, $eventArgs);
 
             if ($eventArgs->isDefaultPrevented()) {
                 return array_merge($eventArgs->getSql(), $columnSql);
             }
         }
 
-        $sql = $this->_getCreateTableSQL($tableName, $columns, $options);
+        $sql = $this->buildCreateTableSQL($tableName, $columns, $options);
         if ($this->supportsCommentOnStatement()) {
             foreach ($table->getColumns() as $column) {
                 $comment = $this->getColumnComment($column);
@@ -1632,7 +1632,7 @@ abstract class AbstractPlatform
      *
      * @return array
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function buildCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $columnListSql = $this->getColumnDeclarationListSQL($columns);
 
@@ -1917,16 +1917,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTableAddColumn(Column $column, TableDiff $diff, &$columnSql)
     {
-        if (null === $this->_eventManager) {
+        if (null === $this->eventManager) {
             return false;
         }
 
-        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
+        if ( ! $this->eventManager->hasListeners(Events::onSchemaAlterTableAddColumn)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableAddColumnEventArgs($column, $diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
+        $this->eventManager->dispatchEvent(Events::onSchemaAlterTableAddColumn, $eventArgs);
 
         $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -1942,16 +1942,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTableRemoveColumn(Column $column, TableDiff $diff, &$columnSql)
     {
-        if (null === $this->_eventManager) {
+        if (null === $this->eventManager) {
             return false;
         }
 
-        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
+        if ( ! $this->eventManager->hasListeners(Events::onSchemaAlterTableRemoveColumn)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableRemoveColumnEventArgs($column, $diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
+        $this->eventManager->dispatchEvent(Events::onSchemaAlterTableRemoveColumn, $eventArgs);
 
         $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -1967,16 +1967,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTableChangeColumn(ColumnDiff $columnDiff, TableDiff $diff, &$columnSql)
     {
-        if (null === $this->_eventManager) {
+        if (null === $this->eventManager) {
             return false;
         }
 
-        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
+        if ( ! $this->eventManager->hasListeners(Events::onSchemaAlterTableChangeColumn)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableChangeColumnEventArgs($columnDiff, $diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
+        $this->eventManager->dispatchEvent(Events::onSchemaAlterTableChangeColumn, $eventArgs);
 
         $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -1993,16 +1993,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTableRenameColumn($oldColumnName, Column $column, TableDiff $diff, &$columnSql)
     {
-        if (null === $this->_eventManager) {
+        if (null === $this->eventManager) {
             return false;
         }
 
-        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
+        if ( ! $this->eventManager->hasListeners(Events::onSchemaAlterTableRenameColumn)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableRenameColumnEventArgs($oldColumnName, $column, $diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
+        $this->eventManager->dispatchEvent(Events::onSchemaAlterTableRenameColumn, $eventArgs);
 
         $columnSql = array_merge($columnSql, $eventArgs->getSql());
 
@@ -2017,16 +2017,16 @@ abstract class AbstractPlatform
      */
     protected function onSchemaAlterTable(TableDiff $diff, &$sql)
     {
-        if (null === $this->_eventManager) {
+        if (null === $this->eventManager) {
             return false;
         }
 
-        if ( ! $this->_eventManager->hasListeners(Events::onSchemaAlterTable)) {
+        if ( ! $this->eventManager->hasListeners(Events::onSchemaAlterTable)) {
             return false;
         }
 
         $eventArgs = new SchemaAlterTableEventArgs($diff, $this);
-        $this->_eventManager->dispatchEvent(Events::onSchemaAlterTable, $eventArgs);
+        $this->eventManager->dispatchEvent(Events::onSchemaAlterTable, $eventArgs);
 
         $sql = array_merge($sql, $eventArgs->getSql());
 
@@ -2128,7 +2128,7 @@ abstract class AbstractPlatform
      *
      * @return array
      */
-    protected function _getAlterTableIndexForeignKeySQL(TableDiff $diff)
+    protected function getAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
         return array_merge($this->getPreAlterTableIndexForeignKeySQL($diff), $this->getPostAlterTableIndexForeignKeySQL($diff));
     }
@@ -2711,7 +2711,7 @@ abstract class AbstractPlatform
      *
      * @throws \InvalidArgumentException
      */
-    protected function _getTransactionIsolationLevelSQL($level)
+    protected function getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
             case Connection::TRANSACTION_READ_UNCOMMITTED:
@@ -3536,8 +3536,8 @@ abstract class AbstractPlatform
     final public function getReservedKeywordsList()
     {
         // Check for an existing instantiation of the keywords class.
-        if ($this->_keywords) {
-            return $this->_keywords;
+        if ($this->keywords) {
+            return $this->keywords;
         }
 
         $class = $this->getReservedKeywordsClass();
@@ -3547,7 +3547,7 @@ abstract class AbstractPlatform
         }
 
         // Store the instance so it doesn't need to be generated on every request.
-        $this->_keywords = $keywords;
+        $this->keywords = $keywords;
 
         return $keywords;
     }

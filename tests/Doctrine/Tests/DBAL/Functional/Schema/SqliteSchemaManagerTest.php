@@ -14,16 +14,16 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testListDatabases()
     {
-        $this->_sm->listDatabases();
+        $this->sm->listDatabases();
     }
 
     public function testCreateAndDropDatabase()
     {
         $path = dirname(__FILE__).'/test_create_and_drop_sqlite_database.sqlite';
 
-        $this->_sm->createDatabase($path);
+        $this->sm->createDatabase($path);
         self::assertFileExists($path);
-        $this->_sm->dropDatabase($path);
+        $this->sm->dropDatabase($path);
         self::assertFileNotExists($path);
     }
 
@@ -32,21 +32,21 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
      */
     public function testDropsDatabaseWithActiveConnections()
     {
-        $this->_sm->dropAndCreateDatabase('test_drop_database');
+        $this->sm->dropAndCreateDatabase('test_drop_database');
 
         self::assertFileExists('test_drop_database');
 
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         $params['dbname'] = 'test_drop_database';
 
         $user = $params['user'] ?? null;
         $password = $params['password'] ?? null;
 
-        $connection = $this->_conn->getDriver()->connect($params, $user, $password);
+        $connection = $this->conn->getDriver()->connect($params, $user, $password);
 
         self::assertInstanceOf('Doctrine\DBAL\Driver\Connection', $connection);
 
-        $this->_sm->dropDatabase('test_drop_database');
+        $this->sm->dropDatabase('test_drop_database');
 
         self::assertFileNotExists('test_drop_database');
 
@@ -56,9 +56,9 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testRenameTable()
     {
         $this->createTestTable('oldname');
-        $this->_sm->renameTable('oldname', 'newname');
+        $this->sm->renameTable('oldname', 'newname');
 
-        $tables = $this->_sm->listTableNames();
+        $tables = $this->sm->listTableNames();
         self::assertContains('newname', $tables);
         self::assertNotContains('oldname', $tables);
     }
@@ -73,7 +73,7 @@ class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
     public function testListForeignKeysFromExistingDatabase()
     {
-        $this->_conn->exec(<<<EOS
+        $this->conn->exec(<<<EOS
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page INTEGER CONSTRAINT FK_1 REFERENCES page (key) DEFERRABLE INITIALLY DEFERRED,
@@ -93,7 +93,7 @@ EOS
                 array('onUpdate' => 'NO ACTION', 'onDelete' => 'NO ACTION', 'deferrable' => true, 'deferred' => true)),
         );
 
-        self::assertEquals($expected, $this->_sm->listTableForeignKeys('user'));
+        self::assertEquals($expected, $this->sm->listTableForeignKeys('user'));
     }
 
     public function testColumnCollation()
@@ -103,9 +103,9 @@ EOS
         $table->addColumn('text', 'text');
         $table->addColumn('foo', 'text')->setPlatformOption('collation', 'BINARY');
         $table->addColumn('bar', 'text')->setPlatformOption('collation', 'NOCASE');
-        $this->_sm->dropAndCreateTable($table);
+        $this->sm->dropAndCreateTable($table);
 
-        $columns = $this->_sm->listTableColumns('test_collation');
+        $columns = $this->sm->listTableColumns('test_collation');
 
         self::assertArrayNotHasKey('collation', $columns['id']->getPlatformOptions());
         self::assertEquals('BINARY', $columns['text']->getPlatformOption('collation'));
@@ -123,9 +123,9 @@ EOS
         $table->addColumn('column_binary', 'binary', array('fixed' => true));
         $table->setPrimaryKey(array('id'));
 
-        $this->_sm->createTable($table);
+        $this->sm->createTable($table);
 
-        $table = $this->_sm->listTableDetails($tableName);
+        $table = $this->sm->listTableDetails($tableName);
 
         self::assertInstanceOf('Doctrine\DBAL\Types\BlobType', $table->getColumn('column_varbinary')->getType());
         self::assertFalse($table->getColumn('column_varbinary')->getFixed());
@@ -144,7 +144,7 @@ EOS
         if(version_compare($version['versionString'], '3.7.16', '<')) {
             $this->markTestSkipped('This version of sqlite doesn\'t return the order of the Primary Key.');
         }
-        $this->_conn->exec(<<<EOS
+        $this->conn->exec(<<<EOS
 CREATE TABLE non_default_pk_order (
     id INTEGER,
     other_id INTEGER,
@@ -153,7 +153,7 @@ CREATE TABLE non_default_pk_order (
 EOS
         );
 
-        $tableIndexes = $this->_sm->listTableIndexes('non_default_pk_order');
+        $tableIndexes = $this->sm->listTableIndexes('non_default_pk_order');
 
          self::assertCount(1, $tableIndexes);
 
@@ -173,9 +173,9 @@ CREATE TABLE dbal_1779 (
 )
 SQL;
 
-        $this->_conn->exec($sql);
+        $this->conn->exec($sql);
 
-        $columns = $this->_sm->listTableColumns('dbal_1779');
+        $columns = $this->sm->listTableColumns('dbal_1779');
 
         self::assertCount(2, $columns);
 
@@ -201,14 +201,14 @@ SQL;
         $offlineTable->addColumn('id', $integerType, array('autoincrement' => true, 'unsigned' => $unsigned));
         $offlineTable->setPrimaryKey(array('id'));
 
-        $this->_sm->dropAndCreateTable($offlineTable);
+        $this->sm->dropAndCreateTable($offlineTable);
 
-        $onlineTable = $this->_sm->listTableDetails($tableName);
+        $onlineTable = $this->sm->listTableDetails($tableName);
         $comparator = new Schema\Comparator();
         $diff = $comparator->diffTable($offlineTable, $onlineTable);
 
         if ($expectedComparatorDiff) {
-            self::assertEmpty($this->_sm->getDatabasePlatform()->getAlterTableSQL($diff));
+            self::assertEmpty($this->sm->getDatabasePlatform()->getAlterTableSQL($diff));
         } else {
             self::assertFalse($diff);
         }

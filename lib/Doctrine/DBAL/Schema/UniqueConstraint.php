@@ -44,12 +44,12 @@ class UniqueConstraint extends AbstractAsset implements Constraint
      */
     public function __construct($indexName, array $columns, array $flags = array(), array $options = array())
     {
-        $this->_setName($indexName);
+        $this->setName($indexName);
 
         $this->options = $options;
 
         foreach ($columns as $column) {
-            $this->_addColumn($column);
+            $this->addColumn($column);
         }
 
         foreach ($flags as $flag) {
@@ -172,7 +172,7 @@ class UniqueConstraint extends AbstractAsset implements Constraint
      *
      * @throws \InvalidArgumentException
      */
-    protected function _addColumn($column)
+    protected function addColumn($column)
     {
         if (is_string($column)) {
             $this->columns[$column] = new Identifier($column);

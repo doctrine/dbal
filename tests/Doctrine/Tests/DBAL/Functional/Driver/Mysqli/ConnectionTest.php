@@ -11,7 +11,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         parent::setUp();
 
-        if ( !($this->_conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver)) {
+        if ( !($this->conn->getDriver() instanceof \Doctrine\DBAL\Driver\Mysqli\Driver)) {
             $this->markTestSkipped('MySQLi only test.');
         }
     }

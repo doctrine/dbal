@@ -27,7 +27,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     public function getSchemaNames()
     {
-        $rows = $this->_conn->fetchAll("SELECT nspname as schema_name FROM pg_namespace WHERE nspname !~ '^pg_.*' and nspname != 'information_schema'");
+        $rows = $this->conn->fetchAll("SELECT nspname as schema_name FROM pg_namespace WHERE nspname !~ '^pg_.*' and nspname != 'information_schema'");
 
         return array_map(function ($v) { return $v['schema_name']; }, $rows);
     }
@@ -41,8 +41,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     public function getSchemaSearchPaths()
     {
-        $params = $this->_conn->getParams();
-        $schema = explode(",", $this->_conn->fetchColumn('SHOW search_path'));
+        $params = $this->conn->getParams();
+        $schema = explode(",", $this->conn->fetchColumn('SHOW search_path'));
 
         if (isset($params['user'])) {
             $schema = str_replace('"$user"', $params['user'], $schema);
@@ -100,10 +100,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
                 throw $exception;
             }
 
-            $this->_execSql(
+            $this->execSql(
                 [
-                    $this->_platform->getDisallowDatabaseConnectionsSQL($database),
-                    $this->_platform->getCloseActiveDatabaseConnectionsSQL($database),
+                    $this->platform->getDisallowDatabaseConnectionsSQL($database),
+                    $this->platform->getCloseActiveDatabaseConnectionsSQL($database),
                 ]
             );
 
@@ -114,7 +114,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    protected function getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         $onUpdate = null;
         $onDelete = null;
@@ -143,7 +143,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTriggerDefinition($trigger)
+    protected function getPortableTriggerDefinition($trigger)
     {
         return $trigger['trigger_name'];
     }
@@ -151,7 +151,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function getPortableViewDefinition($view)
     {
         return new View($view['schemaname'].'.'.$view['viewname'], $view['definition']);
     }
@@ -159,7 +159,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition($user)
+    protected function getPortableUserDefinition($user)
     {
         return [
             'user' => $user['usename'],
@@ -170,7 +170,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function getPortableTableDefinition($table)
     {
         $schemas = $this->getExistingSchemaSearchPaths();
         $firstSchema = array_shift($schemas);
@@ -188,7 +188,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    protected function getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
         $buffer = [];
         foreach ($tableIndexes as $row) {
@@ -197,7 +197,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $columnNameSql = "SELECT attnum, attname FROM pg_attribute
                 WHERE attrelid={$row['indrelid']} AND attnum $colNumbersSql ORDER BY attnum ASC;";
 
-            $stmt = $this->_conn->executeQuery($columnNameSql);
+            $stmt = $this->conn->executeQuery($columnNameSql);
             $indexColumns = $stmt->fetchAll();
 
             // required for getting the order of the columns right.
@@ -216,13 +216,13 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             }
         }
 
-        return parent::_getPortableTableIndexesList($buffer, $tableName);
+        return parent::getPortableTableIndexesList($buffer, $tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function getPortableDatabaseDefinition($database)
     {
         return $database['datname'];
     }
@@ -230,7 +230,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequencesList($sequences)
+    protected function getPortableSequencesList($sequences)
     {
         $sequenceDefinitions = [];
 
@@ -247,7 +247,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $list = [];
 
         foreach ($this->filterAssetNames(array_keys($sequenceDefinitions)) as $sequenceName) {
-            $list[] = $this->_getPortableSequenceDefinition($sequenceDefinitions[$sequenceName]);
+            $list[] = $this->getPortableSequenceDefinition($sequenceDefinitions[$sequenceName]);
         }
 
         return $list;
@@ -264,7 +264,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition($sequence)
+    protected function getPortableSequenceDefinition($sequence)
     {
         if ($sequence['schemaname'] !== 'public') {
             $sequenceName = $sequence['schemaname'] . "." . $sequence['relname'];
@@ -273,7 +273,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         }
 
         if ( ! isset($sequence['increment_by'], $sequence['min_value'])) {
-            $data      = $this->_conn->fetchAssoc('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+            $data      = $this->conn->fetchAssoc('SELECT min_value, increment_by FROM ' . $this->platform->quoteIdentifier($sequenceName));
             $sequence += $data;
         }
 
@@ -283,7 +283,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function getPortableTableColumnDefinition($tableColumn)
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -328,12 +328,12 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         $jsonb = null;
 
         $dbType = strtolower($tableColumn['type']);
-        if (strlen($tableColumn['domain_type']) && !$this->_platform->hasDoctrineTypeMappingFor($tableColumn['type'])) {
+        if (strlen($tableColumn['domain_type']) && !$this->platform->hasDoctrineTypeMappingFor($tableColumn['type'])) {
             $dbType = strtolower($tableColumn['domain_type']);
             $tableColumn['complete_type'] = $tableColumn['domain_complete_type'];
         }
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->platform->getDoctrineTypeMapping($dbType);
         $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 

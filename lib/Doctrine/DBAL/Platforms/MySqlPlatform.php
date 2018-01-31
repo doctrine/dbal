@@ -392,7 +392,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function buildCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
@@ -856,7 +856,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
-        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -864,7 +864,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'BIGINT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -872,7 +872,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'SMALLINT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -906,7 +906,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
         $autoinc = '';
         if ( ! empty($columnDef['autoincrement'])) {
@@ -973,7 +973,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getSetTransactionIsolationSQL($level)
     {
-        return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
+        return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->getTransactionIsolationLevelSQL($level);
     }
 
     /**

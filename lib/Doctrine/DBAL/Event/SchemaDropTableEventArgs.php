@@ -17,17 +17,17 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
     /**
      * @var string|\Doctrine\DBAL\Schema\Table
      */
-    private $_table;
+    private $table;
 
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    private $_platform;
+    private $platform;
 
     /**
      * @var string|null
      */
-    private $_sql = null;
+    private $sql = null;
 
     /**
      * @param string|\Doctrine\DBAL\Schema\Table        $table
@@ -41,8 +41,8 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
             throw new \InvalidArgumentException('SchemaDropTableEventArgs expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
-        $this->_table    = $table;
-        $this->_platform = $platform;
+        $this->table    = $table;
+        $this->platform = $platform;
     }
 
     /**
@@ -50,7 +50,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
      */
     public function getTable()
     {
-        return $this->_table;
+        return $this->table;
     }
 
     /**
@@ -58,7 +58,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
      */
     public function getPlatform()
     {
-        return $this->_platform;
+        return $this->platform;
     }
 
     /**
@@ -68,7 +68,7 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
      */
     public function setSql($sql)
     {
-        $this->_sql = $sql;
+        $this->sql = $sql;
 
         return $this;
     }
@@ -78,6 +78,6 @@ class SchemaDropTableEventArgs extends SchemaEventArgs
      */
     public function getSql()
     {
-        return $this->_sql;
+        return $this->sql;
     }
 }

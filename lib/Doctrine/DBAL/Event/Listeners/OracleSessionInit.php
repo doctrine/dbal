@@ -25,7 +25,7 @@ class OracleSessionInit implements EventSubscriber
     /**
      * @var array
      */
-    protected $_defaultSessionVars = [
+    protected $defaultSessionVars = [
         'NLS_TIME_FORMAT' => "HH24:MI:SS",
         'NLS_DATE_FORMAT' => "YYYY-MM-DD HH24:MI:SS",
         'NLS_TIMESTAMP_FORMAT' => "YYYY-MM-DD HH24:MI:SS",
@@ -38,7 +38,7 @@ class OracleSessionInit implements EventSubscriber
      */
     public function __construct(array $oracleSessionVars = [])
     {
-        $this->_defaultSessionVars = array_merge($this->_defaultSessionVars, $oracleSessionVars);
+        $this->defaultSessionVars = array_merge($this->defaultSessionVars, $oracleSessionVars);
     }
 
     /**
@@ -48,10 +48,10 @@ class OracleSessionInit implements EventSubscriber
      */
     public function postConnect(ConnectionEventArgs $args)
     {
-        if (count($this->_defaultSessionVars)) {
-            array_change_key_case($this->_defaultSessionVars, \CASE_UPPER);
+        if (count($this->defaultSessionVars)) {
+            array_change_key_case($this->defaultSessionVars, \CASE_UPPER);
             $vars = [];
-            foreach ($this->_defaultSessionVars as $option => $value) {
+            foreach ($this->defaultSessionVars as $option => $value) {
                 if ($option === 'CURRENT_SCHEMA') {
                     $vars[] = $option . " = " . $value;
                 } else {

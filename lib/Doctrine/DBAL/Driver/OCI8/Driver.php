@@ -22,7 +22,7 @@ class Driver extends AbstractOracleDriver
             return new OCI8Connection(
                 $username,
                 $password,
-                $this->_constructDsn($params),
+                $this->constructDsn($params),
                 $params['charset'] ?? null,
                 $params['sessionMode'] ?? OCI_DEFAULT,
                 $params['persistent'] ?? false
@@ -39,7 +39,7 @@ class Driver extends AbstractOracleDriver
      *
      * @return string The DSN.
      */
-    protected function _constructDsn(array $params)
+    protected function constructDsn(array $params)
     {
         return $this->getEasyConnectString($params);
     }

@@ -20,7 +20,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function getPortableViewDefinition($view)
     {
         return new View($view['TABLE_NAME'], $view['VIEW_DEFINITION']);
     }
@@ -28,7 +28,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function getPortableTableDefinition($table)
     {
         return array_shift($table);
     }
@@ -36,7 +36,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition($user)
+    protected function getPortableUserDefinition($user)
     {
         return [
             'user' => $user['User'],
@@ -47,7 +47,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName = null)
+    protected function getPortableTableIndexesList($tableIndexes, $tableName = null)
     {
         foreach ($tableIndexes as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
@@ -64,13 +64,13 @@ class MySqlSchemaManager extends AbstractSchemaManager
             $tableIndexes[$k] = $v;
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
+        return parent::getPortableTableIndexesList($tableIndexes, $tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition($sequence)
+    protected function getPortableSequenceDefinition($sequence)
     {
         return end($sequence);
     }
@@ -78,7 +78,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function getPortableDatabaseDefinition($database)
     {
         return $database['Database'];
     }
@@ -86,7 +86,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function getPortableTableColumnDefinition($tableColumn)
     {
         $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -103,7 +103,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $scale     = null;
         $precision = null;
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->platform->getDoctrineTypeMapping($dbType);
 
         // In cases where not connected to a database DESCRIBE $table does not return 'Comment'
         if (isset($tableColumn['comment'])) {
@@ -156,8 +156,8 @@ class MySqlSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        if ($this->_platform instanceof MariaDb1027Platform) {
-            $columnDefault = $this->getMariaDb1027ColumnDefault($this->_platform, $tableColumn['default']);
+        if ($this->platform instanceof MariaDb1027Platform) {
+            $columnDefault = $this->getMariaDb1027ColumnDefault($this->platform, $tableColumn['default']);
         } else {
             $columnDefault = $tableColumn['default'];
         }
@@ -232,7 +232,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {

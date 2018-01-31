@@ -15,7 +15,7 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         parent::setUp();
 
-        $platform = $this->_conn->getDatabasePlatform();
+        $platform = $this->conn->getDatabasePlatform();
         if ($platform->getName() == "sqlite") {
             $this->markTestSkipped('TableGenerator does not work with SQLite');
         }
@@ -26,12 +26,12 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $schema->visit($visitor);
 
             foreach ($schema->toSql($platform) as $sql) {
-                $this->_conn->exec($sql);
+                $this->conn->exec($sql);
             }
 
         } catch(\Exception $e) {
         }
-        $this->generator = new TableGenerator($this->_conn);
+        $this->generator = new TableGenerator($this->conn);
     }
 
     public function testNextVal()
@@ -47,9 +47,9 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testNextValNotAffectedByOuterTransactions()
     {
-        $this->_conn->beginTransaction();
+        $this->conn->beginTransaction();
         $id1 = $this->generator->nextValue("tbl1");
-        $this->_conn->rollBack();
+        $this->conn->rollBack();
         $id2 = $this->generator->nextValue("tbl1");
 
         self::assertGreaterThan(0, $id1, "First id has to be larger than 0");

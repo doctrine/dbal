@@ -178,7 +178,7 @@ class PoolingShardConnection extends Connection
      */
     public function connect($shardId = null)
     {
-        if ($shardId === null && $this->_conn) {
+        if ($shardId === null && $this->conn) {
             return false;
         }
 
@@ -193,16 +193,16 @@ class PoolingShardConnection extends Connection
         $this->activeShardId = (int)$shardId;
 
         if (isset($this->activeConnections[$this->activeShardId])) {
-            $this->_conn = $this->activeConnections[$this->activeShardId];
+            $this->conn = $this->activeConnections[$this->activeShardId];
 
             return false;
         }
 
-        $this->_conn = $this->activeConnections[$this->activeShardId] = $this->connectTo($this->activeShardId);
+        $this->conn = $this->activeConnections[$this->activeShardId] = $this->connectTo($this->activeShardId);
 
-        if ($this->_eventManager->hasListeners(Events::postConnect)) {
+        if ($this->eventManager->hasListeners(Events::postConnect)) {
             $eventArgs = new ConnectionEventArgs($this);
-            $this->_eventManager->dispatchEvent(Events::postConnect, $eventArgs);
+            $this->eventManager->dispatchEvent(Events::postConnect, $eventArgs);
         }
 
         return true;
@@ -226,7 +226,7 @@ class PoolingShardConnection extends Connection
         $user = $connectionParams['user'] ?? null;
         $password = $connectionParams['password'] ?? null;
 
-        return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
+        return $this->driver->connect($connectionParams, $user, $password, $driverOptions);
     }
 
     /**
@@ -237,7 +237,7 @@ class PoolingShardConnection extends Connection
     public function isConnected($shardId = null)
     {
         if ($shardId === null) {
-            return $this->_conn !== null;
+            return $this->conn !== null;
         }
 
         return isset($this->activeConnections[$shardId]);
@@ -248,7 +248,7 @@ class PoolingShardConnection extends Connection
      */
     public function close()
     {
-        $this->_conn             = null;
+        $this->conn             = null;
         $this->activeConnections = null;
         $this->activeShardId     = null;
     }

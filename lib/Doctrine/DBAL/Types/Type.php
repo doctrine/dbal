@@ -48,14 +48,14 @@ abstract class Type
      *
      * @var array
      */
-    private static $_typeObjects = [];
+    private static $typeObjects = [];
 
     /**
      * The map of supported doctrine mapping types.
      *
      * @var array
      */
-    private static $_typesMap = [
+    private static $typesMap = [
         self::TARRAY => ArrayType::class,
         self::SIMPLE_ARRAY => SimpleArrayType::class,
         self::JSON_ARRAY => JsonArrayType::class,
@@ -163,14 +163,14 @@ abstract class Type
      */
     public static function getType($name)
     {
-        if ( ! isset(self::$_typeObjects[$name])) {
-            if ( ! isset(self::$_typesMap[$name])) {
+        if ( ! isset(self::$typeObjects[$name])) {
+            if ( ! isset(self::$typesMap[$name])) {
                 throw DBALException::unknownColumnType($name);
             }
-            self::$_typeObjects[$name] = new self::$_typesMap[$name]();
+            self::$typeObjects[$name] = new self::$typesMap[$name]();
         }
 
-        return self::$_typeObjects[$name];
+        return self::$typeObjects[$name];
     }
 
     /**
@@ -185,11 +185,11 @@ abstract class Type
      */
     public static function addType($name, $className)
     {
-        if (isset(self::$_typesMap[$name])) {
+        if (isset(self::$typesMap[$name])) {
             throw DBALException::typeExists($name);
         }
 
-        self::$_typesMap[$name] = $className;
+        self::$typesMap[$name] = $className;
     }
 
     /**
@@ -201,7 +201,7 @@ abstract class Type
      */
     public static function hasType($name)
     {
-        return isset(self::$_typesMap[$name]);
+        return isset(self::$typesMap[$name]);
     }
 
     /**
@@ -216,15 +216,15 @@ abstract class Type
      */
     public static function overrideType($name, $className)
     {
-        if ( ! isset(self::$_typesMap[$name])) {
+        if ( ! isset(self::$typesMap[$name])) {
             throw DBALException::typeNotFound($name);
         }
 
-        if (isset(self::$_typeObjects[$name])) {
-            unset(self::$_typeObjects[$name]);
+        if (isset(self::$typeObjects[$name])) {
+            unset(self::$typeObjects[$name]);
         }
 
-        self::$_typesMap[$name] = $className;
+        self::$typesMap[$name] = $className;
     }
 
     /**
@@ -248,7 +248,7 @@ abstract class Type
      */
     public static function getTypesMap()
     {
-        return self::$_typesMap;
+        return self::$typesMap;
     }
 
     /**

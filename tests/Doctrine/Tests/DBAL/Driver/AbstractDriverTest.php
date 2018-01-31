@@ -175,7 +175,7 @@ abstract class AbstractDriverTest extends DbalTestCase
         $schemaManager = $this->driver->getSchemaManager($connection);
 
         self::assertEquals($this->createSchemaManager($connection), $schemaManager);
-        self::assertAttributeSame($connection, '_conn', $schemaManager);
+        self::assertAttributeSame($connection, 'conn', $schemaManager);
     }
 
     /**

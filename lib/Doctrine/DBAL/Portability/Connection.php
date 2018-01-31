@@ -69,9 +69,9 @@ class Connection extends \Doctrine\DBAL\Connection
             }
 
             if (isset($params['fetch_case']) && $this->portability & self::PORTABILITY_FIX_CASE) {
-                if ($this->_conn instanceof \Doctrine\DBAL\Driver\PDOConnection) {
+                if ($this->conn instanceof \Doctrine\DBAL\Driver\PDOConnection) {
                     // make use of c-level support for case handling
-                    $this->_conn->setAttribute(\PDO::ATTR_CASE, $params['fetch_case']);
+                    $this->conn->setAttribute(\PDO::ATTR_CASE, $params['fetch_case']);
                 } else {
                     $this->case = ($params['fetch_case'] == ColumnCase::LOWER) ? CASE_LOWER : CASE_UPPER;
                 }
@@ -126,7 +126,7 @@ class Connection extends \Doctrine\DBAL\Connection
     {
         $this->connect();
 
-        $stmt = $this->_conn->query(...func_get_args());
+        $stmt = $this->conn->query(...func_get_args());
         $stmt = new Statement($stmt, $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 

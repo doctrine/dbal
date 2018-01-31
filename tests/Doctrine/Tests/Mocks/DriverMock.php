@@ -5,9 +5,9 @@ namespace Doctrine\Tests\Mocks;
 
 class DriverMock implements \Doctrine\DBAL\Driver
 {
-    private $_platformMock;
+    private $platformMock;
 
-    private $_schemaManagerMock;
+    private $schemaManagerMock;
 
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
@@ -20,7 +20,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
      * @return string  The DSN.
      * @override
      */
-    protected function _constructPdoDsn(array $params)
+    protected function constructPdoDsn(array $params)
     {
         return "";
     }
@@ -30,10 +30,10 @@ class DriverMock implements \Doctrine\DBAL\Driver
      */
     public function getDatabasePlatform()
     {
-        if ( ! $this->_platformMock) {
-            $this->_platformMock = new DatabasePlatformMock;
+        if ( ! $this->platformMock) {
+            $this->platformMock = new DatabasePlatformMock;
         }
-        return $this->_platformMock;
+        return $this->platformMock;
     }
 
     /**
@@ -41,23 +41,23 @@ class DriverMock implements \Doctrine\DBAL\Driver
      */
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
-        if($this->_schemaManagerMock == null) {
+        if($this->schemaManagerMock == null) {
             return new SchemaManagerMock($conn);
         }
 
-        return $this->_schemaManagerMock;
+        return $this->schemaManagerMock;
     }
 
     /* MOCK API */
 
     public function setDatabasePlatform(\Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
-        $this->_platformMock = $platform;
+        $this->platformMock = $platform;
     }
 
     public function setSchemaManager(\Doctrine\DBAL\Schema\AbstractSchemaManager $sm)
     {
-        $this->_schemaManagerMock = $sm;
+        $this->schemaManagerMock = $sm;
     }
 
     public function getName()

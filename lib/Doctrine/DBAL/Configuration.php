@@ -23,7 +23,7 @@ class Configuration
      *
      * @var array
      */
-    protected $_attributes = [];
+    protected $attributes = [];
 
     /**
      * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
@@ -34,7 +34,7 @@ class Configuration
      */
     public function setSQLLogger(SQLLogger $logger = null)
     {
-        $this->_attributes['sqlLogger'] = $logger;
+        $this->attributes['sqlLogger'] = $logger;
     }
 
     /**
@@ -44,7 +44,7 @@ class Configuration
      */
     public function getSQLLogger()
     {
-        return $this->_attributes['sqlLogger'] ?? null;
+        return $this->attributes['sqlLogger'] ?? null;
     }
 
     /**
@@ -54,7 +54,7 @@ class Configuration
      */
     public function getResultCacheImpl()
     {
-        return $this->_attributes['resultCacheImpl'] ?? null;
+        return $this->attributes['resultCacheImpl'] ?? null;
     }
 
     /**
@@ -66,7 +66,7 @@ class Configuration
      */
     public function setResultCacheImpl(Cache $cacheImpl)
     {
-        $this->_attributes['resultCacheImpl'] = $cacheImpl;
+        $this->attributes['resultCacheImpl'] = $cacheImpl;
     }
 
     /**
@@ -82,7 +82,7 @@ class Configuration
      */
     public function setFilterSchemaAssetsExpression($filterExpression)
     {
-        $this->_attributes['filterSchemaAssetsExpression'] = $filterExpression;
+        $this->attributes['filterSchemaAssetsExpression'] = $filterExpression;
     }
 
     /**
@@ -92,7 +92,7 @@ class Configuration
      */
     public function getFilterSchemaAssetsExpression()
     {
-        return $this->_attributes['filterSchemaAssetsExpression'] ?? null;
+        return $this->attributes['filterSchemaAssetsExpression'] ?? null;
     }
 
     /**
@@ -108,7 +108,7 @@ class Configuration
      */
     public function setAutoCommit($autoCommit)
     {
-        $this->_attributes['autoCommit'] = (boolean) $autoCommit;
+        $this->attributes['autoCommit'] = (boolean) $autoCommit;
     }
 
     /**
@@ -120,6 +120,6 @@ class Configuration
      */
     public function getAutoCommit()
     {
-        return $this->_attributes['autoCommit'] ?? true;
+        return $this->attributes['autoCommit'] ?? true;
     }
 }

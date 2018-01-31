@@ -64,7 +64,7 @@ class OCI8StatementTest extends DbalTestCase
         $conn->expects($this->once())
             ->method('getExecuteMode');
 
-        $reflProperty = new \ReflectionProperty($statement, '_conn');
+        $reflProperty = new \ReflectionProperty($statement, 'conn');
         $reflProperty->setAccessible(true);
         $reflProperty->setValue($statement, $conn);
 

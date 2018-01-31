@@ -34,7 +34,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     public function createDatabase($database)
     {
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         $driver = $params['driver'];
         $options = [
             'driver' => $driver,
@@ -95,13 +95,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
     public function listTableForeignKeys($table, $database = null)
     {
         if (null === $database) {
-            $database = $this->_conn->getDatabase();
+            $database = $this->conn->getDatabase();
         }
-        $sql = $this->_platform->getListTableForeignKeysSQL($table, $database);
-        $tableForeignKeys = $this->_conn->fetchAll($sql);
+        $sql = $this->platform->getListTableForeignKeysSQL($table, $database);
+        $tableForeignKeys = $this->conn->fetchAll($sql);
 
         if ( ! empty($tableForeignKeys)) {
-            $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
+            $createSql = $this->conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
             $createSql = $createSql[0]['sql'] ?? '';
 
             if (preg_match_all('#
@@ -130,13 +130,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
             }
         }
 
-        return $this->_getPortableTableForeignKeysList($tableForeignKeys);
+        return $this->getPortableTableForeignKeysList($tableForeignKeys);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function getPortableTableDefinition($table)
     {
         return $table['name'];
     }
@@ -147,12 +147,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
      * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    protected function getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
         $indexBuffer = [];
 
         // fetch primary
-        $stmt = $this->_conn->executeQuery("PRAGMA TABLE_INFO ('$tableName')");
+        $stmt = $this->conn->executeQuery("PRAGMA TABLE_INFO ('$tableName')");
         $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         usort($indexArray, function($a, $b) {
@@ -183,7 +183,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 $idx['primary'] = false;
                 $idx['non_unique'] = $tableIndex['unique']?false:true;
 
-                $stmt = $this->_conn->executeQuery("PRAGMA INDEX_INFO ('{$keyName}')");
+                $stmt = $this->conn->executeQuery("PRAGMA INDEX_INFO ('{$keyName}')");
                 $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
                 foreach ($indexArray as $indexColumnRow) {
@@ -193,13 +193,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
             }
         }
 
-        return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
+        return parent::getPortableTableIndexesList($indexBuffer, $tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexDefinition($tableIndex)
+    protected function getPortableTableIndexDefinition($tableIndex)
     {
         return [
             'name' => $tableIndex['name'],
@@ -210,9 +210,9 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnList($table, $database, $tableColumns)
+    protected function getPortableTableColumnList($table, $database, $tableColumns)
     {
-        $list = parent::_getPortableTableColumnList($table, $database, $tableColumns);
+        $list = parent::getPortableTableColumnList($table, $database, $tableColumns);
 
         // find column with autoincrement
         $autoincrementColumn = null;
@@ -236,7 +236,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         // inspect column collation and comments
-        $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
+        $createSql = $this->conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
         $createSql = $createSql[0]['sql'] ?? '';
 
         foreach ($list as $columnName => $column) {
@@ -267,7 +267,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function getPortableTableColumnDefinition($tableColumn)
     {
         $parts = explode('(', $tableColumn['type']);
         $tableColumn['type'] = trim($parts[0]);
@@ -286,7 +286,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
         }
 
         $fixed = false;
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->platform->getDoctrineTypeMapping($dbType);
         $default = $tableColumn['dflt_value'];
         if ($default == 'NULL') {
             $default = null;
@@ -340,7 +340,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function getPortableViewDefinition($view)
     {
         return new View($view['name'], $view['sql']);
     }
@@ -348,7 +348,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -421,7 +421,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     private function parseColumnCollationFromSQL(string $column, string $sql) : ?string
     {
-        $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
+        $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->platform->quoteSingleIdentifier($column))
                  . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
 
         if (preg_match($pattern, $sql, $match) !== 1) {
@@ -433,7 +433,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
     {
-        $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
+        $pattern = '{[\s(,](?:\W' . preg_quote($this->platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
                  . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}ix';
 
         if (preg_match($pattern, $sql, $match) !== 1) {

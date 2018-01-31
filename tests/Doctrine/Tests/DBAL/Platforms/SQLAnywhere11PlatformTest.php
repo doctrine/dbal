@@ -9,7 +9,7 @@ class SQLAnywhere11PlatformTest extends SQLAnywherePlatformTest
     /**
      * @var \Doctrine\DBAL\Platforms\SQLAnywhere11Platform
      */
-    protected $_platform;
+    protected $platform;
 
     public function createPlatform()
     {
@@ -23,6 +23,6 @@ class SQLAnywhere11PlatformTest extends SQLAnywherePlatformTest
 
     public function testGeneratesRegularExpressionSQLSnippet()
     {
-        self::assertEquals('REGEXP', $this->_platform->getRegexpExpression());
+        self::assertEquals('REGEXP', $this->platform->getRegexpExpression());
     }
 }

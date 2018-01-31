@@ -12,17 +12,17 @@ class Index extends AbstractAsset implements Constraint
      *
      * @var Identifier[]
      */
-    protected $_columns = [];
+    protected $columns = [];
 
     /**
      * @var boolean
      */
-    protected $_isUnique = false;
+    protected $isUnique = false;
 
     /**
      * @var boolean
      */
-    protected $_isPrimary = false;
+    protected $isPrimary = false;
 
     /**
      * Platform specific flags for indexes.
@@ -30,12 +30,12 @@ class Index extends AbstractAsset implements Constraint
      *
      * @var array
      */
-    protected $_flags = [];
+    protected $flags = [];
 
     /**
      * Platform specific options
      *
-     * @todo $_flags should eventually be refactored into options
+     * @todo $flags should eventually be refactored into options
      *
      * @var array
      */
@@ -53,14 +53,14 @@ class Index extends AbstractAsset implements Constraint
     {
         $isUnique = $isUnique || $isPrimary;
 
-        $this->_setName($indexName);
+        $this->setName($indexName);
 
-        $this->_isUnique  = $isUnique;
-        $this->_isPrimary = $isPrimary;
+        $this->isUnique  = $isUnique;
+        $this->isPrimary = $isPrimary;
         $this->options    = $options;
 
         foreach ($columns as $column) {
-            $this->_addColumn($column);
+            $this->addColumn($column);
         }
 
         foreach ($flags as $flag) {
@@ -75,10 +75,10 @@ class Index extends AbstractAsset implements Constraint
      *
      * @throws \InvalidArgumentException
      */
-    protected function _addColumn($column)
+    protected function addColumn($column)
     {
         if (is_string($column)) {
-            $this->_columns[$column] = new Identifier($column);
+            $this->columns[$column] = new Identifier($column);
         } else {
             throw new \InvalidArgumentException("Expecting a string as Index Column");
         }
@@ -89,7 +89,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getColumns()
     {
-        return array_keys($this->_columns);
+        return array_keys($this->columns);
     }
 
     /**
@@ -99,7 +99,7 @@ class Index extends AbstractAsset implements Constraint
     {
         $columns = [];
 
-        foreach ($this->_columns as $column) {
+        foreach ($this->columns as $column) {
             $columns[] = $column->getQuotedName($platform);
         }
 
@@ -121,7 +121,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function isSimpleIndex()
     {
-        return !$this->_isPrimary && !$this->_isUnique;
+        return !$this->isPrimary && !$this->isUnique;
     }
 
     /**
@@ -129,7 +129,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function isUnique()
     {
-        return $this->_isUnique;
+        return $this->isUnique;
     }
 
     /**
@@ -137,7 +137,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function isPrimary()
     {
-        return $this->_isPrimary;
+        return $this->isPrimary;
     }
 
     /**
@@ -250,7 +250,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function getFlags()
     {
-        return array_keys($this->_flags);
+        return array_keys($this->flags);
     }
 
     /**
@@ -264,7 +264,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function addFlag($flag)
     {
-        $this->_flags[strtolower($flag)] = true;
+        $this->flags[strtolower($flag)] = true;
 
         return $this;
     }
@@ -278,7 +278,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function hasFlag($flag)
     {
-        return isset($this->_flags[strtolower($flag)]);
+        return isset($this->flags[strtolower($flag)]);
     }
 
     /**
@@ -290,7 +290,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function removeFlag($flag)
     {
-        unset($this->_flags[strtolower($flag)]);
+        unset($this->flags[strtolower($flag)]);
     }
 
     /**

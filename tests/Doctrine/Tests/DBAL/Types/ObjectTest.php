@@ -8,13 +8,13 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 class ObjectTest extends \Doctrine\Tests\DbalTestCase
 {
     protected
-        $_platform,
-        $_type;
+        $platform,
+        $type;
 
     protected function setUp()
     {
-        $this->_platform = new MockPlatform();
-        $this->_type = Type::getType('object');
+        $this->platform = new MockPlatform();
+        $this->type = Type::getType('object');
     }
 
     protected function tearDown()
@@ -24,24 +24,24 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
 
     public function testObjectConvertsToDatabaseValue()
     {
-        self::assertInternalType('string', $this->_type->convertToDatabaseValue(new \stdClass(), $this->_platform));
+        self::assertInternalType('string', $this->type->convertToDatabaseValue(new \stdClass(), $this->platform));
     }
 
     public function testObjectConvertsToPHPValue()
     {
-        self::assertInternalType('object', $this->_type->convertToPHPValue(serialize(new \stdClass), $this->_platform));
+        self::assertInternalType('object', $this->type->convertToPHPValue(serialize(new \stdClass), $this->platform));
     }
 
     public function testConversionFailure()
     {
         error_reporting( (E_ALL | E_STRICT) - \E_NOTICE );
         $this->expectException('Doctrine\DBAL\Types\ConversionException');
-        $this->_type->convertToPHPValue('abcdefg', $this->_platform);
+        $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
     public function testNullConversion()
     {
-        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     /**
@@ -49,6 +49,6 @@ class ObjectTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testFalseConversion()
     {
-        self::assertFalse($this->_type->convertToPHPValue(serialize(false), $this->_platform));
+        self::assertFalse($this->type->convertToPHPValue(serialize(false), $this->platform));
     }
 }

@@ -47,7 +47,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function getPortableViewDefinition($view)
     {
         $view = \array_change_key_case($view, CASE_LOWER);
 
@@ -57,7 +57,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableUserDefinition($user)
+    protected function getPortableUserDefinition($user)
     {
         $user = \array_change_key_case($user, CASE_LOWER);
 
@@ -69,7 +69,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableDefinition($table)
+    protected function getPortableTableDefinition($table)
     {
         $table = \array_change_key_case($table, CASE_LOWER);
 
@@ -82,7 +82,7 @@ class OracleSchemaManager extends AbstractSchemaManager
      * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
-    protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
+    protected function getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
         $indexBuffer = [];
         foreach ($tableIndexes as $tableIndex) {
@@ -103,13 +103,13 @@ class OracleSchemaManager extends AbstractSchemaManager
             $indexBuffer[] = $buffer;
         }
 
-        return parent::_getPortableTableIndexesList($indexBuffer, $tableName);
+        return parent::getPortableTableIndexesList($indexBuffer, $tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function getPortableTableColumnDefinition($tableColumn)
     {
         $tableColumn = \array_change_key_case($tableColumn, CASE_LOWER);
 
@@ -143,7 +143,7 @@ class OracleSchemaManager extends AbstractSchemaManager
         $precision = null;
         $scale = null;
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type = $this->platform->getDoctrineTypeMapping($dbType);
         $type = $this->extractDoctrineTypeFromComment($tableColumn['comments'], $type);
         $tableColumn['comments'] = $this->removeDoctrineTypeFromComment($tableColumn['comments'], $type);
 
@@ -229,7 +229,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function getPortableTableForeignKeysList($tableForeignKeys)
     {
         $list = [];
         foreach ($tableForeignKeys as $value) {
@@ -270,7 +270,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableSequenceDefinition($sequence)
+    protected function getPortableSequenceDefinition($sequence)
     {
         $sequence = \array_change_key_case($sequence, CASE_LOWER);
 
@@ -284,7 +284,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableFunctionDefinition($function)
+    protected function getPortableFunctionDefinition($function)
     {
         $function = \array_change_key_case($function, CASE_LOWER);
 
@@ -294,7 +294,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableDatabaseDefinition($database)
+    protected function getPortableDatabaseDefinition($database)
     {
         $database = \array_change_key_case($database, CASE_LOWER);
 
@@ -307,18 +307,18 @@ class OracleSchemaManager extends AbstractSchemaManager
     public function createDatabase($database = null)
     {
         if (is_null($database)) {
-            $database = $this->_conn->getDatabase();
+            $database = $this->conn->getDatabase();
         }
 
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         $username   = $database;
         $password   = $params['password'];
 
         $query  = 'CREATE USER ' . $username . ' IDENTIFIED BY ' . $password;
-        $this->_conn->executeUpdate($query);
+        $this->conn->executeUpdate($query);
 
         $query = 'GRANT DBA TO ' . $username;
-        $this->_conn->executeUpdate($query);
+        $this->conn->executeUpdate($query);
 
         return true;
     }
@@ -330,9 +330,9 @@ class OracleSchemaManager extends AbstractSchemaManager
      */
     public function dropAutoincrement($table)
     {
-        $sql = $this->_platform->getDropAutoincrementSql($table);
+        $sql = $this->platform->getDropAutoincrementSql($table);
         foreach ($sql as $query) {
-            $this->_conn->executeUpdate($query);
+            $this->conn->executeUpdate($query);
         }
 
         return true;
@@ -361,7 +361,7 @@ class OracleSchemaManager extends AbstractSchemaManager
     private function getQuotedIdentifierName($identifier)
     {
         if (preg_match('/[a-z]/', $identifier)) {
-            return $this->_platform->quoteIdentifier($identifier);
+            return $this->platform->quoteIdentifier($identifier);
         }
 
         return $identifier;
@@ -390,12 +390,12 @@ WHERE
     AND p.addr(+) = s.paddr
 SQL;
 
-        $activeUserSessions = $this->_conn->fetchAll($sql, [strtoupper($user)]);
+        $activeUserSessions = $this->conn->fetchAll($sql, [strtoupper($user)]);
 
         foreach ($activeUserSessions as $activeUserSession) {
             $activeUserSession = array_change_key_case($activeUserSession, \CASE_LOWER);
 
-            $this->_execSql(
+            $this->execSql(
                 sprintf(
                     "ALTER SYSTEM KILL SESSION '%s, %s' IMMEDIATE",
                     $activeUserSession['sid'],

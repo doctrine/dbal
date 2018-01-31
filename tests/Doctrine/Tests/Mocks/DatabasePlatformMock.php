@@ -6,16 +6,16 @@ use Doctrine\DBAL\DBALException;
 
 class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
 {
-    private $_sequenceNextValSql = "";
-    private $_prefersIdentityColumns = true;
-    private $_prefersSequences = false;
+    private $sequenceNextValSql = "";
+    private $prefersIdentityColumns = true;
+    private $prefersSequences = false;
 
     /**
      * @override
      */
     public function prefersIdentityColumns()
     {
-        return $this->_prefersIdentityColumns;
+        return $this->prefersIdentityColumns;
     }
 
     /**
@@ -23,13 +23,13 @@ class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function prefersSequences()
     {
-        return $this->_prefersSequences;
+        return $this->prefersSequences;
     }
 
     /** @override */
     public function getSequenceNextValSQL($sequenceName)
     {
-        return $this->_sequenceNextValSql;
+        return $this->sequenceNextValSql;
     }
 
     /** @override */
@@ -45,7 +45,7 @@ class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
     public function getSmallIntTypeDeclarationSQL(array $field) {}
 
     /** @override */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef) {}
+    protected function getCommonIntegerTypeDeclarationSQL(array $columnDef) {}
 
     /** @override */
     public function getVarcharTypeDeclarationSQL(array $field) {}
@@ -57,17 +57,17 @@ class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
 
     public function setPrefersIdentityColumns($bool)
     {
-        $this->_prefersIdentityColumns = $bool;
+        $this->prefersIdentityColumns = $bool;
     }
 
     public function setPrefersSequences($bool)
     {
-        $this->_prefersSequences = $bool;
+        $this->prefersSequences = $bool;
     }
 
     public function setSequenceNextValSql($sql)
     {
-        $this->_sequenceNextValSql = $sql;
+        $this->sequenceNextValSql = $sql;
     }
 
     public function getName()

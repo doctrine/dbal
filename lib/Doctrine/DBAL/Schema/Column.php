@@ -16,67 +16,67 @@ class Column extends AbstractAsset
     /**
      * @var Type
      */
-    protected $_type;
+    protected $type;
 
     /**
      * @var integer|null
      */
-    protected $_length = null;
+    protected $length = null;
 
     /**
      * @var integer
      */
-    protected $_precision = 10;
+    protected $precision = 10;
 
     /**
      * @var integer
      */
-    protected $_scale = 0;
+    protected $scale = 0;
 
     /**
      * @var boolean
      */
-    protected $_unsigned = false;
+    protected $unsigned = false;
 
     /**
      * @var boolean
      */
-    protected $_fixed = false;
+    protected $fixed = false;
 
     /**
      * @var boolean
      */
-    protected $_notnull = true;
+    protected $notnull = true;
 
     /**
      * @var string|null
      */
-    protected $_default = null;
+    protected $default = null;
 
     /**
      * @var boolean
      */
-    protected $_autoincrement = false;
+    protected $autoincrement = false;
 
     /**
      * @var array
      */
-    protected $_platformOptions = [];
+    protected $platformOptions = [];
 
     /**
      * @var string|null
      */
-    protected $_columnDefinition = null;
+    protected $columnDefinition = null;
 
     /**
      * @var string|null
      */
-    protected $_comment = null;
+    protected $comment = null;
 
     /**
      * @var array
      */
-    protected $_customSchemaOptions = [];
+    protected $customSchemaOptions = [];
 
     /**
      * Creates a new Column.
@@ -87,7 +87,7 @@ class Column extends AbstractAsset
      */
     public function __construct($columnName, Type $type, array $options=[])
     {
-        $this->_setName($columnName);
+        $this->setName($columnName);
         $this->setType($type);
         $this->setOptions($options);
     }
@@ -124,7 +124,7 @@ class Column extends AbstractAsset
      */
     public function setType(Type $type)
     {
-        $this->_type = $type;
+        $this->type = $type;
 
         return $this;
     }
@@ -137,9 +137,9 @@ class Column extends AbstractAsset
     public function setLength($length)
     {
         if ($length !== null) {
-            $this->_length = (int) $length;
+            $this->length = (int) $length;
         } else {
-            $this->_length = null;
+            $this->length = null;
         }
 
         return $this;
@@ -156,7 +156,7 @@ class Column extends AbstractAsset
             $precision = 10; // defaults to 10 when no valid precision is given.
         }
 
-        $this->_precision = (int) $precision;
+        $this->precision = (int) $precision;
 
         return $this;
     }
@@ -172,7 +172,7 @@ class Column extends AbstractAsset
             $scale = 0;
         }
 
-        $this->_scale = (int) $scale;
+        $this->scale = (int) $scale;
 
         return $this;
     }
@@ -184,7 +184,7 @@ class Column extends AbstractAsset
      */
     public function setUnsigned($unsigned)
     {
-        $this->_unsigned = (bool) $unsigned;
+        $this->unsigned = (bool) $unsigned;
 
         return $this;
     }
@@ -196,7 +196,7 @@ class Column extends AbstractAsset
      */
     public function setFixed($fixed)
     {
-        $this->_fixed = (bool) $fixed;
+        $this->fixed = (bool) $fixed;
 
         return $this;
     }
@@ -208,7 +208,7 @@ class Column extends AbstractAsset
      */
     public function setNotnull($notnull)
     {
-        $this->_notnull = (bool) $notnull;
+        $this->notnull = (bool) $notnull;
 
         return $this;
     }
@@ -220,7 +220,7 @@ class Column extends AbstractAsset
      */
     public function setDefault($default)
     {
-        $this->_default = $default;
+        $this->default = $default;
 
         return $this;
     }
@@ -232,7 +232,7 @@ class Column extends AbstractAsset
      */
     public function setPlatformOptions(array $platformOptions)
     {
-        $this->_platformOptions = $platformOptions;
+        $this->platformOptions = $platformOptions;
 
         return $this;
     }
@@ -245,7 +245,7 @@ class Column extends AbstractAsset
      */
     public function setPlatformOption($name, $value)
     {
-        $this->_platformOptions[$name] = $value;
+        $this->platformOptions[$name] = $value;
 
         return $this;
     }
@@ -257,7 +257,7 @@ class Column extends AbstractAsset
      */
     public function setColumnDefinition($value)
     {
-        $this->_columnDefinition = $value;
+        $this->columnDefinition = $value;
 
         return $this;
     }
@@ -267,7 +267,7 @@ class Column extends AbstractAsset
      */
     public function getType()
     {
-        return $this->_type;
+        return $this->type;
     }
 
     /**
@@ -275,7 +275,7 @@ class Column extends AbstractAsset
      */
     public function getLength()
     {
-        return $this->_length;
+        return $this->length;
     }
 
     /**
@@ -283,7 +283,7 @@ class Column extends AbstractAsset
      */
     public function getPrecision()
     {
-        return $this->_precision;
+        return $this->precision;
     }
 
     /**
@@ -291,7 +291,7 @@ class Column extends AbstractAsset
      */
     public function getScale()
     {
-        return $this->_scale;
+        return $this->scale;
     }
 
     /**
@@ -299,7 +299,7 @@ class Column extends AbstractAsset
      */
     public function getUnsigned()
     {
-        return $this->_unsigned;
+        return $this->unsigned;
     }
 
     /**
@@ -307,7 +307,7 @@ class Column extends AbstractAsset
      */
     public function getFixed()
     {
-        return $this->_fixed;
+        return $this->fixed;
     }
 
     /**
@@ -315,7 +315,7 @@ class Column extends AbstractAsset
      */
     public function getNotnull()
     {
-        return $this->_notnull;
+        return $this->notnull;
     }
 
     /**
@@ -323,7 +323,7 @@ class Column extends AbstractAsset
      */
     public function getDefault()
     {
-        return $this->_default;
+        return $this->default;
     }
 
     /**
@@ -331,7 +331,7 @@ class Column extends AbstractAsset
      */
     public function getPlatformOptions()
     {
-        return $this->_platformOptions;
+        return $this->platformOptions;
     }
 
     /**
@@ -341,7 +341,7 @@ class Column extends AbstractAsset
      */
     public function hasPlatformOption($name)
     {
-        return isset($this->_platformOptions[$name]);
+        return isset($this->platformOptions[$name]);
     }
 
     /**
@@ -351,7 +351,7 @@ class Column extends AbstractAsset
      */
     public function getPlatformOption($name)
     {
-        return $this->_platformOptions[$name];
+        return $this->platformOptions[$name];
     }
 
     /**
@@ -359,7 +359,7 @@ class Column extends AbstractAsset
      */
     public function getColumnDefinition()
     {
-        return $this->_columnDefinition;
+        return $this->columnDefinition;
     }
 
     /**
@@ -367,7 +367,7 @@ class Column extends AbstractAsset
      */
     public function getAutoincrement()
     {
-        return $this->_autoincrement;
+        return $this->autoincrement;
     }
 
     /**
@@ -377,7 +377,7 @@ class Column extends AbstractAsset
      */
     public function setAutoincrement($flag)
     {
-        $this->_autoincrement = $flag;
+        $this->autoincrement = $flag;
 
         return $this;
     }
@@ -389,7 +389,7 @@ class Column extends AbstractAsset
      */
     public function setComment($comment)
     {
-        $this->_comment = $comment;
+        $this->comment = $comment;
 
         return $this;
     }
@@ -399,7 +399,7 @@ class Column extends AbstractAsset
      */
     public function getComment()
     {
-        return $this->_comment;
+        return $this->comment;
     }
 
     /**
@@ -410,7 +410,7 @@ class Column extends AbstractAsset
      */
     public function setCustomSchemaOption($name, $value)
     {
-        $this->_customSchemaOptions[$name] = $value;
+        $this->customSchemaOptions[$name] = $value;
 
         return $this;
     }
@@ -422,7 +422,7 @@ class Column extends AbstractAsset
      */
     public function hasCustomSchemaOption($name)
     {
-        return isset($this->_customSchemaOptions[$name]);
+        return isset($this->customSchemaOptions[$name]);
     }
 
     /**
@@ -432,7 +432,7 @@ class Column extends AbstractAsset
      */
     public function getCustomSchemaOption($name)
     {
-        return $this->_customSchemaOptions[$name];
+        return $this->customSchemaOptions[$name];
     }
 
     /**
@@ -442,7 +442,7 @@ class Column extends AbstractAsset
      */
     public function setCustomSchemaOptions(array $customSchemaOptions)
     {
-        $this->_customSchemaOptions = $customSchemaOptions;
+        $this->customSchemaOptions = $customSchemaOptions;
 
         return $this;
     }
@@ -452,7 +452,7 @@ class Column extends AbstractAsset
      */
     public function getCustomSchemaOptions()
     {
-        return $this->_customSchemaOptions;
+        return $this->customSchemaOptions;
     }
 
     /**
@@ -461,18 +461,18 @@ class Column extends AbstractAsset
     public function toArray()
     {
         return array_merge([
-            'name'          => $this->_name,
-            'type'          => $this->_type,
-            'default'       => $this->_default,
-            'notnull'       => $this->_notnull,
-            'length'        => $this->_length,
-            'precision'     => $this->_precision,
-            'scale'         => $this->_scale,
-            'fixed'         => $this->_fixed,
-            'unsigned'      => $this->_unsigned,
-            'autoincrement' => $this->_autoincrement,
-            'columnDefinition' => $this->_columnDefinition,
-            'comment' => $this->_comment,
-        ], $this->_platformOptions, $this->_customSchemaOptions);
+            'name'          => $this->name,
+            'type'          => $this->type,
+            'default'       => $this->default,
+            'notnull'       => $this->notnull,
+            'length'        => $this->length,
+            'precision'     => $this->precision,
+            'scale'         => $this->scale,
+            'fixed'         => $this->fixed,
+            'unsigned'      => $this->unsigned,
+            'autoincrement' => $this->autoincrement,
+            'columnDefinition' => $this->columnDefinition,
+            'comment' => $this->comment,
+        ], $this->platformOptions, $this->customSchemaOptions);
     }
 }

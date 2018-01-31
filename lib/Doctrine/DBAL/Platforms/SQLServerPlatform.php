@@ -215,7 +215,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
+    protected function buildCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $defaultConstraintsSql = [];
         $commentsSql           = [];
@@ -356,7 +356,7 @@ class SQLServerPlatform extends AbstractPlatform
         $constraint = parent::getCreateIndexSQL($index, $table);
 
         if ($index->isUnique() && !$index->isPrimary()) {
-            $constraint = $this->_appendUniqueConstraintDefinition($constraint, $index);
+            $constraint = $this->appendUniqueConstraintDefinition($constraint, $index);
         }
 
         return $constraint;
@@ -389,7 +389,7 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @return string
      */
-    private function _appendUniqueConstraintDefinition($sql, Index $index)
+    private function appendUniqueConstraintDefinition($sql, Index $index)
     {
         $fields = [];
 
@@ -1070,7 +1070,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getSetTransactionIsolationSQL($level)
     {
-        return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
+        return 'SET TRANSACTION ISOLATION LEVEL ' . $this->getTransactionIsolationLevelSQL($level);
     }
 
     /**
@@ -1078,7 +1078,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
-        return 'INT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'INT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -1086,7 +1086,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
-        return 'BIGINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'BIGINT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -1094,7 +1094,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
-        return 'SMALLINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+        return 'SMALLINT' . $this->getCommonIntegerTypeDeclarationSQL($field);
     }
 
     /**
@@ -1140,7 +1140,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
+    protected function getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
         return (!empty($columnDef['autoincrement'])) ? ' IDENTITY' : '';
     }

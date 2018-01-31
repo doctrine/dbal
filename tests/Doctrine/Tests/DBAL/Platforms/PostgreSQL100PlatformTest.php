@@ -27,7 +27,7 @@ class PostgreSQL100PlatformTest extends PostgreSQL94PlatformTest
                 WHERE  sequence_catalog = 'test_db'
                 AND    sequence_schema NOT LIKE 'pg\_%'
                 AND    sequence_schema != 'information_schema'",
-            $this->_platform->getListSequencesSQL('test_db')
+            $this->platform->getListSequencesSQL('test_db')
         );
     }
 }

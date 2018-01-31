@@ -17,9 +17,9 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $view = new View($name, $sql);
 
-        $this->_sm->dropAndCreateView($view);
+        $this->sm->dropAndCreateView($view);
 
-        $views = $this->_sm->listViews();
+        $views = $this->sm->listViews();
 
         self::assertCount(1, $views, "Database has to have one view.");
         self::assertInstanceOf('Doctrine\DBAL\Schema\View', $views[$name]);
@@ -30,13 +30,13 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
     public function testDropAndCreateAdvancedIndex()
     {
         $table = $this->getTestTable('test_create_advanced_index');
-        $this->_sm->dropAndCreateTable($table);
-        $this->_sm->dropAndCreateIndex(
+        $this->sm->dropAndCreateTable($table);
+        $this->sm->dropAndCreateIndex(
             new Index('test', array('test'), true, false, array('clustered', 'with_nulls_not_distinct', 'for_olap_workload')),
             $table->getName()
         );
 
-        $tableIndexes = $this->_sm->listTableIndexes('test_create_advanced_index');
+        $tableIndexes = $this->sm->listTableIndexes('test_create_advanced_index');
         self::assertInternalType('array', $tableIndexes);
         self::assertEquals('test', $tableIndexes['test']->getName());
         self::assertEquals(array('test'), $tableIndexes['test']->getColumns());
@@ -54,9 +54,9 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('test', 'string', array('fixed' => true));
         $table->setPrimaryKey(array('id'));
 
-        $this->_sm->dropAndCreateTable($table);
+        $this->sm->dropAndCreateTable($table);
 
-        $columns = $this->_sm->listTableColumns('list_table_columns_char');
+        $columns = $this->sm->listTableColumns('list_table_columns_char');
 
         self::assertArrayHasKey('test', $columns);
         self::assertTrue($columns['test']->getFixed());

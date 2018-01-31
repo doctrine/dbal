@@ -15,14 +15,14 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         parent::setUp();
 
-        if (! $this->_conn->getDriver() instanceof Driver) {
+        if (! $this->conn->getDriver() instanceof Driver) {
             $this->markTestSkipped('sqlanywhere only test.');
         }
     }
 
     public function testNonPersistentConnection()
     {
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         $params['persistent'] = false;
 
         $conn = DriverManager::getConnection($params);
@@ -34,7 +34,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testPersistentConnection()
     {
-        $params = $this->_conn->getParams();
+        $params = $this->conn->getParams();
         $params['persistent'] = true;
 
         $conn = DriverManager::getConnection($params);

@@ -19,18 +19,18 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     public function listTableNames()
     {
-        $sql = $this->_platform->getListTablesSQL();
-        $sql .= " AND CREATOR = UPPER('".$this->_conn->getUsername()."')";
+        $sql = $this->platform->getListTablesSQL();
+        $sql .= " AND CREATOR = UPPER('".$this->conn->getUsername()."')";
 
-        $tables = $this->_conn->fetchAll($sql);
+        $tables = $this->conn->fetchAll($sql);
 
-        return $this->filterAssetNames($this->_getPortableTablesList($tables));
+        return $this->filterAssetNames($this->getPortableTablesList($tables));
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableColumnDefinition($tableColumn)
+    protected function getPortableTableColumnDefinition($tableColumn)
     {
         $tableColumn = array_change_key_case($tableColumn, \CASE_LOWER);
 
@@ -46,7 +46,7 @@ class DB2SchemaManager extends AbstractSchemaManager
             $default = trim($tableColumn['default'], "'");
         }
 
-        $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
+        $type = $this->platform->getDoctrineTypeMapping($tableColumn['typename']);
 
         if (isset($tableColumn['comment'])) {
             $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
@@ -99,7 +99,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTablesList($tables)
+    protected function getPortableTablesList($tables)
     {
         $tableNames = [];
         foreach ($tables as $tableRow) {
@@ -113,20 +113,20 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableIndexesList($tableIndexRows, $tableName = null)
+    protected function getPortableTableIndexesList($tableIndexRows, $tableName = null)
     {
         foreach ($tableIndexRows as &$tableIndexRow) {
             $tableIndexRow = array_change_key_case($tableIndexRow, \CASE_LOWER);
             $tableIndexRow['primary'] = (boolean) $tableIndexRow['primary'];
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
+        return parent::getPortableTableIndexesList($tableIndexRows, $tableName);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeyDefinition($tableForeignKey)
+    protected function getPortableTableForeignKeyDefinition($tableForeignKey)
     {
         return new ForeignKeyConstraint(
             $tableForeignKey['local_columns'],
@@ -140,7 +140,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableTableForeignKeysList($tableForeignKeys)
+    protected function getPortableTableForeignKeysList($tableForeignKeys)
     {
         $foreignKeys = [];
 
@@ -164,13 +164,13 @@ class DB2SchemaManager extends AbstractSchemaManager
             }
         }
 
-        return parent::_getPortableTableForeignKeysList($foreignKeys);
+        return parent::getPortableTableForeignKeysList($foreignKeys);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableForeignKeyRuleDef($def)
+    protected function getPortableForeignKeyRuleDef($def)
     {
         if ($def == "C") {
             return "CASCADE";
@@ -184,7 +184,7 @@ class DB2SchemaManager extends AbstractSchemaManager
     /**
      * {@inheritdoc}
      */
-    protected function _getPortableViewDefinition($view)
+    protected function getPortableViewDefinition($view)
     {
         $view = array_change_key_case($view, \CASE_LOWER);
         // sadly this still segfaults on PDO_IBM, see http://pecl.php.net/bugs/bug.php?id=17199

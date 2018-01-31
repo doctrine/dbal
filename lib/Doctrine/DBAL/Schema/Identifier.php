@@ -22,10 +22,10 @@ class Identifier extends AbstractAsset
      */
     public function __construct($identifier, $quote = false)
     {
-        $this->_setName($identifier);
+        $this->setName($identifier);
 
-        if ($quote && ! $this->_quoted) {
-            $this->_setName('"' . $this->getName() . '"');
+        if ($quote && ! $this->quoted) {
+            $this->setName('"' . $this->getName() . '"');
         }
     }
 }
