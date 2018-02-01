@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
@@ -50,7 +51,7 @@ class BigIntType extends Type implements PhpIntegerMappingType
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_STR;
+        return ParameterType::STRING;
     }
 
     /**

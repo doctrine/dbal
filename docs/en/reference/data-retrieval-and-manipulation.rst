@@ -180,13 +180,13 @@ Binding Types
 -------------
 
 Doctrine DBAL extends PDOs handling of binding types in prepared statements
-considerably. Besides the well known ``\PDO::PARAM_*`` constants you
+considerably. Besides ``Doctrine\DBAL\ParameterType`` constants, you
 can make use of two very powerful additional features.
 
 Doctrine\DBAL\Types Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you don't specify an integer (through a ``PDO::PARAM*`` constant) to
+If you don't specify an integer (through one of ``Doctrine\DBAL\ParameterType`` constants) to
 any of the parameter binding methods but a string, Doctrine DBAL will
 ask the type abstraction layer to convert the passed value from
 its PHP to a database representation. This way you can pass ``\DateTime``
@@ -271,7 +271,14 @@ be specified as well:
     // Same SQL WITHOUT usage of Doctrine\DBAL\Connection::PARAM_INT_ARRAY
     $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?, ?, ?, ?, ?, ?)',
         array(1, 2, 3, 4, 5, 6),
-        array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+        array(
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+        )
     );
 
 This is much more complicated and is ugly to write generically.
@@ -469,8 +476,11 @@ Quote a value:
 .. code-block:: php
 
     <?php
+
+    use Doctrine\DBAL\ParameterType;
+
     $quoted = $conn->quote('value');
-    $quoted = $conn->quote('1234', \PDO::PARAM_INT);
+    $quoted = $conn->quote('1234', ParameterType::INTEGER);
 
 quoteIdentifier()
 ~~~~~~~~~~~~~~~~~

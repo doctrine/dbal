@@ -11,13 +11,18 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\Tests\Mocks\DriverConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
 use Doctrine\Tests\Mocks\VersionAwarePlatformDriverMock;
 
+/**
+ * @requires extension pdo_mysql
+ */
 class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
@@ -44,7 +49,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
 
         $conn = $this->getMockBuilder(Connection::class)
             ->setMethods(['executeUpdate'])
@@ -153,6 +160,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     }
 
     /**
+     * @requires extension pdo_sqlite
      * @expectedException \Doctrine\DBAL\DBALException
      * @dataProvider getQueryMethods
      */
@@ -231,7 +239,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
         $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
 
         $conn->setAutoCommit(false);
@@ -251,7 +261,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
         $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
 
         $conn->setAutoCommit(false);
@@ -269,7 +281,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
         $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
 
         $conn->setAutoCommit(false);
@@ -287,7 +301,9 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
         $conn = new Connection(array('platform' => new Mocks\MockPlatform()), $driverMock);
 
         $conn->connect();
@@ -479,21 +495,23 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testFetchAssoc()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = array(666);
-        $types     = array(\PDO::PARAM_INT);
-        $result    = array();
+        $params    = [666];
+        $types     = [ParameterType::INTEGER];
+        $result    = [];
 
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
 
         $driverStatementMock = $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
-            ->with(\PDO::FETCH_ASSOC)
+            ->with(FetchMode::ASSOCIATIVE)
             ->will($this->returnValue($result));
 
         /** @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\DBAL\Connection $conn */
@@ -513,21 +531,23 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testFetchArray()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = array(666);
-        $types     = array(\PDO::PARAM_INT);
-        $result    = array();
+        $params    = [666];
+        $types     = [ParameterType::INTEGER];
+        $result    = [];
 
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
 
         $driverStatementMock = $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
-            ->with(\PDO::FETCH_NUM)
+            ->with(FetchMode::NUMERIC)
             ->will($this->returnValue($result));
 
         /** @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\DBAL\Connection $conn */
@@ -547,16 +567,18 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testFetchColumn()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = array(666);
-        $types     = array(\PDO::PARAM_INT);
+        $params    = [666];
+        $types     = [ParameterType::INTEGER];
         $column    = 0;
-        $result    = array();
+        $result    = [];
 
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
 
         $driverStatementMock = $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
 
@@ -605,15 +627,17 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
     public function testFetchAll()
     {
         $statement = 'SELECT * FROM foo WHERE bar = ?';
-        $params    = array(666);
-        $types     = array(\PDO::PARAM_INT);
-        $result    = array();
+        $params    = [666];
+        $types     = [ParameterType::INTEGER];
+        $result    = [];
 
         $driverMock = $this->createMock('Doctrine\DBAL\Driver');
 
         $driverMock->expects($this->any())
             ->method('connect')
-            ->will($this->returnValue(new DriverConnectionMock()));
+            ->will($this->returnValue(
+                $this->createMock(DriverConnection::class)
+            ));
 
         $driverStatementMock = $this->createMock('Doctrine\Tests\Mocks\DriverStatementMock');
 
@@ -756,7 +780,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = [666];
-        $types  = [\PDO::PARAM_INT];
+        $types  = [ParameterType::INTEGER];
 
         /* @var $queryCacheProfileMock QueryCacheProfile|\PHPUnit_Framework_MockObject_MockObject */
         $queryCacheProfileMock = $this->createMock(QueryCacheProfile::class);

@@ -3,138 +3,191 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\Connection;
-use PDO;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * @group DDC-1372
  */
 class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-
     public function ticketProvider()
     {
-        return array(
-            array(
+        return [
+            [
                 'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar IN (:bar)',
-                array('foo'=>1,'bar'=> array(1, 2, 3)),
-                array('foo'=>PDO::PARAM_INT,'bar'=> Connection::PARAM_INT_ARRAY,),
-                array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
-                )
-            ),
+                [
+                    'foo' => 1,
+                    'bar' => [1, 2, 3],
+                ],
+                [
+                    'foo' => ParameterType::INTEGER,
+                    'bar' => Connection::PARAM_INT_ARRAY,
+                ],
+                [
+                    ['id' => 1, 'foo' => 1, 'bar' => 1],
+                    ['id' => 2, 'foo' => 1, 'bar' => 2],
+                    ['id' => 3, 'foo' => 1, 'bar' => 3],
+                ],
+            ],
 
-            array(
+            [
                 'SELECT * FROM ddc1372_foobar f WHERE f.foo = :foo AND f.bar IN (:bar)',
-                array('foo'=>1,'bar'=> array(1, 2, 3)),
-                array('bar'=> Connection::PARAM_INT_ARRAY,'foo'=>PDO::PARAM_INT),
-                array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
-                )
-            ),
+                [
+                    'foo' => 1,
+                    'bar' => [1, 2, 3],
+                ],
+                [
+                    'bar' => Connection::PARAM_INT_ARRAY,
+                    'foo' => ParameterType::INTEGER,
+                ],
+                [
+                    ['id' => 1, 'foo' => 1, 'bar' => 1],
+                    ['id' => 2, 'foo' => 1, 'bar' => 2],
+                    ['id' => 3, 'foo' => 1, 'bar' => 3],
+                ],
+            ],
 
-            array(
+            [
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar IN (:bar) AND f.foo = :foo',
-                array('foo'=>1,'bar'=> array(1, 2, 3)),
-                array('bar'=> Connection::PARAM_INT_ARRAY,'foo'=>PDO::PARAM_INT),
-                array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
-                )
-            ),
+                [
+                    'foo' => 1,
+                    'bar' => [1, 2, 3],
+                ],
+                [
+                    'bar' => Connection::PARAM_INT_ARRAY,
+                    'foo' => ParameterType::INTEGER,
+                ],
+                [
+                    ['id' => 1, 'foo' => 1, 'bar' => 1],
+                    ['id' => 2, 'foo' => 1, 'bar' => 2],
+                    ['id' => 3, 'foo' => 1, 'bar' => 3],
+                ],
+            ],
 
-            array(
+            [
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar IN (:bar) AND f.foo = :foo',
-                array('foo'=>1,'bar'=> array('1', '2', '3')),
-                array('bar'=> Connection::PARAM_STR_ARRAY,'foo'=>PDO::PARAM_INT),
-                array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
-                )
-            ),
+                [
+                    'foo' => 1,
+                    'bar' => ['1', '2', '3'],
+                ],
+                [
+                    'bar' => Connection::PARAM_STR_ARRAY,
+                    'foo' => ParameterType::INTEGER,
+                ],
+                [
+                    ['id' => 1, 'foo' => 1, 'bar' => 1],
+                    ['id' => 2, 'foo' => 1, 'bar' => 2],
+                    ['id' => 3, 'foo' => 1, 'bar' => 3],
+                ],
+            ],
 
-            array(
+            [
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar IN (:bar) AND f.foo IN (:foo)',
-                array('foo'=>array('1'),'bar'=> array(1, 2, 3,4)),
-                array('bar'=> Connection::PARAM_STR_ARRAY,'foo'=>Connection::PARAM_INT_ARRAY),
-                array(
-                    array('id'=>1,'foo'=>1,'bar'=>1),
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                    array('id'=>3,'foo'=>1,'bar'=>3),
-                    array('id'=>4,'foo'=>1,'bar'=>4),
-                )
-            ),
+                [
+                    'foo' => ['1'],
+                    'bar' => [1, 2, 3, 4],
+                ],
+                [
+                    'bar' => Connection::PARAM_STR_ARRAY,
+                    'foo' => Connection::PARAM_INT_ARRAY,
+                ],
+                [
+                    ['id' => 1, 'foo' => 1, 'bar' => 1],
+                    ['id' => 2, 'foo' => 1, 'bar' => 2],
+                    ['id' => 3, 'foo' => 1, 'bar' => 3],
+                    ['id' => 4, 'foo' => 1, 'bar' => 4],
+                ],
+            ],
 
-            array(
+            [
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar IN (:bar) AND f.foo IN (:foo)',
-                array('foo'=>1,'bar'=> 2),
-                array('bar'=>PDO::PARAM_INT,'foo'=>PDO::PARAM_INT),
-                array(
-                    array('id'=>2,'foo'=>1,'bar'=>2),
-                )
-            ),
+                [
+                    'foo' => 1,
+                    'bar' => 2,
+                ],
+                [
+                    'bar' => ParameterType::INTEGER,
+                    'foo' => ParameterType::INTEGER,
+                ],
+                [
+                    ['id' => 2, 'foo' => 1, 'bar' => 2],
+                ],
+            ],
 
-            array(
+            [
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar = :arg AND f.foo <> :arg',
-                array('arg'=>'1'),
-                array('arg'=>PDO::PARAM_STR),
-                array(
-                    array('id'=>5,'foo'=>2,'bar'=>1),
-                )
-            ),
+                ['arg' => '1'],
+                [
+                    'arg' => ParameterType::STRING,
+                ],
+                [
+                    ['id' => 5, 'foo' => 2, 'bar' => 1],
+                ],
+            ],
 
-            array(
+            [
                 'SELECT * FROM ddc1372_foobar f WHERE f.bar NOT IN (:arg) AND f.foo IN (:arg)',
-                array('arg'=>array(1, 2)),
-                array('arg'=>Connection::PARAM_INT_ARRAY),
-                array(
-                    array('id'=>3,'foo'=>1,'bar'=>3),
-                    array('id'=>4,'foo'=>1,'bar'=>4),
-                )
-            ),
-
-        );
+                [
+                    'arg' => [1, 2],
+                ],
+                [
+                    'arg' => Connection::PARAM_INT_ARRAY,
+                ],
+                [
+                    ['id' => 3, 'foo' => 1, 'bar' => 3],
+                    ['id' => 4, 'foo' => 1, 'bar' => 4],
+                ],
+            ],
+        ];
     }
 
     protected function setUp()
     {
         parent::setUp();
 
-        if (!$this->_conn->getSchemaManager()->tablesExist("ddc1372_foobar")) {
+        if (! $this->_conn->getSchemaManager()->tablesExist('ddc1372_foobar')) {
             try {
-                $table = new \Doctrine\DBAL\Schema\Table("ddc1372_foobar");
+                $table = new Table('ddc1372_foobar');
                 $table->addColumn('id', 'integer');
-                $table->addColumn('foo','string');
-                $table->addColumn('bar','string');
-                $table->setPrimaryKey(array('id'));
-
+                $table->addColumn('foo', 'string');
+                $table->addColumn('bar', 'string');
+                $table->setPrimaryKey(['id']);
 
                 $sm = $this->_conn->getSchemaManager();
                 $sm->createTable($table);
 
-                $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 1, 'foo'   => 1,  'bar'   => 1
-                ));
-                $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 2, 'foo'   => 1,  'bar'   => 2
-                ));
-                $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 3, 'foo'   => 1,  'bar'   => 3
-                ));
-                $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 4, 'foo'   => 1,  'bar'   => 4
-                ));
-                $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 5, 'foo'   => 2,  'bar'   => 1
-                ));
-                $this->_conn->insert('ddc1372_foobar', array(
-                        'id'    => 6, 'foo'   => 2,  'bar'   => 2
-                ));
+                $this->_conn->insert('ddc1372_foobar', [
+                    'id'  => 1,
+                    'foo' => 1,
+                    'bar' => 1,
+                ]);
+                $this->_conn->insert('ddc1372_foobar', [
+                    'id'  => 2,
+                    'foo' => 1,
+                    'bar' => 2,
+                ]);
+                $this->_conn->insert('ddc1372_foobar', [
+                    'id'  => 3,
+                    'foo' => 1,
+                    'bar' => 3,
+                ]);
+                $this->_conn->insert('ddc1372_foobar', [
+                    'id'  => 4,
+                    'foo' => 1,
+                    'bar' => 4,
+                ]);
+                $this->_conn->insert('ddc1372_foobar', [
+                    'id'  => 5,
+                    'foo' => 2,
+                    'bar' => 1,
+                ]);
+                $this->_conn->insert('ddc1372_foobar', [
+                    'id'  => 6,
+                    'foo' => 2,
+                    'bar' => 2,
+                ]);
             } catch(\Exception $e) {
                 $this->fail($e->getMessage());
             }
@@ -151,7 +204,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testTicket($query,$params,$types,$expected)
     {
         $stmt   = $this->_conn->executeQuery($query, $params, $types);
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         foreach ($result as $k => $v) {
             $result[$k] = array_change_key_case($v, CASE_LOWER);
@@ -159,5 +212,4 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         self::assertEquals($result, $expected);
     }
-
 }

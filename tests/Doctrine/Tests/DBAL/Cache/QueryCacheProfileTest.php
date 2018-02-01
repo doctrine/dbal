@@ -3,8 +3,8 @@
 namespace Doctrine\Tests\DBAL\Cache;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Tests\DbalTestCase;
-use PDO;
 
 class QueryCacheProfileTest extends DbalTestCase
 {
@@ -23,7 +23,7 @@ class QueryCacheProfileTest extends DbalTestCase
     {
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = [666];
-        $types  = [PDO::PARAM_INT];
+        $types  = [ParameterType::INTEGER];
 
         $connectionParams = array(
             'dbname'   => 'database_name',
@@ -47,7 +47,7 @@ class QueryCacheProfileTest extends DbalTestCase
     {
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = [666];
-        $types  = [PDO::PARAM_INT];
+        $types  = [ParameterType::INTEGER];
 
         $connectionParams = array(
             'dbname'   => 'database_name',
@@ -79,7 +79,7 @@ class QueryCacheProfileTest extends DbalTestCase
     {
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = [666];
-        $types  = [PDO::PARAM_INT];
+        $types  = [ParameterType::INTEGER];
 
         $connectionParams = array(
             'dbname'   => 'database_name',
@@ -114,7 +114,7 @@ class QueryCacheProfileTest extends DbalTestCase
     {
         $query  = 'SELECT * FROM foo WHERE bar = ?';
         $params = [666];
-        $types  = [PDO::PARAM_INT];
+        $types  = [ParameterType::INTEGER];
 
         $connectionParams = array(
             'dbname'   => 'database_name',

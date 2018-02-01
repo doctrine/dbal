@@ -21,6 +21,8 @@ namespace Doctrine\DBAL\Id;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\LockMode;
 
 /**
  * Table ID Generator for those poor languages that are missing sequences.
@@ -119,12 +121,13 @@ class TableGenerator
 
         try {
             $platform = $this->conn->getDatabasePlatform();
-            $sql = "SELECT sequence_value, sequence_increment_by " .
-                   "FROM " . $platform->appendLockHint($this->generatorTableName, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) . " " .
-                   "WHERE sequence_name = ? " . $platform->getWriteLockSQL();
-            $stmt = $this->conn->executeQuery($sql, [$sequenceName]);
+            $sql      = 'SELECT sequence_value, sequence_increment_by'
+                . ' FROM ' . $platform->appendLockHint($this->generatorTableName, LockMode::PESSIMISTIC_WRITE)
+                . ' WHERE sequence_name = ? ' . $platform->getWriteLockSQL();
+            $stmt     = $this->conn->executeQuery($sql, [$sequenceName]);
+            $row      = $stmt->fetch(FetchMode::ASSOCIATIVE);
 
-            if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            if ($row !== false) {
                 $row = array_change_key_case($row, CASE_LOWER);
 
                 $value = $row['sequence_value'];

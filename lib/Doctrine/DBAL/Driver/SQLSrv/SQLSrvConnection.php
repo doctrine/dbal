@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\ParameterType;
 
 /**
  * SQL Server implementation for the Connection interface.
@@ -102,7 +103,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      * {@inheritDoc}
      * @license New BSD, code from Zend Framework
      */
-    public function quote($value, $type=\PDO::PARAM_STR)
+    public function quote($value, $type = ParameterType::STRING)
     {
         if (is_int($value)) {
             return $value;

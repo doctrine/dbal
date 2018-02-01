@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\DBALException;
 
@@ -247,19 +248,13 @@ abstract class Type
      * Gets the (preferred) binding type for values of this type that
      * can be used when binding parameters to prepared statements.
      *
-     * This method should return one of the PDO::PARAM_* constants, that is, one of:
-     *
-     * PDO::PARAM_BOOL
-     * PDO::PARAM_NULL
-     * PDO::PARAM_INT
-     * PDO::PARAM_STR
-     * PDO::PARAM_LOB
+     * This method should return one of the {@link \Doctrine\DBAL\ParameterType} constants.
      *
      * @return int
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_STR;
+        return ParameterType::STRING;
     }
 
     /**
