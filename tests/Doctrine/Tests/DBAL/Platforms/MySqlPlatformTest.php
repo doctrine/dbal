@@ -15,7 +15,7 @@ class MySqlPlatformTest extends AbstractMySQLPlatformTestCase
     public function testHasCorrectDefaultTransactionIsolationLevel()
     {
         self::assertEquals(
-            TransactionIsolationLevel::REPEATABLE_READ,
+            TransactionIsolationLevel::REPEATABLE_READ(),
             $this->_platform->getDefaultTransactionIsolationLevel()
         );
     }

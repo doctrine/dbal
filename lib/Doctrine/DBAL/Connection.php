@@ -33,34 +33,6 @@ use Throwable;
 class Connection implements DriverConnection
 {
     /**
-     * Constant for transaction isolation level READ UNCOMMITTED.
-     *
-     * @deprecated Use TransactionIsolationLevel::READ_UNCOMMITTED.
-     */
-    public const TRANSACTION_READ_UNCOMMITTED = TransactionIsolationLevel::READ_UNCOMMITTED;
-
-    /**
-     * Constant for transaction isolation level READ COMMITTED.
-     *
-     * @deprecated Use TransactionIsolationLevel::READ_COMMITTED.
-     */
-    public const TRANSACTION_READ_COMMITTED = TransactionIsolationLevel::READ_COMMITTED;
-
-    /**
-     * Constant for transaction isolation level REPEATABLE READ.
-     *
-     * @deprecated Use TransactionIsolationLevel::REPEATABLE_READ.
-     */
-    public const TRANSACTION_REPEATABLE_READ = TransactionIsolationLevel::REPEATABLE_READ;
-
-    /**
-     * Constant for transaction isolation level SERIALIZABLE.
-     *
-     * @deprecated Use TransactionIsolationLevel::SERIALIZABLE.
-     */
-    public const TRANSACTION_SERIALIZABLE = TransactionIsolationLevel::SERIALIZABLE;
-
-    /**
      * Represents an array of ints to be expanded by Doctrine SQL parsing.
      *
      * @var int

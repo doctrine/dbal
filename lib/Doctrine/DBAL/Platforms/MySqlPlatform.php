@@ -971,7 +971,7 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSetTransactionIsolationSQL($level)
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level)
     {
         return 'SET SESSION TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
@@ -1117,8 +1117,8 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDefaultTransactionIsolationLevel()
+    public function getDefaultTransactionIsolationLevel() : TransactionIsolationLevel
     {
-        return TransactionIsolationLevel::REPEATABLE_READ;
+        return TransactionIsolationLevel::REPEATABLE_READ();
     }
 }

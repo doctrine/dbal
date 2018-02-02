@@ -603,37 +603,30 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testHasCorrectDefaultTransactionIsolationLevel()
     {
-        self::assertEquals(
-            TransactionIsolationLevel::READ_UNCOMMITTED,
+        self::assertSame(
+            TransactionIsolationLevel::READ_UNCOMMITTED(),
             $this->_platform->getDefaultTransactionIsolationLevel()
         );
     }
 
     public function testGeneratesTransactionsCommands()
     {
-        self::assertEquals(
+        self::assertSame(
             'SET TEMPORARY OPTION isolation_level = 0',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED())
         );
-        self::assertEquals(
+        self::assertSame(
             'SET TEMPORARY OPTION isolation_level = 1',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED())
         );
-        self::assertEquals(
+        self::assertSame(
             'SET TEMPORARY OPTION isolation_level = 2',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ())
         );
-        self::assertEquals(
+        self::assertSame(
             'SET TEMPORARY OPTION isolation_level = 3',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE())
         );
-    }
-
-    public function testCannotGenerateTransactionCommandWithInvalidIsolationLevel()
-    {
-        $this->expectException('\InvalidArgumentException');
-
-        $this->_platform->getSetTransactionIsolationSQL('invalid_transaction_isolation_level');
     }
 
     public function testModifiesLimitQuery()

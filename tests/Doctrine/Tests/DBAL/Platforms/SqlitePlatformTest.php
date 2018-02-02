@@ -41,19 +41,19 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
     {
         self::assertEquals(
             'PRAGMA read_uncommitted = 0',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED())
         );
         self::assertEquals(
             'PRAGMA read_uncommitted = 1',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED())
         );
         self::assertEquals(
             'PRAGMA read_uncommitted = 1',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ())
         );
         self::assertEquals(
             'PRAGMA read_uncommitted = 1',
-            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE())
         );
     }
 

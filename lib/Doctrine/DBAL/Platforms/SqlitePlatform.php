@@ -148,14 +148,14 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getTransactionIsolationLevelSQL($level)
+    protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level)
     {
-        switch ($level) {
-            case TransactionIsolationLevel::READ_UNCOMMITTED:
+        switch (true) {
+            case $level === TransactionIsolationLevel::READ_UNCOMMITTED():
                 return 0;
-            case TransactionIsolationLevel::READ_COMMITTED:
-            case TransactionIsolationLevel::REPEATABLE_READ:
-            case TransactionIsolationLevel::SERIALIZABLE:
+            case $level === TransactionIsolationLevel::READ_COMMITTED():
+            case $level === TransactionIsolationLevel::REPEATABLE_READ():
+            case $level === TransactionIsolationLevel::SERIALIZABLE():
                 return 1;
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
@@ -165,7 +165,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSetTransactionIsolationSQL($level)
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level)
     {
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
     }

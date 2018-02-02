@@ -2713,22 +2713,20 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL for a given transaction isolation level Connection constant.
      *
-     * @param int $level
-     *
      * @return string
      *
      * @throws \InvalidArgumentException
      */
-    protected function _getTransactionIsolationLevelSQL($level)
+    protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level)
     {
-        switch ($level) {
-            case TransactionIsolationLevel::READ_UNCOMMITTED:
+        switch (true) {
+            case $level === TransactionIsolationLevel::READ_UNCOMMITTED():
                 return 'READ UNCOMMITTED';
-            case TransactionIsolationLevel::READ_COMMITTED:
+            case $level === TransactionIsolationLevel::READ_COMMITTED():
                 return 'READ COMMITTED';
-            case TransactionIsolationLevel::REPEATABLE_READ:
+            case $level === TransactionIsolationLevel::REPEATABLE_READ():
                 return 'REPEATABLE READ';
-            case TransactionIsolationLevel::SERIALIZABLE:
+            case $level === TransactionIsolationLevel::SERIALIZABLE():
                 return 'SERIALIZABLE';
             default:
                 throw new \InvalidArgumentException('Invalid isolation level:' . $level);
@@ -2930,13 +2928,13 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL to set the transaction isolation level.
      *
-     * @param int $level
+     * @param TransactionIsolationLevel $level
      *
      * @return string
      *
      * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
      */
-    public function getSetTransactionIsolationSQL($level)
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level)
     {
         throw DBALException::notSupported(__METHOD__);
     }
@@ -3012,13 +3010,11 @@ abstract class AbstractPlatform
     /**
      * Gets the default transaction isolation level of the platform.
      *
-     * @return int The default isolation level.
-     *
-     * @see TransactionIsolationLevel
+     * @return TransactionIsolationLevel The default isolation level.
      */
-    public function getDefaultTransactionIsolationLevel()
+    public function getDefaultTransactionIsolationLevel() : TransactionIsolationLevel
     {
-        return TransactionIsolationLevel::READ_COMMITTED;
+        return TransactionIsolationLevel::READ_COMMITTED();
     }
 
     /* supports*() methods */

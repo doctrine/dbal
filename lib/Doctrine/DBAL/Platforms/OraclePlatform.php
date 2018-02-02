@@ -217,7 +217,7 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getSetTransactionIsolationSQL($level)
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level)
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
@@ -225,15 +225,15 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getTransactionIsolationLevelSQL($level)
+    protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level)
     {
-        switch ($level) {
-            case TransactionIsolationLevel::READ_UNCOMMITTED:
+        switch (true) {
+            case $level === TransactionIsolationLevel::READ_UNCOMMITTED():
                 return 'READ UNCOMMITTED';
-            case TransactionIsolationLevel::READ_COMMITTED:
+            case $level === TransactionIsolationLevel::READ_COMMITTED():
                 return 'READ COMMITTED';
-            case TransactionIsolationLevel::REPEATABLE_READ:
-            case TransactionIsolationLevel::SERIALIZABLE:
+            case $level === TransactionIsolationLevel::REPEATABLE_READ():
+            case $level === TransactionIsolationLevel::SERIALIZABLE():
                 return 'SERIALIZABLE';
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);

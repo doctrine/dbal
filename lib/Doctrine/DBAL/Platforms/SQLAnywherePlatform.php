@@ -514,9 +514,9 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getDefaultTransactionIsolationLevel()
+    public function getDefaultTransactionIsolationLevel() : TransactionIsolationLevel
     {
-        return TransactionIsolationLevel::READ_UNCOMMITTED;
+        return TransactionIsolationLevel::READ_UNCOMMITTED();
     }
 
     /**
@@ -993,7 +993,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getSetTransactionIsolationSQL($level)
+    public function getSetTransactionIsolationSQL(TransactionIsolationLevel $level)
     {
         return 'SET TEMPORARY OPTION isolation_level = ' . $this->_getTransactionIsolationLevelSQL($level);
     }
@@ -1234,19 +1234,17 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function _getTransactionIsolationLevelSQL($level)
+    protected function _getTransactionIsolationLevelSQL(TransactionIsolationLevel $level)
     {
-        switch ($level) {
-            case TransactionIsolationLevel::READ_UNCOMMITTED:
+        switch (true) {
+            case $level === TransactionIsolationLevel::READ_UNCOMMITTED():
                 return 0;
-            case TransactionIsolationLevel::READ_COMMITTED:
+            case $level === TransactionIsolationLevel::READ_COMMITTED():
                 return 1;
-            case TransactionIsolationLevel::REPEATABLE_READ:
+            case $level === TransactionIsolationLevel::REPEATABLE_READ():
                 return 2;
-            case TransactionIsolationLevel::SERIALIZABLE:
+            case $level === TransactionIsolationLevel::SERIALIZABLE():
                 return 3;
-            default:
-                throw new \InvalidArgumentException('Invalid isolation level:' . $level);
         }
     }
 
