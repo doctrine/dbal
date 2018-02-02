@@ -2,11 +2,15 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\Enumeration\Enumerated;
+
 /**
  * Contains portable column case conversions.
  */
 final class ColumnCase
 {
+    use Enumerated;
+
     /**
      * Convert column names to upper case.
      *
@@ -21,10 +25,13 @@ final class ColumnCase
      */
     public const LOWER = 2;
 
-    /**
-     * This class cannot be instantiated.
-     */
-    private function __construct()
+    public static function UPPER() : self
     {
+        return self::get(self::UPPER);
+    }
+
+    public static function LOWER() : self
+    {
+        return self::get(self::LOWER);
     }
 }

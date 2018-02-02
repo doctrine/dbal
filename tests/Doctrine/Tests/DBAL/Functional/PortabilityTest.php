@@ -25,20 +25,22 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
     }
 
     /**
-     * @param int $portabilityMode
-     * @param int $case
+     * @param int             $portabilityMode
+     * @param ColumnCase|null $case
      * @return  Connection
      */
     private function getPortableConnection(
         $portabilityMode = ConnectionPortability::PORTABILITY_ALL,
-        $case = ColumnCase::LOWER
+        ?ColumnCase $case = null
     ) {
+        $case = $case ?? ColumnCase::LOWER();
+
         if (!$this->portableConnection) {
             $params = $this->_conn->getParams();
 
             $params['wrapperClass'] = ConnectionPortability::class;
             $params['portability']  = $portabilityMode;
-            $params['fetch_case']   = $case;
+            $params['fetch_case']   = $case();
 
             $this->portableConnection = DriverManager::getConnection($params, $this->_conn->getConfiguration(), $this->_conn->getEventManager());
 
