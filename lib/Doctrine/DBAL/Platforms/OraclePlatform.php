@@ -87,18 +87,18 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, DateIntervalUnit $unit)
     {
-        switch ($unit) {
-            case DateIntervalUnit::MONTH:
-            case DateIntervalUnit::QUARTER:
-            case DateIntervalUnit::YEAR:
-                switch ($unit) {
-                    case DateIntervalUnit::QUARTER:
+        switch (true) {
+            case $unit === DateIntervalUnit::MONTH():
+            case $unit === DateIntervalUnit::QUARTER():
+            case $unit === DateIntervalUnit::YEAR():
+                switch (true) {
+                    case $unit === DateIntervalUnit::QUARTER():
                         $interval *= 3;
                         break;
 
-                    case DateIntervalUnit::YEAR:
+                    case $unit === DateIntervalUnit::YEAR():
                         $interval *= 12;
                         break;
                 }
@@ -108,20 +108,20 @@ class OraclePlatform extends AbstractPlatform
             default:
                 $calculationClause = '';
 
-                switch ($unit) {
-                    case DateIntervalUnit::SECOND:
+                switch (true) {
+                    case $unit === DateIntervalUnit::SECOND():
                         $calculationClause = '/24/60/60';
                         break;
 
-                    case DateIntervalUnit::MINUTE:
+                    case $unit === DateIntervalUnit::MINUTE():
                         $calculationClause = '/24/60';
                         break;
 
-                    case DateIntervalUnit::HOUR:
+                    case $unit === DateIntervalUnit::HOUR():
                         $calculationClause = '/24';
                         break;
 
-                    case DateIntervalUnit::WEEK:
+                    case $unit === DateIntervalUnit::WEEK():
                         $calculationClause = '*7';
                         break;
                 }

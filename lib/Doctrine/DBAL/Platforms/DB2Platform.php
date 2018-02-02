@@ -173,21 +173,21 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, DateIntervalUnit $unit)
     {
-        switch ($unit) {
-            case DateIntervalUnit::WEEK:
+        switch (true) {
+            case $unit === DateIntervalUnit::WEEK():
                 $interval *= 7;
-                $unit      = DateIntervalUnit::DAY;
+                $unit      = DateIntervalUnit::DAY();
                 break;
 
-            case DateIntervalUnit::QUARTER:
+            case $unit === DateIntervalUnit::QUARTER():
                 $interval *= 3;
-                $unit      = DateIntervalUnit::MONTH;
+                $unit      = DateIntervalUnit::MONTH();
                 break;
         }
 
-        return $date . ' ' . $operator . ' ' . $interval . ' ' . $unit;
+        return $date . ' ' . $operator . ' ' . $interval . ' ' . $unit();
     }
 
     /**

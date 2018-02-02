@@ -54,46 +54,6 @@ abstract class AbstractPlatform
     const CREATE_FOREIGNKEYS = 2;
 
     /**
-     * @deprecated Use DateIntervalUnit::INTERVAL_UNIT_SECOND.
-     */
-    public const DATE_INTERVAL_UNIT_SECOND = DateIntervalUnit::SECOND;
-
-    /**
-     * @deprecated Use DateIntervalUnit::MINUTE.
-     */
-    public const DATE_INTERVAL_UNIT_MINUTE = DateIntervalUnit::MINUTE;
-
-    /**
-     * @deprecated Use DateIntervalUnit::HOUR.
-     */
-    public const DATE_INTERVAL_UNIT_HOUR = DateIntervalUnit::HOUR;
-
-    /**
-     * @deprecated Use DateIntervalUnit::DAY.
-     */
-    public const DATE_INTERVAL_UNIT_DAY = DateIntervalUnit::DAY;
-
-    /**
-     * @deprecated Use DateIntervalUnit::WEEK.
-     */
-    public const DATE_INTERVAL_UNIT_WEEK = DateIntervalUnit::WEEK;
-
-    /**
-     * @deprecated Use DateIntervalUnit::MONTH.
-     */
-    public const DATE_INTERVAL_UNIT_MONTH = DateIntervalUnit::MONTH;
-
-    /**
-     * @deprecated Use DateIntervalUnit::QUARTER.
-     */
-    public const DATE_INTERVAL_UNIT_QUARTER = DateIntervalUnit::QUARTER;
-
-    /**
-     * @deprecated Use DateIntervalUnit::QUARTER.
-     */
-    public const DATE_INTERVAL_UNIT_YEAR = DateIntervalUnit::YEAR;
-
-    /**
      * @var array|null
      */
     protected $doctrineTypeMapping = null;
@@ -1013,7 +973,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddSecondsExpression($date, $seconds)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $seconds, DateIntervalUnit::SECOND);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $seconds, DateIntervalUnit::SECOND());
     }
 
     /**
@@ -1028,7 +988,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubSecondsExpression($date, $seconds)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $seconds, DateIntervalUnit::SECOND);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $seconds, DateIntervalUnit::SECOND());
     }
 
     /**
@@ -1043,7 +1003,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddMinutesExpression($date, $minutes)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $minutes, DateIntervalUnit::MINUTE);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $minutes, DateIntervalUnit::MINUTE());
     }
 
     /**
@@ -1058,7 +1018,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubMinutesExpression($date, $minutes)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $minutes, DateIntervalUnit::MINUTE);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $minutes, DateIntervalUnit::MINUTE());
     }
 
     /**
@@ -1073,7 +1033,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddHourExpression($date, $hours)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $hours, DateIntervalUnit::HOUR);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $hours, DateIntervalUnit::HOUR());
     }
 
     /**
@@ -1088,7 +1048,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubHourExpression($date, $hours)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $hours, DateIntervalUnit::HOUR);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $hours, DateIntervalUnit::HOUR());
     }
 
     /**
@@ -1103,7 +1063,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddDaysExpression($date, $days)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $days, DateIntervalUnit::DAY);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $days, DateIntervalUnit::DAY());
     }
 
     /**
@@ -1118,7 +1078,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubDaysExpression($date, $days)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $days, DateIntervalUnit::DAY);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $days, DateIntervalUnit::DAY());
     }
 
     /**
@@ -1133,7 +1093,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddWeeksExpression($date, $weeks)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $weeks, DateIntervalUnit::WEEK);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $weeks, DateIntervalUnit::WEEK());
     }
 
     /**
@@ -1148,7 +1108,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubWeeksExpression($date, $weeks)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $weeks, DateIntervalUnit::WEEK);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $weeks, DateIntervalUnit::WEEK());
     }
 
     /**
@@ -1163,7 +1123,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddMonthExpression($date, $months)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $months, DateIntervalUnit::MONTH);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $months, DateIntervalUnit::MONTH());
     }
 
     /**
@@ -1178,7 +1138,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubMonthExpression($date, $months)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $months, DateIntervalUnit::MONTH);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $months, DateIntervalUnit::MONTH());
     }
 
     /**
@@ -1193,7 +1153,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddQuartersExpression($date, $quarters)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $quarters, DateIntervalUnit::QUARTER);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $quarters, DateIntervalUnit::QUARTER());
     }
 
     /**
@@ -1208,7 +1168,7 @@ abstract class AbstractPlatform
      */
     public function getDateSubQuartersExpression($date, $quarters)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $quarters, DateIntervalUnit::QUARTER);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $quarters, DateIntervalUnit::QUARTER());
     }
 
     /**
@@ -1223,7 +1183,7 @@ abstract class AbstractPlatform
      */
     public function getDateAddYearsExpression($date, $years)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '+', $years, DateIntervalUnit::YEAR);
+        return $this->getDateArithmeticIntervalExpression($date, '+', $years, DateIntervalUnit::YEAR());
     }
 
     /**
@@ -1238,23 +1198,23 @@ abstract class AbstractPlatform
      */
     public function getDateSubYearsExpression($date, $years)
     {
-        return $this->getDateArithmeticIntervalExpression($date, '-', $years, DateIntervalUnit::YEAR);
+        return $this->getDateArithmeticIntervalExpression($date, '-', $years, DateIntervalUnit::YEAR());
     }
 
     /**
      * Returns the SQL for a date arithmetic expression.
      *
-     * @param string $date     The column or literal representing a date to perform the arithmetic operation on.
-     * @param string $operator The arithmetic operator (+ or -).
-     * @param int    $interval The interval that shall be calculated into the date.
-     * @param string $unit     The unit of the interval that shall be calculated into the date.
-     *                         One of the DATE_INTERVAL_UNIT_* constants.
+     * @param string           $date     The column or literal representing a date to perform the arithmetic operation on.
+     * @param string           $operator The arithmetic operator (+ or -).
+     * @param int              $interval The interval that shall be calculated into the date.
+     * @param DateIntervalUnit $unit     The unit of the interval that shall be calculated into the date.
+     *                                   One of the DATE_INTERVAL_UNIT_* constants.
      *
      * @return string
      *
      * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, DateIntervalUnit $unit)
     {
         throw DBALException::notSupported(__METHOD__);
     }

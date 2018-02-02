@@ -44,11 +44,11 @@ class DrizzlePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, DateIntervalUnit $unit)
     {
         $function = '+' === $operator ? 'DATE_ADD' : 'DATE_SUB';
 
-        return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit . ')';
+        return $function . '(' . $date . ', INTERVAL ' . $interval . ' ' . $unit() . ')';
     }
 
     /**

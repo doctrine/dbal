@@ -57,7 +57,7 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, DateIntervalUnit $unit)
     {
         $factorClause = '';
 
@@ -65,7 +65,7 @@ class SQLServerPlatform extends AbstractPlatform
             $factorClause = '-1 * ';
         }
 
-        return 'DATEADD(' . $unit . ', ' . $factorClause . $interval . ', ' . $date . ')';
+        return 'DATEADD(' . $unit() . ', ' . $factorClause . $interval . ', ' . $date . ')';
     }
 
     /**

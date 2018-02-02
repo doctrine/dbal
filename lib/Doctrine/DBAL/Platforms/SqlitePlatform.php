@@ -112,28 +112,28 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
+    protected function getDateArithmeticIntervalExpression($date, $operator, $interval, DateIntervalUnit $unit)
     {
-        switch ($unit) {
-            case DateIntervalUnit::SECOND:
-            case DateIntervalUnit::MINUTE:
-            case DateIntervalUnit::HOUR:
-                return "DATETIME(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
+        switch (true) {
+            case $unit === DateIntervalUnit::SECOND():
+            case $unit === DateIntervalUnit::MINUTE():
+            case $unit === DateIntervalUnit::HOUR():
+                return "DATETIME(" . $date . ",'" . $operator . $interval . " " . $unit() . "')";
 
             default:
-                switch ($unit) {
-                    case DateIntervalUnit::WEEK:
+                switch (true) {
+                    case $unit === DateIntervalUnit::WEEK():
                         $interval *= 7;
-                        $unit      = DateIntervalUnit::DAY;
+                        $unit      = DateIntervalUnit::DAY();
                         break;
 
-                    case DateIntervalUnit::QUARTER:
+                    case $unit === DateIntervalUnit::QUARTER():
                         $interval *= 3;
-                        $unit      = DateIntervalUnit::MONTH;
+                        $unit      = DateIntervalUnit::MONTH();
                         break;
                 }
 
-                return "DATE(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
+                return "DATE(" . $date . ",'" . $operator . $interval . " " . $unit() . "')";
         }
     }
 
