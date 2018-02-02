@@ -75,7 +75,7 @@ class CompositeExpression implements \Countable
      */
     public function addMultiple(array $parts = [])
     {
-        foreach ((array) $parts as $part) {
+        foreach ($parts as $part) {
             $this->add($part);
         }
 
