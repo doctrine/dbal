@@ -31,7 +31,10 @@
         "sort-packages": true
     },
     "autoload": {
-        "psr-0": { "Doctrine\\DBAL\\": "lib/" }
+        "psr-0": {
+            "Doctrine\\DBAL\\": "lib/",
+            "Doctrine\\Enumeration\\": "lib/"
+        }
     },
     "autoload-dev": {
         "psr-0": { "Doctrine\\Tests\\": "tests/" }
