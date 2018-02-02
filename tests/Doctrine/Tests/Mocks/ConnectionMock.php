@@ -5,11 +5,6 @@ namespace Doctrine\Tests\Mocks;
 class ConnectionMock extends \Doctrine\DBAL\Connection
 {
     /**
-     * @var
-     */
-    private $_fetchOneResult;
-
-    /**
      * @var DatabasePlatformMock
      */
     private $_platformMock;
@@ -61,27 +56,12 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
     /**
      * @override
      */
-    public function fetchColumn($statement, array $params = array(), $colnum = 0, array $types = array())
-    {
-        return $this->_fetchOneResult;
-    }
-
-    /**
-     * @override
-     */
     public function quote($input, $type = null)
     {
         if (is_string($input)) {
             return "'" . $input . "'";
         }
         return $input;
-    }
-
-    /* Mock API */
-
-    public function setFetchOneResult($fetchOneResult)
-    {
-        $this->_fetchOneResult = $fetchOneResult;
     }
 
     public function setLastInsertId($id)
