@@ -94,34 +94,6 @@ abstract class AbstractPlatform
     public const DATE_INTERVAL_UNIT_YEAR = DateIntervalUnit::YEAR;
 
     /**
-     * @var int
-     *
-     * @deprecated Use TrimMode::UNSPECIFIED.
-     */
-    public const TRIM_UNSPECIFIED = TrimMode::UNSPECIFIED;
-
-    /**
-     * @var int
-     *
-     * @deprecated Use TrimMode::LEADING.
-     */
-    public const TRIM_LEADING = TrimMode::LEADING;
-
-    /**
-     * @var int
-     *
-     * @deprecated Use TrimMode::TRAILING.
-     */
-    public const TRIM_TRAILING = TrimMode::TRAILING;
-
-    /**
-     * @var int
-     *
-     * @deprecated Use TrimMode::BOTH.
-     */
-    public const TRIM_BOTH = TrimMode::BOTH;
-
-    /**
      * @var array|null
      */
     protected $doctrineTypeMapping = null;
@@ -757,26 +729,26 @@ abstract class AbstractPlatform
     /**
      * Returns the SQL snippet to trim a string.
      *
-     * @param string      $str  The expression to apply the trim to.
-     * @param int         $mode The position of the trim (leading/trailing/both).
-     * @param string|bool $char The char to trim, has to be quoted already. Defaults to space.
+     * @param string        $str  The expression to apply the trim to.
+     * @param TrimMode|null $mode The position of the trim (leading/trailing/both).
+     * @param string|bool   $char The char to trim, has to be quoted already. Defaults to space.
      *
      * @return string
      */
-    public function getTrimExpression($str, $mode = TrimMode::UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, ?TrimMode $mode = null, $char = false)
     {
         $expression = '';
 
-        switch ($mode) {
-            case TrimMode::LEADING:
+        switch (true) {
+            case $mode === TrimMode::LEADING():
                 $expression = 'LEADING ';
                 break;
 
-            case TrimMode::TRAILING:
+            case $mode === TrimMode::TRAILING():
                 $expression = 'TRAILING ';
                 break;
 
-            case TrimMode::BOTH:
+            case $mode === TrimMode::BOTH():
                 $expression = 'BOTH ';
                 break;
         }

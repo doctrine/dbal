@@ -1086,13 +1086,13 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, ?TrimMode $mode = null, $char = false)
     {
         if ( ! $char) {
-            switch ($pos) {
-                case TrimMode::LEADING:
+            switch (true) {
+                case $mode === TrimMode::LEADING():
                     return $this->getLtrimExpression($str);
-                case TrimMode::TRAILING:
+                case $mode === TrimMode::TRAILING():
                     return $this->getRtrimExpression($str);
                 default:
                     return 'TRIM(' . $str . ')';
@@ -1101,10 +1101,10 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         $pattern = "'%[^' + $char + ']%'";
 
-        switch ($pos) {
-            case TrimMode::LEADING:
+        switch (true) {
+            case $mode === TrimMode::LEADING():
                 return 'SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))';
-            case TrimMode::TRAILING:
+            case $mode === TrimMode::TRAILING():
                 return 'REVERSE(SUBSTR(REVERSE(' . $str . '), PATINDEX(' . $pattern . ', REVERSE(' . $str . '))))';
             default:
                 return
