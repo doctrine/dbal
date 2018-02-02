@@ -51,7 +51,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         $fetchMode = $this->convertFetchMode($fetchMode);
 
@@ -151,7 +151,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
         $fetchMode = $this->convertFetchMode($fetchMode);
 
@@ -169,7 +169,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
         $fetchMode = $this->convertFetchMode($fetchMode);
 
@@ -213,19 +213,19 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * Converts DBAL fetch mode to PDO fetch mode
      *
-     * @param int|null $fetchMode Fetch mode
+     * @param FetchMode|null $fetchMode Fetch mode
      */
-    private function convertFetchMode(?int $fetchMode) : ?int
+    private function convertFetchMode(?FetchMode $fetchMode) : ?int
     {
         if ($fetchMode === null) {
             return null;
         }
 
-        if (! isset(self::FETCH_MODE_MAP[$fetchMode])) {
-            throw new \InvalidArgumentException('Invalid fetch mode: ' . $fetchMode);
+        if (! isset(self::FETCH_MODE_MAP[$fetchMode()])) {
+            throw new \InvalidArgumentException('Invalid fetch mode: ' . $fetchMode());
         }
 
-        return self::FETCH_MODE_MAP[$fetchMode];
+        return self::FETCH_MODE_MAP[$fetchMode()];
     }
 
     /**

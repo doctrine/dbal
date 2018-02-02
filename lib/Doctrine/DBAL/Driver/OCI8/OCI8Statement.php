@@ -47,9 +47,9 @@ class OCI8Statement implements IteratorAggregate, Statement
     ];
 
     /**
-     * @var int
+     * @var FetchMode
      */
-    protected $_defaultFetchMode = FetchMode::MIXED;
+    protected $_defaultFetchMode;
 
     /**
      * @var array
@@ -86,6 +86,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         $this->_dbh = $dbh;
         $this->_paramMap = $paramMap;
         $this->_conn = $conn;
+        $this->_defaultFetchMode = FetchMode::MIXED();
     }
 
     /**
@@ -343,7 +344,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         $this->_defaultFetchMode = $fetchMode;
 
@@ -361,7 +362,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -369,36 +370,36 @@ class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
-        if ($fetchMode === FetchMode::COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN()) {
             return $this->fetchColumn();
         }
 
-        if ($fetchMode === FetchMode::STANDARD_OBJECT) {
+        if ($fetchMode === FetchMode::STANDARD_OBJECT()) {
             return oci_fetch_object($this->_sth);
         }
 
-        if (! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
+        if (! isset(self::$fetchModeMap[$fetchMode()])) {
+            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode());
         }
 
         return oci_fetch_array(
             $this->_sth,
-            self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | OCI_RETURN_LOBS
+            self::$fetchModeMap[$fetchMode()] | OCI_RETURN_NULLS | OCI_RETURN_LOBS
         );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
         $result = [];
 
-        if ($fetchMode === FetchMode::STANDARD_OBJECT) {
+        if ($fetchMode === FetchMode::STANDARD_OBJECT()) {
             while ($row = $this->fetch($fetchMode)) {
                 $result[] = $row;
             }
@@ -406,18 +407,18 @@ class OCI8Statement implements IteratorAggregate, Statement
             return $result;
         }
 
-        if ( ! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
+        if ( ! isset(self::$fetchModeMap[$fetchMode()])) {
+            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode());
         }
 
-        if (self::$fetchModeMap[$fetchMode] === OCI_BOTH) {
-            while ($row = $this->fetch($fetchMode)) {
+        if (self::$fetchModeMap[$fetchMode()] === OCI_BOTH) {
+            while ($row = $this->fetch($fetchMode())) {
                 $result[] = $row;
             }
         } else {
             $fetchStructure = OCI_FETCHSTATEMENT_BY_ROW;
 
-            if ($fetchMode === FetchMode::COLUMN) {
+            if ($fetchMode === FetchMode::COLUMN()) {
                 $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
             }
 
@@ -428,9 +429,9 @@ class OCI8Statement implements IteratorAggregate, Statement
             }
 
             oci_fetch_all($this->_sth, $result, 0, -1,
-                self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
+                self::$fetchModeMap[$fetchMode()] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
 
-            if ($fetchMode === FetchMode::COLUMN) {
+            if ($fetchMode === FetchMode::COLUMN()) {
                 $result = $result[0];
             }
         }

@@ -63,9 +63,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
     protected $_values = [];
 
     /**
-     * @var int
+     * @var FetchMode
      */
-    protected $_defaultFetchMode = FetchMode::MIXED;
+    protected $_defaultFetchMode;
 
     /**
      * Indicates whether the statement is in the state when fetching results is possible
@@ -93,6 +93,8 @@ class MysqliStatement implements \IteratorAggregate, Statement
             $this->types = str_repeat('s', $paramCount);
             $this->_bindedValues = array_fill(1, $paramCount, null);
         }
+
+        $this->_defaultFetchMode = FetchMode::MIXED();
     }
 
     /**
@@ -250,7 +252,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -258,9 +260,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
-        if ($fetchMode === FetchMode::COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN()) {
             return $this->fetchColumn();
         }
 
@@ -273,20 +275,20 @@ class MysqliStatement implements \IteratorAggregate, Statement
             throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
-        switch ($fetchMode) {
-            case FetchMode::NUMERIC:
+        switch (true) {
+            case $fetchMode === FetchMode::NUMERIC():
                 return $values;
 
-            case FetchMode::ASSOCIATIVE:
+            case $fetchMode === FetchMode::ASSOCIATIVE():
                 return array_combine($this->_columnNames, $values);
 
-            case FetchMode::MIXED:
+            case $fetchMode === FetchMode::MIXED():
                 $ret = array_combine($this->_columnNames, $values);
                 $ret += $values;
 
                 return $ret;
 
-            case FetchMode::STANDARD_OBJECT:
+            case $fetchMode === FetchMode::STANDARD_OBJECT():
                 $assoc = array_combine($this->_columnNames, $values);
                 $ret = new \stdClass();
 
@@ -304,13 +306,13 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
         $rows = [];
 
-        if ($fetchMode === FetchMode::COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN()) {
             while (($row = $this->fetchColumn()) !== false) {
                 $rows[] = $row;
             }
@@ -328,7 +330,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(FetchMode::NUMERIC);
+        $row = $this->fetch(FetchMode::NUMERIC());
 
         if (false === $row) {
             return false;
@@ -387,7 +389,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         $this->_defaultFetchMode = $fetchMode;
 

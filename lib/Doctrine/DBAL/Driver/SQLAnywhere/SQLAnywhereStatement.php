@@ -33,9 +33,9 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     private $defaultFetchClassCtorArgs = [];
 
     /**
-     * @var int Default fetch mode to use.
+     * @var FetchMode Default fetch mode to use.
      */
-    private $defaultFetchMode = FetchMode::MIXED;
+    private $defaultFetchMode;
 
     /**
      * @var resource The result set resource to fetch.
@@ -69,6 +69,8 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
         if ( ! is_resource($this->stmt)) {
             throw SQLAnywhereException::fromSQLAnywhereError($conn);
         }
+
+        $this->defaultFetchMode = FetchMode::MIXED();
     }
 
     /**
@@ -181,25 +183,25 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
         if ( ! is_resource($this->result)) {
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
+        switch (true) {
+            case $fetchMode === FetchMode::COLUMN():
                 return $this->fetchColumn();
 
-            case FetchMode::ASSOCIATIVE:
+            case $fetchMode === FetchMode::ASSOCIATIVE():
                 return sasql_fetch_assoc($this->result);
 
-            case FetchMode::MIXED:
+            case $fetchMode === FetchMode::MIXED():
                 return sasql_fetch_array($this->result, SASQL_BOTH);
 
-            case FetchMode::CUSTOM_OBJECT:
+            case $fetchMode === FetchMode::CUSTOM_OBJECT():
                 $className = $this->defaultFetchClass;
                 $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
@@ -216,10 +218,10 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
                 return $result;
 
-            case FetchMode::NUMERIC:
+            case $fetchMode === FetchMode::NUMERIC():
                 return sasql_fetch_row($this->result);
 
-            case FetchMode::STANDARD_OBJECT:
+            case $fetchMode === FetchMode::STANDARD_OBJECT():
                 return sasql_fetch_object($this->result);
 
             default:
@@ -230,18 +232,18 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
         $rows = [];
 
-        switch ($fetchMode) {
-            case FetchMode::CUSTOM_OBJECT:
+        switch (true) {
+            case $fetchMode === FetchMode::CUSTOM_OBJECT():
                 while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
                     $rows[] = $row;
                 }
                 break;
 
-            case FetchMode::COLUMN:
+            case $fetchMode === FetchMode::COLUMN():
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
@@ -261,7 +263,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(FetchMode::NUMERIC);
+        $row = $this->fetch(FetchMode::NUMERIC());
 
         if (false === $row) {
             return false;
@@ -289,7 +291,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         $this->defaultFetchMode          = $fetchMode;
         $this->defaultFetchClass         = $arg2 ? $arg2 : $this->defaultFetchClass;

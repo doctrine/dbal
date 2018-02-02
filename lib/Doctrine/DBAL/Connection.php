@@ -147,9 +147,9 @@ class Connection implements DriverConnection
     private $_isRollbackOnly = false;
 
     /**
-     * @var int
+     * @var FetchMode
      */
-    protected $defaultFetchMode = FetchMode::ASSOCIATIVE;
+    protected $defaultFetchMode;
 
     /**
      * Initializes a new instance of the Connection class.
@@ -197,6 +197,7 @@ class Connection implements DriverConnection
         $this->_expr = new Query\Expression\ExpressionBuilder($this);
 
         $this->autoCommit = $config->getAutoCommit();
+        $this->defaultFetchMode = FetchMode::ASSOCIATIVE();
     }
 
     /**
@@ -494,11 +495,11 @@ class Connection implements DriverConnection
     /**
      * Sets the fetch mode.
      *
-     * @param int $fetchMode
+     * @param FetchMode $fetchMode
      *
      * @return void
      */
-    public function setFetchMode($fetchMode)
+    public function setFetchMode(FetchMode $fetchMode)
     {
         $this->defaultFetchMode = $fetchMode;
     }
@@ -517,7 +518,7 @@ class Connection implements DriverConnection
      */
     public function fetchAssoc($statement, array $params = [], array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::ASSOCIATIVE);
+        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::ASSOCIATIVE());
     }
 
     /**
@@ -532,7 +533,7 @@ class Connection implements DriverConnection
      */
     public function fetchArray($statement, array $params = [], array $types = [])
     {
-        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::NUMERIC);
+        return $this->executeQuery($statement, $params, $types)->fetch(FetchMode::NUMERIC());
     }
 
     /**

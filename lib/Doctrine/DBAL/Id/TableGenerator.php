@@ -108,7 +108,7 @@ class TableGenerator
                 . ' FROM ' . $platform->appendLockHint($this->generatorTableName, LockMode::PESSIMISTIC_WRITE)
                 . ' WHERE sequence_name = ? ' . $platform->getWriteLockSQL();
             $stmt     = $this->conn->executeQuery($sql, [$sequenceName]);
-            $row      = $stmt->fetch(FetchMode::ASSOCIATIVE);
+            $row      = $stmt->fetch(FetchMode::ASSOCIATIVE());
 
             if ($row !== false) {
                 $row = array_change_key_case($row, CASE_LOWER);

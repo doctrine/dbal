@@ -23,9 +23,9 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     private $num = 0;
 
     /**
-     * @var int
+     * @var FetchMode
      */
-    private $defaultFetchMode = FetchMode::MIXED;
+    private $defaultFetchMode;
 
     /**
      * @param array $data
@@ -36,6 +36,8 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
         if (count($data)) {
             $this->columnCount = count($data[0]);
         }
+
+        $this->defaultFetchMode = FetchMode::MIXED();
     }
 
     /**
@@ -57,7 +59,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         if (count($args) > 0) {
             throw new \InvalidArgumentException("Caching layer does not support 2nd/3rd argument to setFetchMode()");
@@ -81,28 +83,28 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
         if (! isset($this->data[$this->num])) {
             return false;
         }
 
         $row       = $this->data[$this->num++];
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
-        if ($fetchMode === FetchMode::ASSOCIATIVE) {
+        if ($fetchMode === FetchMode::ASSOCIATIVE()) {
             return $row;
         }
 
-        if ($fetchMode === FetchMode::NUMERIC) {
+        if ($fetchMode === FetchMode::NUMERIC()) {
             return array_values($row);
         }
 
-        if ($fetchMode === FetchMode::MIXED) {
+        if ($fetchMode === FetchMode::MIXED()) {
             return array_merge($row, array_values($row));
         }
 
-        if ($fetchMode === FetchMode::COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN()) {
             return reset($row);
         }
 
@@ -112,7 +114,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
         $rows = [];
         while ($row = $this->fetch($fetchMode, ...$args)) {
@@ -127,7 +129,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(FetchMode::NUMERIC);
+        $row = $this->fetch(FetchMode::NUMERIC());
 
         // TODO: verify that return false is the correct behavior
         return $row[$columnIndex] ?? false;

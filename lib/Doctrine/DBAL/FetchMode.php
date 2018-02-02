@@ -2,11 +2,15 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\Enumeration\Enumerated;
+
 /**
  * Contains statement fetch modes.
  */
 final class FetchMode
 {
+    use Enumerated;
+
     /**
      * Specifies that the fetch method shall return each row as an array indexed
      * by column name as returned in the corresponding result set. If the result
@@ -60,10 +64,33 @@ final class FetchMode
      */
     public const CUSTOM_OBJECT = 8;
 
-    /**
-     * This class cannot be instantiated.
-     */
-    private function __construct()
+    public static function ASSOCIATIVE() : self
     {
+        return self::get(self::ASSOCIATIVE);
+    }
+
+    public static function NUMERIC() : self
+    {
+        return self::get(self::NUMERIC);
+    }
+
+    public static function MIXED() : self
+    {
+        return self::get(self::MIXED);
+    }
+
+    public static function STANDARD_OBJECT() : self
+    {
+        return self::get(self::STANDARD_OBJECT);
+    }
+
+    public static function COLUMN() : self
+    {
+        return self::get(self::COLUMN);
+    }
+
+    public static function CUSTOM_OBJECT() : self
+    {
+        return self::get(self::CUSTOM_OBJECT);
     }
 }

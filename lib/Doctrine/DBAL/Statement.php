@@ -212,7 +212,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         return $this->stmt->setFetchMode($fetchMode, ...$args);
     }
@@ -230,7 +230,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
         return $this->stmt->fetch($fetchMode, ...$args);
     }
@@ -238,7 +238,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
         return $this->stmt->fetchAll($fetchMode, ...$args);
     }

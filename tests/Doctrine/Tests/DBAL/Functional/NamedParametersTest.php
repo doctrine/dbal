@@ -204,7 +204,7 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testTicket($query,$params,$types,$expected)
     {
         $stmt   = $this->_conn->executeQuery($query, $params, $types);
-        $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
+        $result = $stmt->fetchAll(FetchMode::ASSOCIATIVE());
 
         foreach ($result as $k => $v) {
             $result[$k] = array_change_key_case($v, CASE_LOWER);

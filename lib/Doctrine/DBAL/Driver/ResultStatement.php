@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\FetchMode;
+
 /**
  * Interface for the reading part of a prepare statement only.
  *
@@ -28,43 +30,43 @@ interface ResultStatement extends \Traversable
     /**
      * Sets the fetch mode to use while iterating this statement.
      *
-     * @param int $fetchMode Controls how the next row will be returned to the caller.
-     *                       The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
-     * @param array $args    Optional mode-specific arguments (see {@link self::fetchAll()}).
+     * @param FetchMode $fetchMode Controls how the next row will be returned to the caller.
+     *                             The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
+     * @param array $args          Optional mode-specific arguments (see {@link self::fetchAll()}).
      *
      * @return bool
      */
-    public function setFetchMode($fetchMode, ...$args);
+    public function setFetchMode(FetchMode $fetchMode, ...$args);
 
     /**
      * Returns the next row of a result set.
      *
-     * @param int|null $fetchMode Controls how the next row will be returned to the caller.
-     *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
-     *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
-     * @param array    $args      Optional mode-specific arguments (see {@link self::fetchAll()}).
+     * @param FetchMode|null $fetchMode Controls how the next row will be returned to the caller.
+     *                                  The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
+     *                                  defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
+     * @param array          $args      Optional mode-specific arguments (see {@link self::fetchAll()}).
      *
      * @return mixed The return value of this method on success depends on the fetch mode. In all cases, FALSE is
      *               returned on failure.
      */
-    public function fetch($fetchMode = null, ...$args);
+    public function fetch(?FetchMode $fetchMode = null, ...$args);
 
     /**
      * Returns an array containing all of the result set rows.
      *
-     * @param int|null $fetchMode Controls how the next row will be returned to the caller.
-     *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
-     *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
-     * @param array    $args      Optional mode-specific arguments. Supported modes:
-     *                            * {@link \Doctrine\DBAL\FetchMode::COLUMN}
-     *                              1. The 0-indexed column to be returned.
-     *                            * {@link \Doctrine\DBAL\FetchMode::CUSTOM_OBJECT}
-     *                              1. The classname of the object to be created,
-     *                              2. Array of constructor arguments
+     * @param FetchMode|null $fetchMode Controls how the next row will be returned to the caller.
+     *                                  The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
+     *                                  defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
+     * @param array    $args            Optional mode-specific arguments. Supported modes:
+     *                                  * {@link \Doctrine\DBAL\FetchMode::COLUMN}
+     *                                    1. The 0-indexed column to be returned.
+     *                                  * {@link \Doctrine\DBAL\FetchMode::CUSTOM_OBJECT}
+     *                                    1. The classname of the object to be created,
+     *                                    2. Array of constructor arguments
      *
      * @return array
      */
-    public function fetchAll($fetchMode = null, ...$args);
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args);
 
     /**
      * Returns a single column from the next row of a result set or FALSE if there are no more rows.

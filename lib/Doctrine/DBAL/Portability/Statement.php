@@ -30,9 +30,9 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     private $case;
 
     /**
-     * @var int
+     * @var FetchMode
      */
-    private $defaultFetchMode = FetchMode::MIXED;
+    private $defaultFetchMode;
 
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
@@ -45,6 +45,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
         $this->stmt = $stmt;
         $this->portability = $conn->getPortability();
         $this->case = $conn->getFetchCase();
+        $this->defaultFetchMode = FetchMode::MIXED();
     }
 
     /**
@@ -106,7 +107,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -126,15 +127,15 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         $row = $this->stmt->fetch($fetchMode, ...$args);
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
         $fixCase    = ! is_null($this->case)
-            && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
+            && ($fetchMode === FetchMode::ASSOCIATIVE() || $fetchMode === FetchMode::MIXED())
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
 
         $row = $this->fixRow($row, $iterateRow, $fixCase);
@@ -145,22 +146,22 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
         $rows = $this->stmt->fetchAll($fetchMode, ...$args);
 
         $iterateRow = $this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM);
         $fixCase    = ! is_null($this->case)
-            && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
+            && ($fetchMode === FetchMode::ASSOCIATIVE() || $fetchMode === FetchMode::MIXED())
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
 
         if ( ! $iterateRow && !$fixCase) {
             return $rows;
         }
 
-        if ($fetchMode === FetchMode::COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN()) {
             foreach ($rows as $num => $row) {
                 $rows[$num] = [$row];
             }
@@ -170,7 +171,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
             $rows[$num] = $this->fixRow($row, $iterateRow, $fixCase);
         }
 
-        if ($fetchMode === FetchMode::COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN()) {
             foreach ($rows as $num => $row) {
                 $rows[$num] = $row[0];
             }

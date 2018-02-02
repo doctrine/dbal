@@ -511,7 +511,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
-            ->with(FetchMode::ASSOCIATIVE)
+            ->with(FetchMode::ASSOCIATIVE())
             ->will($this->returnValue($result));
 
         /** @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\DBAL\Connection $conn */
@@ -547,7 +547,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalTestCase
 
         $driverStatementMock->expects($this->once())
             ->method('fetch')
-            ->with(FetchMode::NUMERIC)
+            ->with(FetchMode::NUMERIC())
             ->will($this->returnValue($result));
 
         /** @var \PHPUnit_Framework_MockObject_MockObject|\Doctrine\DBAL\Connection $conn */

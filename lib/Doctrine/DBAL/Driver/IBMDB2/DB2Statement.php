@@ -30,9 +30,9 @@ class DB2Statement implements \IteratorAggregate, Statement
     private $defaultFetchClassCtorArgs = [];
 
     /**
-     * @var int
+     * @var FetchMode
      */
-    private $_defaultFetchMode = FetchMode::MIXED;
+    private $_defaultFetchMode;
 
     /**
      * Indicates whether the statement is in the state when fetching results is possible
@@ -57,6 +57,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     public function __construct($stmt)
     {
         $this->_stmt = $stmt;
+        $this->_defaultFetchMode = FetchMode::MIXED();
     }
 
     /**
@@ -171,7 +172,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         $this->_defaultFetchMode = $fetchMode;
 
@@ -197,7 +198,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -205,18 +206,18 @@ class DB2Statement implements \IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
-        switch ($fetchMode) {
-            case FetchMode::COLUMN:
+        $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
+        switch (true) {
+            case $fetchMode === FetchMode::COLUMN():
                 return $this->fetchColumn();
 
-            case FetchMode::MIXED:
+            case $fetchMode === FetchMode::MIXED():
                 return db2_fetch_both($this->_stmt);
 
-            case FetchMode::ASSOCIATIVE:
+            case $fetchMode === FetchMode::ASSOCIATIVE():
                 return db2_fetch_assoc($this->_stmt);
 
-            case FetchMode::CUSTOM_OBJECT:
+            case $fetchMode === FetchMode::CUSTOM_OBJECT():
                 $className = $this->defaultFetchClass;
                 $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
@@ -233,10 +234,10 @@ class DB2Statement implements \IteratorAggregate, Statement
 
                 return $result;
 
-            case FetchMode::NUMERIC:
+            case $fetchMode === FetchMode::NUMERIC():
                 return db2_fetch_array($this->_stmt);
 
-            case FetchMode::STANDARD_OBJECT:
+            case $fetchMode === FetchMode::STANDARD_OBJECT():
                 return db2_fetch_object($this->_stmt);
 
             default:
@@ -247,17 +248,17 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
         $rows = [];
 
-        switch ($fetchMode) {
-            case FetchMode::CUSTOM_OBJECT:
+        switch (true) {
+            case $fetchMode === FetchMode::CUSTOM_OBJECT():
                 while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
                     $rows[] = $row;
                 }
                 break;
-            case FetchMode::COLUMN:
+            case $fetchMode === FetchMode::COLUMN():
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
@@ -276,7 +277,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(FetchMode::NUMERIC);
+        $row = $this->fetch(FetchMode::NUMERIC());
 
         if (false === $row) {
             return false;

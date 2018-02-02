@@ -61,9 +61,9 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     private $data;
 
     /**
-     * @var int
+     * @var FetchMode
      */
-    private $defaultFetchMode = FetchMode::MIXED;
+    private $defaultFetchMode;
 
     /**
      * @param \Doctrine\DBAL\Driver\Statement $stmt
@@ -79,6 +79,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
         $this->cacheKey = $cacheKey;
         $this->realKey = $realKey;
         $this->lifetime = $lifetime;
+        $this->defaultFetchMode = FetchMode::MIXED();
     }
 
     /**
@@ -110,7 +111,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -130,32 +131,32 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
         if ($this->data === null) {
             $this->data = [];
         }
 
-        $row = $this->statement->fetch(FetchMode::ASSOCIATIVE);
+        $row = $this->statement->fetch(FetchMode::ASSOCIATIVE());
 
         if ($row) {
             $this->data[] = $row;
 
-            $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+            $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
-            if ($fetchMode === FetchMode::ASSOCIATIVE) {
+            if ($fetchMode === FetchMode::ASSOCIATIVE()) {
                 return $row;
             }
 
-            if ($fetchMode === FetchMode::NUMERIC) {
+            if ($fetchMode === FetchMode::NUMERIC()) {
                 return array_values($row);
             }
 
-            if ($fetchMode === FetchMode::MIXED) {
+            if ($fetchMode === FetchMode::MIXED()) {
                 return array_merge($row, array_values($row));
             }
 
-            if ($fetchMode === FetchMode::COLUMN) {
+            if ($fetchMode === FetchMode::COLUMN()) {
                 return reset($row);
             }
 
@@ -170,7 +171,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
         $rows = [];
         while ($row = $this->fetch($fetchMode, ...$args)) {
@@ -185,7 +186,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(FetchMode::NUMERIC);
+        $row = $this->fetch(FetchMode::NUMERIC());
 
         // TODO: verify that return false is the correct behavior
         return $row[$columnIndex] ?? false;

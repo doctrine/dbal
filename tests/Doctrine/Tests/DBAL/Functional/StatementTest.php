@@ -59,7 +59,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute();
         self::assertArraySubset(array(
             array('param1', 'X'),
-        ), $stmt->fetchAll(FetchMode::NUMERIC));
+        ), $stmt->fetchAll(FetchMode::NUMERIC()));
 
         $row2 = array(
             'param' => 'param2',
@@ -71,7 +71,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertArraySubset(array(
             array('param1', 'X'),
             array('param2', 'A bit longer value'),
-        ), $stmt->fetchAll(FetchMode::NUMERIC));
+        ), $stmt->fetchAll(FetchMode::NUMERIC()));
     }
 
     public function testFetchLongBlob()
@@ -287,7 +287,7 @@ EOF
     {
         $platform = $this->_conn->getDatabasePlatform();
         $query    = $platform->getDummySelectSQL();
-        $result   = $this->_conn->executeQuery($query)->fetch(FetchMode::COLUMN);
+        $result   = $this->_conn->executeQuery($query)->fetch(FetchMode::COLUMN());
 
         self::assertEquals(1, $result);
     }

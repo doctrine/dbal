@@ -125,7 +125,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testSetFetchMode()
     {
-        $fetchMode = FetchMode::CUSTOM_OBJECT;
+        $fetchMode = FetchMode::CUSTOM_OBJECT();
         $arg1      = 'MyClass';
         $arg2      = array(1, 2);
 
@@ -134,7 +134,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
             ->with($fetchMode, $arg1, $arg2)
             ->will($this->returnValue(true));
 
-        self::assertAttributeSame(FetchMode::MIXED, 'defaultFetchMode', $this->stmt);
+        self::assertAttributeSame(FetchMode::MIXED(), 'defaultFetchMode', $this->stmt);
         self::assertTrue($this->stmt->setFetchMode($fetchMode, $arg1, $arg2));
         self::assertAttributeSame($fetchMode, 'defaultFetchMode', $this->stmt);
     }

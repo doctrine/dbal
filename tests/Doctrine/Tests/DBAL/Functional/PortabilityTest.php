@@ -69,7 +69,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertFetchResultRows($rows);
 
         $stmt = $this->getPortableConnection()->query('SELECT * FROM portability_table');
-        $stmt->setFetchMode(FetchMode::ASSOCIATIVE);
+        $stmt->setFetchMode(FetchMode::ASSOCIATIVE());
 
         foreach ($stmt as $row) {
             $this->assertFetchResultRow($row);
@@ -77,14 +77,14 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $stmt = $this->getPortableConnection()->query('SELECT * FROM portability_table');
 
-        while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE))) {
+        while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE()))) {
             $this->assertFetchResultRow($row);
         }
 
         $stmt = $this->getPortableConnection()->prepare('SELECT * FROM portability_table');
         $stmt->execute();
 
-        while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE))) {
+        while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE()))) {
             $this->assertFetchResultRow($row);
         }
     }
@@ -92,7 +92,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testConnFetchMode()
     {
         $conn = $this->getPortableConnection();
-        $conn->setFetchMode(FetchMode::ASSOCIATIVE);
+        $conn->setFetchMode(FetchMode::ASSOCIATIVE());
 
         $rows = $conn->fetchAll('SELECT * FROM portability_table');
         $this->assertFetchResultRows($rows);
@@ -164,7 +164,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $conn = $this->getPortableConnection();
         $stmt = $conn->query('SELECT ' . $field . ' FROM portability_table');
 
-        $column = $stmt->fetchAll(FetchMode::COLUMN);
+        $column = $stmt->fetchAll(FetchMode::COLUMN());
         self::assertEquals($expected, $column);
     }
 
@@ -187,7 +187,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $conn = $this->getPortableConnection();
         $stmt = $conn->query('SELECT Test_Null FROM portability_table');
 
-        $column = $stmt->fetchAll(FetchMode::COLUMN);
+        $column = $stmt->fetchAll(FetchMode::COLUMN());
         self::assertSame(array(null, null), $column);
     }
 }

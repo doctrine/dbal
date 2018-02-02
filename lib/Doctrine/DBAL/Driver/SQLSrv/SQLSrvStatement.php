@@ -79,9 +79,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * The fetch style.
      *
-     * @var int
+     * @var FetchMode
      */
-    private $defaultFetchMode = FetchMode::MIXED;
+    private $defaultFetchMode;
 
     /**
      * The last insert ID.
@@ -118,6 +118,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             $this->sql .= self::LAST_INSERT_ID_SQL;
             $this->lastInsertId = $lastInsertId;
         }
+
+        $this->defaultFetchMode = FetchMode::MIXED();
     }
 
     /**
@@ -266,7 +268,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode(FetchMode $fetchMode, ...$args)
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -294,7 +296,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @throws SQLSrvException
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch(?FetchMode $fetchMode = null, ...$args)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -302,17 +304,17 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        $fetchMode = $fetchMode ?: $this->defaultFetchMode;
+        $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
-        if ($fetchMode === FetchMode::COLUMN) {
+        if ($fetchMode === FetchMode::COLUMN()) {
             return $this->fetchColumn();
         }
 
-        if (isset(self::$fetchMap[$fetchMode])) {
-            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?: false;
+        if (isset(self::$fetchMap[$fetchMode()])) {
+            return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode()]) ?: false;
         }
 
-        if (in_array($fetchMode, [FetchMode::STANDARD_OBJECT, FetchMode::CUSTOM_OBJECT], true)) {
+        if (in_array($fetchMode, [FetchMode::STANDARD_OBJECT(), FetchMode::CUSTOM_OBJECT()], true)) {
             $className = $this->defaultFetchClass;
             $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
@@ -330,18 +332,18 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll(?FetchMode $fetchMode = null, ...$args)
     {
         $rows = [];
 
-        switch ($fetchMode) {
-            case FetchMode::CUSTOM_OBJECT:
+        switch (true) {
+            case $fetchMode === FetchMode::CUSTOM_OBJECT():
                 while (($row = $this->fetch($fetchMode, $args)) !== false) {
                     $rows[] = $row;
                 }
                 break;
 
-            case FetchMode::COLUMN:
+            case $fetchMode === FetchMode::COLUMN():
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
                 }
@@ -361,7 +363,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(FetchMode::NUMERIC);
+        $row = $this->fetch(FetchMode::NUMERIC());
 
         if (false === $row) {
             return false;
