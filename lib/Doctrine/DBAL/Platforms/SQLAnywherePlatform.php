@@ -44,16 +44,16 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function appendLockHint($fromClause, $lockMode)
+    public function appendLockHint($fromClause, ?LockMode $lockMode = null)
     {
         switch (true) {
-            case $lockMode === LockMode::NONE:
+            case $lockMode === LockMode::NONE():
                 return $fromClause . ' WITH (NOLOCK)';
 
-            case $lockMode === LockMode::PESSIMISTIC_READ:
+            case $lockMode === LockMode::PESSIMISTIC_READ():
                 return $fromClause . ' WITH (UPDLOCK)';
 
-            case $lockMode === LockMode::PESSIMISTIC_WRITE:
+            case $lockMode === LockMode::PESSIMISTIC_WRITE():
                 return $fromClause . ' WITH (XLOCK)';
 
             default:

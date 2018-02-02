@@ -105,7 +105,7 @@ class TableGenerator
         try {
             $platform = $this->conn->getDatabasePlatform();
             $sql      = 'SELECT sequence_value, sequence_increment_by'
-                . ' FROM ' . $platform->appendLockHint($this->generatorTableName, LockMode::PESSIMISTIC_WRITE)
+                . ' FROM ' . $platform->appendLockHint($this->generatorTableName, LockMode::PESSIMISTIC_WRITE())
                 . ' WHERE sequence_name = ? ' . $platform->getWriteLockSQL();
             $stmt     = $this->conn->executeQuery($sql, [$sequenceName]);
             $row      = $stmt->fetch(FetchMode::ASSOCIATIVE());

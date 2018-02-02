@@ -2,25 +2,37 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\Enumeration\Enumerated;
+
 /**
  * Contains all DBAL LockModes.
- *
- * @link   www.doctrine-project.org
- * @since  1.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Roman Borschel <roman@code-factory.org>
  */
-class LockMode
+final class LockMode
 {
-    const NONE = 0;
-    const OPTIMISTIC = 1;
-    const PESSIMISTIC_READ = 2;
-    const PESSIMISTIC_WRITE = 4;
+    use Enumerated;
 
-    /**
-     * Private constructor. This class cannot be instantiated.
-     */
-    final private function __construct()
+    public const NONE = 0;
+    public const OPTIMISTIC = 1;
+    public const PESSIMISTIC_READ = 2;
+    public const PESSIMISTIC_WRITE = 4;
+
+    public static function NONE() : self
     {
+        return self::get(self::NONE);
+    }
+
+    public static function OPTIMISTIC() : self
+    {
+        return self::get(self::OPTIMISTIC);
+    }
+
+    public static function PESSIMISTIC_READ() : self
+    {
+        return self::get(self::PESSIMISTIC_READ);
+    }
+
+    public static function PESSIMISTIC_WRITE() : self
+    {
+        return self::get(self::PESSIMISTIC_WRITE);
     }
 }

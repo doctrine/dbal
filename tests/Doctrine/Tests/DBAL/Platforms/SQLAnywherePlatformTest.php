@@ -224,12 +224,10 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     {
         return array(
             array(null, ''),
-            array(false, ''),
-            array(true, ''),
-            array(LockMode::NONE, ' WITH (NOLOCK)'),
-            array(LockMode::OPTIMISTIC, ''),
-            array(LockMode::PESSIMISTIC_READ, ' WITH (UPDLOCK)'),
-            array(LockMode::PESSIMISTIC_WRITE, ' WITH (XLOCK)'),
+            array(LockMode::NONE(), ' WITH (NOLOCK)'),
+            array(LockMode::OPTIMISTIC(), ''),
+            array(LockMode::PESSIMISTIC_READ(), ' WITH (UPDLOCK)'),
+            array(LockMode::PESSIMISTIC_WRITE(), ' WITH (XLOCK)'),
         );
     }
 
