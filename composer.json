@@ -18,10 +18,10 @@
     },
     "require-dev": {
         "doctrine/coding-standard": "^3.0",
-        "phpunit/phpunit": "^6.3",
+        "phpunit/phpunit": "^7.0",
         "phpunit/phpunit-mock-objects": "!=3.2.4,!=3.2.5",
         "symfony/console": "^2.0.5||^3.0",
-        "symfony/phpunit-bridge": "^3.3"
+        "symfony/phpunit-bridge": "^3.4.5|^4.0.5"
     },
     "suggest": {
         "symfony/console": "For helpful console commands such as SQL execution and import of files."
