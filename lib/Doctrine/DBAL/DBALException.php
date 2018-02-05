@@ -142,7 +142,7 @@ class DBALException extends \Exception
     public static function driverExceptionDuringQuery(Driver $driver, \Exception $driverEx, $sql, array $params = [])
     {
         $msg = "An exception occurred while executing '".$sql."'";
-        if ($params) {
+        if (! empty($params)) {
             $msg .= " with params " . self::formatParameters($params);
         }
         $msg .= ":\n\n".$driverEx->getMessage();
