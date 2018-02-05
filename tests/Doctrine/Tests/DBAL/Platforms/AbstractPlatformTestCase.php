@@ -1468,4 +1468,12 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
         );
     }
+
+    public function testItEscapesStringsForLike() : void
+    {
+        self::assertSame(
+            '\_25\% off\_ your next purchase \\\\o/',
+            $this->_platform->escapeStringForLike('_25% off_ your next purchase \o/', '\\')
+        );
+    }
 }
