@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\Mocks;
 
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 class DriverMock implements \Doctrine\DBAL\Driver
 {
@@ -11,7 +12,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
     private $_platformMock;
 
     /**
-     * @var SchemaManagerMock
+     * @var AbstractSchemaManager
      */
     private $_schemaManagerMock;
 
@@ -61,7 +62,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
         $this->_platformMock = $platform;
     }
 
-    public function setSchemaManager(\Doctrine\DBAL\Schema\AbstractSchemaManager $sm)
+    public function setSchemaManager(AbstractSchemaManager $sm)
     {
         $this->_schemaManagerMock = $sm;
     }

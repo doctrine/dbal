@@ -2,13 +2,14 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class ArrayTest extends \Doctrine\Tests\DbalTestCase
 {
     /**
-     * @var MockPlatform
+     * @var AbstractPlatform
      */
     protected $_platform;
 

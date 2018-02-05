@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\Logging\DebugStack;
 
 /**
  * @group DDC-217
@@ -16,7 +17,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
     private $expectedResult = array(array('test_int' => 100, 'test_string' => 'foo'), array('test_int' => 200, 'test_string' => 'bar'), array('test_int' => 300, 'test_string' => 'baz'));
 
     /**
-     * @var \Doctrine\DBAL\Logging\DebugStack
+     * @var DebugStack
      */
     private $sqlLogger;
 
@@ -37,7 +38,7 @@ class ResultCacheTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $config = $this->_conn->getConfiguration();
-        $config->setSQLLogger($this->sqlLogger = new \Doctrine\DBAL\Logging\DebugStack);
+        $config->setSQLLogger($this->sqlLogger = new DebugStack);
 
         $cache = new \Doctrine\Common\Cache\ArrayCache;
         $config->setResultCacheImpl($cache);
