@@ -9,6 +9,9 @@ namespace Doctrine\Tests;
  */
 class DbalPerformanceTestListener extends \PHPUnit\Framework\BaseTestListener
 {
+    /**
+     * @var string[][]
+     */
     private $timings = [];
 
     /**

@@ -10,6 +10,9 @@ use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
  */
 class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
 {
+    /**
+     * @var ExpressionBuilder
+     */
     protected $expr;
 
     protected function setUp()

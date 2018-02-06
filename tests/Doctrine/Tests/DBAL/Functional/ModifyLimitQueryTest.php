@@ -4,6 +4,9 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    /**
+     * @var bool
+     */
     private static $tableCreated = false;
 
     protected function setUp()

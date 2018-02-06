@@ -9,6 +9,9 @@ use Doctrine\DBAL\Id\TableGenerator;
  */
 class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    /**
+     * @var TableGenerator
+     */
     private $generator;
 
     protected function setUp()

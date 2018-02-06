@@ -9,6 +9,9 @@ use Doctrine\Tests\DbalTestCase;
  */
 class SQLAzurePlatformTest extends DbalTestCase
 {
+    /**
+     * @var \Doctrine\DBAL\Platforms\SQLAzurePlatform
+     */
     private $platform;
 
     protected function setUp()
@@ -26,4 +29,3 @@ class SQLAzurePlatformTest extends DbalTestCase
         self::assertEquals(array('CREATE TABLE tbl (id INT NOT NULL) FEDERATED ON (TblId = id)'), $this->platform->getCreateTableSQL($table));
     }
 }
-
