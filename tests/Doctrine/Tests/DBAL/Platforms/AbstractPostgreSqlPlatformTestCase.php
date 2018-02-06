@@ -465,7 +465,6 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
 
     public function testAlterDecimalPrecisionScale()
     {
-
         $table = new Table('mytable');
         $table->addColumn('dfoo1', 'decimal');
         $table->addColumn('dfoo2', 'decimal', array('precision' => 10, 'scale' => 6));

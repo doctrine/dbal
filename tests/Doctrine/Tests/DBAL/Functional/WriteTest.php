@@ -183,7 +183,6 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         self::assertFalse($this->_conn->lastInsertId( null ));
-
     }
 
     /**
@@ -287,7 +286,6 @@ class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $secondId = $this->_conn->lastInsertId($seqName);
 
         self::assertGreaterThan($firstId, $secondId);
-
     }
 
     /**

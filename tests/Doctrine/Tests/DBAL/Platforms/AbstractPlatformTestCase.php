@@ -1360,7 +1360,6 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
      */
     public function testAlterStringToFixedString()
     {
-
         $table = new Table('mytable');
         $table->addColumn('name', 'string', array('length' => 2));
 

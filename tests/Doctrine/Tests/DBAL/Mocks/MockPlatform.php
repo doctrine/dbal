@@ -61,6 +61,5 @@ class MockPlatform extends AbstractPlatform
     }
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-
     }
 }

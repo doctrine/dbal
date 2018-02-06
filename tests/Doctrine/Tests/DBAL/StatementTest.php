@@ -58,7 +58,6 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
         $this->conn->expects($this->any())
             ->method('getDriver')
             ->will($this->returnValue($driver));
-
     }
 
     public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound()
