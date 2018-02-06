@@ -89,7 +89,6 @@ class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
     }
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-
     }
     /**
      * Gets the SQL Snippet used to declare a BLOB column type.

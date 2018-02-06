@@ -92,7 +92,6 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     /**
      * {@inheritdoc}
      */
-
     public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
     {
         return new SQLServerSchemaManager($conn);
