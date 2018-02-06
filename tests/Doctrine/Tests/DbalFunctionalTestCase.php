@@ -85,7 +85,7 @@ class DbalFunctionalTestCase extends DbalTestCase
 
             $message = "[".get_class($t)."] ".$t->getMessage().PHP_EOL.PHP_EOL."With queries:".PHP_EOL.$queries.PHP_EOL."Trace:".PHP_EOL.$traceMsg;
 
-            throw new \Exception($message, (int)$t->getCode(), $t);
+            throw new \Exception($message, (int) $t->getCode(), $t);
         }
         throw $t;
     }

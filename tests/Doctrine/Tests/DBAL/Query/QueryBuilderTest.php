@@ -583,9 +583,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('u.*')->from('users', 'u')->where('u.name = ?');
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
         $qb->resetQueryPart('where');
-        self::assertEquals('SELECT u.* FROM users u', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
     }
 
     public function testResetQueryParts()
@@ -594,9 +594,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('u.*')->from('users', 'u')->where('u.name = ?')->orderBy('u.name');
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
         $qb->resetQueryParts(array('where', 'orderBy'));
-        self::assertEquals('SELECT u.* FROM users u', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
     }
 
     public function testCreateNamedParameter()
@@ -607,7 +607,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER))
         );
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = :dcValue1', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = :dcValue1', (string) $qb);
         self::assertEquals(10, $qb->getParameter('dcValue1'));
         self::assertEquals(ParameterType::INTEGER, $qb->getParameterType('dcValue1'));
     }
@@ -620,7 +620,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER, ':test'))
         );
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = :test', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = :test', (string) $qb);
         self::assertEquals(10, $qb->getParameter('test'));
         self::assertEquals(ParameterType::INTEGER, $qb->getParameterType('test'));
     }
@@ -633,7 +633,7 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
             $qb->expr()->eq('u.name', $qb->createPositionalParameter(10, ParameterType::INTEGER))
         );
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
         self::assertEquals(10, $qb->getParameter(1));
         self::assertEquals(ParameterType::INTEGER, $qb->getParameterType(1));
     }
