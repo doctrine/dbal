@@ -3592,14 +3592,17 @@ abstract class AbstractPlatform
      */
     final public function escapeStringForLike(string $inputString, string $escapeChar) : string
     {
-        $replacePairs = [$escapeChar => $escapeChar.$escapeChar];
+        $replacePairs = [$escapeChar => $escapeChar . $escapeChar];
         foreach ($this->getLikeWildcardCharacters() as $wildcardChar) {
-            $replacePairs[$wildcardChar] = $escapeChar.$wildcardChar;
+            $replacePairs[$wildcardChar] = $escapeChar . $wildcardChar;
         }
 
         return strtr($inputString, $replacePairs);
     }
 
+    /**
+     * @return string[]
+     */
     protected function getLikeWildcardCharacters() : iterable
     {
         return ['%', '_'];

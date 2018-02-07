@@ -117,6 +117,9 @@ class SQLServer2008Platform extends SQLServer2005Platform
         return Keywords\SQLServer2008Keywords::class;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function getLikeWildcardCharacters() : iterable
     {
         return array_merge(parent::getLikeWildcardCharacters(), ['[', ']', '^']);
