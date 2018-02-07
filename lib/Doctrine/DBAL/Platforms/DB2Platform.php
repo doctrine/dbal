@@ -884,18 +884,14 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * Prepare ORDER BY string for OVER() if applicable
-     *
-     * @param  string $query
-     *
-     * @return string
      */
-    private function getOrderByForOver(string $query): string
+    private function getOrderByForOver(string $query) : string
     {
         //determine if 'ORDER BY' is part of the query
         $orderByPosition = strripos($query, 'order by');
 
         // early return if ORDER BY not found in query string
-        if (false === $orderByPosition) {
+        if ($orderByPosition === false) {
             return '';
         }
 
@@ -909,11 +905,7 @@ class DB2Platform extends AbstractPlatform
             $selectedColumnss,
             function ($element) {
                 // don't return 'AS' and empty elements
-                return (
-                    strtoupper($element) !== 'AS'
-                    && trim($element !== '')
-                    && $element != false
-                );
+                return strtoupper($element) !== 'AS' && trim($element !== '') && $element !== false;
             }
         );
 
@@ -936,11 +928,6 @@ class DB2Platform extends AbstractPlatform
 
     /**
      * Prepare SplitOrder array
-     *
-     * @param string $orderValue
-     * @param array  $queryArray
-     *
-     * @return array
      */
     private function prepareSplitOrder(string $orderValue, array $queryArray) : array
     {
@@ -952,13 +939,13 @@ class DB2Platform extends AbstractPlatform
                 case 'DESC':
                     break;
                 default:
-                    $arrayFound = array_search($splitValue, $queryArray);
-                    $arrayPosition = substr(trim($splitValue), 0, 6) === 'dctrn_' ? 0 : 1;
+                    $arrayFound              = array_search($splitValue, $queryArray);
+                    $arrayPosition           = substr(trim($splitValue), 0, 6) === 'dctrn_' ? 0 : 1;
                     $splitOrder[$splitIndex] = ($arrayFound === false)
-                        || $arrayFound >= count($queryArray) || $queryArray[$arrayFound + $arrayPosition] === ""
+                        || $arrayFound >= count($queryArray) || $queryArray[$arrayFound + $arrayPosition] === ''
                             ? $splitValue
                             : $queryArray[$arrayFound + $arrayPosition];
-                        break;
+                    break;
             }
         }
 
