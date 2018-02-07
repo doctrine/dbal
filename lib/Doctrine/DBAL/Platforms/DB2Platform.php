@@ -790,7 +790,7 @@ class DB2Platform extends AbstractPlatform
 
         return sprintf(
             'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(%s) AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
-            $orderByArray,
+            $orderBy,
             $query,
             implode(' AND ', $where)
         );
