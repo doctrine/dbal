@@ -49,7 +49,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
      */
     public function getDateTimeFormatString()
     {
-        return 'Y-m-d H:i:s.u';
+        return 'Y-m-dTH:i:s.u';
     }
 
     /**
@@ -57,7 +57,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
      */
     public function getDateTimeTzFormatString()
     {
-        return 'Y-m-d H:i:s.u P';
+        return 'Y-m-dTH:i:s.uP';
     }
 
     /**
