@@ -929,10 +929,10 @@ class DB2Platform extends AbstractPlatform
     /**
      * Prepare SplitOrder array
      *
-     * @param string $orderValue The original ORDER BY string
-     * @param array  $queryArray Columns from the ORDER BY
+     * @param string   $orderValue The original ORDER BY string
+     * @param string[] $queryArray Columns from the ORDER BY
      *
-     * @return array New ORDER BY columns
+     * @return string[] New ORDER BY columns
      */
     private function prepareSplitOrder($orderValue, $queryArray)
     {
