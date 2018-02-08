@@ -120,7 +120,7 @@ class SQLServer2008Platform extends SQLServer2005Platform
     /**
      * {@inheritDoc}
      */
-    protected function getLikeWildcardCharacters() : iterable
+    protected function getLikeWildcardCharacters() : array
     {
         return array_merge(parent::getLikeWildcardCharacters(), ['[', ']', '^']);
     }

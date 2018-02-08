@@ -3603,7 +3603,7 @@ abstract class AbstractPlatform
     /**
      * @return string[]
      */
-    protected function getLikeWildcardCharacters() : iterable
+    protected function getLikeWildcardCharacters() : array
     {
         return ['%', '_'];
     }
