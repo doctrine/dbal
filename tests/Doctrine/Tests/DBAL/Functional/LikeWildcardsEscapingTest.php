@@ -17,6 +17,6 @@ final class LikeWildcardsEscapingTest extends DbalFunctionalTestCase
             $escapeChar
         ));
         $stmt->execute();
-        $this->assertTrue((bool) $stmt->fetch()['it_matches']);
+        $this->assertTrue((bool) $stmt->fetchColumn());
     }
 }
