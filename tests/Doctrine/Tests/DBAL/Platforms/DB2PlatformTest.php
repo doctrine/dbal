@@ -375,6 +375,22 @@ class DB2PlatformTest extends AbstractPlatformTestCase
             'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (SELECT * FROM user) db21) db22 WHERE db22.DC_ROWNUM >= 6 AND db22.DC_ROWNUM <= 5',
             $this->_platform->modifyLimitQuery('SELECT * FROM user', 0, 5)
         );
+
+        // Paginator with OutputWalkers turned on
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY dctrn_minrownum ASC) AS DC_ROWNUM FROM (SELECT DISTINCT ID_0, MIN(SCLR_2) AS dctrn_minrownum FROM (SELECT d0.ID as ID_0, d0.NAME AS NAME_1, ROW_NUMBER() OVER(ORDER BY D0_.ID ASC) AS SCLR_2 FROM USER d0_) dctrn_result GROUP BY ID_0 ORDER BY dctrn_minrownum ASC) db21) db22 WHERE db22.DC_ROWNUM <= 5',
+            $this->_platform->modifyLimitQuery('SELECT DISTINCT ID_0, MIN(SCLR_2) AS dctrn_minrownum FROM (SELECT d0.ID as ID_0, d0.NAME AS NAME_1, ROW_NUMBER() OVER(ORDER BY D0_.ID ASC) AS SCLR_2 FROM USER d0_) dctrn_result GROUP BY ID_0 ORDER BY dctrn_minrownum ASC', 5, 0)
+        );
+
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY dctrn_minrownum ASC) AS DC_ROWNUM FROM (SELECT DISTINCT ID_0, MIN(SCLR_2) AS dctrn_minrownum FROM (SELECT d0.ID as ID_0, d0.NAME AS NAME_1, ROW_NUMBER() OVER(ORDER BY D0_.ID ASC) AS SCLR_2 FROM USER d0_) dctrn_result GROUP BY ID_0 ORDER BY dctrn_minrownum ASC) db21) db22 WHERE db22.DC_ROWNUM >= 6 AND db22.DC_ROWNUM <= 15',
+            $this->_platform->modifyLimitQuery('SELECT DISTINCT ID_0, MIN(SCLR_2) AS dctrn_minrownum FROM (SELECT d0.ID as ID_0, d0.NAME AS NAME_1, ROW_NUMBER() OVER(ORDER BY D0_.ID ASC) AS SCLR_2 FROM USER d0_) dctrn_result GROUP BY ID_0 ORDER BY dctrn_minrownum ASC', 10, 5)
+        );
+
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY dctrn_minrownum ASC) AS DC_ROWNUM FROM (SELECT DISTINCT ID_0, MIN(SCLR_2) AS dctrn_minrownum FROM (SELECT d0.ID as ID_0, d0.NAME AS NAME_1, ROW_NUMBER() OVER(ORDER BY D0_.ID ASC) AS SCLR_2 FROM USER d0_) dctrn_result GROUP BY ID_0 ORDER BY dctrn_minrownum ASC) db21) db22 WHERE db22.DC_ROWNUM <= 5',
+            $this->_platform->modifyLimitQuery('SELECT DISTINCT ID_0, MIN(SCLR_2) AS dctrn_minrownum FROM (SELECT d0.ID as ID_0, d0.NAME AS NAME_1, ROW_NUMBER() OVER(ORDER BY D0_.ID ASC) AS SCLR_2 FROM USER d0_) dctrn_result GROUP BY ID_0 ORDER BY dctrn_minrownum ASC', 5)
+        );
     }
 
     public function testPrefersIdentityColumns()

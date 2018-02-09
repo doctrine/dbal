@@ -891,7 +891,7 @@ class DB2Platform extends AbstractPlatform
         $orderByPosition = strripos($query, 'order by');
 
         // early return if ORDER BY not found in query string
-        if ($orderByPosition == false) {
+        if ($orderByPosition === false) {
             return '';
         }
 
