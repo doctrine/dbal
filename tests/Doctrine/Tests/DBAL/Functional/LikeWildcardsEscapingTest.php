@@ -2,8 +2,9 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
-use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use function sprintf;
+use function str_replace;
 
 final class LikeWildcardsEscapingTest extends DbalFunctionalTestCase
 {
@@ -12,12 +13,15 @@ final class LikeWildcardsEscapingTest extends DbalFunctionalTestCase
         $string           = '_25% off_ your next purchase \o/';
         $escapeChar       = '!';
         $databasePlatform = $this->_conn->getDatabasePlatform();
-        $stmt             = $this->_conn->prepare(sprintf(
-            "SELECT (CASE WHEN '%s' LIKE '%s' ESCAPE '%s' THEN 1 ELSE 0 END)" .
-                ($databasePlatform instanceof OraclePlatform ? ' FROM dual' : ''),
-            $string,
-            $databasePlatform->escapeStringForLike($string, $escapeChar),
-            $escapeChar
+        $stmt             = $this->_conn->prepare(str_replace(
+            '1',
+            sprintf(
+                "(CASE WHEN '%s' LIKE '%s' ESCAPE '%s' THEN 1 ELSE 0 END)",
+                $string,
+                $databasePlatform->escapeStringForLike($string, $escapeChar),
+                $escapeChar
+            ),
+            $databasePlatform->getDummySelectSQL()
         ));
         $stmt->execute();
         $this->assertTrue((bool) $stmt->fetchColumn());
