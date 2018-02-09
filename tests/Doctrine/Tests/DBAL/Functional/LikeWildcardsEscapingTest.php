@@ -10,7 +10,7 @@ final class LikeWildcardsEscapingTest extends DbalFunctionalTestCase
 {
     public function testFetchLikeExpressionResult() : void
     {
-        $string           = '_25% off_ your next purchase \o/';
+        $string           = '_25% off_ your next purchase \o/ [$̲̅(̲̅5̲̅)̲̅$̲̅] (^̮^)';
         $escapeChar       = '!';
         $databasePlatform = $this->_conn->getDatabasePlatform();
         $stmt             = $this->_conn->prepare(str_replace(
