@@ -784,9 +784,12 @@ class DB2Platform extends AbstractPlatform
             return $query;
         }
 
-        // Todo OVER() needs ORDER BY data!
+        // retrieve ORDER BY string
+        $orderBy = $this->getOrderByForOver($query);
+        
         return sprintf(
-            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER() AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(%s) AS DC_ROWNUM FROM (%s) db21) db22 WHERE %s',
+            $orderBy,
             $query,
             implode(' AND ', $where)
         );
@@ -876,5 +879,79 @@ class DB2Platform extends AbstractPlatform
     protected function getReservedKeywordsClass()
     {
         return Keywords\DB2Keywords::class;
+    }
+    
+    /**
+     * Prepare ORDER BY string for OVER() if applicable
+     *
+     * @param  string $query
+     *
+     * @return string
+     */
+    private function getOrderByForOver(string $query): string
+    {
+        //determine if 'ORDER BY' is part of the query
+        $orderByPosition = strripos($query, 'order by');
+
+        // early return if ORDER BY not found in query string
+        if (false === $orderByPosition) {
+            return '';
+        }
+
+        // build dictionary if available
+        // re-sequence values
+        $queryArray = array_values(
+                          // filter out 'AS'
+                          array_filter(
+                              // split selected columns
+                              preg_split(
+                                  '/[, ]/',
+                                  substr($query, 0, $orderByPosition -1))
+                              , function($element) {
+                                    // don't return 'AS' and empty elements
+                                    return (
+                                        strtoupper($element) !== 'AS'
+                                        && trim($element !== '')
+                                        && $element !== false
+                                    );
+                                }
+                          )
+        );
+
+        $orderByArray = explode(',', substr($query, $orderByPosition + strlen('ORDER BY')));
+
+        foreach ($orderByArray as $orderIndex => $orderValue) {
+            $splitOrder = array_filter(explode(' ', $orderValue));
+
+            foreach ($splitOrder as $splitIndex => $splitValue) {
+                switch (strtoupper($splitValue)) {
+                    case 'ASC':
+                        // no break
+                    case 'DESC':
+                        break;
+                    default:
+                        $arrayFound = array_search($splitValue, $queryArray);
+
+                        $arrayPosition = substr(trim($splitValue), 0, 6) === 'dctrn_' ? 0 : 1;
+
+                        $splitOrder[$splitIndex] = $arrayFound === false ||
+                                                   $arrayFound >= count($queryArray) ||
+                                                   $queryArray[$arrayFound + $arrayPosition] === ""
+                                                   ? $splitValue
+                                                   : $queryArray[$arrayFound + $arrayPosition];
+                        break;
+                }
+            }
+
+            $orderByArray[$orderIndex] = array_filter($splitOrder);
+        }
+
+        foreach ($orderByArray as $orderIndex => $orderValue) {
+            $orderByArray[$orderIndex] = implode(' ', $orderValue);
+        }
+
+        $orderByArray[0] = 'ORDER BY ' . $orderByArray[0];
+
+        return implode(',', $orderByArray);
     }
 }

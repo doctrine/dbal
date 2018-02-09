@@ -377,6 +377,39 @@ class DB2PlatformTest extends AbstractPlatformTestCase
         );
     }
 
+    public function testModifiesLimitQueryWithOrderBy()
+    {
+        // no limit, no offset, order by id
+        self::assertEquals(
+            'SELECT * FROM user ORDER BY id',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY id', null, null)
+        );
+
+        // 10 row limit, no offset, order by id
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user ORDER BY id) db21) db22 WHERE db22.DC_ROWNUM <= 10',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY id', 10)
+        );
+
+        // 0 limit, 10 rows offset, order by id
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY id) AS DC_ROWNUM FROM (SELECT * FROM user ORDER BY id) db21) db22 WHERE db22.DC_ROWNUM >= 11 AND db22.DC_ROWNUM <= 10',
+            $this->_platform->modifyLimitQuery('SELECT * FROM user ORDER BY id', 0, 10)
+        );
+        
+        // select specific columns
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY USERID_3 ASC) AS DC_ROWNUM FROM (SELECT t0.manager AS MANAGER_1, t0.name AS NAME_2, t0.userId AS USERID_3, t0.email AS EMAIL_4 FROM user t0 ORDER BY t0.userId ASC) db21) db22 WHERE db22.DC_ROWNUM >= 11 AND db22.DC_ROWNUM <= 20',
+            $this->_platform->modifyLimitQuery('SELECT t0.manager AS MANAGER_1, t0.name AS NAME_2, t0.userId AS USERID_3, t0.email AS EMAIL_4 FROM user t0 ORDER BY t0.userId ASC', 10, 10)
+        );
+
+        // select specific columns, order on 3 columns in different directions
+        self::assertEquals(
+            'SELECT db22.* FROM (SELECT db21.*, ROW_NUMBER() OVER(ORDER BY USERID_3 ASC,MANAGER_1 DESC,EMAIL_4 ASC) AS DC_ROWNUM FROM (SELECT t0.manager AS MANAGER_1, t0.name AS NAME_2, t0.userId AS USERID_3, t0.email AS EMAIL_4 FROM driverManagerEmployed t0 ORDER BY t0.userId ASC, t0.manager DESC, t0.email ASC) db21) db22 WHERE db22.DC_ROWNUM >= 11 AND db22.DC_ROWNUM <= 20',
+            $this->_platform->modifyLimitQuery('SELECT t0.manager AS MANAGER_1, t0.name AS NAME_2, t0.userId AS USERID_3, t0.email AS EMAIL_4 FROM driverManagerEmployed t0 ORDER BY t0.userId ASC, t0.manager DESC, t0.email ASC', 10, 10)
+        );
+    }
+    
     public function testPrefersIdentityColumns()
     {
         self::assertTrue($this->_platform->prefersIdentityColumns());
