@@ -229,7 +229,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
     {
         self::assertEquals(
             "a.song LIKE 'a virgin' ESCAPE '💩'",
-            $this->expr->like('a.song', "'a virgin'", '💩')
+            $this->expr->like('a.song', "'a virgin'", "'💩'")
         );
     }
 
@@ -245,7 +245,7 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
     {
         self::assertEquals(
             "p.description NOT LIKE '20💩%' ESCAPE '💩'",
-            $this->expr->notLike('p.description', "'20💩%'", '💩')
+            $this->expr->notLike('p.description', "'20💩%'", "'💩'")
         );
     }
 }

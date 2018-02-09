@@ -260,7 +260,7 @@ class ExpressionBuilder
     public function like($x, $y/*, ?string $escapeChar = null */)
     {
         return $this->comparison($x, 'LIKE', $y) .
-            (func_num_args() >= 3 ? sprintf(" ESCAPE '%s'", func_get_arg(2)) : '');
+            (func_num_args() >= 3 ? sprintf(' ESCAPE %s', func_get_arg(2)) : '');
     }
 
     /**
@@ -274,7 +274,7 @@ class ExpressionBuilder
     public function notLike($x, $y/*, ?string $escapeChar = null */)
     {
         return $this->comparison($x, 'NOT LIKE', $y) .
-            (func_num_args() >= 3 ? sprintf(" ESCAPE '%s'", func_get_arg(2)) : '');
+            (func_num_args() >= 3 ? sprintf(' ESCAPE %s', func_get_arg(2)) : '');
     }
 
     /**
