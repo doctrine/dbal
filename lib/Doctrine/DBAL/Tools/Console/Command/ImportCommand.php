@@ -19,21 +19,23 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
+use Doctrine\DBAL\Driver\PDOConnection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use const PHP_EOL;
+use function file_exists;
+use function file_get_contents;
+use function is_readable;
+use function realpath;
+use function sprintf;
 
 /**
  * Task for executing arbitrary SQL that can come from a file or directly from
  * the command line.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
 class ImportCommand extends Command
 {
@@ -45,10 +47,11 @@ class ImportCommand extends Command
         $this
         ->setName('dbal:import')
         ->setDescription('Import SQL file(s) directly to Database.')
-        ->setDefinition([
-            new InputArgument(
-                'file', InputArgument::REQUIRED | InputArgument::IS_ARRAY, 'File path(s) of SQL to be executed.'
-            )
+        ->setDefinition([new InputArgument(
+            'file',
+            InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+            'File path(s) of SQL to be executed.'
+        ),
         ])
         ->setHelp(<<<EOT
 Import SQL file(s) directly to Database.
@@ -68,15 +71,15 @@ EOT
                 $filePath = realpath($fileName);
 
                 // Phar compatibility.
-                if (false === $filePath) {
+                if ($filePath === false) {
                     $filePath = $fileName;
                 }
 
-                if ( ! file_exists($filePath)) {
+                if (! file_exists($filePath)) {
                     throw new \InvalidArgumentException(
                         sprintf("SQL file '<info>%s</info>' does not exist.", $filePath)
                     );
-                } elseif ( ! is_readable($filePath)) {
+                } elseif (! is_readable($filePath)) {
                     throw new \InvalidArgumentException(
                         sprintf("SQL file '<info>%s</info>' does not have read permissions.", $filePath)
                     );
@@ -85,7 +88,7 @@ EOT
                 $output->write(sprintf("Processing file '<info>%s</info>'... ", $filePath));
                 $sql = file_get_contents($filePath);
 
-                if ($conn instanceof \Doctrine\DBAL\Driver\PDOConnection) {
+                if ($conn instanceof PDOConnection) {
                     // PDO Drivers
                     try {
                         $lines = 0;
@@ -110,7 +113,7 @@ EOT
                 } else {
                     // Non-PDO Drivers (ie. OCI8 driver)
                     $stmt = $conn->prepare($sql);
-                    $rs = $stmt->execute();
+                    $rs   = $stmt->execute();
 
                     if ($rs) {
                         $output->writeln('OK!' . PHP_EOL);

@@ -20,12 +20,22 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\EventManager;
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function class_implements;
+use function in_array;
+use function is_subclass_of;
+use function parse_str;
+use function parse_url;
+use function preg_replace;
+use function str_replace;
+use function strpos;
+use function substr;
 
 /**
  * Factory for creating Doctrine\DBAL\Connection instances.
  *
- * @author Roman Borschel <roman@code-factory.org>
- * @since 2.0
  */
 final class DriverManager
 {
@@ -37,7 +47,7 @@ final class DriverManager
      *
      * @var array
      */
-     private static $_driverMap = [
+    private static $_driverMap = [
          'pdo_mysql'          => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
          'pdo_sqlite'         => 'Doctrine\DBAL\Driver\PDOSqlite\Driver',
          'pdo_pgsql'          => 'Doctrine\DBAL\Driver\PDOPgSql\Driver',
@@ -120,24 +130,23 @@ final class DriverManager
      * <b>driverClass</b>:
      * The driver class to use.
      *
-     * @param array                              $params       The parameters.
-     * @param \Doctrine\DBAL\Configuration|null  $config       The configuration to use.
-     * @param \Doctrine\Common\EventManager|null $eventManager The event manager to use.
+     * @param array              $params       The parameters.
+     * @param Configuration|null $config       The configuration to use.
+     * @param EventManager|null  $eventManager The event manager to use.
      *
-     * @return \Doctrine\DBAL\Connection
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public static function getConnection(
-            array $params,
-            Configuration $config = null,
-            EventManager $eventManager = null): Connection
-    {
+        array $params,
+        ?Configuration $config = null,
+        ?EventManager $eventManager = null
+    ) : Connection {
         // create default config and event manager, if not set
-        if ( ! $config) {
+        if (! $config) {
             $config = new Configuration();
         }
-        if ( ! $eventManager) {
+        if (! $eventManager) {
             $eventManager = new EventManager();
         }
 
@@ -160,7 +169,7 @@ final class DriverManager
         $wrapperClass = 'Doctrine\DBAL\Connection';
         if (isset($params['wrapperClass'])) {
             if (is_subclass_of($params['wrapperClass'], $wrapperClass)) {
-               $wrapperClass = $params['wrapperClass'];
+                $wrapperClass = $params['wrapperClass'];
             } else {
                 throw DBALException::invalidWrapperClass($params['wrapperClass']);
             }
@@ -174,7 +183,7 @@ final class DriverManager
      *
      * @return array
      */
-    public static function getAvailableDrivers(): array
+    public static function getAvailableDrivers() : array
     {
         return array_keys(self::$_driverMap);
     }
@@ -184,16 +193,15 @@ final class DriverManager
      *
      * @param array $params The list of parameters.
      *
-     * @return void
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
-    private static function _checkParams(array $params): void
+    private static function _checkParams(array $params) : void
     {
         // check existence of mandatory parameters
 
         // driver
-        if ( ! isset($params['driver']) && ! isset($params['driverClass'])) {
+        if (! isset($params['driver']) && ! isset($params['driverClass'])) {
             throw DBALException::driverRequired();
         }
 
@@ -212,11 +220,10 @@ final class DriverManager
     /**
      * Normalizes the given connection URL path.
      *
-     * @param string $urlPath
      *
      * @return string The normalized connection URL path
      */
-    private static function normalizeDatabaseUrlPath(string $urlPath): string
+    private static function normalizeDatabaseUrlPath(string $urlPath) : string
     {
         // Trim leading slash from URL path.
         return substr($urlPath, 1);
@@ -233,9 +240,9 @@ final class DriverManager
      *
      * @throws DBALException
      */
-    private static function parseDatabaseUrl(array $params): array
+    private static function parseDatabaseUrl(array $params) : array
     {
-        if (!isset($params['url'])) {
+        if (! isset($params['url'])) {
             return $params;
         }
 
@@ -287,7 +294,7 @@ final class DriverManager
      *
      * @see parseDatabaseUrlScheme
      */
-    private static function parseDatabaseUrlPath(array $url, array $params): array
+    private static function parseDatabaseUrlPath(array $url, array $params) : array
     {
         if (! isset($url['path'])) {
             return $params;
@@ -316,7 +323,7 @@ final class DriverManager
      *
      * @return array The resolved connection parameters.
      */
-    private static function parseDatabaseUrlQuery(array $url, array $params): array
+    private static function parseDatabaseUrlQuery(array $url, array $params) : array
     {
         if (! isset($url['query'])) {
             return $params;
@@ -341,7 +348,7 @@ final class DriverManager
      *
      * @see normalizeDatabaseUrlPath
      */
-    private static function parseRegularDatabaseUrlPath(array $url, array $params): array
+    private static function parseRegularDatabaseUrlPath(array $url, array $params) : array
     {
         $params['dbname'] = $url['path'];
 
@@ -360,7 +367,7 @@ final class DriverManager
      *
      * @see normalizeDatabaseUrlPath
      */
-    private static function parseSqliteDatabaseUrlPath(array $url, array $params): array
+    private static function parseSqliteDatabaseUrlPath(array $url, array $params) : array
     {
         if ($url['path'] === ':memory:') {
             $params['memory'] = true;
@@ -383,7 +390,7 @@ final class DriverManager
      *
      * @throws DBALException if parsing failed or resolution is not possible.
      */
-    private static function parseDatabaseUrlScheme(array $url, array $params): array
+    private static function parseDatabaseUrlScheme(array $url, array $params) : array
     {
         if (isset($url['scheme'])) {
             // The requested driver from the URL scheme takes precedence

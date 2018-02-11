@@ -20,11 +20,11 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function is_resource;
+use function stream_get_contents;
 
 /**
  * Type that maps an SQL CLOB to a PHP string.
- *
- * @since 2.0
  */
 class TextType extends Type
 {

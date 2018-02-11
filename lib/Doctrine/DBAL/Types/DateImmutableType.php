@@ -24,8 +24,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 /**
  * Immutable type of {@see DateType}.
  *
- * @since  2.6
- * @author Steve Müller <deeky666@googlemail.com>
  */
 class DateImmutableType extends DateType
 {
@@ -42,7 +40,7 @@ class DateImmutableType extends DateType
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
 

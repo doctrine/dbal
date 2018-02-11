@@ -21,8 +21,6 @@ namespace Doctrine\DBAL\Driver;
 
 /**
  * Interface for the reading part of a prepare statement only.
- *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 interface ResultStatement extends \Traversable
 {
@@ -109,7 +107,7 @@ interface ResultStatement extends \Traversable
      *                         If no value is supplied, PDOStatement->fetchColumn()
      *                         fetches the first column.
      *
-     * @return string|boolean A single column in the next row of a result set, or FALSE if there are no more rows.
+     * @return string|bool A single column in the next row of a result set, or FALSE if there are no more rows.
      */
     public function fetchColumn($columnIndex = 0);
 }

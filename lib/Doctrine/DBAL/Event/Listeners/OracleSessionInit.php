@@ -19,9 +19,14 @@
 
 namespace Doctrine\DBAL\Event\Listeners;
 
+use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
-use Doctrine\Common\EventSubscriber;
+use const CASE_UPPER;
+use function array_change_key_case;
+use function array_merge;
+use function count;
+use function implode;
 
 /**
  * Should be used when Oracle Server default environment does not match the Doctrine requirements.
@@ -34,8 +39,6 @@ use Doctrine\Common\EventSubscriber;
  * NLS_TIMESTAMP_TZ_FORMAT="YYYY-MM-DD HH24:MI:SS TZH:TZM"
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class OracleSessionInit implements EventSubscriber
 {
@@ -43,11 +46,11 @@ class OracleSessionInit implements EventSubscriber
      * @var array
      */
     protected $_defaultSessionVars = [
-        'NLS_TIME_FORMAT' => "HH24:MI:SS",
-        'NLS_DATE_FORMAT' => "YYYY-MM-DD HH24:MI:SS",
-        'NLS_TIMESTAMP_FORMAT' => "YYYY-MM-DD HH24:MI:SS",
-        'NLS_TIMESTAMP_TZ_FORMAT' => "YYYY-MM-DD HH24:MI:SS TZH:TZM",
-        'NLS_NUMERIC_CHARACTERS' => ".,",
+        'NLS_TIME_FORMAT' => 'HH24:MI:SS',
+        'NLS_DATE_FORMAT' => 'YYYY-MM-DD HH24:MI:SS',
+        'NLS_TIMESTAMP_FORMAT' => 'YYYY-MM-DD HH24:MI:SS',
+        'NLS_TIMESTAMP_TZ_FORMAT' => 'YYYY-MM-DD HH24:MI:SS TZH:TZM',
+        'NLS_NUMERIC_CHARACTERS' => '.,',
     ];
 
     /**
@@ -58,24 +61,19 @@ class OracleSessionInit implements EventSubscriber
         $this->_defaultSessionVars = array_merge($this->_defaultSessionVars, $oracleSessionVars);
     }
 
-    /**
-     * @param \Doctrine\DBAL\Event\ConnectionEventArgs $args
-     *
-     * @return void
-     */
     public function postConnect(ConnectionEventArgs $args)
     {
         if (count($this->_defaultSessionVars)) {
-            array_change_key_case($this->_defaultSessionVars, \CASE_UPPER);
+            array_change_key_case($this->_defaultSessionVars, CASE_UPPER);
             $vars = [];
             foreach ($this->_defaultSessionVars as $option => $value) {
                 if ($option === 'CURRENT_SCHEMA') {
-                    $vars[] = $option . " = " . $value;
+                    $vars[] = $option . ' = ' . $value;
                 } else {
                     $vars[] = $option . " = '" . $value . "'";
                 }
             }
-            $sql = "ALTER SESSION SET ".implode(" ", $vars);
+            $sql = 'ALTER SESSION SET ' . implode(' ', $vars);
             $args->getConnection()->executeUpdate($sql);
         }
     }

@@ -19,15 +19,16 @@
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Type;
+use function is_array;
+use function is_string;
 
 /**
  * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support
  * for logging, DBAL mapping types, etc.
  *
- * @author Roman Borschel <roman@code-factory.org>
- * @since 2.0
  */
 class Statement implements \IteratorAggregate, DriverStatement
 {
@@ -62,28 +63,28 @@ class Statement implements \IteratorAggregate, DriverStatement
     /**
      * The underlying database platform.
      *
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var AbstractPlatform
      */
     protected $platform;
 
     /**
      * The connection this statement is bound to and executed on.
      *
-     * @var \Doctrine\DBAL\Connection
+     * @var Connection
      */
     protected $conn;
 
     /**
      * Creates a new <tt>Statement</tt> for the given SQL and <tt>Connection</tt>.
      *
-     * @param string                    $sql  The SQL of the statement.
-     * @param \Doctrine\DBAL\Connection $conn The connection on which the statement should be executed.
+     * @param string     $sql  The SQL of the statement.
+     * @param Connection $conn The connection on which the statement should be executed.
      */
     public function __construct($sql, Connection $conn)
     {
-        $this->sql = $sql;
-        $this->stmt = $conn->getWrappedConnection()->prepare($sql);
-        $this->conn = $conn;
+        $this->sql      = $sql;
+        $this->stmt     = $conn->getWrappedConnection()->prepare($sql);
+        $this->conn     = $conn;
         $this->platform = $conn->getDatabasePlatform();
     }
 
@@ -104,13 +105,13 @@ class Statement implements \IteratorAggregate, DriverStatement
     public function bindValue($name, $value, $type = ParameterType::STRING)
     {
         $this->params[$name] = $value;
-        $this->types[$name] = $type;
+        $this->types[$name]  = $type;
         if ($type !== null) {
             if (is_string($type)) {
                 $type = Type::getType($type);
             }
             if ($type instanceof Type) {
-                $value = $type->convertToDatabaseValue($value, $this->platform);
+                $value       = $type->convertToDatabaseValue($value, $this->platform);
                 $bindingType = $type->getBindingType();
             } else {
                 $bindingType = $type;
@@ -138,7 +139,7 @@ class Statement implements \IteratorAggregate, DriverStatement
     public function bindParam($name, &$var, $type = ParameterType::STRING, $length = null)
     {
         $this->params[$name] = $var;
-        $this->types[$name] = $type;
+        $this->types[$name]  = $type;
 
         return $this->stmt->bindParam($name, $var, $type, $length);
     }
@@ -150,7 +151,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return bool TRUE on success, FALSE on failure.
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function execute($params = null)
     {
@@ -165,7 +166,7 @@ class Statement implements \IteratorAggregate, DriverStatement
 
         try {
             $stmt = $this->stmt->execute($params);
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             if ($logger) {
                 $logger->stopQuery();
             }
@@ -181,7 +182,7 @@ class Statement implements \IteratorAggregate, DriverStatement
             $logger->stopQuery();
         }
         $this->params = [];
-        $this->types = [];
+        $this->types  = [];
 
         return $stmt;
     }

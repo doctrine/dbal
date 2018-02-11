@@ -23,8 +23,6 @@ use Doctrine\DBAL\Sharding\ShardChoser\ShardChoser;
 
 /**
  * Shard Manager for the Connection Pooling Shard Strategy
- *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class PoolingShardManager implements ShardManager
 {
@@ -43,9 +41,6 @@ class PoolingShardManager implements ShardManager
      */
     private $currentDistributionValue;
 
-    /**
-     * @param PoolingShardConnection $conn
-     */
     public function __construct(PoolingShardConnection $conn)
     {
         $params       = $conn->getParams();
@@ -107,11 +102,11 @@ class PoolingShardManager implements ShardManager
     public function queryAll($sql, array $params, array $types)
     {
         $shards = $this->getShards();
-        if (!$shards) {
-            throw new \RuntimeException("No shards found.");
+        if (! $shards) {
+            throw new \RuntimeException('No shards found.');
         }
 
-        $result = [];
+        $result          = [];
         $oldDistribution = $this->getCurrentDistributionValue();
 
         foreach ($shards as $shard) {

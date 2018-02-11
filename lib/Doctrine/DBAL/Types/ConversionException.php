@@ -21,15 +21,20 @@
  * Conversion Exception is thrown when the database to PHP conversion fails.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
 namespace Doctrine\DBAL\Types;
 
-class ConversionException extends \Doctrine\DBAL\DBALException
+use Doctrine\DBAL\DBALException;
+use function get_class;
+use function gettype;
+use function implode;
+use function is_object;
+use function is_scalar;
+use function sprintf;
+use function strlen;
+use function substr;
+
+class ConversionException extends DBALException
 {
     /**
      * Thrown when a Database to Doctrine Type Conversion fails.
@@ -50,14 +55,13 @@ class ConversionException extends \Doctrine\DBAL\DBALException
      * Thrown when a Database to Doctrine Type Conversion fails and we can make a statement
      * about the expected format.
      *
-     * @param string          $value
-     * @param string          $toType
-     * @param string          $expectedFormat
-     * @param \Exception|null $previous
+     * @param string $value
+     * @param string $toType
+     * @param string $expectedFormat
      *
      * @return \Doctrine\DBAL\Types\ConversionException
      */
-    public static function conversionFailedFormat($value, $toType, $expectedFormat, \Exception $previous = null)
+    public static function conversionFailedFormat($value, $toType, $expectedFormat, ?\Throwable $previous = null)
     {
         $value = (strlen($value) > 32) ? substr($value, 0, 20) . '...' : $value;
 

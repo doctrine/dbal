@@ -24,12 +24,40 @@ use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
+use const OCI_ASSOC;
+use const OCI_B_BLOB;
+use const OCI_BOTH;
+use const OCI_D_LOB;
+use const OCI_FETCHSTATEMENT_BY_COLUMN;
+use const OCI_FETCHSTATEMENT_BY_ROW;
+use const OCI_NUM;
+use const OCI_RETURN_LOBS;
+use const OCI_RETURN_NULLS;
+use const OCI_TEMP_BLOB;
+use const PREG_OFFSET_CAPTURE;
+use function array_key_exists;
+use function count;
+use function implode;
+use function is_numeric;
+use function oci_bind_by_name;
+use function oci_cancel;
+use function oci_error;
+use function oci_execute;
+use function oci_fetch_all;
+use function oci_fetch_array;
+use function oci_fetch_object;
+use function oci_new_descriptor;
+use function oci_num_fields;
+use function oci_num_rows;
+use function oci_parse;
+use function preg_match;
+use function preg_quote;
+use function sprintf;
+use function substr;
 
 /**
  * The OCI8 implementation of the Statement interface.
  *
- * @since 2.0
- * @author Roman Borschel <roman@code-factory.org>
  */
 class OCI8Statement implements IteratorAggregate, Statement
 {
@@ -44,7 +72,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     protected $_sth;
 
     /**
-     * @var \Doctrine\DBAL\Driver\OCI8\OCI8Connection
+     * @var OCI8Connection
      */
     protected $_conn;
 
@@ -92,17 +120,16 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
-     * @param resource                                  $dbh       The connection handle.
-     * @param string                                    $statement The SQL statement.
-     * @param \Doctrine\DBAL\Driver\OCI8\OCI8Connection $conn
+     * @param resource $dbh       The connection handle.
+     * @param string   $statement The SQL statement.
      */
     public function __construct($dbh, $statement, OCI8Connection $conn)
     {
         list($statement, $paramMap) = self::convertPositionalToNamedPlaceholders($statement);
-        $this->_sth = oci_parse($dbh, $statement);
-        $this->_dbh = $dbh;
-        $this->_paramMap = $paramMap;
-        $this->_conn = $conn;
+        $this->_sth                 = oci_parse($dbh, $statement);
+        $this->_dbh                 = $dbh;
+        $this->_paramMap            = $paramMap;
+        $this->_conn                = $conn;
     }
 
     /**
@@ -123,16 +150,16 @@ class OCI8Statement implements IteratorAggregate, Statement
      * @param string $statement The SQL statement to convert.
      *
      * @return array [0] => the statement value (string), [1] => the paramMap value (array).
-     * @throws \Doctrine\DBAL\Driver\OCI8\OCI8Exception
+     * @throws OCI8Exception
      */
     public static function convertPositionalToNamedPlaceholders($statement)
     {
-        $fragmentOffset = $tokenOffset = 0;
-        $fragments = $paramMap = [];
+        $fragmentOffset          = $tokenOffset = 0;
+        $fragments               = $paramMap = [];
         $currentLiteralDelimiter = null;
 
         do {
-            if (!$currentLiteralDelimiter) {
+            if (! $currentLiteralDelimiter) {
                 $result = self::findPlaceholderOrOpeningQuote(
                     $statement,
                     $tokenOffset,
@@ -154,7 +181,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         $fragments[] = substr($statement, $fragmentOffset);
-        $statement = implode('', $fragments);
+        $statement   = implode('', $fragments);
 
         return [$statement, $paramMap];
     }
@@ -181,18 +208,18 @@ class OCI8Statement implements IteratorAggregate, Statement
     ) {
         $token = self::findToken($statement, $tokenOffset, '/[?\'"]/');
 
-        if (!$token) {
+        if (! $token) {
             return false;
         }
 
         if ($token === '?') {
-            $position = count($paramMap) + 1;
-            $param = ':param' . $position;
-            $fragments[] = substr($statement, $fragmentOffset, $tokenOffset - $fragmentOffset);
-            $fragments[] = $param;
+            $position            = count($paramMap) + 1;
+            $param               = ':param' . $position;
+            $fragments[]         = substr($statement, $fragmentOffset, $tokenOffset - $fragmentOffset);
+            $fragments[]         = $param;
             $paramMap[$position] = $param;
-            $tokenOffset += 1;
-            $fragmentOffset = $tokenOffset;
+            $tokenOffset        += 1;
+            $fragmentOffset      = $tokenOffset;
 
             return true;
         }
@@ -223,7 +250,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             '/' . preg_quote($currentLiteralDelimiter, '/') . '/'
         );
 
-        if (!$token) {
+        if (! $token) {
             return false;
         }
 
@@ -291,7 +318,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     public function closeCursor()
     {
         // not having the result means there's nothing to close
-        if (!$this->result) {
+        if (! $this->result) {
             return true;
         }
 
@@ -348,7 +375,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
-        if ( ! $ret) {
+        if (! $ret) {
             throw OCI8Exception::fromErrorInfo($this->errorInfo());
         }
 
@@ -382,7 +409,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
-        if (!$this->result) {
+        if (! $this->result) {
             return false;
         }
 
@@ -397,7 +424,7 @@ class OCI8Statement implements IteratorAggregate, Statement
         }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
+            throw new \InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
         }
 
         return oci_fetch_array(
@@ -423,8 +450,8 @@ class OCI8Statement implements IteratorAggregate, Statement
             return $result;
         }
 
-        if ( ! isset(self::$fetchModeMap[$fetchMode])) {
-            throw new \InvalidArgumentException("Invalid fetch style: " . $fetchMode);
+        if (! isset(self::$fetchModeMap[$fetchMode])) {
+            throw new \InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
         }
 
         if (self::$fetchModeMap[$fetchMode] === OCI_BOTH) {
@@ -440,12 +467,17 @@ class OCI8Statement implements IteratorAggregate, Statement
 
             // do not try fetching from the statement if it's not expected to contain result
             // in order to prevent exceptional situation
-            if (!$this->result) {
+            if (! $this->result) {
                 return [];
             }
 
-            oci_fetch_all($this->_sth, $result, 0, -1,
-                self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS);
+            oci_fetch_all(
+                $this->_sth,
+                $result,
+                0,
+                -1,
+                self::$fetchModeMap[$fetchMode] | OCI_RETURN_NULLS | $fetchStructure | OCI_RETURN_LOBS
+            );
 
             if ($fetchMode === FetchMode::COLUMN) {
                 $result = $result[0];
@@ -462,13 +494,13 @@ class OCI8Statement implements IteratorAggregate, Statement
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
-        if (!$this->result) {
+        if (! $this->result) {
             return false;
         }
 
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);
 
-        if (false === $row) {
+        if ($row === false) {
             return false;
         }
 

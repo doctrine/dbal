@@ -19,12 +19,14 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use function array_flip;
+use function array_map;
+use function strtoupper;
+
 /**
  * Abstract interface for a SQL reserved keyword dictionary.
  *
  * @link    www.doctrine-project.org
- * @since   2.0
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 abstract class KeywordList
 {
@@ -49,9 +51,6 @@ abstract class KeywordList
         return isset($this->keywords[strtoupper($word)]);
     }
 
-    /**
-     * @return void
-     */
     protected function initializeKeywords()
     {
         $this->keywords = array_flip(array_map('strtoupper', $this->getKeywords()));

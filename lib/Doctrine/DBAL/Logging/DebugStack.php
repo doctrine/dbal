@@ -19,15 +19,12 @@
 
 namespace Doctrine\DBAL\Logging;
 
+use function microtime;
+
 /**
  * Includes executed SQLs in a Debug Stack.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
 class DebugStack implements SQLLogger
 {
@@ -58,10 +55,10 @@ class DebugStack implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, array $params = null, array $types = null)
+    public function startQuery($sql, ?array $params = null, ?array $types = null)
     {
         if ($this->enabled) {
-            $this->start = microtime(true);
+            $this->start                          = microtime(true);
             $this->queries[++$this->currentQuery] = ['sql' => $sql, 'params' => $params, 'types' => $types, 'executionMS' => 0];
         }
     }

@@ -25,8 +25,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * Marker interface for constraints.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 interface Constraint
 {
@@ -36,7 +34,6 @@ interface Constraint
     public function getName();
 
     /**
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
      * @return string
      */
@@ -58,7 +55,7 @@ interface Constraint
      * is a keyword reserved by the platform.
      * Otherwise the plain unquoted value as inserted is returned.
      *
-     * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform The platform to use for quotation.
+     * @param AbstractPlatform $platform The platform to use for quotation.
      *
      * @return array
      */

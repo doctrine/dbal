@@ -21,13 +21,15 @@ namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use function array_change_key_case;
+use function is_null;
+use function is_string;
+use function rtrim;
 
 /**
  * Portability wrapper for a Statement.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
 {
@@ -54,14 +56,13 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
      *
-     * @param \Doctrine\DBAL\Driver\Statement       $stmt
-     * @param \Doctrine\DBAL\Portability\Connection $conn
+     * @param \Doctrine\DBAL\Driver\Statement $stmt
      */
     public function __construct($stmt, Connection $conn)
     {
-        $this->stmt = $stmt;
+        $this->stmt        = $stmt;
         $this->portability = $conn->getPortability();
-        $this->case = $conn->getFetchCase();
+        $this->case        = $conn->getFetchCase();
     }
 
     /**
@@ -177,7 +178,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
             && ($fetchMode === FetchMode::ASSOCIATIVE || $fetchMode === FetchMode::MIXED)
             && ($this->portability & Connection::PORTABILITY_FIX_CASE);
 
-        if ( ! $iterateRow && !$fixCase) {
+        if (! $iterateRow && ! $fixCase) {
             return $rows;
         }
 
@@ -209,7 +210,7 @@ class Statement implements \IteratorAggregate, \Doctrine\DBAL\Driver\Statement
      */
     protected function fixRow($row, $iterateRow, $fixCase)
     {
-        if ( ! $row) {
+        if (! $row) {
             return $row;
         }
 

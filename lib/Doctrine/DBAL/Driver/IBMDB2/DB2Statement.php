@@ -23,6 +23,31 @@ use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use const CASE_LOWER;
+use const DB2_CHAR;
+use const DB2_LONG;
+use const DB2_PARAM_IN;
+use function array_change_key_case;
+use function call_user_func_array;
+use function db2_bind_param;
+use function db2_execute;
+use function db2_fetch_array;
+use function db2_fetch_assoc;
+use function db2_fetch_both;
+use function db2_fetch_object;
+use function db2_free_result;
+use function db2_num_fields;
+use function db2_num_rows;
+use function db2_stmt_error;
+use function db2_stmt_errormsg;
+use function func_get_args;
+use function func_num_args;
+use function gettype;
+use function is_object;
+use function is_string;
+use function ksort;
+use function sprintf;
+use function strtolower;
 
 class DB2Statement implements \IteratorAggregate, Statement
 {
@@ -97,7 +122,7 @@ class DB2Statement implements \IteratorAggregate, Statement
             $type = DB2_CHAR;
         }
 
-        if (!db2_bind_param($this->_stmt, $column, "variable", DB2_PARAM_IN, $type)) {
+        if (! db2_bind_param($this->_stmt, $column, 'variable', DB2_PARAM_IN, $type)) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
 
@@ -109,13 +134,13 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function closeCursor()
     {
-        if ( ! $this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
         $this->_bindParam = [];
 
-        if (!db2_free_result($this->_stmt)) {
+        if (! db2_free_result($this->_stmt)) {
             return false;
         }
 
@@ -129,7 +154,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function columnCount()
     {
-        if ( ! $this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
@@ -160,7 +185,7 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function execute($params = null)
     {
-        if ( ! $this->_stmt) {
+        if (! $this->_stmt) {
             return false;
         }
 
@@ -212,7 +237,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
-        if (!$this->result) {
+        if (! $this->result) {
             return false;
         }
 
@@ -290,7 +315,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
-        if (false === $row) {
+        if ($row === false) {
             return false;
         }
 
@@ -318,10 +343,11 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     private function castObject(\stdClass $sourceObject, $destinationClass, array $ctorArgs = [])
     {
-        if ( ! is_string($destinationClass)) {
-            if ( ! is_object($destinationClass)) {
+        if (! is_string($destinationClass)) {
+            if (! is_object($destinationClass)) {
                 throw new DB2Exception(sprintf(
-                    'Destination class has to be of type string or object, %s given.', gettype($destinationClass)
+                    'Destination class has to be of type string or object, %s given.',
+                    gettype($destinationClass)
                 ));
             }
         } else {
@@ -332,7 +358,7 @@ class DB2Statement implements \IteratorAggregate, Statement
         $sourceReflection           = new \ReflectionObject($sourceObject);
         $destinationClassReflection = new \ReflectionObject($destinationClass);
         /** @var \ReflectionProperty[] $destinationProperties */
-        $destinationProperties      = array_change_key_case($destinationClassReflection->getProperties(), \CASE_LOWER);
+        $destinationProperties = array_change_key_case($destinationClassReflection->getProperties(), CASE_LOWER);
 
         foreach ($sourceReflection->getProperties() as $sourceProperty) {
             $sourceProperty->setAccessible(true);

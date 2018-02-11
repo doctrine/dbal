@@ -21,6 +21,10 @@ namespace Doctrine\DBAL\Cache;
 
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\FetchMode;
+use function array_merge;
+use function array_values;
+use function count;
+use function reset;
 
 class ArrayStatement implements \IteratorAggregate, ResultStatement
 {
@@ -60,7 +64,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
      */
     public function closeCursor()
     {
-        unset ($this->data);
+        unset($this->data);
     }
 
     /**
@@ -77,7 +81,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
         if ($arg2 !== null || $arg3 !== null) {
-            throw new \InvalidArgumentException("Caching layer does not support 2nd/3rd argument to setFetchMode()");
+            throw new \InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode()');
         }
 
         $this->defaultFetchMode = $fetchMode;

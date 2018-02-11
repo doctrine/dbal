@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\SQLServer2005Platform;
@@ -27,13 +28,13 @@ use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use function preg_match;
+use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for Microsoft SQL Server based drivers.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDriver
 {
@@ -42,7 +43,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
      */
     public function createDatabasePlatformForVersion($version)
     {
-        if ( ! preg_match(
+        if (! preg_match(
             '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+)(?:\.(?P<build>\d+))?)?)?/',
             $version,
             $versionParts
@@ -59,7 +60,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
         $buildVersion = $versionParts['build'] ?? 0;
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion . '.' . $buildVersion;
 
-        switch(true) {
+        switch (true) {
             case version_compare($version, '11.00.2100', '>='):
                 return new SQLServer2012Platform();
             case version_compare($version, '10.00.1600', '>='):
@@ -74,7 +75,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 
@@ -93,7 +94,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
      * {@inheritdoc}
      */
 
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
         return new SQLServerSchemaManager($conn);
     }

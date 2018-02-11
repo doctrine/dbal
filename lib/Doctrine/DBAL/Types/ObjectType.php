@@ -20,11 +20,13 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function is_resource;
+use function serialize;
+use function stream_get_contents;
+use function unserialize;
 
 /**
  * Type that maps a PHP object to a clob SQL type.
- *
- * @since 2.0
  */
 class ObjectType extends Type
 {
@@ -54,7 +56,7 @@ class ObjectType extends Type
         }
 
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        $val = unserialize($value);
+        $val   = unserialize($value);
         if ($val === false && $value !== 'b:0;') {
             throw ConversionException::conversionFailed($value, $this->getName());
         }

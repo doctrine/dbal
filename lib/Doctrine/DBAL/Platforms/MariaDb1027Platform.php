@@ -26,7 +26,6 @@ use Doctrine\DBAL\Types\Type;
  *
  * Note: Should not be used with versions prior ro 10.2.7.
  *
- * @author Vanvelthem Sébastien
  * @link   www.doctrine-project.org
  */
 final class MariaDb1027Platform extends MySqlPlatform

@@ -101,9 +101,9 @@ class SQLServer2008Platform extends SQLServer2005Platform
     protected function initializeDoctrineTypeMappings()
     {
         parent::initializeDoctrineTypeMappings();
-        $this->doctrineTypeMapping['datetime2'] = 'datetime';
-        $this->doctrineTypeMapping['date'] = 'date';
-        $this->doctrineTypeMapping['time'] = 'time';
+        $this->doctrineTypeMapping['datetime2']      = 'datetime';
+        $this->doctrineTypeMapping['date']           = 'date';
+        $this->doctrineTypeMapping['time']           = 'time';
         $this->doctrineTypeMapping['datetimeoffset'] = 'datetimetz';
     }
 

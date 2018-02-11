@@ -22,10 +22,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
 /**
  * PostgreSQL 9.1 reserved keywords list.
  *
- * @author Martin Hasoň <martin.hason@gmail.com>
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 class PostgreSQL91Keywords extends PostgreSQLKeywords
 {

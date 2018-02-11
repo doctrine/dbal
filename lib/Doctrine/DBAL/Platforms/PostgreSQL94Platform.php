@@ -24,9 +24,7 @@ use Doctrine\DBAL\Types\Type;
 /**
  * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4 database platform.
  *
- * @author Matteo Beccati <matteo@beccati.com>
  * @link   www.doctrine-project.org
- * @since  2.6
  */
 class PostgreSQL94Platform extends PostgreSQL92Platform
 {
@@ -35,7 +33,7 @@ class PostgreSQL94Platform extends PostgreSQL92Platform
      */
     public function getJsonTypeDeclarationSQL(array $field)
     {
-        if (!empty($field['jsonb'])) {
+        if (! empty($field['jsonb'])) {
             return 'JSONB';
         }
 

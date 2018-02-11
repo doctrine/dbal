@@ -25,8 +25,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * Table Diff.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class TableDiff
 {
@@ -36,122 +34,127 @@ class TableDiff
     public $name = null;
 
     /**
-     * @var string|boolean
+     * @var string|bool
      */
     public $newName = false;
 
     /**
      * All added fields.
      *
-     * @var \Doctrine\DBAL\Schema\Column[]
+     * @var Column[]
      */
     public $addedColumns;
 
     /**
      * All changed fields.
      *
-     * @var \Doctrine\DBAL\Schema\ColumnDiff[]
+     * @var ColumnDiff[]
      */
     public $changedColumns = [];
 
     /**
      * All removed fields.
      *
-     * @var \Doctrine\DBAL\Schema\Column[]
+     * @var Column[]
      */
     public $removedColumns = [];
 
     /**
      * Columns that are only renamed from key to column instance name.
      *
-     * @var \Doctrine\DBAL\Schema\Column[]
+     * @var Column[]
      */
     public $renamedColumns = [];
 
     /**
      * All added indexes.
      *
-     * @var \Doctrine\DBAL\Schema\Index[]
+     * @var Index[]
      */
     public $addedIndexes = [];
 
     /**
      * All changed indexes.
      *
-     * @var \Doctrine\DBAL\Schema\Index[]
+     * @var Index[]
      */
     public $changedIndexes = [];
 
     /**
      * All removed indexes
      *
-     * @var \Doctrine\DBAL\Schema\Index[]
+     * @var Index[]
      */
     public $removedIndexes = [];
 
     /**
      * Indexes that are only renamed but are identical otherwise.
      *
-     * @var \Doctrine\DBAL\Schema\Index[]
+     * @var Index[]
      */
     public $renamedIndexes = [];
 
     /**
      * All added foreign key definitions
      *
-     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     * @var ForeignKeyConstraint[]
      */
     public $addedForeignKeys = [];
 
     /**
      * All changed foreign keys
      *
-     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     * @var ForeignKeyConstraint[]
      */
     public $changedForeignKeys = [];
 
     /**
      * All removed foreign keys
      *
-     * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
+     * @var ForeignKeyConstraint[]
      */
     public $removedForeignKeys = [];
 
     /**
-     * @var \Doctrine\DBAL\Schema\Table
+     * @var Table
      */
     public $fromTable;
 
     /**
      * Constructs an TableDiff object.
      *
-     * @param string                             $tableName
-     * @param \Doctrine\DBAL\Schema\Column[]     $addedColumns
-     * @param \Doctrine\DBAL\Schema\ColumnDiff[] $changedColumns
-     * @param \Doctrine\DBAL\Schema\Column[]     $removedColumns
-     * @param \Doctrine\DBAL\Schema\Index[]      $addedIndexes
-     * @param \Doctrine\DBAL\Schema\Index[]      $changedIndexes
-     * @param \Doctrine\DBAL\Schema\Index[]      $removedIndexes
-     * @param \Doctrine\DBAL\Schema\Table|null   $fromTable
+     * @param string       $tableName
+     * @param Column[]     $addedColumns
+     * @param ColumnDiff[] $changedColumns
+     * @param Column[]     $removedColumns
+     * @param Index[]      $addedIndexes
+     * @param Index[]      $changedIndexes
+     * @param Index[]      $removedIndexes
      */
-    public function __construct($tableName, $addedColumns = [],
-        $changedColumns = [], $removedColumns = [], $addedIndexes = [],
-        $changedIndexes = [], $removedIndexes = [], Table $fromTable = null)
-    {
-        $this->name = $tableName;
-        $this->addedColumns = $addedColumns;
+    public function __construct(
+        $tableName,
+        $addedColumns = [],
+        $changedColumns = [],
+        $removedColumns = [],
+        $addedIndexes = [],
+        $changedIndexes = [],
+        $removedIndexes = [],
+        ?Table $fromTable = null
+    ) {
+        $this->name           = $tableName;
+        $this->addedColumns   = $addedColumns;
         $this->changedColumns = $changedColumns;
         $this->removedColumns = $removedColumns;
-        $this->addedIndexes = $addedIndexes;
+        $this->addedIndexes   = $addedIndexes;
         $this->changedIndexes = $changedIndexes;
         $this->removedIndexes = $removedIndexes;
-        $this->fromTable = $fromTable;
+        $this->fromTable      = $fromTable;
     }
 
     /**
      * @param AbstractPlatform $platform The platform to use for retrieving this table diff's name.
      *
-     * @return \Doctrine\DBAL\Schema\Identifier
+     * @return Identifier
      */
     public function getName(AbstractPlatform $platform)
     {
@@ -161,7 +164,7 @@ class TableDiff
     }
 
     /**
-     * @return \Doctrine\DBAL\Schema\Identifier|boolean
+     * @return Identifier|bool
      */
     public function getNewName()
     {

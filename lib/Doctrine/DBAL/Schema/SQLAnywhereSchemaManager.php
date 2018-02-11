@@ -20,13 +20,12 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types\Type;
+use function preg_replace;
 
 /**
  * SAP Sybase SQL Anywhere schema manager.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 class SQLAnywhereSchemaManager extends AbstractSchemaManager
 {
@@ -109,11 +108,11 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
         $fixed                  = false;
         $default                = null;
 
-        if (null !== $tableColumn['default']) {
+        if ($tableColumn['default'] !== null) {
             // Strip quotes from default value.
-            $default = preg_replace(["/^'(.*)'$/", "/''/"], ["$1", "'"], $tableColumn['default']);
+            $default = preg_replace(["/^'(.*)'$/", "/''/"], ['$1', "'"], $tableColumn['default']);
 
-            if ('autoincrement' == $default) {
+            if ($default === 'autoincrement') {
                 $default = null;
             }
         }
@@ -129,14 +128,14 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
             case 'decimal':
             case 'float':
                 $precision = $tableColumn['length'];
-                $scale = $tableColumn['scale'];
+                $scale     = $tableColumn['scale'];
         }
 
         return new Column(
             $tableColumn['column_name'],
             Type::getType($type),
             [
-                'length'        => $type == 'string' ? $tableColumn['length'] : null,
+                'length'        => $type === 'string' ? $tableColumn['length'] : null,
                 'precision'     => $precision,
                 'scale'         => $scale,
                 'unsigned'      => (bool) $tableColumn['unsigned'],
@@ -144,7 +143,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
                 'notnull'       => (bool) $tableColumn['notnull'],
                 'default'       => $default,
                 'autoincrement' => (bool) $tableColumn['autoincrement'],
-                'comment'       => isset($tableColumn['comment']) && '' !== $tableColumn['comment']
+                'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                     ? $tableColumn['comment']
                     : null,
             ]
@@ -181,7 +180,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
         $foreignKeys = [];
 
         foreach ($tableForeignKeys as $tableForeignKey) {
-            if (!isset($foreignKeys[$tableForeignKey['index_name']])) {
+            if (! isset($foreignKeys[$tableForeignKey['index_name']])) {
                 $foreignKeys[$tableForeignKey['index_name']] = [
                     'local_columns'   => [$tableForeignKey['local_column']],
                     'foreign_table'   => $tableForeignKey['foreign_table'],
@@ -194,11 +193,11 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
                         'onDelete'          => $tableForeignKey['on_delete'],
                         'check_on_commit'   => $tableForeignKey['check_on_commit'],
                         'clustered'         => $tableForeignKey['clustered'],
-                        'for_olap_workload' => $tableForeignKey['for_olap_workload']
-                    ]
+                        'for_olap_workload' => $tableForeignKey['for_olap_workload'],
+                    ],
                 ];
             } else {
-                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][] = $tableForeignKey['local_column'];
+                $foreignKeys[$tableForeignKey['index_name']]['local_columns'][]   = $tableForeignKey['local_column'];
                 $foreignKeys[$tableForeignKey['index_name']]['foreign_columns'][] = $tableForeignKey['foreign_column'];
             }
         }
@@ -213,7 +212,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     {
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['primary'] = (boolean) $tableIndex['primary'];
-            $tableIndex['flags'] = [];
+            $tableIndex['flags']   = [];
 
             if ($tableIndex['clustered']) {
                 $tableIndex['flags'][] = 'clustered';
@@ -238,7 +237,7 @@ class SQLAnywhereSchemaManager extends AbstractSchemaManager
     {
         return new View(
             $view['table_name'],
-            preg_replace('/^.*\s+as\s+SELECT(.*)/i', "SELECT$1", $view['view_def'])
+            preg_replace('/^.*\s+as\s+SELECT(.*)/i', 'SELECT$1', $view['view_def'])
         );
     }
 }

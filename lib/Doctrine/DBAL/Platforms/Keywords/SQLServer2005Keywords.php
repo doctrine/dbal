@@ -19,13 +19,13 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use function array_diff;
+use function array_merge;
+
 /**
  * Microsoft SQL Server 2005 reserved keyword dictionary.
  *
- * @license BSD http://www.opensource.org/licenses/bsd-license.php
  * @link    www.doctrine-project.com
- * @since   2.3
- * @author  Steve Müller <st.mueller@dzh-online.de>
  */
 class SQLServer2005Keywords extends SQLServerKeywords
 {
@@ -50,7 +50,7 @@ class SQLServer2005Keywords extends SQLServerKeywords
             'REVERT',
             'SECURITYAUDIT',
             'TABLESAMPLE',
-            'UNPIVOT'
+            'UNPIVOT',
         ]);
     }
 }

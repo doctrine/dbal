@@ -23,8 +23,6 @@ use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
 
 /**
  * The PDO-based Sqlsrv driver.
- *
- * @since 2.0
  */
 class Driver extends AbstractSQLServerDriver
 {
@@ -56,12 +54,12 @@ class Driver extends AbstractSQLServerDriver
             $dsn .= $params['host'];
         }
 
-        if (isset($params['port']) && !empty($params['port'])) {
+        if (isset($params['port']) && ! empty($params['port'])) {
             $dsn .= ',' . $params['port'];
         }
 
         if (isset($params['dbname'])) {
-            $dsn .= ';Database=' .  $params['dbname'];
+            $dsn .= ';Database=' . $params['dbname'];
         }
 
         if (isset($params['MultipleActiveResultSets'])) {

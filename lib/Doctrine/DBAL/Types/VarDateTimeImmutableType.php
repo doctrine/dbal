@@ -20,12 +20,11 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function date_create_immutable;
 
 /**
  * Immutable type of {@see VarDateTimeType}.
  *
- * @since  2.6
- * @author Steve Müller <deeky666@googlemail.com>
  */
 class VarDateTimeImmutableType extends VarDateTimeType
 {
@@ -42,7 +41,7 @@ class VarDateTimeImmutableType extends VarDateTimeType
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
 

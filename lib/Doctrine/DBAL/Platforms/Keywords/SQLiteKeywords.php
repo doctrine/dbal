@@ -23,8 +23,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  * SQLite Keywordlist.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class SQLiteKeywords extends KeywordList
 {
@@ -162,7 +160,7 @@ class SQLiteKeywords extends KeywordList
             'VIEW',
             'VIRTUAL',
             'WHEN',
-            'WHERE'
+            'WHERE',
         ];
     }
 }
