@@ -19,16 +19,15 @@
 
 namespace Doctrine\DBAL\Driver\PDOPgSql;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
-use Doctrine\DBAL\DBALException;
-use PDOException;
 use PDO;
+use PDOException;
+use function defined;
 
 /**
  * Driver that connects through pdo_pgsql.
- *
- * @since 2.0
  */
 class Driver extends AbstractPostgreSQLDriver
 {
@@ -47,7 +46,7 @@ class Driver extends AbstractPostgreSQLDriver
 
             if (defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')
                 && (! isset($driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES])
-                    || true === $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES]
+                    || $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES] === true
                 )
             ) {
                 $pdo->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
@@ -58,7 +57,7 @@ class Driver extends AbstractPostgreSQLDriver
              * - passing client_encoding via the 'options' param breaks pgbouncer support
              */
             if (isset($params['charset'])) {
-              $pdo->query('SET NAMES \''.$params['charset'].'\'');
+                $pdo->query('SET NAMES \'' . $params['charset'] . '\'');
             }
 
             return $pdo;
@@ -78,11 +77,11 @@ class Driver extends AbstractPostgreSQLDriver
     {
         $dsn = 'pgsql:';
 
-        if (isset($params['host']) && $params['host'] != '') {
+        if (isset($params['host']) && $params['host'] !== '') {
             $dsn .= 'host=' . $params['host'] . ';';
         }
 
-        if (isset($params['port']) && $params['port'] != '') {
+        if (isset($params['port']) && $params['port'] !== '') {
             $dsn .= 'port=' . $params['port'] . ';';
         }
 

@@ -20,11 +20,12 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types\Type;
+use function explode;
+use function strtolower;
+use function trim;
 
 /**
  * Schema manager for the Drizzle RDBMS.
- *
- * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
 class DrizzleSchemaManager extends AbstractSchemaManager
 {
@@ -35,25 +36,25 @@ class DrizzleSchemaManager extends AbstractSchemaManager
     {
         $dbType = strtolower($tableColumn['DATA_TYPE']);
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
-        $type = $this->extractDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
+        $type                          = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type                          = $this->extractDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
         $tableColumn['COLUMN_COMMENT'] = $this->removeDoctrineTypeFromComment($tableColumn['COLUMN_COMMENT'], $type);
 
         $options = [
-            'notnull' => !(bool) $tableColumn['IS_NULLABLE'],
+            'notnull' => ! (bool) $tableColumn['IS_NULLABLE'],
             'length' => (int) $tableColumn['CHARACTER_MAXIMUM_LENGTH'],
             'default' => $tableColumn['COLUMN_DEFAULT'] ?? null,
             'autoincrement' => (bool) $tableColumn['IS_AUTO_INCREMENT'],
             'scale' => (int) $tableColumn['NUMERIC_SCALE'],
             'precision' => (int) $tableColumn['NUMERIC_PRECISION'],
-            'comment' => isset($tableColumn['COLUMN_COMMENT']) && '' !== $tableColumn['COLUMN_COMMENT']
+            'comment' => isset($tableColumn['COLUMN_COMMENT']) && $tableColumn['COLUMN_COMMENT'] !== ''
                 ? $tableColumn['COLUMN_COMMENT']
                 : null,
         ];
 
         $column = new Column($tableColumn['COLUMN_NAME'], Type::getType($type), $options);
 
-        if ( ! empty($tableColumn['COLLATION_NAME'])) {
+        if (! empty($tableColumn['COLLATION_NAME'])) {
             $column->setPlatformOption('collation', $tableColumn['COLLATION_NAME']);
         }
 
@@ -111,7 +112,7 @@ class DrizzleSchemaManager extends AbstractSchemaManager
         $indexes = [];
         foreach ($tableIndexes as $k) {
             $k['primary'] = (boolean) $k['primary'];
-            $indexes[] = $k;
+            $indexes[]    = $k;
         }
 
         return parent::_getPortableTableIndexesList($indexes, $tableName);

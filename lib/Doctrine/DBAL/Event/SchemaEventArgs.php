@@ -25,8 +25,6 @@ use Doctrine\Common\EventArgs;
  * Base class for schema related events.
  *
  * @link   www.doctrine-project.org
- * @since  2.2
- * @author Jan Sorgalla <jsorgalla@googlemail.com>
  */
 class SchemaEventArgs extends EventArgs
 {

@@ -9,9 +9,6 @@ class StatementIterator implements \IteratorAggregate
      */
     private $statement;
 
-    /**
-     * @param Statement $statement
-     */
     public function __construct(Statement $statement)
     {
         $this->statement = $statement;
@@ -22,7 +19,7 @@ class StatementIterator implements \IteratorAggregate
      */
     public function getIterator()
     {
-        while (false !== ($result = $this->statement->fetch())) {
+        while (($result = $this->statement->fetch()) !== false) {
             yield $result;
         }
     }

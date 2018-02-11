@@ -26,8 +26,6 @@ use Doctrine\DBAL\ParameterType;
  * Driver connections must implement this interface.
  *
  * This resembles (a subset of) the PDO interface.
- *
- * @since 2.0
  */
 interface Connection
 {
@@ -36,14 +34,14 @@ interface Connection
      *
      * @param string $prepareString
      *
-     * @return \Doctrine\DBAL\Driver\Statement
+     * @return Statement
      */
     public function prepare($prepareString);
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
-     * @return \Doctrine\DBAL\Driver\Statement
+     * @return Statement
      */
     public function query();
 

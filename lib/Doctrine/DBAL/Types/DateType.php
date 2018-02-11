@@ -23,8 +23,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Type that maps an SQL DATE to a PHP Date object.
- *
- * @since 2.0
  */
 class DateType extends Type
 {
@@ -49,7 +47,7 @@ class DateType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
 
@@ -69,8 +67,8 @@ class DateType extends Type
             return $value;
         }
 
-        $val = \DateTime::createFromFormat('!'.$platform->getDateFormatString(), $value);
-        if ( ! $val) {
+        $val = \DateTime::createFromFormat('!' . $platform->getDateFormatString(), $value);
+        if (! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateFormatString());
         }
 

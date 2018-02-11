@@ -26,8 +26,6 @@ use PDOException;
 
 /**
  * PDO MySql driver.
- *
- * @since 2.0
  */
 class Driver extends AbstractMySQLDriver
 {
@@ -60,7 +58,7 @@ class Driver extends AbstractMySQLDriver
     protected function constructPdoDsn(array $params)
     {
         $dsn = 'mysql:';
-        if (isset($params['host']) && $params['host'] != '') {
+        if (isset($params['host']) && $params['host'] !== '') {
             $dsn .= 'host=' . $params['host'] . ';';
         }
         if (isset($params['port'])) {

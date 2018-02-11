@@ -20,13 +20,14 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Schema\Visitor\Visitor;
+use function count;
+use function is_numeric;
+use function sprintf;
 
 /**
  * Sequence structure.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class Sequence extends AbstractAsset
 {
@@ -55,8 +56,8 @@ class Sequence extends AbstractAsset
     {
         $this->_setName($name);
         $this->allocationSize = is_numeric($allocationSize) ? $allocationSize : 1;
-        $this->initialValue = is_numeric($initialValue) ? $initialValue : 1;
-        $this->cache = $cache;
+        $this->initialValue   = is_numeric($initialValue) ? $initialValue : 1;
+        $this->cache          = $cache;
     }
 
     /**
@@ -125,25 +126,24 @@ class Sequence extends AbstractAsset
      * This is used inside the comparator to not report sequences as missing,
      * when the "from" schema implicitly creates the sequences.
      *
-     * @param \Doctrine\DBAL\Schema\Table $table
      *
      * @return bool
      */
     public function isAutoIncrementsFor(Table $table)
     {
-        if ( ! $table->hasPrimaryKey()) {
+        if (! $table->hasPrimaryKey()) {
             return false;
         }
 
         $pkColumns = $table->getPrimaryKey()->getColumns();
 
-        if (count($pkColumns) != 1) {
+        if (count($pkColumns) !== 1) {
             return false;
         }
 
         $column = $table->getColumn($pkColumns[0]);
 
-        if ( ! $column->getAutoincrement()) {
+        if (! $column->getAutoincrement()) {
             return false;
         }
 
@@ -154,11 +154,6 @@ class Sequence extends AbstractAsset
         return $tableSequenceName === $sequenceName;
     }
 
-    /**
-     * @param \Doctrine\DBAL\Schema\Visitor\Visitor $visitor
-     *
-     * @return void
-     */
     public function visit(Visitor $visitor)
     {
         $visitor->acceptSequence($this);

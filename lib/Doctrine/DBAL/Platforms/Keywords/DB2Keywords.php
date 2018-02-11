@@ -23,8 +23,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  * DB2 Keywords.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class DB2Keywords extends KeywordList
 {

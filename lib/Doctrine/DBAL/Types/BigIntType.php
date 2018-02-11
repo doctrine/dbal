@@ -25,8 +25,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 /**
  * Type that maps a database BIGINT to a PHP string.
  *
- * @author robo
- * @since 2.0
  */
 class BigIntType extends Type implements PhpIntegerMappingType
 {
@@ -59,6 +57,6 @@ class BigIntType extends Type implements PhpIntegerMappingType
      */
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        return (null === $value) ? null : (string) $value;
+        return ($value === null) ? null : (string) $value;
     }
 }

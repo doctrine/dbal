@@ -23,11 +23,10 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLiteDriver;
 use Doctrine\DBAL\Driver\PDOConnection;
 use PDOException;
+use function array_merge;
 
 /**
  * The PDO Sqlite driver.
- *
- * @since 2.0
  */
 class Driver extends AbstractSQLiteDriver
 {
@@ -47,7 +46,9 @@ class Driver extends AbstractSQLiteDriver
     {
         if (isset($driverOptions['userDefinedFunctions'])) {
             $this->_userDefinedFunctions = array_merge(
-                $this->_userDefinedFunctions, $driverOptions['userDefinedFunctions']);
+                $this->_userDefinedFunctions,
+                $driverOptions['userDefinedFunctions']
+            );
             unset($driverOptions['userDefinedFunctions']);
         }
 

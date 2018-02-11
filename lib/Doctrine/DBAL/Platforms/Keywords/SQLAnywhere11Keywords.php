@@ -19,10 +19,11 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use function array_diff;
+use function array_merge;
+
 /**
  * SAP Sybase SQL Anywhere 11 reserved keywords list.
- *
- * @author Steve Müller <st.mueller@dzh-online.de>
  */
 class SQLAnywhere11Keywords extends SQLAnywhereKeywords
 {
@@ -48,7 +49,7 @@ class SQLAnywhere11Keywords extends SQLAnywhereKeywords
             ),
             [
                 'MERGE',
-                'OPENSTRING'
+                'OPENSTRING',
             ]
         );
     }

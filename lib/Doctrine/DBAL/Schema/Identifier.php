@@ -25,14 +25,12 @@ namespace Doctrine\DBAL\Schema;
  * Wraps identifier names like column names in indexes / foreign keys
  * in an abstract class for proper quotation capabilities.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.4
  */
 class Identifier extends AbstractAsset
 {
     /**
-     * Constructor.
+     *
      *
      * @param string $identifier Identifier name to wrap.
      * @param bool   $quote      Whether to force quoting the given identifier.

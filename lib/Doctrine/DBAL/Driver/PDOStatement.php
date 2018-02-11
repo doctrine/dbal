@@ -26,8 +26,6 @@ use PDO;
 /**
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
- *
- * @since 2.0
  */
 class PDOStatement extends \PDOStatement implements Statement
 {
@@ -149,15 +147,15 @@ class PDOStatement extends \PDOStatement implements Statement
         $fetchMode = $this->convertFetchMode($fetchMode);
 
         try {
-            if ($fetchMode === null && \PDO::FETCH_ORI_NEXT === $cursorOrientation && 0 === $cursorOffset) {
+            if ($fetchMode === null && $cursorOrientation === \PDO::FETCH_ORI_NEXT && $cursorOffset === 0) {
                 return parent::fetch();
             }
 
-            if (\PDO::FETCH_ORI_NEXT === $cursorOrientation && 0 === $cursorOffset) {
+            if ($cursorOrientation === \PDO::FETCH_ORI_NEXT && $cursorOffset === 0) {
                 return parent::fetch($fetchMode);
             }
 
-            if (0 === $cursorOffset) {
+            if ($cursorOffset === 0) {
                 return parent::fetch($fetchMode, $cursorOrientation);
             }
 
@@ -175,15 +173,15 @@ class PDOStatement extends \PDOStatement implements Statement
         $fetchMode = $this->convertFetchMode($fetchMode);
 
         try {
-            if ($fetchMode === null && null === $fetchArgument && null === $ctorArgs) {
+            if ($fetchMode === null && $fetchArgument === null && $ctorArgs === null) {
                 return parent::fetchAll();
             }
 
-            if (null === $fetchArgument && null === $ctorArgs) {
+            if ($fetchArgument === null && $ctorArgs === null) {
                 return parent::fetchAll($fetchMode);
             }
 
-            if (null === $ctorArgs) {
+            if ($ctorArgs === null) {
                 return parent::fetchAll($fetchMode, $fetchArgument);
             }
 

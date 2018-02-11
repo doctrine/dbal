@@ -21,20 +21,21 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\AbstractSQLAnywhereDriver;
+use function array_keys;
+use function array_map;
+use function implode;
 
 /**
  * A Doctrine DBAL driver for the SAP Sybase SQL Anywhere PHP extension.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 class Driver extends AbstractSQLAnywhereDriver
 {
     /**
      * {@inheritdoc}
      *
-     * @throws \Doctrine\DBAL\DBALException if there was a problem establishing the connection.
+     * @throws DBALException if there was a problem establishing the connection.
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
@@ -88,8 +89,7 @@ class Driver extends AbstractSQLAnywhereDriver
             $server = ';ServerName=' . $server;
         }
 
-        return
-            'HOST=' . $host . ':' . $port .
+        return 'HOST=' . $host . ':' . $port .
             $server .
             ';DBN=' . $dbname .
             ';UID=' . $username .

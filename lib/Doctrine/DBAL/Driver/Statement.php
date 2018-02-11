@@ -27,10 +27,7 @@ use Doctrine\DBAL\ParameterType;
  *
  * This resembles (a subset of) the PDOStatement interface.
  *
- * @author Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author Roman Borschel <roman@code-factory.org>
  * @link   www.doctrine-project.org
- * @since  2.0
  */
 interface Statement extends ResultStatement
 {

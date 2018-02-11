@@ -24,8 +24,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 /**
  * Immutable type of {@see TimeType}.
  *
- * @since  2.6
- * @author Steve Müller <deeky666@googlemail.com>
  */
 class TimeImmutableType extends TimeType
 {
@@ -42,7 +40,7 @@ class TimeImmutableType extends TimeType
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
 

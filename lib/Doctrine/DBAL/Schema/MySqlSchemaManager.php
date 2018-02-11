@@ -22,15 +22,22 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
+use const CASE_LOWER;
+use function array_change_key_case;
+use function array_shift;
+use function array_values;
+use function end;
+use function preg_match;
+use function preg_replace;
+use function str_replace;
+use function stripslashes;
+use function strpos;
+use function strtok;
+use function strtolower;
 
 /**
  * Schema manager for the MySql RDBMS.
  *
- * @author Konsta Vesterinen <kvesteri@cc.hut.fi>
- * @author Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
- * @author Roman Borschel <roman@code-factory.org>
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @since  2.0
  */
 class MySqlSchemaManager extends AbstractSchemaManager
 {
@@ -113,7 +120,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         $fixed = null;
 
-        if ( ! isset($tableColumn['name'])) {
+        if (! isset($tableColumn['name'])) {
             $tableColumn['name'] = '';
         }
 
@@ -230,7 +237,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
         }
         if ($columnDefault[0] === "'") {
             return stripslashes(
-                str_replace("''", "'",
+                str_replace(
+                    "''",
+                    "'",
                     preg_replace('/^\'(.*)\'$/', '$1', $columnDefault)
                 )
             );
@@ -254,11 +263,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
         $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
-            if ( ! isset($list[$value['constraint_name']])) {
-                if ( ! isset($value['delete_rule']) || $value['delete_rule'] === "RESTRICT") {
+            if (! isset($list[$value['constraint_name']])) {
+                if (! isset($value['delete_rule']) || $value['delete_rule'] === 'RESTRICT') {
                     $value['delete_rule'] = null;
                 }
-                if ( ! isset($value['update_rule']) || $value['update_rule'] === "RESTRICT") {
+                if (! isset($value['update_rule']) || $value['update_rule'] === 'RESTRICT') {
                     $value['update_rule'] = null;
                 }
 

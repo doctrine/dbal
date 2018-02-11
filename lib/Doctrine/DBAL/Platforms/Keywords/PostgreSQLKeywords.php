@@ -23,9 +23,6 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  * PostgreSQL Keywordlist.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Marcelo Santos Araujo <msaraujo@php.net>
  */
 class PostgreSQLKeywords extends KeywordList
 {
@@ -129,7 +126,7 @@ class PostgreSQLKeywords extends KeywordList
             'USING',
             'VERBOSE',
             'WHEN',
-            'WHERE'
+            'WHERE',
         ];
     }
 }

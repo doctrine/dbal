@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
@@ -27,13 +28,14 @@ use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use function preg_match;
+use function stripos;
+use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for MySQL based drivers.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, VersionAwarePlatformDriver
 {
@@ -129,12 +131,12 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      */
     public function createDatabasePlatformForVersion($version)
     {
-        $mariadb = false !== stripos($version, 'mariadb');
+        $mariadb = stripos($version, 'mariadb') !== false;
         if ($mariadb && version_compare($this->getMariaDbMysqlVersionNumber($version), '10.2.7', '>=')) {
             return new MariaDb1027Platform();
         }
 
-        if ( ! $mariadb && version_compare($this->getOracleMysqlVersionNumber($version), '5.7.9', '>=')) {
+        if (! $mariadb && version_compare($this->getOracleMysqlVersionNumber($version), '5.7.9', '>=')) {
             return new MySQL57Platform();
         }
 
@@ -150,7 +152,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      */
     private function getOracleMysqlVersionNumber(string $versionString) : string
     {
-        if ( ! preg_match(
+        if (! preg_match(
             '/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/',
             $versionString,
             $versionParts
@@ -164,7 +166,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
         $minorVersion = $versionParts['minor'] ?? 0;
         $patchVersion = $versionParts['patch'] ?? null;
 
-        if ('5' === $majorVersion && '7' === $minorVersion && null === $patchVersion) {
+        if ($majorVersion === '5' && $minorVersion === '7' && $patchVersion === null) {
             $patchVersion = '9';
         }
 
@@ -180,7 +182,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      */
     private function getMariaDbMysqlVersionNumber(string $versionString) : string
     {
-        if ( ! preg_match(
+        if (! preg_match(
             '/^(?:5\.5\.5-)?(mariadb-)?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)/i',
             $versionString,
             $versionParts
@@ -197,7 +199,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 
@@ -217,7 +219,7 @@ abstract class AbstractMySQLDriver implements Driver, ExceptionConverterDriver, 
      * {@inheritdoc}
      * @return MySqlSchemaManager
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
         return new MySqlSchemaManager($conn);
     }

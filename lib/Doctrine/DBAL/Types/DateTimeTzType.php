@@ -38,11 +38,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  * attached.
  *
  * @link   www.doctrine-project.org
- * @since  1.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
- * @author Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author Jonathan Wage <jonwage@gmail.com>
- * @author Roman Borschel <roman@code-factory.org>
  */
 class DateTimeTzType extends Type implements PhpDateTimeMappingType
 {
@@ -67,7 +62,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
 
@@ -88,7 +83,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
         }
 
         $val = \DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
-        if ( ! $val) {
+        if (! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeTzFormatString());
         }
 

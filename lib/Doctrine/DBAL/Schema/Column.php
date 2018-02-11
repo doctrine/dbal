@@ -20,13 +20,17 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Types\Type;
+use const E_USER_DEPRECATED;
+use function array_merge;
+use function is_numeric;
+use function method_exists;
+use function sprintf;
+use function trigger_error;
 
 /**
  * Object representation of a database column.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class Column extends AbstractAsset
 {
@@ -99,10 +103,9 @@ class Column extends AbstractAsset
      * Creates a new Column.
      *
      * @param string $columnName
-     * @param Type   $type
      * @param array  $options
      */
-    public function __construct($columnName, Type $type, array $options=[])
+    public function __construct($columnName, Type $type, array $options = [])
     {
         $this->_setName($columnName);
         $this->setType($type);
@@ -117,11 +120,11 @@ class Column extends AbstractAsset
     public function setOptions(array $options)
     {
         foreach ($options as $name => $value) {
-            $method = "set".$name;
-            if ( ! method_exists($this, $method)) {
+            $method = 'set' . $name;
+            if (! method_exists($this, $method)) {
                 // next major: throw an exception
                 @trigger_error(sprintf(
-                    'The "%s" column option is not supported,'.
+                    'The "%s" column option is not supported,' .
                     ' setting it is deprecated and will cause an error in Doctrine 3.0',
                     $name
                 ), E_USER_DEPRECATED);
@@ -135,7 +138,6 @@ class Column extends AbstractAsset
     }
 
     /**
-     * @param Type $type
      *
      * @return Column
      */
@@ -169,7 +171,7 @@ class Column extends AbstractAsset
      */
     public function setPrecision($precision)
     {
-        if (!is_numeric($precision)) {
+        if (! is_numeric($precision)) {
             $precision = 10; // defaults to 10 when no valid precision is given.
         }
 
@@ -185,7 +187,7 @@ class Column extends AbstractAsset
      */
     public function setScale($scale)
     {
-        if (!is_numeric($scale)) {
+        if (! is_numeric($scale)) {
             $scale = 0;
         }
 

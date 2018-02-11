@@ -20,12 +20,17 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use const JSON_ERROR_NONE;
+use function is_resource;
+use function json_decode;
+use function json_encode;
+use function json_last_error;
+use function json_last_error_msg;
+use function stream_get_contents;
 
 /**
  * Type generating json objects values
  *
- * @since  2.6
- * @author Baptiste Clavié <clavie.b@gmail.com>
  */
 class JsonType extends Type
 {
@@ -42,13 +47,13 @@ class JsonType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return null;
         }
 
         $encoded = json_encode($value);
 
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        if (json_last_error() !== JSON_ERROR_NONE) {
             throw ConversionException::conversionFailedSerialization($value, 'json', json_last_error_msg());
         }
 

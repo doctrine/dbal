@@ -24,8 +24,6 @@ use Doctrine\DBAL\Schema\DrizzleSchemaManager;
 
 /**
  * Drizzle driver using PDO MySql.
- *
- * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
 class Driver extends \Doctrine\DBAL\Driver\PDOMySql\Driver
 {

@@ -19,10 +19,13 @@
 
 namespace Doctrine\DBAL\Cache;
 
-use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\FetchMode;
+use function array_merge;
+use function array_values;
+use function reset;
 
 /**
  * Cache statement for SQL results.
@@ -40,7 +43,7 @@ use Doctrine\DBAL\FetchMode;
 class ResultCacheStatement implements \IteratorAggregate, ResultStatement
 {
     /**
-     * @var \Doctrine\Common\Cache\Cache
+     * @var Cache
      */
     private $resultCache;
 
@@ -61,7 +64,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     private $lifetime;
 
     /**
-     * @var \Doctrine\DBAL\Driver\Statement
+     * @var Statement
      */
     private $statement;
 
@@ -83,19 +86,17 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
     private $defaultFetchMode = FetchMode::MIXED;
 
     /**
-     * @param \Doctrine\DBAL\Driver\Statement $stmt
-     * @param \Doctrine\Common\Cache\Cache    $resultCache
-     * @param string                          $cacheKey
-     * @param string                          $realKey
-     * @param int                             $lifetime
+     * @param string $cacheKey
+     * @param string $realKey
+     * @param int    $lifetime
      */
     public function __construct(Statement $stmt, Cache $resultCache, $cacheKey, $realKey, $lifetime)
     {
-        $this->statement = $stmt;
+        $this->statement   = $stmt;
         $this->resultCache = $resultCache;
-        $this->cacheKey = $cacheKey;
-        $this->realKey = $realKey;
-        $this->lifetime = $lifetime;
+        $this->cacheKey    = $cacheKey;
+        $this->realKey     = $realKey;
+        $this->lifetime    = $lifetime;
     }
 
     /**
@@ -106,7 +107,7 @@ class ResultCacheStatement implements \IteratorAggregate, ResultStatement
         $this->statement->closeCursor();
         if ($this->emptied && $this->data !== null) {
             $data = $this->resultCache->fetch($this->cacheKey);
-            if ( ! $data) {
+            if (! $data) {
                 $data = [];
             }
             $data[$this->realKey] = $this->data;

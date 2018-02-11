@@ -20,11 +20,10 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function date_create;
 
 /**
  * Type that maps an SQL DATETIME/TIMESTAMP to a PHP DateTime object.
- *
- * @since 2.0
  */
 class DateTimeType extends Type implements PhpDateTimeMappingType
 {
@@ -49,7 +48,7 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return $value;
         }
 
@@ -71,11 +70,11 @@ class DateTimeType extends Type implements PhpDateTimeMappingType
 
         $val = \DateTime::createFromFormat($platform->getDateTimeFormatString(), $value);
 
-        if ( ! $val) {
+        if (! $val) {
             $val = date_create($value);
         }
 
-        if ( ! $val) {
+        if (! $val) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString());
         }
 

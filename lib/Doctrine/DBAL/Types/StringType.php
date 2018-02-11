@@ -23,8 +23,6 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
  * Type that maps an SQL VARCHAR to a PHP string.
- *
- * @since 2.0
  */
 class StringType extends Type
 {

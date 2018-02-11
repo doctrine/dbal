@@ -20,18 +20,18 @@
 namespace Doctrine\DBAL\Cache;
 
 use Doctrine\Common\Cache\Cache;
+use function serialize;
+use function sha1;
 
 /**
  * Query Cache Profile handles the data relevant for query caching.
  *
  * It is a value object, setter methods return NEW instances.
- *
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class QueryCacheProfile
 {
     /**
-     * @var \Doctrine\Common\Cache\Cache|null
+     * @var Cache|null
      */
     private $resultCacheDriver;
 
@@ -46,19 +46,18 @@ class QueryCacheProfile
     private $cacheKey;
 
     /**
-     * @param int                               $lifetime
-     * @param string|null                       $cacheKey
-     * @param \Doctrine\Common\Cache\Cache|null $resultCache
+     * @param int         $lifetime
+     * @param string|null $cacheKey
      */
-    public function __construct($lifetime = 0, $cacheKey = null, Cache $resultCache = null)
+    public function __construct($lifetime = 0, $cacheKey = null, ?Cache $resultCache = null)
     {
-        $this->lifetime = $lifetime;
-        $this->cacheKey = $cacheKey;
+        $this->lifetime          = $lifetime;
+        $this->cacheKey          = $cacheKey;
         $this->resultCacheDriver = $resultCache;
     }
 
     /**
-     * @return \Doctrine\Common\Cache\Cache|null
+     * @return Cache|null
      */
     public function getResultCacheDriver()
     {
@@ -76,7 +75,7 @@ class QueryCacheProfile
     /**
      * @return string
      *
-     * @throws \Doctrine\DBAL\Cache\CacheException
+     * @throws CacheException
      */
     public function getCacheKey()
     {
@@ -111,11 +110,10 @@ class QueryCacheProfile
             $cacheKey = $this->cacheKey;
         }
 
-        return array($cacheKey, $realCacheKey);
+        return [$cacheKey, $realCacheKey];
     }
 
     /**
-     * @param \Doctrine\Common\Cache\Cache $cache
      *
      * @return \Doctrine\DBAL\Cache\QueryCacheProfile
      */

@@ -23,8 +23,6 @@ namespace Doctrine\DBAL\Schema;
  * Configuration for a Schema.
  *
  * @link   www.doctrine-project.org
- * @since  2.0
- * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 class SchemaConfig
 {
@@ -59,7 +57,6 @@ class SchemaConfig
     /**
      * @param bool $flag
      *
-     * @return void
      */
     public function setExplicitForeignKeyIndexes($flag)
     {
@@ -69,7 +66,6 @@ class SchemaConfig
     /**
      * @param int $length
      *
-     * @return void
      */
     public function setMaxIdentifierLength($length)
     {
@@ -99,7 +95,6 @@ class SchemaConfig
      *
      * @param string $name The value to set.
      *
-     * @return void
      */
     public function setName($name)
     {
@@ -120,7 +115,6 @@ class SchemaConfig
     /**
      * @param array $defaultTableOptions
      *
-     * @return void
      */
     public function setDefaultTableOptions(array $defaultTableOptions)
     {

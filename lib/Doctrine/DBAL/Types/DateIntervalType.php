@@ -33,7 +33,7 @@ class DateIntervalType extends Type
      */
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
-        if (null === $value) {
+        if ($value === null) {
             return null;
         }
 
@@ -55,7 +55,7 @@ class DateIntervalType extends Type
 
         try {
             return new \DateInterval($value);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             throw ConversionException::conversionFailedFormat($value, $this->getName(), 'P%YY%MM%DDT%HH%IM%SS', $exception);
         }
     }

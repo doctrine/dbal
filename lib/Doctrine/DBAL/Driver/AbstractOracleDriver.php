@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\OraclePlatform;
@@ -27,9 +28,7 @@ use Doctrine\DBAL\Schema\OracleSchemaManager;
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for Oracle based drivers.
  *
- * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
- * @since  2.5
  */
 abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
 {
@@ -79,7 +78,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getDatabase(\Doctrine\DBAL\Connection $conn)
+    public function getDatabase(Connection $conn)
     {
         $params = $conn->getParams();
 
@@ -97,7 +96,7 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
     /**
      * {@inheritdoc}
      */
-    public function getSchemaManager(\Doctrine\DBAL\Connection $conn)
+    public function getSchemaManager(Connection $conn)
     {
         return new OracleSchemaManager($conn);
     }
@@ -113,26 +112,26 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
      */
     protected function getEasyConnectString(array $params)
     {
-        if ( ! empty($params['connectstring'])) {
+        if (! empty($params['connectstring'])) {
             return $params['connectstring'];
         }
 
-        if ( ! empty($params['host'])) {
-            if ( ! isset($params['port'])) {
+        if (! empty($params['host'])) {
+            if (! isset($params['port'])) {
                 $params['port'] = 1521;
             }
 
             $serviceName = $params['dbname'];
 
-            if ( ! empty($params['servicename'])) {
+            if (! empty($params['servicename'])) {
                 $serviceName = $params['servicename'];
             }
 
-            $service = 'SID=' . $serviceName;
-            $pooled  = '';
+            $service  = 'SID=' . $serviceName;
+            $pooled   = '';
             $instance = '';
 
-            if (isset($params['service']) && $params['service'] == true) {
+            if (isset($params['service']) && $params['service'] === true) {
                 $service = 'SERVICE_NAME=' . $serviceName;
             }
 
@@ -140,14 +139,13 @@ abstract class AbstractOracleDriver implements Driver, ExceptionConverterDriver
                 $instance = '(INSTANCE_NAME = ' . $params['instancename'] . ')';
             }
 
-            if (isset($params['pooled']) && $params['pooled'] == true) {
+            if (isset($params['pooled']) && $params['pooled'] === true) {
                 $pooled = '(SERVER=POOLED)';
             }
 
             return '(DESCRIPTION=' .
                      '(ADDRESS=(PROTOCOL=TCP)(HOST=' . $params['host'] . ')(PORT=' . $params['port'] . '))' .
                      '(CONNECT_DATA=(' . $service . ')' . $instance . $pooled . '))';
-
         }
 
         return $params['dbname'] ?? '';
