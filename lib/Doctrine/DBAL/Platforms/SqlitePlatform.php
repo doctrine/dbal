@@ -150,7 +150,7 @@ class SqlitePlatform extends AbstractPlatform
                         break;
                 }
 
-                if (!is_numeric($interval)) {
+                if (! is_numeric($interval)) {
                     $interval = "' || " . $interval . " || '";
                 }
 
