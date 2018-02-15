@@ -42,9 +42,12 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
+use function addcslashes;
+use function implode;
+use function preg_quote;
+use function preg_replace;
 use function sprintf;
 use function strlen;
-use function strtr;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -3592,12 +3595,11 @@ abstract class AbstractPlatform
      */
     final public function escapeStringForLike(string $inputString, string $escapeChar) : string
     {
-        $replacePairs = [$escapeChar => $escapeChar . $escapeChar];
-        foreach ($this->getLikeWildcardCharacters() as $wildcardChar) {
-            $replacePairs[$wildcardChar] = $escapeChar . $wildcardChar;
-        }
-
-        return strtr($inputString, $replacePairs);
+        return preg_replace(
+            '~([' . preg_quote(implode('', $this->getLikeWildcardCharacters()) . $escapeChar, '~') . '])~u',
+            addcslashes($escapeChar, '\\') . '$1',
+            $inputString
+        );
     }
 
     /**
