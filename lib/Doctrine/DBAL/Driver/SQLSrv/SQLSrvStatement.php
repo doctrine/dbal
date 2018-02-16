@@ -305,7 +305,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @throws SQLSrvException
      */
-    public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
+    public function fetch($fetchMode = null, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
