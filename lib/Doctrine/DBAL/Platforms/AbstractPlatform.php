@@ -43,7 +43,6 @@ use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
 use function addcslashes;
-use function implode;
 use function preg_quote;
 use function preg_replace;
 use function sprintf;
@@ -3596,17 +3595,14 @@ abstract class AbstractPlatform
     final public function escapeStringForLike(string $inputString, string $escapeChar) : string
     {
         return preg_replace(
-            '~([' . preg_quote(implode('', $this->getLikeWildcardCharacters()) . $escapeChar, '~') . '])~u',
+            '~([' . preg_quote($this->getLikeWildcardCharacters() . $escapeChar, '~') . '])~u',
             addcslashes($escapeChar, '\\') . '$1',
             $inputString
         );
     }
 
-    /**
-     * @return string[]
-     */
-    protected function getLikeWildcardCharacters() : array
+    protected function getLikeWildcardCharacters() : string
     {
-        return ['%', '_'];
+        return '%_';
     }
 }
