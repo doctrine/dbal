@@ -42,6 +42,11 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Types\Type;
+use function addcslashes;
+use function preg_quote;
+use function preg_replace;
+use function sprintf;
+use function strlen;
 
 /**
  * Base class for all DatabasePlatforms. The DatabasePlatforms are the central
@@ -3577,5 +3582,27 @@ abstract class AbstractPlatform
     public function getStringLiteralQuoteCharacter()
     {
         return "'";
+    }
+
+    /**
+     * Escapes metacharacters in a string intended to be used with a LIKE
+     * operator.
+     *
+     * @param string $inputString a literal, unquoted string
+     * @param string $escapeChar  should be reused by the caller in the LIKE
+     *                            expression.
+     */
+    final public function escapeStringForLike(string $inputString, string $escapeChar) : string
+    {
+        return preg_replace(
+            '~([' . preg_quote($this->getLikeWildcardCharacters() . $escapeChar, '~') . '])~u',
+            addcslashes($escapeChar, '\\') . '$1',
+            $inputString
+        );
+    }
+
+    protected function getLikeWildcardCharacters() : string
+    {
+        return '%_';
     }
 }

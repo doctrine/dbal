@@ -219,4 +219,33 @@ class ExpressionBuilderTest extends \Doctrine\Tests\DbalTestCase
     {
         self::assertEquals('u.groups NOT IN (:values)', $this->expr->notIn('u.groups', ':values'));
     }
+
+    public function testLikeWithoutEscape()
+    {
+        self::assertEquals("a.song LIKE 'a virgin'", $this->expr->like('a.song', "'a virgin'"));
+    }
+
+    public function testLikeWithEscape()
+    {
+        self::assertEquals(
+            "a.song LIKE 'a virgin' ESCAPE '💩'",
+            $this->expr->like('a.song', "'a virgin'", "'💩'")
+        );
+    }
+
+    public function testNotLikeWithoutEscape()
+    {
+        self::assertEquals(
+            "s.last_words NOT LIKE 'this'",
+            $this->expr->notLike('s.last_words', "'this'")
+        );
+    }
+
+    public function testNotLikeWithEscape()
+    {
+        self::assertEquals(
+            "p.description NOT LIKE '20💩%' ESCAPE '💩'",
+            $this->expr->notLike('p.description', "'20💩%'", "'💩'")
+        );
+    }
 }
