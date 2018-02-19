@@ -481,6 +481,14 @@ using deserialization or ``null`` if no data is present.
 
 .. warning::
 
+    While the built-in ``text`` type of MySQL and MariaDB can store binary data,
+    ``mysqldump`` cannot properly export ``text`` fields containing binary data.
+    This will cause creating and restoring of backups fail silently. A workaround is
+    to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()``
+    PHP objects and store them into a ``text`` field manually.
+
+.. warning::
+
     Because the built-in ``text`` type of PostgreSQL does not support NULL bytes,
     the object type will cause deserialization errors on PostgreSQL. A workaround is
     to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()`` PHP objects and store
