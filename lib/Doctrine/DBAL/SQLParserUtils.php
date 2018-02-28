@@ -83,7 +83,7 @@ class SQLParserUtils
      *
      * @throws SQLParserUtilsException
      */
-    public static function expandListParameters($query, $params, $types)
+    public static function expandListParameters(string $query, array $params = [], array $types = []) : array
     {
         $isPositional   = is_int(key($params));
         $arrayPositions = [];

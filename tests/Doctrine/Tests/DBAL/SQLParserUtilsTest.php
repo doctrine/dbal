@@ -449,8 +449,10 @@ SQLDATA
 
     /**
      * @dataProvider dataQueryWithMissingParameters
+     * @param mixed[] $params
+     * @param mixed[] $types
      */
-    public function testExceptionIsThrownForMissingParam($query, $params, $types = array())
+    public function testExceptionIsThrownForMissingParam(string $query, array $params = [], array $types = []) : void
     {
         $this->expectException(
             'Doctrine\DBAL\SQLParserUtilsException',
