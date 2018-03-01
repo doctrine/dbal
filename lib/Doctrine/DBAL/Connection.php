@@ -156,7 +156,7 @@ class Connection implements DriverConnection
     /**
      * @var int
      */
-    protected $defaultFetchMode = \PDO::FETCH_ASSOC;
+    protected $defaultFetchMode = FetchMode::ASSOCIATIVE;
 
     /**
      * @var \Doctrine\DBAL\TransactionManager
