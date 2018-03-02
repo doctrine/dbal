@@ -1407,7 +1407,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm->dropAndCreateTable($tableFrom);
 
         $tableFrom = $this->_sm->listTableDetails('primary_key_userid');
-        self::assertTrue($tableFrom->getColumn('user_id')->getAutoincrement());
+        self::assertEquals(['user_id'], $tableFrom->getPrimaryKey()->getColumns());
 
         $tableTo = new Table('primary_key_id');
         $column  = $tableTo->addColumn('id', 'integer');
@@ -1418,7 +1418,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $diff = $c->diffTable($tableFrom, $tableTo);
 
         $this->_sm->alterTable($diff);
-        $tableFinal = $this->_sm->listTableDetails('autoinc_type_modification');
-        self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
+        $tableFinal = $this->_sm->listTableDetails('primary_key_userid');
+        self::assertEquals(['id'], $tableFinal->getPrimaryKey()->getColumns());
     }
 }
