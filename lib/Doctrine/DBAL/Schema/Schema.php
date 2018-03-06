@@ -261,13 +261,23 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * Gets all table names, prefixed with a schema name, even the default one if present.
+     * Gets all table names, prefixed with a schema name, even the default one if present or all table names unprefixed.
+     *
+     * @param bool $addPrefix
      *
      * @return array
      */
-    public function getTableNames()
+    public function getTableNames($addPrefix = true)
     {
-        return array_keys($this->_tables);
+        if ($addPrefix) {
+            $tableNames = array_keys($this->_tables);
+        } else {
+            $tableNames = array_values(array_map(function($table) {
+                return $table->getName();
+            }, $this->_tables));
+        }
+
+        return $tableNames;
     }
 
     /**
