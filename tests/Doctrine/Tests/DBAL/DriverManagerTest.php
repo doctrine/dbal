@@ -3,7 +3,6 @@
 namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySqlDriver;
 use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
@@ -274,17 +273,17 @@ class DriverManagerTest extends DbalTestCase
                 ],
             ],
             'simple URL with fallthrough scheme containing underscores fails' => [
-                'drizzle_pdo_mysql://foo:bar@localhost/baz',
+                'pdo_mysql://foo:bar@localhost/baz',
                 false,
             ],
             'simple URL with fallthrough scheme containing dashes works' => [
-                'drizzle-pdo-mysql://foo:bar@localhost/baz',
+                'pdo-mysql://foo:bar@localhost/baz',
                 [
                     'user'     => 'foo',
                     'password' => 'bar',
                     'host'     => 'localhost',
                     'dbname'   => 'baz',
-                    'driver'   => DrizzlePDOMySqlDriver::class,
+                    'driver'   => PDOMySQLDriver::class,
                 ],
             ],
             'simple URL with percent encoding' => [
