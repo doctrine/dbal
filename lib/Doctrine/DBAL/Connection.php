@@ -7,7 +7,6 @@ use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Closure;
 use Exception;
 use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Cache\ResultCacheStatement;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
@@ -30,7 +29,7 @@ use Throwable;
  * @author Lukas Smith <smith@pooteeweet.org> (MDB2 library)
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class Connection implements DriverConnection
+class Connection
 {
     /**
      * Constant for transaction isolation level READ UNCOMMITTED.
