@@ -6,7 +6,6 @@ use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\DrizzlePlatform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -355,10 +354,6 @@ EOT
 
         if ($platform instanceof SqlitePlatform) {
             $this->markTestSkipped('Only skipped if platform is not sqlite');
-        }
-
-        if ($platform instanceof DrizzlePlatform) {
-            $this->markTestSkipped('Drizzle does not always support authentication');
         }
 
         if ($platform instanceof PostgreSqlPlatform && isset($params['password'])) {
