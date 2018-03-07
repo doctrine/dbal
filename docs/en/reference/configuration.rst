@@ -73,12 +73,8 @@ full driver name::
 
     pdo-mysql://localhost:4486/foo?charset=UTF-8
 
-If you wanted to use the ``drizzle_pdo__mysql`` driver instead::
-
-    drizzle-pdo-mysql://localhost:4486/foo?charset=UTF-8
-
-In the last two examples above, mind the dashes instead of the
-underscores in the URL schemes.
+In the example above, mind the dashes instead of the
+underscores in the URL scheme.
 
 For connecting to an SQLite database, the authority portion of the
 URL is obviously irrelevant and thus can be omitted. The path part
@@ -127,8 +123,6 @@ interfaces to use. It can be configured in one of three ways:
    following drivers are currently available:
 
    -  ``pdo_mysql``: A MySQL driver that uses the pdo_mysql PDO
-      extension.
-   -  ``drizzle_pdo_mysql``: A Drizzle driver that uses pdo_mysql PDO
       extension.
    -  ``mysqli``: A MySQL driver that uses the mysqli extension.
    -  ``pdo_sqlite``: An SQLite driver that uses the pdo_sqlite PDO
@@ -196,23 +190,6 @@ pdo_mysql
    the database.
 -  ``charset`` (string): The charset used when connecting to the
    database.
-
-drizzle_pdo_mysql
-^^^^^^^^^^^^^^^^^
-
-**Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to be enabled.
-On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
-or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restarting the drizzled daemon.
-
--  ``user`` (string): Username to use when connecting to the
-   database. Only needed if authentication is configured for drizzled.
--  ``password`` (string): Password to use when connecting to the
-   database. Only needed if authentication is configured for drizzled.
--  ``host`` (string): Hostname of the database to connect to.
--  ``port`` (integer): Port of the database to connect to.
--  ``dbname`` (string): Name of the database/schema to connect to.
--  ``unix_socket`` (string): Name of the socket used to connect to
-   the database.
 
 mysqli
 ^^^^^^
