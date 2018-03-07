@@ -331,10 +331,6 @@ class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->markTestSkipped("Only skipped if platform is not sqlite");
         }
 
-        if ($this->_conn->getDatabasePlatform()->getName() == 'drizzle') {
-            $this->markTestSkipped("Drizzle does not always support authentication");
-        }
-
         if ($this->_conn->getDatabasePlatform()->getName() == 'postgresql' && isset($params['password'])) {
             $this->markTestSkipped("Does not work on Travis");
         }
