@@ -3,7 +3,6 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySQLDriver;
 use Doctrine\DBAL\Driver\IBMDB2\DB2Driver;
 use Doctrine\DBAL\Driver\Mysqli\Driver as MySQLiDriver;
 use Doctrine\DBAL\Driver\OCI8\Driver as OCI8Driver;
@@ -42,17 +41,16 @@ final class DriverManager
      * @var string[]
      */
     private static $_driverMap = [
-        'pdo_mysql'          => PDOMySQLDriver::class,
-        'pdo_sqlite'         => PDOSQLiteDriver::class,
-        'pdo_pgsql'          => PDOPgSQLDriver::class,
-        'pdo_oci'            => PDOOCIDriver::class,
-        'oci8'               => OCI8Driver::class,
-        'ibm_db2'            => DB2Driver::class,
-        'pdo_sqlsrv'         => PDOSQLSrvDriver::class,
-        'mysqli'             => MySQLiDriver::class,
-        'drizzle_pdo_mysql'  => DrizzlePDOMySQLDriver::class,
-        'sqlanywhere'        => SQLAnywhereDriver::class,
-        'sqlsrv'             => SQLSrvDriver::class,
+        'pdo_mysql'   => PDOMySQLDriver::class,
+        'pdo_sqlite'  => PDOSQLiteDriver::class,
+        'pdo_pgsql'   => PDOPgSQLDriver::class,
+        'pdo_oci'     => PDOOCIDriver::class,
+        'oci8'        => OCI8Driver::class,
+        'ibm_db2'     => DB2Driver::class,
+        'pdo_sqlsrv'  => PDOSQLSrvDriver::class,
+        'mysqli'      => MySQLiDriver::class,
+        'sqlanywhere' => SQLAnywhereDriver::class,
+        'sqlsrv'      => SQLSrvDriver::class,
     ];
 
     /**
@@ -98,7 +96,6 @@ final class DriverManager
      *     sqlanywhere
      *     sqlsrv
      *     ibm_db2 (unstable)
-     *     drizzle_pdo_mysql
      *
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
