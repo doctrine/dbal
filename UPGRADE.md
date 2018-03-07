@@ -36,6 +36,10 @@ After:
     $stmt->bindValue(1, 1, ParameterType::INTEGER);
     $stmt->fetchAll(FetchMode::COLUMN);
 
+## BC BREAK: Removed Drizzle support
+
+The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL anymore.
+
 # Upgrade to 2.9
 
 ## Deprecated `Statement::fetchColumn()` with an invalid index
