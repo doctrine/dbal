@@ -36,6 +36,10 @@ After:
     $stmt->bindValue(1, 1, ParameterType::INTEGER);
     $stmt->fetchAll(FetchMode::COLUMN);
 
+## BC BREAK: Removed Drizzle support
+
+The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL anymore.
+
 # Upgrade to 2.7
 
 ## Doctrine\DBAL\Platforms\AbstractPlatform::DATE_INTERVAL_UNIT_* constants deprecated
