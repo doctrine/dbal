@@ -29,7 +29,6 @@ final class DriverManager
          'ibm_db2'            => 'Doctrine\DBAL\Driver\IBMDB2\DB2Driver',
          'pdo_sqlsrv'         => 'Doctrine\DBAL\Driver\PDOSqlsrv\Driver',
          'mysqli'             => 'Doctrine\DBAL\Driver\Mysqli\Driver',
-         'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
          'sqlanywhere'        => 'Doctrine\DBAL\Driver\SQLAnywhere\Driver',
          'sqlsrv'             => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
     ];
@@ -75,7 +74,6 @@ final class DriverManager
      *     sqlanywhere
      *     sqlsrv
      *     ibm_db2 (unstable)
-     *     drizzle_pdo_mysql
      *
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.
