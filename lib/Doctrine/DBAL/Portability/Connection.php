@@ -26,7 +26,6 @@ class Connection extends \Doctrine\DBAL\Connection
     public const PORTABILITY_POSTGRESQL   = 13;
     public const PORTABILITY_SQLITE       = 13;
     public const PORTABILITY_OTHERVENDORS = 12;
-    public const PORTABILITY_DRIZZLE      = 13;
     public const PORTABILITY_SQLANYWHERE  = 13;
     public const PORTABILITY_SQLSRV       = 13;
 
@@ -51,8 +50,6 @@ class Connection extends \Doctrine\DBAL\Connection
                     $params['portability'] &= self::PORTABILITY_POSTGRESQL;
                 } elseif ($this->getDatabasePlatform()->getName() === 'sqlite') {
                     $params['portability'] &= self::PORTABILITY_SQLITE;
-                } elseif ($this->getDatabasePlatform()->getName() === 'drizzle') {
-                    $params['portability'] &= self::PORTABILITY_DRIZZLE;
                 } elseif ($this->getDatabasePlatform()->getName() === 'sqlanywhere') {
                     $params['portability'] &= self::PORTABILITY_SQLANYWHERE;
                 } elseif ($this->getDatabasePlatform()->getName() === 'db2') {
