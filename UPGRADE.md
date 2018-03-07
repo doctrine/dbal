@@ -103,6 +103,10 @@ After:
     $stmt->bindValue(1, 1, ParameterType::INTEGER);
     $stmt->fetchAll(FetchMode::COLUMN);
 
+## BC BREAK: Removed Drizzle support
+
+The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL anymore.
+
 ## BC BREAK: Removed dbal:import CLI command
 
 The `dbal:import` CLI command has been removed since it only worked with PDO-based drivers by relying on a non-documented behavior of the extension, and it was impossible to make it work with other drivers.
