@@ -7,7 +7,7 @@ use function microtime;
 /**
  * Includes executed SQLs in a Debug Stack.
  */
-class DebugStack implements SQLLogger
+final class DebugStack implements SQLLogger
 {
     /**
      * Executed SQL queries.
