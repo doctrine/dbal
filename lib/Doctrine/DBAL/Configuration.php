@@ -25,11 +25,9 @@ class Configuration
     protected $_attributes = [];
 
     /**
-     * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
-     *
-     * @return void
+     * Sets the SQL logger to use.
      */
-    public function setSQLLogger(?SQLLogger $logger = null)
+    public function setSQLLogger(?SQLLogger $logger) : void
     {
         $this->_attributes['sqlLogger'] = $logger;
     }
