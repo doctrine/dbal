@@ -14,7 +14,7 @@ use function microtime;
  * @author Jonathan Wage <jonwage@gmail.com>
  * @author Roman Borschel <roman@code-factory.org>
  */
-class DebugStack implements SQLLogger
+final class DebugStack implements SQLLogger
 {
     /**
      * Executed SQL queries.
