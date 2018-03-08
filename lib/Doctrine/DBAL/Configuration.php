@@ -45,11 +45,7 @@ class Configuration
      */
     public function getSQLLogger() : SQLLogger
     {
-        if (! isset($this->_attributes['sqlLogger'])) {
-            $this->_attributes['sqlLogger'] = new NullLogger();
-        }
-
-        return $this->_attributes['sqlLogger'];
+        return $this->_attributes['sqlLogger'] ?? $this->_attributes['sqlLogger'] = new NullLogger();
     }
 
     /**
