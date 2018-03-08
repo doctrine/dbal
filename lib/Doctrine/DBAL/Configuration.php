@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Logging\NullLogger;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\Common\Cache\Cache;
 
@@ -40,11 +41,15 @@ class Configuration
     /**
      * Gets the SQL logger that is used.
      *
-     * @return \Doctrine\DBAL\Logging\SQLLogger|null
+     * @return \Doctrine\DBAL\Logging\SQLLogger
      */
-    public function getSQLLogger()
+    public function getSQLLogger() : SQLLogger
     {
-        return $this->_attributes['sqlLogger'] ?? null;
+        if (! isset($this->_attributes['sqlLogger'])) {
+            $this->_attributes['sqlLogger'] = new NullLogger();
+        }
+
+        return $this->_attributes['sqlLogger'];
     }
 
     /**
