@@ -8,7 +8,7 @@ use function var_dump;
 /**
  * A SQL logger that logs to the standard output using echo/var_dump.
  */
-class EchoSQLLogger implements SQLLogger
+final class EchoSQLLogger implements SQLLogger
 {
     /**
      * {@inheritdoc}
