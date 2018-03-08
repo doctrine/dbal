@@ -80,6 +80,8 @@ class Connection
      */
     const ARRAY_PARAM_OFFSET = 100;
 
+    const SAVEPOINT_PREFIX = 'DOCTRINE_SAVEPOINT_';
+
     /**
      * The wrapped driver connection.
      *
@@ -158,9 +160,16 @@ class Connection
     protected $defaultFetchMode = FetchMode::ASSOCIATIVE;
 
     /**
-     * @var \Doctrine\DBAL\TransactionManager
+     * @var \Doctrine\DBAL\Transaction[]
      */
-    private $transactionManager;
+    private $activeTransactions = [];
+
+    /**
+     * Whether nested transactions should use savepoints.
+     *
+     * @var bool
+     */
+    private $nestTransactionsWithSavepoints = false;
 
     /**
      * Initializes a new instance of the Connection class.
@@ -208,8 +217,6 @@ class Connection
         $this->_expr = new Query\Expression\ExpressionBuilder($this);
 
         $this->autoCommit = $config->getAutoCommit();
-
-        $this->transactionManager = new TransactionManager($this);
     }
 
     /**
@@ -300,14 +307,6 @@ class Connection
     public function getEventManager()
     {
         return $this->_eventManager;
-    }
-
-    /**
-     * @return \Doctrine\DBAL\TransactionManager
-     */
-    public function getTransactionManager()
-    {
-        return $this->transactionManager;
     }
 
     /**
@@ -507,8 +506,8 @@ class Connection
         $this->autoCommit = $autoCommit;
 
         // Commit all currently active transactions if any when switching auto-commit mode.
-        if ($this->_isConnected && $this->transactionManager->isTransactionActive()) {
-            $this->transactionManager->getTopLevelTransaction()->commit();
+        if ($this->_isConnected && $this->isTransactionActive()) {
+            $this->getTopLevelTransaction()->commit();
         }
     }
 
@@ -587,13 +586,67 @@ class Connection
     /**
      * Checks whether a transaction is currently active.
      *
-     * @deprecated use getTransactionManager()->isTransactionActive()
-     *
      * @return bool TRUE if a transaction is currently active, FALSE otherwise.
      */
     public function isTransactionActive()
     {
-        return $this->transactionManager->isTransactionActive();
+        return ! empty($this->activeTransactions);
+    }
+
+    /**
+     * Returns the top-level active transaction, i.e. the first transaction started.
+     *
+     * @return \Doctrine\DBAL\Transaction
+     *
+     * @throws \Doctrine\DBAL\ConnectionException If there is no active transaction.
+     */
+    public function getTopLevelTransaction()
+    {
+        if (! $this->activeTransactions) {
+            throw ConnectionException::noActiveTransaction();
+        }
+
+        return reset($this->activeTransactions);
+    }
+
+    /**
+     * Returns the current transaction, i.e. the last transaction started.
+     *
+     * @return \Doctrine\DBAL\Transaction
+     *
+     * @throws \Doctrine\DBAL\ConnectionException If there is no active transaction.
+     */
+    public function getCurrentTransaction()
+    {
+        if (! $this->activeTransactions) {
+            throw ConnectionException::noActiveTransaction();
+        }
+
+        return end($this->activeTransactions);
+    }
+
+    /**
+     * Returns the nested transaction one level below the given one, if any.
+     *
+     * @param \Doctrine\DBAL\Transaction $transaction
+     *
+     * @return \Doctrine\DBAL\Transaction|null The nested transaction, or null if none.
+     *
+     * @throws \Doctrine\DBAL\ConnectionException If the given transaction is stale, or belongs to another connection.
+     */
+    private function getNestedTransaction(Transaction $transaction)
+    {
+        $transactionIndex = array_search($transaction, $this->activeTransactions, true);
+
+        if ($transactionIndex === false) {
+            throw ConnectionException::staleTransaction();
+        }
+
+        if (++$transactionIndex === count($this->activeTransactions)) {
+            return null;
+        }
+
+        return $this->activeTransactions[$transactionIndex];
     }
 
     /**
@@ -1084,13 +1137,11 @@ class Connection
     /**
      * Returns the current transaction nesting level.
      *
-     * @deprecated Use getTransactionManager()->getTransactionNestingLevel()
-     *
      * @return int The nesting level. A value of 0 means there's no active transaction.
      */
     public function getTransactionNestingLevel()
     {
-        return $this->transactionManager->getTransactionNestingLevel();
+        return count($this->activeTransactions);
     }
 
     /**
@@ -1168,43 +1219,169 @@ class Connection
     }
 
     /**
-     * Sets if nested transactions should use savepoints.
-     *
-     * @deprecated Use getTransactionManager()->setNestTransactionsWithSavepoints()
+     * Sets whether nested transactions should use savepoints.
      *
      * @param bool $nestTransactionsWithSavepoints
      *
      * @return void
      *
-     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Doctrine\DBAL\ConnectionException If a transaction is active, or savepoints are not supported.
      */
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
-        $this->transactionManager->setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints);
+        if ($this->activeTransactions) {
+            throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
+        }
+
+        if (! $this->getDatabasePlatform()->supportsSavepoints()) {
+            throw ConnectionException::savepointsNotSupported();
+        }
+
+        $this->nestTransactionsWithSavepoints = (bool) $nestTransactionsWithSavepoints;
     }
 
     /**
-     * Gets if nested transactions should use savepoints.
-     *
-     * @deprecated Use getTransactionManager()->getNestTransactionsWithSavepoints()
+     * Returns whether nested transactions should use savepoints.
      *
      * @return bool
      */
     public function getNestTransactionsWithSavepoints()
     {
-        return $this->transactionManager->getNestTransactionsWithSavepoints();
+        return $this->nestTransactionsWithSavepoints;
     }
 
     /**
-     * Starts a transaction by suspending auto-commit mode.
+     * @param array $configuration
      *
-     * @deprecated Use TransactionManager::beginTransaction()
+     * @return \Doctrine\DBAL\Transaction
+     */
+    public function beginTransaction(array $configuration = [])
+    {
+        $this->connect();
+
+        if (isset($configuration[TransactionBuilder::ISOLATION_LEVEL])) {
+            $this->setTransactionIsolation($configuration[TransactionBuilder::ISOLATION_LEVEL]);
+        }
+
+        $logger = $this->_config->getSQLLogger();
+
+        if (count($this->activeTransactions) === 0) {
+            $logger->startQuery('"START TRANSACTION"');
+            $this->_conn->beginTransaction();
+            $logger->stopQuery();
+        } elseif ($this->nestTransactionsWithSavepoints) {
+            $logger->startQuery('"SAVEPOINT"');
+            $this->createSavepoint($this->getNestedTransactionSavePointName(true));
+            $logger->stopQuery();
+        }
+
+        $transaction = new Transaction($this, $configuration);
+        $this->activeTransactions[] = $transaction;
+
+        return $transaction;
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Transaction $transaction
      *
      * @return void
+     *
+     * @throws \Doctrine\DBAL\ConnectionException If the transaction is stale, or belongs to another manager.
      */
-    public function beginTransaction()
+    public function commitTransaction(Transaction $transaction)
     {
-        $this->transactionManager->beginTransaction();
+        if ($transaction->isActive()) {
+            // Transaction::commit() has to be called first, and in turn call this method.
+            $transaction->commit();
+
+            return;
+        }
+
+        $nestedTransaction = $this->getNestedTransaction($transaction);
+
+        if ($nestedTransaction) {
+            $nestedTransaction->commit();
+        }
+
+        $logger = $this->_config->getSQLLogger();
+
+        if (count($this->activeTransactions) === 1) {
+            $logger->startQuery('"COMMIT"');
+            $this->_conn->commit();
+            $logger->stopQuery();
+        } elseif ($this->nestTransactionsWithSavepoints) {
+            $logger->startQuery('"RELEASE SAVEPOINT"');
+            $this->releaseSavepoint($this->getNestedTransactionSavePointName());
+            $logger->stopQuery();
+        }
+
+        array_pop($this->activeTransactions);
+
+        if (! $this->isAutoCommit() && ! $this->activeTransactions) {
+            $this->beginTransaction($transaction->getConfiguration());
+        }
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Transaction $transaction
+     *
+     * @return void
+     *
+     * @throws \Doctrine\DBAL\ConnectionException
+     */
+    public function rollbackTransaction(Transaction $transaction)
+    {
+        if ($transaction->isActive()) {
+            // Transaction::rollback() has to be called first, and in turn call this method.
+            $transaction->rollback();
+
+            return;
+        }
+
+        $nestedTransaction = $this->getNestedTransaction($transaction);
+
+        if ($nestedTransaction) {
+            $nestedTransaction->rollback();
+        }
+
+        $logger = $this->_config->getSQLLogger();
+
+        if (count($this->activeTransactions) === 1) {
+            $logger->startQuery('"ROLLBACK"');
+            $this->_conn->rollBack();
+            $logger->stopQuery();
+
+            if (! $this->isAutoCommit()) {
+                $this->beginTransaction($transaction->getConfiguration());
+            }
+        } elseif ($this->nestTransactionsWithSavepoints) {
+            $logger->startQuery('"ROLLBACK TO SAVEPOINT"');
+            $this->rollbackSavepoint($this->getNestedTransactionSavePointName());
+            $logger->stopQuery();
+        } else {
+            $this->getTopLevelTransaction()->setRollbackOnly();
+        }
+
+        array_pop($this->activeTransactions);
+    }
+
+    /**
+     * Returns the savepoint name to use for nested transactions.
+     *
+     * @param bool $begin Whether this method is called from beginTransaction().
+     *                    In this case, the transaction has not been added to the list of active transactions yet.
+     *
+     * @return string
+     */
+    private function getNestedTransactionSavePointName($begin = false)
+    {
+        $index = count($this->activeTransactions);
+
+        if ($begin) {
+            $index++;
+        }
+
+        return self::SAVEPOINT_PREFIX . $index;
     }
 
     /**
@@ -1219,7 +1396,7 @@ class Connection
      */
     public function commit()
     {
-        $this->transactionManager->getCurrentTransaction()->commit();
+        $this->getCurrentTransaction()->commit();
     }
 
     /**
@@ -1236,7 +1413,7 @@ class Connection
      */
     public function rollBack()
     {
-        $this->transactionManager->getCurrentTransaction()->rollback();
+        $this->getCurrentTransaction()->rollback();
     }
 
     /**
@@ -1334,7 +1511,7 @@ class Connection
      */
     public function setRollbackOnly()
     {
-        $this->transactionManager->getCurrentTransaction()->setRollbackOnly();
+        $this->getCurrentTransaction()->setRollbackOnly();
     }
 
     /**
@@ -1348,7 +1525,7 @@ class Connection
      */
     public function isRollbackOnly()
     {
-        return $this->transactionManager->getCurrentTransaction()->isRollbackOnly();
+        return $this->getCurrentTransaction()->isRollbackOnly();
     }
 
     /**

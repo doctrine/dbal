@@ -10,11 +10,11 @@ class TransactionBuilder
     const ISOLATION_LEVEL = 'dbal.isolation-level';
 
     /**
-     * The transaction manager.
+     * The connection.
      *
-     * @var \Doctrine\DBAL\TransactionManager
+     * @var \Doctrine\DBAL\Connection
      */
-    private $transactionManager;
+    private $connection;
 
     /**
      * The configuration for the transaction to be built.
@@ -26,11 +26,11 @@ class TransactionBuilder
     /**
      * Class constructor.
      *
-     * @param TransactionManager $manager
+     * @param Connection $connection
      */
-    public function __construct(TransactionManager $manager)
+    public function __construct(Connection $connection)
     {
-        $this->transactionManager = $manager;
+        $this->connection = $connection;
     }
 
     /**
@@ -49,7 +49,7 @@ class TransactionBuilder
     }
 
     /**
-     * @param integer $isolationLevel
+     * @param int $isolationLevel
      *
      * @return \Doctrine\DBAL\TransactionBuilder
      */
@@ -65,6 +65,6 @@ class TransactionBuilder
      */
     public function begin()
     {
-        return $this->transactionManager->beginTransaction($this->configuration);
+        return $this->connection->beginTransaction($this->configuration);
     }
 }

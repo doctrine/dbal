@@ -39,8 +39,8 @@ class ConnectionException extends DBALException
     public static function staleTransaction()
     {
         return new self(
-            "This transaction is not managed by this transaction manager, " .
-            "it has probably already been committed or rolled back, or belongs to another transaction manager."
+            "This transaction is not managed by this connection. " .
+            "It has probably already been committed or rolled back, or belongs to another connection."
         );
     }
 

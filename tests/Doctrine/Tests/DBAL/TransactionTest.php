@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Transaction;
 use Doctrine\Tests\DbalTestCase;
 
@@ -11,11 +12,11 @@ use Doctrine\Tests\DbalTestCase;
 class TransactionTest extends DbalTestCase
 {
     /**
-     * The transaction manager mock.
+     * The connection mock.
      *
-     * @var \Doctrine\DBAL\TransactionManager|\PHPUnit_Framework_MockObject_MockObject
+     * @var \Doctrine\DBAL\Connection|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $transactionManager;
+    private $connection;
 
     /**
      * A Transaction instance built on the transaction manager mock.
@@ -29,8 +30,8 @@ class TransactionTest extends DbalTestCase
      */
     public function setUp()
     {
-        $this->transactionManager = $this->createMock('Doctrine\DBAL\TransactionManager');
-        $this->transaction = new Transaction($this->transactionManager, array());
+        $this->connection = $this->createMock(Connection::class);
+        $this->transaction = new Transaction($this->connection, []);
     }
 
     public function testTransactionDefaults()
@@ -43,7 +44,7 @@ class TransactionTest extends DbalTestCase
 
     public function testCommit()
     {
-        $this->transactionManager->expects($this->once())->method('commitTransaction');
+        $this->connection->expects($this->once())->method('commitTransaction');
 
         $this->transaction->commit();
 
@@ -54,7 +55,7 @@ class TransactionTest extends DbalTestCase
 
     public function testRollback()
     {
-        $this->transactionManager->expects($this->once())->method('rollbackTransaction');
+        $this->connection->expects($this->once())->method('rollbackTransaction');
 
         $this->transaction->rollback();
 

@@ -8,11 +8,11 @@ namespace Doctrine\DBAL;
 class Transaction
 {
     /**
-     * The transaction manager that created this transaction object.
+     * The connection that created this transaction object.
      *
-     * @var \Doctrine\DBAL\TransactionManager
+     * @var \Doctrine\DBAL\Connection
      */
-    private $transactionManager;
+    private $connection;
 
     /**
      * The configuration for this transaction.
@@ -24,41 +24,41 @@ class Transaction
     /**
      * Indicates whether this transaction is active, and can be committed or rolled back.
      *
-     * @var boolean
+     * @var bool
      */
     private $isActive = true;
 
     /**
      * Indicates whether this transaction is marked for rollback only.
      *
-     * @var boolean
+     * @var bool
      */
     private $isRollbackOnly = false;
 
     /**
      * Indicates whether this transaction was committed.
      *
-     * @var boolean
+     * @var bool
      */
     private $wasCommitted = false;
 
     /**
      * Indicates whether this transaction was rolled back.
      *
-     * @var boolean
+     * @var bool
      */
     private $wasRolledBack = false;
 
     /**
      * Class constructor.
      *
-     * @param \Doctrine\DBAL\TransactionManager $manager
-     * @param array                             $configuration
+     * @param \Doctrine\DBAL\Connection $connection
+     * @param array                     $configuration
      */
-    public function __construct(TransactionManager $manager, array $configuration)
+    public function __construct(Connection $connection, array $configuration)
     {
-        $this->transactionManager = $manager;
-        $this->configuration      = $configuration;
+        $this->connection    = $connection;
+        $this->configuration = $configuration;
     }
 
     /**
@@ -81,7 +81,7 @@ class Transaction
         $this->isActive = false;
         $this->wasCommitted = true;
 
-        $this->transactionManager->commitTransaction($this);
+        $this->connection->commitTransaction($this);
     }
 
     /**
@@ -100,13 +100,13 @@ class Transaction
         $this->isActive = false;
         $this->wasRolledBack = true;
 
-        $this->transactionManager->rollbackTransaction($this);
+        $this->connection->rollbackTransaction($this);
     }
 
     /**
      * Returns whether this transaction is still active.
      *
-     * @return boolean
+     * @return bool
      */
     public function isActive()
     {
@@ -132,7 +132,7 @@ class Transaction
     /**
      * Returns whether this transaction is marked for rollback only.
      *
-     * @return boolean
+     * @return bool
      */
     public function isRollbackOnly()
     {
@@ -142,7 +142,7 @@ class Transaction
     /**
      * Returns whether this transaction was committed.
      *
-     * @return boolean
+     * @return bool
      */
     public function wasCommitted()
     {
@@ -152,7 +152,7 @@ class Transaction
     /**
      * Returns whether this transaction was rolled back.
      *
-     * @return boolean
+     * @return bool
      */
     public function wasRolledBack()
     {
