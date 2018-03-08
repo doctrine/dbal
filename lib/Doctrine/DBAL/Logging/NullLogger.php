@@ -10,14 +10,14 @@ final class NullLogger implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, ?array $params = null, ?array $types = null)
+    public function startQuery(string $sql, ?array $params = [], ?array $types = []) : void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function stopQuery()
+    public function stopQuery() : void
     {
     }
 }
