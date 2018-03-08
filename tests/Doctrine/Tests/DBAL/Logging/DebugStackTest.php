@@ -26,8 +26,8 @@ class DebugStackTest extends \Doctrine\Tests\DbalTestCase
             array(
                 1 => array(
                     'sql' => 'SELECT column FROM table',
-                    'params' => null,
-                    'types' => null,
+                    'params' => [],
+                    'types' => [],
                     'executionMS' => 0,
                 ),
             ),
