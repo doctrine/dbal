@@ -42,9 +42,10 @@ The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL
 
 ## BC BREAK: SQLLogger changes
 
-- The SQLLogger interface has changed; the methods are the same but use scalar type hints, return types, and non-nullable arrays.
-- SQLLogger implementations: `DebugStack`, `EchoSQLLogger`, `LoggerChain` are now final.
+- The `SQLLogger` interface has changed; the methods are the same but use scalar type hints, return types, and non-nullable arrays.
+- `SQLLogger` implementations: `DebugStack`, `EchoSQLLogger`, `LoggerChain` are now final.
 - `Configuration::getSQLLogger()` does not return `null` anymore, but a `NullLogger` implementation.
+- `Configuration::setSQLLogger()` does not allow `null` anymore.
 
 # Upgrade to 2.9
 
