@@ -12,6 +12,7 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 ## BC BREAK: the SQLLogger interface has changed
 
 The methods are the same but use scalar type hints, return types, and non-nullable arrays.
+SQLLogger implementations are now final.
 
 Before:
 

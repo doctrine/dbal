@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Logging;
 /**
  * Chains multiple SQLLogger.
  */
-class LoggerChain implements SQLLogger
+final class LoggerChain implements SQLLogger
 {
     /** @var SQLLogger[] */
     private $loggers = [];
