@@ -5,7 +5,7 @@ namespace Doctrine\DBAL\Logging;
 /**
  * A SQL logger that does nothing.
  */
-class NullLogger implements SQLLogger
+final class NullLogger implements SQLLogger
 {
     /**
      * {@inheritdoc}
