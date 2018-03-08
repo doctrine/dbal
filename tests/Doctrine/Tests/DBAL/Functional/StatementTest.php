@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 
@@ -57,7 +59,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute();
         self::assertArraySubset(array(
             array('param1', 'X'),
-        ), $stmt->fetchAll(\PDO::FETCH_NUM));
+        ), $stmt->fetchAll(FetchMode::NUMERIC));
 
         $row2 = array(
             'param' => 'param2',
@@ -69,7 +71,7 @@ class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
         self::assertArraySubset(array(
             array('param1', 'X'),
             array('param2', 'A bit longer value'),
-        ), $stmt->fetchAll(\PDO::FETCH_NUM));
+        ), $stmt->fetchAll(FetchMode::NUMERIC));
     }
 
     public function testFetchLongBlob()
@@ -102,9 +104,7 @@ d+N0hqezcjblboJ3Bj8ARJilHX4FAAA=
 EOF
     );
 
-        $this->_conn->insert('stmt_long_blob', array(
-            'contents' => $contents,
-        ), array(\PDO::PARAM_LOB));
+        $this->_conn->insert('stmt_long_blob', ['contents' => $contents], [ParameterType::LARGE_OBJECT]);
 
         $stmt = $this->_conn->prepare('SELECT contents FROM stmt_long_blob');
         $stmt->execute();
@@ -114,10 +114,6 @@ EOF
                 $stmt->fetchColumn(),
                 $this->_conn->getDatabasePlatform()
             );
-
-        if ($this->_conn->getDriver()->getName() === 'pdo_sqlsrv') {
-            $this->markTestSkipped('Skipping on pdo_sqlsrv due to https://github.com/Microsoft/msphpsql/issues/270');
-        }
 
         self::assertSame($contents, stream_get_contents($stream));
     }
@@ -285,5 +281,14 @@ EOF
                 array(),
             ),
         );
+    }
+
+    public function testFetchInColumnMode() : void
+    {
+        $platform = $this->_conn->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL();
+        $result   = $this->_conn->executeQuery($query)->fetch(FetchMode::COLUMN);
+
+        self::assertEquals(1, $result);
     }
 }

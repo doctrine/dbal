@@ -2,14 +2,21 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class ArrayTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /**
+     * @var AbstractPlatform
+     */
+    protected $_platform;
+
+    /**
+     * @var Type
+     */
+    protected $_type;
 
     protected function setUp()
     {
@@ -25,15 +32,17 @@ class ArrayTest extends \Doctrine\Tests\DbalTestCase
 
     public function testArrayConvertsToDatabaseValue()
     {
-        self::assertTrue(
-            is_string($this->_type->convertToDatabaseValue(array(), $this->_platform))
+        self::assertInternalType(
+            'string',
+            $this->_type->convertToDatabaseValue(array(), $this->_platform)
         );
     }
 
     public function testArrayConvertsToPHPValue()
     {
-        self::assertTrue(
-            is_array($this->_type->convertToPHPValue(serialize(array()), $this->_platform))
+        self::assertInternalType(
+            'array',
+            $this->_type->convertToPHPValue(serialize(array()), $this->_platform)
         );
     }
 

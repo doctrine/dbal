@@ -38,7 +38,7 @@ abstract class KeywordList
      *
      * @param string $word
      *
-     * @return boolean
+     * @return bool
      */
     public function isKeyword($word)
     {

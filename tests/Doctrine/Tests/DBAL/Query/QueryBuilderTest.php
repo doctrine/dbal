@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Query;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 
@@ -10,6 +11,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 {
+    /**
+     * @var \Doctrine\DBAL\Connection
+     */
     protected $conn;
 
     protected function setUp()
@@ -579,9 +583,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('u.*')->from('users', 'u')->where('u.name = ?');
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
         $qb->resetQueryPart('where');
-        self::assertEquals('SELECT u.* FROM users u', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
     }
 
     public function testResetQueryParts()
@@ -590,9 +594,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->select('u.*')->from('users', 'u')->where('u.name = ?')->orderBy('u.name');
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ? ORDER BY u.name ASC', (string) $qb);
         $qb->resetQueryParts(array('where', 'orderBy'));
-        self::assertEquals('SELECT u.* FROM users u', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u', (string) $qb);
     }
 
     public function testCreateNamedParameter()
@@ -600,12 +604,12 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb   = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where(
-            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, \PDO::PARAM_INT))
+            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER))
         );
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = :dcValue1', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = :dcValue1', (string) $qb);
         self::assertEquals(10, $qb->getParameter('dcValue1'));
-        self::assertEquals(\PDO::PARAM_INT, $qb->getParameterType('dcValue1'));
+        self::assertEquals(ParameterType::INTEGER, $qb->getParameterType('dcValue1'));
     }
 
     public function testCreateNamedParameterCustomPlaceholder()
@@ -613,12 +617,12 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb   = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where(
-            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, \PDO::PARAM_INT, ':test'))
+            $qb->expr()->eq('u.name', $qb->createNamedParameter(10, ParameterType::INTEGER, ':test'))
         );
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = :test', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = :test', (string) $qb);
         self::assertEquals(10, $qb->getParameter('test'));
-        self::assertEquals(\PDO::PARAM_INT, $qb->getParameterType('test'));
+        self::assertEquals(ParameterType::INTEGER, $qb->getParameterType('test'));
     }
 
     public function testCreatePositionalParameter()
@@ -626,12 +630,12 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
         $qb   = new QueryBuilder($this->conn);
 
         $qb->select('u.*')->from('users', 'u')->where(
-            $qb->expr()->eq('u.name', $qb->createPositionalParameter(10, \PDO::PARAM_INT))
+            $qb->expr()->eq('u.name', $qb->createPositionalParameter(10, ParameterType::INTEGER))
         );
 
-        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string)$qb);
+        self::assertEquals('SELECT u.* FROM users u WHERE u.name = ?', (string) $qb);
         self::assertEquals(10, $qb->getParameter(1));
-        self::assertEquals(\PDO::PARAM_INT, $qb->getParameterType(1));
+        self::assertEquals(ParameterType::INTEGER, $qb->getParameterType(1));
     }
 
     /**
@@ -758,8 +762,8 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         $qb->andWhere('u.id = 1');
 
-        self::assertFalse($qb->getQueryParts() === $qb_clone->getQueryParts());
-        self::assertFalse($qb->getParameters() === $qb_clone->getParameters());
+        self::assertNotSame($qb->getQueryParts(), $qb_clone->getQueryParts());
+        self::assertNotSame($qb->getParameters(), $qb_clone->getParameters());
     }
 
     public function testSimpleSelectWithoutTableAlias()
@@ -847,9 +851,9 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         self::assertNull($qb->getParameterType('name'));
 
-        $qb->setParameter('name', 'foo', \PDO::PARAM_STR);
+        $qb->setParameter('name', 'foo', ParameterType::STRING);
 
-        self::assertSame(\PDO::PARAM_STR, $qb->getParameterType('name'));
+        self::assertSame(ParameterType::STRING, $qb->getParameterType('name'));
     }
 
     /**
@@ -868,12 +872,15 @@ class QueryBuilderTest extends \Doctrine\Tests\DbalTestCase
 
         self::assertSame(array(), $qb->getParameterTypes());
 
-        $qb->setParameter('name', 'foo', \PDO::PARAM_STR);
+        $qb->setParameter('name', 'foo', ParameterType::STRING);
 
         $qb->where('is_active = :isActive');
-        $qb->setParameter('isActive', true, \PDO::PARAM_BOOL);
+        $qb->setParameter('isActive', true, ParameterType::BOOLEAN);
 
-        self::assertSame(array('name' => \PDO::PARAM_STR, 'isActive' => \PDO::PARAM_BOOL), $qb->getParameterTypes());
+        self::assertSame([
+            'name'     => ParameterType::STRING,
+            'isActive' => ParameterType::BOOLEAN,
+        ], $qb->getParameterTypes());
     }
 
     /**

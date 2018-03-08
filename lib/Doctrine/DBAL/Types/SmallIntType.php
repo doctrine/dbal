@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
@@ -57,6 +58,6 @@ class SmallIntType extends Type implements PhpIntegerMappingType
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_INT;
+        return ParameterType::INTEGER;
     }
 }

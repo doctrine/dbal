@@ -19,7 +19,6 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
@@ -30,6 +29,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 
 /**
  * The SQLAnywherePlatform provides the behavior, features and SQL dialect of the
@@ -42,19 +42,19 @@ use Doctrine\DBAL\Schema\TableDiff;
 class SQLAnywherePlatform extends AbstractPlatform
 {
     /**
-     * @var integer
+     * @var int
      */
     const FOREIGN_KEY_MATCH_SIMPLE = 1;
     /**
-     * @var integer
+     * @var int
      */
     const FOREIGN_KEY_MATCH_FULL = 2;
     /**
-     * @var integer
+     * @var int
      */
     const FOREIGN_KEY_MATCH_SIMPLE_UNIQUE = 129;
     /**
-     * @var integer
+     * @var int
      */
     const FOREIGN_KEY_MATCH_FULL_UNIQUE = 130;
 
@@ -533,7 +533,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getDefaultTransactionIsolationLevel()
     {
-        return Connection::TRANSACTION_READ_UNCOMMITTED;
+        return TransactionIsolationLevel::READ_UNCOMMITTED;
     }
 
     /**
@@ -628,7 +628,7 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * Returns foreign key MATCH clause for given type.
      *
-     * @param integer $type The foreign key match type
+     * @param int $type The foreign key match type
      *
      * @return string
      *
@@ -1103,13 +1103,13 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
-    public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
     {
         if ( ! $char) {
             switch ($pos) {
-                case self::TRIM_LEADING:
+                case TrimMode::LEADING:
                     return $this->getLtrimExpression($str);
-                case self::TRIM_TRAILING:
+                case TrimMode::TRAILING:
                     return $this->getRtrimExpression($str);
                 default:
                     return 'TRIM(' . $str . ')';
@@ -1119,9 +1119,9 @@ class SQLAnywherePlatform extends AbstractPlatform
         $pattern = "'%[^' + $char + ']%'";
 
         switch ($pos) {
-            case self::TRIM_LEADING:
+            case TrimMode::LEADING:
                 return 'SUBSTR(' . $str . ', PATINDEX(' . $pattern . ', ' . $str . '))';
-            case self::TRIM_TRAILING:
+            case TrimMode::TRAILING:
                 return 'REVERSE(SUBSTR(REVERSE(' . $str . '), PATINDEX(' . $pattern . ', REVERSE(' . $str . '))))';
             default:
                 return
@@ -1275,13 +1275,13 @@ class SQLAnywherePlatform extends AbstractPlatform
     protected function _getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
-            case Connection::TRANSACTION_READ_UNCOMMITTED:
+            case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return 0;
-            case Connection::TRANSACTION_READ_COMMITTED:
+            case TransactionIsolationLevel::READ_COMMITTED:
                 return 1;
-            case Connection::TRANSACTION_REPEATABLE_READ:
+            case TransactionIsolationLevel::REPEATABLE_READ:
                 return 2;
-            case Connection::TRANSACTION_SERIALIZABLE:
+            case TransactionIsolationLevel::SERIALIZABLE:
                 return 3;
             default:
                 throw new \InvalidArgumentException('Invalid isolation level:' . $level);

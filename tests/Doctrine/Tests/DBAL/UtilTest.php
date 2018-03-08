@@ -64,7 +64,7 @@ class UtilTest extends \Doctrine\Tests\DbalTestCase
      * @dataProvider dataConvertPositionalToNamedParameters
      * @param string $inputSQL
      * @param string $expectedOutputSQL
-     * @param array $expectedOutputParamsMap
+     * @param array  $expectedOutputParamsMap
      */
     public function testConvertPositionalToNamedParameters($inputSQL, $expectedOutputSQL, $expectedOutputParamsMap)
     {

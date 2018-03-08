@@ -526,25 +526,29 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     {
         // non-timestamp value will get single quotes
         $field = array(
-            'type' => 'string',
+            'type' => Type::getType('string'),
             'default' => 'non_timestamp'
         );
 
         self::assertEquals(" DEFAULT 'non_timestamp'", $this->_platform->getDefaultValueDeclarationSQL($field));
     }
 
-    public function testGetDefaultValueDeclarationSQLDateTime()
+    /**
+     * @group 2859
+     */
+    public function testGetDefaultValueDeclarationSQLDateTime() : void
     {
         // timestamps on datetime types should not be quoted
-        foreach (array('datetime', 'datetimetz') as $type) {
+        foreach (['datetime', 'datetimetz', 'datetime_immutable', 'datetimetz_immutable'] as $type) {
+            $field = [
+                'type'    => Type::getType($type),
+                'default' => $this->_platform->getCurrentTimestampSQL(),
+            ];
 
-            $field = array(
-                'type' => Type::getType($type),
-                'default' => $this->_platform->getCurrentTimestampSQL()
+            self::assertSame(
+                ' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(),
+                $this->_platform->getDefaultValueDeclarationSQL($field)
             );
-
-            self::assertEquals(' DEFAULT ' . $this->_platform->getCurrentTimestampSQL(), $this->_platform->getDefaultValueDeclarationSQL($field));
-
         }
     }
 
@@ -563,18 +567,23 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
         }
     }
 
+    /**
+     * @group 2859
+     */
     public function testGetDefaultValueDeclarationSQLForDateType() : void
     {
         $currentDateSql = $this->_platform->getCurrentDateSQL();
-        $field = [
-            'type'    => Type::getType('date'),
-            'default' => $currentDateSql,
-        ];
+        foreach (['date', 'date_immutable'] as $type) {
+            $field = [
+                'type'    => Type::getType($type),
+                'default' => $currentDateSql,
+            ];
 
-        self::assertSame(
-            ' DEFAULT ' . $currentDateSql,
-            $this->_platform->getDefaultValueDeclarationSQL($field)
-        );
+            self::assertSame(
+                ' DEFAULT ' . $currentDateSql,
+                $this->_platform->getDefaultValueDeclarationSQL($field)
+            );
+        }
     }
 
     /**
@@ -724,7 +733,7 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
     abstract protected function getQuotesReservedKeywordInIndexDeclarationSQL();
 
     /**
-     * @return boolean
+     * @return bool
      */
     protected function supportsInlineIndexDeclaration()
     {
@@ -1457,6 +1466,14 @@ abstract class AbstractPlatformTestCase extends \Doctrine\Tests\DbalTestCase
             array(array('precision' => 5), 'DOUBLE PRECISION'),
             array(array('scale' => 5), 'DOUBLE PRECISION'),
             array(array('precision' => 8, 'scale' => 2), 'DOUBLE PRECISION'),
+        );
+    }
+
+    public function testItEscapesStringsForLike() : void
+    {
+        self::assertSame(
+            '\_25\% off\_ your next purchase \\\\o/',
+            $this->_platform->escapeStringForLike('_25% off_ your next purchase \o/', '\\')
         );
     }
 }

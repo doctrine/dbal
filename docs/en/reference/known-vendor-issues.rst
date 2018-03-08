@@ -35,7 +35,6 @@ passing the date to the constructor of ``DateTime``.
 This is why Doctrine always wants to create the time related types
 without microseconds:
 
-
 -  DateTime to ``TIMESTAMP(0) WITHOUT TIME ZONE``
 -  DateTimeTz to ``TIMESTAMP(0) WITH TIME ZONE``
 -  Time to ``TIME(0) WITHOUT TIME ZONE``
@@ -138,35 +137,6 @@ difference is subtle but can be potentially very nasty. Derick
 Rethans explains it very well
 `in a blog post of his <http://derickrethans.nl/storing-date-time-in-database.html>`_.
 
-OCI8: SQL Queries with Question Marks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-We had to implement a question mark to named parameter translation
-inside the OCI8 DBAL Driver. It works as a very simple parser with two states: Inside Literal, Outside Literal.
-From our perspective it should be working in all cases, but you have to be careful with certain
-queries:
-
-.. code-block:: sql
-
-    SELECT * FROM users WHERE name = 'bar?'
-
-Could in case of a bug with the parser be rewritten into:
-
-.. code-block:: sql
-
-    SELECT * FROM users WHERE name = 'bar:oci1'
-
-For this reason you should always use prepared statements with
-Oracle OCI8, never use string literals inside the queries. A query
-for the user 'bar?' should look like:
-
-.. code-block:: php
-
-    $sql = 'SELECT * FROM users WHERE name = ?'
-    $stmt = $conn->prepare($sql);
-    $stmt->bindValue(1, 'bar?');
-    $stmt->execute();
-
 OCI-LOB instances
 ~~~~~~~~~~~~~~~~~
 
@@ -217,6 +187,6 @@ The ``PDO_SQLSRV`` driver currently has a bug when binding values to
 VARBINARY/BLOB columns with ``bindValue`` in prepared statements.
 This raises an implicit conversion from data type error as it tries
 to convert a character type value to a binary type value even if
-you explicitly define the value as ``\PDO::PARAM_LOB`` type.
+you explicitly define the value as ``ParameterType::LARGE_OBJECT`` type.
 Therefore it is highly encouraged to use the native ``sqlsrv``
 driver instead which does not have this limitation.

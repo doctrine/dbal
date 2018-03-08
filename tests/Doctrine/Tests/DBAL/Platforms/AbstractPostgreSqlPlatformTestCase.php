@@ -6,6 +6,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
 
 abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCase
@@ -112,19 +113,19 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
     {
         self::assertEquals(
             'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ UNCOMMITTED',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_UNCOMMITTED)
         );
         self::assertEquals(
             'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::READ_COMMITTED)
         );
         self::assertEquals(
             'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::REPEATABLE_READ)
         );
         self::assertEquals(
             'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE',
-            $this->_platform->getSetTransactionIsolationSQL(\Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE)
+            $this->_platform->getSetTransactionIsolationSQL(TransactionIsolationLevel::SERIALIZABLE)
         );
     }
 
@@ -142,6 +143,63 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
         $column->setAutoincrement(true);
 
         self::assertEquals(array('CREATE TABLE autoinc_table (id SERIAL NOT NULL)'), $this->_platform->getCreateTableSQL($table));
+    }
+
+    public static function serialTypes() : array
+    {
+        return [
+            ['integer', 'SERIAL'],
+            ['bigint', 'BIGSERIAL'],
+        ];
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testGenerateTableWithAutoincrementDoesNotSetDefault(string $type, string $definition) : void
+    {
+        $table  = new \Doctrine\DBAL\Schema\Table('autoinc_table_notnull');
+        $column = $table->addColumn('id', $type);
+        $column->setAutoIncrement(true);
+        $column->setNotNull(false);
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+
+        self::assertEquals(["CREATE TABLE autoinc_table_notnull (id $definition)"], $sql);
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testCreateTableWithAutoincrementAndNotNullAddsConstraint(string $type, string $definition) : void
+    {
+        $table  = new \Doctrine\DBAL\Schema\Table('autoinc_table_notnull_enabled');
+        $column = $table->addColumn('id', $type);
+        $column->setAutoIncrement(true);
+        $column->setNotNull(true);
+
+        $sql = $this->_platform->getCreateTableSQL($table);
+
+        self::assertEquals(["CREATE TABLE autoinc_table_notnull_enabled (id $definition NOT NULL)"], $sql);
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testGetDefaultValueDeclarationSQLIgnoresTheDefaultKeyWhenTheFieldIsSerial(string $type) : void
+    {
+        $sql = $this->_platform->getDefaultValueDeclarationSQL(
+            [
+                'autoincrement' => true,
+                'type'          => Type::getType($type),
+                'default'       => 1,
+            ]
+        );
+
+        self::assertSame('', $sql);
     }
 
     public function testGeneratesTypeDeclarationForIntegers()
@@ -312,8 +370,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      *
      * @param string $databaseValue
      * @param string $preparedStatementValue
-     * @param integer $integerValue
-     * @param boolean $booleanValue
+     * @param int    $integerValue
+     * @param bool   $booleanValue
      */
     public function testConvertBooleanAsLiteralStrings(
         $databaseValue,
@@ -347,8 +405,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      *
      * @param string $databaseValue
      * @param string $preparedStatementValue
-     * @param integer $integerValue
-     * @param boolean $booleanValue
+     * @param int    $integerValue
+     * @param bool   $booleanValue
      */
     public function testConvertBooleanAsDatabaseValueStrings(
         $databaseValue,
@@ -379,8 +437,8 @@ abstract class AbstractPostgreSqlPlatformTestCase extends AbstractPlatformTestCa
      *
      * @param string $databaseValue
      * @param string $prepareStatementValue
-     * @param integer $integerValue
-     * @param boolean $booleanValue
+     * @param int    $integerValue
+     * @param bool   $booleanValue
      */
     public function testConvertFromBoolean($databaseValue, $prepareStatementValue, $integerValue, $booleanValue)
     {

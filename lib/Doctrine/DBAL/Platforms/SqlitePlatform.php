@@ -27,6 +27,7 @@ use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types;
 
 /**
@@ -79,16 +80,16 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
     {
         $trimChar = ($char != false) ? (', ' . $char) : '';
 
         switch ($pos) {
-            case self::TRIM_LEADING:
+            case TrimMode::LEADING:
                 $trimFn = 'LTRIM';
                 break;
 
-            case self::TRIM_TRAILING:
+            case TrimMode::TRAILING:
                 $trimFn = 'RTRIM';
                 break;
 
@@ -131,21 +132,21 @@ class SqlitePlatform extends AbstractPlatform
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
         switch ($unit) {
-            case self::DATE_INTERVAL_UNIT_SECOND:
-            case self::DATE_INTERVAL_UNIT_MINUTE:
-            case self::DATE_INTERVAL_UNIT_HOUR:
+            case DateIntervalUnit::SECOND:
+            case DateIntervalUnit::MINUTE:
+            case DateIntervalUnit::HOUR:
                 return "DATETIME(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
 
             default:
                 switch ($unit) {
-                    case self::DATE_INTERVAL_UNIT_WEEK:
+                    case DateIntervalUnit::WEEK:
                         $interval *= 7;
-                        $unit = self::DATE_INTERVAL_UNIT_DAY;
+                        $unit      = DateIntervalUnit::DAY;
                         break;
 
-                    case self::DATE_INTERVAL_UNIT_QUARTER:
+                    case DateIntervalUnit::QUARTER:
                         $interval *= 3;
-                        $unit = self::DATE_INTERVAL_UNIT_MONTH;
+                        $unit      = DateIntervalUnit::MONTH;
                         break;
                 }
 
@@ -167,11 +168,11 @@ class SqlitePlatform extends AbstractPlatform
     protected function _getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
-            case \Doctrine\DBAL\Connection::TRANSACTION_READ_UNCOMMITTED:
+            case TransactionIsolationLevel::READ_UNCOMMITTED:
                 return 0;
-            case \Doctrine\DBAL\Connection::TRANSACTION_READ_COMMITTED:
-            case \Doctrine\DBAL\Connection::TRANSACTION_REPEATABLE_READ:
-            case \Doctrine\DBAL\Connection::TRANSACTION_SERIALIZABLE:
+            case TransactionIsolationLevel::READ_COMMITTED:
+            case TransactionIsolationLevel::REPEATABLE_READ:
+            case TransactionIsolationLevel::SERIALIZABLE:
                 return 1;
             default:
                 return parent::_getTransactionIsolationLevelSQL($level);
@@ -526,7 +527,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction().
      *
-     * @param integer|float $value
+     * @param int|float $value
      *
      * @return float
      */
@@ -538,10 +539,10 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * User-defined function for Sqlite that implements MOD(a, b).
      *
-     * @param integer $a
-     * @param integer $b
+     * @param int $a
+     * @param int $b
      *
-     * @return integer
+     * @return int
      */
     public static function udfMod($a, $b)
     {
@@ -549,11 +550,11 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * @param string  $str
-     * @param string  $substr
-     * @param integer $offset
+     * @param string $str
+     * @param string $substr
+     * @param int    $offset
      *
-     * @return integer
+     * @return int
      */
     public static function udfLocate($str, $substr, $offset = 0)
     {
@@ -818,9 +819,11 @@ class SqlitePlatform extends AbstractPlatform
 
             $columnName = strtolower($columnName);
             if (isset($columns[$columnName])) {
-                unset($columns[$columnName]);
-                unset($oldColumnNames[$columnName]);
-                unset($newColumnNames[$columnName]);
+                unset(
+                    $columns[$columnName],
+                    $oldColumnNames[$columnName],
+                    $newColumnNames[$columnName]
+                );
             }
         }
 

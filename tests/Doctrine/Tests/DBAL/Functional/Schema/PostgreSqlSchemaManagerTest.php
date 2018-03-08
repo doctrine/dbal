@@ -5,6 +5,9 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
 
 class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
@@ -39,7 +42,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $names = $this->_sm->getSchemaNames();
 
         self::assertInternalType('array', $names);
-        self::assertTrue(count($names) > 0);
+        self::assertNotEmpty($names);
         self::assertContains('public', $names, 'The public schema should be found.');
     }
 
@@ -161,7 +164,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(array('id'), $nestedSchemaTable->getPrimaryKey()->getColumns());
 
         $relatedFks = $nestedSchemaTable->getForeignKeys();
-        self::assertEquals(1, count($relatedFks));
+        self::assertCount(1, $relatedFks);
         $relatedFk = array_pop($relatedFks);
         self::assertEquals("nested.schemarelated", $relatedFk->getForeignTableName());
     }
@@ -203,11 +206,11 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_#');
         $names = $this->_sm->listTableNames();
-        self::assertEquals(2, count($names));
+        self::assertCount(2, $names);
 
         $this->_conn->getConfiguration()->setFilterSchemaAssetsExpression('#^dbal204_test#');
         $names = $this->_sm->listTableNames();
-        self::assertEquals(1, count($names));
+        self::assertCount(1, $names);
     }
 
     public function testListForeignKeys()
@@ -305,7 +308,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
     {
         $offlineTable = new Schema\Table('user');
         $offlineTable->addColumn('id', 'integer');
-        $offlineTable->addColumn('username', 'string', array('unique' => true));
+        $offlineTable->addColumn('username', 'string');
         $offlineTable->addColumn('fk', 'integer');
         $offlineTable->setPrimaryKey(array('id'));
         $offlineTable->addForeignKeyConstraint($offlineTable, array('fk'), array('id'));
@@ -383,7 +386,7 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         /** @var Schema\Column[] $columns */
         $columns = $this->_sm->listTableColumns('test_jsonb');
 
-        self::assertSame(TYPE::JSON, $columns['foo']->getType()->getName());
+        self::assertSame($type, $columns['foo']->getType()->getName());
         self::assertTrue(true, $columns['foo']->getPlatformOption('jsonb'));
     }
 
@@ -418,6 +421,86 @@ class PostgreSqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         self::assertEquals(-1.1, $columns['col_float']->getDefault());
         self::assertEquals(-1.1, $columns['col_decimal']->getDefault());
         self::assertEquals('(-1)', $columns['col_string']->getDefault());
+    }
+
+    public static function serialTypes() : array
+    {
+        return [
+            ['integer'],
+            ['bigint'],
+        ];
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValue(string $type) : void
+    {
+        $tableName = "test_serial_type_$type";
+
+        $table = new Schema\Table($tableName);
+        $table->addColumn('id', $type, ['autoincrement' => true, 'notnull' => false]);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        self::assertNull($columns['id']->getDefault());
+    }
+
+    /**
+     * @dataProvider serialTypes
+     * @group 2906
+     */
+    public function testAutoIncrementCreatesSerialDataTypesWithoutADefaultValueEvenWhenDefaultIsSet(string $type) : void
+    {
+        $tableName = "test_serial_type_with_default_$type";
+
+        $table = new Schema\Table($tableName);
+        $table->addColumn('id', $type, ['autoincrement' => true, 'notnull' => false, 'default' => 1]);
+
+        $this->_sm->dropAndCreateTable($table);
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        self::assertNull($columns['id']->getDefault());
+    }
+
+    /**
+     * @group 2916
+     *
+     * @dataProvider autoIncrementTypeMigrations
+     */
+    public function testAlterTableAutoIncrementIntToBigInt(string $from, string $to, string $expected) : void
+    {
+        $tableFrom = new Table('autoinc_type_modification');
+        $column = $tableFrom->addColumn('id', $from);
+        $column->setAutoincrement(true);
+        $this->_sm->dropAndCreateTable($tableFrom);
+        $tableFrom = $this->_sm->listTableDetails('autoinc_type_modification');
+        self::assertTrue($tableFrom->getColumn('id')->getAutoincrement());
+
+        $tableTo = new Table('autoinc_type_modification');
+        $column = $tableTo->addColumn('id', $to);
+        $column->setAutoincrement(true);
+
+        $c = new Comparator();
+        $diff = $c->diffTable($tableFrom, $tableTo);
+        self::assertInstanceOf(TableDiff::class, $diff, "There should be a difference and not false being returned from the table comparison");
+        self::assertSame(['ALTER TABLE autoinc_type_modification ALTER id TYPE ' . $expected], $this->_conn->getDatabasePlatform()->getAlterTableSQL($diff));
+
+        $this->_sm->alterTable($diff);
+        $tableFinal = $this->_sm->listTableDetails('autoinc_type_modification');
+        self::assertTrue($tableFinal->getColumn('id')->getAutoincrement());
+    }
+
+    public function autoIncrementTypeMigrations() : array
+    {
+        return [
+            'int->bigint' => ['integer', 'bigint', 'BIGINT'],
+            'bigint->int' => ['bigint', 'integer', 'INT'],
+        ];
     }
 }
 

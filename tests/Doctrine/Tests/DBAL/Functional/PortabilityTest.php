@@ -2,16 +2,20 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\ColumnCase;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Portability\Connection as ConnectionPortability;
-use PDO;
 
 /**
  * @group DBAL-56
  */
 class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    /**
+     * @var Connection
+     */
     private $portableConnection;
 
     protected function tearDown()
@@ -24,17 +28,21 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
     }
 
     /**
-     * @param   integer     $portabilityMode
-     * @param   integer     $case
+     * @param int $portabilityMode
+     * @param int $case
      * @return  Connection
      */
-    private function getPortableConnection($portabilityMode = \Doctrine\DBAL\Portability\Connection::PORTABILITY_ALL, $case = \PDO::CASE_LOWER)
-    {
+    private function getPortableConnection(
+        $portabilityMode = ConnectionPortability::PORTABILITY_ALL,
+        $case = ColumnCase::LOWER
+    ) {
         if (!$this->portableConnection) {
             $params = $this->_conn->getParams();
-            $params['wrapperClass'] = 'Doctrine\DBAL\Portability\Connection';
-            $params['portability'] = $portabilityMode;
-            $params['fetch_case'] = $case;
+
+            $params['wrapperClass'] = ConnectionPortability::class;
+            $params['portability']  = $portabilityMode;
+            $params['fetch_case']   = $case;
+
             $this->portableConnection = DriverManager::getConnection($params, $this->_conn->getConfiguration(), $this->_conn->getEventManager());
 
             try {
@@ -64,19 +72,22 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->assertFetchResultRows($rows);
 
         $stmt = $this->getPortableConnection()->query('SELECT * FROM portability_table');
-        $stmt->setFetchMode(\PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(FetchMode::ASSOCIATIVE);
+
         foreach ($stmt as $row) {
             $this->assertFetchResultRow($row);
         }
 
         $stmt = $this->getPortableConnection()->query('SELECT * FROM portability_table');
-        while (($row = $stmt->fetch(\PDO::FETCH_ASSOC))) {
+
+        while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE))) {
             $this->assertFetchResultRow($row);
         }
 
         $stmt = $this->getPortableConnection()->prepare('SELECT * FROM portability_table');
         $stmt->execute();
-        while (($row = $stmt->fetch(\PDO::FETCH_ASSOC))) {
+
+        while (($row = $stmt->fetch(FetchMode::ASSOCIATIVE))) {
             $this->assertFetchResultRow($row);
         }
     }
@@ -84,7 +95,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testConnFetchMode()
     {
         $conn = $this->getPortableConnection();
-        $conn->setFetchMode(\PDO::FETCH_ASSOC);
+        $conn->setFetchMode(FetchMode::ASSOCIATIVE);
 
         $rows = $conn->fetchAll('SELECT * FROM portability_table');
         $this->assertFetchResultRows($rows);
@@ -108,7 +119,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertFetchResultRows($rows)
     {
-        self::assertEquals(2, count($rows));
+        self::assertCount(2, $rows);
         foreach ($rows as $row) {
             $this->assertFetchResultRow($row);
         }
@@ -116,14 +127,17 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function assertFetchResultRow($row)
     {
-        self::assertTrue(in_array($row['test_int'], array(1, 2)), "Primary key test_int should either be 1 or 2.");
+        self::assertContains($row['test_int'], array(1, 2), "Primary key test_int should either be 1 or 2.");
         self::assertArrayHasKey('test_string', $row, "Case should be lowered.");
         self::assertEquals(3, strlen($row['test_string']), "test_string should be rtrimed to length of three for CHAR(32) column.");
         self::assertNull($row['test_null']);
-        self::assertArrayNotHasKey(0, $row, "PDO::FETCH_ASSOC should not return numerical keys.");
+        self::assertArrayNotHasKey(0, $row, 'The row should not contain numerical keys.');
     }
 
-    public function testPortabilitySqlServer()
+    /**
+     * @requires extension pdo
+     */
+    public function testPortabilityPdoSqlServer()
     {
         $portability = ConnectionPortability::PORTABILITY_SQLSRV;
         $params = array(
@@ -153,7 +167,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $conn = $this->getPortableConnection();
         $stmt = $conn->query('SELECT ' . $field . ' FROM portability_table');
 
-        $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $column = $stmt->fetchAll(FetchMode::COLUMN);
         self::assertEquals($expected, $column);
     }
 
@@ -176,7 +190,7 @@ class PortabilityTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $conn = $this->getPortableConnection();
         $stmt = $conn->query('SELECT Test_Null FROM portability_table');
 
-        $column = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $column = $stmt->fetchAll(FetchMode::COLUMN);
         self::assertSame(array(null, null), $column);
     }
 }

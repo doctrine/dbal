@@ -40,9 +40,9 @@ class Driver extends AbstractOracleDriver
                 $username,
                 $password,
                 $this->_constructDsn($params),
-                isset($params['charset']) ? $params['charset'] : null,
-                isset($params['sessionMode']) ? $params['sessionMode'] : OCI_DEFAULT,
-                isset($params['persistent']) ? $params['persistent'] : false
+                $params['charset'] ?? null,
+                $params['sessionMode'] ?? OCI_DEFAULT,
+                $params['persistent'] ?? false
             );
         } catch (OCI8Exception $e) {
             throw DBALException::driverException($this, $e);

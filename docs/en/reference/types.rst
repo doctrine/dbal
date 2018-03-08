@@ -481,6 +481,14 @@ using deserialization or ``null`` if no data is present.
 
 .. warning::
 
+    While the built-in ``text`` type of MySQL and MariaDB can store binary data,
+    ``mysqldump`` cannot properly export ``text`` fields containing binary data.
+    This will cause creating and restoring of backups fail silently. A workaround is
+    to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()``
+    PHP objects and store them into a ``text`` field manually.
+
+.. warning::
+
     Because the built-in ``text`` type of PostgreSQL does not support NULL bytes,
     the object type will cause deserialization errors on PostgreSQL. A workaround is
     to ``serialize()``/``unserialize()`` and ``base64_encode()``/``base64_decode()`` PHP objects and store
@@ -872,7 +880,6 @@ method to add new database types or overwrite existing ones.
     Database vendors that allow to define custom types like PostgreSql
     can help to overcome this issue.
 
-
 Custom Mapping Types
 --------------------
 
@@ -927,7 +934,10 @@ Now we implement our ``Doctrine\DBAL\Types\Type`` instance:
         }
     }
 
-The job of Doctrine-DBAL is to transform your type into an SQL declaration. You can modify the SQL declaration Doctrine will produce. At first, to enable this feature, you must override the canRequireSQLConversion method:
+The job of Doctrine-DBAL is to transform your type into an SQL
+declaration. You can modify the SQL declaration Doctrine will produce.
+At first, to enable this feature, you must override the
+``canRequireSQLConversion`` method:
 
 ::
 
@@ -937,7 +947,8 @@ The job of Doctrine-DBAL is to transform your type into an SQL declaration. You 
         return true;
     }
 
-Then you override the methods convertToPhpValueSQL and convertToDatabaseValueSQL :
+Then you override the ``convertToPhpValueSQL`` and
+``convertToDatabaseValueSQL`` methods :
 
 ::
 
@@ -952,7 +963,6 @@ Then you override the methods convertToPhpValueSQL and convertToDatabaseValueSQL
         return 'MyFunction('.$sqlExpr.')';
     }
 
-
 Now we have to register this type with the Doctrine Type system and
 hook it into the database platform:
 
@@ -965,5 +975,3 @@ hook it into the database platform:
 This would allow using a money type in the ORM for example and
 have Doctrine automatically convert it back and forth to the
 database.
-
-

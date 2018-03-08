@@ -44,9 +44,8 @@ input to any of the methods of the QueryBuilder and use the placeholder
 
 .. note::
 
-    Due to an API design error the numerical parameters in the QueryBuilder API
-    start with the needle ``0``, not with ``1`` as in the PDO API. This is very
-    unfortunate, but we have found no BC way to fix this.
+    The numerical parameters in the QueryBuilder API start with the needle
+    ``0``, not with ``1`` as in the PDO API.
 
 Building a Query
 ----------------

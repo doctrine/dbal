@@ -37,6 +37,9 @@ class TaskMock extends \Doctrine\Common\Cli\Tasks\AbstractTask
      */
     static public $instances = array();
 
+    /**
+     * @var int
+     */
     private $runCounter = 0;
 
     /**

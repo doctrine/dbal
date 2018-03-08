@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Driver\DrizzlePDOMySql;
 
+use Doctrine\DBAL\ParameterType;
+
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
  */
@@ -27,14 +29,10 @@ class Connection extends \Doctrine\DBAL\Driver\PDOConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($value, $type = \PDO::PARAM_STR)
+    public function quote($value, $type = ParameterType::STRING)
     {
-        if (\PDO::PARAM_BOOL === $type) {
-            if ($value) {
-                return 'true';
-            } else {
-                return 'false';
-            }
+        if ($type === ParameterType::BOOLEAN) {
+            return $value ? 'true' : 'false';
         }
 
         return parent::quote($value, $type);

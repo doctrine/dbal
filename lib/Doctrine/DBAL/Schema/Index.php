@@ -32,12 +32,12 @@ class Index extends AbstractAsset implements Constraint
     protected $_columns = [];
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $_isUnique = false;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $_isPrimary = false;
 
@@ -61,8 +61,8 @@ class Index extends AbstractAsset implements Constraint
     /**
      * @param string   $indexName
      * @param string[] $columns
-     * @param boolean  $isUnique
-     * @param boolean  $isPrimary
+     * @param bool     $isUnique
+     * @param bool     $isPrimary
      * @param string[] $flags
      * @param array    $options
      */
@@ -132,7 +132,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * Is the index neither unique nor primary key?
      *
-     * @return boolean
+     * @return bool
      */
     public function isSimpleIndex()
     {
@@ -140,7 +140,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isUnique()
     {
@@ -148,7 +148,7 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isPrimary()
     {
@@ -156,10 +156,10 @@ class Index extends AbstractAsset implements Constraint
     }
 
     /**
-     * @param string  $columnName
-     * @param integer $pos
+     * @param string $columnName
+     * @param int    $pos
      *
-     * @return boolean
+     * @return bool
      */
     public function hasColumnAtPosition($columnName, $pos = 0)
     {
@@ -174,7 +174,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @param array $columnNames
      *
-     * @return boolean
+     * @return bool
      */
     public function spansColumns(array $columnNames)
     {
@@ -196,7 +196,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @param Index $other
      *
-     * @return boolean
+     * @return bool
      */
     public function isFullfilledBy(Index $other)
     {
@@ -226,11 +226,7 @@ class Index extends AbstractAsset implements Constraint
                 return false;
             }
 
-            if ($other->isUnique() != $this->isUnique()) {
-                return false;
-            }
-
-            return true;
+            return $other->isUnique() === $this->isUnique();
         }
 
         return false;
@@ -241,7 +237,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @param Index $other
      *
-     * @return boolean
+     * @return bool
      */
     public function overrules(Index $other)
     {
@@ -251,11 +247,7 @@ class Index extends AbstractAsset implements Constraint
             return false;
         }
 
-        if ($this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique()) && $this->samePartialIndex($other)) {
-            return true;
-        }
-
-        return false;
+        return $this->spansColumns($other->getColumns()) && ($this->isPrimary() || $this->isUnique()) && $this->samePartialIndex($other);
     }
 
     /**
@@ -289,7 +281,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @param string $flag
      *
-     * @return boolean
+     * @return bool
      */
     public function hasFlag($flag)
     {
@@ -311,7 +303,7 @@ class Index extends AbstractAsset implements Constraint
     /**
      * @param string $name
      *
-     * @return boolean
+     * @return bool
      */
     public function hasOption($name)
     {
@@ -340,7 +332,7 @@ class Index extends AbstractAsset implements Constraint
      * Return whether the two indexes have the same partial index
      * @param \Doctrine\DBAL\Schema\Index $other
      *
-     * @return boolean
+     * @return bool
      */
     private function samePartialIndex(Index $other)
     {
@@ -348,11 +340,7 @@ class Index extends AbstractAsset implements Constraint
             return true;
         }
 
-        if ( ! $this->hasOption('where') && ! $other->hasOption('where')) {
-            return true;
-        }
-
-        return false;
+        return ! $this->hasOption('where') && ! $other->hasOption('where');
     }
 
 }

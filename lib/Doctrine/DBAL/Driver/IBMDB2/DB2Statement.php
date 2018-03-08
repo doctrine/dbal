@@ -21,6 +21,8 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\StatementIterator;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
 
 class DB2Statement implements \IteratorAggregate, Statement
 {
@@ -35,19 +37,19 @@ class DB2Statement implements \IteratorAggregate, Statement
     private $_bindParam = [];
 
     /**
-     * @var string Name of the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
+     * @var string Name of the default class to instantiate when fetching class instances.
      */
     private $defaultFetchClass = '\stdClass';
 
     /**
-     * @var string Constructor arguments for the default class to instantiate when fetch mode is \PDO::FETCH_CLASS.
+     * @var string Constructor arguments for the default class to instantiate when fetching class instances.
      */
     private $defaultFetchClassCtorArgs = [];
 
     /**
-     * @var integer
+     * @var int
      */
-    private $_defaultFetchMode = \PDO::FETCH_BOTH;
+    private $_defaultFetchMode = FetchMode::MIXED;
 
     /**
      * Indicates whether the statement is in the state when fetching results is possible
@@ -62,8 +64,8 @@ class DB2Statement implements \IteratorAggregate, Statement
      * @var array
      */
     static private $_typeMap = [
-        \PDO::PARAM_INT => DB2_LONG,
-        \PDO::PARAM_STR => DB2_CHAR,
+        ParameterType::INTEGER => DB2_LONG,
+        ParameterType::STRING  => DB2_CHAR,
     ];
 
     /**
@@ -77,7 +79,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindValue($param, $value, $type = null)
+    public function bindValue($param, $value, $type = ParameterType::STRING)
     {
         return $this->bindParam($param, $value, $type);
     }
@@ -85,7 +87,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null, $length = null)
+    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null)
     {
         $this->_bindParam[$column] =& $variable;
 
@@ -172,7 +174,7 @@ class DB2Statement implements \IteratorAggregate, Statement
             }
         }
 
-        $retval = @db2_execute($this->_stmt, $params);
+        $retval = db2_execute($this->_stmt, $params);
 
         if ($retval === false) {
             throw new DB2Exception(db2_stmt_errormsg());
@@ -216,18 +218,23 @@ class DB2Statement implements \IteratorAggregate, Statement
 
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
         switch ($fetchMode) {
-            case \PDO::FETCH_BOTH:
+            case FetchMode::COLUMN:
+                return $this->fetchColumn();
+
+            case FetchMode::MIXED:
                 return db2_fetch_both($this->_stmt);
-            case \PDO::FETCH_ASSOC:
+
+            case FetchMode::ASSOCIATIVE:
                 return db2_fetch_assoc($this->_stmt);
-            case \PDO::FETCH_CLASS:
+
+            case FetchMode::CUSTOM_OBJECT:
                 $className = $this->defaultFetchClass;
                 $ctorArgs  = $this->defaultFetchClassCtorArgs;
 
                 if (func_num_args() >= 2) {
                     $args      = func_get_args();
                     $className = $args[1];
-                    $ctorArgs  = isset($args[2]) ? $args[2] : [];
+                    $ctorArgs  = $args[2] ?? [];
                 }
 
                 $result = db2_fetch_object($this->_stmt);
@@ -237,10 +244,13 @@ class DB2Statement implements \IteratorAggregate, Statement
                 }
 
                 return $result;
-            case \PDO::FETCH_NUM:
+
+            case FetchMode::NUMERIC:
                 return db2_fetch_array($this->_stmt);
-            case \PDO::FETCH_OBJ:
+
+            case FetchMode::STANDARD_OBJECT:
                 return db2_fetch_object($this->_stmt);
+
             default:
                 throw new DB2Exception('Given Fetch-Style ' . $fetchMode . ' is not supported.');
         }
@@ -254,12 +264,12 @@ class DB2Statement implements \IteratorAggregate, Statement
         $rows = [];
 
         switch ($fetchMode) {
-            case \PDO::FETCH_CLASS:
+            case FetchMode::CUSTOM_OBJECT:
                 while ($row = call_user_func_array([$this, 'fetch'], func_get_args())) {
                     $rows[] = $row;
                 }
                 break;
-            case \PDO::FETCH_COLUMN:
+            case FetchMode::COLUMN:
                 while ($row = $this->fetchColumn()) {
                     $rows[] = $row;
                 }
@@ -278,13 +288,13 @@ class DB2Statement implements \IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        $row = $this->fetch(\PDO::FETCH_NUM);
+        $row = $this->fetch(FetchMode::NUMERIC);
 
         if (false === $row) {
             return false;
         }
 
-        return isset($row[$columnIndex]) ? $row[$columnIndex] : null;
+        return $row[$columnIndex] ?? null;
     }
 
     /**

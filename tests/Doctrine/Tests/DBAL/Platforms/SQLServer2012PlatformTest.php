@@ -4,7 +4,6 @@ namespace Doctrine\Tests\DBAL\Platforms;
 
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\DBAL\Types\Type;
 
 class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
 {
@@ -371,19 +370,5 @@ class SQLServer2012PlatformTest extends AbstractSQLServerPlatformTestCase
         $expectedSql = "SELECT * FROM test\nORDER BY col DESC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY";
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
         self::assertEquals($expectedSql, $sql);
-    }
-
-    public function testGetDefaultValueDeclarationSQLForDateType() : void
-    {
-        $currentDateSql = $this->_platform->getCurrentDateSQL();
-        $field = [
-            'type'    => Type::getType('date'),
-            'default' => $currentDateSql,
-        ];
-
-        self::assertSame(
-            " DEFAULT '" . $currentDateSql . "'",
-            $this->_platform->getDefaultValueDeclarationSQL($field)
-        );
     }
 }

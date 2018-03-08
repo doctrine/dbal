@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
@@ -738,7 +739,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $tableDiff->fromTable = $table;
         $tableDiff->changedColumns['id'] = new \Doctrine\DBAL\Schema\ColumnDiff(
             'id', new \Doctrine\DBAL\Schema\Column(
-                'id', \Doctrine\DBAL\Types\Type::getType('integer'), array('primary' => true)
+                'id', \Doctrine\DBAL\Types\Type::getType('integer')
             ),
             array('comment'),
             new \Doctrine\DBAL\Schema\Column(
@@ -867,15 +868,12 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
     /**
      * @param string $name
-     * @param array $data
+     * @param array  $data
      * @return Table
      */
     protected function createTestTable($name = 'test_table', $data = array())
     {
-        $options = array();
-        if (isset($data['options'])) {
-            $options = $data['options'];
-        }
+        $options = $data['options'] ?? [];
 
         $table = $this->getTestTable($name, $options);
 
@@ -948,7 +946,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
     public function testColumnDefaultLifecycle()
     {
         $table = new Table("col_def_lifecycle");
-        $table->addColumn('id', 'integer', array('primary' => true, 'autoincrement' => true));
+        $table->addColumn('id', 'integer', array('autoincrement' => true));
         $table->addColumn('column1', 'string', array('default' => null));
         $table->addColumn('column2', 'string', array('default' => false));
         $table->addColumn('column3', 'string', array('default' => true));
@@ -1191,5 +1189,209 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         self::assertCount(2, $indexes);
         self::assertArrayHasKey('explicit_fk1_idx', $indexes);
         self::assertArrayHasKey('idx_3d6c147fdc58d6c', $indexes);
+    }
+
+    /**
+     * @after
+     */
+    public function removeJsonArrayTable() : void
+    {
+        if ($this->_sm->tablesExist(['json_array_test'])) {
+            $this->_sm->dropTable('json_array_test');
+        }
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldReturnFalseWhenLegacyJsonArrayColumnHasComment() : void
+    {
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $this->_sm->createTable($table);
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertFalse($tableDiff);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldModifyOnlyTheCommentWhenUpdatingFromJsonArrayTypeOnLegacyPlatforms() : void
+    {
+        if ($this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that do not have native JSON type.');
+        }
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $this->_sm->createTable($table);
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
+
+        $changedColumn = $tableDiff->changedColumns['parameters'] ?? $tableDiff->changedColumns['PARAMETERS'];
+
+        self::assertSame(['comment'], $changedColumn->changedProperties);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldAddCommentToLegacyJsonArrayTypeThatDoesNotHaveIt() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
+        }
+
+        $this->_conn->executeQuery('CREATE TABLE json_array_test (parameters JSON NOT NULL)');
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
+        self::assertSame(['comment'], $tableDiff->changedColumns['parameters']->changedProperties);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldReturnAllChangesWhenUsingLegacyJsonArrayType() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
+        }
+
+        $this->_conn->executeQuery('CREATE TABLE json_array_test (parameters JSON DEFAULT NULL)');
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
+        self::assertSame(['notnull', 'comment'], $tableDiff->changedColumns['parameters']->changedProperties);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldReturnAllChangesWhenUsingLegacyJsonArrayTypeEvenWhenPlatformHasJsonSupport() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
+        }
+
+        $this->_conn->executeQuery('CREATE TABLE json_array_test (parameters JSON DEFAULT NULL)');
+
+        $table = new Table('json_array_test');
+        $table->addColumn('parameters', 'json_array');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_array_test'), $table);
+
+        self::assertInstanceOf(TableDiff::class, $tableDiff);
+        self::assertSame(['notnull', 'comment'], $tableDiff->changedColumns['parameters']->changedProperties);
+    }
+
+    /**
+     * @group 2782
+     * @group 6654
+     */
+    public function testComparatorShouldNotAddCommentToJsonTypeSinceItIsTheDefaultNow() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->hasNativeJsonType()) {
+            $this->markTestSkipped('This test is only supported on platforms that have native JSON type.');
+        }
+
+        $this->_conn->executeQuery('CREATE TABLE json_test (parameters JSON NOT NULL)');
+
+        $table = new Table('json_test');
+        $table->addColumn('parameters', 'json');
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffTable($this->_sm->listTableDetails('json_test'), $table);
+
+        self::assertFalse($tableDiff);
+    }
+
+    /**
+     * @dataProvider commentsProvider
+     *
+     * @group 2596
+     */
+    public function testExtractDoctrineTypeFromComment(string $comment, string $expected, string $currentType) : void
+    {
+        $result = $this->_sm->extractDoctrineTypeFromComment($comment, $currentType);
+
+        self::assertSame($expected, $result);
+    }
+
+    public function commentsProvider() : array
+    {
+        $currentType = 'current type';
+
+        return [
+            'invalid custom type comments'      => ['should.return.current.type', $currentType, $currentType],
+            'valid doctrine type'               => ['(DC2Type:guid)', 'guid', $currentType],
+            'valid with dots'                   => ['(DC2Type:type.should.return)', 'type.should.return', $currentType],
+            'valid with namespace'              => ['(DC2Type:Namespace\Class)', 'Namespace\Class', $currentType],
+            'valid with extra closing bracket'  => ['(DC2Type:should.stop)).before)', 'should.stop', $currentType],
+            'valid with extra opening brackets' => ['(DC2Type:should((.stop)).before)', 'should((.stop', $currentType],
+        ];
+    }
+
+    public function testCreateAndListSequences() : void
+    {
+        if ( ! $this->_sm->getDatabasePlatform()->supportsSequences()) {
+            self::markTestSkipped('This test is only supported on platforms that support sequences.');
+        }
+
+        $sequence1Name           = 'sequence_1';
+        $sequence1AllocationSize = 1;
+        $sequence1InitialValue   = 2;
+        $sequence2Name           = 'sequence_2';
+        $sequence2AllocationSize = 3;
+        $sequence2InitialValue   = 4;
+        $sequence1               = new Sequence($sequence1Name, $sequence1AllocationSize, $sequence1InitialValue);
+        $sequence2               = new Sequence($sequence2Name, $sequence2AllocationSize, $sequence2InitialValue);
+
+        $this->_sm->createSequence($sequence1);
+        $this->_sm->createSequence($sequence2);
+
+        /** @var Sequence[] $actualSequences */
+        $actualSequences = [];
+        foreach ($this->_sm->listSequences() as $sequence) {
+            $actualSequences[$sequence->getName()] = $sequence;
+        }
+
+        $actualSequence1 = $actualSequences[$sequence1Name];
+        $actualSequence2 = $actualSequences[$sequence2Name];
+
+        self::assertSame($sequence1Name, $actualSequence1->getName());
+        self::assertEquals($sequence1AllocationSize, $actualSequence1->getAllocationSize());
+        self::assertEquals($sequence1InitialValue, $actualSequence1->getInitialValue());
+
+        self::assertSame($sequence2Name, $actualSequence2->getName());
+        self::assertEquals($sequence2AllocationSize, $actualSequence2->getAllocationSize());
+        self::assertEquals($sequence2InitialValue, $actualSequence2->getInitialValue());
     }
 }

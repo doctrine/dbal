@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\ParameterType;
 
 /**
  * SAP Sybase SQL Anywhere implementation of the Connection interface.
@@ -41,8 +42,8 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      *
      * Connects to database with given connection string.
      *
-     * @param string  $dsn        The connection string.
-     * @param boolean $persistent Whether or not to establish a persistent connection.
+     * @param string $dsn        The connection string.
+     * @param bool   $persistent Whether or not to establish a persistent connection.
      *
      * @throws SQLAnywhereException
      */
@@ -172,7 +173,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type = \PDO::PARAM_STR)
+    public function quote($input, $type = ParameterType::STRING)
     {
         if (is_int($input) || is_float($input)) {
             return $input;
@@ -210,7 +211,7 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
      *
      * @throws SQLAnywhereException
      *
-     * @return boolean Whether or not ending transactional mode succeeded.
+     * @return bool Whether or not ending transactional mode succeeded.
      */
     private function endTransaction()
     {

@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\DBALException;
 
@@ -139,7 +140,7 @@ abstract class Type
      *
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
-     * @return integer|null
+     * @return int|null
      *
      * @todo Needed?
      */
@@ -213,7 +214,7 @@ abstract class Type
      *
      * @param string $name The name of the type.
      *
-     * @return boolean TRUE if type is supported; FALSE otherwise.
+     * @return bool TRUE if type is supported; FALSE otherwise.
      */
     public static function hasType($name)
     {
@@ -247,19 +248,13 @@ abstract class Type
      * Gets the (preferred) binding type for values of this type that
      * can be used when binding parameters to prepared statements.
      *
-     * This method should return one of the PDO::PARAM_* constants, that is, one of:
+     * This method should return one of the {@link \Doctrine\DBAL\ParameterType} constants.
      *
-     * PDO::PARAM_BOOL
-     * PDO::PARAM_NULL
-     * PDO::PARAM_INT
-     * PDO::PARAM_STR
-     * PDO::PARAM_LOB
-     *
-     * @return integer
+     * @return int
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_STR;
+        return ParameterType::STRING;
     }
 
     /**
@@ -291,7 +286,7 @@ abstract class Type
      * {@link convertToPHPValueSQL} works for any type and mostly
      * does nothing. This method can additionally be used for optimization purposes.
      *
-     * @return boolean
+     * @return bool
      */
     public function canRequireSQLConversion()
     {
@@ -344,7 +339,7 @@ abstract class Type
      *
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
-     * @return boolean
+     * @return bool
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {

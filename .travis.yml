@@ -21,7 +21,7 @@ before_install:
   - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
 
 before_script:
-  - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == "mariadb" ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
+  - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
 
 install:
   - travis_retry composer -n install
@@ -31,6 +31,7 @@ script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 jobs:
   allow_failures:
     - php: nightly
+    - stage: Coding standard
 
   include:
     - stage: Test
@@ -105,6 +106,38 @@ jobs:
 
     - stage: Test
       php: 7.1
+      env: DB=mariadb MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: nightly
+      env: DB=mariadb MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+
+    - stage: Test
+      php: 7.1
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: 7.2
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+    - stage: Test
+      php: nightly
+      env: DB=mariadb.mysqli MARIADB_VERSION=10.2
+      addons:
+        mariadb: 10.2
+
+    - stage: Test
+      php: 7.1
       env: DB=pgsql POSTGRESQL_VERSION=9.2
       services:
         - postgresql
@@ -212,6 +245,51 @@ jobs:
         - postgresql
       addons:
         postgresql: "9.6"
+
+    - stage: Test
+      php: 7.1
+      env: DB=pgsql POSTGRESQL_VERSION=10.0
+      sudo: required
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+      before_script:
+        - bash ./tests/travis/install-postgres-10.sh
+    - stage: Test
+      php: 7.2
+      env: DB=pgsql POSTGRESQL_VERSION=10.0
+      sudo: required
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+      before_script:
+        - bash ./tests/travis/install-postgres-10.sh
+    - stage: Test
+      php: nightly
+      env: DB=pgsql POSTGRESQL_VERSION=10.0
+      sudo: required
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
+      before_script:
+        - bash ./tests/travis/install-postgres-10.sh
+
+    - stage: Test
+      php: 7.1
+      env: DB=sqlite DEPENDENCIES=low
+      install:
+        - travis_retry composer update --prefer-dist --prefer-lowest
+
+    - stage: Test
+      if: type = cron
+      php: 7.2
+      env: DB=sqlite DEPENDENCIES=dev
+      install:
+        - composer config minimum-stability dev
+        - travis_retry composer update --prefer-dist
 
     - stage: Coverage
       php: 7.1
@@ -225,7 +303,21 @@ jobs:
         - wget https://scrutinizer-ci.com/ocular.phar
         - php ocular.phar code-coverage:upload --format=php-clover clover.xml
 
+    - stage: Pull request coding standard
+      if: type = pull_request
+      php: 7.1
+      script:
+        - |
+          if [ $TRAVIS_BRANCH != "master" ]; then
+            git remote set-branches --add origin $TRAVIS_BRANCH;
+            git fetch origin $TRAVIS_BRANCH;
+          fi
+        - git merge-base origin/$TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_SHA || git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge --unshallow
+        - wget https://github.com/diff-sniffer/git/releases/download/0.1.0/git-phpcs.phar
+        - php git-phpcs.phar origin/$TRAVIS_BRANCH...$TRAVIS_PULL_REQUEST_SHA
+
     - stage: Coding standard
-      php: nightly
+      if: NOT type = pull_request
+      php: 7.1
       script:
         - ./vendor/bin/phpcs

@@ -108,4 +108,3 @@ Oracle NUMBER should be handled as integer. Doctrine 2 offers a
 powerful way to abstract the database to php and back conversion,
 which is described in the next section.
 
-

@@ -50,7 +50,7 @@ several drawbacks:
 
 -   There is no way to add dynamic parameters to the SQL query without modifying
     ``$sql`` itself. This can easily lead to a category of security
-    holes called **SQL injection**, where a third party can modify the SQL executed 
+    holes called **SQL injection**, where a third party can modify the SQL executed
     and even execute their own queries through clever exploiting of the security hole.
 -   **Quoting** dynamic parameters for an SQL query is tedious work and requires lots
     of use of the ``Doctrine\DBAL\Connection#quote()`` method, which makes the
@@ -60,7 +60,7 @@ several drawbacks:
     it could re-use this information easily using a technique called **prepared statements**.
 
 These three arguments and some more technical details hopefully convinced you to investigate
-prepared statements for accessing your database. 
+prepared statements for accessing your database.
 
 Dynamic Parameters and Prepared Statements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -180,17 +180,17 @@ Binding Types
 -------------
 
 Doctrine DBAL extends PDOs handling of binding types in prepared statements
-considerably. Besides the well known ``\PDO::PARAM_*`` constants you
+considerably. Besides ``Doctrine\DBAL\ParameterType`` constants, you
 can make use of two very powerful additional features.
 
 Doctrine\DBAL\Types Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you don't specify an integer (through a ``PDO::PARAM*`` constant) to
+If you don't specify an integer (through one of ``Doctrine\DBAL\ParameterType`` constants) to
 any of the parameter binding methods but a string, Doctrine DBAL will
 ask the type abstraction layer to convert the passed value from
 its PHP to a database representation. This way you can pass ``\DateTime``
-instances to a prepared statement and have Doctrine convert them 
+instances to a prepared statement and have Doctrine convert them
 to the appropriate vendors database format:
 
 .. code-block:: php
@@ -271,7 +271,14 @@ be specified as well:
     // Same SQL WITHOUT usage of Doctrine\DBAL\Connection::PARAM_INT_ARRAY
     $stmt = $conn->executeQuery('SELECT * FROM articles WHERE id IN (?, ?, ?, ?, ?, ?)',
         array(1, 2, 3, 4, 5, 6),
-        array(\PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT, \PDO::PARAM_INT)
+        array(
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+            ParameterType::INTEGER,
+        )
     );
 
 This is much more complicated and is ugly to write generically.
@@ -302,7 +309,7 @@ Prepare a given SQL statement and return the
     $statement = $conn->prepare('SELECT * FROM user');
     $statement->execute();
     $users = $statement->fetchAll();
-    
+
     /*
     array(
       0 => array(
@@ -340,7 +347,7 @@ parameters to the execute method, then returning the statement:
     <?php
     $statement = $conn->executeQuery('SELECT * FROM user WHERE username = ?', array('jwage'));
     $user = $statement->fetch();
-    
+
     /*
     array(
       0 => 'jwage',
@@ -362,7 +369,7 @@ Execute the query and fetch all results into an array:
 
     <?php
     $users = $conn->fetchAll('SELECT * FROM user');
-    
+
     /*
     array(
       0 => array(
@@ -381,7 +388,7 @@ Numeric index retrieval of first result row of the given query:
 
     <?php
     $user = $conn->fetchArray('SELECT * FROM user WHERE username = ?', array('jwage'));
-    
+
     /*
     array(
       0 => 'jwage',
@@ -469,8 +476,11 @@ Quote a value:
 .. code-block:: php
 
     <?php
+
+    use Doctrine\DBAL\ParameterType;
+
     $quoted = $conn->quote('value');
-    $quoted = $conn->quote('1234', \PDO::PARAM_INT);
+    $quoted = $conn->quote('1234', ParameterType::INTEGER);
 
 quoteIdentifier()
 ~~~~~~~~~~~~~~~~~

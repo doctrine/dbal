@@ -194,9 +194,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         if ($table['schema_name'] == $firstSchema) {
             return $table['table_name'];
-        } else {
-            return $table['schema_name'] . "." . $table['table_name'];
         }
+
+        return $table['schema_name'] . "." . $table['table_name'];
     }
 
     /**
@@ -283,15 +283,18 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        if ($sequence['schemaname'] != 'public') {
+        if ($sequence['schemaname'] !== 'public') {
             $sequenceName = $sequence['schemaname'] . "." . $sequence['relname'];
         } else {
             $sequenceName = $sequence['relname'];
         }
 
-        $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+        if ( ! isset($sequence['increment_by'], $sequence['min_value'])) {
+            $data      = $this->_conn->fetchAssoc('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+            $sequence += $data;
+        }
 
-        return new Sequence($sequenceName, $data[0]['increment_by'], $data[0]['min_value']);
+        return new Sequence($sequenceName, $sequence['increment_by'], $sequence['min_value']);
     }
 
     /**
@@ -324,7 +327,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $tableColumn['default'] = null;
         }
 
-        $length = (isset($tableColumn['length'])) ? $tableColumn['length'] : null;
+        $length = $tableColumn['length'] ?? null;
         if ($length == '-1' && isset($tableColumn['atttypmod'])) {
             $length = $tableColumn['atttypmod'] - 4;
         }
@@ -427,7 +430,6 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             'length'        => $length,
             'notnull'       => (bool) $tableColumn['isnotnull'],
             'default'       => $tableColumn['default'],
-            'primary'       => (bool) ($tableColumn['pri'] == 't'),
             'precision'     => $precision,
             'scale'         => $scale,
             'fixed'         => $fixed,

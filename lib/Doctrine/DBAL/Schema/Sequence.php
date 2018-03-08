@@ -31,25 +31,25 @@ use Doctrine\DBAL\Schema\Visitor\Visitor;
 class Sequence extends AbstractAsset
 {
     /**
-     * @var integer
+     * @var int
      */
     protected $allocationSize = 1;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $initialValue = 1;
 
     /**
-     * @var integer|null
+     * @var int|null
      */
     protected $cache = null;
 
     /**
-     * @param string       $name
-     * @param integer      $allocationSize
-     * @param integer      $initialValue
-     * @param integer|null $cache
+     * @param string   $name
+     * @param int      $allocationSize
+     * @param int      $initialValue
+     * @param int|null $cache
      */
     public function __construct($name, $allocationSize = 1, $initialValue = 1, $cache = null)
     {
@@ -60,7 +60,7 @@ class Sequence extends AbstractAsset
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getAllocationSize()
     {
@@ -68,7 +68,7 @@ class Sequence extends AbstractAsset
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getInitialValue()
     {
@@ -76,7 +76,7 @@ class Sequence extends AbstractAsset
     }
 
     /**
-     * @return integer|null
+     * @return int|null
      */
     public function getCache()
     {
@@ -84,7 +84,7 @@ class Sequence extends AbstractAsset
     }
 
     /**
-     * @param integer $allocationSize
+     * @param int $allocationSize
      *
      * @return \Doctrine\DBAL\Schema\Sequence
      */
@@ -96,7 +96,7 @@ class Sequence extends AbstractAsset
     }
 
     /**
-     * @param integer $initialValue
+     * @param int $initialValue
      *
      * @return \Doctrine\DBAL\Schema\Sequence
      */
@@ -108,7 +108,7 @@ class Sequence extends AbstractAsset
     }
 
     /**
-     * @param integer $cache
+     * @param int $cache
      *
      * @return \Doctrine\DBAL\Schema\Sequence
      */
@@ -127,7 +127,7 @@ class Sequence extends AbstractAsset
      *
      * @param \Doctrine\DBAL\Schema\Table $table
      *
-     * @return boolean
+     * @return bool
      */
     public function isAutoIncrementsFor(Table $table)
     {

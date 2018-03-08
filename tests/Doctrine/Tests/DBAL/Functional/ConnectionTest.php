@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 
@@ -206,10 +207,6 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testTransactionalWithThrowable()
     {
-        if (version_compare(PHP_VERSION, '7.0', '<')) {
-            $this->markTestSkipped('Only for PHP 7.0 and above.');
-        }
-
         try {
             $this->_conn->transactional(function($conn) {
                 /* @var $conn \Doctrine\DBAL\Connection */
@@ -246,7 +243,10 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testQuote()
     {
-        self::assertEquals($this->_conn->quote("foo", Type::STRING), $this->_conn->quote("foo", \PDO::PARAM_STR));
+        self::assertEquals(
+            $this->_conn->quote('foo', Type::STRING),
+            $this->_conn->quote('foo', ParameterType::STRING)
+        );
     }
 
     public function testPingDoesTriggersConnect()

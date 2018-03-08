@@ -14,6 +14,9 @@ class RunSqlCommandTest extends \PHPUnit\Framework\TestCase
     /** @var RunSqlCommand */
     private $command;
 
+    /**
+     * @var \Doctrine\DBAL\Connection
+     */
     private $connectionMock;
 
     protected function setUp()

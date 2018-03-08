@@ -70,7 +70,7 @@ class PoolingShardConnection extends Connection
     private $activeConnections;
 
     /**
-     * @var integer
+     * @var int
      */
     private $activeShardId;
 
@@ -128,8 +128,8 @@ class PoolingShardConnection extends Connection
 
     /**
      * Get active shard id.
-     * 
-     * @return integer
+     *
+     * @return int
      */
     public function getActiveShardId()
     {
@@ -189,7 +189,7 @@ class PoolingShardConnection extends Connection
      *
      * @param mixed $shardId
      *
-     * @return boolean
+     * @return bool
      *
      * @throws \Doctrine\DBAL\Sharding\ShardingException
      */
@@ -207,7 +207,7 @@ class PoolingShardConnection extends Connection
             throw new ShardingException("Cannot switch shard when transaction is active.");
         }
 
-        $this->activeShardId = (int)$shardId;
+        $this->activeShardId = (int) $shardId;
 
         if (isset($this->activeConnections[$this->activeShardId])) {
             $this->_conn = $this->activeConnections[$this->activeShardId];
@@ -236,12 +236,12 @@ class PoolingShardConnection extends Connection
     {
         $params = $this->getParams();
 
-        $driverOptions = isset($params['driverOptions']) ? $params['driverOptions'] : [];
+        $driverOptions = $params['driverOptions'] ?? [];
 
         $connectionParams = $this->connections[$shardId];
 
-        $user = isset($connectionParams['user']) ? $connectionParams['user'] : null;
-        $password = isset($connectionParams['password']) ? $connectionParams['password'] : null;
+        $user = $connectionParams['user'] ?? null;
+        $password = $connectionParams['password'] ?? null;
 
         return $this->_driver->connect($connectionParams, $user, $password, $driverOptions);
     }
@@ -249,7 +249,7 @@ class PoolingShardConnection extends Connection
     /**
      * @param string|null $shardId
      *
-     * @return boolean
+     * @return bool
      */
     public function isConnected($shardId = null)
     {

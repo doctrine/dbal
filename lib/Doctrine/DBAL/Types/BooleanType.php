@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
@@ -65,6 +66,6 @@ class BooleanType extends Type
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_BOOL;
+        return ParameterType::BOOLEAN;
     }
 }

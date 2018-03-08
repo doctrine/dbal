@@ -269,7 +269,6 @@ you have to sort the data in the application.
     $sql = "SELECT * FROM customers";
     $rows = $shardManager->queryAll($sql, $params);
 
-
 Schema Operations: SchemaSynchronizer Interface
 -----------------------------------------------
 

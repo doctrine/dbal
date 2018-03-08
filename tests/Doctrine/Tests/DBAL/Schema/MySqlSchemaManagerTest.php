@@ -30,7 +30,7 @@ class MySqlSchemaManagerTest extends \PHPUnit\Framework\TestCase
     {
         $this->conn->expects($this->once())->method('fetchAll')->will($this->returnValue($this->getFKDefinition()));
         $fkeys = $this->manager->listTableForeignKeys('dummy');
-        self::assertEquals(1, count($fkeys), "Table has to have one foreign key.");
+        self::assertCount(1, $fkeys, "Table has to have one foreign key.");
 
         self::assertInstanceOf('Doctrine\DBAL\Schema\ForeignKeyConstraint', $fkeys[0]);
         self::assertEquals(array('column_1', 'column_2', 'column_3'), array_map('strtolower', $fkeys[0]->getLocalColumns()));

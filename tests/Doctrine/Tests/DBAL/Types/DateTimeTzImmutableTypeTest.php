@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeTzImmutableType;
@@ -37,7 +38,7 @@ class DateTimeTzImmutableTypeTest extends \PHPUnit\Framework\TestCase
 
     public function testReturnsBindingType()
     {
-        self::assertSame(\PDO::PARAM_STR, $this->type->getBindingType());
+        self::assertSame(ParameterType::STRING, $this->type->getBindingType());
     }
 
     public function testConvertsDateTimeImmutableInstanceToDatabaseValue()

@@ -25,7 +25,6 @@ available methods to learn about your database schema:
     when you accept data from user- or other sources not under your
     control.
 
-
 listDatabases()
 ---------------
 
@@ -227,11 +226,10 @@ table:
 
     <?php
     print_r($sql);
-    
+
     /*
     array(
       0 => 'DROP TABLE user'
     )
     */
-
 

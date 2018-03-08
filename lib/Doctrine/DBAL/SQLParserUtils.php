@@ -43,8 +43,8 @@ class SQLParserUtils
      * Returns an integer => integer pair (indexed from zero) for a positional statement
      * and a string => int[] pair for a named statement.
      *
-     * @param string  $statement
-     * @param boolean $isPositional
+     * @param string $statement
+     * @param bool   $isPositional
      *
      * @return array
      */
@@ -139,7 +139,9 @@ class SQLParserUtils
                 $types = array_merge(
                     array_slice($types, 0, $needle),
                     $count ?
-                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) : // array needles are at PDO::PARAM_* + 100
+                        // array needles are at {@link \Doctrine\DBAL\ParameterType} constants
+                        // + {@link Doctrine\DBAL\Connection::ARRAY_PARAM_OFFSET}
+                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) :
                         [],
                     array_slice($types, $needle + 1)
                 );
@@ -166,7 +168,7 @@ class SQLParserUtils
                 $pos         += $queryOffset;
                 $queryOffset -= ($paramLen - 1);
                 $paramsOrd[]  = $value;
-                $typesOrd[]   = static::extractParam($paramName, $types, false, \PDO::PARAM_STR);
+                $typesOrd[]   = static::extractParam($paramName, $types, false, ParameterType::STRING);
                 $query        = substr($query, 0, $pos) . '?' . substr($query, ($pos + $paramLen));
 
                 continue;
@@ -211,10 +213,10 @@ class SQLParserUtils
     }
 
     /**
-     * @param string    $paramName      The name of the parameter (without a colon in front)
-     * @param array     $paramsOrTypes  A hash of parameters or types
-     * @param bool      $isParam
-     * @param mixed     $defaultValue   An optional default value. If omitted, an exception is thrown
+     * @param string $paramName     The name of the parameter (without a colon in front)
+     * @param array  $paramsOrTypes A hash of parameters or types
+     * @param bool   $isParam
+     * @param mixed  $defaultValue  An optional default value. If omitted, an exception is thrown
      *
      * @throws SQLParserUtilsException
      * @return mixed

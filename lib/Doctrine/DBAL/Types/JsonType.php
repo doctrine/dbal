@@ -49,7 +49,7 @@ class JsonType extends Type
         $encoded = json_encode($value);
 
         if (JSON_ERROR_NONE !== json_last_error()) {
-            throw ConversionException::conversionFailedSerialization($value, 'json', $this->getLastErrorMessage());
+            throw ConversionException::conversionFailedSerialization($value, 'json', json_last_error_msg());
         }
 
         return $encoded;
@@ -90,51 +90,6 @@ class JsonType extends Type
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {
-        /*
-         * should be switched back to the platform detection at 3.0, when
-         * JsonArrayType will be dropped
-         */
-        //return ! $platform->hasNativeJsonType();
-        return true;
-    }
-
-    /**
-     * Get the latest json error message
-     *
-     * This method declaration has been extracted from symfony's php 5.5 polyfill
-     *
-     * @link https://github.com/symfony/polyfill-php55/blob/master/Php55.php
-     * @link http://nl1.php.net/manual/en/function.json-last-error-msg.php
-     *
-     * @return string
-     */
-    private function getLastErrorMessage()
-    {
-        if (function_exists('json_last_error_msg')) {
-            return json_last_error_msg();
-        }
-
-        switch (json_last_error()) {
-            case JSON_ERROR_NONE:
-                return 'No error';
-
-            case JSON_ERROR_DEPTH:
-                return 'Maximum stack depth exceeded';
-
-            case JSON_ERROR_STATE_MISMATCH:
-                return 'State mismatch (invalid or malformed JSON)';
-
-            case JSON_ERROR_CTRL_CHAR:
-                return 'Control character error, possibly incorrectly encoded';
-
-            case JSON_ERROR_SYNTAX:
-                return 'Syntax error';
-
-            case JSON_ERROR_UTF8:
-                return 'Malformed UTF-8 characters, possibly incorrectly encoded';
-
-            default:
-                return 'Unknown error';
-        }
+        return ! $platform->hasNativeJsonType();
     }
 }

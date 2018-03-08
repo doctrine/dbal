@@ -19,11 +19,11 @@
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\BlobType;
 use Doctrine\DBAL\Types\TextType;
 
@@ -51,9 +51,9 @@ class MySqlPlatform extends AbstractPlatform
      * Adds MySQL-specific LIMIT clause to the query
      * 18446744073709551615 is 2^64-1 maximum of unsigned BIGINT the biggest limit possible
      *
-     * @param string  $query
-     * @param integer $limit
-     * @param integer $offset
+     * @param string $query
+     * @param int    $limit
+     * @param int    $offset
      *
      * @return string
      */
@@ -496,7 +496,7 @@ class MySqlPlatform extends AbstractPlatform
 
         // Collate
         if ( ! isset($options['collate'])) {
-            $options['collate'] = 'utf8_unicode_ci';
+            $options['collate'] = $options['charset'] . '_unicode_ci';
         }
 
         $tableOptions[] = sprintf('COLLATE %s', $options['collate']);
@@ -660,8 +660,7 @@ class MySqlPlatform extends AbstractPlatform
 
                     $sql[] = $query;
 
-                    unset($diff->removedIndexes[$remKey]);
-                    unset($diff->addedIndexes[$addKey]);
+                    unset($diff->removedIndexes[$remKey], $diff->addedIndexes[$addKey]);
 
                     break;
                 }
@@ -1137,6 +1136,6 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getDefaultTransactionIsolationLevel()
     {
-        return Connection::TRANSACTION_REPEATABLE_READ;
+        return TransactionIsolationLevel::REPEATABLE_READ;
     }
 }

@@ -174,7 +174,6 @@ you can disable auto-commit mode with ``setAutoCommit(false)``.
 
     // still transactional
 
-
 .. note::
 
     Changing auto-commit mode during an active transaction, implicitly
@@ -198,7 +197,6 @@ you can disable auto-commit mode with ``setAutoCommit(false)``.
 
     // enable auto-commit again, commits currently active transaction
     $conn->setAutoCommit(true); // does not start a new transaction automatically
-
 
 Committing or rolling back an active transaction will of course only
 open up a new transaction automatically if the particular action causes
@@ -230,12 +228,10 @@ by this behaviour.
         $conn->rollBack(); // rolls back outer transaction, and immediately starts a new one
     }
 
-
 To initialize a ``Doctrine\DBAL\Connection`` with auto-commit disabled,
 you can also use the ``Doctrine\DBAL\Configuration`` container to modify the
 default auto-commit mode via ``Doctrine\DBAL\Configuration::setAutoCommit(false)``
 and pass it to a ``Doctrine\DBAL\Connection`` when instantiating.
-
 
 Error handling
 --------------
@@ -255,12 +251,11 @@ A practical example is as follows:
         // retry the processing
     }
 
-
 If you need stricter control, you can catch the concrete exceptions directly:
 
 - ``Doctrine\DBAL\Exception\DeadlockException``: this can happen when each member
   of a group of actions is waiting for some other member to release a shared lock.
-- ``Doctrine\DBAL\Exception\LockWaitTimeoutException``: this exception happens when 
+- ``Doctrine\DBAL\Exception\LockWaitTimeoutException``: this exception happens when
   a transaction has to wait a considerable amount of time to obtain a lock, even if
   a deadlock is not involved.
 

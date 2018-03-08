@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Query;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Connection;
 
@@ -99,35 +100,35 @@ class QueryBuilder
     /**
      * The type of query this is. Can be select, update or delete.
      *
-     * @var integer
+     * @var int
      */
     private $type = self::SELECT;
 
     /**
      * The state of the query object. Can be dirty or clean.
      *
-     * @var integer
+     * @var int
      */
     private $state = self::STATE_CLEAN;
 
     /**
      * The index of the first result to retrieve.
      *
-     * @var integer
+     * @var int
      */
     private $firstResult = null;
 
     /**
      * The maximum number of results to retrieve.
      *
-     * @var integer
+     * @var int
      */
     private $maxResults = null;
 
     /**
      * The counter of bound parameters used with {@see bindValue).
      *
-     * @var integer
+     * @var int
      */
     private $boundCounter = 0;
 
@@ -165,7 +166,7 @@ class QueryBuilder
     /**
      * Gets the type of the currently built query.
      *
-     * @return integer
+     * @return int
      */
     public function getType()
     {
@@ -185,7 +186,7 @@ class QueryBuilder
     /**
      * Gets the state of this query builder instance.
      *
-     * @return integer Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
+     * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
      */
     public function getState()
     {
@@ -204,9 +205,9 @@ class QueryBuilder
     {
         if ($this->type == self::SELECT) {
             return $this->connection->executeQuery($this->getSQL(), $this->params, $this->paramTypes);
-        } else {
-            return $this->connection->executeUpdate($this->getSQL(), $this->params, $this->paramTypes);
         }
+
+        return $this->connection->executeUpdate($this->getSQL(), $this->params, $this->paramTypes);
     }
 
     /**
@@ -262,9 +263,9 @@ class QueryBuilder
      *         ->setParameter(':user_id', 1);
      * </code>
      *
-     * @param string|integer      $key   The parameter position or name.
-     * @param mixed               $value The parameter value.
-     * @param string|integer|null $type  One of the PDO::PARAM_* constants.
+     * @param string|int      $key   The parameter position or name.
+     * @param mixed           $value The parameter value.
+     * @param string|int|null $type  One of the {@link \Doctrine\DBAL\ParameterType} constants.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -353,7 +354,7 @@ class QueryBuilder
     /**
      * Sets the position of the first result to retrieve (the "offset").
      *
-     * @param integer $firstResult The first result to return.
+     * @param int $firstResult The first result to return.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -369,7 +370,7 @@ class QueryBuilder
      * Gets the position of the first result the query object was set to retrieve (the "offset").
      * Returns NULL if {@link setFirstResult} was not applied to this QueryBuilder.
      *
-     * @return integer The position of the first result.
+     * @return int The position of the first result.
      */
     public function getFirstResult()
     {
@@ -379,7 +380,7 @@ class QueryBuilder
     /**
      * Sets the maximum number of results to retrieve (the "limit").
      *
-     * @param integer $maxResults The maximum number of results to retrieve.
+     * @param int $maxResults The maximum number of results to retrieve.
      *
      * @return $this This QueryBuilder instance.
      */
@@ -395,7 +396,7 @@ class QueryBuilder
      * Gets the maximum number of results the query object was set to retrieve (the "limit").
      * Returns NULL if {@link setMaxResults} was not applied to this query builder.
      *
-     * @return integer The maximum number of results.
+     * @return int The maximum number of results.
      */
     public function getMaxResults()
     {
@@ -408,9 +409,9 @@ class QueryBuilder
      * The available parts are: 'select', 'from', 'set', 'where',
      * 'groupBy', 'having' and 'orderBy'.
      *
-     * @param string  $sqlPartName
-     * @param string  $sqlPart
-     * @param boolean $append
+     * @param string $sqlPartName
+     * @param string $sqlPart
+     * @param bool   $append
      *
      * @return $this This QueryBuilder instance.
      */
@@ -472,7 +473,7 @@ class QueryBuilder
 
         $selects = is_array($select) ? $select : func_get_args();
 
-        return $this->add('select', $selects, false);
+        return $this->add('select', $selects);
     }
 
     /**
@@ -1256,7 +1257,7 @@ class QueryBuilder
      *
      * @return string the placeholder name used.
      */
-    public function createNamedParameter($value, $type = \PDO::PARAM_STR, $placeHolder = null)
+    public function createNamedParameter($value, $type = ParameterType::STRING, $placeHolder = null)
     {
         if ($placeHolder === null) {
             $this->boundCounter++;
@@ -1280,16 +1281,16 @@ class QueryBuilder
      *  $qb = $conn->createQueryBuilder();
      *  $qb->select('u.*')
      *     ->from('users', 'u')
-     *     ->where('u.username = ' . $qb->createPositionalParameter('Foo', PDO::PARAM_STR))
-     *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', PDO::PARAM_STR))
+     *     ->where('u.username = ' . $qb->createPositionalParameter('Foo', ParameterType::STRING))
+     *     ->orWhere('u.username = ' . $qb->createPositionalParameter('Bar', ParameterType::STRING))
      * </code>
      *
-     * @param mixed   $value
-     * @param integer $type
+     * @param mixed $value
+     * @param int   $type
      *
      * @return string
      */
-    public function createPositionalParameter($value, $type = \PDO::PARAM_STR)
+    public function createPositionalParameter($value, $type = ParameterType::STRING)
     {
         $this->boundCounter++;
         $this->setParameter($this->boundCounter, $value, $type);

@@ -152,11 +152,8 @@ final class DriverManager
         } else {
             self::_checkParams($params);
         }
-        if (isset($params['driverClass'])) {
-            $className = $params['driverClass'];
-        } else {
-            $className = self::$_driverMap[$params['driver']];
-        }
+
+        $className = $params['driverClass'] ?? self::$_driverMap[$params['driver']];
 
         $driver = new $className();
 
@@ -244,16 +241,7 @@ final class DriverManager
 
         // (pdo_)?sqlite3?:///... => (pdo_)?sqlite3?://localhost/... or else the URL will be invalid
         $url = preg_replace('#^((?:pdo_)?sqlite3?):///#', '$1://localhost/', $params['url']);
-
-        // PHP < 5.4.8 doesn't parse schemeless urls properly.
-        // See: https://php.net/parse-url#refsect1-function.parse-url-changelog
-        if (PHP_VERSION_ID < 50408 && strpos($url, '//') === 0) {
-            $url = parse_url('fake:' . $url);
-
-            unset($url['scheme']);
-        } else {
-            $url = parse_url($url);
-        }
+        $url = parse_url($url);
 
         if ($url === false) {
             throw new DBALException('Malformed parameter "url".');
@@ -405,13 +393,11 @@ final class DriverManager
             // URL schemes must not contain underscores, but dashes are ok
             $driver = str_replace('-', '_', $url['scheme']);
 
-            // The requested driver from the URL scheme takes precedence
-            // over the default driver from the connection parameters (if any).
-            $params['driver'] = isset(self::$driverSchemeAliases[$driver])
-                // use alias like "postgres", else we just let checkParams decide later
-                // if the driver exists (for literal "pdo-pgsql" etc)
-                ? self::$driverSchemeAliases[$driver]
-                : $driver;
+            // The requested driver from the URL scheme takes precedence over the
+            // default driver from the connection parameters. If the driver is
+            // an alias (e.g. "postgres"), map it to the actual name ("pdo-pgsql").
+            // Otherwise, let checkParams decide later if the driver exists.
+            $params['driver'] = self::$driverSchemeAliases[$driver] ?? $driver;
 
             return $params;
         }
