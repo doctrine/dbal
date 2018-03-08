@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\Cache\Cache;
+use Doctrine\DBAL\Logging\NullLogger;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use function preg_match;
@@ -35,12 +36,14 @@ class Configuration
 
     /**
      * Gets the SQL logger that is used.
-     *
-     * @return SQLLogger|null
      */
-    public function getSQLLogger()
+    public function getSQLLogger() : SQLLogger
     {
-        return $this->_attributes['sqlLogger'] ?? null;
+        if (! isset($this->_attributes['sqlLogger'])) {
+            $this->_attributes['sqlLogger'] = new NullLogger();
+        }
+
+        return $this->_attributes['sqlLogger'];
     }
 
     /**
