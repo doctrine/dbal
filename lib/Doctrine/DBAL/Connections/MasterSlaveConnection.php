@@ -348,15 +348,11 @@ class MasterSlaveConnection extends Connection
         $args = func_get_args();
 
         $logger = $this->getConfiguration()->getSQLLogger();
-        if ($logger) {
-            $logger->startQuery($args[0]);
-        }
+        $logger->startQuery($args[0]);
 
         $statement = $this->_conn->query(...$args);
 
-        if ($logger) {
-            $logger->stopQuery();
-        }
+        $logger->stopQuery();
 
         return $statement;
     }
