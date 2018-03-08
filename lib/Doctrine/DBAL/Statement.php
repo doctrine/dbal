@@ -144,16 +144,12 @@ class Statement implements IteratorAggregate, DriverStatement
         }
 
         $logger = $this->conn->getConfiguration()->getSQLLogger();
-        if ($logger) {
-            $logger->startQuery($this->sql, $this->params, $this->types);
-        }
+        $logger->startQuery($this->sql, $this->params, $this->types);
 
         try {
             $stmt = $this->stmt->execute($params);
         } catch (Throwable $ex) {
-            if ($logger) {
-                $logger->stopQuery();
-            }
+            $logger->stopQuery();
             throw DBALException::driverExceptionDuringQuery(
                 $this->conn->getDriver(),
                 $ex,
@@ -162,9 +158,7 @@ class Statement implements IteratorAggregate, DriverStatement
             );
         }
 
-        if ($logger) {
-            $logger->stopQuery();
-        }
+        $logger->stopQuery();
         $this->params = [];
         $this->types  = [];
 
