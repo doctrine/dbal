@@ -9,6 +9,10 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 1. The support of `PDO::PARAM_*`, `PDO::FETCH_*`, `PDO::CASE_*` and `PDO::PARAM_INPUT_OUTPUT` constants in the DBAL API is removed.
 2. `\Doctrine\DBAL\Driver\PDOStatement` does not extend `\PDOStatement` anymore.
 
+## BC BREAK: the SQLLogger interface has changed
+
+The methods are the same but use scalar type hints, return types, and non-nullable arrays.
+
 Before:
 
     use Doctrine\DBAL\Portability\Connection;
