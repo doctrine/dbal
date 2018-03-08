@@ -32,7 +32,7 @@ class DebugStack implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, ?array $params = null, ?array $types = null)
+    public function startQuery(string $sql, array $params = [], array $types = []) : void
     {
         if (! $this->enabled) {
             return;
@@ -45,7 +45,7 @@ class DebugStack implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function stopQuery()
+    public function stopQuery() : void
     {
         if (! $this->enabled) {
             return;

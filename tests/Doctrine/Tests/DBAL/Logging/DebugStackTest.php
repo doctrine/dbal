@@ -27,8 +27,8 @@ class DebugStackTest extends DbalTestCase
             [
                 1 => [
                     'sql' => 'SELECT column FROM table',
-                    'params' => null,
-                    'types' => null,
+                    'params' => [],
+                    'types' => [],
                     'executionMS' => 0,
                 ],
             ],

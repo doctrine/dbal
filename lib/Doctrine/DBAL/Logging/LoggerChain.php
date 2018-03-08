@@ -12,10 +12,8 @@ class LoggerChain implements SQLLogger
 
     /**
      * Adds a logger in the chain.
-     *
-     * @return void
      */
-    public function addLogger(SQLLogger $logger)
+    public function addLogger(SQLLogger $logger) : void
     {
         $this->loggers[] = $logger;
     }
@@ -23,7 +21,7 @@ class LoggerChain implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, ?array $params = null, ?array $types = null)
+    public function startQuery(string $sql, array $params = [], array $types = []) : void
     {
         foreach ($this->loggers as $logger) {
             $logger->startQuery($sql, $params, $types);
@@ -33,7 +31,7 @@ class LoggerChain implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function stopQuery()
+    public function stopQuery() : void
     {
         foreach ($this->loggers as $logger) {
             $logger->stopQuery();
