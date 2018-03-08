@@ -27,13 +27,11 @@ class Configuration
     protected $_attributes = [];
 
     /**
-     * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
+     * Sets the SQL logger to use.
      *
-     * @param \Doctrine\DBAL\Logging\SQLLogger|null $logger
-     *
-     * @return void
+     * @param SQLLogger $logger
      */
-    public function setSQLLogger(SQLLogger $logger = null)
+    public function setSQLLogger(SQLLogger $logger) : void
     {
         $this->_attributes['sqlLogger'] = $logger;
     }
