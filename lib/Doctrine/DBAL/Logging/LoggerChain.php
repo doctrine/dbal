@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Logging;
  * @since  2.2
  * @author Christophe Coevoet <stof@notk.org>
  */
-class LoggerChain implements SQLLogger
+final class LoggerChain implements SQLLogger
 {
     /**
      * @var \Doctrine\DBAL\Logging\SQLLogger[]

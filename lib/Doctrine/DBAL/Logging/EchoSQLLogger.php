@@ -12,7 +12,7 @@ namespace Doctrine\DBAL\Logging;
  * @author Jonathan Wage <jonwage@gmail.com>
  * @author Roman Borschel <roman@code-factory.org>
  */
-class EchoSQLLogger implements SQLLogger
+final class EchoSQLLogger implements SQLLogger
 {
     /**
      * {@inheritdoc}
