@@ -20,7 +20,7 @@ class EchoSQLLogger implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function startQuery($sql, array $params = null, array $types = null)
+    public function startQuery(string $sql, array $params = [], array $types = []) : void
     {
         echo $sql . PHP_EOL;
 
@@ -36,7 +36,7 @@ class EchoSQLLogger implements SQLLogger
     /**
      * {@inheritdoc}
      */
-    public function stopQuery()
+    public function stopQuery() : void
     {
     }
 }
