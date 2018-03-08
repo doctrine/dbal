@@ -9,11 +9,6 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 1. The support of `PDO::PARAM_*`, `PDO::FETCH_*`, `PDO::CASE_*` and `PDO::PARAM_INPUT_OUTPUT` constants in the DBAL API is removed.
 2. `\Doctrine\DBAL\Driver\PDOStatement` does not extend `\PDOStatement` anymore.
 
-## BC BREAK: the SQLLogger interface has changed
-
-The methods are the same but use scalar type hints, return types, and non-nullable arrays.
-SQLLogger implementations are now final.
-
 Before:
 
     use Doctrine\DBAL\Portability\Connection;
@@ -44,6 +39,12 @@ After:
 ## BC BREAK: Removed Drizzle support
 
 The Drizzle project is abandoned and is therefore not supported by Doctrine DBAL anymore.
+
+## BC BREAK: SQLLogger changes
+
+- The SQLLogger interface has changed; the methods are the same but use scalar type hints, return types, and non-nullable arrays.
+- SQLLogger implementations: `DebugStack`, `EchoSQLLogger`, `LoggerChain` are now final.
+- `Configuration::getSQLLogger()` does not return `null` anymore, but a `NullLogger` implementation.
 
 # Upgrade to 2.9
 
