@@ -26,7 +26,19 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
-
+use function array_filter;
+use function array_search;
+use function array_values;
+use function count;
+use function explode;
+use function implode;
+use function preg_split;
+use function strlen;
+use function strripos;
+use function strtoupper;
+use function substr;
+use function trim;
+    
 class DB2Platform extends AbstractPlatform
 {
     /**
