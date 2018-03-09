@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Logging\NullLogger;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\Common\Cache\Cache;
 
@@ -26,25 +27,19 @@ class Configuration
     protected $_attributes = [];
 
     /**
-     * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
-     *
-     * @param \Doctrine\DBAL\Logging\SQLLogger|null $logger
-     *
-     * @return void
+     * Sets the SQL logger to use.
      */
-    public function setSQLLogger(SQLLogger $logger = null)
+    public function setSQLLogger(SQLLogger $logger) : void
     {
         $this->_attributes['sqlLogger'] = $logger;
     }
 
     /**
      * Gets the SQL logger that is used.
-     *
-     * @return \Doctrine\DBAL\Logging\SQLLogger|null
      */
-    public function getSQLLogger()
+    public function getSQLLogger() : SQLLogger
     {
-        return $this->_attributes['sqlLogger'] ?? null;
+        return $this->_attributes['sqlLogger'] ?? $this->_attributes['sqlLogger'] = new NullLogger();
     }
 
     /**
