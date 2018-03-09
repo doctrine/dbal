@@ -28,8 +28,6 @@ class Configuration
 
     /**
      * Sets the SQL logger to use.
-     *
-     * @param SQLLogger $logger
      */
     public function setSQLLogger(SQLLogger $logger) : void
     {
