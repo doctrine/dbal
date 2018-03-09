@@ -17,9 +17,9 @@ interface SQLLogger
     /**
      * Logs a SQL statement somewhere.
      *
-     * @param string $sql    The SQL to be executed.
-     * @param array  $params The SQL parameters.
-     * @param array  $types  The SQL parameter types.
+     * @param string   $sql    The SQL to be executed.
+     * @param mixed[]  $params The SQL parameters.
+     * @param string[] $types  The SQL parameter types.
      *
      * @return void
      */
