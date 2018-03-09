@@ -1148,7 +1148,6 @@ class Connection implements DriverConnection
      *
      * @return mixed The value returned by $func
      *
-     * @throws Exception
      * @throws Throwable
      */
     public function transactional(Closure $func)
@@ -1159,9 +1158,6 @@ class Connection implements DriverConnection
             $this->commit();
 
             return $res;
-        } catch (Exception $e) {
-            $this->rollBack();
-            throw $e;
         } catch (Throwable $e) {
             $this->rollBack();
             throw $e;
