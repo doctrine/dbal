@@ -22,13 +22,6 @@ class Transaction
     private $configuration;
 
     /**
-     * Indicates whether this transaction is active, and can be committed or rolled back.
-     *
-     * @var bool
-     */
-    private $isActive = true;
-
-    /**
      * Indicates whether this transaction is marked for rollback only.
      *
      * @var bool
@@ -70,7 +63,7 @@ class Transaction
      */
     public function commit()
     {
-        if (! $this->isActive) {
+        if (! $this->isActive()) {
             throw ConnectionException::transactionNotActive();
         }
 
@@ -78,7 +71,6 @@ class Transaction
             throw ConnectionException::commitFailedRollbackOnly();
         }
 
-        $this->isActive = false;
         $this->wasCommitted = true;
 
         $this->connection->commitTransaction($this);
@@ -93,11 +85,10 @@ class Transaction
      */
     public function rollback()
     {
-        if (! $this->isActive) {
+        if (! $this->isActive()) {
             throw ConnectionException::transactionNotActive();
         }
 
-        $this->isActive = false;
         $this->wasRolledBack = true;
 
         $this->connection->rollbackTransaction($this);
@@ -110,7 +101,7 @@ class Transaction
      */
     public function isActive()
     {
-        return $this->isActive;
+        return ! ($this->wasCommitted || $this->wasRolledBack);
     }
 
     /**
@@ -122,7 +113,7 @@ class Transaction
      */
     public function setRollbackOnly()
     {
-        if (! $this->isActive) {
+        if (! $this->isActive()) {
             throw ConnectionException::transactionNotActive();
         }
 
