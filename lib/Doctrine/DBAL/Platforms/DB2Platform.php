@@ -38,7 +38,7 @@ use function strripos;
 use function strtoupper;
 use function substr;
 use function trim;
-    
+
 class DB2Platform extends AbstractPlatform
 {
     /**
