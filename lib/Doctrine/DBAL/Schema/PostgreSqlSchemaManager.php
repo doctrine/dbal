@@ -209,10 +209,16 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $buffer = [];
         foreach ($tableIndexes as $row) {
-            $colNumbers = explode(' ', $row['indkey']);
-            $colNumbersSql = 'IN (' . join(' ,', $colNumbers) . ' )';
-            $columnNameSql = "SELECT attnum, attname FROM pg_attribute
-                WHERE attrelid={$row['indrelid']} AND attnum $colNumbersSql ORDER BY attnum ASC;";
+            $colCount = count(explode(' ', $row['indkey']));
+            $sqlColNames = array();
+            for ($colIndex = 1; $colIndex <= $colCount; $colIndex++) {
+                $sqlColNames[] = sprintf('pg_get_indexdef(idx.indexrelid, %d, FALSE) AS col_%d', $colIndex, $colIndex);
+            }
+            $columnNameSql = sprintf(
+                "SELECT %s FROM pg_class i INNER JOIN pg_index idx ON idx.indexrelid = i.oid WHERE i.relname = '%s';",
+                implode(', ', $sqlColNames),
+                $row['relname']
+            );
 
             $stmt = $this->_conn->executeQuery($columnNameSql);
             $indexColumns = $stmt->fetchAll();
