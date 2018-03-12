@@ -32,10 +32,10 @@ class SQLParserUtils
     const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
 
     // Quote characters within string literals can be preceded by a backslash.
-    const ESCAPED_SINGLE_QUOTED_TEXT = "'(?:[^'\\\\]|\\\\'?|'')*'";
-    const ESCAPED_DOUBLE_QUOTED_TEXT = '"(?:[^"\\\\]|\\\\"?)*"';
-    const ESCAPED_BACKTICK_QUOTED_TEXT = '`(?:[^`\\\\]|\\\\`?)*`';
-    const ESCAPED_BRACKET_QUOTED_TEXT = '\[(?:[^\]])*\]';
+    const ESCAPED_SINGLE_QUOTED_TEXT = "(?:'(?:\\\\\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
+    const ESCAPED_DOUBLE_QUOTED_TEXT = '(?:"(?:\\\\\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
+    const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
+    const ESCAPED_BRACKET_QUOTED_TEXT = '(?<!\bARRAY)\[(?:[^\]])*\]';
 
     /**
      * Gets an array of the placeholders in an sql statements as keys and their positions in the query string.
@@ -43,20 +43,20 @@ class SQLParserUtils
      * Returns an integer => integer pair (indexed from zero) for a positional statement
      * and a string => int[] pair for a named statement.
      *
-     * @param string  $statement
-     * @param boolean $isPositional
+     * @param string $statement
+     * @param bool   $isPositional
      *
      * @return array
      */
-    static public function getPlaceholderPositions($statement, $isPositional = true)
+    public static function getPlaceholderPositions($statement, $isPositional = true)
     {
         $match = ($isPositional) ? '?' : ':';
         if (strpos($statement, $match) === false) {
-            return array();
+            return [];
         }
 
         $token = ($isPositional) ? self::POSITIONAL_TOKEN : self::NAMED_TOKEN;
-        $paramMap = array();
+        $paramMap = [];
 
         foreach (self::getUnquotedStatementFragments($statement) as $fragment) {
             preg_match_all("/$token/", $fragment[0], $matches, PREG_OFFSET_CAPTURE);
@@ -84,10 +84,10 @@ class SQLParserUtils
      *
      * @throws SQLParserUtilsException
      */
-    static public function expandListParameters($query, $params, $types)
+    public static function expandListParameters($query, $params, $types)
     {
         $isPositional   = is_int(key($params));
-        $arrayPositions = array();
+        $arrayPositions = [];
         $bindIndex      = -1;
 
         if ($isPositional) {
@@ -110,7 +110,7 @@ class SQLParserUtils
         }
 
         if (( ! $arrayPositions && $isPositional)) {
-            return array($query, $params, $types);
+            return [$query, $params, $types];
         }
 
         $paramPos = self::getPlaceholderPositions($query, $isPositional);
@@ -139,8 +139,10 @@ class SQLParserUtils
                 $types = array_merge(
                     array_slice($types, 0, $needle),
                     $count ?
-                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) : // array needles are at PDO::PARAM_* + 100
-                        array(),
+                        // array needles are at {@link \Doctrine\DBAL\ParameterType} constants
+                        // + {@link Doctrine\DBAL\Connection::ARRAY_PARAM_OFFSET}
+                        array_fill(0, $count, $types[$needle] - Connection::ARRAY_PARAM_OFFSET) :
+                        [],
                     array_slice($types, $needle + 1)
                 );
 
@@ -151,12 +153,12 @@ class SQLParserUtils
                 $queryOffset += (strlen($expandStr) - 1);
             }
 
-            return array($query, $params, $types);
+            return [$query, $params, $types];
         }
 
         $queryOffset = 0;
-        $typesOrd    = array();
-        $paramsOrd   = array();
+        $typesOrd    = [];
+        $paramsOrd   = [];
 
         foreach ($paramPos as $pos => $paramName) {
             $paramLen = strlen($paramName) + 1;
@@ -166,7 +168,7 @@ class SQLParserUtils
                 $pos         += $queryOffset;
                 $queryOffset -= ($paramLen - 1);
                 $paramsOrd[]  = $value;
-                $typesOrd[]   = static::extractParam($paramName, $types, false, \PDO::PARAM_STR);
+                $typesOrd[]   = static::extractParam($paramName, $types, false, ParameterType::STRING);
                 $query        = substr($query, 0, $pos) . '?' . substr($query, ($pos + $paramLen));
 
                 continue;
@@ -185,7 +187,7 @@ class SQLParserUtils
             $query        = substr($query, 0, $pos) . $expandStr . substr($query, ($pos + $paramLen));
         }
 
-        return array($query, $paramsOrd, $typesOrd);
+        return [$query, $paramsOrd, $typesOrd];
     }
 
     /**
@@ -199,7 +201,7 @@ class SQLParserUtils
      * @param string $statement
      * @return array
      */
-    static private function getUnquotedStatementFragments($statement)
+    private static function getUnquotedStatementFragments($statement)
     {
         $literal = self::ESCAPED_SINGLE_QUOTED_TEXT . '|' .
                    self::ESCAPED_DOUBLE_QUOTED_TEXT . '|' .
@@ -211,15 +213,15 @@ class SQLParserUtils
     }
 
     /**
-     * @param string    $paramName      The name of the parameter (without a colon in front)
-     * @param array     $paramsOrTypes  A hash of parameters or types
-     * @param bool      $isParam
-     * @param mixed     $defaultValue   An optional default value. If omitted, an exception is thrown
+     * @param string $paramName     The name of the parameter (without a colon in front)
+     * @param array  $paramsOrTypes A hash of parameters or types
+     * @param bool   $isParam
+     * @param mixed  $defaultValue  An optional default value. If omitted, an exception is thrown
      *
      * @throws SQLParserUtilsException
      * @return mixed
      */
-    static private function extractParam($paramName, $paramsOrTypes, $isParam, $defaultValue = null)
+    private static function extractParam($paramName, $paramsOrTypes, $isParam, $defaultValue = null)
     {
         if (array_key_exists($paramName, $paramsOrTypes)) {
             return $paramsOrTypes[$paramName];

@@ -38,7 +38,7 @@ interface ServerInfoAwareConnection
     /**
      * Checks whether a query is required to retrieve the database server version.
      *
-     * @return boolean True if a query is required to retrieve the database server version, false otherwise.
+     * @return bool True if a query is required to retrieve the database server version, false otherwise.
      */
     public function requiresQueryForServerVersion();
 }

@@ -37,7 +37,7 @@ interface Driver
      *
      * @return \Doctrine\DBAL\Driver\Connection The database connection.
      */
-    public function connect(array $params, $username = null, $password = null, array $driverOptions = array());
+    public function connect(array $params, $username = null, $password = null, array $driverOptions = []);
 
     /**
      * Gets the DatabasePlatform instance that provides all the metadata about

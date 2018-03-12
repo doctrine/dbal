@@ -45,8 +45,7 @@ Drivers
 The drivers abstract a PHP specific database API by enforcing two
 interfaces:
 
-
--  ``\Doctrine\DBAL\Driver\Driver``
+-  ``\Doctrine\DBAL\Driver\Connection``
 -  ``\Doctrine\DBAL\Driver\Statement``
 
 The above two interfaces require exactly the same methods as PDO.
@@ -84,5 +83,4 @@ The types offer an abstraction layer for the converting and
 generation of types between Databases and PHP. Doctrine comes
 bundled with some common types but offers the ability for
 developers to define custom types or extend existing ones easily.
-
 

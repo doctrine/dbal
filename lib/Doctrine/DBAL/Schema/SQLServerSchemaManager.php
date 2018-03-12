@@ -19,7 +19,8 @@
 
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Driver\SQLSrv\SQLSrvException;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Types\Type;
 
 /**
@@ -34,6 +35,34 @@ use Doctrine\DBAL\Types\Type;
  */
 class SQLServerSchemaManager extends AbstractSchemaManager
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function dropDatabase($database)
+    {
+        try {
+            parent::dropDatabase($database);
+        } catch (DBALException $exception) {
+            $exception = $exception->getPrevious();
+
+            if (! $exception instanceof DriverException) {
+                throw $exception;
+            }
+
+            // If we have a error code 3702, the drop database operation failed
+            // because of active connections on the database.
+            // To force dropping the database, we first have to close all active connections
+            // on that database and issue the drop database operation again.
+            if ($exception->getErrorCode() !== 3702) {
+                throw $exception;
+            }
+
+            $this->closeActiveDatabaseConnections($database);
+
+            parent::dropDatabase($database);
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -87,8 +116,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
         $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
 
-        $options = array(
-            'length'        => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
+        $options = [
+            'length'        => ($length == 0 || !in_array($type, ['text', 'string'])) ? null : $length,
             'unsigned'      => false,
             'fixed'         => (bool) $fixed,
             'default'       => $default !== 'NULL' ? $default : null,
@@ -97,7 +126,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             'precision'     => $tableColumn['precision'],
             'autoincrement' => (bool) $tableColumn['autoincrement'],
             'comment'       => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
-        );
+        ];
 
         $column = new Column($tableColumn['name'], Type::getType($type), $options);
 
@@ -113,20 +142,20 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
-        $foreignKeys = array();
+        $foreignKeys = [];
 
         foreach ($tableForeignKeys as $tableForeignKey) {
             if ( ! isset($foreignKeys[$tableForeignKey['ForeignKey']])) {
-                $foreignKeys[$tableForeignKey['ForeignKey']] = array(
-                    'local_columns' => array($tableForeignKey['ColumnName']),
+                $foreignKeys[$tableForeignKey['ForeignKey']] = [
+                    'local_columns' => [$tableForeignKey['ColumnName']],
                     'foreign_table' => $tableForeignKey['ReferenceTableName'],
-                    'foreign_columns' => array($tableForeignKey['ReferenceColumnName']),
+                    'foreign_columns' => [$tableForeignKey['ReferenceColumnName']],
                     'name' => $tableForeignKey['ForeignKey'],
-                    'options' => array(
+                    'options' => [
                         'onUpdate' => str_replace('_', ' ', $tableForeignKey['update_referential_action_desc']),
                         'onDelete' => str_replace('_', ' ', $tableForeignKey['delete_referential_action_desc'])
-                    )
-                );
+                    ]
+                ];
             } else {
                 $foreignKeys[$tableForeignKey['ForeignKey']]['local_columns'][] = $tableForeignKey['ColumnName'];
                 $foreignKeys[$tableForeignKey['ForeignKey']]['foreign_columns'][] = $tableForeignKey['ReferenceColumnName'];
@@ -144,7 +173,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
         foreach ($tableIndexRows as &$tableIndex) {
             $tableIndex['non_unique'] = (boolean) $tableIndex['non_unique'];
             $tableIndex['primary'] = (boolean) $tableIndex['primary'];
-            $tableIndex['flags'] = $tableIndex['flags'] ? array($tableIndex['flags']) : null;
+            $tableIndex['flags'] = $tableIndex['flags'] ? [$tableIndex['flags']] : null;
         }
 
         return parent::_getPortableTableIndexesList($tableIndexRows, $tableName);
@@ -208,13 +237,13 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             $tableIndexes = $this->_conn->fetchAll($sql);
         } catch (\PDOException $e) {
             if ($e->getCode() == "IMSSP") {
-                return array();
+                return [];
             } else {
                 throw $e;
             }
-        } catch (SQLSrvException $e) {
+        } catch (DBALException $e) {
             if (strpos($e->getMessage(), 'SQLSTATE [01000, 15472]') === 0) {
-                return array();
+                return [];
             } else {
                 throw $e;
             }
@@ -257,5 +286,26 @@ class SQLServerSchemaManager extends AbstractSchemaManager
             INNER JOIN SysColumns Col ON Col.[ColID] = DefCons.[parent_column_id] AND Col.[ID] = Tab.[ID]
             WHERE Col.[Name] = " . $this->_conn->quote($column) ." AND Tab.[Name] = " . $this->_conn->quote($table) . "
             ORDER BY Col.[Name]";
+    }
+
+    /**
+     * Closes currently active connections on the given database.
+     *
+     * This is useful to force DROP DATABASE operations which could fail because of active connections.
+     *
+     * @param string $database The name of the database to close currently active connections for.
+     *
+     * @return void
+     */
+    private function closeActiveDatabaseConnections($database)
+    {
+        $database = new Identifier($database);
+
+        $this->_execSql(
+            sprintf(
+                'ALTER DATABASE %s SET SINGLE_USER WITH ROLLBACK IMMEDIATE',
+                $database->getQuotedName($this->_platform)
+            )
+        );
     }
 }

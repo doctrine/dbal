@@ -9,7 +9,7 @@ class DriverTest extends AbstractDB2DriverTest
 {
     public function testReturnsName()
     {
-        $this->assertSame('ibm_db2', $this->driver->getName());
+        self::assertSame('ibm_db2', $this->driver->getName());
     }
 
     protected function createDriver()

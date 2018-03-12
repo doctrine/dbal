@@ -50,7 +50,7 @@ class SchemaAlterTableChangeColumnEventArgs extends SchemaEventArgs
     /**
      * @var array
      */
-    private $_sql = array();
+    private $_sql = [];
 
     /**
      * @param \Doctrine\DBAL\Schema\ColumnDiff          $columnDiff

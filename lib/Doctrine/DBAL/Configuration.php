@@ -40,7 +40,7 @@ class Configuration
      *
      * @var array
      */
-    protected $_attributes = array();
+    protected $_attributes = [];
 
     /**
      * Sets the SQL logger to use. Defaults to NULL which means SQL logging is disabled.
@@ -61,8 +61,7 @@ class Configuration
      */
     public function getSQLLogger()
     {
-        return isset($this->_attributes['sqlLogger']) ?
-                $this->_attributes['sqlLogger'] : null;
+        return $this->_attributes['sqlLogger'] ?? null;
     }
 
     /**
@@ -72,8 +71,7 @@ class Configuration
      */
     public function getResultCacheImpl()
     {
-        return isset($this->_attributes['resultCacheImpl']) ?
-                $this->_attributes['resultCacheImpl'] : null;
+        return $this->_attributes['resultCacheImpl'] ?? null;
     }
 
     /**
@@ -111,11 +109,7 @@ class Configuration
      */
     public function getFilterSchemaAssetsExpression()
     {
-        if (isset($this->_attributes['filterSchemaAssetsExpression'])) {
-            return $this->_attributes['filterSchemaAssetsExpression'];
-        }
-
-        return null;
+        return $this->_attributes['filterSchemaAssetsExpression'] ?? null;
     }
 
     /**
@@ -125,7 +119,7 @@ class Configuration
      * transactions. Otherwise, its SQL statements are grouped into transactions that are terminated by a call to either
      * the method commit or the method rollback. By default, new connections are in auto-commit mode.
      *
-     * @param boolean $autoCommit True to enable auto-commit mode; false to disable it.
+     * @param bool $autoCommit True to enable auto-commit mode; false to disable it.
      *
      * @see   getAutoCommit
      */
@@ -137,16 +131,12 @@ class Configuration
     /**
      * Returns the default auto-commit mode for connections.
      *
-     * @return boolean True if auto-commit mode is enabled by default for connections, false otherwise.
+     * @return bool True if auto-commit mode is enabled by default for connections, false otherwise.
      *
      * @see    setAutoCommit
      */
     public function getAutoCommit()
     {
-        if (isset($this->_attributes['autoCommit'])) {
-            return $this->_attributes['autoCommit'];
-        }
-
-        return true;
+        return $this->_attributes['autoCommit'] ?? true;
     }
 }

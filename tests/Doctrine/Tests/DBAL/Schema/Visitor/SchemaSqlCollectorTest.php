@@ -4,14 +4,13 @@ namespace Doctrine\Tests\DBAL\Schema\Visitor;
 
 use Doctrine\DBAL\Schema\Schema;
 
-class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
+class SchemaSqlCollectorTest extends \PHPUnit\Framework\TestCase
 {
     public function testCreateSchema()
     {
-        $platformMock = $this->getMock(
-            'Doctrine\DBAL\Platforms\MySqlPlatform',
-            array('getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql')
-        );
+        $platformMock = $this->getMockBuilder('Doctrine\DBAL\Platforms\MySqlPlatform')
+            ->setMethods(array('getCreateTableSql', 'getCreateSequenceSql', 'getCreateForeignKeySql'))
+            ->getMock();
         $platformMock->expects($this->exactly(2))
                      ->method('getCreateTableSql')
                      ->will($this->returnValue(array("foo")));
@@ -26,15 +25,14 @@ class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
         $sql = $schema->toSql($platformMock);
 
-        $this->assertEquals(array("foo", "foo", "bar", "baz"), $sql);
+        self::assertEquals(array("foo", "foo", "bar", "baz"), $sql);
     }
 
     public function testDropSchema()
     {
-        $platformMock = $this->getMock(
-            'Doctrine\DBAL\Platforms\MySqlPlatform',
-            array('getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql')
-        );
+        $platformMock = $this->getMockBuilder('Doctrine\DBAL\Platforms\MySqlPlatform')
+            ->setMethods(array('getDropTableSql', 'getDropSequenceSql', 'getDropForeignKeySql'))
+            ->getMock();
         $platformMock->expects($this->exactly(2))
                      ->method('getDropTableSql')
                      ->will($this->returnValue("tbl"));
@@ -49,7 +47,7 @@ class SchemaSqlCollectorTest extends \PHPUnit_Framework_TestCase
 
         $sql = $schema->toDropSql($platformMock);
 
-        $this->assertEquals(array("fk", "seq", "tbl", "tbl"), $sql);
+        self::assertEquals(array("fk", "seq", "tbl", "tbl"), $sql);
     }
 
     /**

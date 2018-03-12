@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL;
 
 class UtilTest extends \Doctrine\Tests\DbalTestCase
 {
-    static public function dataConvertPositionalToNamedParameters()
+    public static function dataConvertPositionalToNamedParameters()
     {
         return array(
             array(
@@ -64,13 +64,13 @@ class UtilTest extends \Doctrine\Tests\DbalTestCase
      * @dataProvider dataConvertPositionalToNamedParameters
      * @param string $inputSQL
      * @param string $expectedOutputSQL
-     * @param array $expectedOutputParamsMap
+     * @param array  $expectedOutputParamsMap
      */
     public function testConvertPositionalToNamedParameters($inputSQL, $expectedOutputSQL, $expectedOutputParamsMap)
     {
         list($statement, $params) = \Doctrine\DBAL\Driver\OCI8\OCI8Statement::convertPositionalToNamedPlaceholders($inputSQL);
 
-        $this->assertEquals($expectedOutputSQL, $statement);
-        $this->assertEquals($expectedOutputParamsMap, $params);
+        self::assertEquals($expectedOutputSQL, $statement);
+        self::assertEquals($expectedOutputParamsMap, $params);
     }
 }

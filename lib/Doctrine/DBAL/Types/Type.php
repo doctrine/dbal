@@ -19,6 +19,7 @@
 
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\DBALException;
 
@@ -40,9 +41,13 @@ abstract class Type
     const BIGINT = 'bigint';
     const BOOLEAN = 'boolean';
     const DATETIME = 'datetime';
+    const DATETIME_IMMUTABLE = 'datetime_immutable';
     const DATETIMETZ = 'datetimetz';
+    const DATETIMETZ_IMMUTABLE = 'datetimetz_immutable';
     const DATE = 'date';
+    const DATE_IMMUTABLE = 'date_immutable';
     const TIME = 'time';
+    const TIME_IMMUTABLE = 'time_immutable';
     const DECIMAL = 'decimal';
     const INTEGER = 'integer';
     const OBJECT = 'object';
@@ -60,36 +65,40 @@ abstract class Type
      *
      * @var array
      */
-    private static $_typeObjects = array();
+    private static $_typeObjects = [];
 
     /**
      * The map of supported doctrine mapping types.
      *
      * @var array
      */
-    private static $_typesMap = array(
-        self::TARRAY => 'Doctrine\DBAL\Types\ArrayType',
-        self::SIMPLE_ARRAY => 'Doctrine\DBAL\Types\SimpleArrayType',
-        self::JSON_ARRAY => 'Doctrine\DBAL\Types\JsonArrayType',
-        self::JSON => 'Doctrine\DBAL\Types\JsonType',
-        self::OBJECT => 'Doctrine\DBAL\Types\ObjectType',
-        self::BOOLEAN => 'Doctrine\DBAL\Types\BooleanType',
-        self::INTEGER => 'Doctrine\DBAL\Types\IntegerType',
-        self::SMALLINT => 'Doctrine\DBAL\Types\SmallIntType',
-        self::BIGINT => 'Doctrine\DBAL\Types\BigIntType',
-        self::STRING => 'Doctrine\DBAL\Types\StringType',
-        self::TEXT => 'Doctrine\DBAL\Types\TextType',
-        self::DATETIME => 'Doctrine\DBAL\Types\DateTimeType',
-        self::DATETIMETZ => 'Doctrine\DBAL\Types\DateTimeTzType',
-        self::DATE => 'Doctrine\DBAL\Types\DateType',
-        self::TIME => 'Doctrine\DBAL\Types\TimeType',
-        self::DECIMAL => 'Doctrine\DBAL\Types\DecimalType',
-        self::FLOAT => 'Doctrine\DBAL\Types\FloatType',
-        self::BINARY => 'Doctrine\DBAL\Types\BinaryType',
-        self::BLOB => 'Doctrine\DBAL\Types\BlobType',
-        self::GUID => 'Doctrine\DBAL\Types\GuidType',
-        self::DATEINTERVAL => 'Doctrine\DBAL\Types\DateIntervalType',
-    );
+    private static $_typesMap = [
+        self::TARRAY => ArrayType::class,
+        self::SIMPLE_ARRAY => SimpleArrayType::class,
+        self::JSON_ARRAY => JsonArrayType::class,
+        self::JSON => JsonType::class,
+        self::OBJECT => ObjectType::class,
+        self::BOOLEAN => BooleanType::class,
+        self::INTEGER => IntegerType::class,
+        self::SMALLINT => SmallIntType::class,
+        self::BIGINT => BigIntType::class,
+        self::STRING => StringType::class,
+        self::TEXT => TextType::class,
+        self::DATETIME => DateTimeType::class,
+        self::DATETIME_IMMUTABLE => DateTimeImmutableType::class,
+        self::DATETIMETZ => DateTimeTzType::class,
+        self::DATETIMETZ_IMMUTABLE => DateTimeTzImmutableType::class,
+        self::DATE => DateType::class,
+        self::DATE_IMMUTABLE => DateImmutableType::class,
+        self::TIME => TimeType::class,
+        self::TIME_IMMUTABLE => TimeImmutableType::class,
+        self::DECIMAL => DecimalType::class,
+        self::FLOAT => FloatType::class,
+        self::BINARY => BinaryType::class,
+        self::BLOB => BlobType::class,
+        self::GUID => GuidType::class,
+        self::DATEINTERVAL => DateIntervalType::class,
+    ];
 
     /**
      * Prevents instantiation and forces use of the factory method.
@@ -131,7 +140,7 @@ abstract class Type
      *
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
-     * @return integer|null
+     * @return int|null
      *
      * @todo Needed?
      */
@@ -205,7 +214,7 @@ abstract class Type
      *
      * @param string $name The name of the type.
      *
-     * @return boolean TRUE if type is supported; FALSE otherwise.
+     * @return bool TRUE if type is supported; FALSE otherwise.
      */
     public static function hasType($name)
     {
@@ -239,19 +248,13 @@ abstract class Type
      * Gets the (preferred) binding type for values of this type that
      * can be used when binding parameters to prepared statements.
      *
-     * This method should return one of the PDO::PARAM_* constants, that is, one of:
+     * This method should return one of the {@link \Doctrine\DBAL\ParameterType} constants.
      *
-     * PDO::PARAM_BOOL
-     * PDO::PARAM_NULL
-     * PDO::PARAM_INT
-     * PDO::PARAM_STR
-     * PDO::PARAM_LOB
-     *
-     * @return integer
+     * @return int
      */
     public function getBindingType()
     {
-        return \PDO::PARAM_STR;
+        return ParameterType::STRING;
     }
 
     /**
@@ -283,7 +286,7 @@ abstract class Type
      * {@link convertToPHPValueSQL} works for any type and mostly
      * does nothing. This method can additionally be used for optimization purposes.
      *
-     * @return boolean
+     * @return bool
      */
     public function canRequireSQLConversion()
     {
@@ -325,18 +328,18 @@ abstract class Type
      */
     public function getMappedDatabaseTypes(AbstractPlatform $platform)
     {
-        return array();
+        return [];
     }
 
     /**
      * If this Doctrine Type maps to an already mapped database type,
-     * reverse schema engineering can't take them apart. You need to mark
+     * reverse schema engineering can't tell them apart. You need to mark
      * one of those types as commented, which will have Doctrine use an SQL
      * comment to typehint the actual Doctrine Type.
      *
      * @param \Doctrine\DBAL\Platforms\AbstractPlatform $platform
      *
-     * @return boolean
+     * @return bool
      */
     public function requiresSQLCommentHint(AbstractPlatform $platform)
     {

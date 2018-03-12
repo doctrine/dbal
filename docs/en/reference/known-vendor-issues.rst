@@ -12,7 +12,7 @@ DateTime, DateTimeTz and Time Types
 
 Postgres has a variable return format for the datatype TIMESTAMP(n)
 and TIME(n) if microseconds are allowed (n > 0). Whenever you save
-a value with microseconds = 0. PostgreSQL will return this value in
+a value with microseconds = 0, PostgreSQL will return this value in
 the format:
 
 ::
@@ -26,7 +26,7 @@ full representation:
 
     2010-10-10 10:10:10.123456 (Y-m-d H:i:s.u)
 
-Using the DateTime, DateTimeTz or Time type with microseconds
+Using the DateTime, DateTimeTz or Time type (and immutable variants) with microseconds
 enabled columns can lead to errors because internally types expect
 the exact format 'Y-m-d H:i:s' in combination with
 ``DateTime::createFromFormat()``. This method is twice a fast as
@@ -35,15 +35,14 @@ passing the date to the constructor of ``DateTime``.
 This is why Doctrine always wants to create the time related types
 without microseconds:
 
-
 -  DateTime to ``TIMESTAMP(0) WITHOUT TIME ZONE``
 -  DateTimeTz to ``TIMESTAMP(0) WITH TIME ZONE``
 -  Time to ``TIME(0) WITHOUT TIME ZONE``
 
 If you do not let Doctrine create the date column types and rather
 use types with microseconds you have replace the "DateTime",
-"DateTimeTz" and "Time" types with a more liberal DateTime parser
-that detects the format automatically:
+"DateTimeTz" and "Time" types (and immutable variants) with a more
+liberal DateTime parser that detects the format automatically:
 
 ::
 
@@ -52,6 +51,10 @@ that detects the format automatically:
     Type::overrideType('datetime', 'Doctrine\DBAL\Types\VarDateTimeType');
     Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTimeType');
     Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTimeType');
+
+    Type::overrideType('datetime_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    Type::overrideType('datetimetz_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    Type::overrideType('time_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
 
 Timezones and DateTimeTz
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,7 +71,7 @@ DateTimeTz
 ~~~~~~~~~~
 
 MySQL does not support saving timezones or offsets. The DateTimeTz
-type therefore behave like the DateTime type.
+type therefore behaves like the DateTime type.
 
 Sqlite
 ------
@@ -76,7 +79,7 @@ Sqlite
 Buffered Queries and Isolation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Careful if you execute a ``SELECT`` query and do not iterate over the
+Be careful if you execute a ``SELECT`` query and do not iterate over the
 statements results immediately. ``UPDATE`` statements executed before iteration
 affect only the rows that have not been buffered into PHP memory yet. This
 breaks the SERIALIZABLE transaction isolation property that SQLite supposedly
@@ -102,7 +105,7 @@ DateTimeTz
 ~~~~~~~~~~
 
 Sqlite does not support saving timezones or offsets. The DateTimeTz
-type therefore behave like the DateTime type.
+type therefore behaves like the DateTime type.
 
 Reverse engineering primary key order
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -134,35 +137,6 @@ difference is subtle but can be potentially very nasty. Derick
 Rethans explains it very well
 `in a blog post of his <http://derickrethans.nl/storing-date-time-in-database.html>`_.
 
-OCI8: SQL Queries with Question Marks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-We had to implement a question mark to named parameter translation
-inside the OCI8 DBAL Driver. It works as a very simple parser with two states: Inside Literal, Outside Literal.
-From our perspective it should be working in all cases, but you have to be careful with certain
-queries:
-
-.. code-block:: sql
-
-    SELECT * FROM users WHERE name = 'bar?'
-
-Could in case of a bug with the parser be rewritten into:
-
-.. code-block:: sql
-
-    SELECT * FROM users WHERE name = 'bar:oci1'
-
-For this reason you should always use prepared statements with
-Oracle OCI8, never use string literals inside the queries. A query
-for the user 'bar?' should look like:
-
-.. code-block:: php
-
-    $sql = 'SELECT * FROM users WHERE name = ?'
-    $stmt = $conn->prepare($sql);
-    $stmt->bindValue(1, 'bar?');
-    $stmt->execute();
-
 OCI-LOB instances
 ~~~~~~~~~~~~~~~~~
 
@@ -191,8 +165,8 @@ a value with microseconds = 0.
 
 If you do not let Doctrine create the date column types and rather
 use types with microseconds you have replace the "DateTime",
-"DateTimeTz" and "Time" types with a more liberal DateTime parser
-that detects the format automatically:
+"DateTimeTz" and "Time" types (and immutable variants) with a more
+liberal DateTime parser that detects the format automatically:
 
 ::
 
@@ -202,6 +176,10 @@ that detects the format automatically:
     Type::overrideType('datetimetz', 'Doctrine\DBAL\Types\VarDateTime');
     Type::overrideType('time', 'Doctrine\DBAL\Types\VarDateTime');
 
+    Type::overrideType('datetime_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    Type::overrideType('datetimetz_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+    Type::overrideType('time_immutable', 'Doctrine\DBAL\Types\VarDateTimeImmutableType');
+
 PDO_SQLSRV: VARBINARY/BLOB columns
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -209,6 +187,6 @@ The ``PDO_SQLSRV`` driver currently has a bug when binding values to
 VARBINARY/BLOB columns with ``bindValue`` in prepared statements.
 This raises an implicit conversion from data type error as it tries
 to convert a character type value to a binary type value even if
-you explicitly define the value as ``\PDO::PARAM_LOB`` type.
+you explicitly define the value as ``ParameterType::LARGE_OBJECT`` type.
 Therefore it is highly encouraged to use the native ``sqlsrv``
 driver instead which does not have this limitation.

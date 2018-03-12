@@ -6,7 +6,7 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Types\Type;
 
-class ColumnDiffTest extends \PHPUnit_Framework_TestCase
+class ColumnDiffTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @group DBAL-1255
@@ -17,12 +17,12 @@ class ColumnDiffTest extends \PHPUnit_Framework_TestCase
         $toColumn = new Column('bar', Type::getType(Type::INTEGER));
 
         $columnDiff = new ColumnDiff('"foo"', $toColumn, array());
-        $this->assertTrue($columnDiff->getOldColumnName()->isQuoted());
+        self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
 
         $columnDiff = new ColumnDiff('"foo"', $toColumn, array(), $fromColumn);
-        $this->assertTrue($columnDiff->getOldColumnName()->isQuoted());
+        self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
 
         $columnDiff = new ColumnDiff('foo', $toColumn, array(), $fromColumn);
-        $this->assertTrue($columnDiff->getOldColumnName()->isQuoted());
+        self::assertTrue($columnDiff->getOldColumnName()->isQuoted());
     }
 }

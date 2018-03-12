@@ -41,7 +41,7 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $tables = $this->_conn->fetchAll($sql);
 
-        return $this->_getPortableTablesList($tables);
+        return $this->filterAssetNames($this->_getPortableTablesList($tables));
     }
 
     /**
@@ -65,6 +65,11 @@ class DB2SchemaManager extends AbstractSchemaManager
 
         $type = $this->_platform->getDoctrineTypeMapping($tableColumn['typename']);
 
+        if (isset($tableColumn['comment'])) {
+            $type = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+            $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
+        }
+
         switch (strtolower($tableColumn['typename'])) {
             case 'varchar':
                 $length = $tableColumn['length'];
@@ -85,7 +90,7 @@ class DB2SchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        $options = array(
+        $options = [
             'length'        => $length,
             'unsigned'      => (bool) $unsigned,
             'fixed'         => (bool) $fixed,
@@ -94,8 +99,11 @@ class DB2SchemaManager extends AbstractSchemaManager
             'notnull'       => (bool) ($tableColumn['nulls'] == 'N'),
             'scale'         => null,
             'precision'     => null,
-            'platformOptions' => array(),
-        );
+            'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
+                ? $tableColumn['comment']
+                : null,
+            'platformOptions' => [],
+        ];
 
         if ($scale !== null && $precision !== null) {
             $options['scale'] = $scale;
@@ -110,7 +118,7 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTablesList($tables)
     {
-        $tableNames = array();
+        $tableNames = [];
         foreach ($tables as $tableRow) {
             $tableRow = array_change_key_case($tableRow, \CASE_LOWER);
             $tableNames[] = $tableRow['name'];
@@ -151,22 +159,22 @@ class DB2SchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
-        $foreignKeys = array();
+        $foreignKeys = [];
 
         foreach ($tableForeignKeys as $tableForeignKey) {
             $tableForeignKey = array_change_key_case($tableForeignKey, \CASE_LOWER);
 
             if (!isset($foreignKeys[$tableForeignKey['index_name']])) {
-                $foreignKeys[$tableForeignKey['index_name']] = array(
-                    'local_columns'   => array($tableForeignKey['local_column']),
+                $foreignKeys[$tableForeignKey['index_name']] = [
+                    'local_columns'   => [$tableForeignKey['local_column']],
                     'foreign_table'   => $tableForeignKey['foreign_table'],
-                    'foreign_columns' => array($tableForeignKey['foreign_column']),
+                    'foreign_columns' => [$tableForeignKey['foreign_column']],
                     'name'            => $tableForeignKey['index_name'],
-                    'options'         => array(
+                    'options'         => [
                         'onUpdate' => $tableForeignKey['on_update'],
                         'onDelete' => $tableForeignKey['on_delete'],
-                    )
-                );
+                    ]
+                ];
             } else {
                 $foreignKeys[$tableForeignKey['index_name']]['local_columns'][] = $tableForeignKey['local_column'];
                 $foreignKeys[$tableForeignKey['index_name']]['foreign_columns'][] = $tableForeignKey['foreign_column'];

@@ -51,7 +51,7 @@ class ConfigurationTest extends DbalTestCase
      */
     public function testReturnsDefaultConnectionAutoCommitMode()
     {
-        $this->assertTrue($this->config->getAutoCommit());
+        self::assertTrue($this->config->getAutoCommit());
     }
 
     /**
@@ -63,10 +63,10 @@ class ConfigurationTest extends DbalTestCase
     {
         $this->config->setAutoCommit(false);
 
-        $this->assertFalse($this->config->getAutoCommit());
+        self::assertFalse($this->config->getAutoCommit());
 
         $this->config->setAutoCommit(0);
 
-        $this->assertFalse($this->config->getAutoCommit());
+        self::assertFalse($this->config->getAutoCommit());
     }
 }

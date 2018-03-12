@@ -44,7 +44,7 @@ class PostgreSQL91Keywords extends PostgreSQLKeywords
      */
     protected function getKeywords()
     {
-        return array(
+        return [
             'ALL',
             'ANALYSE',
             'ANALYZE',
@@ -143,6 +143,6 @@ class PostgreSQL91Keywords extends PostgreSQLKeywords
             'WHERE',
             'WINDOW',
             'WITH',
-        );
+        ];
     }
 }

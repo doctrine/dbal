@@ -34,14 +34,14 @@ class Version
     /**
      * Current Doctrine Version.
      */
-    const VERSION = '2.6.0-DEV';
+    const VERSION = '2.7.0-DEV';
 
     /**
      * Compares a Doctrine version with the current one.
      *
      * @param string $version The Doctrine version to compare to.
      *
-     * @return integer -1 if older, 0 if it is the same, 1 if version passed as argument is newer.
+     * @return int -1 if older, 0 if it is the same, 1 if version passed as argument is newer.
      */
     public static function compare($version)
     {

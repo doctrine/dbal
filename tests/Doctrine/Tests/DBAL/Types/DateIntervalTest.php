@@ -25,35 +25,35 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
         $this->platform = new MockPlatform();
         $this->type     = Type::getType('dateinterval');
 
-        $this->assertInstanceOf('Doctrine\DBAL\Types\DateIntervalType', $this->type);
+        self::assertInstanceOf('Doctrine\DBAL\Types\DateIntervalType', $this->type);
     }
 
     public function testDateIntervalConvertsToDatabaseValue()
     {
         $interval = new \DateInterval('P2Y1DT1H2M3S');
 
-        $expected = 'P0002-00-01T01:02:03';
+        $expected = 'P02Y00M01DT01H02M03S';
         $actual = $this->type->convertToDatabaseValue($interval, $this->platform);
 
-        $this->assertEquals($expected, $actual);
+        self::assertEquals($expected, $actual);
     }
 
     public function testDateIntervalConvertsToPHPValue()
     {
-        $date = $this->type->convertToPHPValue('P0002-00-01T01:02:03', $this->platform);
-        $this->assertInstanceOf('DateInterval', $date);
-        $this->assertEquals('P2Y0M1DT1H2M3S', $date->format('P%yY%mM%dDT%hH%iM%sS'));
+        $date = $this->type->convertToPHPValue('P02Y00M01DT01H02M03S', $this->platform);
+        self::assertInstanceOf('DateInterval', $date);
+        self::assertEquals('P02Y00M01DT01H02M03S', $date->format('P%YY%MM%DDT%HH%IM%SS'));
     }
 
     public function testInvalidDateIntervalFormatConversion()
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
     public function testDateIntervalNullConversion()
     {
-        $this->assertNull($this->type->convertToPHPValue(null, $this->platform));
+        self::assertNull($this->type->convertToPHPValue(null, $this->platform));
     }
 
     /**
@@ -61,7 +61,7 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
      */
     public function testRequiresSQLCommentHint()
     {
-        $this->assertTrue($this->type->requiresSQLCommentHint($this->platform));
+        self::assertTrue($this->type->requiresSQLCommentHint($this->platform));
     }
 
     /**
@@ -71,7 +71,7 @@ class DateIntervalTest  extends \Doctrine\Tests\DbalTestCase
      */
     public function testInvalidTypeConversionToDatabaseValue($value)
     {
-        $this->setExpectedException('Doctrine\DBAL\Types\ConversionException');
+        $this->expectException('Doctrine\DBAL\Types\ConversionException');
 
         $this->type->convertToDatabaseValue($value, $this->platform);
     }

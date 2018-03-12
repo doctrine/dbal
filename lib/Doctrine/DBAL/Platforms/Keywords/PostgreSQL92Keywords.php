@@ -43,8 +43,8 @@ class PostgreSQL92Keywords extends PostgreSQL91Keywords
      */
     protected function getKeywords()
     {
-        return array_merge(parent::getKeywords(), array(
+        return array_merge(parent::getKeywords(), [
             'COLLATION',
-        ));
+        ]);
     }
 }

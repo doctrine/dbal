@@ -21,7 +21,7 @@ namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\ParameterType;
 
 /**
  * OCI8 implementation of the Connection interface.
@@ -36,7 +36,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     protected $dbh;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $executeMode = OCI_COMMIT_ON_SUCCESS;
 
@@ -47,8 +47,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
      * @param string      $password
      * @param string      $db
      * @param string|null $charset
-     * @param integer     $sessionMode
-     * @param boolean     $persistent
+     * @param int         $sessionMode
+     * @param bool        $persistent
      *
      * @throws OCI8Exception
      */
@@ -121,7 +121,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($value, $type=\PDO::PARAM_STR)
+    public function quote($value, $type = ParameterType::STRING)
     {
         if (is_int($value) || is_float($value)) {
             return $value;
@@ -151,23 +151,21 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
             return false;
         }
 
-        OraclePlatform::assertValidIdentifier($name);
-
         $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
         $stmt   = $this->query($sql);
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetchColumn();
 
-        if ($result === false || !isset($result['CURRVAL'])) {
+        if ($result === false) {
             throw new OCI8Exception("lastInsertId failed: Query was executed but no result was returned.");
         }
 
-        return (int) $result['CURRVAL'];
+        return (int) $result;
     }
 
     /**
      * Returns the current execution mode.
      *
-     * @return integer
+     * @return int
      */
     public function getExecuteMode()
     {

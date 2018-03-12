@@ -31,7 +31,7 @@ abstract class AbstractDriverException extends \Exception implements DriverExcep
     /**
      * The driver specific error code.
      *
-     * @var integer|string|null
+     * @var int|string|null
      */
     private $errorCode;
 
@@ -45,9 +45,9 @@ abstract class AbstractDriverException extends \Exception implements DriverExcep
     /**
      * Constructor.
      *
-     * @param string              $message   The driver error message.
-     * @param string|null         $sqlState  The SQLSTATE the driver is in at the time the error occurred, if any.
-     * @param integer|string|null $errorCode The driver specific error code if any.
+     * @param string          $message   The driver error message.
+     * @param string|null     $sqlState  The SQLSTATE the driver is in at the time the error occurred, if any.
+     * @param int|string|null $errorCode The driver specific error code if any.
      */
     public function __construct($message, $sqlState = null, $errorCode = null)
     {

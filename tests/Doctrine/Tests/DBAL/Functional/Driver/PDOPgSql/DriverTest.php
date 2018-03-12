@@ -38,7 +38,7 @@ class DriverTest extends AbstractDriverTest
             $this->_conn->getEventManager()
         );
 
-        $this->assertSame(
+        self::assertSame(
             $expectedDatabaseName,
             $this->driver->getDatabase($connection)
         );
@@ -47,7 +47,7 @@ class DriverTest extends AbstractDriverTest
     public function getDatabaseParameter()
     {
         $params = TestUtil::getConnection()->getParams();
-        $realDatabaseName = $params['dbname'];
+        $realDatabaseName = $params['dbname'] ?? '';
         $dummyDatabaseName = $realDatabaseName . 'a';
 
         return array(
@@ -67,19 +67,22 @@ class DriverTest extends AbstractDriverTest
         $parameters = $this->_conn->getParams();
         $parameters['application_name'] = 'doctrine';
 
-        $user = isset($parameters['user']) ? $parameters['user'] : null;
-        $password = isset($parameters['password']) ? $parameters['password'] : null;
+        $user = $parameters['user'] ?? null;
+        $password = $parameters['password'] ?? null;
 
         $connection = $this->driver->connect($parameters, $user, $password);
 
         $hash = microtime(true); // required to identify the record in the results uniquely
-        $sql = sprintf('SELECT query, application_name FROM pg_stat_activity WHERE %d = %d', $hash, $hash);
+        $sql = sprintf('SELECT * FROM pg_stat_activity WHERE %d = %d', $hash, $hash);
         $statement = $connection->query($sql);
         $records = $statement->fetchAll();
 
         foreach ($records as $record) {
-            if ($record['query'] === $sql) {
-                $this->assertSame('doctrine', $record['application_name']);
+            // The query column is named "current_query" on PostgreSQL < 9.2
+            $queryColumnName = array_key_exists('current_query', $record) ? 'current_query' : 'query';
+
+            if ($record[$queryColumnName] === $sql) {
+                self::assertSame('doctrine', $record['application_name']);
 
                 return;
             }

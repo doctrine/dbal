@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\ParameterType;
 
 class DB2Connection implements Connection, ServerInfoAwareConnection
 {
@@ -37,7 +38,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      *
      * @throws \Doctrine\DBAL\Driver\IBMDB2\DB2Exception
      */
-    public function __construct(array $params, $username, $password, $driverOptions = array())
+    public function __construct(array $params, $username, $password, $driverOptions = [])
     {
         $isPersistent = (isset($params['persistent']) && $params['persistent'] == true);
 
@@ -98,14 +99,15 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type=\PDO::PARAM_STR)
+    public function quote($input, $type = ParameterType::STRING)
     {
         $input = db2_escape_string($input);
-        if ($type == \PDO::PARAM_INT) {
+
+        if ($type === ParameterType::INTEGER) {
             return $input;
-        } else {
-            return "'".$input."'";
         }
+
+        return "'".$input."'";
     }
 
     /**
@@ -113,10 +115,13 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function exec($statement)
     {
-        $stmt = $this->prepare($statement);
-        $stmt->execute();
+        $stmt = @db2_exec($this->_conn, $statement);
 
-        return $stmt->rowCount();
+        if (false === $stmt) {
+            throw new DB2Exception(db2_stmt_errormsg());
+        }
+
+        return db2_num_rows($stmt);
     }
 
     /**
@@ -170,9 +175,9 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
      */
     public function errorInfo()
     {
-        return array(
+        return [
             0 => db2_conn_errormsg($this->_conn),
             1 => $this->errorCode(),
-        );
+        ];
     }
 }

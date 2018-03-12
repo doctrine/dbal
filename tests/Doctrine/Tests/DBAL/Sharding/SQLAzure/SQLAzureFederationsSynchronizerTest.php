@@ -12,7 +12,7 @@ class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
         $synchronizer = new SQLAzureFederationsSynchronizer($this->conn, $this->sm);
         $sql = $synchronizer->getCreateSchema($schema);
 
-        $this->assertEquals(array (
+        self::assertEquals(array (
             "--Create Federation\nCREATE FEDERATION Orders_Federation (CustID INT  RANGE)",
             "USE FEDERATION Orders_Federation (CustID = 0) WITH RESET, FILTERING = OFF;",
             "CREATE TABLE Products (ProductID INT NOT NULL, SupplierID INT NOT NULL, ProductName NVARCHAR(255) NOT NULL, Price NUMERIC(12, 2) NOT NULL, PRIMARY KEY (ProductID))",
@@ -31,7 +31,7 @@ class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
 
         $sql = $synchronizer->getUpdateSchema($schema);
 
-        $this->assertEquals(array(), $sql);
+        self::assertEquals(array(), $sql);
     }
 
     public function testDropSchema()
@@ -43,7 +43,6 @@ class SQLAzureFederationsSynchronizerTest extends AbstractTestCase
         $synchronizer->createSchema($schema);
         $sql = $synchronizer->getDropSchema($schema);
 
-        $this->assertEQuals(5, count($sql));
+        self::assertCount(5, $sql);
     }
 }
-

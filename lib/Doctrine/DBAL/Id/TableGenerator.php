@@ -21,6 +21,8 @@ namespace Doctrine\DBAL\Id;
 
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\LockMode;
 
 /**
  * Table ID Generator for those poor languages that are missing sequences.
@@ -39,9 +41,9 @@ use Doctrine\DBAL\Connection;
  *
  * CREATE sequences (
  *   sequence_name VARCHAR(255) NOT NULL,
- *   sequence_value INT NOT NULL DEFAULT '1',
- *   sequence_increment_by INT NOT NULL DEFAULT '1',
- *   PRIMARY KEY (table_name)
+ *   sequence_value INT NOT NULL DEFAULT 1,
+ *   sequence_increment_by INT NOT NULL DEFAULT 1,
+ *   PRIMARY KEY (sequence_name)
  * );
  *
  * Technically this generator works as follows:
@@ -76,7 +78,7 @@ class TableGenerator
     /**
      * @var array
      */
-    private $sequences = array();
+    private $sequences = [];
 
     /**
      * @param \Doctrine\DBAL\Connection $conn
@@ -99,7 +101,7 @@ class TableGenerator
      *
      * @param string $sequenceName
      *
-     * @return integer
+     * @return int
      *
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -119,28 +121,29 @@ class TableGenerator
 
         try {
             $platform = $this->conn->getDatabasePlatform();
-            $sql = "SELECT sequence_value, sequence_increment_by " .
-                   "FROM " . $platform->appendLockHint($this->generatorTableName, \Doctrine\DBAL\LockMode::PESSIMISTIC_WRITE) . " " .
-                   "WHERE sequence_name = ? " . $platform->getWriteLockSQL();
-            $stmt = $this->conn->executeQuery($sql, array($sequenceName));
+            $sql      = 'SELECT sequence_value, sequence_increment_by'
+                . ' FROM ' . $platform->appendLockHint($this->generatorTableName, LockMode::PESSIMISTIC_WRITE)
+                . ' WHERE sequence_name = ? ' . $platform->getWriteLockSQL();
+            $stmt     = $this->conn->executeQuery($sql, [$sequenceName]);
+            $row      = $stmt->fetch(FetchMode::ASSOCIATIVE);
 
-            if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            if ($row !== false) {
                 $row = array_change_key_case($row, CASE_LOWER);
 
                 $value = $row['sequence_value'];
                 $value++;
 
                 if ($row['sequence_increment_by'] > 1) {
-                    $this->sequences[$sequenceName] = array(
+                    $this->sequences[$sequenceName] = [
                         'value' => $value,
                         'max' => $row['sequence_value'] + $row['sequence_increment_by']
-                    );
+                    ];
                 }
 
                 $sql = "UPDATE " . $this->generatorTableName . " ".
                        "SET sequence_value = sequence_value + sequence_increment_by " .
                        "WHERE sequence_name = ? AND sequence_value = ?";
-                $rows = $this->conn->executeUpdate($sql, array($sequenceName, $row['sequence_value']));
+                $rows = $this->conn->executeUpdate($sql, [$sequenceName, $row['sequence_value']]);
 
                 if ($rows != 1) {
                     throw new \Doctrine\DBAL\DBALException("Race-condition detected while updating sequence. Aborting generation");
@@ -148,7 +151,7 @@ class TableGenerator
             } else {
                 $this->conn->insert(
                     $this->generatorTableName,
-                    array('sequence_name' => $sequenceName, 'sequence_value' => 1, 'sequence_increment_by' => 1)
+                    ['sequence_name' => $sequenceName, 'sequence_value' => 1, 'sequence_increment_by' => 1]
                 );
                 $value = 1;
             }

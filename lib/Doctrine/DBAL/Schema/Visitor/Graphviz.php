@@ -41,11 +41,11 @@ class Graphviz extends AbstractVisitor
         $this->output .= $this->createNodeRelation(
             $fkConstraint->getLocalTableName() . ":col" . current($fkConstraint->getLocalColumns()).":se",
             $fkConstraint->getForeignTableName() . ":col" . current($fkConstraint->getForeignColumns()).":se",
-            array(
+            [
                 'dir'       => 'back',
                 'arrowtail' => 'dot',
                 'arrowhead' => 'normal',
-            )
+            ]
         );
     }
 
@@ -69,10 +69,10 @@ class Graphviz extends AbstractVisitor
     {
         $this->output .= $this->createNode(
             $table->getName(),
-            array(
+            [
                 'label' => $this->createTableLabel($table),
                 'shape' => 'plaintext',
-            )
+            ]
         );
     }
 

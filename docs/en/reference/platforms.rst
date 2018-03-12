@@ -34,7 +34,7 @@ MySQL
 ^^^^^
 
 -  ``MySqlPlatform`` for version 5.0 and above.
--  ``MySQL57Platform`` for version 5.7 and above.
+-  ``MySQL57Platform`` for version 5.7 (5.7.9 GA) and above.
 
 Oracle
 ^^^^^^
@@ -107,5 +107,4 @@ all the different database vendors, for example MySQL BIGINT and
 Oracle NUMBER should be handled as integer. Doctrine 2 offers a
 powerful way to abstract the database to php and back conversion,
 which is described in the next section.
-
 

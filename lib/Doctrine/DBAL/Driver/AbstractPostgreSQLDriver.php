@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
@@ -108,11 +109,13 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
         }
 
         $majorVersion = $versionParts['major'];
-        $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
-        $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
+        $minorVersion = $versionParts['minor'] ?? 0;
+        $patchVersion = $versionParts['patch'] ?? 0;
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
 
         switch(true) {
+            case version_compare($version, '10.0', '>='):
+                return new PostgreSQL100Platform();
             case version_compare($version, '9.4', '>='):
                 return new PostgreSQL94Platform();
             case version_compare($version, '9.2', '>='):
@@ -131,9 +134,7 @@ abstract class AbstractPostgreSQLDriver implements Driver, ExceptionConverterDri
     {
         $params = $conn->getParams();
 
-        return (isset($params['dbname']))
-            ? $params['dbname']
-            : $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
+        return $params['dbname'] ?? $conn->query('SELECT CURRENT_DATABASE()')->fetchColumn();
     }
 
     /**

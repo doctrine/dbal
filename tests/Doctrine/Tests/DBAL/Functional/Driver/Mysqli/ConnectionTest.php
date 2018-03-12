@@ -28,7 +28,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         );
 
         $connection = $this->getConnection($driverOptions);
-        $this->assertInstanceOf("\Doctrine\DBAL\Driver\Mysqli\MysqliConnection", $connection);
+        self::assertInstanceOf("\Doctrine\DBAL\Driver\Mysqli\MysqliConnection", $connection);
     }
 
     /**
@@ -42,7 +42,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function testPing()
     {
         $conn = $this->getConnection(array());
-        $this->assertTrue($conn->ping());
+        self::assertTrue($conn->ping());
     }
 
     private function getConnection(array $driverOptions)

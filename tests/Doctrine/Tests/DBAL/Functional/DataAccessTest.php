@@ -3,12 +3,17 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Types\Type;
-use PDO;
 
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    /**
+     * @var bool
+     */
     static private $generated = false;
 
     protected function setUp()
@@ -35,15 +40,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
+        self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindValue(1, 1);
         $stmt->bindValue(2, 'foo');
         $stmt->execute();
 
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(FetchMode::ASSOCIATIVE);
         $row = array_change_key_case($row, \CASE_LOWER);
-        $this->assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $row);
+        self::assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $row);
     }
 
     public function testPrepareWithBindParam()
@@ -53,15 +58,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
+        self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
         $stmt->execute();
 
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(FetchMode::ASSOCIATIVE);
         $row = array_change_key_case($row, \CASE_LOWER);
-        $this->assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $row);
+        self::assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $row);
     }
 
     public function testPrepareWithFetchAll()
@@ -71,15 +76,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
+        self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
         $stmt->execute();
 
-        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $rows    = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
         $rows[0] = array_change_key_case($rows[0], \CASE_LOWER);
-        $this->assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $rows[0]);
+        self::assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $rows[0]);
     }
 
     /**
@@ -92,15 +97,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
+        self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
         $stmt->execute();
 
-        $rows = $stmt->fetchAll(\PDO::FETCH_BOTH);
+        $rows    = $stmt->fetchAll(FetchMode::MIXED);
         $rows[0] = array_change_key_case($rows[0], \CASE_LOWER);
-        $this->assertEquals(array('test_int' => 1, 'test_string' => 'foo', 0 => 1, 1 => 'foo'), $rows[0]);
+        self::assertEquals(array('test_int' => 1, 'test_string' => 'foo', 0 => 1, 1 => 'foo'), $rows[0]);
     }
 
     public function testPrepareWithFetchColumn()
@@ -110,14 +115,14 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
+        self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
         $stmt->execute();
 
         $column = $stmt->fetchColumn();
-        $this->assertEquals(1, $column);
+        self::assertEquals(1, $column);
     }
 
     public function testPrepareWithIterator()
@@ -127,19 +132,19 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
+        self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
 
         $stmt->bindParam(1, $paramInt);
         $stmt->bindParam(2, $paramStr);
         $stmt->execute();
 
         $rows = array();
-        $stmt->setFetchMode(\PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(FetchMode::ASSOCIATIVE);
         foreach ($stmt as $row) {
             $rows[] = array_change_key_case($row, \CASE_LOWER);
         }
 
-        $this->assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $rows[0]);
+        self::assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $rows[0]);
     }
 
     public function testPrepareWithQuoted()
@@ -151,7 +156,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT test_int, test_string FROM " . $this->_conn->quoteIdentifier($table) . " ".
                "WHERE test_int = " . $this->_conn->quote($paramInt) . " AND test_string = " . $this->_conn->quote($paramStr);
         $stmt = $this->_conn->prepare($sql);
-        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
+        self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
     }
 
     public function testPrepareWithExecuteParams()
@@ -161,13 +166,13 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->prepare($sql);
-        $this->assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
+        self::assertInstanceOf('Doctrine\DBAL\Statement', $stmt);
         $stmt->execute(array($paramInt, $paramStr));
 
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $this->assertTrue($row !== false);
+        $row = $stmt->fetch(FetchMode::ASSOCIATIVE);
+        self::assertNotFalse($row);
         $row = array_change_key_case($row, \CASE_LOWER);
-        $this->assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $row);
+        self::assertEquals(array('test_int' => 1, 'test_string' => 'foo'), $row);
     }
 
     public function testFetchAll()
@@ -175,14 +180,14 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $data = $this->_conn->fetchAll($sql, array(1, 'foo'));
 
-        $this->assertEquals(1, count($data));
+        self::assertCount(1, $data);
 
         $row = $data[0];
-        $this->assertEquals(2, count($row));
+        self::assertCount(2, $row);
 
         $row = array_change_key_case($row, \CASE_LOWER);
-        $this->assertEquals(1, $row['test_int']);
-        $this->assertEquals('foo', $row['test_string']);
+        self::assertEquals(1, $row['test_int']);
+        self::assertEquals('foo', $row['test_string']);
     }
 
     /**
@@ -192,17 +197,18 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $data = $this->_conn->fetchAll($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
 
-        $this->assertEquals(1, count($data));
+        $sql  = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+        $data = $this->_conn->fetchAll($sql, [1, $datetime], [ParameterType::STRING, Type::DATETIME]);
+
+        self::assertCount(1, $data);
 
         $row = $data[0];
-        $this->assertEquals(2, count($row));
+        self::assertCount(2, $row);
 
         $row = array_change_key_case($row, \CASE_LOWER);
-        $this->assertEquals(1, $row['test_int']);
-        $this->assertStringStartsWith($datetimeString, $row['test_datetime']);
+        self::assertEquals(1, $row['test_int']);
+        self::assertStringStartsWith($datetimeString, $row['test_datetime']);
     }
 
     /**
@@ -224,17 +230,24 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testFetchBoth()
     {
-        $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
-        $row = $this->_conn->executeQuery($sql, array(1, 'foo'))->fetch(\PDO::FETCH_BOTH);
+        $sql = 'SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?';
+        $row = $this->_conn->executeQuery($sql, [1, 'foo'])->fetch(FetchMode::MIXED);
 
-        $this->assertTrue($row !== false);
+        self::assertNotFalse($row);
 
         $row = array_change_key_case($row, \CASE_LOWER);
 
-        $this->assertEquals(1, $row['test_int']);
-        $this->assertEquals('foo', $row['test_string']);
-        $this->assertEquals(1, $row[0]);
-        $this->assertEquals('foo', $row[1]);
+        self::assertEquals(1, $row['test_int']);
+        self::assertEquals('foo', $row['test_string']);
+        self::assertEquals(1, $row[0]);
+        self::assertEquals('foo', $row[1]);
+    }
+
+    public function testFetchNoResult()
+    {
+        self::assertFalse(
+            $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int = ?', [-1])->fetch()
+        );
     }
 
     public function testFetchAssoc()
@@ -242,27 +255,28 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $row = $this->_conn->fetchAssoc($sql, array(1, 'foo'));
 
-        $this->assertTrue($row !== false);
+        self::assertNotFalse($row);
 
         $row = array_change_key_case($row, \CASE_LOWER);
 
-        $this->assertEquals(1, $row['test_int']);
-        $this->assertEquals('foo', $row['test_string']);
+        self::assertEquals(1, $row['test_int']);
+        self::assertEquals('foo', $row['test_string']);
     }
 
     public function testFetchAssocWithTypes()
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchAssoc($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
 
-        $this->assertTrue($row !== false);
+        $sql = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+        $row = $this->_conn->fetchAssoc($sql, [1, $datetime], [ParameterType::STRING, Type::DATETIME]);
+
+        self::assertNotFalse($row);
 
         $row = array_change_key_case($row, \CASE_LOWER);
 
-        $this->assertEquals(1, $row['test_int']);
-        $this->assertStringStartsWith($datetimeString, $row['test_datetime']);
+        self::assertEquals(1, $row['test_int']);
+        self::assertStringStartsWith($datetimeString, $row['test_datetime']);
     }
 
     /**
@@ -286,23 +300,24 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $row = $this->_conn->fetchArray($sql, array(1, 'foo'));
 
-        $this->assertEquals(1, $row[0]);
-        $this->assertEquals('foo', $row[1]);
+        self::assertEquals(1, $row[0]);
+        self::assertEquals('foo', $row[1]);
     }
 
     public function testFetchArrayWithTypes()
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $row = $this->_conn->fetchArray($sql, array(1, $datetime), array(PDO::PARAM_STR, Type::DATETIME));
 
-        $this->assertTrue($row !== false);
+        $sql = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+        $row = $this->_conn->fetchArray($sql, [1, $datetime], [ParameterType::STRING, Type::DATETIME]);
+
+        self::assertNotFalse($row);
 
         $row = array_change_key_case($row, \CASE_LOWER);
 
-        $this->assertEquals(1, $row[0]);
-        $this->assertStringStartsWith($datetimeString, $row[1]);
+        self::assertEquals(1, $row[0]);
+        self::assertStringStartsWith($datetimeString, $row[1]);
     }
 
     /**
@@ -326,24 +341,25 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $testInt = $this->_conn->fetchColumn($sql, array(1, 'foo'), 0);
 
-        $this->assertEquals(1, $testInt);
+        self::assertEquals(1, $testInt);
 
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $testString = $this->_conn->fetchColumn($sql, array(1, 'foo'), 1);
 
-        $this->assertEquals('foo', $testString);
+        self::assertEquals('foo', $testString);
     }
 
     public function testFetchColumnWithTypes()
     {
         $datetimeString = '2010-01-01 10:10:10';
         $datetime = new \DateTime($datetimeString);
-        $sql = "SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?";
-        $column = $this->_conn->fetchColumn($sql, array(1, $datetime), 1, array(PDO::PARAM_STR, Type::DATETIME));
 
-        $this->assertTrue($column !== false);
+        $sql    = 'SELECT test_int, test_datetime FROM fetch_table WHERE test_int = ? AND test_datetime = ?';
+        $column = $this->_conn->fetchColumn($sql, [1, $datetime], 1, [ParameterType::STRING, Type::DATETIME]);
 
-        $this->assertStringStartsWith($datetimeString, $column);
+        self::assertNotFalse($column);
+
+        self::assertStringStartsWith($datetimeString, $column);
     }
 
     /**
@@ -373,7 +389,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             array(1 => Type::DATETIME)
         );
 
-        $this->assertEquals(1, $stmt->fetchColumn());
+        self::assertEquals(1, $stmt->fetchColumn());
     }
 
     /**
@@ -384,13 +400,18 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $datetime = new \DateTime('2010-02-02 20:20:20');
 
         $sql = 'INSERT INTO fetch_table (test_int, test_string, test_datetime) VALUES (?, ?, ?)';
-        $affectedRows = $this->_conn->executeUpdate($sql,
-            array(1 => 50,              2 => 'foo',             3 => $datetime),
-            array(1 => PDO::PARAM_INT,  2 => PDO::PARAM_STR,    3 => Type::DATETIME)
-        );
+        $affectedRows = $this->_conn->executeUpdate($sql, [
+            1 => 50,
+            2 => 'foo',
+            3 => $datetime,
+        ], [
+            1 => ParameterType::INTEGER,
+            2 => ParameterType::STRING,
+            3 => Type::DATETIME,
+        ]);
 
-        $this->assertEquals(1, $affectedRows);
-        $this->assertEquals(1, $this->_conn->executeQuery(
+        self::assertEquals(1, $affectedRows);
+        self::assertEquals(1, $this->_conn->executeQuery(
             'SELECT count(*) AS c FROM fetch_table WHERE test_datetime = ?',
             array(1 => $datetime),
             array(1 => Type::DATETIME)
@@ -407,7 +428,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->bindValue(1, new \DateTime('2010-01-01 10:10:10'), Type::DATETIME);
         $stmt->execute();
 
-        $this->assertEquals(1, $stmt->fetchColumn());
+        self::assertEquals(1, $stmt->fetchColumn());
     }
 
     /**
@@ -422,16 +443,16 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_int IN (?)',
             array(array(100, 101, 102, 103, 104)), array(Connection::PARAM_INT_ARRAY));
 
-        $data = $stmt->fetchAll(PDO::FETCH_NUM);
-        $this->assertEquals(5, count($data));
-        $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
+        $data = $stmt->fetchAll(FetchMode::NUMERIC);
+        self::assertCount(5, $data);
+        self::assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
 
         $stmt = $this->_conn->executeQuery('SELECT test_int FROM fetch_table WHERE test_string IN (?)',
             array(array('foo100', 'foo101', 'foo102', 'foo103', 'foo104')), array(Connection::PARAM_STR_ARRAY));
 
-        $data = $stmt->fetchAll(PDO::FETCH_NUM);
-        $this->assertEquals(5, count($data));
-        $this->assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
+        $data = $stmt->fetchAll(FetchMode::NUMERIC);
+        self::assertCount(5, $data);
+        self::assertEquals(array(array(100), array(101), array(102), array(103), array(104)), $data);
     }
 
     /**
@@ -446,48 +467,48 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $row = $this->_conn->fetchAssoc($sql);
         $row = array_change_key_case($row, CASE_LOWER);
 
-        $this->assertEquals($expectedResult, $row['trimmed']);
+        self::assertEquals($expectedResult, $row['trimmed']);
     }
 
     public function getTrimExpressionData()
     {
         return array(
-            array('test_string', AbstractPlatform::TRIM_UNSPECIFIED, false, 'foo'),
-            array('test_string', AbstractPlatform::TRIM_LEADING, false, 'foo'),
-            array('test_string', AbstractPlatform::TRIM_TRAILING, false, 'foo'),
-            array('test_string', AbstractPlatform::TRIM_BOTH, false, 'foo'),
-            array('test_string', AbstractPlatform::TRIM_UNSPECIFIED, "'f'", 'oo'),
-            array('test_string', AbstractPlatform::TRIM_UNSPECIFIED, "'o'", 'f'),
-            array('test_string', AbstractPlatform::TRIM_UNSPECIFIED, "'.'", 'foo'),
-            array('test_string', AbstractPlatform::TRIM_LEADING, "'f'", 'oo'),
-            array('test_string', AbstractPlatform::TRIM_LEADING, "'o'", 'foo'),
-            array('test_string', AbstractPlatform::TRIM_LEADING, "'.'", 'foo'),
-            array('test_string', AbstractPlatform::TRIM_TRAILING, "'f'", 'foo'),
-            array('test_string', AbstractPlatform::TRIM_TRAILING, "'o'", 'f'),
-            array('test_string', AbstractPlatform::TRIM_TRAILING, "'.'", 'foo'),
-            array('test_string', AbstractPlatform::TRIM_BOTH, "'f'", 'oo'),
-            array('test_string', AbstractPlatform::TRIM_BOTH, "'o'", 'f'),
-            array('test_string', AbstractPlatform::TRIM_BOTH, "'.'", 'foo'),
-            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, false, 'foo'),
-            array("' foo '", AbstractPlatform::TRIM_LEADING, false, 'foo '),
-            array("' foo '", AbstractPlatform::TRIM_TRAILING, false, ' foo'),
-            array("' foo '", AbstractPlatform::TRIM_BOTH, false, 'foo'),
-            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, "'f'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, "'o'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, "'.'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_UNSPECIFIED, "' '", 'foo'),
-            array("' foo '", AbstractPlatform::TRIM_LEADING, "'f'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_LEADING, "'o'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_LEADING, "'.'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_LEADING, "' '", 'foo '),
-            array("' foo '", AbstractPlatform::TRIM_TRAILING, "'f'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_TRAILING, "'o'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_TRAILING, "'.'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_TRAILING, "' '", ' foo'),
-            array("' foo '", AbstractPlatform::TRIM_BOTH, "'f'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_BOTH, "'o'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_BOTH, "'.'", ' foo '),
-            array("' foo '", AbstractPlatform::TRIM_BOTH, "' '", 'foo'),
+            ['test_string', TrimMode::UNSPECIFIED, false, 'foo'],
+            ['test_string', TrimMode::LEADING, false, 'foo'],
+            ['test_string', TrimMode::TRAILING, false, 'foo'],
+            ['test_string', TrimMode::BOTH, false, 'foo'],
+            ['test_string', TrimMode::UNSPECIFIED, "'f'", 'oo'],
+            ['test_string', TrimMode::UNSPECIFIED, "'o'", 'f'],
+            ['test_string', TrimMode::UNSPECIFIED, "'.'", 'foo'],
+            ['test_string', TrimMode::LEADING, "'f'", 'oo'],
+            ['test_string', TrimMode::LEADING, "'o'", 'foo'],
+            ['test_string', TrimMode::LEADING, "'.'", 'foo'],
+            ['test_string', TrimMode::TRAILING, "'f'", 'foo'],
+            ['test_string', TrimMode::TRAILING, "'o'", 'f'],
+            ['test_string', TrimMode::TRAILING, "'.'", 'foo'],
+            ['test_string', TrimMode::BOTH, "'f'", 'oo'],
+            ['test_string', TrimMode::BOTH, "'o'", 'f'],
+            ['test_string', TrimMode::BOTH, "'.'", 'foo'],
+            ["' foo '", TrimMode::UNSPECIFIED, false, 'foo'],
+            ["' foo '", TrimMode::LEADING, false, 'foo '],
+            ["' foo '", TrimMode::TRAILING, false, ' foo'],
+            ["' foo '", TrimMode::BOTH, false, 'foo'],
+            ["' foo '", TrimMode::UNSPECIFIED, "'f'", ' foo '],
+            ["' foo '", TrimMode::UNSPECIFIED, "'o'", ' foo '],
+            ["' foo '", TrimMode::UNSPECIFIED, "'.'", ' foo '],
+            ["' foo '", TrimMode::UNSPECIFIED, "' '", 'foo'],
+            ["' foo '", TrimMode::LEADING, "'f'", ' foo '],
+            ["' foo '", TrimMode::LEADING, "'o'", ' foo '],
+            ["' foo '", TrimMode::LEADING, "'.'", ' foo '],
+            ["' foo '", TrimMode::LEADING, "' '", 'foo '],
+            ["' foo '", TrimMode::TRAILING, "'f'", ' foo '],
+            ["' foo '", TrimMode::TRAILING, "'o'", ' foo '],
+            ["' foo '", TrimMode::TRAILING, "'.'", ' foo '],
+            ["' foo '", TrimMode::TRAILING, "' '", ' foo'],
+            ["' foo '", TrimMode::BOTH, "'f'", ' foo '],
+            ["' foo '", TrimMode::BOTH, "'o'", ' foo '],
+            ["' foo '", TrimMode::BOTH, "'.'", ' foo '],
+            ["' foo '", TrimMode::BOTH, "' '", 'foo'],
         );
     }
 
@@ -520,24 +541,24 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $row = $this->_conn->fetchAssoc($sql);
         $row = array_change_key_case($row, CASE_LOWER);
 
-        $diff = floor( (strtotime('2010-01-01')-time()) / 3600 / 24);
-        $this->assertEquals($diff, (int)$row['diff'], "Date difference should be approx. ".$diff." days.", 1);
-        $this->assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])), "Adding second should end up on 2010-01-01 10:10:11");
-        $this->assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])), "Subtracting second should end up on 2010-01-01 10:10:09");
-        $this->assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])), "Adding minutes should end up on 2010-01-01 10:15:10");
-        $this->assertEquals('2010-01-01 10:05:10', date('Y-m-d H:i:s', strtotime($row['sub_minutes'])), "Subtracting minutes should end up on 2010-01-01 10:05:10");
-        $this->assertEquals('2010-01-01 13:10', date('Y-m-d H:i', strtotime($row['add_hour'])), "Adding date should end up on 2010-01-01 13:10");
-        $this->assertEquals('2010-01-01 07:10', date('Y-m-d H:i', strtotime($row['sub_hour'])), "Subtracting date should end up on 2010-01-01 07:10");
-        $this->assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])), "Adding date should end up on 2010-01-11");
-        $this->assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])), "Subtracting date should end up on 2009-12-22");
-        $this->assertEquals('2010-01-08', date('Y-m-d', strtotime($row['add_weeks'])), "Adding week should end up on 2010-01-08");
-        $this->assertEquals('2009-12-25', date('Y-m-d', strtotime($row['sub_weeks'])), "Subtracting week should end up on 2009-12-25");
-        $this->assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");
-        $this->assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Subtracting month should end up on 2009-11-01");
-        $this->assertEquals('2010-10-01', date('Y-m-d', strtotime($row['add_quarters'])), "Adding quarters should end up on 2010-04-01");
-        $this->assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), "Subtracting quarters should end up on 2009-10-01");
-        $this->assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])), "Adding years should end up on 2016-01-01");
-        $this->assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), "Subtracting years should end up on 2004-01-01");
+        $diff = (strtotime('2010-01-01') - strtotime(date('Y-m-d'))) / 3600 / 24;
+        self::assertEquals($diff, $row['diff'], "Date difference should be approx. ".$diff." days.", 1);
+        self::assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])), "Adding second should end up on 2010-01-01 10:10:11");
+        self::assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])), "Subtracting second should end up on 2010-01-01 10:10:09");
+        self::assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])), "Adding minutes should end up on 2010-01-01 10:15:10");
+        self::assertEquals('2010-01-01 10:05:10', date('Y-m-d H:i:s', strtotime($row['sub_minutes'])), "Subtracting minutes should end up on 2010-01-01 10:05:10");
+        self::assertEquals('2010-01-01 13:10', date('Y-m-d H:i', strtotime($row['add_hour'])), "Adding date should end up on 2010-01-01 13:10");
+        self::assertEquals('2010-01-01 07:10', date('Y-m-d H:i', strtotime($row['sub_hour'])), "Subtracting date should end up on 2010-01-01 07:10");
+        self::assertEquals('2010-01-11', date('Y-m-d', strtotime($row['add_days'])), "Adding date should end up on 2010-01-11");
+        self::assertEquals('2009-12-22', date('Y-m-d', strtotime($row['sub_days'])), "Subtracting date should end up on 2009-12-22");
+        self::assertEquals('2010-01-08', date('Y-m-d', strtotime($row['add_weeks'])), "Adding week should end up on 2010-01-08");
+        self::assertEquals('2009-12-25', date('Y-m-d', strtotime($row['sub_weeks'])), "Subtracting week should end up on 2009-12-25");
+        self::assertEquals('2010-03-01', date('Y-m-d', strtotime($row['add_month'])), "Adding month should end up on 2010-03-01");
+        self::assertEquals('2009-11-01', date('Y-m-d', strtotime($row['sub_month'])), "Subtracting month should end up on 2009-11-01");
+        self::assertEquals('2010-10-01', date('Y-m-d', strtotime($row['add_quarters'])), "Adding quarters should end up on 2010-04-01");
+        self::assertEquals('2009-04-01', date('Y-m-d', strtotime($row['sub_quarters'])), "Subtracting quarters should end up on 2009-10-01");
+        self::assertEquals('2016-01-01', date('Y-m-d', strtotime($row['add_years'])), "Adding years should end up on 2016-01-01");
+        self::assertEquals('2004-01-01', date('Y-m-d', strtotime($row['sub_years'])), "Subtracting years should end up on 2004-01-01");
     }
 
     public function testLocateExpression()
@@ -559,15 +580,15 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $row = $this->_conn->fetchAssoc($sql);
         $row = array_change_key_case($row, CASE_LOWER);
 
-        $this->assertEquals(2, $row['locate1']);
-        $this->assertEquals(1, $row['locate2']);
-        $this->assertEquals(0, $row['locate3']);
-        $this->assertEquals(1, $row['locate4']);
-        $this->assertEquals(1, $row['locate5']);
-        $this->assertEquals(4, $row['locate6']);
-        $this->assertEquals(0, $row['locate7']);
-        $this->assertEquals(2, $row['locate8']);
-        $this->assertEquals(0, $row['locate9']);
+        self::assertEquals(2, $row['locate1']);
+        self::assertEquals(1, $row['locate2']);
+        self::assertEquals(0, $row['locate3']);
+        self::assertEquals(1, $row['locate4']);
+        self::assertEquals(1, $row['locate5']);
+        self::assertEquals(4, $row['locate6']);
+        self::assertEquals(0, $row['locate7']);
+        self::assertEquals(2, $row['locate8']);
+        self::assertEquals(0, $row['locate9']);
     }
 
     public function testQuoteSQLInjection()
@@ -575,7 +596,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql = "SELECT * FROM fetch_table WHERE test_string = " . $this->_conn->quote("bar' OR '1'='1");
         $rows = $this->_conn->fetchAll($sql);
 
-        $this->assertEquals(0, count($rows), "no result should be returned, otherwise SQL injection is possible");
+        self::assertCount(0, $rows, "no result should be returned, otherwise SQL injection is possible");
     }
 
     /**
@@ -583,7 +604,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testBitComparisonExpressionSupport()
     {
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->exec('DELETE FROM fetch_table');
         $platform = $this->_conn->getDatabasePlatform();
         $bitmap   = array();
 
@@ -606,37 +627,37 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $sql[]  = $platform->getBitAndComparisonExpression('test_int', 2) . ' AS bit_and ';
         $sql[]  = 'FROM fetch_table';
 
-        $stmt   = $this->_conn->executeQuery(implode(PHP_EOL, $sql));
-        $data   = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->_conn->executeQuery(implode(PHP_EOL, $sql));
+        $data = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
 
-        $this->assertEquals(4, count($data));
-        $this->assertEquals(count($bitmap), count($data));
+        self::assertCount(4, $data);
+        self::assertEquals(count($bitmap), count($data));
         foreach ($data as $row) {
             $row = array_change_key_case($row, CASE_LOWER);
 
-            $this->assertArrayHasKey('test_int', $row);
+            self::assertArrayHasKey('test_int', $row);
 
             $id = $row['test_int'];
 
-            $this->assertArrayHasKey($id, $bitmap);
-            $this->assertArrayHasKey($id, $bitmap);
+            self::assertArrayHasKey($id, $bitmap);
+            self::assertArrayHasKey($id, $bitmap);
 
-            $this->assertArrayHasKey('bit_or', $row);
-            $this->assertArrayHasKey('bit_and', $row);
+            self::assertArrayHasKey('bit_or', $row);
+            self::assertArrayHasKey('bit_and', $row);
 
-            $this->assertEquals($row['bit_or'], $bitmap[$id]['bit_or']);
-            $this->assertEquals($row['bit_and'], $bitmap[$id]['bit_and']);
+            self::assertEquals($row['bit_or'], $bitmap[$id]['bit_or']);
+            self::assertEquals($row['bit_and'], $bitmap[$id]['bit_and']);
         }
     }
 
     public function testSetDefaultFetchMode()
     {
         $stmt = $this->_conn->query("SELECT * FROM fetch_table");
-        $stmt->setFetchMode(\PDO::FETCH_NUM);
+        $stmt->setFetchMode(FetchMode::NUMERIC);
 
         $row = array_keys($stmt->fetch());
-        $this->assertEquals(0, count( array_filter($row, function($v) { return ! is_numeric($v); })), "should be no non-numerical elements in the result.");
+        self::assertCount(0, array_filter($row, function($v) { return ! is_numeric($v); }), "should be no non-numerical elements in the result.");
     }
 
     /**
@@ -651,20 +672,20 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $stmt->execute();
 
-        $results = $stmt->fetchAll(\PDO::FETCH_OBJ);
+        $results = $stmt->fetchAll(FetchMode::STANDARD_OBJECT);
 
-        $this->assertCount(1, $results);
-        $this->assertInstanceOf('stdClass', $results[0]);
+        self::assertCount(1, $results);
+        self::assertInstanceOf('stdClass', $results[0]);
 
-        $this->assertEquals(
+        self::assertEquals(
             1,
             property_exists($results[0], 'test_int') ? $results[0]->test_int : $results[0]->TEST_INT
         );
-        $this->assertEquals(
+        self::assertEquals(
             'foo',
             property_exists($results[0], 'test_string') ? $results[0]->test_string : $results[0]->TEST_STRING
         );
-        $this->assertStringStartsWith(
+        self::assertStringStartsWith(
             '2010-01-01 10:10:10',
             property_exists($results[0], 'test_datetime') ? $results[0]->test_datetime : $results[0]->TEST_DATETIME
         );
@@ -683,16 +704,16 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt->execute();
 
         $results = $stmt->fetchAll(
-            \PDO::FETCH_CLASS,
+            FetchMode::CUSTOM_OBJECT,
             __NAMESPACE__.'\\MyFetchClass'
         );
 
-        $this->assertEquals(1, count($results));
-        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
+        self::assertCount(1, $results);
+        self::assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
 
-        $this->assertEquals(1, $results[0]->test_int);
-        $this->assertEquals('foo', $results[0]->test_string);
-        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
+        self::assertEquals(1, $results[0]->test_int);
+        self::assertEquals('foo', $results[0]->test_string);
+        self::assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
     }
 
     /**
@@ -707,9 +728,9 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->insert('fetch_table', array('test_int' => 10, 'test_string' => 'foo'));
 
         $sql = "SELECT test_int FROM fetch_table";
-        $rows = $this->_conn->query($sql)->fetchAll(\PDO::FETCH_COLUMN);
+        $rows = $this->_conn->query($sql)->fetchAll(FetchMode::COLUMN);
 
-        $this->assertEquals(array(1, 10), $rows);
+        self::assertEquals(array(1, 10), $rows);
     }
 
     /**
@@ -722,16 +743,16 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT * FROM fetch_table";
         $stmt = $this->_conn->query($sql);
-        $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass');
+        $stmt->setFetchMode(FetchMode::CUSTOM_OBJECT, __NAMESPACE__ . '\\MyFetchClass');
 
         $results = $stmt->fetchAll();
 
-        $this->assertEquals(1, count($results));
-        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
+        self::assertCount(1, $results);
+        self::assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
 
-        $this->assertEquals(1, $results[0]->test_int);
-        $this->assertEquals('foo', $results[0]->test_string);
-        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
+        self::assertEquals(1, $results[0]->test_int);
+        self::assertEquals('foo', $results[0]->test_string);
+        self::assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
     }
 
     /**
@@ -744,19 +765,19 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
         $sql = "SELECT * FROM fetch_table";
         $stmt = $this->_conn->query($sql);
-        $stmt->setFetchMode(\PDO::FETCH_CLASS, __NAMESPACE__ . '\\MyFetchClass');
+        $stmt->setFetchMode(FetchMode::CUSTOM_OBJECT, __NAMESPACE__ . '\\MyFetchClass');
 
         $results = array();
         while ($row = $stmt->fetch()) {
             $results[] = $row;
         }
 
-        $this->assertEquals(1, count($results));
-        $this->assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
+        self::assertCount(1, $results);
+        self::assertInstanceOf(__NAMESPACE__.'\\MyFetchClass', $results[0]);
 
-        $this->assertEquals(1, $results[0]->test_int);
-        $this->assertEquals('foo', $results[0]->test_string);
-        $this->assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
+        self::assertEquals(1, $results[0]->test_int);
+        self::assertEquals('foo', $results[0]->test_string);
+        self::assertStringStartsWith('2010-01-01 10:10:10', $results[0]->test_datetime);
     }
 
     /**
@@ -764,9 +785,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testEmptyFetchColumnReturnsFalse()
     {
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
-        $this->assertFalse($this->_conn->fetchColumn('SELECT test_int FROM fetch_table'));
-        $this->assertFalse($this->_conn->query('SELECT test_int FROM fetch_table')->fetchColumn());
+        $this->_conn->beginTransaction();
+        $this->_conn->exec('DELETE FROM fetch_table');
+        self::assertFalse($this->_conn->fetchColumn('SELECT test_int FROM fetch_table'));
+        self::assertFalse($this->_conn->query('SELECT test_int FROM fetch_table')->fetchColumn());
+        $this->_conn->rollBack();
     }
 
     /**
@@ -776,12 +799,13 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $sql = "SELECT test_int, test_string FROM fetch_table WHERE test_int = ? AND test_string = ?";
         $stmt = $this->_conn->executeQuery($sql, array(1, "foo"));
-        $stmt->setFetchMode(\PDO::FETCH_NUM);
+        $stmt->setFetchMode(FetchMode::NUMERIC);
 
-        while ($row = $stmt->fetch()) {
-            $this->assertTrue(isset($row[0]));
-            $this->assertTrue(isset($row[1]));
-        }
+        $row = $stmt->fetch();
+
+        self::assertArrayHasKey(0, $row);
+        self::assertArrayHasKey(1, $row);
+        self::assertFalse($stmt->fetch());
     }
 
     /**
@@ -793,7 +817,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $stmt = $this->_conn->executeQuery($sql, array(array()), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
         $rows = $stmt->fetchAll();
 
-        $this->assertEquals(array(), $rows);
+        self::assertEquals(array(), $rows);
     }
 
     /**
@@ -803,11 +827,11 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $this->_conn->executeUpdate(
             'INSERT INTO fetch_table (test_int, test_string) VALUES (?, ?)',
-            array(1, 'foo')
+            array(2, 'foo')
         );
 
-        $this->assertNull(
-            $this->_conn->fetchColumn('SELECT test_datetime FROM fetch_table WHERE test_int = ?', array(1))
+        self::assertNull(
+            $this->_conn->fetchColumn('SELECT test_datetime FROM fetch_table WHERE test_int = ?', array(2))
         );
     }
 
@@ -822,7 +846,7 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
             );
         }
 
-        $this->assertNull(
+        self::assertNull(
             $this->_conn->fetchColumn('SELECT test_int FROM fetch_table WHERE test_int = ?', array(1), 1)
         );
     }
@@ -832,14 +856,14 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
      */
     public function testFetchColumnNoResult()
     {
-        $this->assertFalse(
+        self::assertFalse(
             $this->_conn->fetchColumn('SELECT test_int FROM fetch_table WHERE test_int = ?', array(-1))
         );
     }
 
     private function setupFixture()
     {
-        $this->_conn->executeQuery('DELETE FROM fetch_table')->execute();
+        $this->_conn->exec('DELETE FROM fetch_table');
         $this->_conn->insert('fetch_table', array(
             'test_int'      => 1,
             'test_string'   => 'foo',

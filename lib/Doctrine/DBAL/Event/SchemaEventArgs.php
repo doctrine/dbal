@@ -31,7 +31,7 @@ use Doctrine\Common\EventArgs;
 class SchemaEventArgs extends EventArgs
 {
     /**
-     * @var boolean
+     * @var bool
      */
     private $_preventDefault = false;
 
@@ -46,7 +46,7 @@ class SchemaEventArgs extends EventArgs
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isDefaultPrevented()
     {

@@ -24,7 +24,7 @@ require this instance, while the later has this instance as a required parameter
     $stmt = $conn->executeQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
     $stmt = $conn->executeCacheQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
 
-It is also possible to pass in a the ``Doctrine\Common\Cache\Cache`` instance into the
+It is also possible to pass in a ``Doctrine\Common\Cache\Cache`` instance into the
 constructor of ``Doctrine\DBAL\Cache\QueryCacheProfile`` in which case it overrides
 the default cache instance:
 
@@ -35,7 +35,7 @@ the default cache instance:
     new QueryCacheProfile(0, "some key", $cache);
 
 In order for the data to actually be cached its necessary to ensure that the entire
-result set is read (easiest way to ensure this is to use ``fetchAll``) and the statement
+result set is read (the easiest way to ensure this is to use ``fetchAll``) and the statement
 object is closed:
 
 ::
@@ -44,7 +44,6 @@ object is closed:
     $stmt = $conn->executeCacheQuery($query, $params, $types, new QueryCacheProfile(0, "some key"));
     $data = $stmt->fetchAll();
     $stmt->closeCursor(); // at this point the result is cached
-
 
 .. warning::
 

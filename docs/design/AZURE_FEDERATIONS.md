@@ -7,7 +7,7 @@ Implementing Federations inside a new Doctrine Sharding Extension. Some extensio
 * Add support for Database Schema Operations
     * CREATE FEDERATION
     * CREATE TABLE ... FEDERATED ON
-    * Add support to create a multi-tenent schema from any given schema
+    * Add support to create a multi-tenant schema from any given schema
 * Add API to pick a shard based on distribution key and atomic value
 * Add API to ask about federations, federation members and so on.
 * Add Sharding Abstraction
@@ -17,7 +17,7 @@ Implementing Federations inside a new Doctrine Sharding Extension. Some extensio
 2. ORM (Object-Relational Mapper)
 
 * Federation Key has to be part of the clustered index of the table
-    * Test with a pure Multi-Tenent App with Filtering = ON (TaskList)
+    * Test with a pure Multi-Tenant App with Filtering = ON (TaskList)
     * Test with sharded app (Weather)
 
 ## Implementation Details

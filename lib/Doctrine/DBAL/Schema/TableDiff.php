@@ -52,70 +52,70 @@ class TableDiff
      *
      * @var \Doctrine\DBAL\Schema\ColumnDiff[]
      */
-    public $changedColumns = array();
+    public $changedColumns = [];
 
     /**
      * All removed fields.
      *
      * @var \Doctrine\DBAL\Schema\Column[]
      */
-    public $removedColumns = array();
+    public $removedColumns = [];
 
     /**
      * Columns that are only renamed from key to column instance name.
      *
      * @var \Doctrine\DBAL\Schema\Column[]
      */
-    public $renamedColumns = array();
+    public $renamedColumns = [];
 
     /**
      * All added indexes.
      *
      * @var \Doctrine\DBAL\Schema\Index[]
      */
-    public $addedIndexes = array();
+    public $addedIndexes = [];
 
     /**
      * All changed indexes.
      *
      * @var \Doctrine\DBAL\Schema\Index[]
      */
-    public $changedIndexes = array();
+    public $changedIndexes = [];
 
     /**
      * All removed indexes
      *
      * @var \Doctrine\DBAL\Schema\Index[]
      */
-    public $removedIndexes = array();
+    public $removedIndexes = [];
 
     /**
      * Indexes that are only renamed but are identical otherwise.
      *
      * @var \Doctrine\DBAL\Schema\Index[]
      */
-    public $renamedIndexes = array();
+    public $renamedIndexes = [];
 
     /**
      * All added foreign key definitions
      *
      * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
      */
-    public $addedForeignKeys = array();
+    public $addedForeignKeys = [];
 
     /**
      * All changed foreign keys
      *
      * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
      */
-    public $changedForeignKeys = array();
+    public $changedForeignKeys = [];
 
     /**
      * All removed foreign keys
      *
      * @var \Doctrine\DBAL\Schema\ForeignKeyConstraint[]
      */
-    public $removedForeignKeys = array();
+    public $removedForeignKeys = [];
 
     /**
      * @var \Doctrine\DBAL\Schema\Table
@@ -134,9 +134,9 @@ class TableDiff
      * @param \Doctrine\DBAL\Schema\Index[]      $removedIndexes
      * @param \Doctrine\DBAL\Schema\Table|null   $fromTable
      */
-    public function __construct($tableName, $addedColumns = array(),
-        $changedColumns = array(), $removedColumns = array(), $addedIndexes = array(),
-        $changedIndexes = array(), $removedIndexes = array(), Table $fromTable = null)
+    public function __construct($tableName, $addedColumns = [],
+        $changedColumns = [], $removedColumns = [], $addedIndexes = [],
+        $changedIndexes = [], $removedIndexes = [], Table $fromTable = null)
     {
         $this->name = $tableName;
         $this->addedColumns = $addedColumns;

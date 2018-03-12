@@ -22,6 +22,7 @@ namespace Doctrine\DBAL;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 class DBALException extends \Exception
 {
@@ -35,14 +36,35 @@ class DBALException extends \Exception
         return new self("Operation '$method' is not supported by platform.");
     }
 
-    /**
-     * @return \Doctrine\DBAL\DBALException
-     */
-    public static function invalidPlatformSpecified()
+    public static function invalidPlatformSpecified() : self
     {
         return new self(
             "Invalid 'platform' option specified, need to give an instance of ".
             "\Doctrine\DBAL\Platforms\AbstractPlatform.");
+    }
+
+    /**
+     * @param mixed $invalidPlatform
+     */
+    public static function invalidPlatformType($invalidPlatform) : self
+    {
+        if (\is_object($invalidPlatform)) {
+            return new self(
+                sprintf(
+                    "Option 'platform' must be a subtype of '%s', instance of '%s' given",
+                    AbstractPlatform::class,
+                    \get_class($invalidPlatform)
+                )
+            );
+        }
+
+        return new self(
+            sprintf(
+                "Option 'platform' must be an object and subtype of '%s'. Got '%s'",
+                AbstractPlatform::class,
+                \gettype($invalidPlatform)
+            )
+        );
     }
 
     /**
@@ -77,10 +99,22 @@ class DBALException extends \Exception
     }
 
     /**
+     * @param string|null $url The URL that was provided in the connection parameters (if any).
+     *
      * @return \Doctrine\DBAL\DBALException
      */
-    public static function driverRequired()
+    public static function driverRequired($url = null)
     {
+        if ($url) {
+            return new self(
+                sprintf(
+                    "The options 'driver' or 'driverClass' are mandatory if a connection URL without scheme " .
+                    "is given to DriverManager::getConnection(). Given URL: %s",
+                    $url
+                )
+            );
+        }
+
         return new self("The options 'driver' or 'driverClass' are mandatory if no PDO ".
             "instance is given to DriverManager::getConnection().");
     }
@@ -98,14 +132,14 @@ class DBALException extends \Exception
     }
 
     /**
-     * @param \Doctrine\DBAL\Driver     $driver
-     * @param \Exception $driverEx
-     * @param string     $sql
-     * @param array      $params
+     * @param \Doctrine\DBAL\Driver $driver
+     * @param \Exception            $driverEx
+     * @param string                $sql
+     * @param array                 $params
      *
      * @return \Doctrine\DBAL\DBALException
      */
-    public static function driverExceptionDuringQuery(Driver $driver, \Exception $driverEx, $sql, array $params = array())
+    public static function driverExceptionDuringQuery(Driver $driver, \Exception $driverEx, $sql, array $params = [])
     {
         $msg = "An exception occurred while executing '".$sql."'";
         if ($params) {
@@ -117,8 +151,8 @@ class DBALException extends \Exception
     }
 
     /**
-     * @param \Doctrine\DBAL\Driver     $driver
-     * @param \Exception $driverEx
+     * @param \Doctrine\DBAL\Driver $driver
+     * @param \Exception            $driverEx
      *
      * @return \Doctrine\DBAL\DBALException
      */
@@ -128,8 +162,8 @@ class DBALException extends \Exception
     }
 
     /**
-     * @param \Doctrine\DBAL\Driver     $driver
-     * @param \Exception $driverEx
+     * @param \Doctrine\DBAL\Driver $driver
+     * @param \Exception            $driverEx
      *
      * @return \Doctrine\DBAL\DBALException
      */
@@ -156,6 +190,10 @@ class DBALException extends \Exception
     private static function formatParameters(array $params)
     {
         return '[' . implode(', ', array_map(function ($param) {
+            if (is_resource($param)) {
+                return (string) $param;
+            }
+            
             $json = @json_encode($param);
 
             if (! is_string($json) || $json == 'null' && is_string($param)) {

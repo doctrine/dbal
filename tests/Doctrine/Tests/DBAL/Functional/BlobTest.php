@@ -2,8 +2,8 @@
 
 namespace Doctrine\Tests\DBAL\Functional;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
-use PDO;
 
 /**
  * @group DBAL-6
@@ -37,35 +37,60 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testInsert()
     {
-        $ret = $this->_conn->insert('blob_table',
-            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
-            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
-        );
-        $this->assertEquals(1, $ret);
+        $ret = $this->_conn->insert('blob_table', [
+            'id'          => 1,
+            'clobfield'   => 'test',
+            'blobfield'   => 'test',
+            'binaryfield' => 'test',
+        ], [
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            ParameterType::LARGE_OBJECT,
+            ParameterType::LARGE_OBJECT,
+        ]);
+
+        self::assertEquals(1, $ret);
     }
 
     public function testSelect()
     {
-        $ret = $this->_conn->insert('blob_table',
-            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
-            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
-        );
+        $this->_conn->insert('blob_table', [
+            'id'          => 1,
+            'clobfield'   => 'test',
+            'blobfield'   => 'test',
+            'binaryfield' => 'test',
+        ], [
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            ParameterType::LARGE_OBJECT,
+            ParameterType::LARGE_OBJECT,
+        ]);
 
         $this->assertBlobContains('test');
     }
 
     public function testUpdate()
     {
-        $ret = $this->_conn->insert('blob_table',
-            array('id' => 1, 'clobfield' => 'test', 'blobfield' => 'test', 'binaryfield' => 'test'),
-            array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_LOB, \PDO::PARAM_LOB)
-        );
+        $this->_conn->insert('blob_table', [
+            'id' => 1,
+            'clobfield' => 'test',
+            'blobfield' => 'test',
+            'binaryfield' => 'test',
+        ], [
+            ParameterType::INTEGER,
+            ParameterType::STRING,
+            ParameterType::LARGE_OBJECT,
+            ParameterType::LARGE_OBJECT,
+        ]);
 
-        $this->_conn->update('blob_table',
-            array('blobfield' => 'test2', 'binaryfield' => 'test2'),
-            array('id' => 1),
-            array(\PDO::PARAM_LOB, \PDO::PARAM_LOB, \PDO::PARAM_INT)
-        );
+        $this->_conn->update('blob_table', [
+            'blobfield' => 'test2',
+            'binaryfield' => 'test2',
+        ], ['id' => 1], [
+            ParameterType::LARGE_OBJECT,
+            ParameterType::LARGE_OBJECT,
+            ParameterType::INTEGER,
+        ]);
 
         $this->assertBlobContains('test2');
         $this->assertBinaryContains('test2');
@@ -75,25 +100,25 @@ class BlobTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $rows = $this->_conn->fetchAll('SELECT * FROM blob_table');
 
-        $this->assertEquals(1, count($rows));
+        self::assertCount(1, $rows);
         $row = array_change_key_case($rows[0], CASE_LOWER);
 
         $blobValue = Type::getType('binary')->convertToPHPValue($row['binaryfield'], $this->_conn->getDatabasePlatform());
 
-        $this->assertInternalType('resource', $blobValue);
-        $this->assertEquals($text, stream_get_contents($blobValue));
+        self::assertInternalType('resource', $blobValue);
+        self::assertEquals($text, stream_get_contents($blobValue));
     }
 
     private function assertBlobContains($text)
     {
         $rows = $this->_conn->fetchAll('SELECT * FROM blob_table');
 
-        $this->assertEquals(1, count($rows));
+        self::assertCount(1, $rows);
         $row = array_change_key_case($rows[0], CASE_LOWER);
 
         $blobValue = Type::getType('blob')->convertToPHPValue($row['blobfield'], $this->_conn->getDatabasePlatform());
 
-        $this->assertInternalType('resource', $blobValue);
-        $this->assertEquals($text, stream_get_contents($blobValue));
+        self::assertInternalType('resource', $blobValue);
+        self::assertEquals($text, stream_get_contents($blobValue));
     }
 }

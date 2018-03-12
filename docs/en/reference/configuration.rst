@@ -77,7 +77,7 @@ If you wanted to use the ``drizzle_pdo__mysql`` driver instead::
 
     drizzle-pdo-mysql://localhost:4486/foo?charset=UTF-8
 
-In the two last example above, mind the dashes instead of the
+In the last two examples above, mind the dashes instead of the
 underscores in the URL schemes.
 
 For connecting to an SQLite database, the authority portion of the
@@ -117,13 +117,11 @@ database name::
     ``charset`` connection parameter next to ``url``, to provide a
     default value in case the URL doesn't contain a charset value.
 
-
 Driver
 ~~~~~~
 
 The driver specifies the actual implementations of the DBAL
 interfaces to use. It can be configured in one of three ways:
-
 
 -  ``driver``: The built-in driver implementation to use. The
    following drivers are currently available:
@@ -155,8 +153,8 @@ Wrapper Class
 ~~~~~~~~~~~~~
 
 By default a ``Doctrine\DBAL\Connection`` is wrapped around a
-driver ``Connection``. The ``wrapperClass`` option allows to
-specify a custom wrapper implementation to use, however, a custom
+driver ``Connection``. The ``wrapperClass`` option allows
+specifying a custom wrapper implementation to use, however, a custom
 wrapper class must be a subclass of ``Doctrine\DBAL\Connection``.
 
 Connection Details
@@ -172,10 +170,8 @@ options recognized by each built-in driver.
     When using an existing PDO instance through the ``pdo``
     option, specifying connection details is obviously not necessary.
 
-
 pdo\_sqlite
 ^^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -189,7 +185,6 @@ pdo\_sqlite
 
 pdo\_mysql
 ^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -208,7 +203,7 @@ drizzle\_pdo\_mysql
 
 **Requires** drizzle plugin ``mysql_protocol`` or ``mysql_unix_socket_protocol`` to be enabled.
 On Ubuntu this can be done by editing ``/etc/drizzle/conf.d/mysql-protocol.cnf``
-or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled daemon.
+or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restarting the drizzled daemon.
 
 -  ``user`` (string): Username to use when connecting to the
    database. Only needed if authentication is configured for drizzled.
@@ -223,7 +218,6 @@ or ``/etc/drizzle/conf.d/mysql-unix-socket-protocol.cnf`` and restart drizzled d
 mysqli
 ^^^^^^
 
-
 -  ``user`` (string): Username to use when connecting to the
    database.
 -  ``password`` (string): Password to use when connecting to the
@@ -235,11 +229,15 @@ mysqli
    the database.
 -  ``charset`` (string): The charset used when connecting to the
    database.
+-  ``ssl_key`` (string): The path name to the key file to use for SSL encryption.
+-  ``ssl_cert`` (string): The path name to the certificate file to use for SSL encryption.
+-  ``ssl_ca`` (string): The path name to the certificate authority file to use for SSL encryption.
+-  ``ssl_capath`` (string): The pathname to a directory that contains trusted SSL CA certificates in PEM format.
+-  ``ssl_cipher`` (string): A list of allowable ciphers to use for SSL encryption.
 -  ``driverOptions`` Any supported flags for mysqli found on `http://www.php.net/manual/en/mysqli.real-connect.php`
 
 pdo\_pgsql
 ^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -261,6 +259,14 @@ pdo\_pgsql
    the server's certificate will be verified to be signed by one of these
    authorities.
    See http://www.postgresql.org/docs/9.0/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
+-  ``sslcert`` (string): specifies the file name of the client SSL certificate.
+   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT`
+-  ``sslkey`` (string): specifies the location for the secret key used for the
+   client certificate.
+   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY`
+-  ``sslcrl`` (string): specifies the file name of the SSL certificate
+   revocation list (CRL).
+   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
 
@@ -271,7 +277,6 @@ and ``'false'`` as strings you can change to integers by using:
 
 pdo\_oci / oci8
 ^^^^^^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -300,10 +305,10 @@ pdo\_oci / oci8
    you will still need to provide the ``user`` and ``password`` parameters, but the other
    parameters will no longer be used. Note that when using this parameter, the ``getHost``
    and ``getPort`` methods from ``Doctrine\DBAL\Connection`` will no longer function as expected.
+-  ``persistent`` (boolean): Whether to establish a persistent connection.
 
 pdo\_sqlsrv / sqlsrv
 ^^^^^^^^^^^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.
@@ -315,7 +320,6 @@ pdo\_sqlsrv / sqlsrv
 
 sqlanywhere
 ^^^^^^^^^^^
-
 
 -  ``user`` (string): Username to use when connecting to the
    database.

@@ -114,6 +114,11 @@ class SQLServer2008Platform extends SQLServer2005Platform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords';
+        return Keywords\SQLServer2008Keywords::class;
+    }
+
+    protected function getLikeWildcardCharacters() : string
+    {
+        return parent::getLikeWildcardCharacters() . '[]^';
     }
 }

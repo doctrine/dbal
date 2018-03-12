@@ -32,7 +32,7 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->alterTable($diff);
 
         $columns = $this->_sm->listTableColumns('sqlsrv_drop_column');
-        $this->assertEquals(1, count($columns));
+        self::assertCount(1, $columns);
     }
 
     public function testColumnCollation()
@@ -43,18 +43,19 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->dropAndCreateTable($table);
         $columns = $this->_sm->listTableColumns($tableName);
 
-        $this->assertTrue($columns[$columnName]->hasPlatformOption('collation')); // SQL Server should report a default collation on the column
+        self::assertTrue($columns[$columnName]->hasPlatformOption('collation')); // SQL Server should report a default collation on the column
 
         $column->setPlatformOption('collation', $collation = 'Icelandic_CS_AS');
 
         $this->_sm->dropAndCreateTable($table);
         $columns = $this->_sm->listTableColumns($tableName);
 
-        $this->assertEquals($collation, $columns[$columnName]->getPlatformOption('collation'));
+        self::assertEquals($collation, $columns[$columnName]->getPlatformOption('collation'));
     }
 
     public function testDefaultConstraints()
     {
+        $platform = $this->_sm->getDatabasePlatform();
         $table = new Table('sqlsrv_default_constraints');
         $table->addColumn('no_default', 'string');
         $table->addColumn('df_integer', 'integer', array('default' => 666));
@@ -63,16 +64,20 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $table->addColumn('df_string_3', 'string', array('default' => 'another default value'));
         $table->addColumn('df_string_4', 'string', array('default' => 'column to rename'));
         $table->addColumn('df_boolean', 'boolean', array('default' => true));
+        $table->addColumn('df_current_date', 'date', array('default' => $platform->getCurrentDateSQL()));
+        $table->addColumn('df_current_time', 'time', array('default' => $platform->getCurrentTimeSQL()));
 
         $this->_sm->createTable($table);
         $columns = $this->_sm->listTableColumns('sqlsrv_default_constraints');
 
-        $this->assertNull($columns['no_default']->getDefault());
-        $this->assertEquals(666, $columns['df_integer']->getDefault());
-        $this->assertEquals('foobar', $columns['df_string_1']->getDefault());
-        $this->assertEquals('Doctrine rocks!!!', $columns['df_string_2']->getDefault());
-        $this->assertEquals('another default value', $columns['df_string_3']->getDefault());
-        $this->assertEquals(1, $columns['df_boolean']->getDefault());
+        self::assertNull($columns['no_default']->getDefault());
+        self::assertEquals(666, $columns['df_integer']->getDefault());
+        self::assertEquals('foobar', $columns['df_string_1']->getDefault());
+        self::assertEquals('Doctrine rocks!!!', $columns['df_string_2']->getDefault());
+        self::assertEquals('another default value', $columns['df_string_3']->getDefault());
+        self::assertEquals(1, $columns['df_boolean']->getDefault());
+        self::assertSame($platform->getCurrentDateSQL(), $columns['df_current_date']->getDefault());
+        self::assertSame($platform->getCurrentTimeSQL(), $columns['df_current_time']->getDefault());
 
         $diff = new TableDiff(
             'sqlsrv_default_constraints',
@@ -123,13 +128,13 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->alterTable($diff);
         $columns = $this->_sm->listTableColumns('sqlsrv_default_constraints');
 
-        $this->assertNull($columns['no_default']->getDefault());
-        $this->assertEquals('CURRENT_TIMESTAMP', $columns['df_current_timestamp']->getDefault());
-        $this->assertEquals(0, $columns['df_integer']->getDefault());
-        $this->assertNull($columns['df_string_2']->getDefault());
-        $this->assertEquals('another default value', $columns['df_string_3']->getDefault());
-        $this->assertEquals(0, $columns['df_boolean']->getDefault());
-        $this->assertEquals('column to rename', $columns['df_string_renamed']->getDefault());
+        self::assertNull($columns['no_default']->getDefault());
+        self::assertEquals('CURRENT_TIMESTAMP', $columns['df_current_timestamp']->getDefault());
+        self::assertEquals(0, $columns['df_integer']->getDefault());
+        self::assertNull($columns['df_string_2']->getDefault());
+        self::assertEquals('another default value', $columns['df_string_3']->getDefault());
+        self::assertEquals(0, $columns['df_boolean']->getDefault());
+        self::assertEquals('column to rename', $columns['df_string_renamed']->getDefault());
 
         /**
          * Test that column default constraints can still be referenced after table rename
@@ -161,8 +166,8 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->alterTable($diff);
         $columns = $this->_sm->listTableColumns('sqlsrv_default_constraints');
 
-        $this->assertNull($columns['df_current_timestamp']->getDefault());
-        $this->assertEquals(666, $columns['df_integer']->getDefault());
+        self::assertNull($columns['df_current_timestamp']->getDefault());
+        self::assertEquals(666, $columns['df_integer']->getDefault());
     }
 
     /**
@@ -188,19 +193,19 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->createTable($table);
 
         $columns = $this->_sm->listTableColumns("sqlsrv_column_comment");
-        $this->assertEquals(12, count($columns));
-        $this->assertNull($columns['id']->getComment());
-        $this->assertNull($columns['comment_null']->getComment());
-        $this->assertNull($columns['comment_false']->getComment());
-        $this->assertNull($columns['comment_empty_string']->getComment());
-        $this->assertEquals('0', $columns['comment_integer_0']->getComment());
-        $this->assertEquals('0', $columns['comment_float_0']->getComment());
-        $this->assertEquals('0', $columns['comment_string_0']->getComment());
-        $this->assertEquals('Doctrine 0wnz you!', $columns['comment']->getComment());
-        $this->assertEquals('Doctrine 0wnz comments for explicitly quoted columns!', $columns['comment_quoted']->getComment());
-        $this->assertEquals('Doctrine 0wnz comments for reserved keyword columns!', $columns['[create]']->getComment());
-        $this->assertNull($columns['commented_type']->getComment());
-        $this->assertEquals('Doctrine array type.', $columns['commented_type_with_comment']->getComment());
+        self::assertCount(12, $columns);
+        self::assertNull($columns['id']->getComment());
+        self::assertNull($columns['comment_null']->getComment());
+        self::assertNull($columns['comment_false']->getComment());
+        self::assertNull($columns['comment_empty_string']->getComment());
+        self::assertEquals('0', $columns['comment_integer_0']->getComment());
+        self::assertEquals('0', $columns['comment_float_0']->getComment());
+        self::assertEquals('0', $columns['comment_string_0']->getComment());
+        self::assertEquals('Doctrine 0wnz you!', $columns['comment']->getComment());
+        self::assertEquals('Doctrine 0wnz comments for explicitly quoted columns!', $columns['comment_quoted']->getComment());
+        self::assertEquals('Doctrine 0wnz comments for reserved keyword columns!', $columns['[create]']->getComment());
+        self::assertNull($columns['commented_type']->getComment());
+        self::assertEquals('Doctrine array type.', $columns['commented_type_with_comment']->getComment());
 
         $tableDiff = new TableDiff('sqlsrv_column_comment');
         $tableDiff->fromTable = $table;
@@ -304,30 +309,30 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $this->_sm->alterTable($tableDiff);
 
         $columns = $this->_sm->listTableColumns("sqlsrv_column_comment");
-        $this->assertEquals(23, count($columns));
-        $this->assertEquals('primary', $columns['id']->getComment());
-        $this->assertNull($columns['comment_null']->getComment());
-        $this->assertEquals('false', $columns['comment_false']->getComment());
-        $this->assertNull($columns['comment_empty_string']->getComment());
-        $this->assertEquals('0', $columns['comment_double_0']->getComment());
-        $this->assertNull($columns['comment_string_0']->getComment());
-        $this->assertNull($columns['comment']->getComment());
-        $this->assertEquals('Doctrine array.', $columns['comment_quoted']->getComment());
-        $this->assertNull($columns['[create]']->getComment());
-        $this->assertEquals('foo', $columns['commented_type']->getComment());
-        $this->assertNull($columns['commented_type_with_comment']->getComment());
-        $this->assertNull($columns['added_comment_none']->getComment());
-        $this->assertNull($columns['added_comment_null']->getComment());
-        $this->assertNull($columns['added_comment_false']->getComment());
-        $this->assertNull($columns['added_comment_empty_string']->getComment());
-        $this->assertEquals('0', $columns['added_comment_integer_0']->getComment());
-        $this->assertEquals('0', $columns['added_comment_float_0']->getComment());
-        $this->assertEquals('0', $columns['added_comment_string_0']->getComment());
-        $this->assertEquals('Doctrine', $columns['added_comment']->getComment());
-        $this->assertEquals('rulez', $columns['added_comment_quoted']->getComment());
-        $this->assertEquals('666', $columns['[select]']->getComment());
-        $this->assertNull($columns['added_commented_type']->getComment());
-        $this->assertEquals('666', $columns['added_commented_type_with_comment']->getComment());
+        self::assertCount(23, $columns);
+        self::assertEquals('primary', $columns['id']->getComment());
+        self::assertNull($columns['comment_null']->getComment());
+        self::assertEquals('false', $columns['comment_false']->getComment());
+        self::assertNull($columns['comment_empty_string']->getComment());
+        self::assertEquals('0', $columns['comment_double_0']->getComment());
+        self::assertNull($columns['comment_string_0']->getComment());
+        self::assertNull($columns['comment']->getComment());
+        self::assertEquals('Doctrine array.', $columns['comment_quoted']->getComment());
+        self::assertNull($columns['[create]']->getComment());
+        self::assertEquals('foo', $columns['commented_type']->getComment());
+        self::assertNull($columns['commented_type_with_comment']->getComment());
+        self::assertNull($columns['added_comment_none']->getComment());
+        self::assertNull($columns['added_comment_null']->getComment());
+        self::assertNull($columns['added_comment_false']->getComment());
+        self::assertNull($columns['added_comment_empty_string']->getComment());
+        self::assertEquals('0', $columns['added_comment_integer_0']->getComment());
+        self::assertEquals('0', $columns['added_comment_float_0']->getComment());
+        self::assertEquals('0', $columns['added_comment_string_0']->getComment());
+        self::assertEquals('Doctrine', $columns['added_comment']->getComment());
+        self::assertEquals('rulez', $columns['added_comment_quoted']->getComment());
+        self::assertEquals('666', $columns['[select]']->getComment());
+        self::assertNull($columns['added_commented_type']->getComment());
+        self::assertEquals('666', $columns['added_commented_type_with_comment']->getComment());
     }
 
     public function testPkOrdering()
@@ -347,12 +352,12 @@ class SQLServerSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $indexes = $this->_sm->listTableIndexes('sqlsrv_pk_ordering');
 
-        $this->assertCount(1, $indexes);
+        self::assertCount(1, $indexes);
 
         $firstIndex = current($indexes);
         $columns = $firstIndex->getColumns();
-        $this->assertCount(2, $columns);
-        $this->assertEquals('colB', $columns[0]);
-        $this->assertEquals('colA', $columns[1]);
+        self::assertCount(2, $columns);
+        self::assertEquals('colB', $columns[0]);
+        self::assertEquals('colA', $columns[1]);
     }
 }

@@ -7,9 +7,15 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class DecimalTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /**
+     * @var MockPlatform
+     */
+    protected $_platform;
+
+    /**
+     * @var Type
+     */
+    protected $_type;
 
     protected function setUp()
     {
@@ -19,11 +25,11 @@ class DecimalTest extends \Doctrine\Tests\DbalTestCase
 
     public function testDecimalConvertsToPHPValue()
     {
-        $this->assertInternalType('string', $this->_type->convertToPHPValue('5.5', $this->_platform));
+        self::assertInternalType('string', $this->_type->convertToPHPValue('5.5', $this->_platform));
     }
 
     public function testDecimalNullConvertsToPHPValue()
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
     }
 }

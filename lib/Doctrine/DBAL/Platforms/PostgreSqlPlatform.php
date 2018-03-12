@@ -26,7 +26,10 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * PostgreSqlPlatform.
@@ -47,24 +50,24 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * @var array PostgreSQL booleans literals
      */
-    private $booleanLiterals = array(
-        'true' => array(
+    private $booleanLiterals = [
+        'true' => [
             't',
             'true',
             'y',
             'yes',
             'on',
             '1'
-        ),
-        'false' => array(
+        ],
+        'false' => [
             'f',
             'false',
             'n',
             'no',
             'off',
             '0'
-        )
-    );
+        ]
+    ];
 
     /**
      * PostgreSQL has different behavior with some drivers
@@ -126,9 +129,9 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     protected function getDateArithmeticIntervalExpression($date, $operator, $interval, $unit)
     {
-        if (self::DATE_INTERVAL_UNIT_QUARTER === $unit) {
+        if ($unit === DateIntervalUnit::QUARTER) {
             $interval *= 3;
-            $unit = self::DATE_INTERVAL_UNIT_MONTH;
+            $unit      = DateIntervalUnit::MONTH;
         }
 
         return "(" . $date ." " . $operator . " (" . $interval . " || ' " . $unit . "')::interval)";
@@ -237,7 +240,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         return "SELECT schema_name AS nspname
                 FROM   information_schema.schemata
-                WHERE  schema_name NOT LIKE 'pg_%'
+                WHERE  schema_name NOT LIKE 'pg\_%'
                 AND    schema_name != 'information_schema'";
     }
 
@@ -249,7 +252,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return "SELECT sequence_name AS relname,
                        sequence_schema AS schemaname
                 FROM   information_schema.sequences
-                WHERE  sequence_schema NOT LIKE 'pg_%'
+                WHERE  sequence_schema NOT LIKE 'pg\_%'
                 AND    sequence_schema != 'information_schema'";
     }
 
@@ -261,7 +264,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return "SELECT quote_ident(table_name) AS table_name,
                        table_schema AS schema_name
                 FROM   information_schema.tables
-                WHERE  table_schema NOT LIKE 'pg_%'
+                WHERE  table_schema NOT LIKE 'pg\_%'
                 AND    table_schema != 'information_schema'
                 AND    table_name != 'geometry_columns'
                 AND    table_name != 'spatial_ref_sys'
@@ -318,7 +321,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getListTableConstraintsSQL($table)
     {
         $table = new Identifier($table);
-        $table = $table->getName();
+        $table = $this->quoteStringLiteral($table->getName());
 
         return "SELECT
                     quote_ident(relname) as relname
@@ -327,7 +330,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                 WHERE oid IN (
                     SELECT indexrelid
                     FROM pg_index, pg_class
-                    WHERE pg_class.relname = '$table'
+                    WHERE pg_class.relname = $table
                         AND pg_class.oid = pg_index.indrelid
                         AND (indisunique = 't' OR indisprimary = 't')
                         )";
@@ -364,13 +367,14 @@ class PostgreSqlPlatform extends AbstractPlatform
         $whereClause = $namespaceAlias.".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
         if (strpos($table, ".") !== false) {
             list($schema, $table) = explode(".", $table);
-            $schema = "'" . $schema . "'";
+            $schema = $this->quoteStringLiteral($schema);
         } else {
             $schema = "ANY(string_to_array((select replace(replace(setting,'\"\$user\"',user),' ','') from pg_catalog.pg_settings where name = 'search_path'),','))";
         }
 
         $table = new Identifier($table);
-        $whereClause .= "$classAlias.relname = '" . $table->getName() . "' AND $namespaceAlias.nspname = $schema";
+        $table = $this->quoteStringLiteral($table->getName());
+        $whereClause .= "$classAlias.relname = " . $table . " AND $namespaceAlias.nspname = $schema";
 
         return $whereClause;
     }
@@ -445,7 +449,9 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getCloseActiveDatabaseConnectionsSQL($database)
     {
-        return "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = '$database'";
+        $database = $this->quoteStringLiteral($database);
+
+        return "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = $database";
     }
 
     /**
@@ -483,9 +489,9 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql = array();
-        $commentsSQL = array();
-        $columnSql = array();
+        $sql = [];
+        $commentsSQL = [];
+        $columnSql = [];
 
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
@@ -531,12 +537,16 @@ class PostgreSqlPlatform extends AbstractPlatform
             if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('precision') || $columnDiff->hasChanged('scale') || $columnDiff->hasChanged('fixed')) {
                 $type = $column->getType();
 
+                // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
+                $columnDefinition = $column->toArray();
+                $columnDefinition['autoincrement'] = false;
+
                 // here was a server version check before, but DBAL API does not support this anymore.
-                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($column->toArray(), $this);
+                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
                 $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
             }
 
-            if ($columnDiff->hasChanged('default') || $columnDiff->hasChanged('type')) {
+            if ($columnDiff->hasChanged('default') || $this->typeChangeBreaksDefaultValue($columnDiff)) {
                 $defaultClause = null === $column->getDefault()
                     ? ' DROP DEFAULT'
                     : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
@@ -590,7 +600,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                 ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
         }
 
-        $tableSql = array();
+        $tableSql = [];
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             $sql = array_merge($sql, $commentsSQL);
@@ -621,7 +631,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      *
      * @param ColumnDiff $columnDiff The column diff to check against.
      *
-     * @return boolean True if the given column diff is an unchanged binary type column, false otherwise.
+     * @return bool True if the given column diff is an unchanged binary type column, false otherwise.
      */
     private function isUnchangedBinaryColumn(ColumnDiff $columnDiff)
     {
@@ -640,14 +650,14 @@ class PostgreSqlPlatform extends AbstractPlatform
                 return false;
             }
 
-            return count(array_diff($columnDiff->changedProperties, array('type', 'length', 'fixed'))) === 0;
+            return count(array_diff($columnDiff->changedProperties, ['type', 'length', 'fixed'])) === 0;
         }
 
         if ($columnDiff->hasChanged('type')) {
             return false;
         }
 
-        return count(array_diff($columnDiff->changedProperties, array('length', 'fixed'))) === 0;
+        return count(array_diff($columnDiff->changedProperties, ['length', 'fixed'])) === 0;
     }
 
     /**
@@ -660,7 +670,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             $oldIndexName = $schema . '.' . $oldIndexName;
         }
 
-        return array('ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this));
+        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
     }
 
     /**
@@ -682,10 +692,10 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getCreateSequenceSQL(Sequence $sequence)
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
-               ' INCREMENT BY ' . $sequence->getAllocationSize() .
-               ' MINVALUE ' . $sequence->getInitialValue() .
-               ' START ' . $sequence->getInitialValue() .
-               $this->getSequenceCacheSQL($sequence);
+            ' INCREMENT BY ' . $sequence->getAllocationSize() .
+            ' MINVALUE ' . $sequence->getInitialValue() .
+            ' START ' . $sequence->getInitialValue() .
+            $this->getSequenceCacheSQL($sequence);
     }
 
     /**
@@ -694,8 +704,8 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getAlterSequenceSQL(Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
-               ' INCREMENT BY ' . $sequence->getAllocationSize() .
-               $this->getSequenceCacheSQL($sequence);
+            ' INCREMENT BY ' . $sequence->getAllocationSize() .
+            $this->getSequenceCacheSQL($sequence);
     }
 
     /**
@@ -745,7 +755,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
@@ -905,7 +915,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getSetTransactionIsolationSQL($level)
     {
         return 'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL '
-                . $this->_getTransactionIsolationLevelSQL($level);
+            . $this->_getTransactionIsolationLevelSQL($level);
     }
 
     /**
@@ -1010,7 +1020,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-                : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+            : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
     }
 
     /**
@@ -1091,7 +1101,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     protected function initializeDoctrineTypeMappings()
     {
-        $this->doctrineTypeMapping = array(
+        $this->doctrineTypeMapping = [
             'smallint'      => 'smallint',
             'int2'          => 'smallint',
             'serial'        => 'integer',
@@ -1131,7 +1141,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'year'          => 'date',
             'uuid'          => 'guid',
             'bytea'         => 'blob',
-        );
+        ];
     }
 
     /**
@@ -1163,7 +1173,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords';
+        return Keywords\PostgreSQLKeywords::class;
     }
 
     /**
@@ -1172,5 +1182,58 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'BYTEA';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function quoteStringLiteral($str)
+    {
+        $str = str_replace('\\', '\\\\', $str); // PostgreSQL requires backslashes to be escaped aswell.
+
+        return parent::quoteStringLiteral($str);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultValueDeclarationSQL($field)
+    {
+        if ($this->isSerialField($field)) {
+            return '';
+        }
+
+        return parent::getDefaultValueDeclarationSQL($field);
+    }
+
+    private function isSerialField(array $field) : bool
+    {
+        return $field['autoincrement'] ?? false === true && isset($field['type'])
+            && $this->isNumericType($field['type']);
+    }
+
+    /**
+     * Check whether the type of a column is changed in a way that invalidates the default value for the column
+     *
+     * @param ColumnDiff $columnDiff
+     * @return bool
+     */
+    private function typeChangeBreaksDefaultValue(ColumnDiff $columnDiff) : bool
+    {
+        if (! $columnDiff->fromColumn) {
+            return $columnDiff->hasChanged('type');
+        }
+
+        $oldTypeIsNumeric = $this->isNumericType($columnDiff->fromColumn->getType());
+        $newTypeIsNumeric = $this->isNumericType($columnDiff->column->getType());
+
+        // default should not be changed when switching between numeric types and the default comes from a sequence
+        return $columnDiff->hasChanged('type')
+            && ! ($oldTypeIsNumeric && $newTypeIsNumeric && $columnDiff->column->getAutoincrement());
+    }
+
+    private function isNumericType(Type $type) : bool
+    {
+        return $type instanceof IntegerType || $type instanceof BigIntType;
     }
 }

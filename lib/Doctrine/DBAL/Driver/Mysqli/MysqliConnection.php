@@ -22,6 +22,7 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 use Doctrine\DBAL\Driver\Connection as Connection;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\ParameterType;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
@@ -47,33 +48,33 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      *
      * @throws \Doctrine\DBAL\Driver\Mysqli\MysqliException
      */
-    public function __construct(array $params, $username, $password, array $driverOptions = array())
+    public function __construct(array $params, $username, $password, array $driverOptions = [])
     {
-        $port = isset($params['port']) ? $params['port'] : ini_get('mysqli.default_port');
+        $port = $params['port'] ?? ini_get('mysqli.default_port');
 
         // Fallback to default MySQL port if not given.
         if ( ! $port) {
             $port = 3306;
         }
 
-        $socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
-        $dbname = isset($params['dbname']) ? $params['dbname'] : null;
+        $socket = $params['unix_socket'] ?? ini_get('mysqli.default_socket');
+        $dbname = $params['dbname'] ?? null;
 
-        $flags = isset($driverOptions[static::OPTION_FLAGS]) ? $driverOptions[static::OPTION_FLAGS] : null;
+        $flags = $driverOptions[static::OPTION_FLAGS] ?? null;
 
         $this->_conn = mysqli_init();
 
+        $this->setSecureConnection($params);
         $this->setDriverOptions($driverOptions);
 
         set_error_handler(function () {});
-
-        if ( ! $this->_conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
+        try {
+            if ( ! $this->_conn->real_connect($params['host'], $username, $password, $dbname, $port, $socket, $flags)) {
+                throw new MysqliException($this->_conn->connect_error, $this->_conn->sqlstate ?? 'HY000', $this->_conn->connect_errno);
+            }
+        } finally {
             restore_error_handler();
-
-            throw new MysqliException($this->_conn->connect_error, @$this->_conn->sqlstate ?: 'HY000', $this->_conn->connect_errno);
         }
-
-        restore_error_handler();
 
         if (isset($params['charset'])) {
             $this->_conn->set_charset($params['charset']);
@@ -94,9 +95,18 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
     /**
      * {@inheritdoc}
+     *
+     * The server version detection includes a special case for MariaDB
+     * to support '5.5.5-' prefixed versions introduced in Maria 10+
+     * @link https://jira.mariadb.org/browse/MDEV-4088
      */
     public function getServerVersion()
     {
+        $serverInfos = $this->_conn->get_server_info();
+        if (false !== stripos($serverInfos, 'mariadb')) {
+            return $serverInfos;
+        }
+
         $majorVersion = floor($this->_conn->server_version / 10000);
         $minorVersion = floor(($this->_conn->server_version - $majorVersion * 10000) / 100);
         $patchVersion = floor($this->_conn->server_version - $majorVersion * 10000 - $minorVersion * 100);
@@ -136,7 +146,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function quote($input, $type=\PDO::PARAM_STR)
+    public function quote($input, $type = ParameterType::STRING)
     {
         return "'". $this->_conn->escape_string($input) ."'";
     }
@@ -211,15 +221,15 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      * @throws MysqliException When one of of the options is not supported.
      * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
      */
-    private function setDriverOptions(array $driverOptions = array())
+    private function setDriverOptions(array $driverOptions = [])
     {
-        $supportedDriverOptions = array(
+        $supportedDriverOptions = [
             \MYSQLI_OPT_CONNECT_TIMEOUT,
             \MYSQLI_OPT_LOCAL_INFILE,
             \MYSQLI_INIT_COMMAND,
             \MYSQLI_READ_DEFAULT_FILE,
             \MYSQLI_READ_DEFAULT_GROUP,
-        );
+        ];
 
         if (defined('MYSQLI_SERVER_PUBLIC_KEY')) {
             $supportedDriverOptions[] = \MYSQLI_SERVER_PUBLIC_KEY;
@@ -262,5 +272,31 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     public function ping()
     {
         return $this->_conn->ping();
+    }
+
+    /**
+     * Establish a secure connection
+     *
+     * @param array $params
+     * @throws MysqliException
+     */
+    private function setSecureConnection(array $params)
+    {
+        if (! isset($params['ssl_key']) &&
+            ! isset($params['ssl_cert']) &&
+            ! isset($params['ssl_ca']) &&
+            ! isset($params['ssl_capath']) &&
+            ! isset($params['ssl_cipher'])
+        ) {
+            return;
+        }
+
+        $this->_conn->ssl_set(
+            $params['ssl_key']    ?? null,
+            $params['ssl_cert']   ?? null,
+            $params['ssl_ca']     ?? null,
+            $params['ssl_capath'] ?? null,
+            $params['ssl_cipher'] ?? null
+        );
     }
 }

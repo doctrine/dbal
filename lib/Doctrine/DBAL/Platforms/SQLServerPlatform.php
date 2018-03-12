@@ -22,11 +22,12 @@ namespace Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
-use Doctrine\DBAL\Schema\Identifier;
-use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types;
 
 /**
  * The SQLServerPlatform provides the behavior, features and SQL dialect of the
@@ -40,6 +41,35 @@ use Doctrine\DBAL\Schema\Table;
  */
 class SQLServerPlatform extends AbstractPlatform
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function getCurrentDateSQL()
+    {
+        return $this->getConvertExpression('date', 'GETDATE()');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCurrentTimeSQL()
+    {
+        return $this->getConvertExpression('time', 'GETDATE()');
+    }
+
+    /**
+     * Returns an expression that converts an expression of one data type to another.
+     *
+     * @param string $dataType   The target native data type. Alias data types cannot be used.
+     * @param string $expression The SQL expression to convert.
+     *
+     * @return string
+     */
+    private function getConvertExpression($dataType, $expression)
+    {
+        return sprintf('CONVERT(%s, %s)', $dataType, $expression);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -144,7 +174,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function supportsCreateDropDatabase()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -202,10 +232,10 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    protected function _getCreateTableSQL($tableName, array $columns, array $options = array())
+    protected function _getCreateTableSQL($tableName, array $columns, array $options = [])
     {
-        $defaultConstraintsSql = array();
-        $commentsSql           = array();
+        $defaultConstraintsSql = [];
+        $commentsSql           = [];
 
         // @todo does other code breaks because of this?
         // force primary keys to be not null
@@ -390,7 +420,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function _appendUniqueConstraintDefinition($sql, Index $index)
     {
-        $fields = array();
+        $fields = [];
 
         foreach ($index->getQuotedColumns($this) as $field) {
             $fields[] = $field . ' IS NOT NULL';
@@ -404,10 +434,10 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $queryParts  = array();
-        $sql         = array();
-        $columnSql   = array();
-        $commentsSql = array();
+        $queryParts  = [];
+        $sql         = [];
+        $columnSql   = [];
+        $commentsSql = [];
 
         /** @var \Doctrine\DBAL\Schema\Column $column */
         foreach ($diff->addedColumns as $column) {
@@ -519,7 +549,7 @@ class SQLServerPlatform extends AbstractPlatform
             }
         }
 
-        $tableSql = array();
+        $tableSql = [];
 
         if ($this->onSchemaAlterTable($diff, $tableSql)) {
             return array_merge($tableSql, $columnSql);
@@ -600,7 +630,7 @@ class SQLServerPlatform extends AbstractPlatform
      *
      * @param ColumnDiff $columnDiff The column diff to evaluate.
      *
-     * @return boolean True if the column alteration requires dropping its default constraint first, false otherwise.
+     * @return bool True if the column alteration requires dropping its default constraint first, false otherwise.
      */
     private function alterColumnRequiresDropDefaultConstraint(ColumnDiff $columnDiff)
     {
@@ -624,11 +654,7 @@ class SQLServerPlatform extends AbstractPlatform
 
         // We need to drop an existing default constraint if the column was
         // defined with a default value before and the native column type has changed.
-        if ($columnDiff->hasChanged('type') || $columnDiff->hasChanged('fixed')) {
-            return true;
-        }
-
-        return false;
+        return $columnDiff->hasChanged('type') || $columnDiff->hasChanged('fixed');
     }
 
     /**
@@ -696,14 +722,14 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
-        return array(
+        return [
             sprintf(
                 "EXEC sp_RENAME N'%s.%s', N'%s', N'INDEX'",
                 $tableName,
                 $oldIndexName,
                 $index->getQuotedName($this)
             )
-        );
+        ];
     }
 
     /**
@@ -928,12 +954,14 @@ class SQLServerPlatform extends AbstractPlatform
     {
         if (strpos($table, ".") !== false) {
             list($schema, $table) = explode(".", $table);
-            $schema = "'" . $schema . "'";
+            $schema = $this->quoteStringLiteral($schema);
+            $table = $this->quoteStringLiteral($table);
         } else {
             $schema = "SCHEMA_NAME()";
+            $table = $this->quoteStringLiteral($table);
         }
 
-        return "({$tableColumn} = '{$table}' AND {$schemaColumn} = {$schema})";
+        return "({$tableColumn} = {$table} AND {$schemaColumn} = {$schema})";
     }
 
     /**
@@ -975,15 +1003,15 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
-    public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
+    public function getTrimExpression($str, $pos = TrimMode::UNSPECIFIED, $char = false)
     {
         if ( ! $char) {
             switch ($pos) {
-                case self::TRIM_LEADING:
+                case TrimMode::LEADING:
                     $trimFn = 'LTRIM';
                     break;
 
-                case self::TRIM_TRAILING:
+                case TrimMode::TRAILING:
                     $trimFn = 'RTRIM';
                     break;
 
@@ -1005,11 +1033,11 @@ class SQLServerPlatform extends AbstractPlatform
          */
         $pattern = "'%[^' + $char + ']%'";
 
-        if ($pos == self::TRIM_LEADING) {
+        if ($pos === TrimMode::LEADING) {
             return 'stuff(' . $str . ', 1, patindex(' . $pattern . ', ' . $str . ') - 1, null)';
         }
 
-        if ($pos == self::TRIM_TRAILING) {
+        if ($pos === TrimMode::TRAILING) {
             return 'reverse(stuff(reverse(' . $str . '), 1, patindex(' . $pattern . ', reverse(' . $str . ')) - 1, null))';
         }
 
@@ -1190,7 +1218,7 @@ class SQLServerPlatform extends AbstractPlatform
         // Even if the TOP n is very large, the use of a CTE will
         // allow the SQL Server query planner to optimize it so it doesn't
         // actually scan the entire range covered by the TOP clause.
-        $selectPattern = '/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/i';
+        $selectPattern = '/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/im';
         $replacePattern = sprintf('$1%s $2', "TOP $end");
         $query = preg_replace($selectPattern, $replacePattern, $query);
 
@@ -1222,12 +1250,16 @@ class SQLServerPlatform extends AbstractPlatform
      */
     private function scrubInnerOrderBy($query)
     {
-        $count = substr_count(strtoupper($query), "ORDER BY");
+        $count = substr_count(strtoupper($query), 'ORDER BY');
         $offset = 0;
 
         while ($count-- > 0) {
+            $orderByPos = stripos($query, ' ORDER BY', $offset);
+            if ($orderByPos === false) {
+                break;
+            }
+
             $qLen = strlen($query);
-            $orderByPos = stripos($query, " ORDER BY", $offset);
             $parenCount = 0;
             $currentPosition = $orderByPos;
 
@@ -1259,8 +1291,8 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * Check an ORDER BY clause to see if it is in a TOP N query or subquery.
      *
-     * @param string $query The query
-     * @param int $currentPosition Start position of ORDER BY clause
+     * @param string $query           The query
+     * @param int    $currentPosition Start position of ORDER BY clause
      * @return bool true if ORDER BY is in a TOP N query, false otherwise
      */
     private function isOrderByInTopNSubquery($query, $currentPosition)
@@ -1279,16 +1311,12 @@ class SQLServerPlatform extends AbstractPlatform
             }
 
             // Only yank query text on the same nesting level as the ORDER BY clause.
-            $subQueryBuffer = ($parenCount === 0 ? $query[$currentPosition] : " ") . $subQueryBuffer;
+            $subQueryBuffer = ($parenCount === 0 ? $query[$currentPosition] : ' ') . $subQueryBuffer;
 
             $currentPosition--;
         }
 
-        if (preg_match('/SELECT\s+(DISTINCT\s+)?TOP\s/i', $subQueryBuffer)) {
-            return true;
-        }
-
-        return false;
+        return (bool) preg_match('/SELECT\s+(DISTINCT\s+)?TOP\s/i', $subQueryBuffer);
     }
 
     /**
@@ -1378,7 +1406,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function initializeDoctrineTypeMappings()
     {
-        $this->doctrineTypeMapping = array(
+        $this->doctrineTypeMapping = [
             'bigint' => 'bigint',
             'numeric' => 'decimal',
             'bit' => 'boolean',
@@ -1404,7 +1432,7 @@ class SQLServerPlatform extends AbstractPlatform
             'varbinary' => 'binary',
             'image' => 'blob',
             'uniqueidentifier' => 'guid',
-        );
+        ];
     }
 
     /**
@@ -1477,7 +1505,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function getReservedKeywordsClass()
     {
-        return 'Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords';
+        return Keywords\SQLServerKeywords::class;
     }
 
     /**
@@ -1519,15 +1547,17 @@ class SQLServerPlatform extends AbstractPlatform
             return " DEFAULT '" . $field['default'] . "'";
         }
 
-        if (in_array((string) $field['type'], array('Integer', 'BigInt', 'SmallInt'))) {
+        $type = $field['type'];
+
+        if ($type instanceof Types\PhpIntegerMappingType) {
             return " DEFAULT " . $field['default'];
         }
 
-        if (in_array((string) $field['type'], array('DateTime', 'DateTimeTz')) && $field['default'] == $this->getCurrentTimestampSQL()) {
+        if ($type instanceof Types\PhpDateTimeMappingType && $field['default'] === $this->getCurrentTimestampSQL()) {
             return " DEFAULT " . $this->getCurrentTimestampSQL();
         }
 
-        if ((string) $field['type'] == 'Boolean') {
+        if ($type instanceof Types\BooleanType) {
             return " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
         }
 

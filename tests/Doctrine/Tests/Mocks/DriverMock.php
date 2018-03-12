@@ -2,11 +2,18 @@
 
 namespace Doctrine\Tests\Mocks;
 
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 class DriverMock implements \Doctrine\DBAL\Driver
 {
+    /**
+     * @var DatabasePlatformMock
+     */
     private $_platformMock;
 
+    /**
+     * @var AbstractSchemaManager
+     */
     private $_schemaManagerMock;
 
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
@@ -43,9 +50,9 @@ class DriverMock implements \Doctrine\DBAL\Driver
     {
         if($this->_schemaManagerMock == null) {
             return new SchemaManagerMock($conn);
-        } else {
-            return $this->_schemaManagerMock;
         }
+
+        return $this->_schemaManagerMock;
     }
 
     /* MOCK API */
@@ -55,7 +62,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
         $this->_platformMock = $platform;
     }
 
-    public function setSchemaManager(\Doctrine\DBAL\Schema\AbstractSchemaManager $sm)
+    public function setSchemaManager(AbstractSchemaManager $sm)
     {
         $this->_schemaManagerMock = $sm;
     }

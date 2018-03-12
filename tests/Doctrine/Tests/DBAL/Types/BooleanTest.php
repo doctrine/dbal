@@ -7,9 +7,15 @@ use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class BooleanTest extends \Doctrine\Tests\DbalTestCase
 {
-    protected
-        $_platform,
-        $_type;
+    /**
+     * @var MockPlatform
+     */
+    protected $_platform;
+
+    /**
+     * @var Type
+     */
+    protected $_type;
 
     protected function setUp()
     {
@@ -19,16 +25,16 @@ class BooleanTest extends \Doctrine\Tests\DbalTestCase
 
     public function testBooleanConvertsToDatabaseValue()
     {
-        $this->assertInternalType('integer', $this->_type->convertToDatabaseValue(1, $this->_platform));
+        self::assertInternalType('integer', $this->_type->convertToDatabaseValue(1, $this->_platform));
     }
 
     public function testBooleanConvertsToPHPValue()
     {
-        $this->assertInternalType('bool', $this->_type->convertToPHPValue(0, $this->_platform));
+        self::assertInternalType('bool', $this->_type->convertToPHPValue(0, $this->_platform));
     }
 
     public function testBooleanNullConvertsToPHPValue()
     {
-        $this->assertNull($this->_type->convertToPHPValue(null, $this->_platform));
+        self::assertNull($this->_type->convertToPHPValue(null, $this->_platform));
     }
 }

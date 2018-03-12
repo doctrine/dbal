@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\ParameterType;
 
 /**
  * SQL Server implementation for the Connection interface.
@@ -102,7 +103,7 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      * {@inheritDoc}
      * @license New BSD, code from Zend Framework
      */
-    public function quote($value, $type=\PDO::PARAM_STR)
+    public function quote($value, $type = ParameterType::STRING)
     {
         if (is_int($value)) {
             return $value;
@@ -118,10 +119,13 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
      */
     public function exec($statement)
     {
-        $stmt = $this->prepare($statement);
-        $stmt->execute();
+        $stmt = sqlsrv_query($this->conn, $statement);
 
-        return $stmt->rowCount();
+        if (false === $stmt) {
+            throw SQLSrvException::fromSqlSrvErrors();
+        }
+
+        return sqlsrv_rows_affected($stmt);
     }
 
     /**
@@ -130,9 +134,8 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     public function lastInsertId($name = null)
     {
         if ($name !== null) {
-            $sql = "SELECT IDENT_CURRENT(".$this->quote($name).") AS LastInsertId";
-            $stmt = $this->prepare($sql);
-            $stmt->execute();
+            $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
+            $stmt->execute([$name]);
 
             return $stmt->fetchColumn();
         }

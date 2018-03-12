@@ -118,10 +118,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             }
 
             $this->_execSql(
-                array(
+                [
                     $this->_platform->getDisallowDatabaseConnectionsSQL($database),
                     $this->_platform->getCloseActiveDatabaseConnectionsSQL($database),
-                )
+                ]
             );
 
             parent::dropDatabase($database);
@@ -153,7 +153,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         return new ForeignKeyConstraint(
             $localColumns, $foreignTable, $foreignColumns, $tableForeignKey['conname'],
-            array('onUpdate' => $onUpdate, 'onDelete' => $onDelete)
+            ['onUpdate' => $onUpdate, 'onDelete' => $onDelete]
         );
     }
 
@@ -178,10 +178,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableUserDefinition($user)
     {
-        return array(
+        return [
             'user' => $user['usename'],
             'password' => $user['passwd']
-        );
+        ];
     }
 
     /**
@@ -194,9 +194,9 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
 
         if ($table['schema_name'] == $firstSchema) {
             return $table['table_name'];
-        } else {
-            return $table['schema_name'] . "." . $table['table_name'];
         }
+
+        return $table['schema_name'] . "." . $table['table_name'];
     }
 
     /**
@@ -207,7 +207,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
-        $buffer = array();
+        $buffer = [];
         foreach ($tableIndexes as $row) {
             $colCount = count(explode(' ', $row['indkey']));
             $sqlColNames = array();
@@ -221,16 +221,21 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             );
 
             $stmt = $this->_conn->executeQuery($columnNameSql);
-            $indexColumns = $stmt->fetch();
+            $indexColumns = $stmt->fetchAll();
 
-            foreach ($indexColumns as $indexColumn) {
-                $buffer[] = array(
-                    'key_name' => $row['relname'],
-                    'column_name' => trim($indexColumn),
-                    'non_unique' => !$row['indisunique'],
-                    'primary' => $row['indisprimary'],
-                    'where' => $row['where'],
-                );
+            // required for getting the order of the columns right.
+            foreach ($colNumbers as $colNum) {
+                foreach ($indexColumns as $colRow) {
+                    if ($colNum == $colRow['attnum']) {
+                        $buffer[] = [
+                            'key_name' => $row['relname'],
+                            'column_name' => trim($colRow['attname']),
+                            'non_unique' => !$row['indisunique'],
+                            'primary' => $row['indisprimary'],
+                            'where' => $row['where'],
+                        ];
+                    }
+                }
             }
         }
 
@@ -250,7 +255,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableSequencesList($sequences)
     {
-        $sequenceDefinitions = array();
+        $sequenceDefinitions = [];
 
         foreach ($sequences as $sequence) {
             if ($sequence['schemaname'] != 'public') {
@@ -262,7 +267,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $sequenceDefinitions[$sequenceName] = $sequence;
         }
 
-        $list = array();
+        $list = [];
 
         foreach ($this->filterAssetNames(array_keys($sequenceDefinitions)) as $sequenceName) {
             $list[] = $this->_getPortableSequenceDefinition($sequenceDefinitions[$sequenceName]);
@@ -284,15 +289,18 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        if ($sequence['schemaname'] != 'public') {
+        if ($sequence['schemaname'] !== 'public') {
             $sequenceName = $sequence['schemaname'] . "." . $sequence['relname'];
         } else {
             $sequenceName = $sequence['relname'];
         }
 
-        $data = $this->_conn->fetchAll('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+        if ( ! isset($sequence['increment_by'], $sequence['min_value'])) {
+            $data      = $this->_conn->fetchAssoc('SELECT min_value, increment_by FROM ' . $this->_platform->quoteIdentifier($sequenceName));
+            $sequence += $data;
+        }
 
-        return new Sequence($sequenceName, $data[0]['increment_by'], $data[0]['min_value']);
+        return new Sequence($sequenceName, $sequence['increment_by'], $sequence['min_value']);
     }
 
     /**
@@ -308,7 +316,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $tableColumn['length'] = $length;
         }
 
-        $matches = array();
+        $matches = [];
 
         $autoincrement = false;
         if (preg_match("/^nextval\('(.*)'(::.*)?\)$/", $tableColumn['default'], $matches)) {
@@ -317,7 +325,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $autoincrement = true;
         }
 
-        if (preg_match("/^'(.*)'::.*$/", $tableColumn['default'], $matches)) {
+        if (preg_match("/^['(](.*)[')]::.*$/", $tableColumn['default'], $matches)) {
             $tableColumn['default'] = $matches[1];
         }
 
@@ -325,7 +333,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $tableColumn['default'] = null;
         }
 
-        $length = (isset($tableColumn['length'])) ? $tableColumn['length'] : null;
+        $length = $tableColumn['length'] ?? null;
         if ($length == '-1' && isset($tableColumn['atttypmod'])) {
             $length = $tableColumn['atttypmod'] - 4;
         }
@@ -355,15 +363,18 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
         switch ($dbType) {
             case 'smallint':
             case 'int2':
+                $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
                 $length = null;
                 break;
             case 'int':
             case 'int4':
             case 'integer':
+                $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
                 $length = null;
                 break;
             case 'bigint':
             case 'int8':
+                $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
                 $length = null;
                 break;
             case 'bool':
@@ -399,6 +410,8 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             case 'decimal':
             case 'money':
             case 'numeric':
+                $tableColumn['default'] = $this->fixVersion94NegativeNumericDefaultValue($tableColumn['default']);
+
                 if (preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['complete_type'], $match)) {
                     $precision = $match[1];
                     $scale = $match[2];
@@ -419,11 +432,10 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $tableColumn['default'] = $match[1];
         }
 
-        $options = array(
+        $options = [
             'length'        => $length,
             'notnull'       => (bool) $tableColumn['isnotnull'],
             'default'       => $tableColumn['default'],
-            'primary'       => (bool) ($tableColumn['pri'] == 't'),
             'precision'     => $precision,
             'scale'         => $scale,
             'fixed'         => $fixed,
@@ -432,7 +444,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             'comment'       => isset($tableColumn['comment']) && $tableColumn['comment'] !== ''
                 ? $tableColumn['comment']
                 : null,
-        );
+        ];
 
         $column = new Column($tableColumn['field'], Type::getType($type), $options);
 
@@ -440,10 +452,26 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $column->setPlatformOption('collation', $tableColumn['collation']);
         }
 
-        if ($column->getType()->getName() === 'json_array') {
+        if (in_array($column->getType()->getName(), [Type::JSON_ARRAY, Type::JSON], true)) {
             $column->setPlatformOption('jsonb', $jsonb);
         }
 
         return $column;
+    }
+
+    /**
+     * PostgreSQL 9.4 puts parentheses around negative numeric default values that need to be stripped eventually.
+     *
+     * @param mixed $defaultValue
+     *
+     * @return mixed
+     */
+    private function fixVersion94NegativeNumericDefaultValue($defaultValue)
+    {
+        if (strpos($defaultValue, '(') === 0) {
+            return trim($defaultValue, '()');
+        }
+
+        return $defaultValue;
     }
 }

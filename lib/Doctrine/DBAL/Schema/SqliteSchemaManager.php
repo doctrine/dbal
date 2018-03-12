@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
@@ -52,10 +53,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
     {
         $params = $this->_conn->getParams();
         $driver = $params['driver'];
-        $options = array(
+        $options = [
             'driver' => $driver,
             'path' => $database
-        );
+        ];
         $conn = \Doctrine\DBAL\DriverManager::getConnection($options);
         $conn->connect();
         $conn->close();
@@ -118,7 +119,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
         if ( ! empty($tableForeignKeys)) {
             $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
-            $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
+            $createSql = $createSql[0]['sql'] ?? '';
 
             if (preg_match_all('#
                     (?:CONSTRAINT\s+([^\s]+)\s+)?
@@ -135,7 +136,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 $deferrable = array_reverse($match[2]);
                 $deferred = array_reverse($match[3]);
             } else {
-                $names = $deferrable = $deferred = array();
+                $names = $deferrable = $deferred = [];
             }
 
             foreach ($tableForeignKeys as $key => $value) {
@@ -165,11 +166,11 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexesList($tableIndexes, $tableName=null)
     {
-        $indexBuffer = array();
+        $indexBuffer = [];
 
         // fetch primary
         $stmt = $this->_conn->executeQuery("PRAGMA TABLE_INFO ('$tableName')");
-        $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
         usort($indexArray, function($a, $b) {
             if ($a['pk'] == $b['pk']) {
@@ -180,12 +181,12 @@ class SqliteSchemaManager extends AbstractSchemaManager
         });
         foreach ($indexArray as $indexColumnRow) {
             if ($indexColumnRow['pk'] != "0") {
-                $indexBuffer[] = array(
+                $indexBuffer[] = [
                     'key_name' => 'primary',
                     'primary' => true,
                     'non_unique' => false,
                     'column_name' => $indexColumnRow['name']
-                );
+                ];
             }
         }
 
@@ -194,13 +195,13 @@ class SqliteSchemaManager extends AbstractSchemaManager
             // Ignore indexes with reserved names, e.g. autoindexes
             if (strpos($tableIndex['name'], 'sqlite_') !== 0) {
                 $keyName = $tableIndex['name'];
-                $idx = array();
+                $idx = [];
                 $idx['key_name'] = $keyName;
                 $idx['primary'] = false;
                 $idx['non_unique'] = $tableIndex['unique']?false:true;
 
                 $stmt = $this->_conn->executeQuery("PRAGMA INDEX_INFO ('{$keyName}')");
-                $indexArray = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                $indexArray = $stmt->fetchAll(FetchMode::ASSOCIATIVE);
 
                 foreach ($indexArray as $indexColumnRow) {
                     $idx['column_name'] = $indexColumnRow['name'];
@@ -217,10 +218,10 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableIndexDefinition($tableIndex)
     {
-        return array(
+        return [
             'name' => $tableIndex['name'],
             'unique' => (bool) $tableIndex['unique']
-        );
+        ];
     }
 
     /**
@@ -253,7 +254,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
         // inspect column collation and comments
         $createSql = $this->_conn->fetchAll("SELECT sql FROM (SELECT * FROM sqlite_master UNION ALL SELECT * FROM sqlite_temp_master) WHERE type = 'table' AND name = '$table'");
-        $createSql = isset($createSql[0]['sql']) ? $createSql[0]['sql'] : '';
+        $createSql = $createSql[0]['sql'] ?? '';
 
         foreach ($list as $columnName => $column) {
             $type = $column->getType();
@@ -264,7 +265,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
             $comment = $this->parseColumnCommentFromSQL($columnName, $createSql);
 
-            if (false !== $comment) {
+            if ($comment !== null) {
                 $type = $this->extractDoctrineTypeFromComment($comment, null);
 
                 if (null !== $type) {
@@ -292,8 +293,8 @@ class SqliteSchemaManager extends AbstractSchemaManager
             $tableColumn['length'] = $length;
         }
 
-        $dbType = strtolower($tableColumn['type']);
-        $length = isset($tableColumn['length']) ? $tableColumn['length'] : null;
+        $dbType   = strtolower($tableColumn['type']);
+        $length   = $tableColumn['length'] ?? null;
         $unsigned = false;
 
         if (strpos($dbType, ' unsigned') !== false) {
@@ -339,7 +340,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        $options = array(
+        $options = [
             'length'   => $length,
             'unsigned' => (bool) $unsigned,
             'fixed'    => $fixed,
@@ -348,7 +349,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
             'precision' => $precision,
             'scale'     => $scale,
             'autoincrement' => false,
-        );
+        ];
 
         return new Column($tableColumn['name'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
@@ -366,7 +367,7 @@ class SqliteSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableForeignKeysList($tableForeignKeys)
     {
-        $list = array();
+        $list = [];
         foreach ($tableForeignKeys as $value) {
             $value = array_change_key_case($value, CASE_LOWER);
             $name = $value['constraint_name'];
@@ -378,32 +379,32 @@ class SqliteSchemaManager extends AbstractSchemaManager
                     $value['on_update'] = null;
                 }
 
-                $list[$name] = array(
+                $list[$name] = [
                     'name' => $name,
-                    'local' => array(),
-                    'foreign' => array(),
+                    'local' => [],
+                    'foreign' => [],
                     'foreignTable' => $value['table'],
                     'onDelete' => $value['on_delete'],
                     'onUpdate' => $value['on_update'],
                     'deferrable' => $value['deferrable'],
                     'deferred'=> $value['deferred'],
-                );
+                ];
             }
             $list[$name]['local'][] = $value['from'];
             $list[$name]['foreign'][] = $value['to'];
         }
 
-        $result = array();
+        $result = [];
         foreach ($list as $constraint) {
             $result[] = new ForeignKeyConstraint(
                 array_values($constraint['local']), $constraint['foreignTable'],
                 array_values($constraint['foreign']), $constraint['name'],
-                array(
+                [
                     'onDelete' => $constraint['onDelete'],
                     'onUpdate' => $constraint['onUpdate'],
                     'deferrable' => $constraint['deferrable'],
                     'deferred'=> $constraint['deferred'],
-                )
+                ]
             );
         }
 
@@ -435,43 +436,29 @@ class SqliteSchemaManager extends AbstractSchemaManager
         return $tableDiff;
     }
 
-    /**
-     * @param string $column
-     * @param string $sql
-     *
-     * @return string|false
-     */
-    private function parseColumnCollationFromSQL($column, $sql)
+    private function parseColumnCollationFromSQL(string $column, string $sql) : ?string
     {
-        if (preg_match(
-            '{(?:'.preg_quote($column).'|'.preg_quote($this->_platform->quoteSingleIdentifier($column)).')
-                [^,(]+(?:\([^()]+\)[^,]*)?
-                (?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*
-                COLLATE\s+["\']?([^\s,"\')]+)}isx', $sql, $match)) {
-            return $match[1];
+        $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
+                 . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
+
+        if (preg_match($pattern, $sql, $match) !== 1) {
+            return null;
         }
 
-        return false;
+        return $match[1];
     }
 
-    /**
-     * @param string $column
-     * @param string $sql
-     *
-     * @return string|false
-     */
-    private function parseColumnCommentFromSQL($column, $sql)
+    private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
     {
-        if (preg_match(
-            '{[\s(,](?:'.preg_quote($this->_platform->quoteSingleIdentifier($column)).'|'.preg_quote($column).')
-            (?:\(.*?\)|[^,(])*?,?((?:\s*--[^\n]*\n?)+)
-            }isx', $sql, $match
-        )) {
-            $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
+        $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
+                 . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}ix';
 
-            return '' === $comment ? false : $comment;
+        if (preg_match($pattern, $sql, $match) !== 1) {
+            return null;
         }
 
-        return false;
+        $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
+
+        return '' === $comment ? null : $comment;
     }
 }

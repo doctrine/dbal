@@ -9,7 +9,7 @@ class DriverTest extends AbstractMySQLDriverTest
 {
     public function testReturnsName()
     {
-        $this->assertSame('mysqli', $this->driver->getName());
+        self::assertSame('mysqli', $this->driver->getName());
     }
 
     protected function createDriver()

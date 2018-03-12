@@ -2,7 +2,11 @@
 
 namespace Doctrine\Tests\DBAL;
 
-class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
+use Doctrine\DBAL\Driver\OCI8\OCI8Exception;
+use Doctrine\DBAL\Driver\OCI8\OCI8Statement;
+use Doctrine\Tests\DbalTestCase;
+
+class OCI8StatementTest extends DbalTestCase
 {
     protected function setUp()
     {
@@ -27,9 +31,10 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
      */
     public function testExecute(array $params)
     {
-        $statement = $this->getMock('\Doctrine\DBAL\Driver\OCI8\OCI8Statement',
-            array('bindValue', 'errorInfo'),
-            array(), '', false);
+        $statement = $this->getMockBuilder('\Doctrine\DBAL\Driver\OCI8\OCI8Statement')
+            ->setMethods(array('bindValue', 'errorInfo'))
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $statement->expects($this->at(0))
             ->method('bindValue')
@@ -52,7 +57,10 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
 
         // can't pass to constructor since we don't have a real database handle,
         // but execute must check the connection for the executeMode
-        $conn = $this->getMock('\Doctrine\DBAL\Driver\OCI8\OCI8Connection', array('getExecuteMode'), array(), '', false);
+        $conn = $this->getMockBuilder('\Doctrine\DBAL\Driver\OCI8\OCI8Connection')
+            ->setMethods(array('getExecuteMode'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $conn->expects($this->once())
             ->method('getExecuteMode');
 
@@ -77,4 +85,31 @@ class OCI8StatementTest extends \Doctrine\Tests\DbalTestCase
         );
     }
 
+    /**
+     * @dataProvider nonTerminatedLiteralProvider
+     */
+    public function testConvertNonTerminatedLiteral($sql, $message)
+    {
+        $this->expectException(OCI8Exception::class);
+        $this->expectExceptionMessageRegExp($message);
+        OCI8Statement::convertPositionalToNamedPlaceholders($sql);
+    }
+
+    public static function nonTerminatedLiteralProvider()
+    {
+        return array(
+            'no-matching-quote' => array(
+                "SELECT 'literal FROM DUAL",
+                '/offset 7/',
+            ),
+            'no-matching-double-quote' => array(
+                'SELECT 1 "COL1 FROM DUAL',
+                '/offset 9/',
+            ),
+            'incorrect-escaping-syntax' => array(
+                "SELECT 'quoted \\'string' FROM DUAL",
+                '/offset 23/',
+            ),
+        );
+    }
 }

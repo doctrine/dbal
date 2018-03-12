@@ -9,6 +9,9 @@ use Doctrine\DBAL\Id\TableGenerator;
  */
 class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
+    /**
+     * @var TableGenerator
+     */
     private $generator;
 
     protected function setUp()
@@ -40,9 +43,9 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $id2 = $this->generator->nextValue("tbl1");
         $id3 = $this->generator->nextValue("tbl2");
 
-        $this->assertTrue($id1 > 0, "First id has to be larger than 0");
-        $this->assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
-        $this->assertEquals($id1, $id3, "First ids from different tables are equal.");
+        self::assertGreaterThan(0, $id1, "First id has to be larger than 0");
+        self::assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
+        self::assertEquals($id1, $id3, "First ids from different tables are equal.");
     }
 
     public function testNextValNotAffectedByOuterTransactions()
@@ -52,8 +55,7 @@ class TableGeneratorTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $this->_conn->rollBack();
         $id2 = $this->generator->nextValue("tbl1");
 
-        $this->assertTrue($id1 > 0, "First id has to be larger than 0");
-        $this->assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
+        self::assertGreaterThan(0, $id1, "First id has to be larger than 0");
+        self::assertEquals($id1 + 1, $id2, "Second id is one larger than first one.");
     }
 }
-

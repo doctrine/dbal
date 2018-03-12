@@ -21,10 +21,10 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $views = $this->_sm->listViews();
 
-        $this->assertEquals(1, count($views), "Database has to have one view.");
-        $this->assertInstanceOf('Doctrine\DBAL\Schema\View', $views[$name]);
-        $this->assertEquals($name, $views[$name]->getName());
-        $this->assertEquals($sql, $views[$name]->getSql());
+        self::assertCount(1, $views, "Database has to have one view.");
+        self::assertInstanceOf('Doctrine\DBAL\Schema\View', $views[$name]);
+        self::assertEquals($name, $views[$name]->getName());
+        self::assertEquals($sql, $views[$name]->getSql());
     }
 
     public function testDropAndCreateAdvancedIndex()
@@ -37,14 +37,14 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
         );
 
         $tableIndexes = $this->_sm->listTableIndexes('test_create_advanced_index');
-        $this->assertInternalType('array', $tableIndexes);
-        $this->assertEquals('test', $tableIndexes['test']->getName());
-        $this->assertEquals(array('test'), $tableIndexes['test']->getColumns());
-        $this->assertTrue($tableIndexes['test']->isUnique());
-        $this->assertFalse($tableIndexes['test']->isPrimary());
-        $this->assertTrue($tableIndexes['test']->hasFlag('clustered'));
-        $this->assertTrue($tableIndexes['test']->hasFlag('with_nulls_not_distinct'));
-        $this->assertTrue($tableIndexes['test']->hasFlag('for_olap_workload'));
+        self::assertInternalType('array', $tableIndexes);
+        self::assertEquals('test', $tableIndexes['test']->getName());
+        self::assertEquals(array('test'), $tableIndexes['test']->getColumns());
+        self::assertTrue($tableIndexes['test']->isUnique());
+        self::assertFalse($tableIndexes['test']->isPrimary());
+        self::assertTrue($tableIndexes['test']->hasFlag('clustered'));
+        self::assertTrue($tableIndexes['test']->hasFlag('with_nulls_not_distinct'));
+        self::assertTrue($tableIndexes['test']->hasFlag('for_olap_workload'));
     }
 
     public function testListTableColumnsWithFixedStringTypeColumn()
@@ -58,7 +58,7 @@ class SQLAnywhereSchemaManagerTest extends SchemaManagerFunctionalTestCase
 
         $columns = $this->_sm->listTableColumns('list_table_columns_char');
 
-        $this->assertArrayHasKey('test', $columns);
-        $this->assertTrue($columns['test']->getFixed());
+        self::assertArrayHasKey('test', $columns);
+        self::assertTrue($columns['test']->getFixed());
     }
 }

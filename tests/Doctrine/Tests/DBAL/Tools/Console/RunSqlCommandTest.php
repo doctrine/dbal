@@ -7,13 +7,16 @@ use Doctrine\DBAL\Tools\Console\ConsoleRunner;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
+class RunSqlCommandTest extends \PHPUnit\Framework\TestCase
 {
     /** @var CommandTester */
     private $commandTester;
     /** @var RunSqlCommand */
     private $command;
 
+    /**
+     * @var \Doctrine\DBAL\Connection
+     */
     private $connectionMock;
 
     protected function setUp()
@@ -24,7 +27,7 @@ class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
         $this->command = $application->find('dbal:run-sql');
         $this->commandTester = new CommandTester($this->command);
 
-        $this->connectionMock = $this->getMock('\Doctrine\DBAL\Connection', array(), array(), '', false);
+        $this->connectionMock = $this->createMock('\Doctrine\DBAL\Connection');
         $this->connectionMock->method('fetchAll')
             ->willReturn(array(array(1)));
         $this->connectionMock->method('executeUpdate')
@@ -43,7 +46,7 @@ class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
             ));
             $this->fail('Expected a runtime exception when omitting sql argument');
         } catch (\RuntimeException $e) {
-            $this->assertContains("Argument 'SQL", $e->getMessage());
+            self::assertContains("Argument 'SQL", $e->getMessage());
         }
     }
 
@@ -57,7 +60,7 @@ class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
             ));
             $this->fail('Expected a logic exception when executing with a stringy depth');
         } catch (\LogicException $e) {
-            $this->assertContains("Option 'depth'", $e->getMessage());
+            self::assertContains("Option 'depth'", $e->getMessage());
         }
     }
 
@@ -70,8 +73,8 @@ class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
             'sql' => 'SELECT 1',
         ));
 
-        $this->assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
-        $this->assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
     public function testUpdateStatementsPrintsAffectedLines()
@@ -83,8 +86,8 @@ class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
             'sql' => 'UPDATE foo SET bar = 42',
         ));
 
-        $this->assertRegExp('@int.*42.*@', $this->commandTester->getDisplay());
-        $this->assertNotRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@int.*42.*@', $this->commandTester->getDisplay());
+        self::assertNotRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 
     private function expectConnectionExecuteUpdate()
@@ -117,7 +120,7 @@ class RunSqlCommandTest extends \PHPUnit_Framework_TestCase
             '--force-fetch' => true,
         ));
 
-        $this->assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
-        $this->assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@int.*1.*@', $this->commandTester->getDisplay());
+        self::assertRegExp('@array.*1.*@', $this->commandTester->getDisplay());
     }
 }

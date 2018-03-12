@@ -45,4 +45,3 @@ Now you are able to load classes that are in the
 use later in this documentation to configure our first Doctrine
 DBAL connection.
 
-

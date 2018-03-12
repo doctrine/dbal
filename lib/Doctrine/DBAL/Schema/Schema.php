@@ -60,17 +60,17 @@ class Schema extends AbstractAsset
      *
      * @var array
      */
-    private $namespaces = array();
+    private $namespaces = [];
 
     /**
      * @var \Doctrine\DBAL\Schema\Table[]
      */
-    protected $_tables = array();
+    protected $_tables = [];
 
     /**
      * @var \Doctrine\DBAL\Schema\Sequence[]
      */
-    protected $_sequences = array();
+    protected $_sequences = [];
 
     /**
      * @var \Doctrine\DBAL\Schema\SchemaConfig
@@ -84,10 +84,10 @@ class Schema extends AbstractAsset
      * @param array                              $namespaces
      */
     public function __construct(
-        array $tables = array(),
-        array $sequences = array(),
+        array $tables = [],
+        array $sequences = [],
         SchemaConfig $schemaConfig = null,
-        array $namespaces = array()
+        array $namespaces = []
     ) {
         if ($schemaConfig == null) {
             $schemaConfig = new SchemaConfig();
@@ -109,7 +109,7 @@ class Schema extends AbstractAsset
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasExplicitForeignKeyIndexes()
     {
@@ -237,7 +237,7 @@ class Schema extends AbstractAsset
      *
      * @param string $namespaceName
      *
-     * @return boolean
+     * @return bool
      */
     public function hasNamespace($namespaceName)
     {
@@ -251,7 +251,7 @@ class Schema extends AbstractAsset
      *
      * @param string $tableName
      *
-     * @return boolean
+     * @return bool
      */
     public function hasTable($tableName)
     {
@@ -273,7 +273,7 @@ class Schema extends AbstractAsset
     /**
      * @param string $sequenceName
      *
-     * @return boolean
+     * @return bool
      */
     public function hasSequence($sequenceName)
     {
@@ -386,9 +386,9 @@ class Schema extends AbstractAsset
     /**
      * Creates a new sequence.
      *
-     * @param string  $sequenceName
-     * @param integer $allocationSize
-     * @param integer $initialValue
+     * @param string $sequenceName
+     * @param int    $allocationSize
+     * @param int    $initialValue
      *
      * @return \Doctrine\DBAL\Schema\Sequence
      */
