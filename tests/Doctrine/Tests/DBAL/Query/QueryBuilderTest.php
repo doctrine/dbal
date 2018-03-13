@@ -411,6 +411,16 @@ class QueryBuilderTest extends DbalTestCase
         self::assertEquals('UPDATE users SET foo = ?, bar = ?', (string) $qb);
     }
 
+    public function testUpdateWithMatchingAlias()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->update('users', 'users')
+           ->set('foo', '?')
+           ->set('bar', '?');
+
+        self::assertEquals('UPDATE users SET foo = ?, bar = ?', (string) $qb);
+    }
+
     public function testUpdateWhere()
     {
         $qb = new QueryBuilder($this->conn);
@@ -443,6 +453,15 @@ class QueryBuilderTest extends DbalTestCase
     {
         $qb = new QueryBuilder($this->conn);
         $qb->delete('users');
+
+        self::assertEquals(QueryBuilder::DELETE, $qb->getType());
+        self::assertEquals('DELETE FROM users', (string) $qb);
+    }
+
+    public function testDeleteWithMatchingAlias()
+    {
+        $qb = new QueryBuilder($this->conn);
+        $qb->delete('users', 'users');
 
         self::assertEquals(QueryBuilder::DELETE, $qb->getType());
         self::assertEquals('DELETE FROM users', (string) $qb);
@@ -772,6 +791,16 @@ class QueryBuilderTest extends DbalTestCase
 
         $qb->select('id')
             ->from('users');
+
+        self::assertEquals('SELECT id FROM users', (string) $qb);
+    }
+
+    public function testSimpleSelectWithMatchingTableAlias()
+    {
+        $qb = new QueryBuilder($this->conn);
+
+        $qb->select('id')
+            ->from('users', 'users');
 
         self::assertEquals('SELECT id FROM users', (string) $qb);
     }
