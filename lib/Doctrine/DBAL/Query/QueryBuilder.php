@@ -1132,7 +1132,7 @@ class QueryBuilder
 
         // Loop through all FROM clauses
         foreach ($this->sqlParts['from'] as $from) {
-            if ($from['alias'] === null) {
+            if ($from['alias'] === null || $from['alias'] === $from['table']) {
                 $tableSql = $from['table'];
                 $tableReference = $from['table'];
             } else {
@@ -1191,7 +1191,14 @@ class QueryBuilder
      */
     private function getSQLForUpdate()
     {
-        $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $from = $this->sqlParts['from'];
+
+        if ($from['alias'] === null || $from['alias'] === $from['table']) {
+            $table = $from['table'];
+        } else {
+            $table = $from['table'] . ' ' . $from['alias'];
+        }
+
         $query = 'UPDATE ' . $table
             . ' SET ' . implode(", ", $this->sqlParts['set'])
             . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
@@ -1206,7 +1213,14 @@ class QueryBuilder
      */
     private function getSQLForDelete()
     {
-        $table = $this->sqlParts['from']['table'] . ($this->sqlParts['from']['alias'] ? ' ' . $this->sqlParts['from']['alias'] : '');
+        $from = $this->sqlParts['from'];
+
+        if ($from['alias'] === null || $from['alias'] === $from['table']) {
+            $table = $from['table'];
+        } else {
+            $table = $from['table'] . ' ' . $from['alias'];
+        }
+
         $query = 'DELETE FROM ' . $table . ($this->sqlParts['where'] !== null ? ' WHERE ' . ((string) $this->sqlParts['where']) : '');
 
         return $query;
