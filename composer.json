@@ -42,6 +42,6 @@
         }
     },
     "archive": {
-        "exclude": ["!vendor", "tests", "*phpunit.xml", ".travis.yml", "build.xml", "build.properties", "composer.phar"]
+        "exclude": ["!vendor", "tests", "*phpunit.xml", ".appveyor.yml", ".travis.yml", "build.xml", "build.properties", "composer.phar"]
     }
 }

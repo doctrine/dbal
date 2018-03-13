@@ -23,6 +23,10 @@ class MysqliConnectionTest extends DbalTestCase
 
         parent::setUp();
 
+        if ( ! $this->connectionMock->getDatabasePlatform() instanceof MySqlPlatform) {
+            $this->markTestSkipped('MySQL only test.'); 
+        }
+
         $this->connectionMock = $this->getMockBuilder(MysqliConnection::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
