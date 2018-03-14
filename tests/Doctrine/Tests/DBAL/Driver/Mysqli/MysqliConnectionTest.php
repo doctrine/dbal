@@ -4,9 +4,10 @@ namespace Doctrine\Tests\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
-use Doctrine\Tests\DbalTestCase;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\Tests\DbalFunctionalTestCase;
 
-class MysqliConnectionTest extends DbalTestCase
+class MysqliConnectionTest extends DbalFunctionalTestCase
 {
     /**
      * The mysqli driver connection mock under test.
@@ -23,8 +24,8 @@ class MysqliConnectionTest extends DbalTestCase
 
         parent::setUp();
 
-        if ( ! $this->connectionMock->getDatabasePlatform() instanceof MySqlPlatform) {
-            $this->markTestSkipped('MySQL only test.'); 
+        if (! $this->_conn->getDatabasePlatform() instanceof MySqlPlatform) {
+            $this->markTestSkipped('MySQL only test.');
         }
 
         $this->connectionMock = $this->getMockBuilder(MysqliConnection::class)
@@ -53,6 +54,4 @@ class MysqliConnectionTest extends DbalTestCase
         restore_error_handler();
         restore_error_handler();
     }
-
 }
-
