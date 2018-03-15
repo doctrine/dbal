@@ -20,6 +20,7 @@ class ReservedWordsCommand extends Command
         'sqlserver2005' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords',
         'sqlserver2008' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords',
         'sqlserver2012' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords',
+        'sqlserver2017' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2017Keywords',
         'sqlite'        => 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords',
         'pgsql'         => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords',
         'pgsql91'       => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords',
@@ -84,6 +85,7 @@ The following keyword lists are currently shipped with Doctrine:
     * sqlserver2005
     * sqlserver2008
     * sqlserver2012
+    * sqlserver2017
     * sqlanywhere
     * sqlanywhere11
     * sqlanywhere12
@@ -114,6 +116,7 @@ EOT
                 'sqlserver2005',
                 'sqlserver2008',
                 'sqlserver2012',
+                'sqlserver2017',
                 'sqlanywhere',
                 'sqlanywhere11',
                 'sqlanywhere12',

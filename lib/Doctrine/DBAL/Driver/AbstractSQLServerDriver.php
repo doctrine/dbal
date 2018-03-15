@@ -7,6 +7,7 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\SQLServer2005Platform;
 use Doctrine\DBAL\Platforms\SQLServer2008Platform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\SQLServer2017Platform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -43,6 +44,8 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion . '.' . $buildVersion;
 
         switch(true) {
+            case version_compare($version, '5.7.0.0', '>='):
+                return new SQLServer2017Platform();
             case version_compare($version, '11.00.2100', '>='):
                 return new SQLServer2012Platform();
             case version_compare($version, '10.00.1600', '>='):
