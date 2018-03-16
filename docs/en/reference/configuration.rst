@@ -311,14 +311,9 @@ sqlanywhere
 Depending on the used underlying platform version, you can specify
 any other connection parameter that is supported by the particular
 platform version via the ``driverOptions`` option.
-You can find a list of supported connection parameters for each
-platform version here:
+You can find a list of supported connection parameters for the
+currently supported platform here:
 
-- `SQL Anywhere 10.0.1 <http://dcx.sybase.com/index.html#1001/en/dbdaen10/da-conmean.html>`_
-- `SQL Anywhere 11.0.0 <http://dcx.sybase.com/index.html#1100/en/dbadmin_en11/conmean.html>`_
-- `SQL Anywhere 11.0.1 <http://dcx.sybase.com/index.html#1101/en/dbadmin_en11/conmean.html>`_
-- `SQL Anywhere 12.0.0 <http://dcx.sybase.com/index.html#1200/en/dbadmin/da-conparm.html>`_
-- `SQL Anywhere 12.0.1 <http://dcx.sybase.com/index.html#1201/en/dbadmin/da-conparm.html>`_
 - `SAP Sybase SQL Anywhere 16.0 <http://dcx.sybase.com/index.html#sa160/en/dbadmin/da-conparm.html>`_
 
 Automatic platform version detection
