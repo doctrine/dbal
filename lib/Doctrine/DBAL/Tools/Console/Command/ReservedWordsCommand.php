@@ -17,8 +17,6 @@ use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
-use Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords;
-use Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
 use Doctrine\DBAL\Schema\Schema;
@@ -39,8 +37,6 @@ class ReservedWordsCommand extends Command
         'mysql57'       => MySQL57Keywords::class,
         'mysql80'       => MySQL80Keywords::class,
         'sqlserver'     => SQLServerKeywords::class,
-        'sqlserver2005' => SQLServer2005Keywords::class,
-        'sqlserver2008' => SQLServer2008Keywords::class,
         'sqlserver2012' => SQLServer2012Keywords::class,
         'sqlite'        => SQLiteKeywords::class,
         'pgsql'         => PostgreSQLKeywords::class,
@@ -107,8 +103,6 @@ The following keyword lists are currently shipped with Doctrine:
     * sqlite
     * oracle
     * sqlserver
-    * sqlserver2005
-    * sqlserver2008
     * sqlserver2012
     * sqlanywhere
     * sqlanywhere11

@@ -14,7 +14,7 @@ use function substr_count;
  * Differences to SQL Server 2008 and before are that sequences are introduced,
  * and support for the new OFFSET... FETCH syntax for result pagination has been added.
  */
-class SQLServer2012Platform extends SQLServer2008Platform
+class SQLServer2012Platform extends SQLServerPlatform
 {
     /**
      * {@inheritdoc}
