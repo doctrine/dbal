@@ -12,7 +12,7 @@ use Doctrine\DBAL\Schema\Sequence;
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  */
-class SQLServer2012Platform extends SQLServer2008Platform
+class SQLServer2012Platform extends SQLServerPlatform
 {
     /**
      * {@inheritdoc}

@@ -10,7 +10,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  * @since   2.3
  * @author  Steve Müller <st.mueller@dzh-online.de>
  */
-class SQLServer2012Keywords extends SQLServer2008Keywords
+class SQLServer2012Keywords extends SQLServerKeywords
 {
     /**
      * {@inheritdoc}
