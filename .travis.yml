@@ -136,13 +136,6 @@ jobs:
         mariadb: 10.3
     - stage: Test
       php: 7.2
-      env: DB=pgsql POSTGRESQL_VERSION=9.2 COVERAGE=yes
-      services:
-        - postgresql
-      addons:
-        postgresql: "9.2"
-    - stage: Test
-      php: 7.2
       env: DB=pgsql POSTGRESQL_VERSION=9.3 COVERAGE=yes
       services:
         - postgresql
