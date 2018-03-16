@@ -8,7 +8,7 @@ use function array_merge;
 /**
  * PostgreSQL 9.4 reserved keywords list.
  */
-class PostgreSQL94Keywords extends PostgreSQL92Keywords
+class PostgreSQL94Keywords extends PostgreSQLKeywords
 {
     /**
      * {@inheritdoc}
