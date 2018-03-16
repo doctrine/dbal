@@ -6,14 +6,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\SQLAnywhere11Platform;
-use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
-use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
 use function preg_match;
-use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SAP Sybase SQL Anywhere based drivers.
@@ -81,19 +77,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
             );
         }
 
-        $majorVersion = $versionParts['major'];
-        $minorVersion = $versionParts['minor'] ?? 0;
-        $patchVersion = $versionParts['patch'] ?? 0;
-        $buildVersion = $versionParts['build'] ?? 0;
-        $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion . '.' . $buildVersion;
-
         switch (true) {
-            case version_compare($version, '16', '>='):
-                return new SQLAnywhere16Platform();
-            case version_compare($version, '12', '>='):
-                return new SQLAnywhere12Platform();
-            case version_compare($version, '11', '>='):
-                return new SQLAnywhere11Platform();
             default:
                 return new SQLAnywherePlatform();
         }
@@ -114,7 +98,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
      */
     public function getDatabasePlatform()
     {
-        return new SQLAnywhere12Platform();
+        return new SQLAnywherePlatform();
     }
 
     /**
