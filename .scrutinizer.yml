@@ -21,7 +21,7 @@ before_commands:
 tools:
     external_code_coverage:
         timeout: 3600
-        runs: 20 # 17x Travis (jobs with COVERAGE=yes) + 3x AppVeyor (jobs with coverage=yes)
+        runs: 19 # 16x Travis (jobs with COVERAGE=yes) + 3x AppVeyor (jobs with coverage=yes)
 
 filter:
     excluded_paths:
