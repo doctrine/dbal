@@ -126,6 +126,7 @@ class SQLServerKeywords extends KeywordList
             'LIKE',
             'LINENO',
             'LOAD',
+            'MERGE',
             'NATIONAL',
             'NOCHECK ',
             'NONCLUSTERED',

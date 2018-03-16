@@ -16,7 +16,7 @@ use function substr_count;
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  */
-class SQLServer2012Platform extends SQLServer2008Platform
+class SQLServer2012Platform extends SQLServerPlatform
 {
     /**
      * {@inheritdoc}
