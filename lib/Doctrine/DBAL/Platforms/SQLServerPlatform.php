@@ -28,6 +28,8 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types;
+use function implode;
+use function sprintf;
 
 /**
  * The SQLServerPlatform provides the behavior, features and SQL dialect of the
@@ -1207,19 +1209,29 @@ class SQLServerPlatform extends AbstractPlatform
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
-        if ($limit === null) {
-            return $query;
+        $where = [];
+
+        if ($offset > 0) {
+            $where[] = sprintf('doctrine_rownum >= %d', $offset + 1);
         }
 
-        $start   = $offset + 1;
-        $end     = $offset + $limit;
+        if ($limit !== null) {
+            $where[] = sprintf('doctrine_rownum <= %d', $offset + $limit);
+            $top     = sprintf('TOP %d', $offset + $limit);
+        } else {
+            $top = 'TOP 9223372036854775807';
+        }
+
+        if (empty($where)) {
+            return $query;
+        }
 
         // We'll find a SELECT or SELECT distinct and prepend TOP n to it
         // Even if the TOP n is very large, the use of a CTE will
         // allow the SQL Server query planner to optimize it so it doesn't
         // actually scan the entire range covered by the TOP clause.
         $selectPattern = '/^(\s*SELECT\s+(?:DISTINCT\s+)?)(.*)$/im';
-        $replacePattern = sprintf('$1%s $2', "TOP $end");
+        $replacePattern = sprintf('$1%s $2', $top);
         $query = preg_replace($selectPattern, $replacePattern, $query);
 
         if (stristr($query, "ORDER BY")) {
@@ -1234,10 +1246,9 @@ class SQLServerPlatform extends AbstractPlatform
             . "SELECT * FROM ("
             . "SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte"
             . ") AS doctrine_tbl "
-            . "WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum ASC",
+            . 'WHERE %s ORDER BY doctrine_rownum ASC',
             $query,
-            $start,
-            $end
+            implode(' AND ', $where)
         );
     }
 

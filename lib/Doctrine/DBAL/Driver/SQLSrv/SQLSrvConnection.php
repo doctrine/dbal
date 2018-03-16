@@ -136,11 +136,11 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
         if ($name !== null) {
             $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
             $stmt->execute([$name]);
-
-            return $stmt->fetchColumn();
+        } else {
+            $stmt = $this->query('SELECT @@IDENTITY');
         }
 
-        return $this->lastInsertId->getId();
+        return $stmt->fetchColumn();
     }
 
     /**

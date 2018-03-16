@@ -8,11 +8,10 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use function sprintf;
 
 abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCase
 {
-    protected static $selectFromCtePattern = "WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum BETWEEN %d AND %d ORDER BY doctrine_rownum ASC";
-
     public function getGenerateTableSql()
     {
         return 'CREATE TABLE test (id INT IDENTITY NOT NULL, test NVARCHAR(255), PRIMARY KEY (id))';
@@ -179,7 +178,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT * FROM user';
         $alteredSql = 'SELECT TOP 10 * FROM user';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10, 0);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithEmptyOffset()
@@ -187,7 +186,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT * FROM user';
         $alteredSql = 'SELECT TOP 10 * FROM user';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithOffset()
@@ -200,7 +199,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $alteredSql = 'SELECT TOP 15 * FROM user ORDER BY username DESC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
 
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
+        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
     }
 
     public function testModifyLimitQueryWithAscOrderBy()
@@ -209,7 +208,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username ASC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
 
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithLowercaseOrderBy()
@@ -217,7 +216,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT * FROM user order by username';
         $alteredSql = 'SELECT TOP 10 * FROM user order by username';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithDescOrderBy()
@@ -225,7 +224,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT * FROM user ORDER BY username DESC';
         $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username DESC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithMultipleOrderBy()
@@ -233,7 +232,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT * FROM user ORDER BY username DESC, usereamil ASC';
         $alteredSql = 'SELECT TOP 10 * FROM user ORDER BY username DESC, usereamil ASC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithSubSelect()
@@ -241,7 +240,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
         $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndOrder()
@@ -249,12 +248,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC) dctrn_result';
         $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
 
         $querySql = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC) dctrn_result';
         $alteredSql = 'SELECT TOP 10 * FROM (SELECT u.id, u.name) dctrn_result';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     public function testModifyLimitQueryWithSubSelectAndMultipleOrder()
@@ -266,17 +265,17 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT * FROM (SELECT u.id as uid, u.name as uname ORDER BY u.name DESC, id ASC) dctrn_result';
         $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id as uid, u.name as uname) dctrn_result';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
+        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
 
         $querySql = 'SELECT * FROM (SELECT u.id uid, u.name uname ORDER BY u.name DESC, id ASC) dctrn_result';
         $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id uid, u.name uname) dctrn_result';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
+        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
 
         $querySql = 'SELECT * FROM (SELECT u.id, u.name ORDER BY u.name DESC, id ASC) dctrn_result';
         $alteredSql = 'SELECT TOP 15 * FROM (SELECT u.id, u.name) dctrn_result';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
+        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
     }
 
     public function testModifyLimitQueryWithFromColumnNames()
@@ -284,7 +283,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT a.fromFoo, fromBar FROM foo';
         $alteredSql = 'SELECT TOP 10 a.fromFoo, fromBar FROM foo';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     /**
@@ -303,7 +302,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $alteredSql.= 'AND (table5.column5 = table6.column6) AND (table5.column5 = table7.column7) AND (table5.column5 = table8.column8) AND (table6.column6 = table7.column7) AND (table6.column6 = table8.column8) AND (table7.column7 = table8.column8)';
 
         $sql = $this->_platform->modifyLimitQuery($query, 10);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     /**
@@ -319,7 +318,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $alteredSql = 'SELECT TOP 15 m0_.NOMBRE AS NOMBRE0, m0_.FECHAINICIO AS FECHAINICIO1, m0_.FECHAFIN AS FECHAFIN2 FROM MEDICION m0_ WITH (NOLOCK) INNER JOIN ESTUDIO e1_ ON m0_.ESTUDIO_ID = e1_.ID INNER JOIN CLIENTE c2_ ON e1_.CLIENTE_ID = c2_.ID INNER JOIN USUARIO u3_ ON c2_.ID = u3_.CLIENTE_ID WHERE u3_.ID = ? ORDER BY m0_.FECHAINICIO DESC';
         $actual     = $this->_platform->modifyLimitQuery($sql, 10, 5);
 
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $actual);
+        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $actual);
     }
 
     /**
@@ -343,7 +342,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "WHERE u.status = 'disabled'";
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
 
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     /**
@@ -372,7 +371,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "WHERE u.status = 'disabled' " .
             "ORDER BY u.username DESC";
         $sql = $this->_platform->modifyLimitQuery($querySql, 10, 5);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 6, 15), $sql);
+        $this->expectCteWithMinAndMaxRowNums($alteredSql, 6, 15, $sql);
     }
 
     /**
@@ -393,7 +392,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             "GROUP BY code " .
             "ORDER BY MAX(heading_id) DESC";
         $sql = $this->_platform->modifyLimitQuery($querySql, 1, 0);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 1), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 1, $sql);
     }
 
     /**
@@ -417,9 +416,8 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . ") dctrn_result "
             . "ORDER BY id_0 ASC";
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 5), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
     }
-
 
     /**
      * @throws \Doctrine\DBAL\DBALException
@@ -442,7 +440,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . ") dctrn_result "
             . "ORDER BY name_1 ASC";
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 5), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
     }
 
     /**
@@ -466,7 +464,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
             . ") dctrn_result "
             . "ORDER BY name_1 ASC, foo_2 DESC";
         $sql = $this->_platform->modifyLimitQuery($querySql, 5);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 5), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 5, $sql);
     }
 
     public function testModifyLimitSubquerySimple()
@@ -477,7 +475,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $alteredSql = "SELECT DISTINCT TOP 20 id_0 FROM (SELECT k0_.id AS id_0, k0_.field AS field_1 "
             . "FROM key_table k0_ WHERE (k0_.where_field IN (1))) dctrn_result";
         $sql = $this->_platform->modifyLimitQuery($querySql, 20);
-        self::assertEquals(sprintf(self::$selectFromCtePattern, $alteredSql, 1, 20), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 20, $sql);
     }
 
     /**
@@ -1353,12 +1351,12 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
         $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC)';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(static::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
 
         $querySql = 'SELECT * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
         $alteredSql = 'SELECT TOP 10 * FROM test t WHERE t.id = (SELECT TOP 1 t2.id FROM test t2 ORDER BY t2.data DESC) ORDER BY t.data2 DESC';
         $sql = $this->_platform->modifyLimitQuery($querySql, 10);
-        self::assertEquals(sprintf(static::$selectFromCtePattern, $alteredSql, 1, 10), $sql);
+        $this->expectCteWithMaxRowNum($alteredSql, 10, $sql);
     }
 
     /**
@@ -1441,5 +1439,17 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 $this->_platform->getDefaultValueDeclarationSQL($field)
             );
         }
+    }
+
+    private function expectCteWithMaxRowNum(string $expectedSql, int $expectedMax, string $sql) : void
+    {
+        $pattern = 'WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum <= %d ORDER BY doctrine_rownum ASC';
+        self::assertEquals(sprintf($pattern, $expectedSql, $expectedMax), $sql);
+    }
+
+    private function expectCteWithMinAndMaxRowNums(string $expectedSql, int $expectedMin, int $expectedMax, string $sql) : void
+    {
+        $pattern = 'WITH dctrn_cte AS (%s) SELECT * FROM (SELECT *, ROW_NUMBER() OVER (ORDER BY (SELECT 0)) AS doctrine_rownum FROM dctrn_cte) AS doctrine_tbl WHERE doctrine_rownum >= %d AND doctrine_rownum <= %d ORDER BY doctrine_rownum ASC';
+        self::assertEquals(sprintf($pattern, $expectedSql, $expectedMin, $expectedMax), $sql);
     }
 }
