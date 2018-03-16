@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
+use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 
 class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
@@ -15,7 +15,7 @@ class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
 
     protected function createPlatform()
     {
-        return new SQLAnywhere12Platform();
+        return new SQLAnywherePlatform();
     }
 
     protected function createSchemaManager(Connection $connection)
@@ -25,37 +25,15 @@ class AbstractSQLAnywhereDriverTest extends AbstractDriverTest
 
     protected function getDatabasePlatformsForVersions()
     {
-        return array(
-            array('10', 'Doctrine\DBAL\Platforms\SQLAnywherePlatform'),
-            array('10.0', 'Doctrine\DBAL\Platforms\SQLAnywherePlatform'),
-            array('10.0.0', 'Doctrine\DBAL\Platforms\SQLAnywherePlatform'),
-            array('10.0.0.0', 'Doctrine\DBAL\Platforms\SQLAnywherePlatform'),
-            array('10.1.2.3', 'Doctrine\DBAL\Platforms\SQLAnywherePlatform'),
-            array('10.9.9.9', 'Doctrine\DBAL\Platforms\SQLAnywherePlatform'),
-            array('11', 'Doctrine\DBAL\Platforms\SQLAnywhere11Platform'),
-            array('11.0', 'Doctrine\DBAL\Platforms\SQLAnywhere11Platform'),
-            array('11.0.0', 'Doctrine\DBAL\Platforms\SQLAnywhere11Platform'),
-            array('11.0.0.0', 'Doctrine\DBAL\Platforms\SQLAnywhere11Platform'),
-            array('11.1.2.3', 'Doctrine\DBAL\Platforms\SQLAnywhere11Platform'),
-            array('11.9.9.9', 'Doctrine\DBAL\Platforms\SQLAnywhere11Platform'),
-            array('12', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('12.0', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('12.0.0', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('12.0.0.0', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('12.1.2.3', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('12.9.9.9', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('13', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('14', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('15', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('15.9.9.9', 'Doctrine\DBAL\Platforms\SQLAnywhere12Platform'),
-            array('16', 'Doctrine\DBAL\Platforms\SQLAnywhere16Platform'),
-            array('16.0', 'Doctrine\DBAL\Platforms\SQLAnywhere16Platform'),
-            array('16.0.0', 'Doctrine\DBAL\Platforms\SQLAnywhere16Platform'),
-            array('16.0.0.0', 'Doctrine\DBAL\Platforms\SQLAnywhere16Platform'),
-            array('16.1.2.3', 'Doctrine\DBAL\Platforms\SQLAnywhere16Platform'),
-            array('16.9.9.9', 'Doctrine\DBAL\Platforms\SQLAnywhere16Platform'),
-            array('17', 'Doctrine\DBAL\Platforms\SQLAnywhere16Platform'),
-        );
+        return [
+            ['16', SQLAnywherePlatform::class],
+            ['16.0', SQLAnywherePlatform::class],
+            ['16.0.0', SQLAnywherePlatform::class],
+            ['16.0.0.0', SQLAnywherePlatform::class],
+            ['16.1.2.3', SQLAnywherePlatform::class],
+            ['16.9.9.9', SQLAnywherePlatform::class],
+            ['17', SQLAnywherePlatform::class],
+        ];
     }
 
     protected function getExceptionConversionData()

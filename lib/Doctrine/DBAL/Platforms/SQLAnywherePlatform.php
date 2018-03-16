@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\Common\Proxy\Exception\UnexpectedValueException;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Schema\Column;
@@ -10,13 +11,14 @@ use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 
 /**
  * The SQLAnywherePlatform provides the behavior, features and SQL dialect of the
- * SAP Sybase SQL Anywhere 10 database platform.
+ * SAP Sybase SQL Anywhere 12 database platform.
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
@@ -500,7 +502,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getDateTimeTzFormatString()
     {
-        return $this->getDateTimeFormatString();
+        return 'Y-m-d H:i:s.uP';
     }
 
     /**
@@ -963,6 +965,14 @@ class SQLAnywherePlatform extends AbstractPlatform
     /**
      * {@inheritdoc}
      */
+    public function getRegexpExpression()
+    {
+        return 'REGEXP';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'sqlanywhere';
@@ -1121,6 +1131,70 @@ class SQLAnywherePlatform extends AbstractPlatform
         $tableIdentifier = new Identifier($tableName);
 
         return 'TRUNCATE TABLE ' . $tableIdentifier->getQuotedName($this);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCreateSequenceSQL(Sequence $sequence)
+    {
+        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
+            ' INCREMENT BY ' . $sequence->getAllocationSize() .
+            ' START WITH ' . $sequence->getInitialValue() .
+            ' MINVALUE ' . $sequence->getInitialValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterSequenceSQL(Sequence $sequence)
+    {
+        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
+            ' INCREMENT BY ' . $sequence->getAllocationSize();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDropSequenceSQL($sequence)
+    {
+        if ($sequence instanceof Sequence) {
+            $sequence = $sequence->getQuotedName($this);
+        }
+
+        return 'DROP SEQUENCE ' . $sequence;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getListSequencesSQL($database)
+    {
+        return 'SELECT sequence_name, increment_by, start_with, min_value FROM SYS.SYSSEQUENCE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSequenceNextValSQL($sequenceName)
+    {
+        return 'SELECT ' . $sequenceName . '.NEXTVAL';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsSequences()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        return 'TIMESTAMP WITH TIME ZONE';
     }
 
     /**
@@ -1286,10 +1360,25 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     protected function getAdvancedIndexOptionsSQL(Index $index)
     {
+        if ($index->hasFlag('with_nulls_distinct') && $index->hasFlag('with_nulls_not_distinct')) {
+            throw new UnexpectedValueException(
+                'An Index can either have a "with_nulls_distinct" or "with_nulls_not_distinct" flag but not both.'
+            );
+        }
+
         $sql = '';
 
-        if ( ! $index->isPrimary() && $index->hasFlag('for_olap_workload')) {
+        if (! $index->isPrimary() && $index->hasFlag('for_olap_workload')) {
             $sql .= ' FOR OLAP WORKLOAD';
+        }
+
+
+        if (! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_not_distinct')) {
+            return ' WITH NULLS NOT DISTINCT' . $sql;
+        }
+
+        if (! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_distinct')) {
+            return ' WITH NULLS DISTINCT' . $sql;
         }
 
         return $sql;
@@ -1445,6 +1534,7 @@ class SQLAnywherePlatform extends AbstractPlatform
             'smalldatetime' => 'datetime',
             'time' => 'time',
             'timestamp' => 'datetime',
+            'timestamp with time zone' => 'datetime',
             'binary' => 'binary',
             'image' => 'blob',
             'long binary' => 'blob',
