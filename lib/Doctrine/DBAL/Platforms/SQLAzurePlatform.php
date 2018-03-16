@@ -11,7 +11,7 @@ use Doctrine\DBAL\Schema\Table;
  *
  * - Create tables with the FEDERATED ON syntax.
  */
-class SQLAzurePlatform extends SQLServer2008Platform
+class SQLAzurePlatform extends SQLServerPlatform
 {
     /**
      * {@inheritDoc}

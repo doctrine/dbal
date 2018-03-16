@@ -866,7 +866,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         // "sysdiagrams" table must be ignored as it's internal SQL Server table for Database Diagrams
         // Category 2 must be ignored as it is "MS SQL Server 'pseudo-system' object[s]" for replication
-        return "SELECT name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
+        return "SELECT name, SCHEMA_NAME (uid) AS schema_name FROM sysobjects WHERE type = 'U' AND name != 'sysdiagrams' AND category != 2 ORDER BY name";
     }
 
     /**
@@ -1157,6 +1157,14 @@ class SQLServerPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        return 'DATETIMEOFFSET(6)';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         return $fixed ? ($length ? 'NCHAR(' . $length . ')' : 'CHAR(255)') : ($length ? 'NVARCHAR(' . $length . ')' : 'NVARCHAR(255)');
@@ -1199,7 +1207,9 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'DATETIME';
+        // 3 - microseconds precision length
+        // http://msdn.microsoft.com/en-us/library/ms187819.aspx
+        return 'DATETIME2(6)';
     }
 
     /**
@@ -1207,7 +1217,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'DATETIME';
+        return 'DATE';
     }
 
     /**
@@ -1215,7 +1225,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'DATETIME';
+        return 'TIME(0)';
     }
 
     /**
@@ -1357,7 +1367,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function supportsLimitOffset()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -1399,7 +1409,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getDateTimeFormatString()
     {
-        return 'Y-m-d H:i:s.000';
+        return 'Y-m-d H:i:s.u';
     }
 
     /**
@@ -1407,7 +1417,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getDateFormatString()
     {
-        return 'Y-m-d H:i:s.000';
+        return 'Y-m-d';
     }
 
     /**
@@ -1415,7 +1425,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getTimeFormatString()
     {
-        return 'Y-m-d H:i:s.000';
+        return 'H:i:s';
     }
 
     /**
@@ -1423,7 +1433,7 @@ class SQLServerPlatform extends AbstractPlatform
      */
     public function getDateTimeTzFormatString()
     {
-        return $this->getDateTimeFormatString();
+        return 'Y-m-d H:i:s.u P';
     }
 
     /**
@@ -1465,6 +1475,10 @@ class SQLServerPlatform extends AbstractPlatform
             'varbinary' => 'binary',
             'image' => 'blob',
             'uniqueidentifier' => 'guid',
+            'datetime2' => 'datetime',
+            'date' => 'date',
+            'time' => 'time',
+            'datetimeoffset' => 'datetimetz',
         ];
     }
 
@@ -1623,6 +1637,14 @@ class SQLServerPlatform extends AbstractPlatform
         }
 
         return $name . ' ' . $columnDef;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getLikeWildcardCharacters() : string
+    {
+        return parent::getLikeWildcardCharacters() . '[]^';
     }
 
     /**
