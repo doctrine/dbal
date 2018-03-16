@@ -5,9 +5,6 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\SQLAnywhere11Platform;
-use Doctrine\DBAL\Platforms\SQLAnywhere12Platform;
-use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
@@ -91,12 +88,6 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion . '.' . $buildVersion;
 
         switch(true) {
-            case version_compare($version, '16', '>='):
-                return new SQLAnywhere16Platform();
-            case version_compare($version, '12', '>='):
-                return new SQLAnywhere12Platform();
-            case version_compare($version, '11', '>='):
-                return new SQLAnywhere11Platform();
             default:
                 return new SQLAnywherePlatform();
         }
@@ -117,7 +108,7 @@ abstract class AbstractSQLAnywhereDriver implements Driver, ExceptionConverterDr
      */
     public function getDatabasePlatform()
     {
-        return new SQLAnywhere12Platform();
+        return new SQLAnywherePlatform();
     }
 
     /**
