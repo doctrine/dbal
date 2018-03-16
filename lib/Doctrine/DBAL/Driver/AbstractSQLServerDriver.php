@@ -5,8 +5,6 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Platforms\SQLServer2005Platform;
-use Doctrine\DBAL\Platforms\SQLServer2008Platform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Doctrine\DBAL\Schema\SQLServerSchemaManager;
@@ -44,10 +42,6 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
         switch (true) {
             case version_compare($version, '11.00.2100', '>='):
                 return new SQLServer2012Platform();
-            case version_compare($version, '10.00.1600', '>='):
-                return new SQLServer2008Platform();
-            case version_compare($version, '9.00.1399', '>='):
-                return new SQLServer2005Platform();
             default:
                 return new SQLServerPlatform();
         }
@@ -68,7 +62,7 @@ abstract class AbstractSQLServerDriver implements Driver, VersionAwarePlatformDr
      */
     public function getDatabasePlatform()
     {
-        return new SQLServer2008Platform();
+        return new SQLServerPlatform();
     }
 
     /**
