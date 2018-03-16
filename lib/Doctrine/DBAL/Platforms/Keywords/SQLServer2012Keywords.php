@@ -9,7 +9,7 @@ use function array_merge;
  *
  * @link    www.doctrine-project.com
  */
-class SQLServer2012Keywords extends SQLServer2008Keywords
+class SQLServer2012Keywords extends SQLServerKeywords
 {
     /**
      * {@inheritdoc}
