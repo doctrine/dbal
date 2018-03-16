@@ -278,6 +278,43 @@ jobs:
         - bash ./tests/travis/install-postgres-10.sh
 
     - stage: Test
+      env: DB=sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-$DB.sh
+        - bash ./tests/travis/install-mssql.sh
+    - stage: Test
+      php: 7.2
+      env: DB=sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-$DB.sh
+        - bash ./tests/travis/install-mssql.sh
+
+    - stage: Test
+      php: 7.1
+      env: DB=pdo_sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-$DB.sh
+        - bash ./tests/travis/install-mssql.sh
+    - stage: Test
+      php: 7.2
+      env: DB=pdo_sqlsrv
+      sudo: required
+      services:
+        - docker
+      before_script:
+        - bash ./tests/travis/install-mssql-$DB.sh
+        - bash ./tests/travis/install-mssql.sh
+
+    - stage: Test
       php: 7.1
       env: DB=sqlite DEPENDENCIES=low
       install:
