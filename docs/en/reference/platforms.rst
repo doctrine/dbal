@@ -63,10 +63,7 @@ PostgreSQL
 SAP Sybase SQL Anywhere
 ^^^^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLAnywherePlatform`` for version 10 and above (deprecated).
--  ``SQLAnywhere11Platform`` for version 11 and above (deprecated).
--  ``SQLAnywhere12Platform`` for version 12 and above (deprecated).
--  ``SQLAnywhere16Platform`` for version 16 and above.
+-  ``SQLAnywherePlatform`` for version 16 and above.
 
 SQLite
 ^^^^^^

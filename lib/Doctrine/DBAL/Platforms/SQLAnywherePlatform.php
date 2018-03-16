@@ -10,10 +10,12 @@ use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use InvalidArgumentException;
+use UnexpectedValueException;
 use function array_merge;
 use function array_unique;
 use function array_values;
@@ -32,9 +34,7 @@ use function substr;
 
 /**
  * The SQLAnywherePlatform provides the behavior, features and SQL dialect of the
- * SAP Sybase SQL Anywhere 10 database platform.
- *
- * @deprecated Use SQLAnywhere 16 or newer
+ * SAP Sybase SQL Anywhere 16 database platform.
  */
 class SQLAnywherePlatform extends AbstractPlatform
 {
@@ -509,7 +509,7 @@ class SQLAnywherePlatform extends AbstractPlatform
      */
     public function getDateTimeTzFormatString()
     {
-        return $this->getDateTimeFormatString();
+        return 'Y-m-d H:i:s.uP';
     }
 
     /**
@@ -1003,6 +1003,14 @@ SQL
     /**
      * {@inheritdoc}
      */
+    public function getRegexpExpression()
+    {
+        return 'REGEXP';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'sqlanywhere';
@@ -1186,6 +1194,70 @@ SQL
     /**
      * {@inheritdoc}
      */
+    public function getCreateSequenceSQL(Sequence $sequence)
+    {
+        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
+            ' INCREMENT BY ' . $sequence->getAllocationSize() .
+            ' START WITH ' . $sequence->getInitialValue() .
+            ' MINVALUE ' . $sequence->getInitialValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlterSequenceSQL(Sequence $sequence)
+    {
+        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
+            ' INCREMENT BY ' . $sequence->getAllocationSize();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDropSequenceSQL($sequence)
+    {
+        if ($sequence instanceof Sequence) {
+            $sequence = $sequence->getQuotedName($this);
+        }
+
+        return 'DROP SEQUENCE ' . $sequence;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getListSequencesSQL($database)
+    {
+        return 'SELECT sequence_name, increment_by, start_with, min_value FROM SYS.SYSSEQUENCE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSequenceNextValSQL($sequenceName)
+    {
+        return 'SELECT ' . $sequenceName . '.NEXTVAL';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsSequences()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        return 'TIMESTAMP WITH TIME ZONE';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getVarcharDefaultLength()
     {
         return 1;
@@ -1347,10 +1419,24 @@ SQL
      */
     protected function getAdvancedIndexOptionsSQL(Index $index)
     {
+        if ($index->hasFlag('with_nulls_distinct') && $index->hasFlag('with_nulls_not_distinct')) {
+            throw new UnexpectedValueException(
+                'An Index can either have a "with_nulls_distinct" or "with_nulls_not_distinct" flag but not both.'
+            );
+        }
+
         $sql = '';
 
         if (! $index->isPrimary() && $index->hasFlag('for_olap_workload')) {
             $sql .= ' FOR OLAP WORKLOAD';
+        }
+
+        if (! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_not_distinct')) {
+            return ' WITH NULLS NOT DISTINCT' . $sql;
+        }
+
+        if (! $index->isPrimary() && $index->isUnique() && $index->hasFlag('with_nulls_distinct')) {
+            return ' WITH NULLS DISTINCT' . $sql;
         }
 
         return $sql;
@@ -1504,6 +1590,7 @@ SQL
             'smalldatetime' => 'datetime',
             'time' => 'time',
             'timestamp' => 'datetime',
+            'timestamp with time zone' => 'datetime',
             'binary' => 'binary',
             'image' => 'blob',
             'long binary' => 'blob',
