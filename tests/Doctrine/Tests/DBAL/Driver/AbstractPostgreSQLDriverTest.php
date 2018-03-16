@@ -5,8 +5,6 @@ namespace Doctrine\Tests\DBAL\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractPostgreSQLDriver;
 use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
-use Doctrine\DBAL\Platforms\PostgreSQL91Platform;
-use Doctrine\DBAL\Platforms\PostgreSQL92Platform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
@@ -61,15 +59,9 @@ class AbstractPostgreSQLDriverTest extends AbstractDriverTest
     protected function getDatabasePlatformsForVersions()
     {
         return [
-            ['9.0.9', PostgreSqlPlatform::class],
-            ['9.1', PostgreSQL91Platform::class],
-            ['9.1.0', PostgreSQL91Platform::class],
-            ['9.1.1', PostgreSQL91Platform::class],
-            ['9.1.9', PostgreSQL91Platform::class],
-            ['9.2', PostgreSQL92Platform::class],
-            ['9.2.0', PostgreSQL92Platform::class],
-            ['9.2.1', PostgreSQL92Platform::class],
-            ['9.3.6', PostgreSQL92Platform::class],
+            ['9.3', PostgreSqlPlatform::class],
+            ['9.3.0', PostgreSqlPlatform::class],
+            ['9.3.6', PostgreSqlPlatform::class],
             ['9.4', PostgreSQL94Platform::class],
             ['9.4.0', PostgreSQL94Platform::class],
             ['9.4.1', PostgreSQL94Platform::class],
