@@ -10,9 +10,6 @@ use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
-use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords;
-use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords;
-use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
 use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
@@ -43,9 +40,6 @@ class ReservedWordsCommand extends Command
         'oracle'        => OracleKeywords::class,
         'db2'           => DB2Keywords::class,
         'sqlanywhere'   => SQLAnywhereKeywords::class,
-        'sqlanywhere11' => SQLAnywhere11Keywords::class,
-        'sqlanywhere12' => SQLAnywhere12Keywords::class,
-        'sqlanywhere16' => SQLAnywhere16Keywords::class,
     ];
 
     /**
@@ -101,9 +95,6 @@ The following keyword lists are currently shipped with Doctrine:
     * sqlserver
     * sqlserver2012
     * sqlanywhere
-    * sqlanywhere11
-    * sqlanywhere12
-    * sqlanywhere16
     * db2 (Not checked by default)
 EOT
         );

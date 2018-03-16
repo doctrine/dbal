@@ -2,7 +2,6 @@
 
 namespace Doctrine\Tests\DBAL\Platforms;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
@@ -12,6 +11,7 @@ use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\UniqueConstraint;
@@ -468,17 +468,120 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
     public function testGeneratesCreateIndexWithAdvancedPlatformOptionsSQL()
     {
         self::assertEquals(
-            'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b) FOR OLAP WORKLOAD',
+            'CREATE UNIQUE INDEX fooindex ON footable (a, b) WITH NULLS DISTINCT',
             $this->_platform->getCreateIndexSQL(
                 new Index(
                     'fooindex',
-                    array('a', 'b'),
+                    ['a', 'b'],
                     true,
                     false,
-                    array('virtual', 'clustered', 'for_olap_workload')
+                    ['with_nulls_distinct']
                 ),
                 'footable'
             )
+        );
+
+        // WITH NULLS DISTINCT clause not available on primary indexes.
+        self::assertEquals(
+            'ALTER TABLE footable ADD PRIMARY KEY (a, b)',
+            $this->_platform->getCreateIndexSQL(
+                new Index(
+                    'fooindex',
+                    ['a', 'b'],
+                    false,
+                    true,
+                    ['with_nulls_distinct']
+                ),
+                'footable'
+            )
+        );
+
+        // WITH NULLS DISTINCT clause not available on non-unique indexes.
+        self::assertEquals(
+            'CREATE INDEX fooindex ON footable (a, b)',
+            $this->_platform->getCreateIndexSQL(
+                new Index(
+                    'fooindex',
+                    ['a', 'b'],
+                    false,
+                    false,
+                    ['with_nulls_distinct']
+                ),
+                'footable'
+            )
+        );
+
+        self::assertEquals(
+            'CREATE VIRTUAL UNIQUE CLUSTERED INDEX fooindex ON footable (a, b) WITH NULLS NOT DISTINCT FOR OLAP WORKLOAD',
+            $this->_platform->getCreateIndexSQL(
+                new Index(
+                    'fooindex',
+                    ['a', 'b'],
+                    true,
+                    false,
+                    ['virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload']
+                ),
+                'footable'
+            )
+        );
+        self::assertEquals(
+            'CREATE VIRTUAL CLUSTERED INDEX fooindex ON footable (a, b) FOR OLAP WORKLOAD',
+            $this->_platform->getCreateIndexSQL(
+                new Index(
+                    'fooindex',
+                    ['a', 'b'],
+                    false,
+                    false,
+                    ['virtual', 'clustered', 'with_nulls_not_distinct', 'for_olap_workload']
+                ),
+                'footable'
+            )
+        );
+
+        // WITH NULLS NOT DISTINCT clause not available on primary indexes.
+        self::assertEquals(
+            'ALTER TABLE footable ADD PRIMARY KEY (a, b)',
+            $this->_platform->getCreateIndexSQL(
+                new Index(
+                    'fooindex',
+                    ['a', 'b'],
+                    false,
+                    true,
+                    ['with_nulls_not_distinct']
+                ),
+                'footable'
+            )
+        );
+
+        // WITH NULLS NOT DISTINCT clause not available on non-unique indexes.
+        self::assertEquals(
+            'CREATE INDEX fooindex ON footable (a, b)',
+            $this->_platform->getCreateIndexSQL(
+                new Index(
+                    'fooindex',
+                    ['a', 'b'],
+                    false,
+                    false,
+                    ['with_nulls_not_distinct']
+                ),
+                'footable'
+            )
+        );
+    }
+
+    public function testThrowsExceptionOnInvalidWithNullsNotDistinctIndexOptions()
+    {
+        $this->expectException('UnexpectedValueException');
+
+        $this->_platform->getCreateIndexSQL(
+            new Index(
+                'fooindex',
+                ['a', 'b'],
+                false,
+                false,
+                ['with_nulls_distinct', 'with_nulls_not_distinct']
+            ),
+            'footable'
         );
     }
 
@@ -589,19 +692,28 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
         );
     }
 
-    public function testDoesNotSupportRegexp()
-    {
-        $this->expectException('\Doctrine\DBAL\DBALException');
-
-        $this->_platform->getRegexpExpression();
-    }
-
     public function testHasCorrectDateTimeTzFormatString()
     {
-        // Date time type with timezone is not supported before version 12.
-        // For versions before we have to ensure that the date time with timezone format
-        // equals the normal date time format so that it corresponds to the declaration SQL equality (datetimetz -> datetime).
-        self::assertEquals($this->_platform->getDateTimeFormatString(), $this->_platform->getDateTimeTzFormatString());
+        self::assertEquals('Y-m-d H:i:s.uP', $this->_platform->getDateTimeTzFormatString());
+    }
+
+    public function testGeneratesDateTimeTzColumnTypeDeclarationSQL()
+    {
+        self::assertEquals(
+            'TIMESTAMP WITH TIME ZONE',
+            $this->_platform->getDateTimeTzTypeDeclarationSQL([
+                'length' => 10,
+                'fixed' => true,
+                'unsigned' => true,
+                'autoincrement' => true,
+            ])
+        );
+    }
+
+    public function testInitializesDateTimeTzTypeMapping()
+    {
+        self::assertTrue($this->_platform->hasDoctrineTypeMappingFor('timestamp with time zone'));
+        self::assertEquals('datetime', $this->_platform->getDoctrineTypeMapping('timestamp with time zone'));
     }
 
     public function testHasCorrectDefaultTransactionIsolationLevel()
@@ -752,7 +864,41 @@ class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 
     public function testDoesNotSupportSequences()
     {
-        self::assertFalse($this->_platform->supportsSequences());
+        self::markTestSkipped('This version of the platform now supports sequences.');
+    }
+
+    public function testSupportsSequences()
+    {
+        self::assertTrue($this->_platform->supportsSequences());
+    }
+
+    public function testGeneratesSequenceSqlCommands()
+    {
+        $sequence = new Sequence('myseq', 20, 1);
+        self::assertEquals(
+            'CREATE SEQUENCE myseq INCREMENT BY 20 START WITH 1 MINVALUE 1',
+            $this->_platform->getCreateSequenceSQL($sequence)
+        );
+        self::assertEquals(
+            'ALTER SEQUENCE myseq INCREMENT BY 20',
+            $this->_platform->getAlterSequenceSQL($sequence)
+        );
+        self::assertEquals(
+            'DROP SEQUENCE myseq',
+            $this->_platform->getDropSequenceSQL('myseq')
+        );
+        self::assertEquals(
+            'DROP SEQUENCE myseq',
+            $this->_platform->getDropSequenceSQL($sequence)
+        );
+        self::assertEquals(
+            'SELECT myseq.NEXTVAL',
+            $this->_platform->getSequenceNextValSQL('myseq')
+        );
+        self::assertEquals(
+            'SELECT sequence_name, increment_by, start_with, min_value FROM SYS.SYSSEQUENCE',
+            $this->_platform->getListSequencesSQL(null)
+        );
     }
 
     public function testDoesNotSupportInlineColumnComments()
