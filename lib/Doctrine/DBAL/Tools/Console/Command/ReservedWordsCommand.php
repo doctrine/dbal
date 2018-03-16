@@ -2,7 +2,23 @@
 
 namespace Doctrine\DBAL\Tools\Console\Command;
 
+use Doctrine\DBAL\Platforms\Keywords\DB2Keywords;
+use Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords;
+use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
+use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
+use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords;
+use Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,26 +30,26 @@ use function implode;
 class ReservedWordsCommand extends Command
 {
     /**
-     * @var array
+     * @var string[]
      */
     private $keywordListClasses = [
-        'mysql'         => 'Doctrine\DBAL\Platforms\Keywords\MySQLKeywords',
-        'mysql57'       => 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords',
+        'mysql'         => MySQLKeywords::class,
+        'mysql57'       => MySQL57Keywords::class,
         'mysql80'       => 'Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords',
-        'sqlserver'     => 'Doctrine\DBAL\Platforms\Keywords\SQLServerKeywords',
-        'sqlserver2005' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2005Keywords',
-        'sqlserver2008' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2008Keywords',
-        'sqlserver2012' => 'Doctrine\DBAL\Platforms\Keywords\SQLServer2012Keywords',
-        'sqlite'        => 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords',
-        'pgsql'         => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords',
-        'pgsql91'       => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords',
-        'pgsql92'       => 'Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords',
-        'oracle'        => 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords',
-        'db2'           => 'Doctrine\DBAL\Platforms\Keywords\DB2Keywords',
-        'sqlanywhere'   => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords',
-        'sqlanywhere11' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords',
-        'sqlanywhere12' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords',
-        'sqlanywhere16' => 'Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords',
+        'sqlserver'     => SQLServerKeywords::class,
+        'sqlserver2005' => SQLServer2005Keywords::class,
+        'sqlserver2008' => SQLServer2008Keywords::class,
+        'sqlserver2012' => SQLServer2012Keywords::class,
+        'sqlite'        => SQLiteKeywords::class,
+        'pgsql'         => PostgreSQLKeywords::class,
+        'pgsql94'       => PostgreSQL94Keywords::class,
+        'pgsql100'      => PostgreSQL100Keywords::class,
+        'oracle'        => OracleKeywords::class,
+        'db2'           => DB2Keywords::class,
+        'sqlanywhere'   => SQLAnywhereKeywords::class,
+        'sqlanywhere11' => SQLAnywhere11Keywords::class,
+        'sqlanywhere12' => SQLAnywhere12Keywords::class,
+        'sqlanywhere16' => SQLAnywhere16Keywords::class,
     ];
 
     /**
@@ -82,7 +98,8 @@ The following keyword lists are currently shipped with Doctrine:
     * mysql57
     * mysql80
     * pgsql
-    * pgsql92
+    * pgsql94
+    * pgsql100
     * sqlite
     * oracle
     * sqlserver
@@ -108,23 +125,7 @@ EOT
 
         $keywordLists = (array) $input->getOption('list');
         if ( ! $keywordLists) {
-            $keywordLists = [
-                'mysql',
-                'mysql57',
-                'mysql80',
-                'pgsql',
-                'pgsql92',
-                'sqlite',
-                'oracle',
-                'sqlserver',
-                'sqlserver2005',
-                'sqlserver2008',
-                'sqlserver2012',
-                'sqlanywhere',
-                'sqlanywhere11',
-                'sqlanywhere12',
-                'sqlanywhere16',
-            ];
+            $keywordLists = array_keys($this->keywordListClasses);
         }
 
         $keywords = [];
