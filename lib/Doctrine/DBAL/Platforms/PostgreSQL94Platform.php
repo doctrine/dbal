@@ -11,7 +11,7 @@ use Doctrine\DBAL\Types\Type;
  * @link   www.doctrine-project.org
  * @since  2.6
  */
-class PostgreSQL94Platform extends PostgreSQL92Platform
+class PostgreSQL94Platform extends PostgreSqlPlatform
 {
     /**
      * {@inheritdoc}
