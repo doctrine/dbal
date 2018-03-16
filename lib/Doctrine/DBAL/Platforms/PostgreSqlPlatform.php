@@ -15,7 +15,7 @@ use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\Type;
 
 /**
- * PostgreSqlPlatform.
+ * Provides the behavior, features and SQL dialect of the PostgreSQL 9.4+ database platform.
  *
  * @since  2.0
  * @author Roman Borschel <roman@code-factory.org>
@@ -372,6 +372,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                     quote_ident(a.attname) AS field,
                     t.typname AS type,
                     format_type(a.atttypid, a.atttypmod) AS complete_type,
+                    (SELECT tc.collcollate FROM pg_catalog.pg_collation tc WHERE tc.oid = a.attcollation) AS collation,
                     (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
                     (SELECT format_type(t2.typbasetype, t2.typtypmod) FROM
                       pg_catalog.pg_type t2 WHERE t2.typtype = 'd' AND t2.oid = a.atttypid) AS domain_complete_type,
@@ -434,7 +435,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         $database = $this->quoteStringLiteral($database);
 
-        return "SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = $database";
+        return 'SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = ' . $database;
     }
 
     /**
@@ -938,6 +939,10 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
+        if (! empty($field['autoincrement'])) {
+            return 'SMALLSERIAL';
+        }
+
         return 'SMALLINT';
     }
 
@@ -1124,6 +1129,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'year'          => 'date',
             'uuid'          => 'guid',
             'bytea'         => 'blob',
+            'json'          => Type::JSON,
         ];
     }
 
@@ -1149,6 +1155,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getBinaryDefaultLength()
     {
         return 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasNativeJsonType()
+    {
+        return true;
     }
 
     /**
@@ -1187,6 +1201,30 @@ class PostgreSqlPlatform extends AbstractPlatform
         }
 
         return parent::getDefaultValueDeclarationSQL($field);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsColumnCollation()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getColumnCollationDeclarationSQL($collation)
+    {
+        return 'COLLATE ' . $this->quoteSingleIdentifier($collation);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getJsonTypeDeclarationSQL(array $field)
+    {
+        return 'JSON';
     }
 
     private function isSerialField(array $field) : bool
