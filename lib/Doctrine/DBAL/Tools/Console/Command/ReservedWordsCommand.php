@@ -8,8 +8,8 @@ use Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQL80Keywords;
 use Doctrine\DBAL\Platforms\Keywords\MySQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
-use Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords;
-use Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQL100Keywords;
+use Doctrine\DBAL\Platforms\Keywords\PostgreSQL94Keywords;
 use Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords;
 use Doctrine\DBAL\Platforms\Keywords\ReservedKeywordsValidator;
 use Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords;
@@ -44,8 +44,8 @@ class ReservedWordsCommand extends Command
         'sqlserver2012' => SQLServer2012Keywords::class,
         'sqlite'        => SQLiteKeywords::class,
         'pgsql'         => PostgreSQLKeywords::class,
-        'pgsql91'       => PostgreSQL91Keywords::class,
-        'pgsql92'       => PostgreSQL92Keywords::class,
+        'pgsql94'       => PostgreSQL94Keywords::class,
+        'pgsql100'      => PostgreSQL100Keywords::class,
         'oracle'        => OracleKeywords::class,
         'db2'           => DB2Keywords::class,
         'sqlanywhere'   => SQLAnywhereKeywords::class,
@@ -102,7 +102,8 @@ The following keyword lists are currently shipped with Doctrine:
     * mysql57
     * mysql80
     * pgsql
-    * pgsql92
+    * pgsql94
+    * pgsql100
     * sqlite
     * oracle
     * sqlserver
@@ -128,23 +129,7 @@ EOT
 
         $keywordLists = (array) $input->getOption('list');
         if (! $keywordLists) {
-            $keywordLists = [
-                'mysql',
-                'mysql57',
-                'mysql80',
-                'pgsql',
-                'pgsql92',
-                'sqlite',
-                'oracle',
-                'sqlserver',
-                'sqlserver2005',
-                'sqlserver2008',
-                'sqlserver2012',
-                'sqlanywhere',
-                'sqlanywhere11',
-                'sqlanywhere12',
-                'sqlanywhere16',
-            ];
+            $keywordLists = array_keys($this->keywordListClasses);
         }
 
         $keywords = [];
