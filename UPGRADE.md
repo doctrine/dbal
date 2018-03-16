@@ -1,5 +1,20 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed support for SQL Anywhere 12 and older
+
+DBAL now requires SQL Anywhere 16 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to newer SQL Anywhere version (16+).
+`Doctrine\DBAL\Platforms\SQLAnywherePlatform` and `Doctrine\DBAL\Platforms\Keywords\SQLAnywhereKeywords` now represent the SQL Anywhere 16.
+
+The following classes have been removed:
+
+ * `Doctrine\DBAL\Platforms\SQLAnywhere11Platform`
+ * `Doctrine\DBAL\Platforms\SQLAnywhere12Platform`
+ * `Doctrine\DBAL\Platforms\SQLAnywhere16Platform`  
+ * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere11Keywords`
+ * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere12Keywords`
+ * `Doctrine\DBAL\Platforms\Keywords\SQLAnywhere16Keywords`
+
 ## BC BREAK: Removed support for SQL Server 2005 and older
 
 DBAL now requires SQL Server 2008 or newer, support for unmaintained versions has been dropped.
