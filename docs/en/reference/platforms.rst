@@ -45,9 +45,7 @@ Oracle
 Microsoft SQL Server
 ^^^^^^^^^^^^^^^^^^^^
 
--  ``SQLServerPlatform`` for version 2000 and above.
--  ``SQLServer2005Platform`` for version 2005 and above.
--  ``SQLServer2008Platform`` for version 2008 and above.
+-  ``SQLServerPlatform`` for version 2008 and above.
 -  ``SQLServer2012Platform`` for version 2012 and above.
 
 PostgreSQL
