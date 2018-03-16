@@ -229,20 +229,20 @@ pdo_pgsql
 -  ``sslmode`` (string): Determines whether or with what priority
    a SSL TCP/IP connection will be negotiated with the server.
    See the list of available modes:
-   `http://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLMODE`
+   `https://www.postgresql.org/docs/9.3/static/libpq-connect.html#LIBPQ-CONNECT-SSLMODE`
 -  ``sslrootcert`` (string): specifies the name of a file containing
    SSL certificate authority (CA) certificate(s). If the file exists,
    the server's certificate will be verified to be signed by one of these
    authorities.
-   See http://www.postgresql.org/docs/9.0/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
+   See https://www.postgresql.org/docs/9.3/static/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT
 -  ``sslcert`` (string): specifies the file name of the client SSL certificate.
-   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT`
+   See `https://www.postgresql.org/docs/9.3/static/libpq-connect.html#LIBPQ-CONNECT-SSLCERT`
 -  ``sslkey`` (string): specifies the location for the secret key used for the
    client certificate.
-   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY`
+   See `https://www.postgresql.org/docs/9.3/static/libpq-connect.html#LIBPQ-CONNECT-SSLKEY`
 -  ``sslcrl`` (string): specifies the file name of the SSL certificate
    revocation list (CRL).
-   See `https://www.postgresql.org/docs/9.1/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
+   See `https://www.postgresql.org/docs/9.3/static/libpq-connect.html#LIBPQ-CONNECT-SSLCRL`
 -  ``application_name`` (string): Name of the application that is
    connecting to database. Optional. It will be displayed at ``pg_stat_activity``.
 

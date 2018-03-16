@@ -6,7 +6,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
 use Doctrine\DBAL\Types\Types;
 
-class PostgreSQL94PlatformTest extends PostgreSQL92PlatformTest
+class PostgreSQL94PlatformTest extends PostgreSqlPlatformTest
 {
     /**
      * {@inheritdoc}
