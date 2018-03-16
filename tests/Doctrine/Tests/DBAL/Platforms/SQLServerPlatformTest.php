@@ -75,4 +75,9 @@ class SQLServerPlatformTest extends AbstractSQLServerPlatformTestCase
             ],
         ];
     }
+
+    public function testGeneratesTypeDeclarationForDateTimeTz() : void
+    {
+        self::assertEquals('DATETIMEOFFSET(6)', $this->platform->getDateTimeTzTypeDeclarationSQL([]));
+    }
 }
