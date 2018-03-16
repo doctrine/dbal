@@ -58,10 +58,9 @@ Microsoft SQL Server
 PostgreSQL
 ^^^^^^^^^^
 
--  ``PostgreSqlPlatform`` for version 9.0 and below (deprecated).
--  ``PostgreSQL91Platform`` for version 9.1 and above (deprecated).
--  ``PostgreSQL92Platform`` for version 9.2 and above (deprecated).
+-  ``PostgreSqlPlatform`` for version 9.3 and below.
 -  ``PostgreSQL94Platform`` for version 9.4 and above.
+-  ``PostgreSQL100Platform`` for version 10.0 and above.
 
 SAP Sybase SQL Anywhere
 ^^^^^^^^^^^^^^^^^^^^^^^

@@ -8,6 +8,19 @@ All implementations of the `PingableConnection` and `ServerInfoAwareConnection` 
 
 All implementations of the `VersionAwarePlatformDriver` interface have to implement the methods defined in the `Driver` interface as well.
 
+## BC BREAK: Removed support for PostgreSQL 9.2 and older
+
+DBAL now requires PostgeSQL 9.3 or newer, support for unmaintained versions has been dropped.
+If you are using any of the legacy versions, you have to upgrade to a newer PostgreSQL version (9.6+ is recommended).
+`Doctrine\DBAL\Platforms\PostgreSqlPlatform` and `Doctrine\DBAL\Platforms\Keywords\PostgreSQLKeywords` now represent PostgreSQL 9.3.
+
+The following classes have been removed:
+
+ * `Doctrine\DBAL\Platforms\PostgreSQL91Platform`
+ * `Doctrine\DBAL\Platforms\PostgreSQL92Platform`
+ * `Doctrine\DBAL\Platforms\Keywords\PostgreSQL91Keywords`
+ * `Doctrine\DBAL\Platforms\Keywords\PostgreSQL92Keywords`
+
 ## BC BREAK: Removed Doctrine\DBAL\Version
 
 The `Doctrine\DBAL\Version` class is no longer available: please refrain from checking the DBAL version at runtime.
