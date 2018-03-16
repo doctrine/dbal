@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Platforms\Keywords;
  * @link   www.doctrine-project.org
  * @since  2.6
  */
-class PostgreSQL94Keywords extends PostgreSQL92Keywords
+class PostgreSQL94Keywords extends PostgreSQLKeywords
 {
     /**
      * {@inheritdoc}
