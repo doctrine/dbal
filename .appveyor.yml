@@ -9,9 +9,9 @@ clone_depth: 1
 cache:
   - C:\ProgramData\chocolatey\bin -> .appveyor.yml
   - C:\ProgramData\chocolatey\lib -> .appveyor.yml
-  - c:\tools\php -> .appveyor.yml
+  - C:\tools\php72 -> .appveyor.yml
   - composer.phar
-  - '%LOCALAPPDATA%\Composer\files'
+  - '%LOCALAPPDATA%\Composer'
   #- vendor
 
 ## Build matrix for lowest and highest possible targets
