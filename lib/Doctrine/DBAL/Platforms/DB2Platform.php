@@ -73,21 +73,21 @@ class DB2Platform extends AbstractPlatform
     public function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = [
-            'smallint'      => 'smallint',
-            'bigint'        => 'bigint',
-            'integer'       => 'integer',
-            'time'          => 'time',
-            'date'          => 'date',
-            'varchar'       => 'string',
-            'character'     => 'string',
-            'varbinary'     => 'binary',
-            'binary'        => 'binary',
-            'clob'          => 'text',
-            'blob'          => 'blob',
-            'decimal'       => 'decimal',
-            'double'        => 'float',
-            'real'          => 'float',
-            'timestamp'     => 'datetime',
+            'bigint'    => 'bigint',
+            'binary'    => 'binary',
+            'blob'      => 'blob',
+            'character' => 'string',
+            'clob'      => 'text',
+            'date'      => 'date',
+            'decimal'   => 'decimal',
+            'double'    => 'float',
+            'integer'   => 'integer',
+            'real'      => 'float',
+            'smallint'  => 'smallint',
+            'time'      => 'time',
+            'timestamp' => 'datetime',
+            'varbinary' => 'binary',
+            'varchar'   => 'string',
         ];
     }
 
