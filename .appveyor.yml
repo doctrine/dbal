@@ -9,7 +9,7 @@ clone_depth: 1
 cache:
   - C:\ProgramData\chocolatey\bin -> .appveyor.yml
   - C:\ProgramData\chocolatey\lib -> .appveyor.yml
-  - c:\tools\php -> .appveyor.yml
+  - C:\tools\php -> .appveyor.yml
   - composer.phar
   - '%LOCALAPPDATA%\Composer\files'
   #- vendor
@@ -20,19 +20,19 @@ environment:
   - db: mssql
     driver: sqlsrv
     db_version: sql2008r2sp2
-    php: 7.1
+    php: 7.2
   - db: mssql
     driver: sqlsrv
     db_version: sql2012sp1
-    php: 7.1
+    php: 7.2
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
-    php: 7.1
+    php: 7.2
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
-    php: 7.1
+    php: 7.2
 
 init:
   - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;%PATH%
@@ -60,24 +60,22 @@ install:
           Add-Content php.ini "`n extension=php_pdo_sqlite.dll"
           Add-Content php.ini "`n extension=php_sqlite3.dll"
 
-          # If needed get the MSSQL DLL's
-          if ($env:db -eq "mssql") {
-            $DLLVersion = "5.2.0rc1"
-            cd c:\tools\php\ext
-            $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc14-x64.zip"
-            $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc14-x64.zip"
-            Invoke-WebRequest $source -OutFile $destination
-            7z x -y php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc14-x64.zip > $null
-            $source = "https://windows.php.net/downloads/pecl/releases/pdo_sqlsrv/$($DLLVersion)/php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc14-x64.zip"
-            $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc14-x64.zip"
-            Invoke-WebRequest $source -OutFile $destination
-            7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc14-x64.zip > $null
-            Remove-Item c:\tools\php\* -include .zip
-            cd c:\tools\php
-            Add-Content php.ini "`nextension=php_sqlsrv.dll"
-            Add-Content php.ini "`nextension=php_pdo_sqlsrv.dll"
-            Add-Content php.ini "`n"
-          }
+          # Get and install the MSSQL DLL's
+          $DLLVersion = "5.2.0rc1"
+          cd c:\tools\php\ext
+          $source = "https://windows.php.net/downloads/pecl/releases/sqlsrv/$($DLLVersion)/php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
+          $destination = "c:\tools\php\ext\php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
+          Invoke-WebRequest $source -OutFile $destination
+          7z x -y php_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
+          $source = "https://windows.php.net/downloads/pecl/releases/pdo_sqlsrv/$($DLLVersion)/php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
+          $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
+          Invoke-WebRequest $source -OutFile $destination
+          7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
+          Remove-Item c:\tools\php\* -include .zip
+          cd c:\tools\php
+          Add-Content php.ini "`nextension=php_sqlsrv.dll"
+          Add-Content php.ini "`nextension=php_pdo_sqlsrv.dll"
+          Add-Content php.ini "`n"
 
           cd c:\projects\dbal
 
