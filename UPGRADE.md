@@ -8,6 +8,11 @@ All implementations of the `PingableConnection` and `ServerInfoAwareConnection` 
 
 All implementations of the `VersionAwarePlatformDriver` interface have to implement the methods defined in the `Driver` interface as well.
 
+## BC BREAK: Removed MsSQLKeywords class
+
+The `Doctrine\DBAL\Platforms\MsSQLKeywords` class has been removed.
+Please use `Doctrine\DBAL\Platforms\SQLServerPlatform `instead.
+
 ## BC BREAK: Removed PDO DB2 driver
 
 This PDO-based IBM DB2 driver (built on top of `pdo_ibm` extension) has already been unsupported as of 2.5, it has been now removed.
