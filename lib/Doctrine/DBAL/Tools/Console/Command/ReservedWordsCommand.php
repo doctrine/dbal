@@ -30,18 +30,18 @@ class ReservedWordsCommand extends Command
 {
     /** @var string[] */
     private $keywordListClasses = [
+        'db2'           => DB2Keywords::class,
         'mysql'         => MySQLKeywords::class,
         'mysql57'       => MySQL57Keywords::class,
         'mysql80'       => MySQL80Keywords::class,
-        'sqlserver'     => SQLServerKeywords::class,
-        'sqlserver2012' => SQLServer2012Keywords::class,
-        'sqlite'        => SQLiteKeywords::class,
+        'oracle'        => OracleKeywords::class,
         'pgsql'         => PostgreSQLKeywords::class,
         'pgsql94'       => PostgreSQL94Keywords::class,
         'pgsql100'      => PostgreSQL100Keywords::class,
-        'oracle'        => OracleKeywords::class,
-        'db2'           => DB2Keywords::class,
         'sqlanywhere'   => SQLAnywhereKeywords::class,
+        'sqlite'        => SQLiteKeywords::class,
+        'sqlserver'     => SQLServerKeywords::class,
+        'sqlserver2012' => SQLServer2012Keywords::class,
     ];
 
     /**
