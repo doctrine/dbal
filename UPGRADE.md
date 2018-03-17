@@ -1,5 +1,10 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed MsSQLKeywords class
+
+The `Doctrine\DBAL\Platforms\MsSQLKeywords` has been removed.
+Please use `Doctrine\DBAL\Platforms\SQLServerPlatform `instead.
+
 ## BC BREAK: Removed PDO DB2 driver
 
 This PDO-based IBM DB2 driver (built on top of pdo_ibm extension) has already been unsupported as of 2.5, it has now been now removed.
