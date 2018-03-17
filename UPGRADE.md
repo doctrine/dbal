@@ -8,6 +8,14 @@ All implementations of the `PingableConnection` and `ServerInfoAwareConnection` 
 
 All implementations of the `VersionAwarePlatformDriver` interface have to implement the methods defined in the `Driver` interface as well.
 
+## BC BREAK: Removed PDO DB2 driver
+
+This PDO-based IBM DB2 driver (built on top of `pdo_ibm` extension) has already been unsupported as of 2.5, it has been now removed.
+
+The following class has been removed:
+
+ * `Doctrine\DBAL\Driver\PDOIbm\Driver`
+
 ## BC BREAK: Removed support for SQL Anywhere 12 and older
 
 DBAL now requires SQL Anywhere 16 or newer, support for unmaintained versions has been dropped.
