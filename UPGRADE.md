@@ -1,5 +1,13 @@
 # Upgrade to 3.0
 
+## BC BREAK: Removed PDO DB2 driver
+
+This PDO-based IBM DB2 driver (built on top of pdo_ibm extension) has already been unsupported as of 2.5, it has now been now removed.
+
+The following class has been removed:
+
+ * `Doctrine\DBAL\Driver\PDOIbm\Driver`
+
 ## BC BREAK: Removed support for SQL Anywhere 12 and older
 
 DBAL now requires SQL Anywhere 16 or newer, support for unmaintained versions has been dropped.
