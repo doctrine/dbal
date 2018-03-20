@@ -312,7 +312,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         }
 
         if (isset($args[1])) {
-            $this->defaultFetchClassCtorArgs = (array) $args[2];
+            $this->defaultFetchClassCtorArgs = (array) $args[1];
         }
 
         return true;
@@ -373,7 +373,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
         switch ($fetchMode) {
             case FetchMode::CUSTOM_OBJECT:
-                while (($row = $this->fetch($fetchMode, $args)) !== false) {
+                while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
                     $rows[] = $row;
                 }
                 break;
