@@ -113,7 +113,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      * @param \PDOStatement $stmt
      * @return PDOStatement
      */
-    private function createStatement(\PDOStatement $stmt) : PDOStatement
+    protected function createStatement(\PDOStatement $stmt) : PDOStatement
     {
         return new PDOStatement($stmt);
     }
