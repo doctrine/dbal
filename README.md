@@ -6,7 +6,7 @@
 | [![Build Status][ContinuousPHP image]][ContinuousPHP] | [![Build Status][ContinuousPHP 2.5 image]][ContinuousPHP] | [![Build Status][ContinuousPHP 2.6 image]][ContinuousPHP] |
 | [![Code Coverage][Coverage image]][Scrutinizer Master] | [![Code Coverage][Coverage 2.5 image]][Scrutinizer 2.5] | [![Code Coverage][Coverage 2.6 image]][Scrutinizer 2.6] |
 | [![Code Quality][Quality image]][Scrutinizer Master] | [![Code Quality][Quality 2.5 image]][Scrutinizer 2.5] | [![Code Quality][Quality 2.6 image]][Scrutinizer 2.6] |
-
+| [![AppVeyor][AppVeyor master image]][AppVeyor master] | | |
 
 Powerful database abstraction layer with many features for database schema introspection, schema management and PDO abstraction.
 
@@ -23,6 +23,8 @@ Powerful database abstraction layer with many features for database schema intro
   [ContinuousPHP image]: https://img.shields.io/continuousphp/git-hub/doctrine/dbal/master.svg?style=flat-square
   [Master]: https://travis-ci.org/doctrine/dbal
   [Scrutinizer Master]: https://scrutinizer-ci.com/g/doctrine/dbal/
+  [AppVeyor master]: https://ci.appveyor.com/project/doctrine/dbal/branch/master
+  [AppVeyor master image]: https://ci.appveyor.com/api/projects/status/i88kitq8qpbm0vie/branch/master?svg=true
   [ContinuousPHP]: https://continuousphp.com/git-hub/doctrine/dbal
   [2.5 image]: https://img.shields.io/travis/doctrine/dbal/2.5.svg?style=flat-square
   [Coverage 2.5 image]: https://img.shields.io/scrutinizer/coverage/g/doctrine/dbal/2.5.svg?style=flat-square
