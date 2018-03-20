@@ -3,6 +3,7 @@
 namespace Doctrine\DBAL\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOConnection;
+use Doctrine\DBAL\Driver\PDOStatement;
 use Doctrine\DBAL\ParameterType;
 
 /**
@@ -12,15 +13,6 @@ use Doctrine\DBAL\ParameterType;
  */
 class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct($dsn, $user = null, $password = null, array $options = null)
-    {
-        parent::__construct($dsn, $user, $password, $options);
-        $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [Statement::class, []]);
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -49,5 +41,13 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
         }
 
         return $val;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function createStatement(\PDOStatement $stmt) : PDOStatement
+    {
+        return new Statement($stmt);
     }
 }
