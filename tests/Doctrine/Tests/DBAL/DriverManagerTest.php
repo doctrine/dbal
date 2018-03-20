@@ -4,7 +4,7 @@ namespace Doctrine\Tests\DBAL;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver as DrizzlePDOMySqlDriver;
-use Doctrine\DBAL\Driver\PDOMySQL\Driver as PDOMySQLDriver;
+use Doctrine\DBAL\Driver\PDOMySql\Driver as PDOMySQLDriver;
 use Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqliteDriver;
 use Doctrine\DBAL\Driver\SQLSrv\Driver as SQLSrvDriver;
 use Doctrine\DBAL\DriverManager;

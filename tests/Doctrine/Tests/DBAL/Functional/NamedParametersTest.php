@@ -1,6 +1,6 @@
 <?php
 
-namespace Doctrine\Tests\DBAL\Functional\Ticket;
+namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;

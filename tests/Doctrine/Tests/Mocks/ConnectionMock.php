@@ -10,6 +10,9 @@ class ConnectionMock extends \Doctrine\DBAL\Connection
      */
     private $_platformMock;
 
+    /** @var DatabasePlatformMock */
+    private $_platform;
+
     /**
      * @var int
      */

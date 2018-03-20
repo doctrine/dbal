@@ -8,7 +8,8 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
 {
     public function testNoFederationName()
     {
-        $this->expectException('Doctrine\DBAL\Sharding\ShardingException', 'SQLAzure requires a federation name to be set during sharding configuration.');
+        $this->expectException('Doctrine\DBAL\Sharding\ShardingException');
+        $this->expectExceptionMessage('SQLAzure requires a federation name to be set during sharding configuration.');
 
         $conn = $this->createConnection(array('sharding' => array('distributionKey' => 'abc', 'distributionType' => 'integer')));
         $sm = new SQLAzureShardManager($conn);
@@ -16,7 +17,8 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
 
     public function testNoDistributionKey()
     {
-        $this->expectException('Doctrine\DBAL\Sharding\ShardingException', 'SQLAzure requires a distribution key to be set during sharding configuration.');
+        $this->expectException('Doctrine\DBAL\Sharding\ShardingException');
+        $this->expectExceptionMessage('SQLAzure requires a distribution key to be set during sharding configuration.');
 
         $conn = $this->createConnection(array('sharding' => array('federationName' => 'abc', 'distributionType' => 'integer')));
         $sm = new SQLAzureShardManager($conn);
@@ -43,7 +45,8 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         $conn = $this->createConnection(array('sharding' => array('federationName' => 'abc', 'distributionKey' => 'foo', 'distributionType' => 'integer')));
         $conn->expects($this->at(1))->method('isTransactionActive')->will($this->returnValue(true));
 
-        $this->expectException('Doctrine\DBAL\Sharding\ShardingException', 'Cannot switch shard during an active transaction.');
+        $this->expectException('Doctrine\DBAL\Sharding\ShardingException');
+        $this->expectExceptionMessage('Cannot switch shard during an active transaction.');
 
         $sm = new SQLAzureShardManager($conn);
         $sm->selectGlobal();
@@ -64,7 +67,8 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         $conn = $this->createConnection(array('sharding' => array('federationName' => 'abc', 'distributionKey' => 'foo', 'distributionType' => 'integer')));
         $conn->expects($this->at(1))->method('isTransactionActive')->will($this->returnValue(true));
 
-        $this->expectException('Doctrine\DBAL\Sharding\ShardingException', 'Cannot switch shard during an active transaction.');
+        $this->expectException('Doctrine\DBAL\Sharding\ShardingException');
+        $this->expectExceptionMessage('Cannot switch shard during an active transaction.');
 
         $sm = new SQLAzureShardManager($conn);
         $sm->selectShard(1234);
@@ -77,7 +81,8 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         $conn = $this->createConnection(array('sharding' => array('federationName' => 'abc', 'distributionKey' => 'foo', 'distributionType' => 'integer')));
         $conn->expects($this->at(1))->method('isTransactionActive')->will($this->returnValue(false));
 
-        $this->expectException('Doctrine\DBAL\Sharding\ShardingException', 'You have to specify a string or integer as shard distribution value.');
+        $this->expectException('Doctrine\DBAL\Sharding\ShardingException');
+        $this->expectExceptionMessage('You have to specify a string or integer as shard distribution value.');
 
         $sm = new SQLAzureShardManager($conn);
         $sm->selectShard(null);
@@ -93,4 +98,3 @@ class SQLAzureShardManagerTest extends \PHPUnit\Framework\TestCase
         return $conn;
     }
 }
-
