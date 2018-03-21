@@ -403,7 +403,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         $table->addColumn('baz', 'string');
         $table->addColumn('bloo', 'string');
         $table->addIndex(array('baz', 'bar'), 'composite_idx');
-        $table->addIndex(array('bar', 'baz', 'bloo'), 'full_idx');
+        $table->addIndex(['bar', 'bloo', 'baz'], 'full_idx');
 
         $foreignTable = new Table('bar');
         $foreignTable->addColumn('foo', 'integer');
@@ -416,7 +416,7 @@ class TableTest extends \Doctrine\Tests\DbalTestCase
         self::assertTrue($table->hasIndex('full_idx'));
         self::assertTrue($table->hasIndex('idx_8c73652176ff8caa78240498'));
         self::assertSame(array('baz', 'bar'), $table->getIndex('composite_idx')->getColumns());
-        self::assertSame(array('bar', 'baz', 'bloo'), $table->getIndex('full_idx')->getColumns());
+        self::assertSame(['bar', 'bloo', 'baz'], $table->getIndex('full_idx')->getColumns());
         self::assertSame(array('bar', 'baz'), $table->getIndex('idx_8c73652176ff8caa78240498')->getColumns());
     }
 

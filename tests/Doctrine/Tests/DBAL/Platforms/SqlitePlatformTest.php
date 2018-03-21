@@ -412,7 +412,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
         $diff->removedIndexes['index1'] = $table->getIndex('index1');
 
         $sql = array(
-            'DROP INDEX IDX_8D93D64923A0E66',
             'DROP INDEX IDX_8D93D6495A8A6C8D',
             'DROP INDEX IDX_8D93D6493D8E604F',
             'DROP INDEX index1',
@@ -427,7 +426,6 @@ class SqlitePlatformTest extends AbstractPlatformTestCase
             'INSERT INTO user ("key", article, comment) SELECT id, article, post FROM __temp__user',
             'DROP TABLE __temp__user',
             'ALTER TABLE user RENAME TO client',
-            'CREATE INDEX IDX_8D93D64923A0E66 ON client (article)',
             'CREATE INDEX IDX_8D93D6495A8A6C8D ON client (comment)',
         );
 

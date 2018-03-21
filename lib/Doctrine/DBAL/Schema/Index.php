@@ -20,6 +20,7 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function count;
 
 class Index extends AbstractAsset implements Constraint
 {
@@ -200,9 +201,10 @@ class Index extends AbstractAsset implements Constraint
      */
     public function isFullfilledBy(Index $other)
     {
-        // allow the other index to be equally large only. It being larger is an option
-        // but it creates a problem with scenarios of the kind PRIMARY KEY(foo,bar) UNIQUE(foo)
-        if (count($other->getColumns()) != count($this->getColumns())) {
+        // Don't allow the fulfilling index to be larger when our index
+        // is unique, as it will not provide the uniqueness we want.
+        // E.g. PRIMARY KEY(foo,bar) can't fulfil UNIQUE(foo).
+        if (count($other->getColumns()) > count($this->getColumns()) && ($this->isUnique() || $this->isPrimary())) {
             return false;
         }
 

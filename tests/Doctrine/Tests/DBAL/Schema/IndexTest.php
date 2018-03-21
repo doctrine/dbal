@@ -154,4 +154,14 @@ class IndexTest extends \PHPUnit\Framework\TestCase
         self::assertSame('name IS NULL', $idx2->getOption('WHERE'));
         self::assertSame(array('where' => 'name IS NULL'), $idx2->getOptions());
     }
+
+    public function testFulfilledByLargerIndex()
+    {
+        $largeIdx       = new Index('foo', ['bar', 'baz'], false, false, [], []);
+        $smallIdx       = new Index('foo', ['bar'], false, false, [], []);
+        $smallUniqueIdx = new Index('foo', ['bar'], true, false, [], []);
+
+        self::assertTrue($smallIdx->isFullfilledBy($largeIdx));
+        self::assertFalse($smallUniqueIdx->isFullfilledBy($largeIdx));
+    }
 }
