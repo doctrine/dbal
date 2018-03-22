@@ -267,6 +267,13 @@ class SQLSrvStatement implements IteratorAggregate, Statement
                     SQLSRV_PHPTYPE_STREAM(SQLSRV_ENC_BINARY),
                     SQLSRV_SQLTYPE_VARBINARY('max'),
                 ];
+            } elseif ($this->types[$column] === ParameterType::STRING) {
+                $params[$column - 1] = [
+                    &$variable,
+                    SQLSRV_PARAM_IN,
+                    SQLSRV_PHPTYPE_STRING(SQLSRV_ENC_CHAR),
+                    SQLSRV_SQLTYPE_VARCHAR('max'),
+                ];
             } else {
                 $params[$column - 1] =& $variable;
             }
