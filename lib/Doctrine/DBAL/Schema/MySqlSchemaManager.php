@@ -22,6 +22,9 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Types\Type;
+use function strpos;
+use function strstr;
+use function strtoupper;
 
 /**
  * Schema manager for the MySql RDBMS.
@@ -202,6 +205,21 @@ class MySqlSchemaManager extends AbstractSchemaManager
 
         if (isset($tableColumn['collation'])) {
             $column->setPlatformOption('collation', $tableColumn['collation']);
+        }
+
+        // MySQL 5.7 specific https://dev.mysql.com/doc/refman/5.7/en/create-table-generated-columns.html
+        if (strpos($tableColumn['extra'], 'GENERATED') !== false) {
+            // extra's syntax in the case of a generated column:
+            // <UPPERCASE_GENERATION_TYPE> GENERATED
+            $generationType = strstr($tableColumn['extra'], ' ', true);
+            $column->setPlatformOption(
+                'generationType',
+                strtoupper($generationType)
+            );
+            $column->setPlatformOption(
+                'generationExpression',
+                $tableColumn['generationexpression']
+            );
         }
 
         return $column;

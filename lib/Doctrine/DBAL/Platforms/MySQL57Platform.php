@@ -92,4 +92,24 @@ class MySQL57Platform extends MySqlPlatform
 
         $this->doctrineTypeMapping['json'] = Type::JSON;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getListTableColumnsSQL($table, $database = null)
+    {
+        $table = $this->quoteStringLiteral($table);
+
+        if ($database) {
+            $database = $this->quoteStringLiteral($database);
+        } else {
+            $database = 'DATABASE()';
+        }
+
+        return 'SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ' .
+            'COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra,' .
+            'GENERATION_EXPRESSION AS GenerationExpression, COLUMN_COMMENT AS Comment, ' .
+            'CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation ' .
+            'FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ' . $database . ' AND TABLE_NAME = ' . $table;
+    }
 }

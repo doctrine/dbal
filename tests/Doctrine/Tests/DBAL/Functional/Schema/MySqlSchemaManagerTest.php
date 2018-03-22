@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
+use Doctrine\DBAL\Platforms\MySQL57Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
@@ -343,6 +344,50 @@ class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
         $columns = $this->_sm->listTableColumns('test_mysql_json');
 
         self::assertSame(TYPE::JSON, $columns['col_json']->getType()->getName());
+    }
+
+    /**
+     * Tests if the listTableColumns retrieves the column generation information
+     * in MySQL5.7
+     * https://dev.mysql.com/doc/refman/5.7/en/create-table-generated-columns.html
+     *
+     */
+    public function testGenerationExpressionOutputInListTableColumns() : void
+    {
+        if (! $this->_sm->getDatabasePlatform() instanceof MySQL57Platform) {
+            $this->markTestSkipped('Only relevant for MySQL57Platform.');
+        }
+
+        $tableName            = 'test_mysql_generated';
+        $generationExpression = 'sqrt(((`side_a` * `side_a`) + (`side_b` * `side_b`)))';
+
+        $this->_conn->query(
+            'CREATE TABLE `' . $tableName . '`(
+              `side_a` DOUBLE,
+              `side_b` DOUBLE,
+              `side_c_virtual` DOUBLE AS (' . $generationExpression . ') VIRTUAL,
+              `side_c_generated` DOUBLE AS (' . $generationExpression . ') STORED
+            );'
+        );
+
+        $columns = $this->_sm->listTableColumns($tableName);
+
+        self::assertSame(
+            'VIRTUAL',
+            $columns['side_c_virtual']->getPlatformOption('generationType')
+        );
+        self::assertSame(
+            'STORED',
+            $columns['side_c_generated']->getPlatformOption('generationType')
+        );
+        self::assertSame(
+            $generationExpression,
+            $columns['side_c_virtual']->getPlatformOption('generationExpression')
+        );
+        self::assertSame(
+            $generationExpression,
+            $columns['side_c_generated']->getPlatformOption('generationExpression')
+        );
     }
 
     public function testColumnDefaultCurrentTimestamp() : void
