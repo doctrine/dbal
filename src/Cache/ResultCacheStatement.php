@@ -104,7 +104,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode)
     {
         $this->defaultFetchMode = $fetchMode;
 
@@ -124,7 +124,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch($fetchMode = null)
     {
         if ($this->data === null) {
             $this->data = [];
@@ -164,9 +164,9 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null)
     {
-        $data = $this->statement->fetchAll($fetchMode, ...$args);
+        $data = $this->statement->fetchAll($fetchMode);
 
         if ($fetchMode === FetchMode::COLUMN) {
             foreach ($data as $key => $value) {
@@ -183,12 +183,12 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn()
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
         // TODO: verify that return false is the correct behavior
-        return $row[$columnIndex] ?? false;
+        return $row[0] ?? false;
     }
 
     /**

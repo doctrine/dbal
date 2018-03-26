@@ -306,7 +306,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch($fetchMode = null)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -345,9 +345,6 @@ class MysqliStatement implements IteratorAggregate, Statement
             case FetchMode::MIXED:
                 return $assoc + $values;
 
-            case FetchMode::STANDARD_OBJECT:
-                return (object) $assoc;
-
             default:
                 throw new MysqliException(sprintf("Unknown fetch type '%s'", $fetchMode));
         }
@@ -356,7 +353,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null)
     {
         $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
@@ -378,7 +375,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn()
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
@@ -386,7 +383,7 @@ class MysqliStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex] ?? null;
+        return $row[0] ?? null;
     }
 
     /**
@@ -439,7 +436,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode)
     {
         $this->_defaultFetchMode = $fetchMode;
 

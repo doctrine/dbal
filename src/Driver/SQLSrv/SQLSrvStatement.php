@@ -14,15 +14,12 @@ use const SQLSRV_FETCH_BOTH;
 use const SQLSRV_FETCH_NUMERIC;
 use const SQLSRV_PARAM_IN;
 use function array_key_exists;
-use function count;
-use function in_array;
 use function is_int;
 use function is_numeric;
 use function sqlsrv_errors;
 use function sqlsrv_execute;
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
-use function sqlsrv_fetch_object;
 use function sqlsrv_get_field;
 use function sqlsrv_next_result;
 use function sqlsrv_num_fields;
@@ -83,20 +80,6 @@ class SQLSrvStatement implements IteratorAggregate, Statement
         FetchMode::ASSOCIATIVE => SQLSRV_FETCH_ASSOC,
         FetchMode::NUMERIC     => SQLSRV_FETCH_NUMERIC,
     ];
-
-    /**
-     * The name of the default class to instantiate when fetching class instances.
-     *
-     * @var string
-     */
-    private $defaultFetchClass = '\stdClass';
-
-    /**
-     * The constructor arguments for the default class to instantiate when fetching class instances.
-     *
-     * @var mixed[]
-     */
-    private $defaultFetchClassCtorArgs = [];
 
     /**
      * The fetch style.
@@ -322,17 +305,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode)
     {
         $this->defaultFetchMode = $fetchMode;
-
-        if (isset($args[0])) {
-            $this->defaultFetchClass = $args[0];
-        }
-
-        if (isset($args[1])) {
-            $this->defaultFetchClassCtorArgs = (array) $args[1];
-        }
 
         return true;
     }
@@ -350,7 +325,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      *
      * @throws SQLSrvException
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch($fetchMode = null)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -368,35 +343,17 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return sqlsrv_fetch_array($this->stmt, self::$fetchMap[$fetchMode]) ?? false;
         }
 
-        if (in_array($fetchMode, [FetchMode::STANDARD_OBJECT, FetchMode::CUSTOM_OBJECT], true)) {
-            $className = $this->defaultFetchClass;
-            $ctorArgs  = $this->defaultFetchClassCtorArgs;
-
-            if (count($args) > 0) {
-                $className = $args[0];
-                $ctorArgs  = $args[1] ?? [];
-            }
-
-            return sqlsrv_fetch_object($this->stmt, $className, $ctorArgs) ?? false;
-        }
-
         throw new SQLSrvException('Fetch mode is not supported!');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null)
     {
         $rows = [];
 
         switch ($fetchMode) {
-            case FetchMode::CUSTOM_OBJECT:
-                while (($row = $this->fetch($fetchMode, ...$args)) !== false) {
-                    $rows[] = $row;
-                }
-                break;
-
             case FetchMode::COLUMN:
                 while (($row = $this->fetchColumn()) !== false) {
                     $rows[] = $row;
@@ -415,7 +372,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn()
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
@@ -423,7 +380,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex] ?? null;
+        return $row[0] ?? null;
     }
 
     /**

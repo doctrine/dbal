@@ -33,7 +33,6 @@ use function oci_error;
 use function oci_execute;
 use function oci_fetch_all;
 use function oci_fetch_array;
-use function oci_fetch_object;
 use function oci_new_descriptor;
 use function oci_num_fields;
 use function oci_num_rows;
@@ -411,7 +410,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode)
     {
         $this->_defaultFetchMode = $fetchMode;
 
@@ -429,7 +428,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch($fetchMode = null)
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -441,10 +440,6 @@ class OCI8Statement implements IteratorAggregate, Statement
 
         if ($fetchMode === FetchMode::COLUMN) {
             return $this->fetchColumn();
-        }
-
-        if ($fetchMode === FetchMode::STANDARD_OBJECT) {
-            return oci_fetch_object($this->_sth);
         }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
@@ -460,19 +455,11 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null)
     {
         $fetchMode = $fetchMode ?? $this->_defaultFetchMode;
 
         $result = [];
-
-        if ($fetchMode === FetchMode::STANDARD_OBJECT) {
-            while ($row = $this->fetch($fetchMode)) {
-                $result[] = $row;
-            }
-
-            return $result;
-        }
 
         if (! isset(self::$fetchModeMap[$fetchMode])) {
             throw new InvalidArgumentException('Invalid fetch style: ' . $fetchMode);
@@ -514,7 +501,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn()
     {
         // do not try fetching from the statement if it's not expected to contain result
         // in order to prevent exceptional situation
@@ -528,7 +515,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             return false;
         }
 
-        return $row[$columnIndex] ?? null;
+        return $row[0] ?? null;
     }
 
     /**

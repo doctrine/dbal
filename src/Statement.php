@@ -211,9 +211,9 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode)
     {
-        return $this->stmt->setFetchMode($fetchMode, ...$args);
+        return $this->stmt->setFetchMode($fetchMode);
     }
 
     /**
@@ -229,25 +229,25 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch($fetchMode = null)
     {
-        return $this->stmt->fetch($fetchMode, ...$args);
+        return $this->stmt->fetch($fetchMode);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null)
     {
-        return $this->stmt->fetchAll($fetchMode, ...$args);
+        return $this->stmt->fetchAll($fetchMode);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn()
     {
-        return $this->stmt->fetchColumn($columnIndex);
+        return $this->stmt->fetchColumn();
     }
 
     /**

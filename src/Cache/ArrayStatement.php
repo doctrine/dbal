@@ -60,12 +60,8 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode)
     {
-        if (count($args) > 0) {
-            throw new InvalidArgumentException('Caching layer does not support 2nd/3rd argument to setFetchMode()');
-        }
-
         $this->defaultFetchMode = $fetchMode;
 
         return true;
@@ -84,7 +80,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch($fetchMode = null)
     {
         if (! isset($this->data[$this->num])) {
             return false;
@@ -115,10 +111,10 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null)
     {
         $rows = [];
-        while ($row = $this->fetch($fetchMode, ...$args)) {
+        while ($row = $this->fetch($fetchMode)) {
             $rows[] = $row;
         }
 
@@ -128,11 +124,11 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn()
     {
         $row = $this->fetch(FetchMode::NUMERIC);
 
         // TODO: verify that return false is the correct behavior
-        return $row[$columnIndex] ?? false;
+        return $row[0] ?? false;
     }
 }

@@ -28,12 +28,10 @@ class PDOStatement implements IteratorAggregate, Statement
     ];
 
     private const FETCH_MODE_MAP = [
-        FetchMode::ASSOCIATIVE     => PDO::FETCH_ASSOC,
-        FetchMode::NUMERIC         => PDO::FETCH_NUM,
-        FetchMode::MIXED           => PDO::FETCH_BOTH,
-        FetchMode::STANDARD_OBJECT => PDO::FETCH_OBJ,
-        FetchMode::COLUMN          => PDO::FETCH_COLUMN,
-        FetchMode::CUSTOM_OBJECT   => PDO::FETCH_CLASS,
+        FetchMode::ASSOCIATIVE => PDO::FETCH_ASSOC,
+        FetchMode::NUMERIC     => PDO::FETCH_NUM,
+        FetchMode::MIXED       => PDO::FETCH_BOTH,
+        FetchMode::COLUMN      => PDO::FETCH_COLUMN,
     ];
 
     /** @var \PDOStatement */
@@ -47,12 +45,12 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode)
     {
         $fetchMode = $this->convertFetchMode($fetchMode);
 
         try {
-            return $this->stmt->setFetchMode($fetchMode, ...$args);
+            return $this->stmt->setFetchMode($fetchMode);
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
@@ -141,7 +139,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch($fetchMode = null)
     {
         try {
             if ($fetchMode === null) {
@@ -149,8 +147,7 @@ class PDOStatement implements IteratorAggregate, Statement
             }
 
             return $this->stmt->fetch(
-                $this->convertFetchMode($fetchMode),
-                ...$args
+                $this->convertFetchMode($fetchMode)
             );
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
@@ -160,15 +157,14 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null)
     {
         try {
             if ($fetchMode === null) {
                 $data = $this->stmt->fetchAll();
             } else {
                 $data = $this->stmt->fetchAll(
-                    $this->convertFetchMode($fetchMode),
-                    ...$args
+                    $this->convertFetchMode($fetchMode)
                 );
             }
         } catch (\PDOException $exception) {
@@ -183,10 +179,10 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn()
     {
         try {
-            return $this->stmt->fetchColumn($columnIndex);
+            return $this->stmt->fetchColumn();
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }

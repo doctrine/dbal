@@ -28,13 +28,12 @@ interface ResultStatement extends Traversable
     /**
      * Sets the fetch mode to use while iterating this statement.
      *
-     * @param int   $fetchMode Controls how the next row will be returned to the caller.
-     *                         The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
-     * @param mixed ...$args   Optional mode-specific arguments (see {@link self::fetchAll()}).
+     * @param int $fetchMode Controls how the next row will be returned to the caller.
+     *                       The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
      *
      * @return bool
      */
-    public function setFetchMode($fetchMode, ...$args);
+    public function setFetchMode($fetchMode);
 
     /**
      * Returns the next row of a result set.
@@ -42,12 +41,11 @@ interface ResultStatement extends Traversable
      * @param int|null $fetchMode Controls how the next row will be returned to the caller.
      *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
      *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
-     * @param mixed    ...$args   Optional mode-specific arguments (see {@link self::fetchAll()}).
      *
      * @return mixed The return value of this method on success depends on the fetch mode. In all cases, FALSE is
      *               returned on failure.
      */
-    public function fetch($fetchMode = null, ...$args);
+    public function fetch($fetchMode = null);
 
     /**
      * Returns an array containing all of the result set rows.
@@ -55,24 +53,15 @@ interface ResultStatement extends Traversable
      * @param int|null $fetchMode Controls how the next row will be returned to the caller.
      *                            The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants,
      *                            defaulting to {@link \Doctrine\DBAL\FetchMode::MIXED}.
-     * @param mixed    ...$args   Optional mode-specific arguments. Supported modes:
-     *                            * {@link \Doctrine\DBAL\FetchMode::COLUMN}
-     *                              1. The 0-indexed column to be returned.
-     *                            * {@link \Doctrine\DBAL\FetchMode::CUSTOM_OBJECT}
-     *                              1. The class name of the object to be created,
-     *                              2. Array of constructor arguments
      *
      * @return mixed[]
      */
-    public function fetchAll($fetchMode = null, ...$args);
+    public function fetchAll($fetchMode = null);
 
     /**
      * Returns a single column from the next row of a result set or FALSE if there are no more rows.
      *
-     * @param int $columnIndex 0-indexed number of the column you wish to retrieve from the row.
-     *                         If no value is supplied, fetches the first column.
-     *
      * @return mixed|false A single column in the next row of a result set, or FALSE if there are no more rows.
      */
-    public function fetchColumn($columnIndex = 0);
+    public function fetchColumn();
 }

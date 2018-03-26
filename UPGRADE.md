@@ -1,5 +1,13 @@
 # Upgrade to 3.0
 
+## BC BREAK: Dropped support for `FetchMode::CUSTOM_OBJECT` and `::STANDARD_OBJECT`
+
+Instead of fetching an object, fetch an array and map it to an object of the desired class.
+
+## BC BREAK: Dropped support for the `$columnIndex` argument in `ResultStatement::fetchColumn()`, other `ResultStatement::fetch*()` methods invoked with `FetchMode::COLUMN` and `Connection::fetchColumn()`.
+
+In order to fetch a column with an index other than `0`, use `FetchMode::NUMERIC` and the array element with the corresponding index.
+
 ## BC BREAK: Removed `EchoSQLLogger`
 
 `EchoSQLLogger` is no longer available as part of the package.

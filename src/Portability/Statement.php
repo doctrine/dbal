@@ -111,11 +111,11 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, ...$args)
+    public function setFetchMode($fetchMode)
     {
         $this->defaultFetchMode = $fetchMode;
 
-        return $this->stmt->setFetchMode($fetchMode, ...$args);
+        return $this->stmt->setFetchMode($fetchMode);
     }
 
     /**
@@ -129,11 +129,11 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null, ...$args)
+    public function fetch($fetchMode = null)
     {
         $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
-        $row = $this->stmt->fetch($fetchMode, ...$args);
+        $row = $this->stmt->fetch($fetchMode);
 
         $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
@@ -148,11 +148,11 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null)
     {
         $fetchMode = $fetchMode ?? $this->defaultFetchMode;
 
-        $rows = $this->stmt->fetchAll($fetchMode, ...$args);
+        $rows = $this->stmt->fetchAll($fetchMode);
 
         $iterateRow = ($this->portability & (Connection::PORTABILITY_EMPTY_TO_NULL|Connection::PORTABILITY_RTRIM)) !== 0;
         $fixCase    = $this->case !== null
@@ -215,9 +215,9 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchColumn()
     {
-        $value = $this->stmt->fetchColumn($columnIndex);
+        $value = $this->stmt->fetchColumn();
 
         if (($this->portability & Connection::PORTABILITY_EMPTY_TO_NULL) !== 0 && $value === '') {
             $value = null;
