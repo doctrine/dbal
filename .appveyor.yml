@@ -92,7 +92,7 @@ before_test:
   - ps: >-
       if ($env:db -eq "mssql") {
         $instanceName = $env:db_version.ToUpper()
-        Start-Service "MSSQL`$$instanceName"
+        net start "MSSQL`$$instanceName"
       }
 
 test_script:
