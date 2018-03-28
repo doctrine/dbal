@@ -36,6 +36,15 @@ class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
             ['BINARY', 'b', 'CREATE TABLE "a" (bb TEXT COLLATE RTRIM, b VARCHAR(42) NOT NULL COLLATE BINARY)'],
             ['BINARY', 'b', 'CREATE TABLE "a" (bbb TEXT COLLATE NOCASE, bb TEXT COLLATE RTRIM, b VARCHAR(42) NOT NULL COLLATE BINARY)'],
             ['BINARY', 'b', 'CREATE TABLE "a" (b VARCHAR(42) NOT NULL COLLATE BINARY, bb TEXT COLLATE RTRIM)'],
+
+            ['utf-8', 'bar#', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar#" VARCHAR(255) COLLATE "utf-8" NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'],
+            [null,    'bar#', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, "bar#" VARCHAR(255) NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))'],
+            ['utf-8', 'baz',  'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar#" INTEGER NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'],
+            [null,    'baz',  'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, "bar#" INTEGER NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))'],
+            ['utf-8', 'bar/', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar/" VARCHAR(255) COLLATE "utf-8" NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'],
+            [null,    'bar/', 'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, "bar/" VARCHAR(255) NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))'],
+            ['utf-8', 'baz',  'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) COLLATE "utf-8" NOT NULL, "bar/" INTEGER NOT NULL, baz VARCHAR(255) COLLATE "utf-8" NOT NULL, PRIMARY KEY(id))'],
+            [null,    'baz',  'CREATE TABLE dummy_table (id INTEGER NOT NULL, foo VARCHAR(255) NOT NULL, "bar/" INTEGER NOT NULL, baz VARCHAR(255) NOT NULL, PRIMARY KEY(id))'],
         ];
     }
 
@@ -60,42 +69,223 @@ class SqliteSchemaManagerTest extends \PHPUnit\Framework\TestCase
     {
         return [
             'Single column with no comment' => [
-                null, 'a', 'CREATE TABLE "a" ("a" TEXT DEFAULT "a" COLLATE RTRIM)',
+                null, 'a', <<<SQL
+CREATE TABLE "a" (
+  "a" TEXT DEFAULT "a" COLLATE RTRIM
+)
+SQL
             ],
             'Single column with type comment' => [
-                '(DC2Type:x)', 'a', 'CREATE TABLE "a" ("a" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
-)',
+                '(DC2Type:x)', 'a', <<<SQL
+CREATE TABLE "a" (
+  "a" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+)'
+SQL
             ],
             'Multiple similar columns with type comment 1' => [
-                null, 'b', 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" TEXT DEFAULT "a" COLLATE RTRIM, "bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
-)',
+                null, 'b', <<<SQL
+CREATE TABLE "a" (
+    a TEXT COLLATE RTRIM,
+    "b" TEXT DEFAULT "a" COLLATE RTRIM,
+    "bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+)
+SQL
             ],
             'Multiple similar columns with type comment 2' => [
-                '(DC2Type:x)', 'b', 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "bb" TEXT DEFAULT "a" COLLATE RTRIM, "b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
-)',
+                '(DC2Type:x)', 'b', <<<SQL
+CREATE TABLE "a" (
+    a TEXT COLLATE RTRIM,
+    "bb" TEXT DEFAULT "a" COLLATE RTRIM,
+    "b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
+)
+SQL
             ],
             'Multiple similar columns on different lines, with type comment 1' => [
-                null, 'bb', 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "b" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
-, "bb" TEXT DEFAULT "a" COLLATE RTRIM',
+                null, 'bb', 'CREATE TABLE "a" (
+a TEXT COLLATE RTRIM,
+"b" CLOB DEFAULT NULL COLLATE BINARY, --(DC2Type:x)
+"bb" TEXT DEFAULT "a" COLLATE RTRIM
+)',
             ],
             'Multiple similar columns on different lines, with type comment 2' => [
-                '(DC2Type:x)', 'bb', 'CREATE TABLE "a" (a TEXT COLLATE RTRIM, "bb" CLOB DEFAULT NULL COLLATE BINARY --(DC2Type:x)
-, "b" TEXT DEFAULT "a" COLLATE RTRIM',
+                '(DC2Type:x)', 'bb', <<<SQL
+CREATE TABLE "a" (
+    a TEXT COLLATE RTRIM,
+    "bb" CLOB DEFAULT NULL COLLATE BINARY, --(DC2Type:x)
+    "b" TEXT DEFAULT "a" COLLATE RTRIM
+)
+SQL
             ],
             'Column with numeric but no comment 1' => [
-                null, 'a', 'CREATE TABLE "a" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
-, "c" CHAR(36) NOT NULL --(DC2Type:guid)
-)',
+                null, 'a', <<<SQL
+CREATE TABLE "a" (
+    "a" NUMERIC(10, 0) NOT NULL,
+    "b" CLOB NOT NULL, --(DC2Type:array)
+    "c" CHAR(36) NOT NULL --(DC2Type:guid)
+)
+SQL
             ],
             'Column with numeric but no comment 2' => [
-                null, 'a', 'CREATE TABLE "b" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
-, "c" CHAR(36) NOT NULL --(DC2Type:guid)
-)',
+                null, 'a', <<<SQL
+CREATE TABLE "b" (
+    "a" NUMERIC(10, 0) NOT NULL,
+    "b" CLOB NOT NULL, --(DC2Type:array)
+    "c" CHAR(36) NOT NULL --(DC2Type:guid)
+)
+SQL
             ],
             'Column with numeric but no comment 3' => [
-                '(DC2Type:guid)', 'c', 'CREATE TABLE "b" ("a" NUMERIC(10, 0) NOT NULL, "b" CLOB NOT NULL --(DC2Type:array)
-, "c" CHAR(36) NOT NULL --(DC2Type:guid)
-)',
+                '(DC2Type:guid)', 'c', <<<SQL
+CREATE TABLE "b" (
+    "a" NUMERIC(10, 0) NOT NULL,
+    "b" CLOB NOT NULL, --(DC2Type:array)
+    "c" CHAR(36) NOT NULL --(DC2Type:guid)
+)
+SQL
+            ],
+            'Column with numeric but no comment 4' => [
+                '(DC2Type:array)', 'b', <<<SQL
+CREATE TABLE "b" (
+    "a" NUMERIC(10, 0) NOT NULL,
+    "b" CLOB NOT NULL, --(DC2Type:array)
+    "c" CHAR(36) NOT NULL --(DC2Type:guid)
+)
+SQL
+            ],
+            
+            'Column "bar", select "bar" with no comment' => [
+                null, 'bar', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar" VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            'Column "bar", select "bar" with type comment' => [
+                '(DC2Type:x)', 'bar', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar" VARCHAR(255) COLLATE "utf-8" NOT NULL, --(DC2Type:x)
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL, --(DC2Type:y)
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            'Column "bar", select "baz" with no comment' => [
+                null, 'baz', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar" INTEGER NOT NULL,
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            'Column "bar", select "baz" with type comment' => [
+                '(DC2Type:y)', 'baz', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar" INTEGER NOT NULL, --(DC2Type:x)
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL, --(DC2Type:y)
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            
+            'Column "bar#", select "bar#" with no comment' => [
+                null, 'bar#', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar#" VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            'Column "bar#", select "bar#" with type comment' => [
+                '(DC2Type:x)', 'bar#', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar#" VARCHAR(255) COLLATE "utf-8" NOT NULL, --(DC2Type:x)
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL, --(DC2Type:y)
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            'Column "bar#", select "baz" with no comment' => [
+                null, 'baz', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar#" INTEGER NOT NULL,
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            'Column "bar#", select "baz" with type comment' => [
+                '(DC2Type:y)', 'baz', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar#" INTEGER NOT NULL, --(DC2Type:x)
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL, --(DC2Type:y)
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            
+            'Column "bar/", select "bar/" with no comment' => [
+                null, 'bar/', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar/" VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            'Column "bar/", select "bar/" with type comment' => [
+                '(DC2Type:x)', 'bar/', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar/" VARCHAR(255) COLLATE "utf-8" NOT NULL, --(DC2Type:x)
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL, --(DC2Type:y)
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            'Column "bar/", select "baz" with no comment' => [
+                null, 'baz', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar/" INTEGER NOT NULL,
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    PRIMARY KEY(id)
+)
+SQL
+            ],
+            'Column "bar/", select "baz" with type comment' => [
+                '(DC2Type:y)', 'baz', <<<SQL
+CREATE TABLE dummy_table (
+    id INTEGER NOT NULL,
+    foo VARCHAR(255) COLLATE "utf-8" NOT NULL,
+    "bar/" INTEGER COLLATE "utf-8" NOT NULL, --(DC2Type:x)
+    baz VARCHAR(255) COLLATE "utf-8" NOT NULL, --(DC2Type:y)
+    PRIMARY KEY(id)
+)
+SQL
             ],
         ];
     }

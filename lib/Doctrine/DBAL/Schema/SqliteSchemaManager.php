@@ -438,8 +438,15 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     private function parseColumnCollationFromSQL(string $column, string $sql) : ?string
     {
-        $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
-                 . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
+        if (PHP_VERSION_ID < 70300) {
+            // PHP < 7.3 does not properly escape '#' in regex.
+            // See bug: https://bugs.php.net/bug.php?id=75355
+            $pattern = '{(?:\W' . addcslashes(preg_quote($column), '#') . '\W|\W' . addcslashes(preg_quote($this->_platform->quoteSingleIdentifier($column)), '#')
+                     . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
+        } else {
+            $pattern = '{(?:\W' . preg_quote($column) . '\W|\W' . preg_quote($this->_platform->quoteSingleIdentifier($column))
+                     . '\W)[^,(]+(?:\([^()]+\)[^,]*)?(?:(?:DEFAULT|CHECK)\s*(?:\(.*?\))?[^,]*)*COLLATE\s+["\']?([^\s,"\')]+)}isx';
+        }
 
         if (preg_match($pattern, $sql, $match) !== 1) {
             return null;
@@ -450,8 +457,15 @@ class SqliteSchemaManager extends AbstractSchemaManager
 
     private function parseColumnCommentFromSQL(string $column, string $sql) : ?string
     {
-        $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
-                 . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}ix';
+        if (PHP_VERSION_ID < 70300) {
+            // PHP < 7.3 does not properly escape '#' in regex.
+            // See bug: https://bugs.php.net/bug.php?id=75355
+            $pattern = '{[\s(,](?:\W' . addcslashes(preg_quote($this->_platform->quoteSingleIdentifier($column)), '#') . '\W|\W' . addcslashes(preg_quote($column), '#')
+                     . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}ix';
+        } else {
+            $pattern = '{[\s(,](?:\W' . preg_quote($this->_platform->quoteSingleIdentifier($column)) . '\W|\W' . preg_quote($column)
+                     . '\W)(?:\(.*?\)|[^,(])*?,?((?:(?!\n))(?:\s*--[^\n]*\n?)+)}ix';
+        }
 
         if (preg_match($pattern, $sql, $match) !== 1) {
             return null;
