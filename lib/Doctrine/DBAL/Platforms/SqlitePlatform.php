@@ -150,6 +150,10 @@ class SqlitePlatform extends AbstractPlatform
                         break;
                 }
 
+                if (! is_numeric($interval)) {
+                    $interval = "' || " . $interval . " || '";
+                }
+
                 return "DATE(" . $date . ",'" . $operator . $interval . " " . $unit . "')";
         }
     }
