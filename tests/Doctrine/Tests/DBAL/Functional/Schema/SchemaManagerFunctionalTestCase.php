@@ -3,11 +3,13 @@
 namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\ColumnDiff;
 use Doctrine\DBAL\Schema\Comparator;
+use Doctrine\DBAL\Schema\SchemaDiff;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -41,6 +43,23 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $this->_sm = $this->_conn->getSchemaManager();
     }
+
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        $this->_sm->tryMethod('dropTable', 'testschema.my_table_in_namespace');
+
+        //TODO: SchemaDiff does not drop removed namespaces?
+        try {
+            //sql server versions below 2016 do not support 'IF EXISTS' so we have to catch the exception here
+            $this->_conn->exec('DROP SCHEMA testschema');
+        } catch (DBALException $e) {
+            return;
+        }
+    }
+
 
     /**
      * @group DBAL-1220
@@ -568,6 +587,31 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
             self::assertEquals(array('foreign_key_test'), array_map('strtolower', $foreignKey->getColumns()));
             self::assertEquals(array('id'), array_map('strtolower', $foreignKey->getForeignColumns()));
         }
+    }
+
+
+    public function testTableInNamespace()
+    {
+        if (! $this->_sm->getDatabasePlatform()->supportsSchemas()) {
+            $this->markTestSkipped('Schema definition is not supported by this platform.');
+        }
+
+        //create schema
+        $diff                  = new SchemaDiff();
+        $diff->newNamespaces[] = 'testschema';
+
+        foreach ($diff->toSql($this->_sm->getDatabasePlatform()) as $sql) {
+            $this->_conn->exec($sql);
+        }
+
+        //test if table is create in namespace
+        $this->createTestTable('testschema.my_table_in_namespace');
+        self::assertContains('testschema.my_table_in_namespace', $this->_sm->listTableNames());
+
+        //tables without namespace should be created in default namespace
+        //default namespaces are ignored in table listings
+        $this->createTestTable('my_table_not_in_namespace');
+        self::assertContains('my_table_not_in_namespace', $this->_sm->listTableNames());
     }
 
     public function testCreateAndListViews()

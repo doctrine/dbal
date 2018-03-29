@@ -198,6 +198,10 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableDefinition($table)
     {
+        if (isset($table['schema_name']) && $table['schema_name'] !== 'dbo') {
+            return $table['schema_name'] . '.' . $table['name'];
+        }
+
         return $table['name'];
     }
 
