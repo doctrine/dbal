@@ -1400,14 +1400,14 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
      */
     public function testAlterTableChangePrimaryKey() : void
     {
-        $tableFrom = new Table('primary_key_userid');
+        $tableFrom = new Table('primary_key_id');
         $column    = $tableFrom->addColumn('user_id', 'integer');
         $column->setAutoincrement(true);
         $tableFrom->setPrimaryKey(['user_id']);
         $this->_sm->dropAndCreateTable($tableFrom);
 
-        $tableFrom = $this->_sm->listTableDetails('primary_key_userid');
-        self::assertEquals(['user_id'], $tableFrom->getPrimaryKey()->getColumns());
+        $tableFrom = $this->_sm->listTableDetails('primary_key_id');
+        self::assertEquals(['USER_ID'], array_map('strtoupper', $tableFrom->getPrimaryKey()->getColumns()));
 
         $tableTo = new Table('primary_key_id');
         $column  = $tableTo->addColumn('id', 'integer');
@@ -1416,9 +1416,8 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
 
         $c    = new Comparator();
         $diff = $c->diffTable($tableFrom, $tableTo);
-
         $this->_sm->alterTable($diff);
-        $tableFinal = $this->_sm->listTableDetails('primary_key_userid');
-        self::assertEquals(['id'], $tableFinal->getPrimaryKey()->getColumns());
+        $tableFinal = $this->_sm->listTableDetails('primary_key_id');
+        self::assertEquals(['ID'], array_map('strtoupper', $tableFinal->getPrimaryKey()->getColumns()));
     }
 }

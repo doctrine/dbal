@@ -601,6 +601,11 @@ class MySqlPlatform extends AbstractPlatform
             $oldColumnName = new Identifier($oldColumnName);
             $columnArray = $column->toArray();
             $columnArray['comment'] = $this->getColumnComment($column);
+
+            if ($column->getAutoincrement()) {
+                $queryParts[] = 'ADD INDEX (' . $column->getName() . ')';
+            }
+
             $queryParts[] =  'CHANGE ' . $oldColumnName->getQuotedName($this) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);
         }
