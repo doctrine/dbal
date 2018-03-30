@@ -2080,6 +2080,7 @@ abstract class AbstractPlatform
         foreach ($diff->changedIndexes as $index) {
             if ($index->isPrimary()) {
                 $sql[] = $this->getDropPrimaryKeySQL($tableName);
+
                 continue;
             }
 
