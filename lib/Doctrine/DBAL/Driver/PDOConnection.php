@@ -199,7 +199,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
             return;
         }
 
-        $this->lastInsertId->set($lastInsertId);
+        $this->lastInsertId->register($lastInsertId);
     }
 
     /**
