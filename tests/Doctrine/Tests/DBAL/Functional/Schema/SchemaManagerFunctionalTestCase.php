@@ -1407,7 +1407,7 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $this->_sm->dropAndCreateTable($tableFrom);
 
         $tableFrom = $this->_sm->listTableDetails('primary_key_id');
-        self::assertEquals(['USER_ID'], array_map('strtoupper', $tableFrom->getPrimaryKey()->getColumns()));
+        self::assertEquals(['USER_ID'], \array_map('strtoupper', $tableFrom->getPrimaryKey()->getColumns()));
 
         $tableTo = new Table('primary_key_id');
         $column  = $tableTo->addColumn('id', 'integer');
@@ -1418,6 +1418,6 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         $diff = $c->diffTable($tableFrom, $tableTo);
         $this->_sm->alterTable($diff);
         $tableFinal = $this->_sm->listTableDetails('primary_key_id');
-        self::assertEquals(['ID'], array_map('strtoupper', $tableFinal->getPrimaryKey()->getColumns()));
+        self::assertEquals(['ID'], \array_map('strtoupper', $tableFinal->getPrimaryKey()->getColumns()));
     }
 }

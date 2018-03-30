@@ -1622,15 +1622,17 @@ class SQLServerPlatform extends AbstractPlatform
 
     protected function getDropPrimaryKeySQL(string $table) : string
     {
-        return "
-DECLARE @table NVARCHAR(512), @sql NVARCHAR(MAX);
+        return <<<EOT
+DECLARE @table NVARCHAR(512), @sql NVARCHAR(MAX), @tableid NVARCHAR(512);
 SELECT @table = N'{$table}';
+SELECT @tableid = OBJECT_ID(@table);
 SELECT @sql = 'ALTER TABLE ' + @table + ' DROP CONSTRAINT '  + name + ';'
     FROM sys.key_constraints
     WHERE [type] = 'PK'
-    AND [parent_object_id] = OBJECT_ID(@table);
+    AND [parent_object_id] = @tableid;
 
-EXEC sp_executeSQL @sql;";
+EXEC sp_executeSQL @sql;
+EOT;
     }
 
 }
