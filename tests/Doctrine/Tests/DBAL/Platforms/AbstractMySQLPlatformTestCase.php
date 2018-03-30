@@ -474,7 +474,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
             "ALTER TABLE mytable ADD PRIMARY KEY (foo)",
         ), $sql);
     }
-    
+
     public function testAlterPrimaryKeyWithNewColumn()
     {
         $table = new Table("yolo");
@@ -484,7 +484,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         $comparator = new Comparator();
         $diffTable = clone $table;
-        
+
         $diffTable->addColumn('pkc2', 'integer');
         $diffTable->dropPrimaryKey();
         $diffTable->setPrimaryKey(array('pkc1', 'pkc2'));
@@ -496,7 +496,7 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
                 'ALTER TABLE yolo ADD PRIMARY KEY (pkc1, pkc2)',
             ),
             $this->_platform->getAlterTableSQL($comparator->diffTable($table, $diffTable))
-        );      
+        );
     }
 
     public function testInitializesDoctrineTypeMappings()
@@ -907,5 +907,31 @@ abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 
         self::assertContains('bar', $sql);
         self::assertNotContains('DATABASE()', $sql);
+    }
+
+    public function testSupportsColumnCollation() : void
+    {
+        self::assertTrue($this->_platform->supportsColumnCollation());
+    }
+
+    public function testColumnCollationDeclarationSQL() : void
+    {
+        self::assertSame(
+            'COLLATE ascii_general_ci',
+            $this->_platform->getColumnCollationDeclarationSQL('ascii_general_ci')
+        );
+    }
+
+    public function testGetCreateTableSQLWithColumnCollation() : void
+    {
+        $table = new Table('foo');
+        $table->addColumn('no_collation', 'string');
+        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'ascii_general_ci');
+
+        self::assertSame(
+            ['CREATE TABLE foo (no_collation VARCHAR(255) NOT NULL, column_collation VARCHAR(255) NOT NULL COLLATE ascii_general_ci) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB'],
+            $this->_platform->getCreateTableSQL($table),
+            'Column "no_collation" will use the default collation from the table/database and "column_collation" overwrites the collation on this column'
+        );
     }
 }

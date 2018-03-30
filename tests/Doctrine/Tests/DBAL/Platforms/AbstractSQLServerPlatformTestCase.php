@@ -1487,7 +1487,7 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
         $currentDateSql = $this->_platform->getCurrentDateSQL();
         foreach (['date', 'date_immutable'] as $type) {
             $field = [
-                'type'    => Type::getType($type),
+                'type' => Type::getType($type),
                 'default' => $currentDateSql,
             ];
 
@@ -1496,6 +1496,32 @@ abstract class AbstractSQLServerPlatformTestCase extends AbstractPlatformTestCas
                 $this->_platform->getDefaultValueDeclarationSQL($field)
             );
         }
+    }
+
+    public function testSupportsColumnCollation() : void
+    {
+        self::assertTrue($this->_platform->supportsColumnCollation());
+    }
+
+    public function testColumnCollationDeclarationSQL() : void
+    {
+        self::assertSame(
+            'COLLATE Latin1_General_CS_AS_KS_WS',
+            $this->_platform->getColumnCollationDeclarationSQL('Latin1_General_CS_AS_KS_WS')
+        );
+    }
+
+    public function testGetCreateTableSQLWithColumnCollation() : void
+    {
+        $table = new Table('foo');
+        $table->addColumn('no_collation', 'string');
+        $table->addColumn('column_collation', 'string')->setPlatformOption('collation', 'Latin1_General_CS_AS_KS_WS');
+
+        self::assertSame(
+            ['CREATE TABLE foo (no_collation NVARCHAR(255) NOT NULL, column_collation NVARCHAR(255) COLLATE Latin1_General_CS_AS_KS_WS NOT NULL)'],
+            $this->_platform->getCreateTableSQL($table),
+            'Column "no_collation" will use the default collation from the table/database and "column_collation" overwrites the collation on this column'
+        );
     }
 
     private function expectCteWithMaxRowNum(string $expectedSql, int $expectedMax, string $sql) : void
