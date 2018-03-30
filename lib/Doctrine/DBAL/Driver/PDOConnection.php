@@ -21,7 +21,6 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\ParameterType;
 use PDO;
-use function count;
 use function func_get_args;
 
 /**
@@ -97,36 +96,8 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      */
     public function query()
     {
-        $args = func_get_args();
-        $argsCount = count($args);
-
         try {
-            if ($argsCount == 4) {
-                $stmt = parent::query($args[0], $args[1], $args[2], $args[3]);
-
-                $this->trackLastInsertId();
-
-                return $stmt;
-            }
-
-            if ($argsCount == 3) {
-                $stmt = parent::query($args[0], $args[1], $args[2]);
-
-                $this->trackLastInsertId();
-
-                return $stmt;
-            }
-
-            if ($argsCount == 2) {
-                $stmt = parent::query($args[0], $args[1]);
-
-                $this->trackLastInsertId();
-
-                return $stmt;
-            }
-
-            $stmt = parent::query($args[0]);
-
+            $stmt = parent::query(...func_get_args());
 
             $this->trackLastInsertId();
 
