@@ -222,6 +222,7 @@ class LastInsertIdTest extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testLastInsertIdInTransactionPrepare()
     {
+        self::markTestIncomplete('Temporarily disabled as causing a dead lock on PDO drivers');
         $this->assertLastInsertIdInTransaction($this->createPrepareInsertExecutor());
     }
 
