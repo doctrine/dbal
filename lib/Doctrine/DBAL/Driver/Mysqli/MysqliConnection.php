@@ -184,7 +184,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
             throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
         }
 
-        $this->lastInsertId->set((string) $this->_conn->insert_id);
+        $this->lastInsertId->register((string) $this->_conn->insert_id);
 
         return $this->_conn->affected_rows;
     }

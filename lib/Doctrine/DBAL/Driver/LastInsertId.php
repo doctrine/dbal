@@ -15,7 +15,7 @@ final class LastInsertId
         return $this->value;
     }
 
-    public function set(string $value) : void
+    public function register(string $value) : void
     {
         // The last insert ID is reset to "0" in certain situations by some implementations,
         // therefore we keep the previously set insert ID locally.

@@ -188,7 +188,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             throw new MysqliException($this->_stmt->error, $this->_stmt->sqlstate, $this->_stmt->errno);
         }
 
-        $this->lastInsertId->set((string) $this->_conn->insert_id);
+        $this->lastInsertId->register((string) $this->_conn->insert_id);
 
         if (null === $this->_columnNames) {
             $meta = $this->_stmt->result_metadata();
