@@ -27,7 +27,7 @@ use Doctrine\DBAL\ParameterType;
  *
  * @since 2.0
  */
-class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
+class Connection extends PDOConnection
 {
     /**
      * {@inheritdoc}
@@ -35,22 +35,7 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
     public function __construct($dsn, $user = null, $password = null, array $options = null)
     {
         parent::__construct($dsn, $user, $password, $options);
-        $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [Statement::class, []]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function lastInsertId($name = null)
-    {
-        if (null === $name) {
-            return parent::lastInsertId($name);
-        }
-
-        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
-        $stmt->execute([$name]);
-
-        return $stmt->fetchColumn();
+        $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [Statement::class, [$this]]);
     }
 
     /**
@@ -66,5 +51,20 @@ class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connecti
         }
 
         return $val;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function fetchLastInsertId(?string $name) : string
+    {
+        if (null === $name) {
+            return parent::fetchLastInsertId(null);
+        }
+
+        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
+        $stmt->execute([$name]);
+
+        return $stmt->fetchColumn();
     }
 }

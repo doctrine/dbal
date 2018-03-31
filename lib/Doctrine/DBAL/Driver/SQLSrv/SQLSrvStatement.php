@@ -119,6 +119,9 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      * Append to any INSERT query to retrieve the last insert id.
      *
      * @var string
+     *
+     * @deprecated do not rely on this constant in the future, as it will be completely removed
+     * @internal
      */
     const LAST_INSERT_ID_SQL = ';SELECT SCOPE_IDENTITY() AS LastInsertId;';
 
@@ -131,11 +134,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     {
         $this->conn = $conn;
         $this->sql = $sql;
-
-        if (stripos($sql, 'INSERT INTO ') === 0) {
-            $this->sql .= self::LAST_INSERT_ID_SQL;
-            $this->lastInsertId = $lastInsertId;
-        }
+        $this->lastInsertId = $lastInsertId;
     }
 
     /**
@@ -240,11 +239,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
             throw SQLSrvException::fromSqlSrvErrors();
         }
 
-        if ($this->lastInsertId) {
-            sqlsrv_next_result($this->stmt);
-            sqlsrv_fetch($this->stmt);
-            $this->lastInsertId->setId(sqlsrv_get_field($this->stmt, 0));
-        }
+        $this->trackLastInsertId();
 
         $this->result = true;
     }
@@ -389,5 +384,22 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     public function rowCount()
     {
         return sqlsrv_rows_affected($this->stmt);
+    }
+
+    private function trackLastInsertId() : void
+    {
+        if (! $this->lastInsertId) {
+            return;
+        }
+
+        $statement = sqlsrv_query($this->conn, 'SELECT @@IDENTITY');
+
+        if (false !== $statement) {
+            sqlsrv_fetch($statement);
+
+            $lastInsertId = sqlsrv_get_field($statement, 0) ?: '0';
+
+            $this->lastInsertId->setId($lastInsertId);
+        }
     }
 }

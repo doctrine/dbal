@@ -55,10 +55,20 @@ class PDOStatement extends \PDOStatement implements Statement
     ];
 
     /**
-     * Protected constructor.
+     * @var PDOConnection|null
      */
-    protected function __construct()
+    private $connection;
+
+    /**
+     * Protected constructor.
+     *
+     * @param PDOConnection|null $connection
+     *
+     * @todo do we need to keep BC here? Or can we make $connection mandatory?
+     */
+    protected function __construct(PDOConnection $connection = null)
     {
+        $this->connection = $connection;
     }
 
     /**
@@ -135,7 +145,13 @@ class PDOStatement extends \PDOStatement implements Statement
     public function execute($params = null)
     {
         try {
-            return parent::execute($params);
+            $result = parent::execute($params);
+
+            if ($this->connection) {
+                $this->connection->trackLastInsertId();
+            }
+
+            return $result;
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
         }
