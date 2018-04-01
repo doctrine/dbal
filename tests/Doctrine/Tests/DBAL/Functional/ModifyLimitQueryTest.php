@@ -1,6 +1,9 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional;
+use const CASE_LOWER;
+use function array_change_key_case;
+use function count;
 
 class ModifyLimitQueryTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {

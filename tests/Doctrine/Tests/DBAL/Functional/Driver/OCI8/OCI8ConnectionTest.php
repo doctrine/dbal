@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\OCI8;
 use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use function extension_loaded;
 
 class OCI8ConnectionTest extends DbalFunctionalTestCase
 {

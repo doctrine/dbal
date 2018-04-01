@@ -19,6 +19,9 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use function array_diff;
+use function array_merge;
+
 /**
  * Microsoft SQL Server 2005 reserved keyword dictionary.
  *

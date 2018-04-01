@@ -13,6 +13,7 @@ use Doctrine\DBAL\Schema\MySqlSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use PHPUnit\Framework\TestCase;
+use function array_merge;
 
 class MySqlInheritCharsetTest extends TestCase
 {

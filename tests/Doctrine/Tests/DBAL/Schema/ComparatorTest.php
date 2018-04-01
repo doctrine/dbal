@@ -31,6 +31,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use function array_keys;
 
 /**
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL

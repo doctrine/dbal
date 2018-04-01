@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
+use const CASE_LOWER;
+use function array_change_key_case;
 
 /**
  * @group DDC-1372

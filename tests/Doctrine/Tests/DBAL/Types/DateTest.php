@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
+use function date_default_timezone_set;
 
 class DateTest extends BaseDateTypeTestCase
 {

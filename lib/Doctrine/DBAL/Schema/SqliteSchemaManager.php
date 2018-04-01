@@ -24,6 +24,25 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\Type;
+use const CASE_LOWER;
+use function array_change_key_case;
+use function array_map;
+use function array_reverse;
+use function array_values;
+use function explode;
+use function file_exists;
+use function preg_match;
+use function preg_match_all;
+use function preg_quote;
+use function preg_replace;
+use function rtrim;
+use function sprintf;
+use function str_replace;
+use function strpos;
+use function strtolower;
+use function trim;
+use function unlink;
+use function usort;
 
 /**
  * Sqlite SchemaManager.

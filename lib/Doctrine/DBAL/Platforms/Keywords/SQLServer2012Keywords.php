@@ -19,6 +19,8 @@
 
 namespace Doctrine\DBAL\Platforms\Keywords;
 
+use function array_merge;
+
 /**
  * Microsoft SQL Server 2012 reserved keyword dictionary.
  *

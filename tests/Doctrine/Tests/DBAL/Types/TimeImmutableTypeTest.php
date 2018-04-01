@@ -7,6 +7,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\TimeImmutableType;
 use Doctrine\DBAL\Types\Type;
+use function get_class;
 
 class TimeImmutableTypeTest extends \PHPUnit\Framework\TestCase
 {

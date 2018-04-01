@@ -4,6 +4,10 @@ namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use function base64_encode;
+use function chr;
+use function fopen;
+use function stream_get_contents;
 
 class BlobTest extends \Doctrine\Tests\DbalTestCase
 {

@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\ConversionException;
+use function tmpfile;
 
 class ConversionExceptionTest extends \PHPUnit\Framework\TestCase
 {

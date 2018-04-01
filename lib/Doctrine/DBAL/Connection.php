@@ -32,6 +32,13 @@ use Doctrine\DBAL\Cache\ArrayStatement;
 use Doctrine\DBAL\Cache\CacheException;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Throwable;
+use function array_key_exists;
+use function array_merge;
+use function func_get_args;
+use function implode;
+use function is_int;
+use function is_string;
+use function key;
 
 /**
  * A wrapper around a Doctrine\DBAL\Driver\Connection that adds features like

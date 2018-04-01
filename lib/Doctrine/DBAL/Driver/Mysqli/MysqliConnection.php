@@ -23,6 +23,19 @@ use Doctrine\DBAL\Driver\Connection as Connection;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
+use function defined;
+use function floor;
+use function func_get_args;
+use function in_array;
+use function ini_get;
+use function mysqli_errno;
+use function mysqli_error;
+use function mysqli_init;
+use function mysqli_options;
+use function restore_error_handler;
+use function set_error_handler;
+use function sprintf;
+use function stripos;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>

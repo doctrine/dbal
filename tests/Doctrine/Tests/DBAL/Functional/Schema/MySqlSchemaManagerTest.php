@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\Types\MySqlPointType;
+use function implode;
 
 class MySqlSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {

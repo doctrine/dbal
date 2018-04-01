@@ -20,6 +20,10 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function is_resource;
+use function serialize;
+use function stream_get_contents;
+use function unserialize;
 
 /**
  * Type that maps a PHP object to a clob SQL type.

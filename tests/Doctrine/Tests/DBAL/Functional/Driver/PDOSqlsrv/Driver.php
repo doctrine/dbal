@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\PDOSqlsrv;
 
 use Doctrine\DBAL\Driver\PDOSqlsrv\Driver;
 use Doctrine\Tests\DBAL\Functional\Driver\AbstractDriverTest;
+use function extension_loaded;
 
 class DriverTest extends AbstractDriverTest
 {

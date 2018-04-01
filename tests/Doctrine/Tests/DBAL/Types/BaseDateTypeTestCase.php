@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use function date_default_timezone_get;
+use function date_default_timezone_set;
 
 abstract class BaseDateTypeTestCase extends \PHPUnit\Framework\TestCase
 {

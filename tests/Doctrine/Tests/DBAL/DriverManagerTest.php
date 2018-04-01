@@ -13,6 +13,9 @@ use Doctrine\Tests\DbalTestCase;
 use Doctrine\Tests\Mocks\ConnectionMock;
 use Doctrine\Tests\Mocks\DriverMock;
 use stdClass;
+use function extension_loaded;
+use function in_array;
+use function is_array;
 
 class DriverManagerTest extends DbalTestCase
 {

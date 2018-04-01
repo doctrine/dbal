@@ -4,6 +4,14 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Table;
+use function array_merge;
+use function chmod;
+use function defined;
+use function file_exists;
+use function sprintf;
+use function sys_get_temp_dir;
+use function touch;
+use function unlink;
 
 class ExceptionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {

@@ -23,6 +23,8 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\LockMode;
+use const CASE_LOWER;
+use function array_change_key_case;
 
 /**
  * Table ID Generator for those poor languages that are missing sequences.

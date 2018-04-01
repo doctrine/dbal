@@ -4,6 +4,7 @@ namespace Doctrine\Tests\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use function strtoupper;
 
 class MySqlPointType extends Type
 {

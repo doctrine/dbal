@@ -28,6 +28,8 @@ use Doctrine\DBAL\Platforms\SQLAnywhere16Platform;
 use Doctrine\DBAL\Platforms\SQLAnywherePlatform;
 use Doctrine\DBAL\Schema\SQLAnywhereSchemaManager;
 use Doctrine\DBAL\VersionAwarePlatformDriver;
+use function preg_match;
+use function version_compare;
 
 /**
  * Abstract base implementation of the {@link Doctrine\DBAL\Driver} interface for SAP Sybase SQL Anywhere based drivers.

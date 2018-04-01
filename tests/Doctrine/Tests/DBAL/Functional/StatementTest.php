@@ -7,6 +7,8 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use function base64_decode;
+use function stream_get_contents;
 
 class StatementTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {

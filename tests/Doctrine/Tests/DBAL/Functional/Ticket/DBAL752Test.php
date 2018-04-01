@@ -1,6 +1,7 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
+use function in_array;
 
 /**
  * @group DBAL-752

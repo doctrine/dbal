@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver\SQLSrv;
 
 use Doctrine\Tests\DbalTestCase;
+use function extension_loaded;
 
 class SQLSrvConnectionTest extends DbalTestCase
 {

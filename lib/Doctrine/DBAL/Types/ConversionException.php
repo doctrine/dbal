@@ -29,6 +29,15 @@
  */
 namespace Doctrine\DBAL\Types;
 
+use function get_class;
+use function gettype;
+use function implode;
+use function is_object;
+use function is_scalar;
+use function sprintf;
+use function strlen;
+use function substr;
+
 class ConversionException extends \Doctrine\DBAL\DBALException
 {
     /**

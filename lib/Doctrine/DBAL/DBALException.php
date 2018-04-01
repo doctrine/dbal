@@ -23,6 +23,14 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\ExceptionConverterDriver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use function array_map;
+use function bin2hex;
+use function implode;
+use function is_resource;
+use function is_string;
+use function json_encode;
+use function sprintf;
+use function str_split;
 
 class DBALException extends \Exception
 {

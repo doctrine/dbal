@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Driver;
 
 use Doctrine\DBAL\Driver\PDOException;
 use Doctrine\Tests\DbalTestCase;
+use function extension_loaded;
 
 class PDOExceptionTest extends DbalTestCase
 {

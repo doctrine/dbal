@@ -10,6 +10,10 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use function array_walk;
+use function preg_replace;
+use function strtoupper;
+use function uniqid;
 
 class OraclePlatformTest extends AbstractPlatformTestCase
 {

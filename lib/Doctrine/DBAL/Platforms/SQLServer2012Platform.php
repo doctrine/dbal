@@ -20,6 +20,10 @@
 namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\Schema\Sequence;
+use const PREG_OFFSET_CAPTURE;
+use function preg_match;
+use function preg_match_all;
+use function substr_count;
 
 /**
  * Platform to ensure compatibility of Doctrine with Microsoft SQL Server 2012 version.

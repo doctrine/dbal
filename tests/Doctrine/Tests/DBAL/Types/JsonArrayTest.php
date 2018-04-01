@@ -5,6 +5,9 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use function base64_encode;
+use function fopen;
+use function json_encode;
 
 class JsonArrayTest extends \Doctrine\Tests\DbalTestCase
 {

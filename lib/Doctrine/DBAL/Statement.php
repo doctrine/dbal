@@ -21,6 +21,8 @@ namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use function is_array;
+use function is_string;
 
 /**
  * A thin wrapper around a Doctrine\DBAL\Driver\Statement that adds support

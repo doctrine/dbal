@@ -5,6 +5,10 @@ namespace Doctrine\Tests\DBAL\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\Tests\DBAL\Mocks\MockPlatform;
+use const E_ALL;
+use const E_STRICT;
+use function error_reporting;
+use function serialize;
 
 class ArrayTest extends \Doctrine\Tests\DbalTestCase
 {

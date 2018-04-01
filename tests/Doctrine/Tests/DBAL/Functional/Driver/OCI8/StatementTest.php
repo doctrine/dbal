@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Functional\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\OCI8\Driver;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use function extension_loaded;
 
 class StatementTest extends DbalFunctionalTestCase
 {

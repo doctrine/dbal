@@ -1,6 +1,8 @@
 <?php
 
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
+use function in_array;
+use function preg_match;
 
 /**
  * @group DBAL-421

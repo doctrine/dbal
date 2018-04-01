@@ -22,6 +22,12 @@ namespace Doctrine\DBAL\Schema\Visitor;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use function current;
+use function file_put_contents;
+use function in_array;
+use function mt_rand;
+use function sha1;
+use function strtolower;
 
 /**
  * Create a Graphviz output of a Schema.
