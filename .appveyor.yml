@@ -84,6 +84,7 @@ install:
           }
         }
     # install composer dependencies
+    - rm composer.lock
     - appveyor-retry php composer.phar self-update
     - appveyor-retry php composer.phar install --no-progress --profile
 
