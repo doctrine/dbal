@@ -5,6 +5,5 @@ dist/
 download/
 vendor/
 *.phpunit.xml
-composer.lock
 /phpunit.xml
 /.phpcs-cache

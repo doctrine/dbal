@@ -24,6 +24,7 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\DBALException;
 use PDOException;
 use PDO;
+use function defined;
 
 /**
  * Driver that connects through pdo_pgsql.

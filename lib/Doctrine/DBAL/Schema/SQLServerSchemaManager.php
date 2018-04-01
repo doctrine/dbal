@@ -22,6 +22,14 @@ namespace Doctrine\DBAL\Schema;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Types\Type;
+use function count;
+use function in_array;
+use function preg_replace;
+use function sprintf;
+use function str_replace;
+use function strpos;
+use function strtok;
+use function trim;
 
 /**
  * SQL Server Schema Manager.

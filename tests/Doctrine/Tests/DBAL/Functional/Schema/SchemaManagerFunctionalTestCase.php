@@ -14,6 +14,20 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Types\Type;
+use function array_filter;
+use function array_keys;
+use function array_map;
+use function array_search;
+use function count;
+use function current;
+use function end;
+use function explode;
+use function get_class;
+use function in_array;
+use function str_replace;
+use function strlen;
+use function strtolower;
+use function substr;
 
 class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTestCase
 {

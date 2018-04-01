@@ -4,6 +4,8 @@ namespace Doctrine\Tests\DBAL\Functional\Driver;
 
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use function extension_loaded;
+use function sprintf;
 
 class PDOConnectionTest extends DbalFunctionalTestCase
 {

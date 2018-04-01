@@ -7,6 +7,9 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Driver\DriverException as InnerDriverException;
 use Doctrine\Tests\DbalTestCase;
 use Doctrine\DBAL\Driver;
+use function chr;
+use function fopen;
+use function sprintf;
 
 class DBALExceptionTest extends DbalTestCase
 {

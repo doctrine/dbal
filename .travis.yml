@@ -24,7 +24,8 @@ before_script:
   - if [[ "$DB" == "mysql" || "$DB" == "mysqli" || "$DB" == *"mariadb"* ]]; then mysql < tests/travis/create-mysql-schema.sql; fi;
 
 install:
-  - travis_retry composer -n install
+  - rm composer.lock
+  - travis_retry composer -n update --prefer-dist
 
 script: ./vendor/bin/phpunit --configuration tests/travis/$DB.travis.xml
 
@@ -343,6 +344,7 @@ jobs:
     - stage: Pull request coding standard
       if: type = pull_request
       php: 7.1
+      install: travis_retry composer install --prefer-dist
       script:
         - |
           if [ $TRAVIS_BRANCH != "master" ]; then
@@ -356,5 +358,6 @@ jobs:
     - stage: Coding standard
       if: NOT type = pull_request
       php: 7.1
+      install: travis_retry composer install --prefer-dist
       script:
         - ./vendor/bin/phpcs

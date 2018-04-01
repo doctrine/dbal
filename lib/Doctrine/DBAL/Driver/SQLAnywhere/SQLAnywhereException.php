@@ -20,6 +20,12 @@
 namespace Doctrine\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
+use function is_resource;
+use function sasql_error;
+use function sasql_errorcode;
+use function sasql_sqlstate;
+use function sasql_stmt_errno;
+use function sasql_stmt_error;
 
 /**
  * SAP Sybase SQL Anywhere driver exception.

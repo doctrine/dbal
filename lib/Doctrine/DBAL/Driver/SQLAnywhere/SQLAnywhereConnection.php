@@ -22,6 +22,21 @@ namespace Doctrine\DBAL\Driver\SQLAnywhere;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
+use function func_get_args;
+use function is_float;
+use function is_int;
+use function is_resource;
+use function sasql_affected_rows;
+use function sasql_commit;
+use function sasql_connect;
+use function sasql_error;
+use function sasql_errorcode;
+use function sasql_escape_string;
+use function sasql_insert_id;
+use function sasql_pconnect;
+use function sasql_real_query;
+use function sasql_rollback;
+use function sasql_set_option;
 
 /**
  * SAP Sybase SQL Anywhere implementation of the Connection interface.

@@ -4,6 +4,9 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
+use const CASE_LOWER;
+use function array_change_key_case;
+use function stream_get_contents;
 
 /**
  * @group DBAL-6

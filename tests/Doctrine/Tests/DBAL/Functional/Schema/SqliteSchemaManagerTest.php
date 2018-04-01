@@ -4,6 +4,10 @@ namespace Doctrine\Tests\DBAL\Functional\Schema;
 
 use Doctrine\DBAL\Schema;
 use Doctrine\DBAL\Types\Type;
+use function array_map;
+use function dirname;
+use function extension_loaded;
+use function version_compare;
 
 class SqliteSchemaManagerTest extends SchemaManagerFunctionalTestCase
 {

@@ -5,6 +5,9 @@ namespace Doctrine\Tests;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Assert;
+use function explode;
+use function extension_loaded;
+use function unlink;
 
 /**
  * TestUtil is a class with static utility methods used during tests.

@@ -8,6 +8,8 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
+use function array_shift;
+use function current;
 
 class TableTest extends \Doctrine\Tests\DbalTestCase
 {

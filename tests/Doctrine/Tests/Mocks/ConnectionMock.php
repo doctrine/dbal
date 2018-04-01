@@ -1,6 +1,7 @@
 <?php
 
 namespace Doctrine\Tests\Mocks;
+use function is_string;
 
 class ConnectionMock extends \Doctrine\DBAL\Connection
 {

@@ -21,6 +21,9 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 
 use Doctrine\DBAL\Driver\AbstractDriverException;
+use const SQLSRV_ERR_ERRORS;
+use function rtrim;
+use function sqlsrv_errors;
 
 class SQLSrvException extends AbstractDriverException
 {

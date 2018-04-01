@@ -24,6 +24,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use function is_numeric;
+use function ob_get_clean;
+use function ob_start;
+use function stripos;
 
 /**
  * Task for executing arbitrary SQL that can come from a file or directly from

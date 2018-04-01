@@ -5,6 +5,8 @@ namespace Doctrine\Tests\DBAL\Schema;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
+use function current;
+use function strlen;
 
 class SchemaTest extends \PHPUnit\Framework\TestCase
 {

@@ -1,6 +1,7 @@
 <?php
 
 namespace Doctrine\Tests;
+use function microtime;
 
 /**
  * Base class for all DBAL performance tests.

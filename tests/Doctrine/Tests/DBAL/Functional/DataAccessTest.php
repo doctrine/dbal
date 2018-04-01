@@ -8,6 +8,18 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Types\Type;
+use const CASE_LOWER;
+use const PHP_EOL;
+use function array_change_key_case;
+use function array_filter;
+use function array_keys;
+use function count;
+use function date;
+use function implode;
+use function is_numeric;
+use function json_encode;
+use function property_exists;
+use function strtotime;
 
 class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {

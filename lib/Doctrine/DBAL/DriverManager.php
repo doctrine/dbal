@@ -20,6 +20,18 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\EventManager;
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function class_implements;
+use function in_array;
+use function is_subclass_of;
+use function parse_str;
+use function parse_url;
+use function preg_replace;
+use function str_replace;
+use function strpos;
+use function substr;
 
 /**
  * Factory for creating Doctrine\DBAL\Connection instances.

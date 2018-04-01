@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
+use function array_shift;
 
 abstract class AbstractMySQLPlatformTestCase extends AbstractPlatformTestCase
 {

@@ -21,6 +21,8 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\ParameterType;
 use PDO;
+use function count;
+use function func_get_args;
 
 /**
  * PDO implementation of the Connection interface.

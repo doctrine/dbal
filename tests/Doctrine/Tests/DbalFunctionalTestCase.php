@@ -1,6 +1,16 @@
 <?php
 
 namespace Doctrine\Tests;
+use const PHP_EOL;
+use function array_map;
+use function array_reverse;
+use function count;
+use function get_class;
+use function implode;
+use function is_object;
+use function is_scalar;
+use function strpos;
+use function var_export;
 
 class DbalFunctionalTestCase extends DbalTestCase
 {

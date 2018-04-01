@@ -16,6 +16,9 @@ use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\DBAL\Types\Type;
+use function mt_rand;
+use function strlen;
+use function substr;
 
 class SQLAnywherePlatformTest extends AbstractPlatformTestCase
 {

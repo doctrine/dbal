@@ -4,6 +4,8 @@ namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
+use function array_filter;
+use function strtolower;
 
 class WriteTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {

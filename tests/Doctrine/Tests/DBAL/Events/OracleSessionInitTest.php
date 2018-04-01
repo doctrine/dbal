@@ -6,6 +6,7 @@ use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Event\Listeners\OracleSessionInit;
 use Doctrine\DBAL\Events;
 use Doctrine\Tests\DbalTestCase;
+use function sprintf;
 
 class OracleSessionInitTest extends DbalTestCase
 {

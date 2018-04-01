@@ -6,6 +6,9 @@ use Doctrine\DBAL\Driver\Mysqli\MysqliConnection;
 use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\Tests\DbalFunctionalTestCase;
+use function extension_loaded;
+use function restore_error_handler;
+use function set_error_handler;
 
 class MysqliConnectionTest extends DbalFunctionalTestCase
 {

@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Driver\SQLAnywhere;
 
 use Doctrine\Tests\DbalTestCase;
+use function extension_loaded;
 
 class SQLAnywhereConnectionTest extends DbalTestCase
 {

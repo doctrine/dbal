@@ -5,6 +5,12 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Logging\DebugStack;
+use const CASE_LOWER;
+use function array_change_key_case;
+use function array_merge;
+use function array_shift;
+use function array_values;
+use function is_array;
 
 /**
  * @group DDC-217
