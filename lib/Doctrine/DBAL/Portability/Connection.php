@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use PDO;
 use const CASE_LOWER;
 use const CASE_UPPER;
-use function func_get_args;
 
 /**
  * Portability wrapper for a Connection.
@@ -65,7 +64,7 @@ class Connection extends \Doctrine\DBAL\Connection
             if (isset($params['fetch_case']) && $this->portability & self::PORTABILITY_FIX_CASE) {
                 if ($this->_conn instanceof PDOConnection) {
                     // make use of c-level support for case handling
-                    $this->_conn->setAttribute(PDO::ATTR_CASE, $params['fetch_case']);
+                    $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_CASE, $params['fetch_case']);
                 } else {
                     $this->case = $params['fetch_case'] === ColumnCase::LOWER ? CASE_LOWER : CASE_UPPER;
                 }
@@ -116,11 +115,11 @@ class Connection extends \Doctrine\DBAL\Connection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query(string $sql)
     {
         $this->connect();
 
-        $stmt = $this->_conn->query(...func_get_args());
+        $stmt = $this->_conn->query($sql);
         $stmt = new Statement($stmt, $this);
         $stmt->setFetchMode($this->defaultFetchMode);
 
