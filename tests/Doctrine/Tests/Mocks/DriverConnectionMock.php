@@ -8,9 +8,10 @@ use Doctrine\DBAL\ParameterType;
 class DriverConnectionMock implements Connection
 {
     public function prepare($prepareString)
-    {
+
+{
     }
-    public function query()
+    public function query(string $sql)
     {
     }
 
