@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\DBAL\Driver\PDOPgSql;
 
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOPgSql\Driver;
 use Doctrine\Tests\DBAL\Driver\AbstractPostgreSQLDriverTest;
 use PDO;
@@ -31,10 +32,10 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             $GLOBALS['db_password']
         );
 
-        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
-            self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+            self::assertTrue($connection->getWrappedConnection()->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
@@ -58,10 +59,13 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             array(PDO::PGSQL_ATTR_DISABLE_PREPARES => false)
         );
 
-        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
-            self::assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+            self::assertNotSame(
+                true,
+                $connection->getWrappedConnection()->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES)
+            );
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
@@ -85,10 +89,10 @@ class DriverTest extends AbstractPostgreSQLDriverTest
             array(PDO::PGSQL_ATTR_DISABLE_PREPARES => true)
         );
 
-        self::assertInstanceOf('Doctrine\DBAL\Driver\PDOConnection', $connection);
+        self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
-            self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+            self::assertTrue($connection->getWrappedConnection()->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');

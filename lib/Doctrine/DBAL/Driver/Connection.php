@@ -2,6 +2,7 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\ParameterType;
 
 /**
@@ -19,16 +20,18 @@ interface Connection
      *
      * @param string $prepareString
      *
-     * @return \Doctrine\DBAL\Driver\Statement
+     * @return Statement
      */
     public function prepare($prepareString);
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
-     * @return \Doctrine\DBAL\Driver\Statement
+     * @return Statement
+     *
+     * @throws DBALException
      */
-    public function query();
+    public function query(string $sql);
 
     /**
      * Quotes a string for use in a query.
