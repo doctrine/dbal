@@ -7,7 +7,10 @@ use Doctrine\DBAL\ParameterType;
 class DriverConnectionMock implements \Doctrine\DBAL\Driver\Connection
 {
     public function prepare($prepareString) {}
-    public function query() {}
+
+    public function query(string $sql)
+    {
+    }
 
     public function quote($input, $type = ParameterType::STRING)
     {
