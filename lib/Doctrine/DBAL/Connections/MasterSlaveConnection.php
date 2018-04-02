@@ -341,16 +341,14 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function query()
+    public function query(string $sql)
     {
         $this->connect('master');
 
-        $args = func_get_args();
-
         $logger = $this->getConfiguration()->getSQLLogger();
-        $logger->startQuery($args[0]);
+        $logger->startQuery($sql);
 
-        $statement = $this->_conn->query(...$args);
+        $statement = $this->_conn->query($sql);
 
         $logger->stopQuery();
 
