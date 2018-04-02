@@ -23,7 +23,6 @@ use Exception;
 use Throwable;
 use function array_key_exists;
 use function assert;
-use function func_get_args;
 use function implode;
 use function is_int;
 use function is_string;
@@ -978,25 +977,19 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Executes an SQL statement, returning a result set as a Statement object.
-     *
-     * @return \Doctrine\DBAL\Driver\Statement
-     *
-     * @throws DBALException
+     * {@inheritDoc}
      */
-    public function query()
+    public function query(string $sql)
     {
         $connection = $this->getWrappedConnection();
 
-        $args = func_get_args();
-
         $logger = $this->_config->getSQLLogger();
-        $logger->startQuery($args[0]);
+        $logger->startQuery($sql);
 
         try {
-            $statement = $connection->query(...$args);
+            $statement = $connection->query($sql);
         } catch (Throwable $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
 
         $statement->setFetchMode($this->defaultFetchMode);

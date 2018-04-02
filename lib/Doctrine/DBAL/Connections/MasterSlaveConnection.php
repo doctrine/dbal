@@ -13,7 +13,6 @@ use InvalidArgumentException;
 use function array_rand;
 use function assert;
 use function count;
-use function func_get_args;
 
 /**
  * Master-Slave Connection
@@ -342,17 +341,15 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function query()
+    public function query(string $sql)
     {
         $this->connect('master');
         assert($this->_conn instanceof DriverConnection);
 
-        $args = func_get_args();
-
         $logger = $this->getConfiguration()->getSQLLogger();
-        $logger->startQuery($args[0]);
+        $logger->startQuery($sql);
 
-        $statement = $this->_conn->query(...$args);
+        $statement = $this->_conn->query($sql);
 
         $statement->setFetchMode($this->defaultFetchMode);
 
