@@ -108,11 +108,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query(string $sql)
     {
-        $args = func_get_args();
-        $sql = $args[0];
-        //$fetchMode = $args[1];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
