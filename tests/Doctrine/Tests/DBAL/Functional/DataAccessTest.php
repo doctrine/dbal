@@ -932,8 +932,9 @@ class DataAccessTest extends DbalFunctionalTestCase
         }
 
         /** @var PDOConnection $connection */
-        $connection = $this->connection->getWrappedConnection();
-        $connection->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+        $connection = $this->connection
+            ->getWrappedConnection();
+        $connection->getWrappedConnection()->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
     }
 }
 
