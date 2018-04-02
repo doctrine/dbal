@@ -35,7 +35,7 @@ class Driver extends AbstractSQLiteDriver
         }
 
         try {
-            $pdo = new PDOConnection(
+            $connection = new PDOConnection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,
@@ -45,11 +45,13 @@ class Driver extends AbstractSQLiteDriver
             throw DBALException::driverException($this, $ex);
         }
 
+        $pdo = $connection->getWrappedConnection();
+
         foreach ($this->_userDefinedFunctions as $fn => $data) {
             $pdo->sqliteCreateFunction($fn, $data['callback'], $data['numArgs']);
         }
 
-        return $pdo;
+        return $connection;
     }
 
     /**

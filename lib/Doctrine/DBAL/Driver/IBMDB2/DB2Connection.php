@@ -22,7 +22,6 @@ use function db2_prepare;
 use function db2_rollback;
 use function db2_server_info;
 use function db2_stmt_errormsg;
-use function func_get_args;
 
 class DB2Connection implements Connection, ServerInfoAwareConnection
 {
@@ -89,10 +88,8 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query(string $sql)
     {
-        $args = func_get_args();
-        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
