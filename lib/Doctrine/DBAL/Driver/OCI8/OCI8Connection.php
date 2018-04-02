@@ -10,7 +10,6 @@ use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_DEFAULT;
 use const OCI_NO_AUTO_COMMIT;
 use function addcslashes;
-use function func_get_args;
 use function is_float;
 use function is_int;
 use function oci_commit;
@@ -111,11 +110,8 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query(string $sql)
     {
-        $args = func_get_args();
-        $sql  = $args[0];
-        //$fetchMode = $args[1];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 

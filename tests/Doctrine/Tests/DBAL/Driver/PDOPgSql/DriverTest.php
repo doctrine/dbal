@@ -36,7 +36,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
-            self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+            self::assertTrue($connection->getWrappedConnection()->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
@@ -63,7 +63,10 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
-            self::assertNotSame(true, $connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+            self::assertNotSame(
+                true,
+                $connection->getWrappedConnection()->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES)
+            );
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');
@@ -90,7 +93,7 @@ class DriverTest extends AbstractPostgreSQLDriverTest
         self::assertInstanceOf(PDOConnection::class, $connection);
 
         try {
-            self::assertTrue($connection->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
+            self::assertTrue($connection->getWrappedConnection()->getAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES));
         } catch (PDOException $ignored) {
             /** @link https://bugs.php.net/bug.php?id=68371 */
             $this->markTestIncomplete('See https://bugs.php.net/bug.php?id=68371');

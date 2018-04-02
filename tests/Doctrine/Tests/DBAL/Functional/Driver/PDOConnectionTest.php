@@ -72,7 +72,9 @@ class PDOConnectionTest extends DbalFunctionalTestCase
 
         // Emulated prepared statements have to be disabled for this test
         // so that PDO actually communicates with the database server to check the query.
-        $this->driverConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        $this->driverConnection
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
         $this->expectException(PDOException::class);
 

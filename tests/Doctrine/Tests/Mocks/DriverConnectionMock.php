@@ -11,7 +11,7 @@ class DriverConnectionMock implements Connection
     {
     }
 
-    public function query()
+    public function query(string $sql)
     {
     }
 
