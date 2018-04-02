@@ -103,11 +103,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
     private $lastInsertId;
 
     /**
-     * @param string $prepareString
-     *
-     * @throws \Doctrine\DBAL\Driver\Mysqli\MysqliException
+     * @throws MysqliException
      */
-    public function __construct(\mysqli $conn, $prepareString, ?LastInsertId $lastInsertId = null)
+    public function __construct(\mysqli $conn, string $prepareString, ?LastInsertId $lastInsertId = null)
     {
         $this->_conn = $conn;
         $this->_stmt = $conn->prepare($prepareString);

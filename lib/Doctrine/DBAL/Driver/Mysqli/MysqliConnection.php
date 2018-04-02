@@ -64,7 +64,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      * @param string $password
      * @param array  $driverOptions
      *
-     * @throws \Doctrine\DBAL\Driver\Mysqli\MysqliException
+     * @throws MysqliException
      */
     public function __construct(array $params, $username, $password, array $driverOptions = [])
     {

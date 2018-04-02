@@ -9,14 +9,14 @@ use Doctrine\Tests\DbalFunctionalTestCase;
 
 class WriteTest extends DbalFunctionalTestCase
 {
-    protected function setUp()
+    protected function setUp() : void
     {
         parent::setUp();
 
         $this->createTable('write_table');
     }
 
-    private function createTable($tableName)
+    private function createTable(string $tableName) : void
     {
         $table = new Table($tableName);
         $table->addColumn('id', 'integer', ['autoincrement' => true]);
@@ -27,7 +27,7 @@ class WriteTest extends DbalFunctionalTestCase
         $this->_conn->getSchemaManager()->createTable($table);
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         $this->_conn->getSchemaManager()->dropTable('write_table');
 
@@ -37,7 +37,7 @@ class WriteTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-80
      */
-    public function testExecuteUpdateFirstTypeIsNull()
+    public function testExecuteUpdateFirstTypeIsNull() : void
     {
         $sql = "INSERT INTO write_table (test_string, test_int) VALUES (?, ?)";
         $this->_conn->executeUpdate($sql, ['text', 1111], [null, ParameterType::INTEGER]);
@@ -46,7 +46,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertTrue((bool) $this->_conn->fetchColumn($sql, ['text', 1111]));
     }
 
-    public function testExecuteUpdate()
+    public function testExecuteUpdate() : void
     {
         $sql = "INSERT INTO write_table (test_int) VALUES ( " . $this->_conn->quote(1) . ")";
         $affected = $this->_conn->executeUpdate($sql);
@@ -54,7 +54,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $affected, "executeUpdate() should return the number of affected rows!");
     }
 
-    public function testExecuteUpdateWithTypes()
+    public function testExecuteUpdateWithTypes() : void
     {
         $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
         $affected = $this->_conn->executeUpdate(
@@ -66,7 +66,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $affected, "executeUpdate() should return the number of affected rows!");
     }
 
-    public function testPrepareRowCountReturnsAffectedRows()
+    public function testPrepareRowCountReturnsAffectedRows() : void
     {
         $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
         $stmt = $this->_conn->prepare($sql);
@@ -78,7 +78,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $stmt->rowCount());
     }
 
-    public function testPrepareWithPdoTypes()
+    public function testPrepareWithPdoTypes() : void
     {
         $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
         $stmt = $this->_conn->prepare($sql);
@@ -90,7 +90,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $stmt->rowCount());
     }
 
-    public function testPrepareWithDbalTypes()
+    public function testPrepareWithDbalTypes() : void
     {
         $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
         $stmt = $this->_conn->prepare($sql);
@@ -102,7 +102,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $stmt->rowCount());
     }
 
-    public function testPrepareWithDbalTypeNames()
+    public function testPrepareWithDbalTypeNames() : void
     {
         $sql = "INSERT INTO write_table (test_int, test_string) VALUES (?, ?)";
         $stmt = $this->_conn->prepare($sql);
@@ -114,18 +114,18 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertEquals(1, $stmt->rowCount());
     }
 
-    public function insertRows()
+    public function insertRows() : void
     {
         self::assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 1, 'test_string' => 'foo')));
         self::assertEquals(1, $this->_conn->insert('write_table', array('test_int' => 2, 'test_string' => 'bar')));
     }
 
-    public function testInsert()
+    public function testInsert() : void
     {
         $this->insertRows();
     }
 
-    public function testDelete()
+    public function testDelete() : void
     {
         $this->insertRows();
 
@@ -136,7 +136,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertCount(0, $this->_conn->fetchAll('SELECT * FROM write_table'));
     }
 
-    public function testUpdate()
+    public function testUpdate() : void
     {
         $this->insertRows();
 
@@ -148,7 +148,7 @@ class WriteTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-445
      */
-    public function testInsertWithKeyValueTypes()
+    public function testInsertWithKeyValueTypes() : void
     {
         $testString = new \DateTime('2013-04-14 10:10:10');
 
@@ -166,7 +166,7 @@ class WriteTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-445
      */
-    public function testUpdateWithKeyValueTypes()
+    public function testUpdateWithKeyValueTypes() : void
     {
         $testString = new \DateTime('2013-04-14 10:10:10');
 
@@ -193,7 +193,7 @@ class WriteTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-445
      */
-    public function testDeleteWithKeyValueTypes()
+    public function testDeleteWithKeyValueTypes() : void
     {
         $val = new \DateTime('2013-04-14 10:10:10');
         $this->_conn->insert(
@@ -209,7 +209,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertFalse($data);
     }
 
-    public function testEmptyIdentityInsert()
+    public function testEmptyIdentityInsert() : void
     {
         $table = new Table('test_empty_identity');
         $table->addColumn('id', 'integer', array('autoincrement' => true));
@@ -225,7 +225,7 @@ class WriteTest extends DbalFunctionalTestCase
     /**
      * @group DBAL-2688
      */
-    public function testUpdateWhereIsNull()
+    public function testUpdateWhereIsNull() : void
     {
         $this->_conn->insert(
             'write_table',
@@ -244,7 +244,7 @@ class WriteTest extends DbalFunctionalTestCase
         self::assertCount(0, $data);
     }
 
-    public function testDeleteWhereIsNull()
+    public function testDeleteWhereIsNull() : void
     {
         $this->_conn->insert(
             'write_table',

@@ -183,7 +183,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
      *
      * @return string The last insert ID or '0' in case the last insert ID generated on this connection is unknown.
      *
-     * @throws PDOException
+     * @throws \PDOException
      */
     protected function fetchLastInsertId(?string $sequenceName) : string
     {
