@@ -22,7 +22,7 @@ class Driver extends AbstractPostgreSQLDriver
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
         try {
-            $pdo = new PDOConnection(
+            $connection = new PDOConnection(
                 $this->_constructPdoDsn($params),
                 $username,
                 $password,
@@ -34,7 +34,7 @@ class Driver extends AbstractPostgreSQLDriver
                     || true === $driverOptions[PDO::PGSQL_ATTR_DISABLE_PREPARES]
                 )
             ) {
-                $pdo->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
+                $connection->getWrappedConnection()->setAttribute(PDO::PGSQL_ATTR_DISABLE_PREPARES, true);
             }
 
             /* defining client_encoding via SET NAMES to avoid inconsistent DSN support
@@ -42,10 +42,10 @@ class Driver extends AbstractPostgreSQLDriver
              * - passing client_encoding via the 'options' param breaks pgbouncer support
              */
             if (isset($params['charset'])) {
-                $pdo->exec('SET NAMES \'' . $params['charset'] . '\'');
+                $connection->exec('SET NAMES \'' . $params['charset'] . '\'');
             }
 
-            return $pdo;
+            return $connection;
         } catch (PDOException $e) {
             throw DBALException::driverException($this, $e);
         }

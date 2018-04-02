@@ -998,25 +998,19 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Executes an SQL statement, returning a result set as a Statement object.
-     *
-     * @return \Doctrine\DBAL\Driver\Statement
-     *
-     * @throws \Doctrine\DBAL\DBALException
+     * {@inheritDoc}
      */
-    public function query()
+    public function query(string $sql)
     {
         $this->connect();
 
-        $args = func_get_args();
-
         $logger = $this->_config->getSQLLogger();
-        $logger->startQuery($args[0]);
+        $logger->startQuery($sql);
 
         try {
-            $statement = $this->_conn->query(...$args);
+            $statement = $this->_conn->query($sql);
         } catch (Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
 
         $statement->setFetchMode($this->defaultFetchMode);

@@ -38,7 +38,9 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
     protected function tearDown()
     {
         if ($this->running) {
-            $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $this->_conn->getWrappedConnection()
+                ->getWrappedConnection()
+                ->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         }
 
         parent::tearDown();
@@ -72,7 +74,9 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
 
     public function testBooleanConversionBoolParamEmulatedPrepares()
     {
-        $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->_conn->getWrappedConnection()
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->_conn->getDatabasePlatform();
 
@@ -96,7 +100,9 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $statementValue,
         $databaseConvertedValue
     ) {
-        $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->_conn->getWrappedConnection()
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->_conn->getDatabasePlatform();
 
@@ -120,7 +126,9 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
         $statementValue,
         $databaseConvertedValue
     ) {
-        $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+        $this->_conn->getWrappedConnection()
+            ->getWrappedConnection()
+            ->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $platform = $this->_conn->getDatabasePlatform();
 
