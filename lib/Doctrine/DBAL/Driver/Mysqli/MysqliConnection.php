@@ -15,7 +15,6 @@ use const MYSQLI_READ_DEFAULT_GROUP;
 use const MYSQLI_SERVER_PUBLIC_KEY;
 use function defined;
 use function floor;
-use function func_get_args;
 use function in_array;
 use function ini_get;
 use function mysqli_errno;
@@ -134,10 +133,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query(string $sql)
     {
-        $args = func_get_args();
-        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 
