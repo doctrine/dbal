@@ -6,7 +6,6 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use const SQLSRV_ERR_ERRORS;
-use function func_get_args;
 use function is_float;
 use function is_int;
 use function sprintf;
@@ -83,10 +82,8 @@ class SQLSrvConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritDoc}
      */
-    public function query()
+    public function query(string $sql)
     {
-        $args = func_get_args();
-        $sql  = $args[0];
         $stmt = $this->prepare($sql);
         $stmt->execute();
 

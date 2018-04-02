@@ -6,7 +6,6 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\ParameterType;
 use function assert;
-use function func_get_args;
 use function is_float;
 use function is_int;
 use function is_resource;
@@ -151,11 +150,9 @@ class SQLAnywhereConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function query()
+    public function query(string $sql)
     {
-        $args = func_get_args();
-        $stmt = $this->prepare($args[0]);
-
+        $stmt = $this->prepare($sql);
         $stmt->execute();
 
         return $stmt;
