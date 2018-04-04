@@ -22,6 +22,9 @@ namespace Doctrine\DBAL\Driver;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use PDO;
+use const E_USER_DEPRECATED;
+use function sprintf;
+use function trigger_error;
 
 /**
  * The PDO implementation of the Statement interface.
@@ -231,7 +234,14 @@ class PDOStatement extends \PDOStatement implements Statement
         }
 
         if (! isset(self::FETCH_MODE_MAP[$fetchMode])) {
-            throw new \InvalidArgumentException('Invalid fetch mode: ' . $fetchMode);
+            // TODO: next major: throw an exception
+            @trigger_error(sprintf(
+                'Using a PDO fetch mode or their combination (%d given)' .
+                ' is deprecated and will cause an error in Doctrine 3.0',
+                $fetchMode
+            ), E_USER_DEPRECATED);
+
+            return $fetchMode;
         }
 
         return self::FETCH_MODE_MAP[$fetchMode];
