@@ -69,9 +69,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     private function assertLastInsertId(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $insertExecutor();
 
@@ -95,9 +93,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     private function assertLastInsertIdAfterUpdate(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $insertExecutor();
         $this->testConnection->update('last_insert_id_table', ['foo' => 2], ['id' => 1]);
@@ -122,9 +118,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     private function assertLastInsertIdAfterDelete(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $insertExecutor();
         $this->testConnection->exec('DELETE FROM last_insert_id_table');
@@ -149,9 +143,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     private function assertLastInsertIdAfterTruncate(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $insertExecutor();
         $truncateTableSql = $this->testConnection->getDatabasePlatform()->getTruncateTableSQL('last_insert_id_table');
@@ -177,9 +169,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     private function assertLastInsertIdAfterDropTable(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $this->createTable('last_insert_id_table_tmp');
 
@@ -206,9 +196,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     private function assertLastInsertIdAfterSelect(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $insertExecutor();
         $this->testConnection->executeQuery('SELECT 1 FROM last_insert_id_table');
@@ -233,9 +221,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     public function assertLastInsertIdInTransaction(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $this->testConnection->beginTransaction();
         $insertExecutor();
@@ -260,9 +246,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     private function assertLastInsertIdAfterTransactionCommit(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $this->testConnection->beginTransaction();
         $insertExecutor();
@@ -288,9 +272,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     private function assertLastInsertIdAfterTransactionRollback(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $this->testConnection->beginTransaction();
         $insertExecutor();
@@ -316,9 +298,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     private function assertLastInsertIdInsertAfterTransactionRollback(callable $insertExecutor) : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $this->testConnection->beginTransaction();
         $insertExecutor();
@@ -336,9 +316,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     public function testLastInsertIdReusePreparedStatementPrepare() : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $statement = $this->testConnection->prepare('INSERT INTO last_insert_id_table (foo) VALUES (1)');
 
@@ -350,9 +328,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
     public function testLastInsertIdReusePreparedStatementQuery() : void
     {
-        if (! $this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $statement = $this->testConnection->query('INSERT INTO last_insert_id_table (foo) VALUES (1)');
 
@@ -369,9 +345,7 @@ class LastInsertIdTest extends DbalFunctionalTestCase
             $this->markTestSkipped('Test does not work on sqlite as connections do not share memory.');
         }
 
-        if (! $platform->supportsIdentityColumns()) {
-            $this->markTestSkipped('Test only works on platforms with identity columns.');
-        }
+        $this->ensurePlatformSupportsIdentityColumns();
 
         $connection1 = TestUtil::getConnection();
         $connection2 = TestUtil::getConnection();
@@ -419,6 +393,15 @@ class LastInsertIdTest extends DbalFunctionalTestCase
     public function testLastInsertIdSequenceEmulatedIdentityColumnQuery() : void
     {
         $this->assertLastInsertIdSequenceEmulatedIdentityColumn($this->createQueryInsertExecutor());
+    }
+
+    private function ensurePlatformSupportsIdentityColumns() : void
+    {
+        if ($this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
+            return;
+        }
+
+        $this->markTestSkipped('Test only works on platforms with identity columns.');
     }
 
     private function assertLastInsertIdSequenceEmulatedIdentityColumn(callable $insertExecutor) : void
