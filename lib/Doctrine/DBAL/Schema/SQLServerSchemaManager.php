@@ -76,7 +76,7 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        return new Sequence($sequence['name'], $sequence['increment'], $sequence['start_value']);
+        return new Sequence($sequence['name'], (int) $sequence['increment'], (int) $sequence['start_value']);
     }
 
     /**
