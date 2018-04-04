@@ -303,8 +303,8 @@ class OracleSchemaManager extends AbstractSchemaManager
 
         return new Sequence(
             $this->getQuotedIdentifierName($sequence['sequence_name']),
-            $sequence['increment_by'],
-            $sequence['min_value']
+            (int) $sequence['increment_by'],
+            (int) $sequence['min_value']
         );
     }
 
