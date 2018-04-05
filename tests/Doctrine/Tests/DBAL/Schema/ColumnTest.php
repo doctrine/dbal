@@ -66,6 +66,19 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @group legacy
+     * @expectedDeprecation The "unknown_option" column option is not supported, setting it is deprecated and will cause an error in Doctrine 3.0
+     */
+    public function testOptionsShouldNotBeIgnored() : void
+    {
+        $col1 = new Column('bar', Type::getType(Type::INTEGER), ['unknown_option' => 'bar', 'notnull' => true]);
+        self::assertTrue($col1->getNotnull());
+
+        $col2 = new Column('bar', Type::getType(Type::INTEGER), ['unknown_option' => 'bar', 'notnull' => false]);
+        self::assertFalse($col2->getNotnull());
+    }
+
+    /**
      * @return Column
      */
     public function createColumn()
