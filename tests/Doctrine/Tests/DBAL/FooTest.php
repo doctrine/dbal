@@ -8,7 +8,7 @@ class ColumnTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @group legacy
-     * @expectedDeprecation Hi
+     * @expectedDeprecation Hello
      */
     public function testThatIsGoingToBeRisky() : void
     {
