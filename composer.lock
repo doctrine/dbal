@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2e574fbdd6c3ef6929cc2e2ae5cc8ee2",
+    "content-hash": "0291dcd4207946a09c66d7a720c44d8f",
     "packages": [],
     "packages-dev": [
         {
@@ -1373,16 +1373,16 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v4.0.7",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
-                "reference": "cdfbf48b17ca56bb7fbcb4126f949665e5f426a3"
+                "reference": "58978e7c06888c4111e19c4902e30b29506d6ea7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/cdfbf48b17ca56bb7fbcb4126f949665e5f426a3",
-                "reference": "cdfbf48b17ca56bb7fbcb4126f949665e5f426a3",
+                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/58978e7c06888c4111e19c4902e30b29506d6ea7",
+                "reference": "58978e7c06888c4111e19c4902e30b29506d6ea7",
                 "shasum": ""
             },
             "require": {
@@ -1401,7 +1401,7 @@
             "type": "symfony-bridge",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.0-dev"
+                    "dev-master": "4.1-dev"
                 },
                 "thanks": {
                     "name": "phpunit/phpunit",
@@ -1435,7 +1435,7 @@
             ],
             "description": "Symfony PHPUnit Bridge",
             "homepage": "https://symfony.com",
-            "time": "2018-03-22T13:42:36+00:00"
+            "time": "2018-04-04T18:35:20+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -1530,7 +1530,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "symfony/phpunit-bridge": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

@@ -17,7 +17,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^7.0",
-        "symfony/phpunit-bridge": "^3.4.5|^4.0.5"
+        "symfony/phpunit-bridge": "dev-master"
     },
     "suggest": {
         "symfony/console": "For helpful console commands such as SQL execution and import of files."
