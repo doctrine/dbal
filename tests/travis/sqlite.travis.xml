@@ -27,12 +27,6 @@
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
     </listeners>
 
-    <filter>
-        <whitelist>
-            <directory suffix=".php">./../../lib/Doctrine</directory>
-        </whitelist>
-    </filter>
-
     <groups>
         <exclude>
             <group>performance</group>
