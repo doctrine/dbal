@@ -132,7 +132,7 @@ class Column extends AbstractAsset
                     $name
                 ), E_USER_DEPRECATED);
 
-                return $this;
+                continue;
             }
             $this->$method($value);
         }
