@@ -216,7 +216,13 @@ class PDOStatement extends \PDOStatement implements Statement
     private function convertParamType(int $type) : int
     {
         if (! isset(self::PARAM_TYPE_MAP[$type])) {
-            throw new \InvalidArgumentException('Invalid parameter type: ' . $type);
+            // TODO: next major: throw an exception
+            @trigger_error(sprintf(
+                'Using a PDO parameter type (%d given) is deprecated and will cause an error in Doctrine 3.0',
+                $type
+            ), E_USER_DEPRECATED);
+
+            return $type;
         }
 
         return self::PARAM_TYPE_MAP[$type];
