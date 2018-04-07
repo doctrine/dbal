@@ -56,10 +56,17 @@ class DateIntervalType extends Type
             return $value;
         }
 
-        try {
-            $interval = new \DateInterval(substr($value, 1));
+        $negative = false;
 
-            if (substr($value, 0, 1) === '-') {
+        if (isset($value[0]) && ($value[0] === '+' || $value[0] === '-')) {
+            $negative = $value[0] === '-';
+            $value    = substr($value, 1);
+        }
+
+        try {
+            $interval = new \DateInterval($value);
+
+            if ($negative) {
                 $interval->invert = 1;
             }
 
