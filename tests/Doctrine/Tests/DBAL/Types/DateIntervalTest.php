@@ -67,6 +67,14 @@ final class DateIntervalTest extends DbalTestCase
         self::assertEquals('-P02Y00M01DT01H02M03S', $interval->format(DateIntervalType::FORMAT));
     }
 
+    public function testDateIntervalFormatWithoutSignConvertsToPHPValue() : void
+    {
+        $interval = $this->type->convertToPHPValue('P02Y00M01DT01H02M03S', $this->platform);
+
+        self::assertInstanceOf(\DateInterval::class, $interval);
+        self::assertEquals('+P02Y00M01DT01H02M03S', $interval->format(DateIntervalType::FORMAT));
+    }
+
     public function testInvalidDateIntervalFormatConversion() : void
     {
         $this->expectException(ConversionException::class);
@@ -77,6 +85,13 @@ final class DateIntervalTest extends DbalTestCase
     public function testDateIntervalNullConversion() : void
     {
         self::assertNull($this->type->convertToPHPValue(null, $this->platform));
+    }
+
+    public function testDateIntervalEmptyStringConversion() : void
+    {
+        $this->expectException(ConversionException::class);
+
+        $this->type->convertToPHPValue('', $this->platform);
     }
 
     /**
