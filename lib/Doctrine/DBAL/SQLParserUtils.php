@@ -48,9 +48,9 @@ class SQLParserUtils
     const NAMED_TOKEN      = '(?<!:):[a-zA-Z_][a-zA-Z0-9_]*';
 
     // Quote characters within string literals can be preceded by a backslash.
-    const ESCAPED_SINGLE_QUOTED_TEXT = "(?:'(?:\\\\\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
-    const ESCAPED_DOUBLE_QUOTED_TEXT = '(?:"(?:\\\\\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
-    const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
+    const ESCAPED_SINGLE_QUOTED_TEXT = "(?:'(?:\\\\\\\\)+'|(?<=ESCAPE\\s)'(?:\\\\)+'|'(?:[^'\\\\]|\\\\'?|'')*')";
+    const ESCAPED_DOUBLE_QUOTED_TEXT = '(?:"(?:\\\\\\\\)+"|(?<=ESCAPE\\s)"(?:\\\\)+"|"(?:[^"\\\\]|\\\\"?)*")';
+    const ESCAPED_BACKTICK_QUOTED_TEXT = '(?:`(?:\\\\\\\\)+`|(?<=ESCAPE\\s)`(?:\\\\)+`|`(?:[^`\\\\]|\\\\`?)*`)';
     const ESCAPED_BRACKET_QUOTED_TEXT = '(?<!\bARRAY)\[(?:[^\]])*\]';
 
     /**
