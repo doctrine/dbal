@@ -2,16 +2,17 @@
 
 namespace Doctrine\DBAL\Connections;
 
+use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
-use Doctrine\DBAL\Configuration;
-use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Doctrine\DBAL\Events;
 use function array_rand;
 use function count;
-use function func_get_args;
 
 /**
  * Master-Slave Connection
@@ -87,10 +88,7 @@ class MasterSlaveConnection extends Connection
     /**
      * Creates Master Slave Connection.
      *
-     * @param array                              $params
-     * @param \Doctrine\DBAL\Driver              $driver
-     * @param \Doctrine\DBAL\Configuration|null  $config
-     * @param \Doctrine\Common\EventManager|null $eventManager
+     * @param mixed[] $params
      *
      * @throws \InvalidArgumentException
      */
@@ -223,7 +221,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function executeUpdate($query, array $params = [], array $types = [])
+    public function executeUpdate(string $query, array $params = [], array $types = []) : int
     {
         $this->connect('master');
 
@@ -306,7 +304,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         $this->connect('master');
 
@@ -346,7 +344,7 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function query(string $sql)
+    public function query(string $sql) : ResultStatement
     {
         $this->connect('master');
 
@@ -363,10 +361,10 @@ class MasterSlaveConnection extends Connection
     /**
      * {@inheritDoc}
      */
-    public function prepare($statement)
+    public function prepare(string $sql) : Statement
     {
         $this->connect('master');
 
-        return parent::prepare($statement);
+        return parent::prepare($sql);
     }
 }

@@ -256,7 +256,7 @@ class Statement implements \IteratorAggregate, DriverStatement
      *
      * @return int The number of affected rows.
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return $this->stmt->rowCount();
     }

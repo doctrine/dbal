@@ -3,7 +3,9 @@
 namespace Doctrine\DBAL\Driver\OCI8;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use const OCI_COMMIT_ON_SUCCESS;
 use const OCI_DEFAULT;
@@ -11,7 +13,6 @@ use const OCI_NO_AUTO_COMMIT;
 use function addcslashes;
 use function define;
 use function defined;
-use function func_get_args;
 use function is_float;
 use function is_int;
 use function oci_commit;
@@ -100,15 +101,15 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare(string $sql) : DriverStatement
     {
-        return new OCI8Statement($this->dbh, $prepareString, $this);
+        return new OCI8Statement($this->dbh, $sql, $this);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function query(string $sql)
+    public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute();
@@ -132,7 +133,7 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
