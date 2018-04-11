@@ -431,6 +431,12 @@ Values retrieved from the database are always converted to PHP's ``array`` or
     Doctrine cannot map back this type properly on vendors not supporting column
     comments and will fall back to ``text`` type instead.
 
+.. warning::
+
+    You should never rely on the order of your JSON object keys, as some vendors
+    like MySQL sort the keys of its native JSON type using an internal order
+    which is also subject to change.
+
 json_array
 ^^^^^^^^^^
 
