@@ -9,9 +9,6 @@ use Doctrine\DBAL\ParameterType;
 use IteratorAggregate;
 use const SASQL_BOTH;
 use function array_key_exists;
-use function call_user_func_array;
-use function func_get_args;
-use function func_num_args;
 use function gettype;
 use function is_array;
 use function is_numeric;
@@ -307,7 +304,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return sasql_stmt_affected_rows($this->stmt);
     }
