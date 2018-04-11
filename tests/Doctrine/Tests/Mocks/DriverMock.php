@@ -2,6 +2,7 @@
 
 namespace Doctrine\Tests\Mocks;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 class DriverMock implements \Doctrine\DBAL\Driver
@@ -18,7 +19,7 @@ class DriverMock implements \Doctrine\DBAL\Driver
 
     public function connect(array $params, $username = null, $password = null, array $driverOptions = array())
     {
-        return new DriverConnectionMock();
+        throw new DBALException('Not implemented');
     }
 
     /**

@@ -22,8 +22,6 @@ use function db2_num_fields;
 use function db2_num_rows;
 use function db2_stmt_error;
 use function db2_stmt_errormsg;
-use function func_get_args;
-use function func_num_args;
 use function gettype;
 use function is_object;
 use function is_string;
@@ -312,7 +310,7 @@ class DB2Statement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return (@db2_num_rows($this->_stmt)) ? : 0;
     }
