@@ -2,7 +2,9 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Closure;
 use Exception;
@@ -17,7 +19,6 @@ use Doctrine\DBAL\Driver\PingableConnection;
 use Throwable;
 use function array_key_exists;
 use function array_merge;
-use function func_get_args;
 use function implode;
 use function is_int;
 use function is_string;
@@ -856,18 +857,16 @@ class Connection implements DriverConnection
     /**
      * Prepares an SQL statement.
      *
-     * @param string $statement The SQL statement to prepare.
+     * @param string $sql The SQL statement to prepare.
      *
-     * @return \Doctrine\DBAL\Statement The prepared statement.
-     *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
-    public function prepare($statement)
+    public function prepare(string $sql) : DriverStatement
     {
         try {
-            $stmt = new Statement($statement, $this);
+            $stmt = new Statement($sql, $this);
         } catch (Exception $ex) {
-            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $statement);
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $sql);
         }
 
         $stmt->setFetchMode($this->defaultFetchMode);
@@ -881,16 +880,14 @@ class Connection implements DriverConnection
      * If the query is parametrized, a prepared statement is used.
      * If an SQLLogger is configured, the execution is logged.
      *
-     * @param string                                      $query  The SQL query to execute.
-     * @param array                                       $params The parameters to bind to the query, if any.
-     * @param array                                       $types  The types the previous parameters are in.
-     * @param \Doctrine\DBAL\Cache\QueryCacheProfile|null $qcp    The query cache profile, optional.
+     * @param string                 $query  The SQL query to execute.
+     * @param mixed[]                $params The parameters to bind to the query, if any.
+     * @param (int|string|Type)[]    $types  The types the previous parameters are in.
+     * @param QueryCacheProfile|null $qcp    The query cache profile, optional.
      *
-     * @return \Doctrine\DBAL\Driver\Statement The executed statement.
-     *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
-    public function executeQuery($query, array $params = [], $types = [], QueryCacheProfile $qcp = null)
+    public function executeQuery(string $query, array $params = [], $types = [], ?QueryCacheProfile $qcp = null) : ResultStatement
     {
         if ($qcp !== null) {
             return $this->executeCacheQuery($query, $params, $types, $qcp);
@@ -929,16 +926,14 @@ class Connection implements DriverConnection
     /**
      * Executes a caching query.
      *
-     * @param string                                 $query  The SQL query to execute.
-     * @param array                                  $params The parameters to bind to the query, if any.
-     * @param array                                  $types  The types the previous parameters are in.
-     * @param \Doctrine\DBAL\Cache\QueryCacheProfile $qcp    The query cache profile.
+     * @param string              $query  The SQL query to execute.
+     * @param mixed[]             $params The parameters to bind to the query, if any.
+     * @param (int|string)|Type[] $types  The types the previous parameters are in.
+     * @param QueryCacheProfile   $qcp    The query cache profile.
      *
-     * @return \Doctrine\DBAL\Driver\ResultStatement
-     *
-     * @throws \Doctrine\DBAL\Cache\CacheException
+     * @throws DBALException
      */
-    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp)
+    public function executeCacheQuery($query, $params, $types, QueryCacheProfile $qcp) : ResultStatement
     {
         $resultCache = $qcp->getResultCacheDriver() ?: $this->_config->getResultCacheImpl();
         if ( ! $resultCache) {
@@ -995,7 +990,7 @@ class Connection implements DriverConnection
     /**
      * {@inheritDoc}
      */
-    public function query(string $sql)
+    public function query(string $sql) : ResultStatement
     {
         $this->connect();
 
@@ -1021,15 +1016,13 @@ class Connection implements DriverConnection
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string $query  The SQL query.
-     * @param array  $params The query parameters.
-     * @param array  $types  The parameter types.
+     * @param string              $query  The SQL query.
+     * @param mixed[]             $params The query parameters.
+     * @param (int|string|Type)[] $types  The parameter types.
      *
-     * @return int The number of affected rows.
-     *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
-    public function executeUpdate($query, array $params = [], array $types = [])
+    public function executeUpdate(string $query, array $params = [], array $types = []) : int
     {
         $this->connect();
 
@@ -1061,15 +1054,9 @@ class Connection implements DriverConnection
     }
 
     /**
-     * Executes an SQL statement and return the number of affected rows.
-     *
-     * @param string $statement
-     *
-     * @return int The number of affected rows.
-     *
-     * @throws \Doctrine\DBAL\DBALException
+     * {@inheritDoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         $this->connect();
 
@@ -1473,16 +1460,11 @@ class Connection implements DriverConnection
      * Binds a set of parameters, some or all of which are typed with a PDO binding type
      * or DBAL mapping type, to a given statement.
      *
-     * @param \Doctrine\DBAL\Driver\Statement $stmt   The statement to bind the values to.
-     * @param array                           $params The map/list of named/positional parameters.
-     * @param array                           $types  The parameter types (PDO binding types or DBAL mapping types).
-     *
-     * @return void
-     *
-     * @internal Duck-typing used on the $stmt parameter to support driver statements as well as
-     *           raw PDOStatement instances.
+     * @param DriverStatement     $stmt   The statement to bind the values to.
+     * @param mixed[]             $params The map/list of named/positional parameters.
+     * @param (int|string|Type)[] $types  The parameter types.
      */
-    private function _bindTypedValues($stmt, array $params, array $types)
+    private function _bindTypedValues(DriverStatement $stmt, array $params, array $types) : void
     {
         // Check whether parameters are positional or named. Mixing is not allowed, just like in PDO.
         if (is_int(key($params))) {
