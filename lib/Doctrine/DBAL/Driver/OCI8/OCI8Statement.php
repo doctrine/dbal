@@ -502,7 +502,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return oci_num_rows($this->_sth);
     }

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
@@ -23,26 +24,23 @@ class StatementTest extends DbalTestCase
     private $configuration;
 
     /** @var PDOStatement */
-    private $pdoStatement;
+    private $driverStatement;
 
     protected function setUp()
     {
-        $this->pdoStatement = $this->getMockBuilder(PDOStatement::class)
-            ->setMethods(['execute', 'bindParam', 'bindValue'])
-            ->getMock();
-        $platform           = new MockPlatform();
-        $driverConnection   = $this->createMock(DriverConnection::class);
-        $driverConnection->expects($this->any())
-                ->method('prepare')
-                ->will($this->returnValue($this->pdoStatement));
+        $this->driverStatement = $this->createMock(DriverStatement::class);
 
-        $driver          = $this->createMock(Driver::class);
-        $constructorArgs = [
-            ['platform' => $platform],
-            $driver,
-        ];
-        $this->conn      = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs($constructorArgs)
+        $driverConnection = $this->createConfiguredMock(DriverConnection::class, [
+            'prepare' => $this->driverStatement,
+        ]);
+
+        $driver = $this->createMock(Driver::class);
+
+        $this->conn = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([
+                ['platform' => new MockPlatform()],
+                $driver,
+            ])
             ->getMock();
         $this->conn->expects($this->atLeastOnce())
                 ->method('getWrappedConnection')
@@ -146,7 +144,7 @@ class StatementTest extends DbalTestCase
         $logger->expects($this->once())
             ->method('stopQuery');
 
-        $this->pdoStatement->expects($this->once())
+        $this->driverStatement->expects($this->once())
             ->method('execute')
             ->will($this->throwException(new Exception('Mock test exception')));
 

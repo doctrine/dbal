@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\Mocks;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -21,7 +22,7 @@ class DriverMock implements Driver
      */
     public function connect(array $params, $username = null, $password = null, array $driverOptions = [])
     {
-        return new DriverConnectionMock();
+        throw new DBALException('Not implemented');
     }
 
     public function getDatabasePlatform()

@@ -221,7 +221,7 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return $this->stmt->rowCount();
     }

@@ -420,7 +420,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         if ($this->_columnNames === false) {
             return $this->_stmt->affected_rows;

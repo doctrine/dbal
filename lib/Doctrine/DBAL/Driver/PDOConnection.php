@@ -36,7 +36,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         try {
             return $this->connection->exec($statement);
@@ -56,11 +56,11 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare(string $sql) : Statement
     {
         try {
             return $this->createStatement(
-                $this->connection->prepare($prepareString)
+                $this->connection->prepare($sql)
             );
         } catch (\PDOException $exception) {
             throw new PDOException($exception);
@@ -70,7 +70,7 @@ class PDOConnection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function query(string $sql)
+    public function query(string $sql) : ResultStatement
     {
         try {
             return $this->createStatement(
