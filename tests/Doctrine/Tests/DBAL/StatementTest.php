@@ -2,9 +2,15 @@
 
 namespace Doctrine\Tests\DBAL;
 
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Logging\SQLLogger;
+use Doctrine\Tests\DBAL\Mocks\MockPlatform;
 
 class StatementTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -23,34 +29,29 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
     /**
      * @var \PDOStatement
      */
-    private $pdoStatement;
+    private $driverStatement;
 
     protected function setUp()
     {
-        $this->pdoStatement = $this->getMockBuilder('\PDOStatement')
-            ->setMethods(array('execute', 'bindParam', 'bindValue'))
-            ->getMock();
-        $platform = new \Doctrine\Tests\DBAL\Mocks\MockPlatform();
-        $driverConnection = $this->createMock('\Doctrine\DBAL\Driver\Connection');
-        $driverConnection->expects($this->any())
-                ->method('prepare')
-                ->will($this->returnValue($this->pdoStatement));
+        $this->driverStatement = $this->createMock(DriverStatement::class);
 
-        $driver = $this->createMock('\Doctrine\DBAL\Driver');
-        $constructorArgs = array(
-            array(
-                'platform' => $platform
-            ),
-            $driver
-        );
-        $this->conn = $this->getMockBuilder('\Doctrine\DBAL\Connection')
-            ->setConstructorArgs($constructorArgs)
+        $driverConnection = $this->createConfiguredMock(DriverConnection::class, [
+            'prepare' => $this->driverStatement,
+        ]);
+
+        $driver = $this->createMock(Driver::class);
+
+        $this->conn = $this->getMockBuilder(Connection::class)
+            ->setConstructorArgs([
+                ['platform' => new MockPlatform()],
+                $driver,
+            ])
             ->getMock();
         $this->conn->expects($this->atLeastOnce())
                 ->method('getWrappedConnection')
                 ->will($this->returnValue($driverConnection));
 
-        $this->configuration = $this->createMock('\Doctrine\DBAL\Configuration');
+        $this->configuration = $this->createMock(Configuration::class);
         $this->conn->expects($this->any())
                 ->method('getConfiguration')
                 ->will($this->returnValue($this->configuration));
@@ -58,7 +59,6 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
         $this->conn->expects($this->any())
             ->method('getDriver')
             ->will($this->returnValue($driver));
-
     }
 
     public function testExecuteCallsLoggerStartQueryWithParametersWhenValuesBound()
@@ -149,7 +149,7 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
         $logger->expects($this->once())
             ->method('stopQuery');
 
-        $this->pdoStatement->expects($this->once())
+        $this->driverStatement->expects($this->once())
             ->method('execute')
             ->will($this->throwException(new \Exception("Mock test exception")));
 
