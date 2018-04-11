@@ -194,7 +194,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
      *
      * @return int The number of rows.
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         assert($this->statement instanceof Statement);
 
