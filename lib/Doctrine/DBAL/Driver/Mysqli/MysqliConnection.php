@@ -4,11 +4,12 @@ namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PingableConnection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use function defined;
 use function floor;
-use function func_get_args;
 use function in_array;
 use function ini_get;
 use function mysqli_errno;
@@ -121,15 +122,15 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function prepare($prepareString)
+    public function prepare(string $sql) : DriverStatement
     {
-        return new MysqliStatement($this->_conn, $prepareString);
+        return new MysqliStatement($this->_conn, $sql);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function query(string $sql)
+    public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute();
@@ -148,7 +149,7 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         if (false === $this->_conn->query($statement)) {
             throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);

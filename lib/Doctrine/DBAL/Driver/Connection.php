@@ -17,21 +17,15 @@ interface Connection
 {
     /**
      * Prepares a statement for execution and returns a Statement object.
-     *
-     * @param string $prepareString
-     *
-     * @return Statement
      */
-    public function prepare($prepareString);
+    public function prepare(string $sql) : Statement;
 
     /**
      * Executes an SQL statement, returning a result set as a Statement object.
      *
-     * @return Statement
-     *
      * @throws DBALException
      */
-    public function query(string $sql);
+    public function query(string $sql) : ResultStatement;
 
     /**
      * Quotes a string for use in a query.
@@ -46,11 +40,9 @@ interface Connection
     /**
      * Executes an SQL statement and return the number of affected rows.
      *
-     * @param string $statement
-     *
-     * @return int
+     * @throws DBALException
      */
-    public function exec($statement);
+    public function exec(string $statement) : int;
 
     /**
      * Returns the ID of the last inserted row or sequence value.

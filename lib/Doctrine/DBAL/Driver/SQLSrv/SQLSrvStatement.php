@@ -15,7 +15,6 @@ use const SQLSRV_FETCH_NUMERIC;
 use const SQLSRV_PARAM_IN;
 use function array_key_exists;
 use function count;
-use function func_get_args;
 use function in_array;
 use function is_numeric;
 use function sqlsrv_errors;
@@ -410,7 +409,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return sqlsrv_rows_affected($this->stmt);
     }
