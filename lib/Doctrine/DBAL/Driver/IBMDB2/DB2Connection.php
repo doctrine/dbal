@@ -3,7 +3,9 @@
 namespace Doctrine\DBAL\Driver\IBMDB2;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Driver\Statement as DriverStatement;
 use Doctrine\DBAL\ParameterType;
 use stdClass;
 use const DB2_AUTOCOMMIT_OFF;
@@ -75,7 +77,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function prepare($sql)
+    public function prepare(string $sql) : DriverStatement
     {
         $stmt = @db2_prepare($this->conn, $sql);
         if (! $stmt) {
@@ -88,7 +90,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function query(string $sql)
+    public function query(string $sql) : ResultStatement
     {
         $stmt = $this->prepare($sql);
         $stmt->execute();
@@ -113,7 +115,7 @@ class DB2Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function exec($statement)
+    public function exec(string $statement) : int
     {
         $stmt = @db2_exec($this->conn, $statement);
 

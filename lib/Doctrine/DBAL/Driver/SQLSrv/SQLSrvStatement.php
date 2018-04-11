@@ -416,7 +416,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         if ($this->stmt === null) {
             return 0;
