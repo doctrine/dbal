@@ -70,9 +70,7 @@ SQLDATA
             ),
             array("SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE '\\') AND (data.description LIKE :condition_1 ESCAPE '\\') ORDER BY id ASC", false, array(121 => 'condition_0', 173 => 'condition_1')),
             array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\") AND (data.description LIKE :condition_1 ESCAPE "\\") ORDER BY id ASC', false, array(121 => 'condition_0', 173 => 'condition_1')),
-            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE "\\") AND (data.description LIKE :condition_1 ESCAPE \'\\\') ORDER BY id ASC', false, array(121 => 'condition_0', 173 => 'condition_1')),
-            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE `\\`) AND (data.description LIKE :condition_1 ESCAPE `\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 173 => 'condition_1')),
-            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\') AND (data.description LIKE :condition_1 ESCAPE `\\`) ORDER BY id ASC', false, array(121 => 'condition_0', 173 => 'condition_1')),
+            array('SELECT data.age AS age, data.id AS id, data.name AS name, data.id AS id FROM test_data data WHERE (data.description LIKE :condition_0 ESCAPE \'\\\') AND (data.description LIKE :condition_1 ESCAPE \'\\\') ORDER BY id ASC', false, array(121 => 'condition_0', 173 => 'condition_1')),
 
         );
     }

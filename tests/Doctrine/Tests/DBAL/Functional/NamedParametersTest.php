@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Functional\Ticket;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Table;
 use const CASE_LOWER;
 use function array_change_key_case;
@@ -212,6 +213,58 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $result[$k] = array_change_key_case($v, CASE_LOWER);
         }
 
-        self::assertEquals($result, $expected);
+        self::assertEquals($expected, $result);
+    }
+
+    public function namedParametersAfterEscapeProvider()
+    {
+        return [
+            ["SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE '{{escape}}') OR (:param_1 LIKE :find ESCAPE '{{escape}}') LIMIT 1"],
+            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE \'{{escape}}\') OR (:param_1 LIKE :find ESCAPE "{{escape}}") LIMIT 1'],
+            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE "{{escape}}") OR (:param_1 LIKE :find ESCAPE \'{{escape}}\') LIMIT 1'],
+            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE "{{escape}}") OR (:param_1 LIKE :find ESCAPE "{{escape}}") LIMIT 1'],
+        ];
+    }
+
+    /**
+     * @dataProvider namedParametersAfterEscapeProvider
+     * @param string $query
+     */
+    public function testNamedParametersAfterEscapeFirstMatches($query)
+    {
+        $escapeChar = $this->_conn->getDatabasePlatform() instanceof SqlitePlatform ? '\\' : '\\\\';
+        $query = str_replace('{{escape}}', $escapeChar, $query);
+
+        $stmt = $this->_conn->executeQuery(
+            $query,
+            ['param_0' => 'bar', 'param_1' => 'foo', 'find' => '%a%'],
+            ['param_0' => 2, 'param_1' => 2, 'find' => 2]
+        );
+        $result = $stmt->fetchAll(FetchMode::COLUMN);
+
+        self::assertEquals([
+            1,
+        ], $result);
+    }
+
+    /**
+     * @dataProvider namedParametersAfterEscapeProvider
+     * @param string $query
+     */
+    public function testNamedParametersAfterEscapeSecondMatches($query)
+    {
+        $escapeChar = $this->_conn->getDatabasePlatform() instanceof SqlitePlatform ? '\\' : '\\\\';
+        $query = str_replace('{{escape}}', $escapeChar, $query);
+
+        $stmt = $this->_conn->executeQuery(
+            $query,
+            ['param_0' => 'bar', 'param_1' => 'foo', 'find' => '%o%'],
+            ['param_0' => 2, 'param_1' => 2, 'find' => 2]
+        );
+        $result = $stmt->fetchAll(FetchMode::COLUMN);
+
+        self::assertEquals([
+            1,
+        ], $result);
     }
 }
