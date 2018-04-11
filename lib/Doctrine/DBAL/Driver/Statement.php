@@ -100,5 +100,5 @@ interface Statement extends ResultStatement
      *
      * @return int The number of rows.
      */
-    public function rowCount();
+    public function rowCount() : int;
 }

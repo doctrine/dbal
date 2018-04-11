@@ -127,7 +127,7 @@ class PDOStatement implements IteratorAggregate, Statement
         }
     }
 
-    public function rowCount()
+    public function rowCount() : int
     {
         return $this->stmt->rowCount();
     }

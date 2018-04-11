@@ -344,7 +344,7 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return @db2_num_rows($this->stmt) ? : 0;
     }
