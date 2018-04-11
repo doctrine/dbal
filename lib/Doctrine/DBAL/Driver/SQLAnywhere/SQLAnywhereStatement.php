@@ -291,7 +291,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function rowCount()
+    public function rowCount() : int
     {
         return sasql_stmt_affected_rows($this->stmt);
     }
