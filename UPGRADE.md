@@ -61,7 +61,8 @@ The Doctrine\DBAL\Version class is no longer available: please refrain from chec
 ## BC BREAK: the PDO symbols are no longer part of the DBAL API
 
 1. The support of `PDO::PARAM_*`, `PDO::FETCH_*`, `PDO::CASE_*` and `PDO::PARAM_INPUT_OUTPUT` constants in the DBAL API is removed.
-2. `\Doctrine\DBAL\Driver\PDOStatement` does not extend `\PDOStatement` anymore.
+2. `\Doctrine\DBAL\Driver\PDOConnection` does not extend `\PDO` anymore. Please use `\Doctrine\DBAL\Driver\PDOConnection::getWrappedConnection()` to access the underlying `PDO` object.
+3. `\Doctrine\DBAL\Driver\PDOStatement` does not extend `\PDOStatement` anymore.
 
 Before:
 
