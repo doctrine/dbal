@@ -174,7 +174,7 @@ class SqlitePlatform extends AbstractPlatform
      */
     public function getDateDiffExpression($date1, $date2)
     {
-        return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
+        return sprintf("JULIANDAY(%s, 'start of day') - JULIANDAY(%s, 'start of day')", $date1, $date2);
     }
 
     /**
