@@ -220,51 +220,23 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function namedParametersAfterEscapeProvider()
     {
         return [
-            ["SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE '{{escape}}') OR (:param_1 LIKE :find ESCAPE '{{escape}}') LIMIT 1", false],
-            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE \'{{escape}}\') OR (:param_1 LIKE :find ESCAPE "{{escape}}") LIMIT 1', true],
-            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE "{{escape}}") OR (:param_1 LIKE :find ESCAPE \'{{escape}}\') LIMIT 1', true],
-            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE "{{escape}}") OR (:param_1 LIKE :find ESCAPE "{{escape}}") LIMIT 1', true],
+            [['param_0' => 'bar', 'param_1' => 'foo', 'find' => '%a%']],
+            [['param_0' => 'bar', 'param_1' => 'foo', 'find' => '%o%']],
         ];
     }
 
     /**
      * @dataProvider namedParametersAfterEscapeProvider
-     * @param string $query
-     * @param bool $ignorePostgres
+     * @param array $params
      */
-    public function testNamedParametersAfterEscapeFirstMatches($query, $ignorePostgres)
+    public function testNamedParametersAfterEscape(array $params)
     {
-        if ($ignorePostgres && $this->_conn->getDatabasePlatform() instanceof PostgreSqlPlatform) {
-            $this->markTestSkipped('PostgreSql uses double quotes for column names, therefor it is not a valid query');
-        }
-
-        $escapeChar = $this->_conn->getDatabasePlatform() instanceof SqlitePlatform || $this->_conn->getDatabasePlatform() instanceof PostgreSqlPlatform ? '\\' : '\\\\';
-        $query = str_replace('{{escape}}', $escapeChar, $query);
+        $escapeChar = $this->_conn->getDatabasePlatform()->quoteStringLiteral('\\');
+        $query = str_replace('{{escape}}', $escapeChar, "SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE {{escape}}) OR (:param_1 LIKE :find ESCAPE {{escape}}) LIMIT 1");
 
         $stmt = $this->_conn->executeQuery(
             $query,
-            ['param_0' => 'bar', 'param_1' => 'foo', 'find' => '%a%'],
-            ['param_0' => 2, 'param_1' => 2, 'find' => 2]
-        );
-        $result = $stmt->fetchAll(FetchMode::COLUMN);
-
-        self::assertEquals([
-            1,
-        ], $result);
-    }
-
-    /**
-     * @dataProvider namedParametersAfterEscapeProvider
-     * @param string $query
-     */
-    public function testNamedParametersAfterEscapeSecondMatches($query)
-    {
-        $escapeChar = $this->_conn->getDatabasePlatform() instanceof SqlitePlatform ? '\\' : '\\\\';
-        $query = str_replace('{{escape}}', $escapeChar, $query);
-
-        $stmt = $this->_conn->executeQuery(
-            $query,
-            ['param_0' => 'bar', 'param_1' => 'foo', 'find' => '%o%'],
+            $params,
             ['param_0' => 2, 'param_1' => 2, 'find' => 2]
         );
         $result = $stmt->fetchAll(FetchMode::COLUMN);
