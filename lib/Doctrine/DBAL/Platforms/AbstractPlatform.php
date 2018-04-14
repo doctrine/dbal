@@ -49,7 +49,9 @@ use function array_unique;
 use function array_values;
 use function count;
 use function explode;
+use function func_get_arg;
 use function func_get_args;
+use function func_num_args;
 use function get_class;
 use function implode;
 use function in_array;
@@ -3499,7 +3501,9 @@ abstract class AbstractPlatform
      */
     public function getDummySelectSQL()
     {
-        return 'SELECT 1';
+        $expression = func_num_args() > 0 ? func_get_arg(0) : '1';
+
+        return sprintf('SELECT %s', $expression);
     }
 
     /**
