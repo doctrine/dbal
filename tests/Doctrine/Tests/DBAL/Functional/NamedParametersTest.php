@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Functional\Ticket;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Platforms\PostgreSqlPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Table;
 use const CASE_LOWER;
@@ -219,20 +220,25 @@ class NamedParametersTest extends \Doctrine\Tests\DbalFunctionalTestCase
     public function namedParametersAfterEscapeProvider()
     {
         return [
-            ["SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE '{{escape}}') OR (:param_1 LIKE :find ESCAPE '{{escape}}') LIMIT 1"],
-            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE \'{{escape}}\') OR (:param_1 LIKE :find ESCAPE "{{escape}}") LIMIT 1'],
-            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE "{{escape}}") OR (:param_1 LIKE :find ESCAPE \'{{escape}}\') LIMIT 1'],
-            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE "{{escape}}") OR (:param_1 LIKE :find ESCAPE "{{escape}}") LIMIT 1'],
+            ["SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE '{{escape}}') OR (:param_1 LIKE :find ESCAPE '{{escape}}') LIMIT 1", false],
+            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE \'{{escape}}\') OR (:param_1 LIKE :find ESCAPE "{{escape}}") LIMIT 1', true],
+            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE "{{escape}}") OR (:param_1 LIKE :find ESCAPE \'{{escape}}\') LIMIT 1', true],
+            ['SELECT 1 FROM ddc1372_foobar WHERE (:param_0 LIKE :find ESCAPE "{{escape}}") OR (:param_1 LIKE :find ESCAPE "{{escape}}") LIMIT 1', true],
         ];
     }
 
     /**
      * @dataProvider namedParametersAfterEscapeProvider
      * @param string $query
+     * @param bool $ignorePostgres
      */
-    public function testNamedParametersAfterEscapeFirstMatches($query)
+    public function testNamedParametersAfterEscapeFirstMatches($query, $ignorePostgres)
     {
-        $escapeChar = $this->_conn->getDatabasePlatform() instanceof SqlitePlatform ? '\\' : '\\\\';
+        if ($ignorePostgres && $this->_conn->getDatabasePlatform() instanceof PostgreSqlPlatform) {
+            $this->markTestSkipped('PostgreSql uses double quotes for column names, therefor it is not a valid query');
+        }
+
+        $escapeChar = $this->_conn->getDatabasePlatform() instanceof SqlitePlatform || $this->_conn->getDatabasePlatform() instanceof PostgreSqlPlatform ? '\\' : '\\\\';
         $query = str_replace('{{escape}}', $escapeChar, $query);
 
         $stmt = $this->_conn->executeQuery(
