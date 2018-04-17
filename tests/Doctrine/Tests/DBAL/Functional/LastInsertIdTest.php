@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Tests\DbalFunctionalTestCase;
@@ -52,258 +53,138 @@ class LastInsertIdTest extends DbalFunctionalTestCase
         $this->assertSame('0', $this->testConnection->lastInsertId());
     }
 
-    public function testLastInsertIdExec() : void
-    {
-        $this->assertLastInsertId($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdPrepare() : void
-    {
-        $this->assertLastInsertId($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdQuery() : void
-    {
-        $this->assertLastInsertId($this->createQueryInsertExecutor());
-    }
-
-    private function assertLastInsertId(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertId(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
 
         $this->assertSame('1', $this->testConnection->lastInsertId());
     }
 
-    public function testLastInsertIdAfterUpdateExec() : void
-    {
-        $this->assertLastInsertIdAfterUpdate($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterUpdatePrepare() : void
-    {
-        $this->assertLastInsertIdAfterUpdate($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterUpdateQuery() : void
-    {
-        $this->assertLastInsertIdAfterUpdate($this->createQueryInsertExecutor());
-    }
-
-    private function assertLastInsertIdAfterUpdate(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdAfterUpdate(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
         $this->testConnection->update('last_insert_id_table', ['foo' => 2], ['id' => 1]);
 
         $this->assertSame('1', $this->testConnection->lastInsertId());
     }
 
-    public function testLastInsertIdAfterDeleteExec() : void
-    {
-        $this->assertLastInsertIdAfterDelete($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterDeletePrepare() : void
-    {
-        $this->assertLastInsertIdAfterDelete($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterDeleteQuery() : void
-    {
-        $this->assertLastInsertIdAfterDelete($this->createQueryInsertExecutor());
-    }
-
-    private function assertLastInsertIdAfterDelete(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdAfterDelete(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
         $this->testConnection->exec('DELETE FROM last_insert_id_table');
 
         $this->assertSame('1', $this->testConnection->lastInsertId());
     }
 
-    public function testLastInsertIdAfterTruncateExec() : void
-    {
-        $this->assertLastInsertIdAfterTruncate($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterTruncatePrepare() : void
-    {
-        $this->assertLastInsertIdAfterTruncate($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterTruncateQuery() : void
-    {
-        $this->assertLastInsertIdAfterTruncate($this->createQueryInsertExecutor());
-    }
-
-    private function assertLastInsertIdAfterTruncate(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdAfterTruncate(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
         $truncateTableSql = $this->testConnection->getDatabasePlatform()->getTruncateTableSQL('last_insert_id_table');
         $this->testConnection->exec($truncateTableSql);
 
         $this->assertSame('1', $this->testConnection->lastInsertId());
     }
 
-    public function testLastInsertIdAfterDropTableExec() : void
-    {
-        $this->assertLastInsertIdAfterDropTable($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterDropTablePrepare() : void
-    {
-        $this->assertLastInsertIdAfterDropTable($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterDropTableQuery() : void
-    {
-        $this->assertLastInsertIdAfterDropTable($this->createQueryInsertExecutor());
-    }
-
-    private function assertLastInsertIdAfterDropTable(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdAfterDropTable(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
         $this->createTable('last_insert_id_table_tmp');
 
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
         $this->testConnection->getSchemaManager()->dropTable('last_insert_id_table_tmp');
 
         $this->assertSame('1', $this->testConnection->lastInsertId());
     }
 
-    public function testLastInsertIdAfterSelectExec() : void
-    {
-        $this->assertLastInsertIdAfterSelect($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterSelectPrepare() : void
-    {
-        $this->assertLastInsertIdAfterSelect($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterSelectQuery() : void
-    {
-        $this->assertLastInsertIdAfterSelect($this->createQueryInsertExecutor());
-    }
-
-    private function assertLastInsertIdAfterSelect(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdAfterSelect(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
         $this->testConnection->executeQuery('SELECT 1 FROM last_insert_id_table');
 
         $this->assertSame('1', $this->testConnection->lastInsertId());
     }
 
-    public function testLastInsertIdInTransactionExec() : void
-    {
-        $this->assertLastInsertIdInTransaction($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdInTransactionPrepare() : void
-    {
-        $this->assertLastInsertIdInTransaction($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdInTransactionQuery() : void
-    {
-        $this->assertLastInsertIdInTransaction($this->createQueryInsertExecutor());
-    }
-
-    public function assertLastInsertIdInTransaction(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdInTransaction(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
         $this->testConnection->beginTransaction();
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
         $this->assertSame('1', $this->testConnection->lastInsertId());
         $this->testConnection->rollBack();
     }
 
-    public function testLastInsertIdAfterTransactionCommitExec() : void
-    {
-        $this->assertLastInsertIdAfterTransactionCommit($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterTransactionCommitPrepare() : void
-    {
-        $this->assertLastInsertIdAfterTransactionCommit($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterTransactionCommitQuery() : void
-    {
-        $this->assertLastInsertIdAfterTransactionCommit($this->createQueryInsertExecutor());
-    }
-
-    private function assertLastInsertIdAfterTransactionCommit(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdAfterTransactionCommit(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
         $this->testConnection->beginTransaction();
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
         $this->testConnection->commit();
 
         $this->assertSame('1', $this->testConnection->lastInsertId());
     }
 
-    public function testLastInsertIdAfterTransactionRollbackExec() : void
-    {
-        $this->assertLastInsertIdAfterTransactionRollback($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterTransactionRollbackPrepare() : void
-    {
-        $this->assertLastInsertIdAfterTransactionRollback($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdAfterTransactionRollbackQuery() : void
-    {
-        $this->assertLastInsertIdAfterTransactionRollback($this->createQueryInsertExecutor());
-    }
-
-    private function assertLastInsertIdAfterTransactionRollback(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdAfterTransactionRollback(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
         $this->testConnection->beginTransaction();
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
         $this->testConnection->rollBack();
 
         $this->assertSame('1', $this->testConnection->lastInsertId());
     }
 
-    public function testLastInsertIdInsertAfterTransactionRollbackExec() : void
-    {
-        $this->assertLastInsertIdInsertAfterTransactionRollback($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdInsertAfterTransactionRollbackPrepare() : void
-    {
-        $this->assertLastInsertIdInsertAfterTransactionRollback($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdInsertAfterTransactionRollbackQuery() : void
-    {
-        $this->assertLastInsertIdInsertAfterTransactionRollback($this->createQueryInsertExecutor());
-    }
-
-    private function assertLastInsertIdInsertAfterTransactionRollback(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdInsertAfterTransactionRollback(callable $insertExecutor) : void
     {
         $this->ensurePlatformSupportsIdentityColumns();
 
         $this->testConnection->beginTransaction();
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
         $this->testConnection->rollBack();
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
 
         $expected = $this->testConnection->getDatabasePlatform()->getName() === 'sqlite'
             // SQLite has a different transaction concept, that reuses rolled back IDs
@@ -380,31 +261,10 @@ class LastInsertIdTest extends DbalFunctionalTestCase
         $this->assertEquals($lastInsertId, $nextSequenceValue);
     }
 
-    public function testLastInsertIdSequenceEmulatedIdentityColumnExec() : void
-    {
-        $this->assertLastInsertIdSequenceEmulatedIdentityColumn($this->createExecInsertExecutor());
-    }
-
-    public function testLastInsertIdSequenceEmulatedIdentityColumnPrepare() : void
-    {
-        $this->assertLastInsertIdSequenceEmulatedIdentityColumn($this->createPrepareInsertExecutor());
-    }
-
-    public function testLastInsertIdSequenceEmulatedIdentityColumnQuery() : void
-    {
-        $this->assertLastInsertIdSequenceEmulatedIdentityColumn($this->createQueryInsertExecutor());
-    }
-
-    private function ensurePlatformSupportsIdentityColumns() : void
-    {
-        if ($this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
-            return;
-        }
-
-        $this->markTestSkipped('Test only works on platforms with identity columns.');
-    }
-
-    private function assertLastInsertIdSequenceEmulatedIdentityColumn(callable $insertExecutor) : void
+    /**
+     * @dataProvider executorProvider
+     */
+    public function testLastInsertIdSequenceEmulatedIdentityColumn(callable $insertExecutor) : void
     {
         $platform = $this->_conn->getDatabasePlatform();
 
@@ -416,33 +276,45 @@ class LastInsertIdTest extends DbalFunctionalTestCase
 
         $this->assertSame('0', $this->_conn->lastInsertId($sequenceName));
 
-        $insertExecutor();
+        $insertExecutor($this->testConnection->getWrappedConnection());
 
         $this->assertSame('1', $this->_conn->lastInsertId($sequenceName));
     }
 
-    private function createExecInsertExecutor() : callable
+    private function ensurePlatformSupportsIdentityColumns() : void
     {
-        return function () {
-            $this->testConnection->getWrappedConnection()->exec('INSERT INTO last_insert_id_table (foo) VALUES (1)');
-        };
+        if ($this->_conn->getDatabasePlatform()->supportsIdentityColumns()) {
+            return;
+        }
+
+        $this->markTestSkipped('Test only works on platforms with identity columns.');
     }
 
-    private function createPrepareInsertExecutor() : callable
+    public static function executorProvider()
     {
-        return function () {
-            $stmt = $this->testConnection->getWrappedConnection()->prepare(
-                'INSERT INTO last_insert_id_table (foo) VALUES (?)'
-            );
-
-            $stmt->execute([1]);
-        };
+        foreach (self::getExecutors() as $name => $executor) {
+            yield $name => [$executor];
+        }
     }
 
-    private function createQueryInsertExecutor() : callable
+    private static function getExecutors()
     {
-        return function () {
-            $this->testConnection->getWrappedConnection()->query('INSERT INTO last_insert_id_table (foo) VALUES (1)');
-        };
+        return [
+            'exec' => function (DriverConnection $connection) {
+                $connection->exec(
+                    'INSERT INTO last_insert_id_table (foo) VALUES (1)'
+                );
+            },
+            'prepare-insert' => function (DriverConnection $connection) {
+                $connection->prepare(
+                    'INSERT INTO last_insert_id_table (foo) VALUES (?)'
+                )->execute([1]);
+            },
+            'query-insert' => function (DriverConnection $connection) {
+                $connection->query(
+                    'INSERT INTO last_insert_id_table (foo) VALUES (1)'
+                );
+            },
+        ];
     }
 }
