@@ -31,8 +31,8 @@ use function func_get_args;
  */
 class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
 {
-    /** @var string */
-    private $lastInsertId = '0';
+    /** @var LastInsertId */
+    private $lastInsertId;
 
     /**
      * @param string      $dsn
@@ -97,6 +97,7 @@ class PDOConnection extends PDO implements Connection, ServerInfoAwareConnection
     public function query()
     {
         try {
+            /** @var PDOStatement $stmt */
             $stmt = parent::query(...func_get_args());
 
             $this->trackLastInsertId();
