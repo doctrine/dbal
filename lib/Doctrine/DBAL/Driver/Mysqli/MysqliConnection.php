@@ -19,9 +19,11 @@
 
 namespace Doctrine\DBAL\Driver\Mysqli;
 
-use Doctrine\DBAL\Driver\Connection as Connection;
+use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\LastInsertId;
 use Doctrine\DBAL\Driver\PingableConnection;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
 use function defined;
 use function floor;
@@ -53,13 +55,16 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
      */
     private $_conn;
 
+    /** @var LastInsertId */
+    private $lastInsertId;
+
     /**
      * @param array  $params
      * @param string $username
      * @param string $password
      * @param array  $driverOptions
      *
-     * @throws \Doctrine\DBAL\Driver\Mysqli\MysqliException
+     * @throws MysqliException
      */
     public function __construct(array $params, $username, $password, array $driverOptions = [])
     {
@@ -92,6 +97,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
         if (isset($params['charset'])) {
             $this->_conn->set_charset($params['charset']);
         }
+
+        $this->lastInsertId = new LastInsertId();
     }
 
     /**
@@ -137,10 +144,12 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
     /**
      * {@inheritdoc}
+     *
+     * @throws MysqliException
      */
-    public function prepare($prepareString)
+    public function prepare($prepareString) : Statement
     {
-        return new MysqliStatement($this->_conn, $prepareString);
+        return new MysqliStatement($this->_conn, $prepareString, $this->lastInsertId);
     }
 
     /**
@@ -166,6 +175,8 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
 
     /**
      * {@inheritdoc}
+     *
+     * @throws MysqliException
      */
     public function exec($statement)
     {
@@ -173,15 +184,17 @@ class MysqliConnection implements Connection, PingableConnection, ServerInfoAwar
             throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
         }
 
+        $this->lastInsertId->register((string) $this->_conn->insert_id);
+
         return $this->_conn->affected_rows;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId($name = null) : string
     {
-        return $this->_conn->insert_id;
+        return $this->lastInsertId->get();
     }
 
     /**

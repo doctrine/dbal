@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\DBAL\Functional\Ticket;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\ParameterType;
 use PDO;
 use function in_array;
@@ -38,7 +39,9 @@ class DBAL630Test extends \Doctrine\Tests\DbalFunctionalTestCase
     protected function tearDown()
     {
         if ($this->running) {
-            $this->_conn->getWrappedConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            /** @var PDOConnection $conn */
+            $conn = $this->_conn->getWrappedConnection();
+            $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         }
 
         parent::tearDown();

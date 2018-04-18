@@ -3,6 +3,7 @@
 namespace Doctrine\Tests;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\Assert;
 use function explode;
@@ -78,25 +79,27 @@ class TestUtil
         );
     }
 
-    private static function getSpecifiedConnectionParams() {
+    /**
+     * @return string[]
+     * @throws DBALException
+     */
+    private static function getSpecifiedConnectionParams() : array
+    {
         $realDbParams = self::getParamsForMainConnection();
         $tmpDbParams = self::getParamsForTemporaryConnection();
 
         $realConn = DriverManager::getConnection($realDbParams);
 
-        // Connect to tmpdb in order to drop and create the real test db.
-        $tmpConn = DriverManager::getConnection($tmpDbParams);
-
-        $platform  = $tmpConn->getDatabasePlatform();
-
         if (! self::$initialized) {
+            // Connect to the temporary DB in order to drop and create the real test one
+            $tmpConn  = DriverManager::getConnection($tmpDbParams);
+            $platform = $tmpConn->getDatabasePlatform();
+
             if ($platform->supportsCreateDropDatabase()) {
                 $dbname = $realConn->getDatabase();
                 $realConn->close();
 
                 $tmpConn->getSchemaManager()->dropAndCreateDatabase($dbname);
-
-                $tmpConn->close();
             } else {
                 $sm = $realConn->getSchemaManager();
 
@@ -107,6 +110,8 @@ class TestUtil
                     $realConn->exec($stmt);
                 }
             }
+
+            $tmpConn->close();
 
             self::$initialized = true;
         }

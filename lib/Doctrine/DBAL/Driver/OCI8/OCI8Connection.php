@@ -163,21 +163,22 @@ class OCI8Connection implements Connection, ServerInfoAwareConnection
     /**
      * {@inheritdoc}
      */
-    public function lastInsertId($name = null)
+    public function lastInsertId($name = null) : string
     {
         if ($name === null) {
-            return false;
+            return '0';
         }
 
-        $sql    = 'SELECT ' . $name . '.CURRVAL FROM DUAL';
-        $stmt   = $this->query($sql);
-        $result = $stmt->fetchColumn();
-
-        if ($result === false) {
-            throw new OCI8Exception("lastInsertId failed: Query was executed but no result was returned.");
+        try {
+            $stmt = $this->prepare('SELECT ' . $name . '.CURRVAL FROM DUAL');
+            $stmt->execute();
+        } catch (OCI8Exception $exception) {
+            // In case no sequence value is available yet, we get the error:
+            // ORA-08002: sequence $name.CURRVAL is not yet defined in this session
+            return '0';
         }
 
-        return (int) $result;
+        return (string) $stmt->fetchColumn();
     }
 
     /**
