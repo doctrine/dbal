@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL\Driver;
 
+use InvalidArgumentException;
 use Traversable;
 
 /**
@@ -20,10 +21,10 @@ interface ResultStatement extends Traversable
      * Returns the number of columns in the result set
      *
      * @return int The number of columns in the result set represented
-     *                 by the PDOStatement object. If there is no result set,
-     *                 this method should return 0.
+     *             by the object. If there is no result set,
+     *             this method should return 0.
      */
-    public function columnCount();
+    public function columnCount() : int;
 
     /**
      * Returns the number of rows affected by the last DELETE, INSERT, or UPDATE statement
@@ -42,6 +43,9 @@ interface ResultStatement extends Traversable
      * @param int   $fetchMode Controls how the next row will be returned to the caller.
      *                         The value must be one of the {@link \Doctrine\DBAL\FetchMode} constants.
      * @param mixed ...$args   Optional mode-specific arguments (see {@link self::fetchAll()}).
+     *
+     * @throws DriverException
+     * @throws InvalidArgumentException
      */
     public function setFetchMode($fetchMode, ...$args) : void;
 
@@ -55,6 +59,9 @@ interface ResultStatement extends Traversable
      *
      * @return mixed The return value of this method on success depends on the fetch mode. In all cases, FALSE is
      *               returned on failure.
+     *
+     * @throws DriverException
+     * @throws InvalidArgumentException
      */
     public function fetch($fetchMode = null, ...$args);
 
@@ -72,8 +79,11 @@ interface ResultStatement extends Traversable
      *                              2. Array of constructor arguments
      *
      * @return mixed[]
+     *
+     * @throws InvalidArgumentException
+     * @throws DriverException
      */
-    public function fetchAll($fetchMode = null, ...$args);
+    public function fetchAll($fetchMode = null, ...$args) : array;
 
     /**
      * Returns a single column from the next row of a result set or FALSE if there are no more rows.
@@ -82,6 +92,8 @@ interface ResultStatement extends Traversable
      *                         If no value is supplied, fetches the first column.
      *
      * @return mixed|false A single column in the next row of a result set, or FALSE if there are no more rows.
+     *
+     * @throws DriverException
      */
     public function fetchColumn($columnIndex = 0);
 }

@@ -75,7 +75,7 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->stmt->columnCount();
     }
@@ -150,7 +150,7 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
 

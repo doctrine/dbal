@@ -66,8 +66,10 @@ class Statement implements IteratorAggregate, DriverStatement
      *
      * @param string     $sql  The SQL of the statement.
      * @param Connection $conn The connection on which the statement should be executed.
+     *
+     * @throws DBALException
      */
-    public function __construct($sql, Connection $conn)
+    public function __construct(string $sql, Connection $conn)
     {
         $this->sql      = $sql;
         $this->stmt     = $conn->getWrappedConnection()->prepare($sql);
@@ -134,6 +136,7 @@ class Statement implements IteratorAggregate, DriverStatement
      * {@inheritDoc}
      *
      * @throws DBALException
+     * @throws DriverException
      */
     public function execute($params = null) : void
     {
@@ -170,11 +173,9 @@ class Statement implements IteratorAggregate, DriverStatement
     }
 
     /**
-     * Returns the number of columns in the result set.
-     *
-     * @return int
+     * {@inheritDoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->stmt->columnCount();
     }
@@ -226,7 +227,7 @@ class Statement implements IteratorAggregate, DriverStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         return $this->stmt->fetchAll($fetchMode, ...$args);
     }

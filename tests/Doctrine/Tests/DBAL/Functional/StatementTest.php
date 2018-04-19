@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\Tests\DBAL\Functional;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\DriverException;
 use Doctrine\DBAL\Driver\PDOConnection;
 use Doctrine\DBAL\Driver\PDOOracle\Driver as PDOOracleDriver;
 use Doctrine\DBAL\Driver\Statement;
@@ -230,16 +231,20 @@ EOF
     }
 
     /**
-     * @dataProvider emptyFetchProvider
+     * @dataProvider fetchProvider
      */
-    public function testFetchFromNonExecutedStatement(callable $fetch, $expected)
+    public function testFetchFromNonExecutedStatement(callable $fetch)
     {
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
 
-        self::assertSame($expected, $fetch($stmt));
+        self::expectException(DriverException::class);
+        $fetch($stmt);
     }
 
-    public function testCloseCursorOnNonExecutedStatement()
+    /**
+     * @dataProvider fetchProvider
+     */
+    public function testCloseCursorOnNonExecutedStatement(callable $fetch)
     {
         $this->expectNotToPerformAssertions();
 
@@ -258,6 +263,11 @@ EOF
         $stmt = $this->connection->prepare('SELECT name FROM stmt_test');
 
         $stmt->execute();
+        self::assertFalse($stmt->fetch());
+
+        $stmt->closeCursor();
+
+        self::expectException(DriverException::class);
         $stmt->fetch();
 
         $stmt->closeCursor();
@@ -273,20 +283,21 @@ EOF
     }
 
     /**
-     * @dataProvider emptyFetchProvider
+     * @dataProvider fetchProvider
      */
-    public function testFetchFromNonExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    public function testFetchFromNonExecutedStatementWithClosedCursor(callable $fetch)
     {
         $stmt = $this->connection->prepare('SELECT id FROM stmt_test');
         $stmt->closeCursor();
 
-        self::assertSame($expected, $fetch($stmt));
+        self::expectException(DriverException::class);
+        $fetch($stmt);
     }
 
     /**
-     * @dataProvider emptyFetchProvider
+     * @dataProvider fetchProvider
      */
-    public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch, $expected)
+    public function testFetchFromExecutedStatementWithClosedCursor(callable $fetch)
     {
         $this->connection->insert('stmt_test', ['id' => 1]);
 
@@ -294,29 +305,40 @@ EOF
         $stmt->execute();
         $stmt->closeCursor();
 
-        self::assertSame($expected, $fetch($stmt));
+        self::expectException(DriverException::class);
+        $fetch($stmt);
     }
 
-    public static function emptyFetchProvider()
+    /**
+     * @dataProvider fetchProvider
+     */
+    public function testFetchBeforeExecute(callable $fetch) : void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        $query    = $platform->getDummySelectSQL();
+        $stmt     = $this->connection->prepare($query);
+
+        self::expectException(DriverException::class);
+        $fetch($stmt);
+    }
+
+    public static function fetchProvider()
     {
         return [
             'fetch' => [
                 static function (Statement $stmt) {
                     return $stmt->fetch();
                 },
-                false,
             ],
             'fetch-column' => [
                 static function (Statement $stmt) {
                     return $stmt->fetchColumn();
                 },
-                false,
             ],
             'fetch-all' => [
                 static function (Statement $stmt) {
                     return $stmt->fetchAll();
                 },
-                [],
             ],
         ];
     }

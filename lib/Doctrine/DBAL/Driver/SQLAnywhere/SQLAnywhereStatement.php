@@ -72,7 +72,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      *
      * @throws SQLAnywhereException
      */
-    public function __construct($conn, $sql)
+    public function __construct($conn, string $sql)
     {
         if (! is_resource($conn)) {
             throw new SQLAnywhereException('Invalid SQL Anywhere connection resource: ' . $conn);
@@ -133,13 +133,13 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
      */
     public function closeCursor() : void
     {
-        sasql_stmt_reset($this->stmt);
+         sasql_stmt_reset($this->stmt);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return sasql_stmt_field_count($this->stmt);
     }
@@ -188,13 +188,11 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
 
     /**
      * {@inheritdoc}
-     *
-     * @throws SQLAnywhereException
      */
     public function fetch($fetchMode = null, ...$args)
     {
         if (! is_resource($this->result)) {
-            return false;
+            throw new SQLAnywhereException('The statement does not contain a result to be fetched');
         }
 
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
@@ -240,7 +238,7 @@ class SQLAnywhereStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         $rows = [];
 

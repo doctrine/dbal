@@ -54,7 +54,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->columnCount;
     }
@@ -127,7 +127,7 @@ class ArrayStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         $rows = [];
         while ($row = $this->fetch($fetchMode, ...$args)) {

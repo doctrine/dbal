@@ -160,7 +160,7 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return db2_num_fields($this->stmt) ?: 0;
     }
@@ -209,7 +209,7 @@ class DB2Statement implements IteratorAggregate, Statement
             $this->writeStringToStream($source, $target);
         }
 
-        $retval = db2_execute($this->stmt, $params);
+        $result = db2_execute($this->stmt, $params);
 
         foreach ($this->lobs as [, $handle]) {
             fclose($handle);
@@ -217,7 +217,7 @@ class DB2Statement implements IteratorAggregate, Statement
 
         $this->lobs = [];
 
-        if ($retval === false) {
+        if ($result === false) {
             throw new DB2Exception(db2_stmt_errormsg());
         }
 
@@ -255,10 +255,8 @@ class DB2Statement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null, ...$args)
     {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
         if (! $this->result) {
-            return false;
+            throw new DB2Exception('The statement does not contain a result to be fetched');
         }
 
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
@@ -303,7 +301,7 @@ class DB2Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         $rows = [];
 

@@ -129,9 +129,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
 
     /**
      * @param resource $conn
-     * @param string   $sql
      */
-    public function __construct($conn, $sql, ?LastInsertId $lastInsertId = null)
+    public function __construct($conn, string $sql, ?LastInsertId $lastInsertId = null)
     {
         $this->conn = $conn;
         $this->sql  = $sql;
@@ -198,7 +197,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         if ($this->stmt === null) {
             return 0;
@@ -340,10 +339,8 @@ class SQLSrvStatement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null, ...$args)
     {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
         if ($this->stmt === null || ! $this->result) {
-            return false;
+            throw new SQLSrvException('The statement does not contain a result to be fetched');
         }
 
         $fetchMode = $fetchMode ?: $this->defaultFetchMode;
@@ -374,7 +371,7 @@ class SQLSrvStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         $rows = [];
 

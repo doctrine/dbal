@@ -98,7 +98,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->statement->columnCount();
     }
@@ -164,7 +164,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         $this->data    = $this->statement->fetchAll($fetchMode, ...$args);
         $this->emptied = true;

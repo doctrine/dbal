@@ -96,14 +96,16 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * Creates a new OCI8Statement that uses the given connection handle and SQL statement.
      *
-     * @param resource $dbh   The connection handle.
-     * @param string   $query The SQL query.
+     * @param resource $dbh The connection handle.
+     * @param string   $sql The SQL statement.
+     *
+     * @throws OCI8Exception
      */
-    public function __construct($dbh, $query, OCI8Connection $conn)
+    public function __construct($dbh, string $sql, OCI8Connection $conn)
     {
-        [$query, $paramMap] = self::convertPositionalToNamedPlaceholders($query);
+        [$sql, $paramMap] = self::convertPositionalToNamedPlaceholders($sql);
 
-        $stmt = oci_parse($dbh, $query);
+        $stmt = oci_parse($dbh, $sql);
         assert(is_resource($stmt));
 
         $this->_sth      = $stmt;
@@ -268,7 +270,7 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function bindValue($param, $value, $type = ParameterType::STRING) : void
     {
-        $this->bindParam($param, $value, $type, null);
+        $this->bindParam($param, $value, $type);
     }
 
     /**
@@ -337,7 +339,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return oci_num_fields($this->_sth) ?: 0;
     }
@@ -388,8 +390,7 @@ class OCI8Statement implements IteratorAggregate, Statement
             }
         }
 
-        $ret = @oci_execute($this->_sth, $this->_conn->getExecuteMode());
-        if (! $ret) {
+        if (! @oci_execute($this->_sth, $this->_conn->getExecuteMode())) {
             throw OCI8Exception::fromErrorInfo(oci_error($this->_sth));
         }
 
@@ -417,10 +418,8 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null, ...$args)
     {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
         if (! $this->result) {
-            return false;
+            throw new OCI8Exception('The statement does not contain a result to be fetched');
         }
 
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
@@ -446,7 +445,7 @@ class OCI8Statement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
@@ -475,10 +474,8 @@ class OCI8Statement implements IteratorAggregate, Statement
                 $fetchStructure = OCI_FETCHSTATEMENT_BY_COLUMN;
             }
 
-            // do not try fetching from the statement if it's not expected to contain result
-            // in order to prevent exceptional situation
             if (! $this->result) {
-                return [];
+                throw new OCI8Exception('The statement does not contain a result to be fetched');
             }
 
             oci_fetch_all(
@@ -502,10 +499,8 @@ class OCI8Statement implements IteratorAggregate, Statement
      */
     public function fetchColumn($columnIndex = 0)
     {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
         if (! $this->result) {
-            return false;
+            throw new OCI8Exception('The statement does not contain a result to be fetched');
         }
 
         $row = oci_fetch_array($this->_sth, OCI_NUM | OCI_RETURN_NULLS | OCI_RETURN_LOBS);

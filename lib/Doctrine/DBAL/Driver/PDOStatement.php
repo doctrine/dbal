@@ -108,7 +108,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->stmt->columnCount();
     }
@@ -170,7 +170,7 @@ class PDOStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         try {
             if ($fetchMode === null) {

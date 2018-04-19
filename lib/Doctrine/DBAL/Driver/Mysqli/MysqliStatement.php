@@ -76,15 +76,13 @@ class MysqliStatement implements IteratorAggregate, Statement
     private $result = false;
 
     /**
-     * @param string $prepareString
-     *
      * @throws MysqliException
      */
-    public function __construct(mysqli $conn, $prepareString)
+    public function __construct(mysqli $conn, string $sql)
     {
         $this->_conn = $conn;
 
-        $stmt = $conn->prepare($prepareString);
+        $stmt = $conn->prepare($sql);
 
         if ($stmt === false) {
             throw new MysqliException($this->_conn->error, $this->_conn->sqlstate, $this->_conn->errno);
@@ -303,10 +301,8 @@ class MysqliStatement implements IteratorAggregate, Statement
      */
     public function fetch($fetchMode = null, ...$args)
     {
-        // do not try fetching from the statement if it's not expected to contain result
-        // in order to prevent exceptional situation
         if (! $this->result) {
-            return false;
+            throw new MysqliException('The statement does not contain a result to be fetched');
         }
 
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
@@ -351,7 +347,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null, ...$args)
+    public function fetchAll($fetchMode = null, ...$args) : array
     {
         $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
 
@@ -428,7 +424,7 @@ class MysqliStatement implements IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function columnCount()
+    public function columnCount() : int
     {
         return $this->_stmt->field_count;
     }
