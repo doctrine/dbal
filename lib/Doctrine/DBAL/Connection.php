@@ -1448,7 +1448,7 @@ class Connection implements DriverConnection
      *
      * @param DriverStatement $stmt   The statement to bind the values to.
      * @param mixed[]         $params The map/list of named/positional parameters.
-     * @param int[]|string[]  $types  The parameter types (PDO binding types or DBAL mapping types).
+     * @param int[]|string[]  $types  The parameter types.
      */
     private function _bindTypedValues(DriverStatement $stmt, array $params, array $types) : void
     {
