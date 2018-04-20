@@ -885,7 +885,7 @@ class Connection implements DriverConnection
      *
      * @param string                 $query  The SQL query to execute.
      * @param mixed[]                $params The parameters to bind to the query, if any.
-     * @param (int|string|Type)[]    $types  The types the previous parameters are in.
+     * @param int[]|string[]|Type[]  $types  The types the previous parameters are in.
      * @param QueryCacheProfile|null $qcp    The query cache profile, optional.
      *
      * @return ResultStatement The executed statement.
@@ -931,10 +931,10 @@ class Connection implements DriverConnection
     /**
      * Executes a caching query.
      *
-     * @param string              $query  The SQL query to execute.
-     * @param mixed[]             $params The parameters to bind to the query, if any.
-     * @param (int|string)|Type[] $types  The types the previous parameters are in.
-     * @param QueryCacheProfile   $qcp    The query cache profile.
+     * @param string                $query  The SQL query to execute.
+     * @param mixed[]               $params The parameters to bind to the query, if any.
+     * @param int[]|string[]|Type[] $types  The types the previous parameters are in.
+     * @param QueryCacheProfile     $qcp    The query cache profile.
      *
      * @return ResultStatement
      *
@@ -1023,9 +1023,9 @@ class Connection implements DriverConnection
      *
      * This method supports PDO binding types as well as DBAL mapping types.
      *
-     * @param string              $query  The SQL query.
-     * @param mixed[]             $params The query parameters.
-     * @param (int|string|Type)[] $types  The parameter types.
+     * @param string                $query  The SQL query.
+     * @param mixed[]               $params The query parameters.
+     * @param int[]|string[]|Type[] $types  The parameter types.
      *
      * @throws DBALException
      */
@@ -1467,9 +1467,9 @@ class Connection implements DriverConnection
      * Binds a set of parameters, some or all of which are typed with a PDO binding type
      * or DBAL mapping type, to a given statement.
      *
-     * @param DriverStatement     $stmt   The statement to bind the values to.
-     * @param mixed[]             $params The map/list of named/positional parameters.
-     * @param (int|string|Type)[] $types  The parameter types.
+     * @param DriverStatement       $stmt   The statement to bind the values to.
+     * @param mixed[]               $params The map/list of named/positional parameters.
+     * @param int[]|string[]|Type[] $types  The parameter types.
      */
     private function _bindTypedValues(DriverStatement $stmt, array $params, array $types) : void
     {
