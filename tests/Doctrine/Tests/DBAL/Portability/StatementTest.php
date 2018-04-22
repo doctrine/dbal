@@ -6,6 +6,7 @@ use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Portability\Connection;
 use Doctrine\DBAL\Portability\Statement;
+use function iterator_to_array;
 
 class StatementTest extends \Doctrine\Tests\DbalTestCase
 {
@@ -141,16 +142,11 @@ class StatementTest extends \Doctrine\Tests\DbalTestCase
 
     public function testGetIterator()
     {
-        $data = array(
-            'foo' => 'bar',
-            'bar' => 'foo'
-        );
+        $this->wrappedStmt->expects($this->exactly(3))
+            ->method('fetch')
+            ->willReturnOnConsecutiveCalls('foo', 'bar', false);
 
-        $this->wrappedStmt->expects($this->once())
-            ->method('fetchAll')
-            ->will($this->returnValue($data));
-
-        self::assertEquals(new \ArrayIterator($data), $this->stmt->getIterator());
+        self::assertSame(['foo', 'bar'], iterator_to_array($this->stmt->getIterator()));
     }
 
     public function testRowCount()
