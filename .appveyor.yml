@@ -4,13 +4,15 @@ platform:
 #matrix:
 #  fast_finish: true # kills the build at the first failure
 clone_folder: C:\projects\dbal
-clone_depth: 1
+clone_depth: 2
 
 cache:
   - C:\ProgramData\chocolatey\bin -> .appveyor.yml
   - C:\ProgramData\chocolatey\lib -> .appveyor.yml
   - C:\tools\php -> .appveyor.yml
   - composer.phar
+  - ocular.phar
+  - cacert.pem
   - '%LOCALAPPDATA%\Composer\files'
   #- vendor
 
@@ -20,19 +22,23 @@ environment:
   - db: mssql
     driver: sqlsrv
     db_version: sql2008r2sp2
+    coverage: yes
     php: 7.2
   - db: mssql
     driver: sqlsrv
     db_version: sql2012sp1
     php: 7.2
+    coverage: yes
   - db: mssql
     driver: sqlsrv
     db_version: sql2017
+    coverage: no
     php: 7.2
   - db: mssql
     driver: pdo_sqlsrv
     db_version: sql2017
     php: 7.2
+    coverage: yes
 
 init:
   - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;%PATH%
@@ -59,6 +65,7 @@ install:
           Add-Content php.ini "`n extension=php_fileinfo.dll"
           Add-Content php.ini "`n extension=php_pdo_sqlite.dll"
           Add-Content php.ini "`n extension=php_sqlite3.dll"
+          Add-Content php.ini "`n extension=php_curl.dll"
 
           # Get and install the MSSQL DLL's
           $DLLVersion = "5.2.0rc1"
@@ -71,16 +78,29 @@ install:
           $destination = "c:\tools\php\ext\php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip"
           Invoke-WebRequest $source -OutFile $destination
           7z x -y php_pdo_sqlsrv-$($DLLVersion)-$($env:php)-nts-vc15-x64.zip > $null
+          $DLLVersion = "2.6.0"
+          $source = "https://xdebug.org/files/php_xdebug-$($DLLVersion)-$($env:php)-vc15-nts-x86_64.dll"
+          $destination = "c:\tools\php\ext\php_xdebug.dll"
+          Invoke-WebRequest $source -OutFile $destination
           Remove-Item c:\tools\php\* -include .zip
           cd c:\tools\php
           Add-Content php.ini "`nextension=php_sqlsrv.dll"
           Add-Content php.ini "`nextension=php_pdo_sqlsrv.dll"
+          Add-Content php.ini "`nzend_extension=php_xdebug.dll"
           Add-Content php.ini "`n"
 
           cd c:\projects\dbal
 
           if (!(Test-Path c:\projects\dbal\composer.phar)) {
             appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar
+          }
+
+          if (!(Test-Path c:\projects\dbal\ocular.phar)) {
+            appveyor-retry appveyor DownloadFile https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
+          }
+
+          if (!(Test-Path c:\projects\dbal\cacert.pem)) {
+              appveyor-retry appveyor DownloadFile https://curl.haxx.se/ca/cacert.pem
           }
         }
     # install composer dependencies
@@ -100,8 +120,14 @@ test_script:
   - cd C:\projects\dbal
   - ps: >-
       if ($env:db_version) {
-        vendor\bin\phpunit -c tests\appveyor\%db%.%db_version%.%driver%.appveyor.xml
+        $env:phpunit_config = "tests\appveyor\$($env:db).$($env:db_version).$($env:driver).appveyor.xml"
+      } else {
+        $env:phpunit_config = "tests\appveyor\$($env:db).$($env:driver).appveyor.xml"
       }
-      else {
-        vendor\bin\phpunit -c tests\appveyor\%db%.%driver%.appveyor.xml
+  - ps: >-
+      if ($env:coverage -eq "yes") {
+        vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
+        php.exe -d curl.cainfo=c:\projects\dbal\cacert.pem ocular.phar code-coverage:upload --format=php-clover clover.xml
+      } else {
+        vendor\bin\phpunit -c $($env:phpunit_config)
       }
