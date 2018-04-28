@@ -637,6 +637,7 @@ class SqlitePlatform extends AbstractPlatform
             'real'             => 'float',
             'serial'           => 'integer',
             'smallint'         => 'smallint',
+            'string'           => 'string',
             'text'             => 'text',
             'time'             => 'time',
             'timestamp'        => 'datetime',
