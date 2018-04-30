@@ -18,6 +18,7 @@ use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_search;
+use function array_values;
 use function count;
 use function current;
 use function end;
@@ -25,6 +26,7 @@ use function explode;
 use function get_class;
 use function in_array;
 use function str_replace;
+use function strcasecmp;
 use function strlen;
 use function strtolower;
 use function substr;
@@ -1453,5 +1455,38 @@ class SchemaManagerFunctionalTestCase extends \Doctrine\Tests\DbalFunctionalTest
         self::assertSame($sequence2Name, $actualSequence2->getName());
         self::assertEquals($sequence2AllocationSize, $actualSequence2->getAllocationSize());
         self::assertEquals($sequence2InitialValue, $actualSequence2->getInitialValue());
+    }
+
+    /**
+     * @group #3086
+     */
+    public function testComparisonWithAutoDetectedSequenceDefinition() : void
+    {
+        if (! $this->_sm->getDatabasePlatform()->supportsSequences()) {
+            self::markTestSkipped('This test is only supported on platforms that support sequences.');
+        }
+
+        $sequenceName           = 'sequence_auto_detect_test';
+        $sequenceAllocationSize = 5;
+        $sequenceInitialValue   = 10;
+        $sequence               = new Sequence($sequenceName, $sequenceAllocationSize, $sequenceInitialValue);
+
+        $this->_sm->dropAndCreateSequence($sequence);
+
+        $createdSequence = array_values(
+            array_filter(
+                $this->_sm->listSequences(),
+                function (Sequence $sequence) use ($sequenceName) : bool {
+                    return strcasecmp($sequence->getName(), $sequenceName) === 0;
+                }
+            )
+        )[0] ?? null;
+
+        self::assertNotNull($createdSequence);
+
+        $comparator = new Comparator();
+        $tableDiff  = $comparator->diffSequence($createdSequence, $sequence);
+
+        self::assertFalse($tableDiff);
     }
 }
