@@ -30,6 +30,7 @@ Contents:
    reference/portability
    reference/caching
    reference/known-vendor-issues
+   reference/upgrading
 
 Indices and tables
 ==================
