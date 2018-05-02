@@ -20,6 +20,8 @@
 namespace Doctrine\DBAL\Connections;
 
 use Doctrine\DBAL\Connection;
+use Exception;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Configuration;
 use Doctrine\Common\EventManager;
@@ -109,6 +111,7 @@ class MasterSlaveConnection extends Connection
      * @param \Doctrine\Common\EventManager|null $eventManager
      *
      * @throws \InvalidArgumentException
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function __construct(array $params, Driver $driver, Configuration $config = null, EventManager $eventManager = null)
     {
@@ -373,7 +376,13 @@ class MasterSlaveConnection extends Connection
             $logger->startQuery($args[0]);
         }
 
-        $statement = $this->_conn->query(...$args);
+        try {
+            $statement = $this->_conn->query(...$args);
+        } catch (Exception $ex) {
+            throw DBALException::driverExceptionDuringQuery($this->_driver, $ex, $args[0]);
+        }
+
+        $statement->setFetchMode($this->defaultFetchMode);
 
         if ($logger) {
             $logger->stopQuery();
