@@ -311,7 +311,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
             $sequence += $data;
         }
 
-        return new Sequence($sequenceName, $sequence['increment_by'], $sequence['min_value']);
+        return new Sequence($sequenceName, (int) $sequence['increment_by'], (int) $sequence['min_value']);
     }
 
     /**
