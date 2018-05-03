@@ -5,6 +5,7 @@ namespace Doctrine\Tests\DBAL\Driver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MariaDb1027Platform;
 use Doctrine\DBAL\Platforms\MySQL57Platform;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Schema\MySqlSchemaManager;
 
@@ -63,6 +64,9 @@ class AbstractMySQLDriverTest extends AbstractDriverTest
             ['5.7.8', MySqlPlatform::class],
             ['5.7.9', MySQL57Platform::class],
             ['5.7.10', MySQL57Platform::class],
+            ['8', MySQL80Platform::class],
+            ['8.0', MySQL80Platform::class],
+            ['8.0.11', MySQL80Platform::class],
             ['6', MySQL57Platform::class],
             ['10.0.15-MariaDB-1~wheezy', MySqlPlatform::class],
             ['5.5.5-10.1.25-MariaDB', MySqlPlatform::class],
