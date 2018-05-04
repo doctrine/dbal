@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\Exception\NamespaceAlreadyExists;
+use Doctrine\DBAL\Schema\Exception\SequenceAlreadyExists;
+use Doctrine\DBAL\Schema\Exception\SequenceDoesNotExist;
+use Doctrine\DBAL\Schema\Exception\TableAlreadyExists;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\DropSchemaSqlCollector;
 use Doctrine\DBAL\Schema\Visitor\NamespaceVisitor;
@@ -104,7 +109,7 @@ class Schema extends AbstractAsset
         $tableName     = $table->getFullQualifiedName($this->getName());
 
         if (isset($this->_tables[$tableName])) {
-            throw SchemaException::tableAlreadyExists($tableName);
+            throw TableAlreadyExists::new($tableName);
         }
 
         if ($namespaceName !== null
@@ -128,7 +133,7 @@ class Schema extends AbstractAsset
         $seqName       = $sequence->getFullQualifiedName($this->getName());
 
         if (isset($this->_sequences[$seqName])) {
-            throw SchemaException::sequenceAlreadyExists($seqName);
+            throw SequenceAlreadyExists::new($seqName);
         }
 
         if ($namespaceName !== null
@@ -171,7 +176,7 @@ class Schema extends AbstractAsset
     {
         $tableName = $this->getFullQualifiedAssetName($tableName);
         if (! isset($this->_tables[$tableName])) {
-            throw SchemaException::tableDoesNotExist($tableName);
+            throw TableDoesNotExist::new($tableName);
         }
 
         return $this->_tables[$tableName];
@@ -270,7 +275,7 @@ class Schema extends AbstractAsset
     {
         $sequenceName = $this->getFullQualifiedAssetName($sequenceName);
         if (! $this->hasSequence($sequenceName)) {
-            throw SchemaException::sequenceDoesNotExist($sequenceName);
+            throw SequenceDoesNotExist::new($sequenceName);
         }
 
         return $this->_sequences[$sequenceName];
@@ -298,7 +303,7 @@ class Schema extends AbstractAsset
         $unquotedNamespaceName = strtolower($this->getUnquotedAssetName($namespaceName));
 
         if (isset($this->namespaces[$unquotedNamespaceName])) {
-            throw SchemaException::namespaceAlreadyExists($unquotedNamespaceName);
+            throw NamespaceAlreadyExists::new($unquotedNamespaceName);
         }
 
         $this->namespaces[$unquotedNamespaceName] = $namespaceName;
