@@ -3,6 +3,8 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 /**
  * Immutable type of {@see DateTimeType}.
@@ -33,7 +35,7 @@ class DateTimeImmutableType extends DateTimeType
             return $value->format($platform->getDateTimeFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType(
+        throw InvalidType::new(
             $value,
             $this->getName(),
             ['null', \DateTimeImmutable::class]
@@ -56,7 +58,7 @@ class DateTimeImmutableType extends DateTimeType
         }
 
         if (! $dateTime) {
-            throw ConversionException::conversionFailedFormat(
+            throw InvalidFormat::new(
                 $value,
                 $this->getName(),
                 $platform->getDateTimeFormatString()

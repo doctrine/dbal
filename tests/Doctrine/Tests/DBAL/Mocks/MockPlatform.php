@@ -4,6 +4,7 @@ namespace Doctrine\Tests\DBAL\Mocks;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 
 class MockPlatform extends AbstractPlatform
 {
@@ -12,7 +13,7 @@ class MockPlatform extends AbstractPlatform
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw NotSupported::new(__METHOD__);
     }
 
     public function getBooleanTypeDeclarationSQL(array $columnDef) {}

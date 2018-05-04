@@ -3,6 +3,11 @@
 namespace Doctrine\DBAL;
 
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Exception\DriverRequired;
+use Doctrine\DBAL\Exception\InvalidDriverClass;
+use Doctrine\DBAL\Exception\InvalidPdoInstance;
+use Doctrine\DBAL\Exception\InvalidWrapperClass;
+use Doctrine\DBAL\Exception\UnknownDriver;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -138,7 +143,7 @@ final class DriverManager
 
         // check for existing pdo object
         if (isset($params['pdo']) && ! $params['pdo'] instanceof \PDO) {
-            throw DBALException::invalidPdoInstance();
+            throw InvalidPdoInstance::new();
         } elseif (isset($params['pdo'])) {
             $params['pdo']->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $params['driver'] = 'pdo_' . $params['pdo']->getAttribute(\PDO::ATTR_DRIVER_NAME);
@@ -155,7 +160,7 @@ final class DriverManager
             if (is_subclass_of($params['wrapperClass'], $wrapperClass)) {
                $wrapperClass = $params['wrapperClass'];
             } else {
-                throw DBALException::invalidWrapperClass($params['wrapperClass']);
+                throw InvalidWrapperClass::new($params['wrapperClass']);
             }
         }
 
@@ -187,18 +192,18 @@ final class DriverManager
 
         // driver
         if ( ! isset($params['driver']) && ! isset($params['driverClass'])) {
-            throw DBALException::driverRequired();
+            throw DriverRequired::new();
         }
 
         // check validity of parameters
 
         // driver
         if (isset($params['driver']) && ! isset(self::$_driverMap[$params['driver']])) {
-            throw DBALException::unknownDriver($params['driver'], array_keys(self::$_driverMap));
+            throw UnknownDriver::new($params['driver'], array_keys(self::$_driverMap));
         }
 
         if (isset($params['driverClass']) && ! in_array('Doctrine\DBAL\Driver', class_implements($params['driverClass'], true))) {
-            throw DBALException::invalidDriverClass($params['driverClass']);
+            throw InvalidDriverClass::new($params['driverClass']);
         }
     }
 
@@ -398,7 +403,7 @@ final class DriverManager
         // If a schemeless connection URL is given, we require a default driver or default custom driver
         // as connection parameter.
         if (! isset($params['driverClass']) && ! isset($params['driver'])) {
-            throw DBALException::driverRequired($params['url']);
+            throw DriverRequired::new($params['url']);
         }
 
         return $params;

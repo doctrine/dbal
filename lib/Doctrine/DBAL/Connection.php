@@ -2,11 +2,18 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Cache\Exception\NoResultDriverConfigured;
 use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as DriverStatement;
+use Doctrine\DBAL\Exception\CommitFailedRollbackOnly;
+use Doctrine\DBAL\Exception\EmptyCriteriaNotAllowed;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Closure;
+use Doctrine\DBAL\Exception\InvalidPlatformType;
+use Doctrine\DBAL\Exception\MayNotAlterNestedTransactionWithSavepointsInTransaction;
+use Doctrine\DBAL\Exception\NoActiveTransaction;
+use Doctrine\DBAL\Exception\SavepointsNotSupported;
 use Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Driver\Connection as DriverConnection;
@@ -211,7 +218,7 @@ class Connection implements DriverConnection
 
         if (isset($params["platform"])) {
             if ( ! $params['platform'] instanceof Platforms\AbstractPlatform) {
-                throw DBALException::invalidPlatformType($params['platform']);
+                throw InvalidPlatformType::new($params['platform']);
             }
 
             $this->platform = $params["platform"];
@@ -656,7 +663,7 @@ class Connection implements DriverConnection
     public function delete($tableExpression, array $identifier, array $types = [])
     {
         if (empty($identifier)) {
-            throw InvalidArgumentException::fromEmptyCriteria();
+            throw EmptyCriteriaNotAllowed::new();
         }
 
         list($columns, $values, $conditions) = $this->gatherConditions($identifier);
@@ -937,7 +944,7 @@ class Connection implements DriverConnection
     {
         $resultCache = $qcp->getResultCacheDriver() ?: $this->_config->getResultCacheImpl();
         if ( ! $resultCache) {
-            throw CacheException::noResultDriverConfigured();
+            throw NoResultDriverConfigured::new();
         }
 
         list($cacheKey, $realKey) = $qcp->generateCacheKeys($query, $params, $types, $this->getParams());
@@ -1166,11 +1173,11 @@ class Connection implements DriverConnection
     public function setNestTransactionsWithSavepoints($nestTransactionsWithSavepoints)
     {
         if ($this->_transactionNestingLevel > 0) {
-            throw ConnectionException::mayNotAlterNestedTransactionWithSavepointsInTransaction();
+            throw MayNotAlterNestedTransactionWithSavepointsInTransaction::new();
         }
 
         if ( ! $this->getDatabasePlatform()->supportsSavepoints()) {
-            throw ConnectionException::savepointsNotSupported();
+            throw SavepointsNotSupported::new();
         }
 
         $this->_nestTransactionsWithSavepoints = (bool) $nestTransactionsWithSavepoints;
@@ -1232,10 +1239,10 @@ class Connection implements DriverConnection
     public function commit()
     {
         if ($this->_transactionNestingLevel == 0) {
-            throw ConnectionException::noActiveTransaction();
+            throw NoActiveTransaction::new();
         }
         if ($this->_isRollbackOnly) {
-            throw ConnectionException::commitFailedRollbackOnly();
+            throw CommitFailedRollbackOnly::new();
         }
 
         $this->connect();
@@ -1285,7 +1292,7 @@ class Connection implements DriverConnection
     public function rollBack()
     {
         if ($this->_transactionNestingLevel == 0) {
-            throw ConnectionException::noActiveTransaction();
+            throw NoActiveTransaction::new();
         }
 
         $this->connect();
@@ -1325,7 +1332,7 @@ class Connection implements DriverConnection
     public function createSavepoint($savepoint)
     {
         if ( ! $this->getDatabasePlatform()->supportsSavepoints()) {
-            throw ConnectionException::savepointsNotSupported();
+            throw SavepointsNotSupported::new();
         }
 
         $this->_conn->exec($this->platform->createSavePoint($savepoint));
@@ -1343,7 +1350,7 @@ class Connection implements DriverConnection
     public function releaseSavepoint($savepoint)
     {
         if ( ! $this->getDatabasePlatform()->supportsSavepoints()) {
-            throw ConnectionException::savepointsNotSupported();
+            throw SavepointsNotSupported::new();
         }
 
         if ($this->platform->supportsReleaseSavepoints()) {
@@ -1363,7 +1370,7 @@ class Connection implements DriverConnection
     public function rollbackSavepoint($savepoint)
     {
         if ( ! $this->getDatabasePlatform()->supportsSavepoints()) {
-            throw ConnectionException::savepointsNotSupported();
+            throw SavepointsNotSupported::new();
         }
 
         $this->_conn->exec($this->platform->rollbackSavePoint($savepoint));
@@ -1407,7 +1414,7 @@ class Connection implements DriverConnection
     public function setRollbackOnly()
     {
         if ($this->_transactionNestingLevel == 0) {
-            throw ConnectionException::noActiveTransaction();
+            throw NoActiveTransaction::new();
         }
         $this->_isRollbackOnly = true;
     }
@@ -1422,7 +1429,7 @@ class Connection implements DriverConnection
     public function isRollbackOnly()
     {
         if ($this->_transactionNestingLevel == 0) {
-            throw ConnectionException::noActiveTransaction();
+            throw NoActiveTransaction::new();
         }
 
         return $this->_isRollbackOnly;

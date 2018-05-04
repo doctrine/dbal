@@ -12,6 +12,7 @@ use function array_map;
 use function array_values;
 use function call_user_func_array;
 use function count;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 use function func_get_args;
 use function is_array;
 use function is_null;
@@ -782,7 +783,7 @@ abstract class AbstractSchemaManager
      */
     protected function _getPortableSequenceDefinition($sequence)
     {
-        throw DBALException::notSupported('Sequences');
+        throw NotSupported::new('Sequences');
     }
 
     /**

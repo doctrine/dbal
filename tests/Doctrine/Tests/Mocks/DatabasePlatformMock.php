@@ -3,6 +3,7 @@
 namespace Doctrine\Tests\Mocks;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\Exception\NotSupported;
 
 class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
 {
@@ -96,6 +97,6 @@ class DatabasePlatformMock extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
-        throw DBALException::notSupported(__METHOD__);
+        throw NotSupported::new(__METHOD__);
     }
 }

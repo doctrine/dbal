@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function fopen;
 use function fseek;
 use function fwrite;
@@ -43,7 +44,7 @@ class BinaryType extends Type
         }
 
         if ( ! is_resource($value)) {
-            throw ConversionException::conversionFailed($value, self::BINARY);
+            throw ValueNotConvertible::new($value, self::BINARY);
         }
 
         return $value;

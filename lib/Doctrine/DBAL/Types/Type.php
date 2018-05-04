@@ -5,6 +5,9 @@ namespace Doctrine\DBAL\Types;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Types\Exception\TypeNotFound;
+use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
+use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 use function end;
 use function explode;
 use function get_class;
@@ -169,7 +172,7 @@ abstract class Type
     {
         if ( ! isset(self::$_typeObjects[$name])) {
             if ( ! isset(self::$_typesMap[$name])) {
-                throw DBALException::unknownColumnType($name);
+                throw UnknownColumnType::new($name);
             }
             self::$_typeObjects[$name] = new self::$_typesMap[$name]();
         }
@@ -190,7 +193,7 @@ abstract class Type
     public static function addType($name, $className)
     {
         if (isset(self::$_typesMap[$name])) {
-            throw DBALException::typeExists($name);
+            throw TypesAlreadyExists::new($name);
         }
 
         self::$_typesMap[$name] = $className;
@@ -221,7 +224,7 @@ abstract class Type
     public static function overrideType($name, $className)
     {
         if ( ! isset(self::$_typesMap[$name])) {
-            throw DBALException::typeNotFound($name);
+            throw TypeNotFound::new($name);
         }
 
         if (isset(self::$_typeObjects[$name])) {

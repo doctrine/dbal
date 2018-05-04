@@ -3,6 +3,8 @@
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 
 /**
  * DateTime type saving additional timezone information.
@@ -58,7 +60,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
             return $value->format($platform->getDateTimeTzFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType($value, $this->getName(), ['null', 'DateTime']);
+        throw InvalidType::new($value, $this->getName(), ['null', 'DateTime']);
     }
 
     /**
@@ -72,7 +74,7 @@ class DateTimeTzType extends Type implements PhpDateTimeMappingType
 
         $val = \DateTime::createFromFormat($platform->getDateTimeTzFormatString(), $value);
         if ( ! $val) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeTzFormatString());
+            throw InvalidFormat::new($value, $this->getName(), $platform->getDateTimeTzFormatString());
         }
 
         return $val;

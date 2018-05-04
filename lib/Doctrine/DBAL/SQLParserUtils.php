@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Exception\MissingSQLParam;
+use Doctrine\DBAL\Exception\MissingSQLType;
 use const PREG_OFFSET_CAPTURE;
 use function array_fill;
 use function array_key_exists;
@@ -236,9 +238,9 @@ class SQLParserUtils
         }
 
         if ($isParam) {
-            throw SQLParserUtilsException::missingParam($paramName);
+            throw MissingSQLParam::new($paramName);
         }
 
-        throw SQLParserUtilsException::missingType($paramName);
+        throw MissingSQLType::new($paramName);
     }
 }

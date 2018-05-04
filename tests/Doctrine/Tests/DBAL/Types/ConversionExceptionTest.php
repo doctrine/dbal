@@ -3,6 +3,8 @@
 namespace Doctrine\Tests\DBAL\Types;
 
 use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
 use function tmpfile;
 
 class ConversionExceptionTest extends \PHPUnit\Framework\TestCase
@@ -14,7 +16,7 @@ class ConversionExceptionTest extends \PHPUnit\Framework\TestCase
      */
     public function testConversionFailedInvalidTypeWithScalar($scalarValue)
     {
-        $exception = ConversionException::conversionFailedInvalidType($scalarValue, 'foo', ['bar', 'baz']);
+        $exception = InvalidType::new($scalarValue, 'foo', ['bar', 'baz']);
 
         self::assertInstanceOf('Doctrine\DBAL\Types\ConversionException', $exception);
         self::assertRegExp(
@@ -30,7 +32,7 @@ class ConversionExceptionTest extends \PHPUnit\Framework\TestCase
      */
     public function testConversionFailedInvalidTypeWithNonScalar($nonScalar)
     {
-        $exception = ConversionException::conversionFailedInvalidType($nonScalar, 'foo', ['bar', 'baz']);
+        $exception = InvalidType::new($nonScalar, 'foo', ['bar', 'baz']);
 
         self::assertInstanceOf('Doctrine\DBAL\Types\ConversionException', $exception);
         self::assertRegExp(
@@ -44,7 +46,7 @@ class ConversionExceptionTest extends \PHPUnit\Framework\TestCase
     {
         $previous = new \Exception();
 
-        $exception = ConversionException::conversionFailedFormat('foo', 'bar', 'baz', $previous);
+        $exception = InvalidFormat::new('foo', 'bar', 'baz', $previous);
 
         self::assertInstanceOf('Doctrine\DBAL\Types\ConversionException', $exception);
         self::assertSame($previous, $exception->getPrevious());

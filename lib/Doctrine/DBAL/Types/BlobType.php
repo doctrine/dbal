@@ -4,6 +4,7 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function fopen;
 use function fseek;
 use function fwrite;
@@ -42,7 +43,7 @@ class BlobType extends Type
         }
 
         if ( ! is_resource($value)) {
-            throw ConversionException::conversionFailed($value, self::BLOB);
+            throw ValueNotConvertible::new($value, self::BLOB);
         }
 
         return $value;
