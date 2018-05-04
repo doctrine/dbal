@@ -7,6 +7,8 @@ namespace Doctrine\DBAL\Query;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Query\Exception\NonUniqueAlias;
+use Doctrine\DBAL\Query\Exception\UnknownAlias;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use function array_key_exists;
@@ -1181,7 +1183,7 @@ class QueryBuilder
     {
         foreach ($this->sqlParts['join'] as $fromAlias => $joins) {
             if (! isset($knownAliases[$fromAlias])) {
-                throw QueryException::unknownAlias($fromAlias, array_keys($knownAliases));
+                throw UnknownAlias::new($fromAlias, array_keys($knownAliases));
             }
         }
     }
@@ -1339,7 +1341,7 @@ class QueryBuilder
         if (isset($this->sqlParts['join'][$fromAlias])) {
             foreach ($this->sqlParts['join'][$fromAlias] as $join) {
                 if (array_key_exists($join['joinAlias'], $knownAliases)) {
-                    throw QueryException::nonUniqueAlias($join['joinAlias'], array_keys($knownAliases));
+                    throw NonUniqueAlias::new($join['joinAlias'], array_keys($knownAliases));
                 }
                 $sql                             .= ' ' . strtoupper($join['joinType'])
                     . ' JOIN ' . $join['joinTable'] . ' ' . $join['joinAlias']
