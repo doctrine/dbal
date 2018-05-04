@@ -8,6 +8,8 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\DriverException as InnerDriverException;
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Exception\DriverRequired;
+use Doctrine\DBAL\Exception\InvalidPlatformType;
 use Doctrine\Tests\DbalTestCase;
 use Exception;
 use stdClass;
@@ -49,7 +51,7 @@ class DBALExceptionTest extends DbalTestCase
     public function testDriverRequiredWithUrl() : void
     {
         $url       = 'mysql://localhost';
-        $exception = DBALException::driverRequired($url);
+        $exception = DriverRequired::new($url);
 
         self::assertInstanceOf(DBALException::class, $exception);
         self::assertSame(
@@ -67,7 +69,7 @@ class DBALExceptionTest extends DbalTestCase
      */
     public function testInvalidPlatformTypeObject() : void
     {
-        $exception = DBALException::invalidPlatformType(new stdClass());
+        $exception = InvalidPlatformType::new(new stdClass());
 
         self::assertSame(
             "Option 'platform' must be a subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform', instance of 'stdClass' given",
@@ -80,7 +82,7 @@ class DBALExceptionTest extends DbalTestCase
      */
     public function testInvalidPlatformTypeScalar() : void
     {
-        $exception = DBALException::invalidPlatformType('some string');
+        $exception = InvalidPlatformType::new('some string');
 
         self::assertSame(
             "Option 'platform' must be an object and subtype of 'Doctrine\DBAL\Platforms\AbstractPlatform'. Got 'string'",

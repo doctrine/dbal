@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Types\Exception\TypeAlreadyRegistered;
+use Doctrine\DBAL\Types\Exception\TypeNotFound;
+use Doctrine\DBAL\Types\Exception\TypeNotRegistered;
+use Doctrine\DBAL\Types\Exception\TypesAlreadyExists;
+use Doctrine\DBAL\Types\Exception\UnknownColumnType;
 use function array_search;
 use function in_array;
 
@@ -27,7 +32,7 @@ final class TypeRegistry
     public function get(string $name) : Type
     {
         if (! isset($this->instances[$name])) {
-            throw DBALException::unknownColumnType($name);
+            throw UnknownColumnType::new($name);
         }
 
         return $this->instances[$name];
@@ -43,7 +48,7 @@ final class TypeRegistry
         $name = $this->findTypeName($type);
 
         if ($name === null) {
-            throw DBALException::typeNotRegistered($type);
+            throw TypeNotRegistered::new($type);
         }
 
         return $name;
@@ -65,11 +70,11 @@ final class TypeRegistry
     public function register(string $name, Type $type) : void
     {
         if (isset($this->instances[$name])) {
-            throw DBALException::typeExists($name);
+            throw TypesAlreadyExists::new($name);
         }
 
         if ($this->findTypeName($type) !== null) {
-            throw DBALException::typeAlreadyRegistered($type);
+            throw TypeAlreadyRegistered::new($type);
         }
 
         $this->instances[$name] = $type;
@@ -83,11 +88,11 @@ final class TypeRegistry
     public function override(string $name, Type $type) : void
     {
         if (! isset($this->instances[$name])) {
-            throw DBALException::typeNotFound($name);
+            throw TypeNotFound::new($name);
         }
 
         if (! in_array($this->findTypeName($type), [$name, null], true)) {
-            throw DBALException::typeAlreadyRegistered($type);
+            throw TypeAlreadyRegistered::new($type);
         }
 
         $this->instances[$name] = $type;

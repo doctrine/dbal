@@ -41,6 +41,7 @@ class ObjectTest extends DbalTestCase
     {
         $this->expectException(ConversionException::class);
         $this->expectExceptionMessage("Could not convert database value to 'object' as an error was triggered by the unserialization: 'unserialize(): Error at offset 0 of 7 bytes'");
+
         $this->type->convertToPHPValue('abcdefg', $this->platform);
     }
 
