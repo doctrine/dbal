@@ -6,6 +6,7 @@ namespace Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use function is_resource;
 use function is_string;
 use function stream_get_contents;
@@ -37,7 +38,7 @@ class BinaryType extends Type
         }
 
         if (! is_string($value)) {
-            throw ConversionException::conversionFailed($value, Types::BINARY);
+            throw ValueNotConvertible::new($value, self::BINARY);
         }
 
         return $value;

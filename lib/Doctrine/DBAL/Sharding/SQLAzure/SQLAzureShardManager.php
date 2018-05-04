@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Sharding\SQLAzure;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Sharding\Exception\ActiveTransaction;
+use Doctrine\DBAL\Sharding\Exception\MissingDefaultDistributionKey;
+use Doctrine\DBAL\Sharding\Exception\MissingDefaultFederationName;
+use Doctrine\DBAL\Sharding\Exception\MissingDistributionType;
 use Doctrine\DBAL\Sharding\ShardingException;
 use Doctrine\DBAL\Sharding\ShardManager;
 use Doctrine\DBAL\Types\Type;
@@ -43,15 +47,15 @@ class SQLAzureShardManager implements ShardManager
         $params     = $conn->getParams();
 
         if (! isset($params['sharding']['federationName'])) {
-            throw ShardingException::missingDefaultFederationName();
+            throw MissingDefaultFederationName::new();
         }
 
         if (! isset($params['sharding']['distributionKey'])) {
-            throw ShardingException::missingDefaultDistributionKey();
+            throw MissingDefaultDistributionKey::new();
         }
 
         if (! isset($params['sharding']['distributionType'])) {
-            throw ShardingException::missingDistributionType();
+            throw MissingDistributionType::new();
         }
 
         $this->federationName   = $params['sharding']['federationName'];
@@ -108,7 +112,7 @@ class SQLAzureShardManager implements ShardManager
     public function selectGlobal()
     {
         if ($this->conn->isTransactionActive()) {
-            throw ShardingException::activeTransaction();
+            throw ActiveTransaction::new();
         }
 
         $sql = 'USE FEDERATION ROOT WITH RESET';
@@ -122,7 +126,7 @@ class SQLAzureShardManager implements ShardManager
     public function selectShard($distributionValue)
     {
         if ($this->conn->isTransactionActive()) {
-            throw ShardingException::activeTransaction();
+            throw ActiveTransaction::new();
         }
 
         $platform = $this->conn->getDatabasePlatform();
