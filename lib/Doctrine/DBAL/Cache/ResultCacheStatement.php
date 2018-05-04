@@ -6,8 +6,8 @@ namespace Doctrine\DBAL\Cache;
 
 use ArrayIterator;
 use Doctrine\Common\Cache\Cache;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use IteratorAggregate;
@@ -184,7 +184,7 @@ class ResultCacheStatement implements IteratorAggregate, ResultStatement
         }
 
         if (! array_key_exists($columnIndex, $row)) {
-            throw DBALException::invalidColumnIndex($columnIndex, count($row));
+            throw InvalidColumnIndex::new($columnIndex, count($row));
         }
 
         return $row[$columnIndex];
