@@ -5,7 +5,6 @@ namespace Doctrine\Tests\DBAL\Functional;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\TrimMode;
 use Doctrine\DBAL\Types\Type;
 use const CASE_LOWER;
@@ -531,7 +530,6 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
     {
         $p = $this->_conn->getDatabasePlatform();
         $sql = 'SELECT ';
-        $sql .= $p->getDateDiffExpression('test_datetime', $p->getCurrentTimestampSQL()) .' AS diff, ';
         $sql .= $p->getDateAddSecondsExpression('test_datetime', 1) .' AS add_seconds, ';
         $sql .= $p->getDateSubSecondsExpression('test_datetime', 1) .' AS sub_seconds, ';
         $sql .= $p->getDateAddMinutesExpression('test_datetime', 5) .' AS add_minutes, ';
@@ -553,8 +551,6 @@ class DataAccessTest extends \Doctrine\Tests\DbalFunctionalTestCase
         $row = $this->_conn->fetchAssoc($sql);
         $row = array_change_key_case($row, CASE_LOWER);
 
-        $diff = (strtotime('2010-01-01') - strtotime(date('Y-m-d'))) / 3600 / 24;
-        self::assertEquals($diff, $row['diff'], "Date difference should be approx. ".$diff." days.", 1);
         self::assertEquals('2010-01-01 10:10:11', date('Y-m-d H:i:s', strtotime($row['add_seconds'])), "Adding second should end up on 2010-01-01 10:10:11");
         self::assertEquals('2010-01-01 10:10:09', date('Y-m-d H:i:s', strtotime($row['sub_seconds'])), "Subtracting second should end up on 2010-01-01 10:10:09");
         self::assertEquals('2010-01-01 10:15:10', date('Y-m-d H:i:s', strtotime($row['add_minutes'])), "Adding minutes should end up on 2010-01-01 10:15:10");

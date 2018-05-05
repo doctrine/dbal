@@ -160,14 +160,10 @@ class OraclePlatform extends AbstractPlatform
 
     /**
      * {@inheritDoc}
-     *
-     * Note: Since Oracle timestamp differences are calculated down to the microsecond we have to truncate
-     * them to the difference in days. This is obviously a restriction of the original functionality, but we
-     * need to make this a portable function.
      */
     public function getDateDiffExpression($date1, $date2)
     {
-        return "TRUNC(TO_NUMBER(SUBSTR((" . $date1 . "-" . $date2 . "), 1, INSTR(" . $date1 . "-" . $date2 .", ' '))))";
+        return sprintf('TRUNC(%s) - TRUNC(%s)', $date1, $date2);
     }
 
     /**
