@@ -15,8 +15,8 @@ class DateExpressionTest extends DbalFunctionalTestCase
     public function testDifference(string $date1, string $date2, int $expected) : void
     {
         $table = new Table('date_expr_test');
-        $table->addColumn('date1', 'date');
-        $table->addColumn('date2', 'date');
+        $table->addColumn('date1', 'datetime');
+        $table->addColumn('date2', 'datetime');
         $this->_conn->getSchemaManager()->dropAndCreateTable($table);
         $this->_conn->insert('date_expr_test', [
             'date1' => $date1,

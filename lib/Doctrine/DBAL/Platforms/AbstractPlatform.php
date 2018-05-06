@@ -299,7 +299,11 @@ abstract class AbstractPlatform
 
         $fixed = $field['fixed'] ?? false;
 
-        if ($field['length'] > $this->getVarcharMaxLength()) {
+        $maxLength = $fixed
+            ? $this->getCharMaxLength()
+            : $this->getVarcharMaxLength();
+
+        if ($field['length'] > $maxLength) {
             return $this->getClobTypeDeclarationSQL($field);
         }
 
@@ -592,6 +596,14 @@ abstract class AbstractPlatform
     public function getSqlCommentEndString()
     {
         return "\n";
+    }
+
+    /**
+     * Gets the maximum length of a char field.
+     */
+    public function getCharMaxLength() : int
+    {
+        return $this->getVarcharMaxLength();
     }
 
     /**

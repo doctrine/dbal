@@ -14,8 +14,9 @@ sudo docker run \
     ibmcom/db2express-c:10.5.0.5-3.10.0 \
     db2start
 
-sleep 5
+sleep 15
 
-sudo docker exec db2 su - db2inst1 -c 'db2 create db doctrine'
+sudo docker exec db2 su - db2inst1 -c \
+    'db2 CREATE DB doctrine && db2 CONNECT TO doctrine && db2 CREATE USER TEMPORARY TABLESPACE doctrine_tbsp PAGESIZE 4 K'
 
 echo DB2 started
