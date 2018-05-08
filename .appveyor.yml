@@ -128,7 +128,7 @@ test_script:
   - ps: >-
       if ($env:coverage -eq "yes") {
         vendor\bin\phpunit -c $($env:phpunit_config) --coverage-clover clover.xml
-        php.exe -d curl.cainfo=c:\projects\dbal\cacert.pem ocular.phar code-coverage:upload --format=php-clover clover.xml
+        appveyor-retry php -d curl.cainfo=c:\projects\dbal\cacert.pem ocular.phar code-coverage:upload --format=php-clover clover.xml
       } else {
         vendor\bin\phpunit -c $($env:phpunit_config)
       }
