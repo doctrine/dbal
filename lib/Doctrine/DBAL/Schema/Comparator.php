@@ -193,7 +193,7 @@ class Comparator
             return true;
         }
 
-        return $sequence1->getInitialValue() !== $sequence2->getInitialValue();
+        return $sequence1->getInitialValue() != $sequence2->getInitialValue();
     }
 
     /**
