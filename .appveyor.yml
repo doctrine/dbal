@@ -121,7 +121,7 @@ install:
     - cd C:\projects\dbal
     - rm composer.lock
     - appveyor-retry composer self-update
-    - appveyor-retry composer install --no-progress --profile
+    - appveyor-retry composer install --no-progress --prefer-dist
 
 before_test:
 # Selectively start the services
