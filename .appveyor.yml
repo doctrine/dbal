@@ -13,8 +13,7 @@ cache:
   - C:\tools\cacert -> .appveyor.yml
   - C:\tools\composer -> .appveyor.yml
   - C:\tools\ocular -> .appveyor.yml
-  - '%LOCALAPPDATA%\Composer\files'
-  #- vendor
+  - '%LOCALAPPDATA%\Composer\files -> composer.json'
 
 ## Build matrix for lowest and highest possible targets
 environment:
