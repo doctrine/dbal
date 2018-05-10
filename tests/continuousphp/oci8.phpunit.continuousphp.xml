@@ -6,6 +6,7 @@
          beStrictAboutTodoAnnotatedTests="true"
          failOnRisky="true"
          failOnWarning="true"
+         bootstrap="bootstrap.php"
 >
   <php>
     <ini name="error_reporting" value="-1" />
